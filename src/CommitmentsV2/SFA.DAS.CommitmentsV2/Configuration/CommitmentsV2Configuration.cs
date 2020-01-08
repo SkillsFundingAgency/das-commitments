@@ -19,5 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Configuration
         /// An ISO-formatted string date representation for test override, or any other non-empty value for the real current datetime
         /// </summary>
         public string CurrentDateTime { get; set; }
+        public string ReadonlyDatabaseConnectionString { get; set; }
     }
 }

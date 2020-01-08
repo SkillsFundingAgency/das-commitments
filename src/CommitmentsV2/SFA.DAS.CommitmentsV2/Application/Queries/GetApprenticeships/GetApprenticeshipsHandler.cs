@@ -15,11 +15,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 {
     public class GetApprenticeshipsHandler : IRequestHandler<GetApprenticeshipsRequest, GetApprenticeshipsResponse>
     {
-        private readonly IProviderCommitmentsDbContext _dbContext;
+        private readonly ICommitmentsReadOnlyDbContext _dbContext;
         private readonly IMapper<Apprenticeship, ApprenticeshipDetails> _mapper;
 
         public GetApprenticeshipsHandler(
-            IProviderCommitmentsDbContext dbContext,
+            ICommitmentsReadOnlyDbContext dbContext,
             IMapper<Apprenticeship, ApprenticeshipDetails> mapper)
         {
             _dbContext = dbContext;

@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsRequest request,
             List<Apprenticeship> apprenticeships,
             ApprenticeshipDetails apprenticeshipDetails,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsHandler handler)
         {
@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_No_Sort_Term_Then_Apprentices_Are_Default_Sorted(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -154,7 +154,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_No_Sort_Term_And_Is_Reverse_Sorted_Then_Apprentices_Are_Default_Sorted(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -207,7 +207,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Apprentices_Are_Sorted_Name(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -286,7 +286,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_Name(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -365,7 +365,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Apprentices_Are_Sorted_By_Uln(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -426,7 +426,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Uln(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -487,7 +487,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Apprentices_Are_Sorted_By_Employer_Name(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -548,7 +548,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Employer_Name(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -609,7 +609,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Apprentices_Are_Sorted_By_Course_Name(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -671,7 +671,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Course_Name(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -733,7 +733,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Apprentices_Are_Sorted_By_Planned_Start_Date(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -797,7 +797,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Planned_Start_Date(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -861,7 +861,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Apprentices_Are_Sorted_By_Planned_End_Date(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -925,7 +925,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Planned_End_Date(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -989,7 +989,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Apprentices_Are_Sorted_By_Payment_Status(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -1056,7 +1056,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Payment_Status(
 GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -1124,7 +1124,7 @@ GetApprenticeshipsRequest request,
         public async Task Then_Apprentices_Are_First_Sorted_By_Alerts(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
