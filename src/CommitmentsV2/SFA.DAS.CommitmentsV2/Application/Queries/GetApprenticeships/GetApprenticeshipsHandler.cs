@@ -192,8 +192,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 var filteredApprenticeships = 
                     apprenticeships
                         .Where(x =>
-                        x.EndDate >= DateTime.UtcNow.AddMonths(-12).Date &&
-                        x.PaymentStatus == PaymentStatus.Completed)
+                        x.EndDate >= DateTime.UtcNow.AddMonths(-12).Date ||
+                        x.PaymentStatus != PaymentStatus.Completed)
                     .ToList();
 
                 apprenticeships = filteredApprenticeships;
