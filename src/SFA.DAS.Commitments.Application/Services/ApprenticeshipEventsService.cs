@@ -50,7 +50,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
             _logger.Info($"Publishing {existingApprenticeships.Count()} apprenticeship agreement updates");
 
-            var apprenticeshipEventsListV2 = _apprenticeshipEventsList.Events.ToList();
+            var apprenticeshipEventsListV2 = _apprenticeshipEventsList.Events?.ToList();
 
             await Task.WhenAll(
                 _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList), 
