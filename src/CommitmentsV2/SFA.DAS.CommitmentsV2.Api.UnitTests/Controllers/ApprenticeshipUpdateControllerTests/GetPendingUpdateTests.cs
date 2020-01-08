@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
             public void VerifyResult()
             {
                 Assert.IsInstanceOf<OkObjectResult>(Result);
-                var resultObject = (OkObjectResult) Result;
+                var resultObject = (OkObjectResult)Result;
                 Assert.IsInstanceOf<GetApprenticeshipUpdateResponse>(resultObject.Value);
                 Assert.AreSame(MapperResult, resultObject.Value);
             }
@@ -111,3 +111,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
         }
     }
 }
+
+
+
+
+
