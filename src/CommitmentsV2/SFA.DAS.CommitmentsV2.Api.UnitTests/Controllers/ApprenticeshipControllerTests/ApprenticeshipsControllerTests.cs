@@ -72,6 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Arrange
             const uint providerId = 10;
             const int expectedTotalApprenticeshipsFound = 10;
+            const int expectedTotalApprenticeshipsWithAlertsFound = 3;
 
             var expectedApprenticeship = new ApprenticeshipDetails
             {
@@ -90,7 +91,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Queries.GetApprenticeships.GetApprenticeshipsResponse
             {
                     Apprenticeships = new []{ expectedApprenticeship},
-                    TotalApprenticeshipsFound = expectedTotalApprenticeshipsFound
+                    TotalApprenticeshipsFound = expectedTotalApprenticeshipsFound,
+                    TotalApprenticeshipsWithAlertsFound = expectedTotalApprenticeshipsWithAlertsFound
             });
 
             //Act
@@ -117,6 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             Assert.AreEqual(expectedApprenticeship.Alerts, actualApprenticeship.Alerts);
             
             Assert.AreEqual(expectedTotalApprenticeshipsFound, response.TotalApprenticeshipsFound);
+            Assert.AreEqual(expectedTotalApprenticeshipsWithAlertsFound, response.TotalApprenticeshipsWithAlertsFound);
         }
 
         [Test]
