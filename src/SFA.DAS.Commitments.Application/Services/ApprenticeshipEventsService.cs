@@ -49,16 +49,19 @@ namespace SFA.DAS.Commitments.Application.Services
             });
 
             _logger.Info($"Publishing {existingApprenticeships.Count()} apprenticeship agreement updates");
+
+            var apprenticeshipEventsListV2 = _apprenticeshipEventsList.Events.ToList();
+
             await Task.WhenAll(
                 _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList), 
-                PublishAllFinalApprovalEventsToV2(_apprenticeshipEventsList));
+                PublishAllFinalApprovalEventsToV2(apprenticeshipEventsListV2));
         }
 
-        private Task PublishAllFinalApprovalEventsToV2(IApprenticeshipEventsList apprenticeshipEventsList)
+        private Task PublishAllFinalApprovalEventsToV2(IEnumerable<IApprenticeshipEvent> apprenticeshipEvents)
         {
-            if (apprenticeshipEventsList.Events == null || !apprenticeshipEventsList.Events.Any() ) return Task.CompletedTask;
+            if (apprenticeshipEvents == null || !apprenticeshipEvents.Any()) return Task.CompletedTask;
 
-            var tasks = apprenticeshipEventsList.Events.Select(x => _v2EventsPublisher.PublishApprenticeshipCreated(x));
+            var tasks = apprenticeshipEvents.Select(x => _v2EventsPublisher.PublishApprenticeshipCreated(x));
             return Task.WhenAll(tasks);
         }
 
