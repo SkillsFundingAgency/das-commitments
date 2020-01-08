@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
@@ -10,33 +11,28 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
     {
         public Task<GetApprenticeshipUpdateResponse> Map(GetApprenticeshipUpdateQueryResult source)
         {
-            GetApprenticeshipUpdateResponse.ApprenticeshipUpdate apprenticeshipUpdate = null;
+            GetApprenticeshipUpdateResponse response = null;
 
-            if (source?.PendingApprenticeshipUpdate != null)
+            if (source != null)
             {
-                var update = source.PendingApprenticeshipUpdate;
-
-                apprenticeshipUpdate = new GetApprenticeshipUpdateResponse.ApprenticeshipUpdate
+                response = new GetApprenticeshipUpdateResponse
                 {
-                    Id = update.Id,
-                    ApprenticeshipId = update.ApprenticeshipId,
-                    Originator = update.Originator,
-                    FirstName = update.FirstName,
-                    LastName = update.LastName,
-                    TrainingType = update.TrainingType,
-                    TrainingCode = update.TrainingCode,
-                    TrainingName = update.TrainingName,
-                    Cost = update.Cost,
-                    StartDate = update.StartDate,
-                    EndDate = update.EndDate,
-                    DateOfBirth = update.DateOfBirth
+                    Id = source.Id,
+                    ApprenticeshipId = source.ApprenticeshipId,
+                    Party = source.Originator.ToParty(),
+                    FirstName = source.FirstName,
+                    LastName = source.LastName,
+                    TrainingType = source.TrainingType,
+                    TrainingCode = source.TrainingCode,
+                    TrainingName = source.TrainingName,
+                    Cost = source.Cost,
+                    StartDate = source.StartDate,
+                    EndDate = source.EndDate,
+                    DateOfBirth = source.DateOfBirth
                 };
             }
 
-            return Task.FromResult(new GetApprenticeshipUpdateResponse
-            {
-                PendingApprenticeshipUpdate = apprenticeshipUpdate
-            });
+            return Task.FromResult(response);
         }
     }
 }

@@ -19,13 +19,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
 
         public async Task<GetApprenticeshipUpdateQueryResult> Handle(GetApprenticeshipUpdateQuery request, CancellationToken cancellationToken)
         {
-            GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate apprenticeshipUpdate = null;
             var update = await _dbContext.Value.ApprenticeshipUpdates.FirstOrDefaultAsync(
                     x => x.ApprenticeshipId == request.ApprenticeshipId && x.Status == ApprenticeshipUpdateStatus.Pending, cancellationToken);
 
             if (update != null)
             {
-                apprenticeshipUpdate = new GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate
+                return new GetApprenticeshipUpdateQueryResult
                 {
                     Id = update.Id,
                     ApprenticeshipId = update.ApprenticeshipId,
@@ -42,10 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
                 };
             }
 
-            return new GetApprenticeshipUpdateQueryResult
-            {
-                PendingApprenticeshipUpdate = apprenticeshipUpdate
-            };
+            return null;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         }
 
         [Test]
-        public async Task Handle_ThenShouldReturnResultWithValueForApprenticeshipUpdate()
+        public async Task Handle_ThenShouldReturnResultWithValues()
         {
             _fixture.SeedData();
             await _fixture.Handle();
@@ -30,12 +30,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         }
 
         [Test]
-        public async Task Handle_ThenShouldReturnResultWithNullForApprenticeshipUpdate()
+        public async Task Handle_ThenShouldReturnResultAsNull()
         {
             _fixture.SeedData().WithNoMatchingApprenticeshipUpdates();
             var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
-            Assert.IsNull(result.PendingApprenticeshipUpdate);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -94,11 +93,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
             public void VerifyResultMapping()
             {
-                AssertEquality(_apprenticeshipUpdate, _result.PendingApprenticeshipUpdate);
+                AssertEquality(_apprenticeshipUpdate, _result);
             }
         }
 
-        private static void AssertEquality(ApprenticeshipUpdate source, GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate result)
+        private static void AssertEquality(ApprenticeshipUpdate source, GetApprenticeshipUpdateQueryResult result)
         {
             Assert.AreEqual(source.Id, result.Id);
 

@@ -4,22 +4,23 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
     /// <summary>
     ///     Base class for testing mappers that do not have a parameterless constructor
     /// </summary>
-    public class MapperTester<TFrom, TTo>
+    public class OldMapperTester<TFrom, TTo>
         where TFrom : class
         where TTo : class
     {
-        protected Func<IMapper<TFrom, TTo>> MapperCreator { get; set; }
+        protected Func<IOldMapper<TFrom, TTo>> MapperCreator { get; set; }
 
-        protected IMapper<TFrom, TTo> CreateMapper()
+        protected IOldMapper<TFrom, TTo> CreateMapper()
         {
             if (MapperCreator == null)
             {
@@ -130,12 +131,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     /// <summary>
     ///     Base class for testing mappers that have a parameterless constructor
     /// </summary>
-    public class MapperTester<TMapper, TFrom, TTo> : MapperTester<TFrom, TTo>
-        where TMapper : IMapper<TFrom, TTo>, new()
+    public class OldMapperTester<TMapper, TFrom, TTo> : OldMapperTester<TFrom, TTo>
+        where TMapper : IOldMapper<TFrom, TTo>, new()
         where TFrom : class
         where TTo : class
     {
-        public MapperTester()
+        public OldMapperTester()
         {
             MapperCreator = () => new TMapper();
         }
