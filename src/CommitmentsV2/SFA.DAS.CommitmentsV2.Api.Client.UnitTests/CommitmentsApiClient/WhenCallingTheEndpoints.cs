@@ -206,11 +206,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField=&reverseSort=False", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField=&reverseSort=False&isDownload=False", null, CancellationToken.None));
         }
 
         [Test]
-        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilter()
+        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithSort()
         {
             //Arrange
             var expectedProviderId = (uint)10;
@@ -220,11 +220,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}&reverseSort=False", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}&reverseSort=False&isDownload=False", null, CancellationToken.None));
         }
 
         [Test]
-        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilterAndReverse()
+        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithSortAndReverse()
         {
             //Arrange
             var expectedProviderId = (uint)10;
@@ -235,7 +235,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField, reverseSort);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}&reverseSort={reverseSort}", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}&reverseSort={reverseSort}&isDownload=False", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithDownload()
+        {
+            //Arrange
+            var expectedProviderId = (uint)10;
+            var isDownload = true;
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, isDownload:isDownload);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField=&reverseSort=False&isDownload={isDownload}", null, CancellationToken.None));
         }
 
         [Test]

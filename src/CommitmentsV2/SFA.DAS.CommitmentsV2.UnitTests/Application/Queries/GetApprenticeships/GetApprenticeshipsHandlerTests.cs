@@ -1183,5 +1183,125 @@ GetApprenticeshipsRequest request,
             Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(1).ApprenticeLastName);
             Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(2).ApprenticeLastName);
         }
+
+        [Test, MoqAutoData]
+        public async Task And_Is_Download_Then_Returns_Apprenticeships(
+            GetApprenticeshipsRequest request,
+            ApprenticeshipDetails apprenticeshipDetails,
+            Mock<IAlertsMapper> alertsMapper,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper)
+        {
+            //Arrange
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    FirstName = "AA",
+                    LastName = "XX",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(-11),
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PaymentStatus = PaymentStatus.Completed
+                },
+                new Apprenticeship
+                {
+                    FirstName = "BB",
+                    LastName = "XX",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(13),
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PaymentStatus = PaymentStatus.Completed
+                },
+                new Apprenticeship
+                {
+                    FirstName = "CC",
+                    LastName = "XX",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(-24),
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PaymentStatus = PaymentStatus.Completed
+                },
+                new Apprenticeship
+                {
+                    FirstName = "DD",
+                    LastName = "XX",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(-12),
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PaymentStatus = PaymentStatus.Completed
+                },
+                new Apprenticeship
+                {
+                    FirstName = "EE",
+                    LastName = "XX",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(-13),
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PaymentStatus = PaymentStatus.Completed
+                },
+                new Apprenticeship
+                {
+                    FirstName = "FF",
+                    LastName = "XX",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PaymentStatus = PaymentStatus.Completed
+                }
+            };
+            apprenticeships[0].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[2].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[3].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[4].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[5].Cohort.ProviderId = request.ProviderId;
+
+            request.ReverseSort = false;
+            request.SortField = "";
+            request.IsDownload = true;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+
+            //Act
+            var actual = await handler.Handle(request, CancellationToken.None);
+
+            //Assert
+            Assert.AreEqual(4, actual.Apprenticeships.Count());
+            Assert.AreEqual("AA", actual.Apprenticeships.ElementAt(0).ApprenticeFirstName);
+            Assert.AreEqual("BB", actual.Apprenticeships.ElementAt(1).ApprenticeFirstName);
+            Assert.AreEqual("DD", actual.Apprenticeships.ElementAt(2).ApprenticeFirstName);
+            Assert.AreEqual("FF", actual.Apprenticeships.ElementAt(3).ApprenticeFirstName);
+        }
     }
 }

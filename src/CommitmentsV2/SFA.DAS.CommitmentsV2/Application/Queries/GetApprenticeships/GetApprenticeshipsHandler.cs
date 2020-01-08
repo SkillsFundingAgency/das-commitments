@@ -34,19 +34,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             if (!string.IsNullOrEmpty(request.SortField) && request.SortField != nameof(Apprenticeship.DataLockStatus) && request.ReverseSort)
             {
-                matched = (List<Apprenticeship>) await ApprenticeshipsReverseOrderedByField(cancellationToken, request.ProviderId, request.SortField);
+                matched = (List<Apprenticeship>) await ApprenticeshipsReverseOrderedByField(cancellationToken, request.ProviderId, request.SortField, request.IsDownload);
             }
             else if (!string.IsNullOrEmpty(request.SortField) && request.SortField != nameof(Apprenticeship.DataLockStatus))
             {
-                matched = (List<Apprenticeship>) await ApprenticeshipsOrderedByField(cancellationToken, request.ProviderId, request.SortField);
+                matched = (List<Apprenticeship>) await ApprenticeshipsOrderedByField(cancellationToken, request.ProviderId, request.SortField, request.IsDownload);
             }
             else if (string.IsNullOrEmpty(request.SortField) && request.ReverseSort)
             {
-                matched = (List<Apprenticeship>) await ApprenticeshipsByReverseDefaultOrder(cancellationToken, request.ProviderId);
+                matched = (List<Apprenticeship>) await ApprenticeshipsByReverseDefaultOrder(cancellationToken, request.ProviderId, request.IsDownload);
             }
             else
             {
-                matched = (List<Apprenticeship>) await ApprenticeshipsByDefaultOrder(cancellationToken, request.ProviderId);
+                matched = (List<Apprenticeship>) await ApprenticeshipsByDefaultOrder(cancellationToken, request.ProviderId, request.IsDownload);
             }
 
             foreach (var apprenticeship in matched)
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             };
         }
 
-        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsByDefaultOrder(CancellationToken cancellationToken, long? providerId)
+        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsByDefaultOrder(CancellationToken cancellationToken, long? providerId, bool isDownload)
         {
             var apprenticeshipsWithAlerts = await _dbContext
                 .Apprenticeships
@@ -91,12 +91,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             apprenticeshipsWithAlerts.AddRange(apprenticeshipsWithoutAlerts);
 
+            apprenticeshipsWithAlerts = FormatForDownload(apprenticeshipsWithAlerts, isDownload);
+
             return apprenticeshipsWithAlerts;
         }
 
-        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsByReverseDefaultOrder(CancellationToken cancellationToken, long? providerId)
+        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsByReverseDefaultOrder(CancellationToken cancellationToken, long? providerId, bool isDownload)
         {
-            var apprentices = await _dbContext
+            var apprenticeships = await _dbContext
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
                 .OrderByDescending(x => x.PendingUpdateOriginator != null)
@@ -109,10 +111,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .ToListAsync(cancellationToken);
-            return apprentices;
+
+            apprenticeships = FormatForDownload(apprenticeships, isDownload);
+
+            return apprenticeships;
         }
 
-        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsOrderedByField(CancellationToken cancellationToken,long? providerId, string fieldName)
+        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsOrderedByField(CancellationToken cancellationToken,long? providerId, string fieldName, bool isDownload)
         {
             var apprenticeships = await _dbContext
                 .Apprenticeships
@@ -122,10 +127,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .ToListAsync(cancellationToken);
+
+            apprenticeships = FormatForDownload(apprenticeships, isDownload);
+
             return apprenticeships;
         }
 
-        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsReverseOrderedByField(CancellationToken cancellationToken, long? providerId, string fieldName)
+        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsReverseOrderedByField(CancellationToken cancellationToken, long? providerId, string fieldName, bool isDownload)
         {
             var apprenticeships = await _dbContext
                 .Apprenticeships
@@ -135,6 +143,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .ToListAsync(cancellationToken);
+
+            apprenticeships = FormatForDownload(apprenticeships, isDownload);
+
             return apprenticeships;
         }
 
@@ -172,6 +183,23 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 default:
                     return GetOrderByField(fieldName);
             }
+        }
+
+        private List<Apprenticeship> FormatForDownload(List<Apprenticeship> apprenticeships, bool isDownload)
+        {
+            if (isDownload)
+            {
+                var filteredApprenticeships = 
+                    apprenticeships
+                        .Where(x =>
+                        x.EndDate >= DateTime.UtcNow.AddMonths(-12).Date &&
+                        x.PaymentStatus == PaymentStatus.Completed)
+                    .ToList();
+
+                apprenticeships = filteredApprenticeships;
+            }
+
+            return apprenticeships;
         }
     }
 }
