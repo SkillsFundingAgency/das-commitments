@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
+using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -43,9 +46,23 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     return NotFound();
                 }
 
-                return Ok(new CommitmentsV2.Types.GetApprenticeshipsResponse
+                //TODO: Remove this mapping once we have consolidated the old Types with the new API types
+                var mappedApprenticeships = response.Apprenticeships.Select(x => new ApprenticeshipDetails
                 {
-                    Apprenticeships = response.Apprenticeships,
+                    ApprenticeFirstName = x.ApprenticeFirstName,
+                    ApprenticeLastName = x.ApprenticeLastName,
+                    Uln = x.Uln,
+                    EmployerName = x.EmployerName,
+                    CourseName = x.CourseName,
+                    PlannedStartDate = x.PlannedStartDate,
+                    PlannedEndDateTime = x.PlannedEndDateTime,
+                    PaymentStatus = x.PaymentStatus,
+                    Alerts = x.Alerts
+                });
+
+                return Ok(new GetApprenticeshipsResponse
+                {
+                    Apprenticeships = mappedApprenticeships,
                     TotalApprenticeshipsFound = response.TotalApprenticeshipsFound
                 });
             }
