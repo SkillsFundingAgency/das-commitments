@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             return _dbContext.Apprenticeships
                 .Include(apprenticeship => apprenticeship.Cohort)
-                .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
                 .Select(apprenticeship => apprenticeship.Cohort.LegalEntityName)
                 .Distinct()
                 .ToListAsync(cancellationToken);
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             return _dbContext.Apprenticeships
                 .Include(apprenticeship => apprenticeship.Cohort)
-                .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
                 .Select(apprenticeship => apprenticeship.CourseName)
                 .Distinct()
                 .ToListAsync(cancellationToken);
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             return _dbContext.Apprenticeships
                 .Include(apprenticeship => apprenticeship.Cohort)
-                .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
                 .Select(apprenticeship => apprenticeship.Cohort.CommitmentStatus)
                 .Distinct()
                 .Select(status => Enum.GetName(typeof(CommitmentStatus), status))
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             return _dbContext.Apprenticeships
                 .Include(apprenticeship => apprenticeship.Cohort)
-                .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
                 .Select(apprenticeship => apprenticeship.StartDate.HasValue ? apprenticeship.StartDate.Value.ToString("dd/MM/yyyy") : "N/A")
                 .ToListAsync(cancellationToken);
         }
@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             return _dbContext.Apprenticeships
                 .Include(apprenticeship => apprenticeship.Cohort)
-                .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
                 .Select(apprenticeship => apprenticeship.EndDate.HasValue ? apprenticeship.EndDate.Value.ToString("dd/MM/yyyy") : "N/A")
                 .ToListAsync(cancellationToken);
         }
