@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
     [TestFixture]
     public class DeleteDraftApprenticeshipRequestToDeleteDraftApprenticeshipCommandMapperTests :
-        MapperTester<DeleteDraftApprenticeshipRequestToDeleteDraftApprenticeshipCommandMapper,
+        OldMapperTester<DeleteDraftApprenticeshipRequestToDeleteDraftApprenticeshipCommandMapper,
         DeleteDraftApprenticeshipRequest,
         DeleteDraftApprenticeshipCommand>
     {

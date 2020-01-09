@@ -8,6 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<ApprenticeshipUpdate> builder)
         {
+            builder.ToTable("ApprenticeshipUpdate");
+
             builder.Property(e => e.Cost).HasColumnType("decimal(18, 0)");
             builder.Property(e => e.CreatedOn).HasColumnType("datetime");
             builder.Property(e => e.DateOfBirth).HasColumnType("datetime");
@@ -19,6 +21,9 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.StartDate).HasColumnType("datetime");
             builder.Property(e => e.TrainingCode).HasMaxLength(20);
             builder.Property(e => e.TrainingName).HasMaxLength(126);
+            builder.Property(e => e.Originator).IsRequired().HasColumnType("tinyint");
+            builder.Property(e => e.Status).IsRequired().HasColumnType("tinyint");
+            builder.Property(e => e.UpdateOrigin).HasColumnType("tinyint");
         }
     }
 }

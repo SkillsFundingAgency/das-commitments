@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return BadRequest(ModelState.CreateErrorResponse());
             }
 
-            var employer = await _mediator.Send(new GetAccountLegalEntityRequest
+            var employer = await _mediator.Send(new GetAccountLegalEntityQuery
             {
                 AccountLegalEntityId = accountLegalEntityId
             });
