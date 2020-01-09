@@ -63,7 +63,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return Ok(new GetApprenticeshipsResponse
                 {
                     Apprenticeships = mappedApprenticeships,
-                    TotalApprenticeshipsFound = response.TotalApprenticeshipsFound
+                    TotalApprenticeshipsFound = response.TotalApprenticeshipsFound,
+                    TotalApprenticeshipsWithAlertsFound = response.TotalApprenticeshipsWithAlertsFound
                 });
             }
             catch (Exception e)
