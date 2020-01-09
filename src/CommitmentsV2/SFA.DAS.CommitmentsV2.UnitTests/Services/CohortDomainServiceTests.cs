@@ -51,7 +51,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyCohortCreation(party);
         }
 
-        [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task CreateCohort_CreatingPartyWithTransferSenderId_Creates_Cohort(Party party)
         {
@@ -886,8 +885,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
-                        DraftApprenticeshipDetails, UserInfo));
+                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), UserInfo));
                 }
 
                 if (party == Party.Employer)
