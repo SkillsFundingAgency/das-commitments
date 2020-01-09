@@ -22,9 +22,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
-            approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[2].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
             approvedApprenticeships[2].Cohort.LegalEntityName = approvedApprenticeships[1].Cohort.LegalEntityName;
 
             var expectedEmployerNames = new[]
@@ -46,9 +46,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
-            approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[2].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
             approvedApprenticeships[2].CourseName = approvedApprenticeships[1].CourseName;
 
             var expectedCourseNames = new[]
@@ -70,9 +70,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
-            approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[2].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
             approvedApprenticeships[2].Cohort.CommitmentStatus = approvedApprenticeships[1].Cohort.CommitmentStatus;
 
             var expectedStatuses = new[]
@@ -97,9 +97,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
-            approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[2].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
             approvedApprenticeships[2].StartDate = approvedApprenticeships[1].StartDate;
 
             var expectedStartDates = new[]
@@ -124,9 +124,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
-            approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
-            approvedApprenticeships[2].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
             approvedApprenticeships[2].EndDate = approvedApprenticeships[1].EndDate;
 
             var expectedEndDates = new[]
