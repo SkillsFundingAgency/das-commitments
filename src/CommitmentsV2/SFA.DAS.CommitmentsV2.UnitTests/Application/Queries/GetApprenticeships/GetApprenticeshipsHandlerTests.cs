@@ -1274,19 +1274,6 @@ GetApprenticeshipsRequest request,
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
                     PaymentStatus = PaymentStatus.Completed
-                },
-                new Apprenticeship
-                {
-                    FirstName = "GG",
-                    LastName = "XX",
-                    Uln = "XX",
-                    CourseName = "XX",
-                    StartDate = DateTime.UtcNow,
-                    EndDate = DateTime.UtcNow.AddMonths(-24),
-                    ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PaymentStatus = PaymentStatus.Active
                 }
             };
             apprenticeships[0].Cohort.ProviderId = request.ProviderId;
@@ -1295,7 +1282,6 @@ GetApprenticeshipsRequest request,
             apprenticeships[3].Cohort.ProviderId = request.ProviderId;
             apprenticeships[4].Cohort.ProviderId = request.ProviderId;
             apprenticeships[5].Cohort.ProviderId = request.ProviderId;
-            apprenticeships[6].Cohort.ProviderId = request.ProviderId;
 
             request.ReverseSort = false;
             request.SortField = "";
@@ -1311,12 +1297,11 @@ GetApprenticeshipsRequest request,
             var actual = await handler.Handle(request, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual(5, actual.Apprenticeships.Count());
+            Assert.AreEqual(4, actual.Apprenticeships.Count());
             Assert.AreEqual("AA", actual.Apprenticeships.ElementAt(0).ApprenticeFirstName);
             Assert.AreEqual("BB", actual.Apprenticeships.ElementAt(1).ApprenticeFirstName);
             Assert.AreEqual("DD", actual.Apprenticeships.ElementAt(2).ApprenticeFirstName);
             Assert.AreEqual("FF", actual.Apprenticeships.ElementAt(3).ApprenticeFirstName);
-            Assert.AreEqual("GG", actual.Apprenticeships.ElementAt(4).ApprenticeFirstName);
         }
     }
 }
