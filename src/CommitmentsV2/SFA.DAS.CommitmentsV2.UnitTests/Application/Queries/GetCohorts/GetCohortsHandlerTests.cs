@@ -242,7 +242,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase("SFA.DAS.Commitments.Database")
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
             using (var dbContext = new ProviderCommitmentsDbContext(options))
