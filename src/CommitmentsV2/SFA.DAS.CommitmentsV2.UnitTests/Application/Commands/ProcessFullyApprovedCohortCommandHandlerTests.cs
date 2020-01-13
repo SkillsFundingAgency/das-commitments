@@ -108,7 +108,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeships(bool isFundedByTransfer)
         {
-            var cohortBuilder = AutoFixture.Build<Cohort>().Without(c => c.Apprenticeships).With(x=> x.IsDeleted, false);
+            var provider = new Provider {Name = "Test Provider"};
+            var account = new Account(1, "", "", "", DateTime.UtcNow);
+            var accountLegalEntity = new AccountLegalEntity(account, 1, 1, "", "", "Test Employer", OrganisationType.Charities, "", DateTime.UtcNow);
+
+            var cohortBuilder = AutoFixture.Build<Cohort>()
+                .Without(c => c.Apprenticeships)
+                .With(c => c.AccountLegalEntity, accountLegalEntity)
+                .With(c => c.Provider, provider)
+                .With(x => x.IsDeleted, false);
 
             if (!isFundedByTransfer)
             {
@@ -125,6 +133,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var approvedApprenticeships2 = new[] { approvedApprenticeship1, approvedApprenticeship2, approvedApprenticeship3 };
             
             ApprovedApprenticeships.AddRange(approvedApprenticeships1);
+            Db.Object.AccountLegalEntities.Add(accountLegalEntity);
+            Db.Object.Providers.Add(provider);
             Db.Object.ApprovedApprenticeships.AddRange(approvedApprenticeships2);
             Db.Object.SaveChanges();
             
@@ -138,8 +148,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.AgreedOn == approvedApprenticeship.AgreedOn.Value &&
                           apprenticeshipCreatedEvent.AccountId == approvedApprenticeship.Cohort.EmployerAccountId &&
                           apprenticeshipCreatedEvent.AccountLegalEntityPublicHashedId == approvedApprenticeship.Cohort.AccountLegalEntityPublicHashedId &&
-                          apprenticeshipCreatedEvent.LegalEntityName == approvedApprenticeship.Cohort.LegalEntityName &&
-                          apprenticeshipCreatedEvent.ProviderId == approvedApprenticeship.Cohort.ProviderId.Value &&
+                          apprenticeshipCreatedEvent.LegalEntityName == approvedApprenticeship.Cohort.AccountLegalEntity.Name &&
+                          apprenticeshipCreatedEvent.ProviderId == approvedApprenticeship.Cohort.Provider.UkPrn &&
                           apprenticeshipCreatedEvent.TransferSenderId == approvedApprenticeship.Cohort.TransferSenderId &&
                           apprenticeshipCreatedEvent.ApprenticeshipEmployerTypeOnApproval == apprenticeshipEmployerType &&
                           apprenticeshipCreatedEvent.Uln == approvedApprenticeship.Uln &&

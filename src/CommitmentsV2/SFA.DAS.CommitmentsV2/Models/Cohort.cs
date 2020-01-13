@@ -147,6 +147,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Message> Messages { get; set; }
         public virtual ICollection<TransferRequest> TransferRequests { get; set; }
 
+        public virtual AccountLegalEntity AccountLegalEntity { get; set; }
+        public virtual Provider Provider { get; set; }
+
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
         public int DraftApprenticeshipCount => DraftApprenticeships.Count();
