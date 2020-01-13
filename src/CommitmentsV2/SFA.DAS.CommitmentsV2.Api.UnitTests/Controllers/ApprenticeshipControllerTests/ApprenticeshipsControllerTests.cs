@@ -76,13 +76,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var expectedApprenticeship = new ApprenticeshipDetails
             {
-                ApprenticeFirstName = "George",
-                ApprenticeLastName = "Test",
+                FirstName = "George",
+                LastName = "Test",
                 Uln = "12345",
                 EmployerName = "Test Corp",
                 CourseName = "Testing Level 1",
-                PlannedStartDate = DateTime.Now.AddDays(2),
-                PlannedEndDateTime = DateTime.Now.AddMonths(2),
+                StartDate = DateTime.Now.AddDays(2),
+                EndDate = DateTime.Now.AddMonths(2),
                 PaymentStatus = PaymentStatus.Active,
                 Alerts = new []{"one", "two"}
             };
@@ -108,13 +108,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var actualApprenticeship = response.Apprenticeships.First();
 
-            Assert.AreEqual(expectedApprenticeship.ApprenticeFirstName, actualApprenticeship.ApprenticeFirstName);
-            Assert.AreEqual(expectedApprenticeship.ApprenticeLastName, actualApprenticeship.ApprenticeLastName);
+            Assert.AreEqual(expectedApprenticeship.FirstName, actualApprenticeship.FirstName);
+            Assert.AreEqual(expectedApprenticeship.LastName, actualApprenticeship.LastName);
             Assert.AreEqual(expectedApprenticeship.Uln, actualApprenticeship.Uln);
             Assert.AreEqual(expectedApprenticeship.EmployerName, actualApprenticeship.EmployerName);
             Assert.AreEqual(expectedApprenticeship.CourseName, actualApprenticeship.CourseName);
-            Assert.AreEqual(expectedApprenticeship.PlannedStartDate, actualApprenticeship.PlannedStartDate);
-            Assert.AreEqual(expectedApprenticeship.PlannedEndDateTime, actualApprenticeship.PlannedEndDateTime);
+            Assert.AreEqual(expectedApprenticeship.StartDate, actualApprenticeship.StartDate);
+            Assert.AreEqual(expectedApprenticeship.EndDate, actualApprenticeship.EndDate);
             Assert.AreEqual(expectedApprenticeship.PaymentStatus, actualApprenticeship.PaymentStatus);
             Assert.AreEqual(expectedApprenticeship.Alerts, actualApprenticeship.Alerts);
             

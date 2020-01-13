@@ -47,15 +47,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 }
 
                 //TODO: Remove this mapping once we have consolidated the old Types with the new API types
-                var mappedApprenticeships = response.Apprenticeships.Select(x => new ApprenticeshipDetails
+                var mappedApprenticeships = response.Apprenticeships.Select(x => new ApprenticeshipDetailsResponse
                 {
-                    ApprenticeFirstName = x.ApprenticeFirstName,
-                    ApprenticeLastName = x.ApprenticeLastName,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
                     Uln = x.Uln,
                     EmployerName = x.EmployerName,
                     CourseName = x.CourseName,
-                    PlannedStartDate = x.PlannedStartDate,
-                    PlannedEndDateTime = x.PlannedEndDateTime,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
                     PaymentStatus = x.PaymentStatus,
                     Alerts = x.Alerts
                 });
