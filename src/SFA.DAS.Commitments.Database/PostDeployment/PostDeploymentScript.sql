@@ -11,3 +11,19 @@ Post-Deployment Script Template
 */
 
 EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
+
+
+--CV-565: Fix missing AccountLegalEntity LegalEntityId values
+update c
+set c.LegalEntityId = ale.LegalEntityId
+from Commitment c
+join AccountLegalEntities ale on ale.PublicHashedId = c.AccountLegalEntityPublicHashedId
+where c.LegalEntityId = ''
+
+--Update old records that were created before the capture of AccountLegalEntityId
+update c set
+c.AccountLegalEntityId = ale.Id
+from
+Commitment c
+join AccountLegalEntities ale on ale.PublicHashedId = c.AccountLegalEntityPublicHashedId
+where c.AccountLegalEntityId IS NULL
