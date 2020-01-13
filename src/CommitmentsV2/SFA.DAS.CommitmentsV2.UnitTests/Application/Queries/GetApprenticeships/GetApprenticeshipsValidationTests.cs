@@ -13,7 +13,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         {
             // arrange
             var validator = new GetApprenticeshipsValidator();
-            var validationResults = validator.Validate(new GetApprenticeshipsRequest {ProviderId = id});
+            var validationResults = validator.Validate(new GetApprenticeshipsRequest
+            {
+                ProviderId = id,
+                PageNumber = 1,
+                PageItemCount = 1
+            });
 
             // act
             var actualIsValid = validationResults.IsValid;
@@ -26,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [TestCase(null,true)]
         [TestCase("",true)]
         [TestCase(nameof(Apprenticeship.FirstName),true)]
-        //[TestCase(nameof(Apprenticeship.Cohort.LegalEntityName),true)]
+        [TestCase(nameof(Apprenticeship.Cohort.LegalEntityName),true)]
         public void Validate_WithSpecifiedSortField_ShouldOnlyBeAllowedIfPropertyOnApprenticeship(string fieldName, bool expected)
         {
             // arrange
@@ -34,7 +39,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var validationResults = validator.Validate(new GetApprenticeshipsRequest
             {
                 ProviderId = 1, 
-                SortField = fieldName
+                SortField = fieldName,
+                PageNumber = 1,
+                PageItemCount = 1
             });
 
             // act

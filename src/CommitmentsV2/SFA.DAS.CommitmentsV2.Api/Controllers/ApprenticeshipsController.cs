@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
+using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -24,20 +27,44 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{providerId}")]
-        public async Task<IActionResult> GetApprenticeships(uint providerId, [FromQuery]string sortField = "", [FromQuery]bool reverseSort = false)
+        public async Task<IActionResult> GetApprenticeships(Types.Requests.GetApprenticeshipRequest request)
         {
             try
             {
-                var response = await _mediator.Send(
-                    new GetApprenticeshipsRequest {ProviderId = providerId, SortField = sortField, ReverseSort = reverseSort});
+                var response = await _mediator.Send(new GetApprenticeshipsRequest
+                {
+                    ProviderId = request.ProviderId.HasValue ? (uint)request.ProviderId.Value : 0, 
+                    PageNumber = request.PageNumber, 
+                    PageItemCount = request.PageItemCount, 
+                    SortField = request.SortField,
+					ReverseSort = request.ReverseSort
+                });
 
                 if (response == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(response.Apprenticeships);
+                //TODO: Remove this mapping once we have consolidated the old Types with the new API types
+                var mappedApprenticeships = response.Apprenticeships.Select(x => new ApprenticeshipDetails
+                {
+                    ApprenticeFirstName = x.ApprenticeFirstName,
+                    ApprenticeLastName = x.ApprenticeLastName,
+                    Uln = x.Uln,
+                    EmployerName = x.EmployerName,
+                    CourseName = x.CourseName,
+                    PlannedStartDate = x.PlannedStartDate,
+                    PlannedEndDateTime = x.PlannedEndDateTime,
+                    PaymentStatus = x.PaymentStatus,
+                    Alerts = x.Alerts
+                });
+
+                return Ok(new GetApprenticeshipsResponse
+                {
+                    Apprenticeships = mappedApprenticeships,
+                    TotalApprenticeshipsFound = response.TotalApprenticeshipsFound,
+                    TotalApprenticeshipsWithAlertsFound = response.TotalApprenticeshipsWithAlertsFound
+                });
             }
             catch (Exception e)
             {

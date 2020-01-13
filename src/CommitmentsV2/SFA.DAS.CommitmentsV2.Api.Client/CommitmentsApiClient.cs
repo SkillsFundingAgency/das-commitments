@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.Http;
@@ -46,9 +45,32 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
         }
 
-        public Task<IEnumerable<Types.Responses.ApprenticeshipDetails>> GetApprenticeships(uint providerId, string sortField = "", bool reverseSort = false, CancellationToken cancellationToken = default)
+        public Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{providerId}?sortField={sortField}&reverseSort={reverseSort}", null, cancellationToken);
+            var pageQuery = "";
+            var sortField = "";
+
+            if (request.PageNumber > 0)
+            {
+                pageQuery += $"pageNumber={request.PageNumber}";
+            }
+
+            if (request.PageItemCount > 0)
+            {
+                pageQuery += $"{(!string.IsNullOrEmpty(pageQuery)?"&" : "")}pageItemCount={request.PageItemCount}";
+            }
+
+            if (!string.IsNullOrEmpty(pageQuery))
+            {
+                pageQuery = $"&{pageQuery}";
+            }
+
+            if (!string.IsNullOrEmpty(request.SortField))
+            {
+                sortField = $"&sortField={request.SortField}";
+            }
+            return _client.Get<GetApprenticeshipsResponse>(
+                $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}{sortField}{pageQuery}", null, cancellationToken);
         }
 
         public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
