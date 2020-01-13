@@ -18,12 +18,12 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
             return Task.FromResult(new ApprenticeshipDetails
             {
                 Id = source.Id,
-                ApprenticeFirstName = source.FirstName,
-                ApprenticeLastName = source.LastName,
+                FirstName = source.FirstName,
+                LastName = source.LastName,
                 CourseName = source.CourseName,
                 EmployerName = source.Cohort.LegalEntityName,
-                PlannedStartDate = source.StartDate.GetValueOrDefault(),
-                PlannedEndDateTime = source.EndDate.GetValueOrDefault(),
+                StartDate = source.StartDate.GetValueOrDefault(),
+                EndDate = source.EndDate.GetValueOrDefault(),
                 PaymentStatus = source.PaymentStatus,
                 Uln = source.Uln,
                 Alerts = _alertsMapper.Map(source)
