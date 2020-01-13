@@ -33,10 +33,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             AccountLegalEntityId = accountLegalEntity.Id;
             ProviderId = provider.UkPrn;
             TransferSenderId = transferSender?.Id;
-            TransferSenderName = transferSender?.Name;
 
             //Setting of these fields is here for backwards-compatibility only
             ProviderName = provider.Name;
+            TransferSenderName = transferSender?.Name;
             LegalEntityId = accountLegalEntity.LegalEntityId;
             LegalEntityName = accountLegalEntity.Name;
             LegalEntityAddress = accountLegalEntity.Address;
@@ -149,6 +149,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual AccountLegalEntity AccountLegalEntity { get; set; }
         public virtual Provider Provider { get; set; }
+        public virtual Account TransferSender { get; set; }
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
