@@ -11,6 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public string Uln { get; set; }
         public long ProviderId { get; set; }
         public long AccountId { get; set; }
+        public long AccountLegalEntityId { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public string LegalEntityName { get; set; }
         public DateTime StartDate { get; set; }

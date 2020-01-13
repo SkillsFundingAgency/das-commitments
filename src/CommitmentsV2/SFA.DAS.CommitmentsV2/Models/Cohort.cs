@@ -32,11 +32,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             EmployerAccountId = accountLegalEntity.AccountId;
             AccountLegalEntityId = accountLegalEntity.Id;
             ProviderId = provider.UkPrn;
-            ProviderName = provider.Name;
             TransferSenderId = transferSender?.Id;
             TransferSenderName = transferSender?.Name;
 
             //Setting of these fields is here for backwards-compatibility only
+            ProviderName = provider.Name;
             LegalEntityId = accountLegalEntity.LegalEntityId;
             LegalEntityName = accountLegalEntity.Name;
             LegalEntityAddress = accountLegalEntity.Address;
