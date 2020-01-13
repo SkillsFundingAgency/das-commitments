@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<CreateCohortResponse> CreateCohort(CreateCohortWithOtherPartyRequest request, CancellationToken cancellationToken = default);
         Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId, CancellationToken cancellationToken = default);
         Task<GetDraftApprenticeshipsResponse> GetDraftApprenticeships(long cohortId, CancellationToken cancellationToken = default);
-        Task<GetApprenticeshipsResponse> GetApprenticeships(uint providerId, int pageNumber = default, int pageItemCount = default, string sortField = default, bool reverseSort = default, CancellationToken cancellationToken = default);
+        Task<GetApprenticeshipsResponse> GetApprenticeships(long providerId, int pageNumber = default, int pageItemCount = default, string sortField = default, bool reverseSort = default, CancellationToken cancellationToken = default);
         Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default);
         Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
         Task<GetProviderResponse> GetProvider(long providerId, CancellationToken cancellationToken = default);

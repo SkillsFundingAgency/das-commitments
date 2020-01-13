@@ -212,8 +212,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndPageNumberIsCorrectPassedIn()
         {
             //Arrange
-            var expectedProviderId = (uint) 10;
-            var expectedPageNumber = 2;
+            const long expectedProviderId = 10;
+            const int expectedPageNumber = 2;
            
 
             //Act
@@ -228,8 +228,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndPagItemCountIsCorrectPassedIn()
         {
             //Arrange
-            var expectedProviderId = (uint) 10;
-            var expectedPageItemCount = 3;
+            const long expectedProviderId = 10;
+            const int expectedPageItemCount = 3;
            
 
             //Act
@@ -243,9 +243,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndPageDataIsCorrectPassedIn()
         {
             //Arrange
-            var expectedProviderId = (uint) 10;
-            var expectedPageNumber = 2;
-            var expectedPageItemCount = 3;
+            const long expectedProviderId = 10;
+            const int expectedPageNumber = 2;
+            const int expectedPageItemCount = 3;
 
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, expectedPageNumber, expectedPageItemCount);
@@ -259,8 +259,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilter()
         {
             //Arrange
-            var expectedProviderId = (uint)10;
-            var sortField = "test";
+            const long expectedProviderId = 10;
+            const string sortField = "test";
 
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField:sortField);
@@ -273,9 +273,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilterAndReverse()
         {
             //Arrange
-            var expectedProviderId = (uint)10;
-            var sortField = "test";
-            var reverseSort = true;
+            const long expectedProviderId = 10;
+            const string sortField = "test";
+            const bool reverseSort = true;
              
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField:sortField, reverseSort:reverseSort);
