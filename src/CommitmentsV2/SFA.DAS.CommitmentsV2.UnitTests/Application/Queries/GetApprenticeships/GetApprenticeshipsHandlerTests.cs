@@ -1600,7 +1600,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             return apprenticeships;
         }
 
-        private static void AssignProviderToApprenticeships(uint providerId, IEnumerable<Apprenticeship> apprenticeships)
+        private static void AssignProviderToApprenticeships(long providerId, IEnumerable<Apprenticeship> apprenticeships)
         {
             foreach (var apprenticeship in apprenticeships)
             {

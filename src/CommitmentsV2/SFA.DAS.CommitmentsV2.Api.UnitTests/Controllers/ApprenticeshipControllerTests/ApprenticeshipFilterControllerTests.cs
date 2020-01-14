@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         public async Task GetApprovedApprentices()
         {
             //Arrange
-            var providerId = (uint) 10;
+            var providerId = 10;
 
             //Act
             await _controller.GetApprenticeshipsFilterValues(providerId);
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         public async Task ReturnApprovedApprentices()
         {
             //Arrange
-            var providerId = (uint)10;
+            var providerId = 10;
             var expectedResponse = new GetApprenticeshipsFilterValuesResponse
             {
                 EmployerNames = new[] {"Test 1", "Test 2"},
