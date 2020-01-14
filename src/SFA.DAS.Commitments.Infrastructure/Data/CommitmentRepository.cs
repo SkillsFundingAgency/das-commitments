@@ -15,6 +15,7 @@ using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using Message = SFA.DAS.Commitments.Domain.Entities.Message;
 using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
@@ -158,18 +159,7 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
 
         public async Task SetPaymentOrder(long accountId)
         {
-            await WithConnection(async c =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@employerAccountId", accountId);
-
-                var returnCode = await c.ExecuteAsync(
-                    sql: "[dbo].[SetPaymentOrder]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-
-                return returnCode;
-            });
+            await Task.CompletedTask;
         }
 
         public async Task DeleteCommitment(long commitmentId)
