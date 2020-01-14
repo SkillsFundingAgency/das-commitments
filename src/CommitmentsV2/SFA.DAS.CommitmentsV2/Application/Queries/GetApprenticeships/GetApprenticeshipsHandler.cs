@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             ApprenticeshipSearchResult searchResult;
 
-            if (string.IsNullOrEmpty(request.SortField))
+            if (string.IsNullOrEmpty(request.SortField) || request.SortField == "DataLockStatus")
             {
                 searchResult = await ApprenticeshipsByDefaultOrder(cancellationToken, request.ProviderId, request.PageNumber, request.PageItemCount, request.ReverseSort);
             }

@@ -238,6 +238,62 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
+        public async Task And_Sorted_By_Alerts_And_Is_Reverse_Sorted_Then_Apprentices_Are_Default_Sorted(
+            GetApprenticeshipsRequest request,
+            Mock<IAlertsMapper> alertsMapper,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            request.SortField = "DataLockStatus";
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
+            request.ReverseSort = true;
+
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    FirstName = "XX",
+                    LastName = "Should_Be_Second",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PendingUpdateOriginator = Originator.Unknown
+                },
+                new Apprenticeship
+                {
+                    FirstName = "XX",
+                    LastName = "Should_Be_First",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PendingUpdateOriginator = Originator.Provider
+                }
+            };
+
+            AssignProviderToApprenticeships(request.ProviderId, apprenticeships);
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+
+            //Act
+            var actual = await handler.Handle(request, CancellationToken.None);
+
+            //Assert
+            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).LastName);
+            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(1).LastName);
+        }
+
+        [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Return_Per_Page(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
