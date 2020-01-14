@@ -43,10 +43,12 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
 
         private async Task<IEndpointInstance> StartNServiceBus(string connectionString)
         {
+
             Console.WriteLine("Starting NServiceBus...");
             var endpointConfiguration = new EndpointConfiguration(Constants.NameSpace)
-                .UseNewtonsoftJsonSerializer()
-                .UseInstallers();
+                .UseInstallers()
+                .UseMessageConventions()
+                .UseNewtonsoftJsonSerializer();
 
             if (string.IsNullOrWhiteSpace(connectionString))
             {
