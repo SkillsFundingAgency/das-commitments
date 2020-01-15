@@ -16,6 +16,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using Message = SFA.DAS.CommitmentsV2.Models.Message;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 {
