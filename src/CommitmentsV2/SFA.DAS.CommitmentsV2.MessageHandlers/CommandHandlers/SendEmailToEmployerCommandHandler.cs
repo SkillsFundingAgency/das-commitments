@@ -14,7 +14,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
     {
         private const string Owner = "Owner";
         private const string Transactor = "Transactor";
-        private const string ReplyTo = "noreply@sfa.gov.uk";
 
         private readonly ILogger<SendEmailToEmployerCommandHandler> _logger;
         private readonly IAccountApiClient _accountApiClient;
@@ -36,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 
             try
             {
-                List<string> emails = new List<string>();
+                var emails = new List<string>();
                 var users = await _accountApiClient.GetAccountUsers(message.AccountId);
 
                 if (string.IsNullOrWhiteSpace(message.EmailAddress))
@@ -55,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                 if (emails.Any())
                 {
                     await Task.WhenAll(emails.Select(email =>
-                        context.Send(new SendEmailCommand(message.Template, email, ReplyTo, message.Tokens))));
+                        context.Send(new SendEmailCommand(message.Template,  email, message.Tokens))));
                 }
             }
             catch (Exception e)
