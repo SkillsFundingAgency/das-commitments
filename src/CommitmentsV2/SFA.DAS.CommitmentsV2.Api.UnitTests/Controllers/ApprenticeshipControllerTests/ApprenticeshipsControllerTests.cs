@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture.NUnit3;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Testing.AutoFixture;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 
 
@@ -32,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test]
-        public async Task GetApprovedApprentices()
+        public async Task GetApprentices()
         {
             //Arrange
             var request = new GetApprenticeshipRequest
@@ -50,16 +52,35 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        [Test]
-        public async Task GetApprovedApprenticesByPage()
+        [Test, MoqAutoData]
+        public async Task GetFilterApprenticeships([Frozen]GetApprenticeshipRequest request)
         {
             //Arrange
-            var request = new GetApprenticeshipRequest
-            {
-                ProviderId = 10,
-                PageNumber = 4,
-                PageItemCount = 17
-            };
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
+            request.ReverseSort = false;
+            request.AccountId = null;
+
+            //Act
+            await _controller.GetApprenticeships(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<GetApprenticeshipsRequest>(r => 
+                   r.SearchFilters.EmployerName.Equals(request.EmployerName) &&
+                   r.SearchFilters.CourseName.Equals(request.CourseName) &&
+                   r.SearchFilters.Status.Equals(request.Status) &&
+                   r.SearchFilters.StartDate.Equals(request.StartDate) &&
+                   r.SearchFilters.EndDate.Equals(request.EndDate)), 
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task GetApprenticesByPage([Frozen]GetApprenticeshipRequest request)
+        {
+            //Arrange
+            request.ReverseSort = false;
+            request.AccountId = null;
 
             //Act
             await _controller.GetApprenticeships(request);
@@ -73,6 +94,27 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
+        [Test, MoqAutoData]
+        public async Task GetFilterApprenticeshipsByPage([Frozen]GetApprenticeshipRequest request)
+        {
+            //Arrange
+            request.ReverseSort = false;
+            request.AccountId = null;
+
+            //Act
+            await _controller.GetApprenticeships(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<GetApprenticeshipsRequest>(r => 
+                    r.SearchFilters.EmployerName.Equals(request.EmployerName) &&
+                    r.SearchFilters.CourseName.Equals(request.CourseName) &&
+                    r.SearchFilters.Status.Equals(request.Status) &&
+                    r.SearchFilters.StartDate.Equals(request.StartDate) &&
+                    r.SearchFilters.EndDate.Equals(request.EndDate)), 
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
         [Test]
         public async Task ReturnApprovedApprentices()
         {
@@ -81,6 +123,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             {
                 ProviderId = 10
             };
+
             const int expectedTotalApprenticeshipsFound = 10;
             const int expectedTotalApprenticeshipsWithAlertsFound = 3;
 

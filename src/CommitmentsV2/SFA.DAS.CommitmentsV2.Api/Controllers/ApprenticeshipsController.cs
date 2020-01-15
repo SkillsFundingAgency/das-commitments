@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
+using SFA.DAS.CommitmentsV2.Models;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -31,13 +32,23 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             try
             {
+                var filterValues = new ApprenticeshipSearchFilters
+                {
+                    EmployerName = request.EmployerName,
+                    CourseName = request.CourseName,
+                    Status = request.Status,
+                    StartDate = request.StartDate,
+                    EndDate = request.EndDate
+                };
+
                 var response = await _mediator.Send(new GetApprenticeshipsRequest
                 {
                     ProviderId = request.ProviderId ?? 0, 
                     PageNumber = request.PageNumber, 
                     PageItemCount = request.PageItemCount, 
                     SortField = request.SortField,
-					ReverseSort = request.ReverseSort
+					ReverseSort = request.ReverseSort,
+                    SearchFilters = filterValues
                 });
 
                 if (response == null)
