@@ -66,7 +66,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
         {
             var apprenticeships = await _dbContext
                 .Apprenticeships
-                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId && apprenticeship.PendingUpdateOriginator != null)
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId
+                                         && apprenticeship.DataLockStatus.Any(
+                                             c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3))
                 .OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
@@ -79,7 +81,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             
             var apprenticeshipsWithoutAlerts = await _dbContext
                 .Apprenticeships
-                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId && apprenticeship.PendingUpdateOriginator == null)
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId
+                                         && !apprenticeship.DataLockStatus.Any(
+                                             c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3))
                 .OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
@@ -132,7 +136,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId);
 
-            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(app => app.PendingUpdateOriginator != null, cancellationToken);
+            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(apprenticeship =>
+                apprenticeship.Cohort.ProviderId == providerId
+                && apprenticeship.DataLockStatus.Any(
+                    c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3), cancellationToken);
 
             apprenticeshipsQuery = apprenticeshipsQuery
                 .OrderBy(GetOrderByField(fieldName))
@@ -152,7 +159,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId);
 
-            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(app => app.PendingUpdateOriginator != null, cancellationToken);
+            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(apprenticeship =>
+                apprenticeship.Cohort.ProviderId == providerId
+                && apprenticeship.DataLockStatus.Any(
+                    c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3), cancellationToken);
 
             apprenticeshipsQuery = apprenticeshipsQuery
                 .OrderByDescending(GetOrderByField(fieldName))

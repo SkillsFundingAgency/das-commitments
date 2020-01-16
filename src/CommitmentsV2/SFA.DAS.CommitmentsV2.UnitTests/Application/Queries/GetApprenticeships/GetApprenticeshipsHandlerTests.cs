@@ -205,8 +205,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PendingUpdateOriginator = Originator.Unknown
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1}}
                 },
                 new Apprenticeship
                 {
@@ -217,8 +216,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PendingUpdateOriginator = Originator.Provider
+                    DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
@@ -1556,8 +1554,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
-                    PendingUpdateOriginator = Originator.Employer,
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
                 },
                 new Apprenticeship
                 {
@@ -1568,8 +1565,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
-                    PendingUpdateOriginator = Originator.Provider,
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
                 },
                 new Apprenticeship
                 {
