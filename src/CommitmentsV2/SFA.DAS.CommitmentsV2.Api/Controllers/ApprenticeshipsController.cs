@@ -57,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     StartDate = x.StartDate,
                     EndDate = x.EndDate,
                     PaymentStatus = x.PaymentStatus,
+                    ApprenticeshipStatus = x.ApprenticeshipStatus,
                     Alerts = x.Alerts
                 });
 
