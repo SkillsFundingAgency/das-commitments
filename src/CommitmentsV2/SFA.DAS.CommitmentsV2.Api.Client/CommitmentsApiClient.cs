@@ -73,6 +73,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}{sortField}{pageQuery}", null, cancellationToken);
         }
 
+        public Task<GetApprenticeshipsFilterValuesResponse> GetApprenticeshipsFilterValues(long providerId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetApprenticeshipsFilterValuesResponse>(
+                $"api/apprenticeships/filters?providerId={providerId}", null, cancellationToken);
+        }
+
         public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetCohortResponse>($"api/cohorts/{cohortId}", null, cancellationToken);

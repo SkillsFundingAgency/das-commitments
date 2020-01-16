@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
@@ -51,8 +52,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 EmployerNames = new[] {"Test 1", "Test 2"},
                 CourseNames = new[] {"Test 3", "Test 4"},
                 Statuses = new[] { "Test 5", "Test 6" },
-                PlannedStartDates = new[] { "Test 7", "Test 8" },
-                PlannedEndDates = new[] { "Test 9", "Test 10" }
+                StartDates = new[] { DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-2) },
+                EndDates = new[] { DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-4) }
             };
 
             _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r => r.ProviderId.Equals(providerId)),
@@ -64,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             Assert.IsNotNull(result);
 
-            var filterValues = result.Value as GetApprenticeshipsFilterValuesResponse;
+            var filterValues = result.Value as Types.Responses.GetApprenticeshipsFilterValuesResponse;
 
             filterValues.Should().BeEquivalentTo(expectedResponse);
         }

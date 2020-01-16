@@ -104,8 +104,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
             var expectedStartDates = new[]
             {
-                approvedApprenticeships[0].StartDate.Value.ToString("dd/MM/yyyy"),
-                approvedApprenticeships[1].StartDate.Value.ToString("dd/MM/yyyy")
+                approvedApprenticeships[0].StartDate.Value,
+                approvedApprenticeships[1].StartDate.Value
             };
 
             mockContext
@@ -114,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
             var result = await handler.Handle(query, CancellationToken.None);
 
-            result.PlannedStartDates.Should().BeEquivalentTo(expectedStartDates);
+            result.StartDates.Should().BeEquivalentTo(expectedStartDates);
         }
 
         [Test, RecursiveMoqAutoData]
@@ -131,8 +131,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
             var expectedEndDates = new[]
             {
-                approvedApprenticeships[0].EndDate.Value.ToString("dd/MM/yyyy"),
-                approvedApprenticeships[1].EndDate.Value.ToString("dd/MM/yyyy")
+                approvedApprenticeships[0].EndDate.Value,
+                approvedApprenticeships[1].EndDate.Value
             };
 
             mockContext
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
             var result = await handler.Handle(query, CancellationToken.None);
 
-            result.PlannedEndDates.Should().BeEquivalentTo(expectedEndDates);
+            result.EndDates.Should().BeEquivalentTo(expectedEndDates);
         }
     }
 }
