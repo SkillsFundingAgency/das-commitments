@@ -16,8 +16,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     {
         private Fixture _fixture;
         private ReservationValidationService _reservationValidationService;
-        private Mock<IMapper<ReservationValidationResult, CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult>> _resultMapper;
-        private Mock<IMapper<ReservationValidationRequest, ReservationValidationMessage>> _requestMapper;
+        private Mock<IOldMapper<ReservationValidationResult, CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult>> _resultMapper;
+        private Mock<IOldMapper<ReservationValidationRequest, ReservationValidationMessage>> _requestMapper;
         private CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult _validationResult;
         private ReservationValidationRequest _validationRequest;
         private Mock<IReservationsApiClient> _apiClient;
@@ -33,11 +33,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _apiRequest = new ReservationValidationMessage();
 
-            _requestMapper = new Mock<IMapper<ReservationValidationRequest, ReservationValidationMessage>>();
+            _requestMapper = new Mock<IOldMapper<ReservationValidationRequest, ReservationValidationMessage>>();
             _requestMapper.Setup(x => x.Map(It.Is<ReservationValidationRequest>(r => r == _validationRequest)))
                 .ReturnsAsync(() => _apiRequest);
 
-            _resultMapper = new Mock<IMapper<ReservationValidationResult, CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult>>();
+            _resultMapper = new Mock<IOldMapper<ReservationValidationResult, CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult>>();
             _resultMapper.Setup(x => x.Map(It.IsAny<ReservationValidationResult>())).ReturnsAsync(_validationResult);
 
             _apiClient = new Mock<IReservationsApiClient>();

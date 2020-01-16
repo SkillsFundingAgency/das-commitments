@@ -41,10 +41,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
         public class GetDraftApprenticeshipsHandlerTestsFixture
         {
-            private readonly GetDraftApprenticeshipsHandler _handler;
+            private readonly GetDraftApprenticeshipsQueryHandler _queryHandler;
             private readonly ProviderCommitmentsDbContext _db;
-            private GetDraftApprenticeshipsRequest _request;
-            private GetDraftApprenticeshipsResult _result;
+            private GetDraftApprenticeshipsQuery _query;
+            private GetDraftApprenticeshipsQueryResult _queryResult;
             private readonly Fixture _autoFixture;
             private Cohort _cohort;
             private long _cohortId;
@@ -54,16 +54,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 _autoFixture = new Fixture();
 
                 _cohortId = _autoFixture.Create<long>();
-                _request = new GetDraftApprenticeshipsRequest(_cohortId);
+                _query = new GetDraftApprenticeshipsQuery(_cohortId);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
                 SeedData();
-                _handler = new GetDraftApprenticeshipsHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
+                _queryHandler = new GetDraftApprenticeshipsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
             public GetDraftApprenticeshipsHandlerTestsFixture WithNonExistentCohort()
             {
-                _request = new GetDraftApprenticeshipsRequest(_cohortId+1);
+                _query = new GetDraftApprenticeshipsQuery(_cohortId+1);
                 return this;
             }
 
@@ -73,10 +73,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 return this;
             }
 
-            public async Task<GetDraftApprenticeshipsResult> Handle()
+            public async Task<GetDraftApprenticeshipsQueryResult> Handle()
             {
-                _result = await _handler.Handle(TestHelper.Clone(_request), new CancellationToken());
-                return _result;
+                _queryResult = await _queryHandler.Handle(TestHelper.Clone(_query), new CancellationToken());
+                return _queryResult;
             }
 
             private void SeedData()
@@ -123,17 +123,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             public void VerifyResultMapping()
             {
-                Assert.AreEqual(_cohort.DraftApprenticeships.Count(), _result.DraftApprenticeships.Count);
+                Assert.AreEqual(_cohort.DraftApprenticeships.Count(), _queryResult.DraftApprenticeships.Count);
 
                 foreach (var sourceItem in _cohort.DraftApprenticeships)
                 {
-                    AssertEquality(sourceItem, _result.DraftApprenticeships.Single(x => x.Id == sourceItem.Id));
+                    AssertEquality(sourceItem, _queryResult.DraftApprenticeships.Single(x => x.Id == sourceItem.Id));
                 }
             }
 
             public void VerifyNoResult()
             {
-                Assert.IsNull(_result.DraftApprenticeships);
+                Assert.IsNull(_queryResult.DraftApprenticeships);
             }
         }
 
