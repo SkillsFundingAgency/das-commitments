@@ -130,7 +130,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     EpaOrg = EndpointAssessmentOrganisation,
                     EmployerRef = _autoFixture.Create<string>()
                 };
-                  
 
                 switch (Apprenticeship.PaymentStatus)
                 {
@@ -162,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.EndDate, _result.EndDate);
                 Assert.AreEqual(Apprenticeship.CourseName, _result.CourseName);
                 Assert.AreEqual(Apprenticeship.EpaOrg.Name, _result.EndpointAssessorName);
-                Assert.AreEqual(Apprenticeship.PaymentStatus, _result.PaymentStatus);
+                Assert.AreEqual(Apprenticeship.Status, _result.Status);
                 Assert.AreEqual(Apprenticeship.StopDate, _result.StopDate);
                 Assert.AreEqual(Apprenticeship.PauseDate, _result.PauseDate);
                 Assert.AreEqual(Apprenticeship.HasHadDataLockSuccess, _result.HasHadDataLockSuccess);

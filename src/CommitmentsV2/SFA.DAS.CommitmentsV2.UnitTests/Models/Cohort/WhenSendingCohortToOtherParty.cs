@@ -184,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public WhenSendingCohortToOtherPartyTestsFixture AddDraftApprenticeship(AgreementStatus agreementStatus)
         {
-            Apprenticeship apprenticeship = new DraftApprenticeship(new DraftApprenticeshipDetails(), Party.None).Set(a => a.AgreementStatus, agreementStatus);
+            CommitmentsV2.Models.Apprenticeship apprenticeship = new DraftApprenticeship(new DraftApprenticeshipDetails(), Party.None).Set(a => a.AgreementStatus, agreementStatus);
             
             Cohort.Add(c => c.Apprenticeships, apprenticeship);
             

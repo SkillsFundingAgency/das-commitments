@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         EndDate = apprenticeship.EndDate.Value,
                         EndpointAssessorName = apprenticeship.EpaOrg.Name,
                         Reference = requestingParty == Party.Provider ? apprenticeship.ProviderRef : apprenticeship.EmployerRef,
-                        PaymentStatus = apprenticeship.PaymentStatus,
+                        Status = apprenticeship.Status,
                         StopDate = apprenticeship.StopDate,
                         PauseDate = apprenticeship.PauseDate,
                         HasHadDataLockSuccess = apprenticeship.HasHadDataLockSuccess
