@@ -216,6 +216,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeship(123);
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipResponse>("api/apprenticeships/123", null, CancellationToken.None));
         }
+
+        [Test]
+        public async Task GetPriceEpisodes_VerifyUrlAndData()
+        {
+            await _fixture.CommitmentsApiClient.GetPriceEpisodes(123);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetPriceEpisodesResponse>("api/apprenticeships/123/price-episodes", null, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture
