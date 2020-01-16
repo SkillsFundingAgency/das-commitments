@@ -7,6 +7,6 @@
         Live = 2,
         Paused = 3,
         Stopped = 4,
-        Completed = 5
+        Finished = 5
     }
 }
