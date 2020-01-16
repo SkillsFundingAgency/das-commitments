@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Api.Mappers;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -25,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 StartDate = source.StartDate.GetValueOrDefault(),
                 EndDate = source.EndDate.GetValueOrDefault(),
                 PaymentStatus = source.PaymentStatus,
+                ApprenticeshipStatus = source.ApprenticeshipStatus,
                 Uln = source.Uln,
                 Alerts = _alertsMapper.Map(source)
             });

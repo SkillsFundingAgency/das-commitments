@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
-                                              "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, AgreementStatus, EmployerRef, ProviderRef, CreatedOn) " +
+                                              "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, ApprenticeshipStatus, EmployerRef, ProviderRef, CreatedOn) " +
                                               "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @paymentStatus, @agreementStatus, @employerRef, @providerRef, @createdOn); " +
                                               "SELECT CAST(SCOPE_IDENTITY() as int);",
                 param: parameters,
@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
                 sql: "UPDATE [dbo].[Apprenticeship] " +
                     "SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, " +
                     "ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, " +
-                    "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, " +
+                    "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, ApprenticeshipStatus = @agreementStatus, " +
                     $"{refItem} WHERE Id = @id;",
                 param: parameters,
                 transaction: trans,
