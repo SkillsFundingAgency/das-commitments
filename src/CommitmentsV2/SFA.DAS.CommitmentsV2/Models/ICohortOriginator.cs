@@ -12,5 +12,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             Account transferSender,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             UserInfo userInfo);
+
+        Cohort CreateCohort(Provider provider,
+           AccountLegalEntity accountLegalEntity,
+           UserInfo userInfo);
     }
 }
