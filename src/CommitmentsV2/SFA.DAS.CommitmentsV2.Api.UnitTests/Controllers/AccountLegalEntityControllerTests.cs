@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             // arrange
             var fixtures = new AccountLegalEntityControllerTestFixtures()
-                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse());
+                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityQueryResult());
 
             // act
             var response = await fixtures.CallControllerMethod(accountLegalEntityId);
@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             // arrange
             var fixtures = new AccountLegalEntityControllerTestFixtures()
-                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse { AccountId = 1, MaLegalEntityId = 234, AccountName = "AccountName", LegalEntityName = "ABC" });
+                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityQueryResult { AccountId = 1, MaLegalEntityId = 234, AccountName = "AccountName", LegalEntityName = "ABC" });
 
             // act
             var response = await fixtures.CallControllerMethod(accountLegalEntityId);
@@ -92,13 +92,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public Mock<ILogger<AccountLegalEntityController>> LoggerMock { get; set; }
         public ILogger<AccountLegalEntityController> Logger => LoggerMock.Object;
 
-        public AccountLegalEntityControllerTestFixtures SetQueryResponse(long forAccountLegalEntityId, GetAccountLegalEntityResponse sendResponse)
+        public AccountLegalEntityControllerTestFixtures SetQueryResponse(long forAccountLegalEntityId, GetAccountLegalEntityQueryResult sendQueryResult)
         {
             MediatorMock
                 .Setup(m => m.Send(
-                                    It.Is<GetAccountLegalEntityRequest>(request => request.AccountLegalEntityId == forAccountLegalEntityId),
+                                    It.Is<GetAccountLegalEntityQuery>(request => request.AccountLegalEntityId == forAccountLegalEntityId),
                                     It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(sendResponse));
+                .Returns(Task.FromResult(sendQueryResult));
 
             return this;
         }

@@ -78,6 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             UserInfo userInfo) : this(provider, accountLegalEntity, transferSender, originatingParty, userInfo)
         {
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             EditStatus = originatingParty.ToEditStatus();
 
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, originatingParty);
