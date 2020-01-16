@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 var response = await _mediator.Send(new GetApprenticeshipsRequest
                 {
-                    ProviderId = request.ProviderId.HasValue ? (uint)request.ProviderId.Value : 0, 
+                    ProviderId = request.ProviderId ?? 0, 
                     PageNumber = request.PageNumber, 
                     PageItemCount = request.PageItemCount, 
                     SortField = request.SortField,
@@ -48,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 //TODO: Remove this mapping once we have consolidated the old Types with the new API types
                 var mappedApprenticeships = response.Apprenticeships.Select(x => new ApprenticeshipDetailsResponse
                 {
+                    Id = x.Id,
                     FirstName = x.FirstName,
                     LastName = x.LastName,
                     Uln = x.Uln,
@@ -75,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("filters/{providerId}")]
-        public async Task<IActionResult> GetApprenticeshipsFilterValues(uint providerId)
+        public async Task<IActionResult> GetApprenticeshipsFilterValues(long providerId)
         {
             var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = providerId });
 

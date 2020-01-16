@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -46,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             _mediator.Verify(m => m.Send(
                 It.Is<GetApprenticeshipsRequest>(r => 
-                    r.ProviderId.Equals((uint)request.ProviderId)), 
+                    r.ProviderId.Equals(request.ProviderId)), 
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -67,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             _mediator.Verify(m => m.Send(
                 It.Is<GetApprenticeshipsRequest>(r => 
-                    r.ProviderId.Equals((uint)request.ProviderId) &&
+                    r.ProviderId.Equals(request.ProviderId) &&
                     r.PageNumber.Equals(request.PageNumber) &&
                     r.PageItemCount.Equals(request.PageItemCount)), 
                 It.IsAny<CancellationToken>()), Times.Once);
@@ -86,6 +87,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var expectedApprenticeship = new ApprenticeshipDetails
             {
+                Id = new Fixture().Create<long>(),
                 FirstName = "George",
                 LastName = "Test",
                 Uln = "12345",
@@ -97,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 Alerts = new []{"one", "two"}
             };
 
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals((uint)request.ProviderId)),
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(request.ProviderId)),
                 It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Queries.GetApprenticeships.GetApprenticeshipsResponse
             {
                     Apprenticeships = new []{ expectedApprenticeship},
@@ -118,6 +120,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var actualApprenticeship = response.Apprenticeships.First();
 
+            Assert.AreEqual(expectedApprenticeship.Id, actualApprenticeship.Id);
             Assert.AreEqual(expectedApprenticeship.FirstName, actualApprenticeship.FirstName);
             Assert.AreEqual(expectedApprenticeship.LastName, actualApprenticeship.LastName);
             Assert.AreEqual(expectedApprenticeship.Uln, actualApprenticeship.Uln);

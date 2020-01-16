@@ -7,9 +7,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
     [TestFixture]
     public class GetApprenticeshipsValidationTests
     {
-        [TestCase( (uint) 0, false)]
-        [TestCase( (uint) 1, true)]
-        public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(uint id, bool expectedIsValid)
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(long id, bool expectedIsValid)
         {
             // arrange
             var validator = new GetApprenticeshipsValidator();
