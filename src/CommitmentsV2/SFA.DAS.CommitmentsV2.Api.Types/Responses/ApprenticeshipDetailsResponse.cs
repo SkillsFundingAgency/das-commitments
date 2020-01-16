@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Types
+namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
-    public class ApprenticeshipDetails
+    public class ApprenticeshipDetailsResponse
     {
         public long Id { get; set; }
         public string FirstName { get; set; }
@@ -16,4 +17,5 @@ namespace SFA.DAS.CommitmentsV2.Types
         public PaymentStatus PaymentStatus { get; set; }
         public IEnumerable<string> Alerts { get; set; }
     }
+
 }

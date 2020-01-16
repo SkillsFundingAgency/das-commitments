@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
+using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -24,19 +27,45 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{providerId}")]
-        public async Task<IActionResult> GetApprenticeships(uint providerId)
+        public async Task<IActionResult> GetApprenticeships([FromQuery]Types.Requests.GetApprenticeshipRequest request)
         {
             try
             {
-                var response = await _mediator.Send(new GetApprenticeshipsRequest {ProviderId = providerId});
+                var response = await _mediator.Send(new GetApprenticeshipsRequest
+                {
+                    ProviderId = request.ProviderId ?? 0, 
+                    PageNumber = request.PageNumber, 
+                    PageItemCount = request.PageItemCount, 
+                    SortField = request.SortField,
+					ReverseSort = request.ReverseSort
+                });
 
                 if (response == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(response.Apprenticeships);
+                //TODO: Remove this mapping once we have consolidated the old Types with the new API types
+                var mappedApprenticeships = response.Apprenticeships.Select(x => new ApprenticeshipDetailsResponse
+                {
+                    Id = x.Id,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Uln = x.Uln,
+                    EmployerName = x.EmployerName,
+                    CourseName = x.CourseName,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    PaymentStatus = x.PaymentStatus,
+                    Alerts = x.Alerts
+                });
+
+                return Ok(new GetApprenticeshipsResponse
+                {
+                    Apprenticeships = mappedApprenticeships,
+                    TotalApprenticeshipsFound = response.TotalApprenticeshipsFound,
+                    TotalApprenticeshipsWithAlertsFound = response.TotalApprenticeshipsWithAlertsFound
+                });
             }
             catch (Exception e)
             {
@@ -47,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("filters/{providerId}")]
-        public async Task<IActionResult> GetApprenticeshipsFilterValues(uint providerId)
+        public async Task<IActionResult> GetApprenticeshipsFilterValues(long providerId)
         {
             var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = providerId });
 

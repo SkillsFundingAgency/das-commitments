@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.CommitmentsV2.Types
 {
-    public enum Status
+    public enum Status : byte
     {
         Unknown = 0,
         Pass = 1,

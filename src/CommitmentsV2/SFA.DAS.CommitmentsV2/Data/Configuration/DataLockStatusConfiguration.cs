@@ -11,7 +11,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.ToTable("DataLockStatus");
 
             builder.Property(e => e.DataLockEventDatetime).HasColumnType("datetime");
-            builder.Property(e => e.EventStatus).HasDefaultValueSql("((1))");
+            builder.Property(e => e.EventStatus).HasColumnType("tinyint").HasDefaultValueSql("((1))");
+            builder.Property(e => e.TriageStatus).HasColumnType("tinyint");
             builder.Property(e => e.Expired).HasColumnType("datetime");
             builder.Property(e => e.IlrActualStartDate).HasColumnType("datetime");
             builder.Property(e => e.IlrEffectiveFromDate).HasColumnType("datetime");

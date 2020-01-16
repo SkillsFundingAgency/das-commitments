@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -17,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<CreateCohortResponse> CreateCohort(CreateCohortWithOtherPartyRequest request, CancellationToken cancellationToken = default);
         Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId, CancellationToken cancellationToken = default);
         Task<GetDraftApprenticeshipsResponse> GetDraftApprenticeships(long cohortId, CancellationToken cancellationToken = default);
-        Task<IEnumerable<ApprenticeshipDetails>> GetApprovedApprenticeships(uint providerId, CancellationToken cancellationToken = default);
+        Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipRequest request, CancellationToken cancellationToken = default);
         Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default);
         Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
         Task<GetProviderResponse> GetProvider(long providerId, CancellationToken cancellationToken = default);
@@ -31,5 +30,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, DeleteDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
 		Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken = default);
         Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default);
+        
     }
 }

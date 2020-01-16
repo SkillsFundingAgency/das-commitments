@@ -197,24 +197,116 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
-        public async Task GetApprovedApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
+        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
-            var expectedProviderId = (uint) 10;
+            var request = new GetApprenticeshipRequest
+            {
+                ProviderId = 10,
+            };
 
             //Act
-            await _fixture.CommitmentsApiClient.GetApprovedApprenticeships(expectedProviderId);
+            await _fixture.CommitmentsApiClient.GetApprenticeships(request);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{expectedProviderId}", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?providerId={request.ProviderId}&reverseSort=False", null, CancellationToken.None));
         }
-		
+
+        [Test]
+        public async Task GetApprenticeships_VerifyUrlAndPageNumberIsCorrectPassedIn()
+        {
+            //Arrange
+            var request = new GetApprenticeshipRequest
+            {
+                ProviderId = 10,
+                PageNumber = 2
+            };
+            
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(request);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>(
+                $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort=False&pageNumber={request.PageNumber}", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprenticeships_VerifyUrlAndPagItemCountIsCorrectPassedIn()
+        {
+            //Arrange
+            var request = new GetApprenticeshipRequest
+            {
+                ProviderId = 10,
+                PageItemCount = 3
+            };
+            
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(request);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>(
+                $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort=False&pageItemCount={request.PageItemCount}", null, CancellationToken.None));
+        }
+        [Test]
+        public async Task GetApprenticeships_VerifyUrlAndPageDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var request = new GetApprenticeshipRequest
+            {
+                ProviderId = 10,
+                PageNumber = 2,
+                PageItemCount = 3
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(request);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>(
+                $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort=False&pageNumber={request.PageNumber}&pageItemCount={request.PageItemCount}", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilter()
+        {
+            //Arrange
+            var request = new GetApprenticeshipRequest
+            {
+                ProviderId = 10,
+                SortField = "test"
+            };
+            
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(request);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?providerId={request.ProviderId}&reverseSort=False&sortField={request.SortField}", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilterAndReverse()
+        {
+            //Arrange
+            var request = new GetApprenticeshipRequest
+            {
+                ProviderId = 10,
+                SortField = "test",
+                ReverseSort = true
+            };
+             
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(request);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}&sortField={request.SortField}", null, CancellationToken.None));
+        }
+
         [Test]
         public async Task GetAccount_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.GetAccount(123, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(x => x.Get<AccountResponse>("api/accounts/123", null, CancellationToken.None));
-
         }
     }
 

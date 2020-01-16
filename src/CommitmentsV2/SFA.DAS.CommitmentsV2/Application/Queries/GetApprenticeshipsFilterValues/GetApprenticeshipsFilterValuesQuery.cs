@@ -4,6 +4,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
 {
     public class GetApprenticeshipsFilterValuesQuery : IRequest<GetApprenticeshipsFilterValuesResponse>
     {
-        public uint ProviderId { get; set; }
+        public long ProviderId { get; set; }
     }
 }
