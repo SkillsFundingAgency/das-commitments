@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
+
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
+{
+    public abstract class GetApprenticeshipsHandlerTestBase
+    {
+        protected static List<Apprenticeship> GetTestApprenticeships(GetApprenticeshipsRequest request)
+        {
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    FirstName = "A",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    PendingUpdateOriginator = Originator.Employer,
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "B",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    PendingUpdateOriginator = Originator.Provider,
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "C",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "D",
+                    LastName = "Fog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    DataLockStatus = new List<DataLockStatus>()
+                }
+            };
+
+            AssignProviderToApprenticeships(request.ProviderId, apprenticeships);
+
+            return apprenticeships;
+        }
+
+        protected static void AssignProviderToApprenticeships(long providerId, IEnumerable<Apprenticeship> apprenticeships)
+        {
+            foreach (var apprenticeship in apprenticeships)
+            {
+                apprenticeship.Cohort.ProviderId = providerId;
+            }
+        }
+    }
+}
