@@ -36,6 +36,11 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 result.Add("Changes requested");
             }
 
+            if (source.ApprenticeshipUpdate == null)
+            {
+                return result;
+            }
+
             if (source.ApprenticeshipUpdate.Any(c =>
                 c.Originator == (byte) Originator.Employer && c.Status == (byte) ApprenticeshipUpdateStatus.Pending))
             {

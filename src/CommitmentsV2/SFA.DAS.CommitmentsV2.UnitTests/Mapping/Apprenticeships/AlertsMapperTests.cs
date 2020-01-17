@@ -167,6 +167,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             AlertsMapper mapper)
         {
             source.PendingUpdateOriginator = null;
+            source.ApprenticeshipUpdate = null;
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
             
             var result = mapper.Map(source);
