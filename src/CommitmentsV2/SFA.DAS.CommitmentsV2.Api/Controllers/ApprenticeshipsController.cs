@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
+using SFA.DAS.CommitmentsV2.Types;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -57,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     StartDate = x.StartDate,
                     EndDate = x.EndDate,
                     PaymentStatus = x.PaymentStatus,
-                    ApprenticeshipStatus = x.ApprenticeshipStatus,
+                    ApprenticeshipStatus = x.ApprenticeshipStatus == ApprenticeshipStatus.WaitingToStart ? "Waiting to Start" : x.ApprenticeshipStatus.ToString(),
                     Alerts = x.Alerts
                 });
 
