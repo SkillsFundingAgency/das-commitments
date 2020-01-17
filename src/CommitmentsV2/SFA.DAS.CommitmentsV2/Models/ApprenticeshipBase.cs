@@ -33,5 +33,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual Cohort Cohort { get; set; }
         public virtual AssessmentOrganisation EpaOrg { get; set; }
+        public ApprenticeshipStatus ApprenticeshipStatus { get; set; }
     }
 }
