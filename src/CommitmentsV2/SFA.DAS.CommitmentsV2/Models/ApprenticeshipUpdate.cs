@@ -30,6 +30,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
         
-        public virtual Apprenticeship Apprenticeship { get; set; }
+        public virtual ApprenticeshipBase Apprenticeship { get; set; }
     }
 }

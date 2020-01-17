@@ -129,10 +129,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             DataLockStatus dataLockStatus,
             AlertsMapper mapper)
         {
-            apprenticeshipUpdate.Originator = (byte) Originator.Employer;
+            apprenticeshipUpdate.Originator = (byte) Originator.Provider;
             apprenticeshipUpdate.Status = (byte) ApprenticeshipUpdateStatus.Pending;
             source.ApprenticeshipUpdate.Add(apprenticeshipUpdate);
-            source.DataLockStatus = null;
+            source.DataLockStatus = new List<DataLockStatus>(); 
             
             var result = mapper.Map(source);
 
@@ -153,7 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             {
                 Originator = (byte)Originator.Employer
             });
-            source.DataLockStatus = null;
+            source.DataLockStatus = new List<DataLockStatus>();
             
             var result = mapper.Map(source);
 
