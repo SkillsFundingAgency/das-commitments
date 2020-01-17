@@ -10,6 +10,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions
         public static IQueryable<Apprenticeship> Filter(this IQueryable<Apprenticeship> apprenticeships,
             ApprenticeshipSearchFilters filters)
         {
+            if (filters == null)
+            {
+                return apprenticeships;
+            }
+
             if (!string.IsNullOrEmpty(filters?.EmployerName))
             {
                 apprenticeships = apprenticeships.Where(app => app.Cohort != null && filters.EmployerName.Equals(app.Cohort.LegalEntityName));

@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.PageNumber = 0;
             request.PageItemCount = 0;
             request.ReverseSort = true;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var apprenticeships = new List<Apprenticeship>
@@ -84,6 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.PageNumber = 1;
             request.PageItemCount = 2;
             request.ReverseSort = true;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -115,6 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.PageNumber = 2;
             request.PageItemCount = 2;
             request.ReverseSort = true;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 

@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.PageNumber = 2;
             request.PageItemCount = 2;
             request.ReverseSort = false;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -60,6 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.PageNumber = 2;
             request.PageItemCount = 2;
             request.ReverseSort = false;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -86,6 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -145,6 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
             request.SortField = nameof(CommitmentsV2.Models.Apprenticeship.FirstName);
             request.ReverseSort = false;
+            request.SearchFilters = null;
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -167,6 +171,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var apprenticeships = new List<Apprenticeship>
@@ -230,6 +235,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var apprenticeships = new List<Apprenticeship>
@@ -293,6 +299,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var apprenticeships = new List<Apprenticeship>
@@ -357,6 +364,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -424,6 +432,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -491,6 +500,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -561,6 +571,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>

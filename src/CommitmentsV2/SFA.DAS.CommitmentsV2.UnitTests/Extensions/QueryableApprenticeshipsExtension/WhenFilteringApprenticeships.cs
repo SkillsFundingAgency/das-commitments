@@ -359,5 +359,41 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             //Assert
             Assert.AreEqual(3, result.Count);
         }
+
+        [Test]
+        public void ThenShouldNotFilterIfNullGivenAsFilters()
+        {
+            //Arrange
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        LegalEntityName = "Test Corp"
+                    }
+                },
+                new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        LegalEntityName = "Test Corp"
+                    }
+                },
+                new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        LegalEntityName = "ACME Supplies"
+                    }
+                }
+            }.AsQueryable();
+
+            //Act
+            var result = apprenticeships.Filter(null).ToList();
+
+            //Assert
+            Assert.AreEqual(3, result.Count);
+        }
     }
 }

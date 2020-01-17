@@ -30,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         {
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             apprenticeships[0].Cohort.ProviderId = request.ProviderId;
             apprenticeships[1].Cohort.ProviderId = request.ProviderId;
@@ -60,6 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         {
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             apprenticeships[0].Cohort.ProviderId = request.ProviderId;
             apprenticeships[1].Cohort.ProviderId = request.ProviderId;
@@ -89,6 +91,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.ReverseSort = false;
             request.PageNumber = 0;
             request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var apprenticeships = new List<Apprenticeship>
@@ -191,6 +194,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.PageNumber = 2;
             request.PageItemCount = 2;
             request.ReverseSort = false;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -220,6 +224,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.SortField = null;
             request.PageNumber = 2;
             request.PageItemCount = 2;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -247,6 +252,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.SortField = null;
             request.PageNumber = 2;
             request.PageItemCount = 2;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
@@ -284,6 +290,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.SortField = null;
             request.PageNumber = 5;
             request.PageItemCount = 2;
+            request.SearchFilters = new ApprenticeshipSearchFilters();
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);

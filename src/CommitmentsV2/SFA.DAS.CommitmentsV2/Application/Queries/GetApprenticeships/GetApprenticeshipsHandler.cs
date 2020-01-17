@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -34,17 +35,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             if (string.IsNullOrEmpty(request.SortField) || request.SortField == "DataLockStatus")
             {
-                searchResult = await ApprenticeshipsByDefaultOrder(cancellationToken, request.ProviderId, request.PageNumber, request.PageItemCount, request.ReverseSort);
+                searchResult = await ApprenticeshipsByDefaultOrder(cancellationToken, request.ProviderId, request.PageNumber, request.PageItemCount, request.ReverseSort, request.SearchFilters);
             }
             else
             {
                 if (request.ReverseSort)
                 {
-                    searchResult = await ApprenticeshipsReverseOrderedByField(cancellationToken, request.ProviderId, request.SortField, request.PageNumber, request.PageItemCount);
+                    searchResult = await ApprenticeshipsReverseOrderedByField(cancellationToken, request.ProviderId, request.SortField, request.PageNumber, request.PageItemCount, request.SearchFilters);
                 }
                 else
                 {
-                    searchResult = await ApprenticeshipsOrderedByField(cancellationToken, request.ProviderId, request.SortField, request.PageNumber, request.PageItemCount);
+                    searchResult = await ApprenticeshipsOrderedByField(cancellationToken, request.ProviderId, request.SortField, request.PageNumber, request.PageItemCount, request.SearchFilters);
                 }
             }
 
@@ -62,11 +63,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             };
         }
 
-        private async Task<ApprenticeshipSearchResult> ApprenticeshipsByDefaultOrder(CancellationToken cancellationToken, long? providerId, int pageNumber, int pageItemCount, bool reverseSort)
+        private async Task<ApprenticeshipSearchResult> ApprenticeshipsByDefaultOrder(CancellationToken cancellationToken, long? providerId, int pageNumber, int pageItemCount, bool reverseSort, ApprenticeshipSearchFilters filters)
         {
             var apprenticeships = await _dbContext
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId && apprenticeship.PendingUpdateOriginator != null)
+                .Filter(filters)
                 .OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
@@ -80,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             var apprenticeshipsWithoutAlerts = await _dbContext
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId && apprenticeship.PendingUpdateOriginator == null)
+                .Filter(filters)
                 .OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
@@ -126,11 +129,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             };
         }
 
-        private async Task<ApprenticeshipSearchResult>ApprenticeshipsOrderedByField(CancellationToken cancellationToken,long? providerId, string fieldName, int pageNumber, int pageItemCount)
+        private async Task<ApprenticeshipSearchResult>ApprenticeshipsOrderedByField(CancellationToken cancellationToken,long? providerId, string fieldName, int pageNumber, int pageItemCount, ApprenticeshipSearchFilters filters)
         {
             var apprenticeshipsQuery = _dbContext
                 .Apprenticeships
-                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId);
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
+                .Filter(filters);
 
             var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(app => app.PendingUpdateOriginator != null, cancellationToken);
 
@@ -146,11 +150,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             return await CreatePagedApprenticeshipSearchResult(cancellationToken, pageNumber, pageItemCount, apprenticeshipsQuery, totalApprenticeshipsFound, totalApprenticeshipsWithAlertsFound);
         }
 
-        private async Task<ApprenticeshipSearchResult> ApprenticeshipsReverseOrderedByField(CancellationToken cancellationToken, long? providerId, string fieldName, int pageNumber, int pageItemCount)
+        private async Task<ApprenticeshipSearchResult> ApprenticeshipsReverseOrderedByField(CancellationToken cancellationToken, long? providerId, string fieldName, int pageNumber, int pageItemCount, ApprenticeshipSearchFilters filters)
         {
             var apprenticeshipsQuery = _dbContext
                 .Apprenticeships
-                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId);
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
+                .Filter(filters);
 
             var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(app => app.PendingUpdateOriginator != null, cancellationToken);
 
