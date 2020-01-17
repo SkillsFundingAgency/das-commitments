@@ -3,6 +3,8 @@ using System.Linq;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using Apprenticeship = SFA.DAS.CommitmentsV2.Models.Apprenticeship;
+using Originator = SFA.DAS.CommitmentsV2.Types.Originator;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
 {
@@ -37,10 +39,17 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
             if (!source.PendingUpdateOriginator.HasValue) 
                 return result;
 
-            result.Add(source.PendingUpdateOriginator == Originator.Provider
-                ? "Changes pending"
-                : "Changes for review");
-
+            if (source.ApprenticeshipUpdate.Any(c =>
+                c.Originator == (byte) Originator.Employer && c.Status == (byte) ApprenticeshipUpdateStatus.Pending))
+            {
+                result.Add("Changes for review");
+            }
+            else if (source.ApprenticeshipUpdate.Any(c =>
+                c.Originator == (byte) Originator.Provider && c.Status == (byte) ApprenticeshipUpdateStatus.Pending))
+            {
+                result.Add("Changes pending");
+            }
+            
             return result;
         }
 

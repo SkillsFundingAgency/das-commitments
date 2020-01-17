@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             var totalApprenticeshipsWithAlertsFound = apprenticeships.Count;
 
-            var combinedList = new List<Apprenticeship>();
+            List<Apprenticeship> combinedList;
 
             if (reverseSort)
             {

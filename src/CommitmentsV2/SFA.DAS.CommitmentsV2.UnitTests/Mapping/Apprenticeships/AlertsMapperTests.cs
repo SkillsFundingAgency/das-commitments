@@ -5,6 +5,9 @@ using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
+using Apprenticeship = SFA.DAS.CommitmentsV2.Models.Apprenticeship;
+using ApprenticeshipUpdate = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdate;
+using Originator = SFA.DAS.CommitmentsV2.Types.Originator;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
 {
@@ -122,11 +125,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         [Test, RecursiveMoqAutoData]
         public void And_Has_PendingUpdateOriginator_Provider_Then_Changes_Pending_Alert(
             Apprenticeship source,
+            ApprenticeshipUpdate apprenticeshipUpdate,
             DataLockStatus dataLockStatus,
             AlertsMapper mapper)
         {
-            source.PendingUpdateOriginator = Originator.Provider;
-            source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
+            apprenticeshipUpdate.Originator = (byte) Originator.Employer;
+            apprenticeshipUpdate.Status = (byte) ApprenticeshipUpdateStatus.Pending;
+            source.ApprenticeshipUpdate.Add(apprenticeshipUpdate);
+            source.DataLockStatus = null;
             
             var result = mapper.Map(source);
 
@@ -136,11 +142,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         [Test, RecursiveMoqAutoData]
         public void And_Has_PendingUpdateOriginator_Employer_Then_Changes_For_Review_Alert(
             Apprenticeship source,
+            ApprenticeshipUpdate apprenticeshipUpdate,
             DataLockStatus dataLockStatus,
             AlertsMapper mapper)
         {
-            source.PendingUpdateOriginator = Originator.Employer;
-            source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
+
+            apprenticeshipUpdate.Originator = (byte) Originator.Employer;
+            apprenticeshipUpdate.Status = (byte) ApprenticeshipUpdateStatus.Pending;
+            source.ApprenticeshipUpdate.Add(new ApprenticeshipUpdate
+            {
+                Originator = (byte)Originator.Employer
+            });
+            source.DataLockStatus = null;
             
             var result = mapper.Map(source);
 
