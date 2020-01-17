@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
         //In this test the Cost field is used to represent any field for which updates require the approval
-        //of the other party (resulting in the DraftApprenticeship object's ApprenticeshipStatus property to be reset)
+        //of the other party (resulting in the DraftApprenticeship object's AgreementStatus property to be reset)
         //Further tests can be found in: Domain\DraftApprenticeship\WhenDraftApprenticeshipIsUpdated.cs
         public void UpdateDraftApprenticeship_Cost_Resets_OtherParty_Approval(Party modifyingParty)
         {

@@ -175,7 +175,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@agreedOn", _currentDateTime.Now, DbType.DateTime);
 
                 var returnCode = await connection.ExecuteAsync(
-                    "UPDATE [dbo].[Apprenticeship] SET ApprenticeshipStatus = @agreementStatus " +
+                    "UPDATE [dbo].[Apprenticeship] SET AgreementStatus = @agreementStatus " +
                     "WHERE Id = @id;",
                     parameters,
                     commandType: CommandType.Text);
@@ -498,7 +498,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 bulkCopy.ColumnMappings.Add("Cost", "Cost");
                 bulkCopy.ColumnMappings.Add("StartDate", "StartDate");
                 bulkCopy.ColumnMappings.Add("EndDate", "EndDate");
-                bulkCopy.ColumnMappings.Add("ApprenticeshipStatus", "ApprenticeshipStatus");
+                bulkCopy.ColumnMappings.Add("AgreementStatus", "AgreementStatus");
                 bulkCopy.ColumnMappings.Add("PaymentStatus", "PaymentStatus");
                 bulkCopy.ColumnMappings.Add("DateOfBirth", "DateOfBirth");
                 bulkCopy.ColumnMappings.Add("NINumber", "NINumber");
@@ -548,7 +548,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             apprenticeshipsTable.Columns.Add("Cost", typeof(decimal));
             apprenticeshipsTable.Columns.Add("StartDate", typeof(DateTime));
             apprenticeshipsTable.Columns.Add("EndDate", typeof(DateTime));
-            apprenticeshipsTable.Columns.Add("ApprenticeshipStatus", typeof(short));
+            apprenticeshipsTable.Columns.Add("AgreementStatus", typeof(short));
             apprenticeshipsTable.Columns.Add("PaymentStatus", typeof(short));
             apprenticeshipsTable.Columns.Add("DateOfBirth", typeof(DateTime));
             apprenticeshipsTable.Columns.Add("NINumber", typeof(string));
