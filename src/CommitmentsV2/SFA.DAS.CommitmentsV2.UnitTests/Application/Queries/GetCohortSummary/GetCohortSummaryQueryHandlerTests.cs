@@ -184,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             
             CohortId = autoFixture.Create<long>();
             Cohort = autoFixture.Build<Cohort>().Without(o=>o.Apprenticeships).Without(o=>o.TransferRequests).Without(o=>o.Messages)
-                .Without(o=>o.AccountLegalEntity).Without(o=>o.Provider)
+                .Without(o=>o.AccountLegalEntity).Without(o=>o.Provider).Without(o => o.TransferSender)
                 .Create();
             Cohort.AccountLegalEntity = AccountLegalEntity;
             Cohort.Provider = Provider;
