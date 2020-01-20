@@ -27,7 +27,8 @@
 	[Originator] TINYINT NOT NULL DEFAULT 0,
 	[ApprenticeshipEmployerTypeOnApproval] TINYINT NULL,
 	[IsFullApprovalProcessed] BIT NOT NULL DEFAULT 0,
-	[IsDeleted] BIT NOT NULL DEFAULT 0
+	[IsDeleted] BIT NOT NULL DEFAULT 0, 
+    [AccountLegalEntityId] BIGINT NULL
 )
 GO
 

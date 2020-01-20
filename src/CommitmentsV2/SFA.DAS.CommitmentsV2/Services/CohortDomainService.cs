@@ -118,6 +118,24 @@ namespace SFA.DAS.CommitmentsV2.Services
             return accountLegalEntity.CreateCohortWithOtherParty(provider, accountLegalEntity, transferSender, message, userInfo);
         }
 
+        public async Task<Cohort> CreateEmptyCohort(long providerId, long accountId, long accountLegalEntityId, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var originatingParty = _authenticationService.GetUserParty();
+
+            if (originatingParty != Party.Provider)
+            {
+                throw new InvalidOperationException($"Only Providers can create empty cohort");
+            }
+
+            var db = _dbContext.Value;
+            var provider = await GetProvider(providerId, db, cancellationToken);
+            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
+           
+            var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
+
+            return originator.CreateCohort(provider, accountLegalEntity, userInfo);
+        }
+
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
@@ -180,7 +198,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId,  ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var accountLegalEntity =
                 await db.AccountLegalEntities.SingleOrDefaultAsync(x => x.Id == accountLegalEntityId,

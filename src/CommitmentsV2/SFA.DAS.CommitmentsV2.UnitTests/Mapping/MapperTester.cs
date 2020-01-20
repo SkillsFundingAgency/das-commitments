@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {

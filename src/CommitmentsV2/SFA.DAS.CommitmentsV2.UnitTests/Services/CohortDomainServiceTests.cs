@@ -51,7 +51,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyCohortCreation(party);
         }
 
-        [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task CreateCohort_CreatingPartyWithTransferSenderId_Creates_Cohort(Party party)
         {
@@ -168,6 +167,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _fixture
                 .WithParty(creatingParty)
                 .CreateCohortWithOtherParty();
+
+            if (expectThrows)
+            {
+                _fixture.VerifyException<InvalidOperationException>();
+            }
+            else
+            {
+                _fixture.VerifyNoException();
+            }
+        }
+
+        [Test]
+        public async Task CreateEmptyCohort_Creates_EmptyCohort()
+        {
+            await _fixture
+                  .WithParty(Party.Provider)
+                  .CreateEmptyCohort();
+
+            _fixture.VerifyEmptyCohortCreation(Party.Provider);
+        }
+
+        [TestCase(Party.Employer, true)]
+        [TestCase(Party.Provider, false)]
+        [TestCase(Party.TransferSender, true)]
+        public async Task CreateEmptyCohort_Throws_If_Not_Provider(Party creatingParty, bool expectThrows)
+        {
+            await _fixture
+                .WithParty(creatingParty)
+                .CreateEmptyCohort();
 
             if (expectThrows)
             {
@@ -413,8 +441,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 Provider = new Mock<Provider>();
                 Provider.Setup(x => x.UkPrn).Returns(ProviderId);
-                Provider.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(), null,
-                        It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
+                Provider.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
                 Db.Providers.Add(Provider.Object);
 
@@ -723,6 +750,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
+            public async Task<Cohort> CreateEmptyCohort()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    var result = await CohortDomainService.CreateEmptyCohort(ProviderId, AccountId, AccountLegalEntityId, UserInfo, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                    return result;
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Exception = ex;
+                    return null;
+                }
+            }
+
             public async Task AddDraftApprenticeship()
             {
                 Db.SaveChanges();
@@ -823,12 +873,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
+            public void VerifyEmptyCohortCreation(Party party)
+            {
+                if (party == Party.Provider)
+                {
+                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), UserInfo));
+                }
+            }
+
             public void VerifyCohortCreationWithTransferSender(Party party)
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
-                        DraftApprenticeshipDetails, UserInfo));
+                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), UserInfo));
                 }
 
                 if (party == Party.Employer)
