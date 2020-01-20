@@ -50,6 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         {
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock03;
             dataLockStatus.TriageStatus = TriageStatus.Unknown;
+            dataLockStatus.IsResolved = false;
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
             source.PendingUpdateOriginator = null;
             
@@ -66,6 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         {
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
             dataLockStatus.TriageStatus = TriageStatus.Unknown;
+            dataLockStatus.IsResolved = false;
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
             source.PendingUpdateOriginator = null;
             
@@ -82,6 +84,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         {
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock03;
             dataLockStatus.TriageStatus = TriageStatus.Change;
+            dataLockStatus.IsResolved = false;
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
             source.PendingUpdateOriginator = null;
             
@@ -98,6 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         {
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
             dataLockStatus.TriageStatus = TriageStatus.Change;
+            dataLockStatus.IsResolved = false;
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
             source.PendingUpdateOriginator = null;
             
@@ -114,6 +118,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         {
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock03;
             dataLockStatus.TriageStatus = TriageStatus.Restart;
+            dataLockStatus.IsResolved = false;
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
             source.PendingUpdateOriginator = null;
             
@@ -170,6 +175,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             source.ApprenticeshipUpdate = null;
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
             
+            var result = mapper.Map(source);
+
+            result.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void And_Has_Resolved_Alert_Then_Nothing_Is_Mapped(
+            Apprenticeship source,
+            DataLockStatus dataLockStatus,
+            AlertsMapper mapper)
+        {
+            dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
+            dataLockStatus.TriageStatus = TriageStatus.Change;
+            dataLockStatus.IsResolved = true;
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
+
             var result = mapper.Map(source);
 
             result.Should().BeEmpty();

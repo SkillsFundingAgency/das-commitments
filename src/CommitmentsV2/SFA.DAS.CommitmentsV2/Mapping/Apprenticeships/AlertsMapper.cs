@@ -59,35 +59,40 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
         {
             return source.DataLockStatus.Any(x => 
                 x.WithCourseError() && 
-                x.TriageStatus == TriageStatus.Unknown);
+                x.TriageStatus == TriageStatus.Unknown &&
+                !x.IsResolved);
         }
 
         private bool HasPriceDataLock(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x => 
                 x.IsPriceOnly() && 
-                x.TriageStatus == TriageStatus.Unknown);
+                x.TriageStatus == TriageStatus.Unknown &&
+                !x.IsResolved);
         }
 
         private bool HasCourseDataLockPendingChanges(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
-                x.TriageStatus == TriageStatus.Change);
+                x.TriageStatus == TriageStatus.Change &&
+                !x.IsResolved);
         }
 
         private bool HasPriceDataLockPendingChanges(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.IsPriceOnly() && 
-                x.TriageStatus == TriageStatus.Change);
+                x.TriageStatus == TriageStatus.Change &&
+                !x.IsResolved);
         }
 
         private bool HasCourseDataLockChangesRequested(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
-                x.TriageStatus == TriageStatus.Restart);
+                x.TriageStatus == TriageStatus.Restart &&
+                !x.IsResolved);
         }
     }
 }
