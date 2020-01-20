@@ -96,11 +96,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var autoFixture = new Fixture();
             AccountLegalEntityId = autoFixture.Create<long>();
             AgreementId = autoFixture.Create<long>();
-            AccountLegalEntity = autoFixture.Create<GetAccountLegalEntityResponse>();
+            AccountLegalEntity = autoFixture.Create<GetAccountLegalEntityQueryResult>();
             AgreementSignedRequest = autoFixture.Create<AgreementSignedRequest>();
 
             Mediator = new Mock<IMediator>();
-            Mediator.Setup(m => m.Send(It.IsAny<GetAccountLegalEntityRequest>(), It.IsAny<CancellationToken>()))
+            Mediator.Setup(m => m.Send(It.IsAny<GetAccountLegalEntityQuery>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(AccountLegalEntity));
 
             EmployerAgreementService = new Mock<IEmployerAgreementService>();
@@ -113,7 +113,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public long AgreementId;
         public long AccountLegalEntityId;
         public AgreementSignedRequest AgreementSignedRequest;
-        public GetAccountLegalEntityResponse AccountLegalEntity;
+        public GetAccountLegalEntityQueryResult AccountLegalEntity;
         public Mock<IMediator> Mediator { get; set; }
         public Mock<IEmployerAgreementService> EmployerAgreementService { get; set; }
         public EmployerAgreementController Sut { get; }
@@ -129,7 +129,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public void VerifyMediatorCalledCorrectlyWithId(long id)
         {
-            Mediator.Verify(x=>x.Send(It.Is<GetAccountLegalEntityRequest>(p=>p.AccountLegalEntityId == id), It.IsAny<CancellationToken>()));
+            Mediator.Verify(x=>x.Send(It.Is<GetAccountLegalEntityQuery>(p=>p.AccountLegalEntityId == id), It.IsAny<CancellationToken>()));
         }
 
         public void VerifyIsAgreementSignedCalledCorrectly()

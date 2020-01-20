@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
     [TestFixture]
-    public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperTests : MapperTester<AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper, AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>
+    public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperTests : OldMapperTester<AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper, AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>
     {
         [Test]
         public Task Map_ProviderId_ShouldBeSet()

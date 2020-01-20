@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             private AccountController Controller { get; }
             private Mock<IMediator> Mediator { get; }
             private long AccountId { get; }
-            private GetAccountSummaryResponse MediatorResponse { get; }
+            private GetAccountSummaryQueryResult MediatorQueryResult { get; }
 
             private GetApprovedProvidersQueryResult ApprovedProviderQueryResponse { get; }
             private IActionResult Result { get; set; }
@@ -52,10 +52,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             {
                 var autoFixture = new Fixture();
 
-                MediatorResponse = autoFixture.Create<GetAccountSummaryResponse>();
+                MediatorQueryResult = autoFixture.Create<GetAccountSummaryQueryResult>();
                 Mediator = new Mock<IMediator>();
-                Mediator.Setup(x => x.Send(It.IsAny<GetAccountSummaryRequest>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(MediatorResponse);
+                Mediator.Setup(x => x.Send(It.IsAny<GetAccountSummaryQuery>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(MediatorQueryResult);
 
                 ApprovedProviderQueryResponse = autoFixture.Create<GetApprovedProvidersQueryResult>();
                 Mediator.Setup(x => x.Send(It.IsAny<GetApprovedProvidersQuery>(), It.IsAny<CancellationToken>()))
@@ -85,9 +85,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
                 var response = (AccountResponse) objectResult.Value;
 
-                Assert.AreEqual(MediatorResponse.AccountId, response.AccountId);
-                Assert.AreEqual(MediatorResponse.HasApprenticeships, response.HasApprenticeships);
-                Assert.AreEqual(MediatorResponse.HasCohorts, response.HasCohorts);
+                Assert.AreEqual(MediatorQueryResult.AccountId, response.AccountId);
+                Assert.AreEqual(MediatorQueryResult.HasApprenticeships, response.HasApprenticeships);
+                Assert.AreEqual(MediatorQueryResult.HasCohorts, response.HasCohorts);
             }
 
             public void VerifyApprovedProviderResponse()

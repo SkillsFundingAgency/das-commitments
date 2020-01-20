@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{AccountId}")]
         public async Task<IActionResult> GetAccount(long accountId)
         {
-            var employer = await _mediator.Send(new GetAccountSummaryRequest
+            var employer = await _mediator.Send(new GetAccountSummaryQuery
             {
                 AccountId = accountId
             });
