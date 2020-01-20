@@ -126,6 +126,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public void ThenCohortCannotHaveInvalidStartDate(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .WithInvalidStartDate()
+                .CreateCohort();
+
+            _fixture.VerifyException<DomainException>();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public void ThenCohortIsUnapproved(Party creatingParty)
         {
             _fixture

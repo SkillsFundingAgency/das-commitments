@@ -8,6 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<AssessmentOrganisation> builder)
         {
+            builder.ToTable("AssessmentOrganisation");
+
             builder.Property(e => e.EpaOrgId)
                 .IsRequired()
                 .HasColumnName("EPAOrgId")

@@ -10,12 +10,11 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
-using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice.GetDraftApprenticeResponse;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
@@ -134,15 +133,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public UpdateDraftApprenticeshipCommand UpdateDraftApprenticeshipCommand { get; set; }
         public AddDraftApprenticeshipCommand AddDraftApprenticeshipCommand { get; set; }
-        public GetDraftApprenticeshipsRequest GetDraftApprenticeshipsRequest { get; set; }
+        public GetDraftApprenticeshipsQuery GetDraftApprenticeshipsQuery { get; set; }
         public DeleteDraftApprenticeshipRequest DeleteDraftApprenticeshipRequest { get; set; }
         public DeleteDraftApprenticeshipCommand DeleteDraftApprenticeshipCommand { get; set; }
 
-        public Mock<IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>> UpdateDraftApprenticeshipMapper { get; set; }
-        public Mock<IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>> AddDraftApprenticeshipMapper { get; set; }
-        public Mock<IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse>> GetDraftApprenticeshipMapper { get; }
-        public Mock<IMapper<GetDraftApprenticeshipsResult, GetDraftApprenticeshipsResponse>> GetDraftApprenticeshipsMapper { get; set; }
-        public Mock<IMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand>> DeleteDraftApprenticeshipMapper { get; set; }
+        public Mock<IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>> UpdateDraftApprenticeshipMapper { get; set; }
+        public Mock<IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>> AddDraftApprenticeshipMapper { get; set; }
+        public Mock<IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse>> GetDraftApprenticeshipMapper { get; }
+        public Mock<IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse>> GetDraftApprenticeshipsMapper { get; set; }
+        public Mock<IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand>> DeleteDraftApprenticeshipMapper { get; set; }
 
         public const long CohortId = 123;
         public const long DraftApprenticeshipId = 456;
@@ -150,11 +149,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public DraftApprenticeshipControllerTestsFixture()
         {
             Mediator = new Mock<IMediator>();
-            UpdateDraftApprenticeshipMapper = new Mock<IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>>();
-            GetDraftApprenticeshipMapper = new Mock<IMapper<GetDraftApprenticeResponse, GetDraftApprenticeshipResponse>>();
-            AddDraftApprenticeshipMapper = new Mock<IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>>();
-            GetDraftApprenticeshipsMapper = new Mock<IMapper<GetDraftApprenticeshipsResult, GetDraftApprenticeshipsResponse>>();
-            DeleteDraftApprenticeshipMapper = new Mock<IMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand>>();
+            UpdateDraftApprenticeshipMapper = new Mock<IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>>();
+            GetDraftApprenticeshipMapper = new Mock<IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse>>();
+            AddDraftApprenticeshipMapper = new Mock<IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>>();
+            GetDraftApprenticeshipsMapper = new Mock<IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse>>();
+            DeleteDraftApprenticeshipMapper = new Mock<IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand>>();
 
             Controller = new DraftApprenticeshipController(
                 Mediator.Object,
@@ -188,16 +187,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public DraftApprenticeshipControllerTestsFixture WithGetDraftApprenticeshipCommandResponse()
         {
-            Mediator.Setup(m => m.Send(It.Is<GetDraftApprenticeRequest>(x => x.CohortId == CohortId && x.DraftApprenticeshipId == DraftApprenticeshipId), CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeResponse{Id = DraftApprenticeshipId});
-            GetDraftApprenticeshipMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipCommandResponse>())).ReturnsAsync(new GetDraftApprenticeshipResponse());
+            Mediator.Setup(m => m.Send(It.Is<GetDraftApprenticeshipQuery>(x => x.CohortId == CohortId && x.DraftApprenticeshipId == DraftApprenticeshipId), CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeshipQueryResult{Id = DraftApprenticeshipId});
+            GetDraftApprenticeshipMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipQueryResult>())).ReturnsAsync(new GetDraftApprenticeshipResponse());
             return this;
         }
 
         public DraftApprenticeshipControllerTestsFixture WithGetDraftApprenticeshipsRequestResponse()
         {
-            GetDraftApprenticeshipsRequest = new GetDraftApprenticeshipsRequest(CohortId);
-            Mediator.Setup(m => m.Send(GetDraftApprenticeshipsRequest, CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeshipsResult());
-            GetDraftApprenticeshipsMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipsResult>())).ReturnsAsync(new GetDraftApprenticeshipsResponse{ DraftApprenticeships = new List<DraftApprenticeshipDto>()});
+            GetDraftApprenticeshipsQuery = new GetDraftApprenticeshipsQuery(CohortId);
+            Mediator.Setup(m => m.Send(GetDraftApprenticeshipsQuery, CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeshipsQueryResult());
+            GetDraftApprenticeshipsMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipsQueryResult>())).ReturnsAsync(new GetDraftApprenticeshipsResponse{ DraftApprenticeships = new List<DraftApprenticeshipDto>()});
             return this;
         }
 
