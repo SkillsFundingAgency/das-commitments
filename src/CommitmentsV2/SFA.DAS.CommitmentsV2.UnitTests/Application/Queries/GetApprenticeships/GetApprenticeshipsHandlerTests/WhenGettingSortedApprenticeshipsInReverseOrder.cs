@@ -43,7 +43,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
-                    PendingUpdateOriginator = Originator.Unknown
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "XX",
+                    LastName = "Should_Be_Third",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>{new ApprenticeshipUpdate
+                    {
+                        Status = (byte)ApprenticeshipUpdateStatus.Pending,
+                        Originator = (byte)Originator.Employer
+                    }},
                 },
                 new Apprenticeship
                 {
@@ -54,8 +70,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PendingUpdateOriginator = Originator.Provider
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus
+                        {
+                            IsResolved = false,
+                            Status = Status.Fail,
+                            EventStatus = 2
+                        }
+                    },
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 }
             };
 
@@ -70,9 +92,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await handler.Handle(request, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).LastName);
-            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(1).LastName);
-        }
+            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(0).LastName);
+            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(1).LastName);
+            Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(2).LastName);        }
 
         [Test, MoqAutoData]
         public async Task Then_Reverse_Sorted_Apprentices_Are_Return_Per_Page(

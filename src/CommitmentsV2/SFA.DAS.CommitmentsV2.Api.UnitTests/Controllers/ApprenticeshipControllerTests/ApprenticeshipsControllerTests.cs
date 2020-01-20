@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
 using AutoFixture.NUnit3;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -129,6 +130,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var expectedApprenticeship = new ApprenticeshipDetails
             {
+                Id = new Fixture().Create<long>(),
                 FirstName = "George",
                 LastName = "Test",
                 Uln = "12345",
@@ -161,6 +163,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var actualApprenticeship = response.Apprenticeships.First();
 
+            Assert.AreEqual(expectedApprenticeship.Id, actualApprenticeship.Id);
             Assert.AreEqual(expectedApprenticeship.FirstName, actualApprenticeship.FirstName);
             Assert.AreEqual(expectedApprenticeship.LastName, actualApprenticeship.LastName);
             Assert.AreEqual(expectedApprenticeship.Uln, actualApprenticeship.Uln);

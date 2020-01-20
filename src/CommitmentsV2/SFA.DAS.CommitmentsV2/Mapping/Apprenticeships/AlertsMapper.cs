@@ -3,6 +3,8 @@ using System.Linq;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using Apprenticeship = SFA.DAS.CommitmentsV2.Models.Apprenticeship;
+using Originator = SFA.DAS.CommitmentsV2.Types.Originator;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
 {
@@ -34,13 +36,22 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 result.Add("Changes requested");
             }
 
-            if (!source.PendingUpdateOriginator.HasValue) 
+            if (source.ApprenticeshipUpdate == null)
+            {
                 return result;
+            }
 
-            result.Add(source.PendingUpdateOriginator == Originator.Provider
-                ? "Changes pending"
-                : "Changes for review");
-
+            if (source.ApprenticeshipUpdate.Any(c =>
+                c.Originator == (byte) Originator.Employer && c.Status == (byte) ApprenticeshipUpdateStatus.Pending))
+            {
+                result.Add("Changes for review");
+            }
+            else if (source.ApprenticeshipUpdate.Any(c =>
+                c.Originator == (byte) Originator.Provider && c.Status == (byte) ApprenticeshipUpdateStatus.Pending))
+            {
+                result.Add("Changes pending");
+            }
+            
             return result;
         }
 
@@ -48,35 +59,40 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
         {
             return source.DataLockStatus.Any(x => 
                 x.WithCourseError() && 
-                x.TriageStatus == TriageStatus.Unknown);
+                x.TriageStatus == TriageStatus.Unknown &&
+                !x.IsResolved);
         }
 
         private bool HasPriceDataLock(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x => 
                 x.IsPriceOnly() && 
-                x.TriageStatus == TriageStatus.Unknown);
+                x.TriageStatus == TriageStatus.Unknown &&
+                !x.IsResolved);
         }
 
         private bool HasCourseDataLockPendingChanges(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
-                x.TriageStatus == TriageStatus.Change);
+                x.TriageStatus == TriageStatus.Change &&
+                !x.IsResolved);
         }
 
         private bool HasPriceDataLockPendingChanges(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.IsPriceOnly() && 
-                x.TriageStatus == TriageStatus.Change);
+                x.TriageStatus == TriageStatus.Change &&
+                !x.IsResolved);
         }
 
         private bool HasCourseDataLockChangesRequested(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
-                x.TriageStatus == TriageStatus.Restart);
+                x.TriageStatus == TriageStatus.Restart &&
+                !x.IsResolved);
         }
     }
 }

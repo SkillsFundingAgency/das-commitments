@@ -21,8 +21,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
-                    PendingUpdateOriginator = Originator.Employer,
-                    DataLockStatus = new List<DataLockStatus>()
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
                 },
                 new Apprenticeship
                 {
@@ -33,8 +33,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
-                    PendingUpdateOriginator = Originator.Provider,
-                    DataLockStatus = new List<DataLockStatus>()
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
                 },
                 new Apprenticeship
                 {
@@ -45,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -56,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };

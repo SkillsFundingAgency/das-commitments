@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
-            request.SortField = nameof(CommitmentsV2.Models.Apprenticeship.FirstName);
+            request.SortField = nameof(Apprenticeship.FirstName);
             request.PageNumber = 2;
             request.PageItemCount = 2;
             request.ReverseSort = false;
@@ -92,9 +92,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
 
-            var apprenticeships = new List<CommitmentsV2.Models.Apprenticeship>
+            var apprenticeships = new List<Apprenticeship>
             {
-                new CommitmentsV2.Models.Apprenticeship
+                new Apprenticeship
                 {
                     FirstName = "BB_Should_Be_Second_Name",
                     LastName = "Zog",
@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Cohort = new Cohort{LegalEntityName = "Employer"},
                     DataLockStatus = new List<DataLockStatus>()
                 },
-                new CommitmentsV2.Models.Apprenticeship
+                new Apprenticeship
                 {
                     FirstName = "CC_Should_Be_Third_Name",
                     LastName = "Zog",
@@ -116,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Cohort = new Cohort{LegalEntityName = "Employer"},
                     DataLockStatus = new List<DataLockStatus>()
                 },
-                new CommitmentsV2.Models.Apprenticeship
+                new Apprenticeship
                 {
                     FirstName = "AA_Should_Be_First_Name",
                     LastName = "Zog",
@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Cohort = new Cohort{LegalEntityName = "Employer"},
                     DataLockStatus = new List<DataLockStatus>()
                 },
-                new CommitmentsV2.Models.Apprenticeship
+                new Apprenticeship
                 {
                     FirstName = "AA_Should_Be_First_Name",
                     LastName = "Fog",
@@ -146,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
-            request.SortField = nameof(CommitmentsV2.Models.Apprenticeship.FirstName);
+            request.SortField = nameof(Apprenticeship.FirstName);
             request.ReverseSort = false;
             request.SearchFilters = null;
 

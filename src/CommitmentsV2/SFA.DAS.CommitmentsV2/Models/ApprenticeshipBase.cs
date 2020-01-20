@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -33,5 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual Cohort Cohort { get; set; }
         public virtual AssessmentOrganisation EpaOrg { get; set; }
+        
+        public virtual ICollection<ApprenticeshipUpdate> ApprenticeshipUpdate { get; set; }
     }
 }
