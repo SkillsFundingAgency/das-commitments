@@ -58,6 +58,10 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithMany(p => p.Apprenticeship)
                 .HasPrincipalKey(p => p.EpaOrgId)
                 .HasForeignKey(d => d.EpaOrgId);
+
+            builder.HasMany(d => d.ApprenticeshipUpdate)
+                .WithOne(p => p.Apprenticeship)
+                .HasForeignKey(d => d.ApprenticeshipId);
             
             builder.Property(e => e.ProgrammeType).HasColumnName("TrainingType");
 

@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
         {
             var apprenticeships = await _dbContext
                 .Apprenticeships
-                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId && apprenticeship.PendingUpdateOriginator != null)
+                .Where(HasAlerts(providerId))
                 .OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             var apprenticeshipsWithoutAlerts = await _dbContext
                 .Apprenticeships
-                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId && apprenticeship.PendingUpdateOriginator == null)
+                .Where(HasNoAlerts(providerId))
                 .OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             var totalApprenticeshipsWithAlertsFound = apprenticeships.Count;
 
-            var combinedList = new List<Apprenticeship>();
+            List<Apprenticeship> combinedList;
 
             if (reverseSort)
             {
@@ -146,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId);
 
-            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(app => app.PendingUpdateOriginator != null, cancellationToken);
+            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(HasAlerts(providerId), cancellationToken);
 
             foreach (Apprenticeship app in apprenticeshipsQuery)
             {
@@ -171,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId);
 
-            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(app => app.PendingUpdateOriginator != null, cancellationToken);
+            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(HasAlerts(providerId), cancellationToken);
 
             foreach (Apprenticeship app in apprenticeshipsQuery)
             {
@@ -219,6 +219,25 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             public IEnumerable<Apprenticeship> Apprenticeships { get; set; }
             public int TotalApprenticeshipsFound { get; set; }
             public int TotalApprenticeshipsWithAlertsFound { get; set; }
+        }
+
+        private static Expression<Func<Apprenticeship, bool>> HasAlerts(long? providerId)
+        {
+            return apprenticeship => apprenticeship.Cohort.ProviderId == providerId
+                                     && (apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3)
+                                         || 
+                                         apprenticeship.ApprenticeshipUpdate != null &&
+                                         apprenticeship.ApprenticeshipUpdate.Any(
+                                             c => c.Status.Equals((byte)ApprenticeshipUpdateStatus.Pending) 
+                                                  && (c.Originator.Equals((byte)Originator.Employer) 
+                                                      || c.Originator.Equals((byte)Originator.Provider))));
+        }
+
+        private static Expression<Func<Apprenticeship, bool>> HasNoAlerts(long? providerId)
+        {
+            return apprenticeship => apprenticeship.Cohort.ProviderId == providerId
+                                     && !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3)
+                                     && !apprenticeship.ApprenticeshipUpdate.Any(c => c.Status.Equals((byte)ApprenticeshipUpdateStatus.Pending));
         }
 
         private Expression<Func<Apprenticeship, object>> GetOrderByField(string fieldName)
