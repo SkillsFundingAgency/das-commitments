@@ -29,5 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? EffectiveToDate { get; set; }
 
         public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
+        
+        public virtual ApprenticeshipBase Apprenticeship { get; set; }
     }
 }

@@ -103,7 +103,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
                 new Apprenticeship
                 {
@@ -114,7 +115,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow.AddMonths(2),
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
                 new Apprenticeship
                 {
@@ -125,7 +127,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "Should_Be_Fourth"},
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
                 new Apprenticeship
                 {
@@ -136,7 +139,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
                 new Apprenticeship
                 {
@@ -147,7 +151,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
                 new Apprenticeship
                 {
@@ -158,7 +163,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>()
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 }
             };
 
@@ -182,7 +188,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task And_No_Sort_Term_And_Is_Reverse_Sorted_Then_Apprentices_Are_Default_Sorted(
+        public async Task And_No_Sort_Term_And_Is_Reverse_Sorted_Then_Apprentices_Are_Default_Sorted_In_Reverse(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
@@ -205,8 +211,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PendingUpdateOriginator = Originator.Unknown
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1}}
                 },
                 new Apprenticeship
                 {
@@ -217,8 +223,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PendingUpdateOriginator = Originator.Provider
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
@@ -235,6 +241,91 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Assert
             Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).LastName);
             Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(1).LastName);
+        }
+
+
+        [Test, MoqAutoData]
+        public async Task And_No_Sort_Term_And_Is_And_There_Are_ApprenticeshipUpdates_These_Appear_First(
+            GetApprenticeshipsRequest request,
+            Mock<IAlertsMapper> alertsMapper,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            request.SortField = null;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
+            request.ReverseSort = false;
+
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    FirstName = "XX",
+                    LastName = "Should_Be_Second",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
+                    {
+                        new ApprenticeshipUpdate
+                        {
+                            Status = (byte) ApprenticeshipUpdateStatus.Pending,
+                            Originator = (byte) Originator.Employer
+                        }
+                    }
+                },
+                new Apprenticeship
+                {
+                    FirstName = "XX",
+                    LastName = "Should_Be_First",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "XX",
+                    LastName = "Should_Be_Third",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
+                    {
+                        new ApprenticeshipUpdate
+                        {
+                            Status = (byte) ApprenticeshipUpdateStatus.Pending,
+                            Originator = (byte) Originator.Provider
+                        }
+                    }
+                },
+            };
+
+            AssignProviderToApprenticeships(request.ProviderId, apprenticeships);
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+
+            //Act
+            var actual = await handler.Handle(request, CancellationToken.None);
+
+            //Assert
+            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(0).LastName);
+            Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(1).LastName);
+            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(2).LastName);
+            
         }
 
         [Test, MoqAutoData]
@@ -262,7 +353,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
-                    PendingUpdateOriginator = Originator.Unknown
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "XX",
+                    LastName = "Should_Be_Third",
+                    Uln = "XX",
+                    CourseName = "XX",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>{new ApprenticeshipUpdate
+                    {
+                        Status = (byte)ApprenticeshipUpdateStatus.Pending,
+                        Originator = (byte)Originator.Employer
+                    }},
                 },
                 new Apprenticeship
                 {
@@ -273,8 +380,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PendingUpdateOriginator = Originator.Provider
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus
+                        {
+                            IsResolved = false,
+                            Status = Status.Fail,
+                            EventStatus = 2
+                        }
+                    },
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 }
             };
 
@@ -289,8 +402,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await handler.Handle(request, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).LastName);
-            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(1).LastName);
+            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(0).LastName);
+            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(1).LastName);
+            Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(2).LastName);
+            
         }
 
         [Test, MoqAutoData]
@@ -1612,8 +1727,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
-                    PendingUpdateOriginator = Originator.Employer,
-                    DataLockStatus = new List<DataLockStatus>()
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
                 },
                 new Apprenticeship
                 {
@@ -1624,8 +1739,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
-                    PendingUpdateOriginator = Originator.Provider,
-                    DataLockStatus = new List<DataLockStatus>()
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
                 },
                 new Apprenticeship
                 {
@@ -1636,6 +1751,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -1647,6 +1763,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
