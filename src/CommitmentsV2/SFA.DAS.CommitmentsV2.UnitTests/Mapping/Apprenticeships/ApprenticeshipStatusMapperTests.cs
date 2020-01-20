@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         [TestCase(PaymentStatus.Active, ApprenticeshipStatus.Live)]
         [TestCase(PaymentStatus.Paused, ApprenticeshipStatus.Paused)]
         [TestCase(PaymentStatus.Withdrawn, ApprenticeshipStatus.Stopped)]
-        [TestCase(PaymentStatus.Completed, ApprenticeshipStatus.Finished)]
+        [TestCase(PaymentStatus.Completed, ApprenticeshipStatus.Completed)]
         [TestCase(PaymentStatus.Deleted, ApprenticeshipStatus.Live)]
         [TestCase(null, ApprenticeshipStatus.WaitingToStart)]
         public void And_Has_Started_The_Payment_Status_Is_Mapped_To_Apprenticeship_Status(PaymentStatus paymentStatus, ApprenticeshipStatus expected)

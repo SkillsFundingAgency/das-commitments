@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Mappers
                 case PaymentStatus.Withdrawn:
                     return ApprenticeshipStatus.Stopped;
                 case PaymentStatus.Completed:
-                    return ApprenticeshipStatus.Finished;
+                    return ApprenticeshipStatus.Completed;
                 case PaymentStatus.Deleted:
                     return ApprenticeshipStatus.Live;
                 default:
