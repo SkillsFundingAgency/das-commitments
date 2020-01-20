@@ -30,14 +30,20 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 apprenticeships = apprenticeships.Where(app => paymentStatus.Equals(app.PaymentStatus));
             }
 
-            if (filters?.StartDate != null)
+            if (filters.StartDate.HasValue)
             {
-                apprenticeships = apprenticeships.Where(app => filters.StartDate.Equals(app.StartDate));
+                apprenticeships = apprenticeships.Where(app =>  
+                    app.StartDate.HasValue &&
+                    filters.StartDate.Value.Month.Equals(app.StartDate.Value.Month) && 
+                    filters.StartDate.Value.Year.Equals(app.StartDate.Value.Year));
             }
 
-            if (filters?.EndDate != null)
+            if (filters.EndDate.HasValue)
             {
-                apprenticeships = apprenticeships.Where(app => filters.EndDate.Equals(app.EndDate));
+                apprenticeships = apprenticeships.Where(app => 
+                    app.EndDate.HasValue &&
+                    filters.EndDate.Value.Month.Equals(app.EndDate.Value.Month) && 
+                    filters.EndDate.Value.Year.Equals(app.EndDate.Value.Year));
             }
 
             return apprenticeships;

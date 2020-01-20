@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -179,12 +180,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
             if (request.StartDate.HasValue)
             {
-                filterQuery += $"&startDate={WebUtility.UrlEncode(request.StartDate.Value.ToShortDateString())}";
+                filterQuery += $"&startDate={WebUtility.UrlEncode(request.StartDate.Value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture))}";
             }
 
             if (request.EndDate.HasValue)
             {
-                filterQuery += $"&endDate={WebUtility.UrlEncode(request.EndDate.Value.ToShortDateString())}";
+                filterQuery += $"&endDate={WebUtility.UrlEncode(request.EndDate.Value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture))}";
             }
 
             return filterQuery;

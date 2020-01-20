@@ -220,7 +220,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 },
                 new Apprenticeship
                 {
-                    StartDate = filterValue.AddDays(1)
+                    StartDate = filterValue.AddMonths(1)
                 }
             }.AsQueryable();
 
@@ -249,7 +249,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 new Apprenticeship(),
                 new Apprenticeship
                 {
-                    StartDate = filterValue.AddDays(1)
+                    StartDate = filterValue.AddMonths(1)
                 }
             }.AsQueryable();
 
@@ -281,7 +281,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 },
                 new Apprenticeship
                 {
-                    EndDate = filterValue.AddDays(1)
+                    EndDate = filterValue.AddMonths(1)
                 }
             }.AsQueryable();
 
@@ -310,7 +310,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 new Apprenticeship(),
                 new Apprenticeship
                 {
-                    EndDate = filterValue.AddDays(1)
+                    EndDate = filterValue.AddMonths(1)
                 }
             }.AsQueryable();
 

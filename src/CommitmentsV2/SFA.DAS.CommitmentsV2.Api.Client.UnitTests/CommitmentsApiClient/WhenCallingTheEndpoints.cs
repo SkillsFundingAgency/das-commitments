@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -328,8 +329,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 $"employerName={WebUtility.UrlEncode(request.EmployerName)}&" +
                 $"courseName={WebUtility.UrlEncode(request.CourseName)}&" +
                 $"status={WebUtility.UrlEncode(request.Status)}&" +
-                $"startDate={WebUtility.UrlEncode(request.StartDate.Value.ToShortDateString())}&" +
-                $"endDate={WebUtility.UrlEncode(request.EndDate.Value.ToShortDateString())}", null, CancellationToken.None));
+                $"startDate={WebUtility.UrlEncode(request.StartDate.Value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture))}&" +
+                $"endDate={WebUtility.UrlEncode(request.EndDate.Value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture))}", null, CancellationToken.None));
         }
 
         [Test]
