@@ -252,6 +252,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task And_No_Sort_Term_And_Is_And_There_Are_ApprenticeshipUpdates_These_Appear_First(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
+            Mock<IApprenticeshipStatusMapper> statusMapper,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
@@ -320,7 +321,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper, statusMapper.Object);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
