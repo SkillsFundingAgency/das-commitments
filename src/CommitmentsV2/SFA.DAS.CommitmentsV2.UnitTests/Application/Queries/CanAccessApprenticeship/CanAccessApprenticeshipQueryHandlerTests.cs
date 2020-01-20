@@ -108,6 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
         public CanAccessApprenticeshipQueryHandlerTestsFixture SeedData(bool isApproved = true)
         {
+            ApprenticeshipBase apprenticeship;
             _cohort = new Cohort
             {
                 EmployerAccountId = _accountId,
@@ -118,14 +119,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
                 ProviderId = _providerId,
                 Id = _cohortId,
             };
-            
-            var apprenticeship = new Apprenticeship
+
+            if (isApproved)
             {
-                Id = _apprenticeshipId,
-                CommitmentId = _cohortId,
-                Cohort = _cohort,
-                AgreementStatus = isApproved ? AgreementStatus.BothAgreed: AgreementStatus.NotAgreed,
-            };
+                apprenticeship = new Apprenticeship
+                {
+                    Id = _apprenticeshipId,
+                    CommitmentId = _cohortId,
+                    Cohort = _cohort,
+                    AgreementStatus = AgreementStatus.BothAgreed,
+                };
+            }
+            else
+            {
+                apprenticeship = new DraftApprenticeship
+                {
+                    Id = _apprenticeshipId,
+                    CommitmentId = _cohortId,
+                    Cohort = _cohort,
+                    AgreementStatus = AgreementStatus.NotAgreed,
+                };
+
+            }
 
             _cohort.Apprenticeships.Add(apprenticeship);
             Db.Cohorts.Add(_cohort);
