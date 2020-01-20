@@ -75,6 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .ThenByDescending(x => x.StartDate)
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
+                .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
                 .ToListAsync(cancellationToken);
             
             var apprenticeshipsWithoutAlerts = await _dbContext
@@ -87,7 +88,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .ThenBy(x => x.CourseName)
                 .ThenByDescending(x => x.StartDate)
                 .Include(apprenticeship => apprenticeship.Cohort)
-                .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .ToListAsync(cancellationToken);
 
             var totalApprenticeshipsWithAlertsFound = apprenticeships.Count;
