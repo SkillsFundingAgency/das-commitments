@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 using Apprenticeship = SFA.DAS.CommitmentsV2.Models.Apprenticeship;
 using ApprenticeshipUpdate = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdate;
+using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Types.ApprenticeshipUpdateStatus;
 using Originator = SFA.DAS.CommitmentsV2.Types.Originator;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
@@ -134,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             DataLockStatus dataLockStatus,
             AlertsMapper mapper)
         {
-            apprenticeshipUpdate.Originator = (byte) Originator.Provider;
+            apprenticeshipUpdate.Originator = Originator.Provider;
             apprenticeshipUpdate.Status = (byte) ApprenticeshipUpdateStatus.Pending;
             source.ApprenticeshipUpdate.Add(apprenticeshipUpdate);
             source.DataLockStatus = new List<DataLockStatus>(); 
@@ -152,7 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             AlertsMapper mapper)
         {
 
-            apprenticeshipUpdate.Originator = (byte) Originator.Employer;
+            apprenticeshipUpdate.Originator = Originator.Employer;
             apprenticeshipUpdate.Status = (byte) ApprenticeshipUpdateStatus.Pending;
             source.ApprenticeshipUpdate.Add(new ApprenticeshipUpdate
             {

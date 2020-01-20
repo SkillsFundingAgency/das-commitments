@@ -11,11 +11,11 @@ namespace SFA.DAS.CommitmentsV2.Services
     public class TrainingProgrammeLookup : ITrainingProgrammeLookup
     {
         private readonly ITrainingProgrammeApiClient _trainingProgrammeApiClient;
-        private readonly IMapper<ITrainingProgramme, TrainingProgramme> _trainingProgrammeMapper;
+        private readonly IOldMapper<ITrainingProgramme, TrainingProgramme> _trainingProgrammeMapper;
 
         public TrainingProgrammeLookup(
             ITrainingProgrammeApiClient trainingProgrammeApiClient,
-            IMapper<ITrainingProgramme, TrainingProgramme> trainingProgrammeMapper)
+            IOldMapper<ITrainingProgramme, TrainingProgramme> trainingProgrammeMapper)
         {
             _trainingProgrammeApiClient = trainingProgrammeApiClient;
             _trainingProgrammeMapper = trainingProgrammeMapper;

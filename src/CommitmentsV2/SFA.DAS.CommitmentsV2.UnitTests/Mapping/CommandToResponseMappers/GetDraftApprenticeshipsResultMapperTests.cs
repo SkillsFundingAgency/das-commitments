@@ -11,14 +11,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
     public class GetDraftApprenticeshipsResultMapperTests
     {
         private GetDraftApprenticeshipsResultMapper _mapper;
-        private GetDraftApprenticeshipsResult _source;
+        private GetDraftApprenticeshipsQueryResult _source;
         private GetDraftApprenticeshipsResponse _result;
 
         [SetUp]
         public async Task Arrange()
         {
             var autoFixture = new Fixture();
-            _source = autoFixture.Create<GetDraftApprenticeshipsResult>();
+            _source = autoFixture.Create<GetDraftApprenticeshipsQueryResult>();
 
             _mapper = new GetDraftApprenticeshipsResultMapper();
 

@@ -5,16 +5,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
+using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 {
@@ -273,8 +273,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     {
                         new ApprenticeshipUpdate
                         {
-                            Status = (byte) ApprenticeshipUpdateStatus.Pending,
-                            Originator = (byte) Originator.Employer
+                            Status = ApprenticeshipUpdateStatus.Pending,
+                            Originator = Originator.Employer
                         }
                     }
                 },
@@ -304,8 +304,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     {
                         new ApprenticeshipUpdate
                         {
-                            Status = (byte) ApprenticeshipUpdateStatus.Pending,
-                            Originator = (byte) Originator.Provider
+                            Status = ApprenticeshipUpdateStatus.Pending,
+                            Originator = Originator.Provider
                         }
                     }
                 },

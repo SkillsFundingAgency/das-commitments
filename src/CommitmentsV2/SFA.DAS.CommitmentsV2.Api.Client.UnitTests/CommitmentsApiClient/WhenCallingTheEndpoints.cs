@@ -65,6 +65,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task GetCohorts_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            var request = new GetCohortsRequest {AccountId = 123};
+            await _fixture.CommitmentsApiClient.GetCohorts(request);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetCohortsResponse>("api/cohorts", request, CancellationToken.None));
+        }
+
+        [Test]
         public async Task GetDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.GetDraftApprenticeship(123, 456);

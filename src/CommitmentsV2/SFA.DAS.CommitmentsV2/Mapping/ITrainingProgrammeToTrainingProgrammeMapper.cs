@@ -7,7 +7,7 @@ using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
-    public class ITrainingProgrammeToTrainingProgrammeMapper : IMapper<ITrainingProgramme, TrainingProgramme>
+    public class ITrainingProgrammeToTrainingProgrammeMapper : IOldMapper<ITrainingProgramme, TrainingProgramme>
     {
         public Task<TrainingProgramme> Map(ITrainingProgramme source)
         {

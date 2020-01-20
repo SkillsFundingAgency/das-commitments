@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 {
@@ -205,16 +206,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                                          || 
                                          apprenticeship.ApprenticeshipUpdate != null &&
                                          apprenticeship.ApprenticeshipUpdate.Any(
-                                             c => c.Status.Equals((byte)ApprenticeshipUpdateStatus.Pending) 
-                                                  && (c.Originator.Equals((byte)Originator.Employer) 
-                                                      || c.Originator.Equals((byte)Originator.Provider))));
+                                             c => c.Status == ApprenticeshipUpdateStatus.Pending 
+                                                  && (c.Originator == Originator.Employer 
+                                                      || c.Originator == Originator.Provider)
+                                                  ));
         }
 
         private static Expression<Func<Apprenticeship, bool>> HasNoAlerts(long? providerId)
         {
             return apprenticeship => apprenticeship.Cohort.ProviderId == providerId
                                      && !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3)
-                                     && !apprenticeship.ApprenticeshipUpdate.Any(c => c.Status.Equals((byte)ApprenticeshipUpdateStatus.Pending));
+                                     && apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending);
         }
 
         private Expression<Func<Apprenticeship, object>> GetOrderByField(string fieldName)

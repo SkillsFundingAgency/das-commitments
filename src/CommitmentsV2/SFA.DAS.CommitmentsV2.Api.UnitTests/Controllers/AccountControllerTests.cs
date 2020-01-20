@@ -34,17 +34,17 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             private AccountController Controller { get; }
             private Mock<IMediator> Mediator { get; }
             private long AccountId { get; }
-            private GetAccountSummaryResponse MediatorResponse { get; }
+            private GetAccountSummaryQueryResult MediatorQueryResult { get; }
             private IActionResult Result { get; set; }
 
             public AccountControllerTestsFixture()
             {
                 var autoFixture = new Fixture();
 
-                MediatorResponse = autoFixture.Create<GetAccountSummaryResponse>();
+                MediatorQueryResult = autoFixture.Create<GetAccountSummaryQueryResult>();
                 Mediator = new Mock<IMediator>();
-                Mediator.Setup(x => x.Send(It.IsAny<GetAccountSummaryRequest>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(MediatorResponse);
+                Mediator.Setup(x => x.Send(It.IsAny<GetAccountSummaryQuery>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(MediatorQueryResult);
 
                 Controller = new AccountController(Mediator.Object);
                 AccountId = autoFixture.Create<long>();
@@ -65,9 +65,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
                 var response = (AccountResponse) objectResult.Value;
 
-                Assert.AreEqual(MediatorResponse.AccountId, response.AccountId);
-                Assert.AreEqual(MediatorResponse.HasApprenticeships, response.HasApprenticeships);
-                Assert.AreEqual(MediatorResponse.HasCohorts, response.HasCohorts);
+                Assert.AreEqual(MediatorQueryResult.AccountId, response.AccountId);
+                Assert.AreEqual(MediatorQueryResult.HasApprenticeships, response.HasApprenticeships);
+                Assert.AreEqual(MediatorQueryResult.HasCohorts, response.HasCohorts);
             }
         }
 

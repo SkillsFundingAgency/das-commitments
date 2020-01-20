@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Mapping;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
     [TestFixture]
-    public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTests : MapperTester<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails>
+    public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTests : OldMapperTester<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails>
     {
         [SetUp]
         public void SetMapper()

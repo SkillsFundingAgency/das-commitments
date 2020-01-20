@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -8,9 +7,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
-using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
@@ -103,6 +100,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             }
         }
 
+        public CohortCreationTestFixture WithInvalidStartDate()
+        {
+            DraftApprenticeshipDetails.StartDate = new DateTime(1000, 1, 1);
+            return this;
+        }
+
         public void VerifyOriginator(Originator expectedOriginator)
         {
             Assert.AreEqual(expectedOriginator, Cohort.Originator);
@@ -149,6 +152,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public void VerifyCohortBelongsToAccount()
         {
             Assert.AreEqual(AccountLegalEntity.AccountId, Cohort.EmployerAccountId);
+        }
+
+        public void VerifyCohortBelongsToAccountLegalEntity()
+        {
+            Assert.AreEqual(AccountLegalEntity.Id, Cohort.AccountLegalEntityId);
         }
 
         public void VerifyCohortHasTransferInformation()

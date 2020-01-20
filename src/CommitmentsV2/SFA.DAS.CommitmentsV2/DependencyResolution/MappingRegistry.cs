@@ -13,8 +13,8 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             Scan(scan =>
             {
                 scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
-                scan.ConnectImplementationsToTypesClosing(typeof(IMapper<,>));
-                scan.RegisterConcreteTypesAgainstTheFirstInterface();
+                scan.ConnectImplementationsToTypesClosing(typeof(IOldMapper<,>));
+                scan.ConnectImplementationsToTypesClosing(typeof(Shared.Interfaces.IMapper<,>));
             });
         }
     }

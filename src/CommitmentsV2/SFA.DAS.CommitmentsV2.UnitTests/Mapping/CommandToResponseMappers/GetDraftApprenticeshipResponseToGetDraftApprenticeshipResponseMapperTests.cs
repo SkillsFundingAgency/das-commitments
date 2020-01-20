@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers;
 using HttpResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
+using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
 {
     [TestFixture]
-    public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapperTests : MapperTester<GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapper, CommandResponse.GetDraftApprenticeResponse, HttpResponse.GetDraftApprenticeshipResponse>
+    public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapperTests : OldMapperTester<GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapper, CommandResponse.GetDraftApprenticeshipQueryResult, HttpResponse.GetDraftApprenticeshipResponse>
     {
         [Test]
         public Task Map_FirstName_ShouldBeSet()
