@@ -180,12 +180,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
             if (request.StartDate.HasValue)
             {
-                filterQuery += $"&startDate={WebUtility.UrlEncode(request.StartDate.Value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture))}";
+                filterQuery += $"&startDate={WebUtility.UrlEncode(request.StartDate.Value.ToString("u"))}";
             }
 
             if (request.EndDate.HasValue)
             {
-                filterQuery += $"&endDate={WebUtility.UrlEncode(request.EndDate.Value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture))}";
+                filterQuery += $"&endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}";
             }
 
             return filterQuery;

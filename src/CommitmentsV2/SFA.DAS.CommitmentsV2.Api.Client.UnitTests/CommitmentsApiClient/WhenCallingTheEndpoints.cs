@@ -310,14 +310,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Arrange
             var request = new GetApprenticeshipRequest
             {
-               ProviderId = 10,
-               EmployerName = "Test corp",
-               CourseName = "Test course",
-               Status = "Test status",
-               StartDate = DateTime.Now.AddDays(2),
-               EndDate = DateTime.Now.AddDays(4)
+                ProviderId = 10,
+                EmployerName = "Test corp",
+                CourseName = "Test course",
+                Status = "Test status",
+                StartDate = DateTime.Now.AddDays(2),
+                EndDate = DateTime.Now.AddDays(4)
             };
-             
+
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeships(request);
 
@@ -329,8 +329,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 $"employerName={WebUtility.UrlEncode(request.EmployerName)}&" +
                 $"courseName={WebUtility.UrlEncode(request.CourseName)}&" +
                 $"status={WebUtility.UrlEncode(request.Status)}&" +
-                $"startDate={WebUtility.UrlEncode(request.StartDate.Value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture))}&" +
-                $"endDate={WebUtility.UrlEncode(request.EndDate.Value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture))}", null, CancellationToken.None));
+                $"startDate={WebUtility.UrlEncode(request.StartDate.Value.ToString("u"))}&" +
+                $"endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}", null, CancellationToken.None));
         }
 
         [Test]
