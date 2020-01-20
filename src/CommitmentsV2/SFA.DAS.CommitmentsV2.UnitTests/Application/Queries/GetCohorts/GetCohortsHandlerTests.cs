@@ -229,9 +229,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages).Create();
 
-            //var account = new Account(TransferSenderId, "hashedId", "publicHashedId", "TransferSender", DateTime.Now);
-
-            //SeedAccounts.Add(account);
             SeedCohorts.Add(cohort);
             return this;
         }
