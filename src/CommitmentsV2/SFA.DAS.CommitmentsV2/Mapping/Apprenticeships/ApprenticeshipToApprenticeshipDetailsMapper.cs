@@ -1,19 +1,14 @@
 ﻿using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Mappers;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
 {
     public class ApprenticeshipToApprenticeshipDetailsMapper : IMapper<Apprenticeship, ApprenticeshipDetails>
     {
-        private readonly IAlertsMapper _alertsMapper;
-
-        public ApprenticeshipToApprenticeshipDetailsMapper(IAlertsMapper alertsMapper)
-        {
-            _alertsMapper = alertsMapper;
-        }
-
         public Task<ApprenticeshipDetails> Map(Apprenticeship source)
         {
             return Task.FromResult(new ApprenticeshipDetails
@@ -28,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 PaymentStatus = source.PaymentStatus,
                 ApprenticeshipStatus = source.ApprenticeshipStatus,
                 Uln = source.Uln,
-                Alerts = _alertsMapper.Map(source)
+                Alerts = source.MapAlerts()
             });
         }
     }

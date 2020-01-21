@@ -4,7 +4,7 @@ using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
 {
-    public class ValidationResultToReservationValidationErrorMapper : IMapper<ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult>
+    public class ValidationResultToReservationValidationErrorMapper : IOldMapper<ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult>
     {
         public Task<Domain.Entities.Reservations.ReservationValidationResult> Map(ReservationValidationResult source)
         {

@@ -6,6 +6,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -32,8 +33,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             await _fixture.AuthorizationController.CanAccessCohort(request);
 
             _fixture.MediatorMock.Verify(x => x.Send(It.Is<CanAccessCohortQuery>(p => p.CohortId == cohortId &&
-                                                                                      p.Party == party &&
-                                                                                      p.PartyId == partyId),
+                p.Party == party &&
+                p.PartyId == partyId), 
                 CancellationToken.None), Times.Once);
         }
 
@@ -42,11 +43,36 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             var request = new CohortAccessRequest { CohortId = 1, Party = Party.Employer, PartyId = 2 };
 
-            var retVal = await _fixture.SetFixtureToReturnTrue().AuthorizationController.CanAccessCohort(request);
+            var retVal = await _fixture.SetCanAccessCohortToReturnTrue().AuthorizationController.CanAccessCohort(request);
 
             Assert.IsInstanceOf<OkObjectResult>(retVal);
             Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
+        }
 
+        [TestCase(Party.Provider, 124, 1)]
+        [TestCase(Party.Employer, 123, 2)]
+        public async Task AuthorizationController_AccessApprenticeshipRequest_ShouldCallCommandWithCorrectQueryValues(
+            Party party, long partyId, long apprenticeshipId)
+        {
+            var request = new ApprenticeshipAccessRequest { ApprenticeshipId = apprenticeshipId, Party = party, PartyId = partyId };
+
+            await _fixture.AuthorizationController.CanAccessApprenticeship(request);
+
+            _fixture.MediatorMock.Verify(x => x.Send(It.Is<CanAccessApprenticeshipQuery>(p => p.ApprenticeshipId == apprenticeshipId &&
+                p.Party == party &&
+                p.PartyId == partyId), 
+                CancellationToken.None), Times.Once);
+        }
+
+        [Test]
+        public async Task AuthorizationController_AccessApprenticeshipRequest_ShouldReturnOkAndBoolResult()
+        {
+            var request = new ApprenticeshipAccessRequest { ApprenticeshipId = 1, Party = Party.Employer, PartyId = 2 };
+
+            var retVal = await _fixture.SetCanAccessApprenticeshipToReturnTrue().AuthorizationController.CanAccessApprenticeship(request);
+
+            Assert.IsInstanceOf<OkObjectResult>(retVal);
+            Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
         }
     }
 
@@ -63,9 +89,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public AuthorizationController AuthorizationController { get; }
 
-        public AuthorizationControllerTestFixture SetFixtureToReturnTrue()
+        public AuthorizationControllerTestFixture SetCanAccessCohortToReturnTrue()
         {
             MediatorMock.Setup(x => x.Send(It.IsAny<CanAccessCohortQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+            return this;
+        }
+
+        public AuthorizationControllerTestFixture SetCanAccessApprenticeshipToReturnTrue()
+        {
+            MediatorMock.Setup(x => x.Send(It.IsAny<CanAccessApprenticeshipQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
             return this;
         }

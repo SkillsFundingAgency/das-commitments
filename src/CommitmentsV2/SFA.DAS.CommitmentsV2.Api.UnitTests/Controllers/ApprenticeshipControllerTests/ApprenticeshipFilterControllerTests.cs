@@ -8,22 +8,25 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
     public class ApprenticeshipFilterControllerTests
     {
         private Mock<IMediator> _mediator;
-        private Mock<ILogger<ApprenticeshipsController>> _logger;
-        private ApprenticeshipsController _controller;
+        private Mock<ILogger<ApprenticeshipController>> _logger;
+        private Mock<IModelMapper> _mapper;
+        private ApprenticeshipController _controller;
 
         [SetUp]
         public void Init()
         {
             _mediator = new Mock<IMediator>();
-            _logger = new Mock<ILogger<ApprenticeshipsController>>();
+            _logger = new Mock<ILogger<ApprenticeshipController>>();
+            _mapper = new Mock<IModelMapper>();
 
-            _controller = new ApprenticeshipsController(_mediator.Object, _logger.Object);
+            _controller = new ApprenticeshipController(_mediator.Object, _mapper.Object, _logger.Object);
         }
 
         [Test]
@@ -46,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         {
             //Arrange
             var providerId = 10;
-            var expectedResponse = new GetApprenticeshipsFilterValuesResponse
+            var expectedResponse = new GetApprenticeshipsFilterValuesQueryResult
             {
                 EmployerNames = new[] {"Test 1", "Test 2"},
                 CourseNames = new[] {"Test 3", "Test 4"},
@@ -64,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             Assert.IsNotNull(result);
 
-            var filterValues = result.Value as GetApprenticeshipsFilterValuesResponse;
+            var filterValues = result.Value as GetApprenticeshipsFilterValuesQueryResult;
 
             filterValues.Should().BeEquivalentTo(expectedResponse);
         }

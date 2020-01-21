@@ -46,5 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return dataLockStatus.WithCourseError() 
                    && dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock07);
         }
+
+        
     }
 }

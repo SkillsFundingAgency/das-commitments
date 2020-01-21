@@ -12,8 +12,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public void Validate_WithSpecifiedCohortId_ShouldSetIsValidCorrectly(int cohortId, bool expectedIsValid)
         {
             // arrange
-            var validator = new GetDraftApprenticeshipsValidator();
-            var validationResults = validator.Validate(new GetDraftApprenticeshipsRequest(cohortId));
+            var validator = new GetDraftApprenticeshipsQueryValidator();
+            var validationResults = validator.Validate(new GetDraftApprenticeshipsQuery(cohortId));
 
             // act
             var actualIsValid = validationResults.IsValid;

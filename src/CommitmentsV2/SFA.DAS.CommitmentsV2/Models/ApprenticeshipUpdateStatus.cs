@@ -1,6 +1,6 @@
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public enum ApprenticeshipUpdateStatus
+    public enum ApprenticeshipUpdateStatus : byte
     {
         Pending = 0,
         Approved = 1,
