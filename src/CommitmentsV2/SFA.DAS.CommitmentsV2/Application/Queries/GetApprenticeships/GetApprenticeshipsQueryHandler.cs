@@ -14,7 +14,7 @@ using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUp
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 {
-    public class GetApprenticeshipsQueryHandler : IRequestHandler<GetApprenticeshipsQuery, GetApprenticeshipsQueryResponse>
+    public class GetApprenticeshipsQueryHandler : IRequestHandler<GetApprenticeshipsQuery, GetApprenticeshipsQueryResult>
     {
         private readonly ICommitmentsReadOnlyDbContext _dbContext;
         private readonly IMapper<Apprenticeship, ApprenticeshipDetails> _mapper;
@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             _mapper = mapper;
         }
 
-        public async Task<GetApprenticeshipsQueryResponse> Handle(GetApprenticeshipsQuery query, CancellationToken cancellationToken)
+        public async Task<GetApprenticeshipsQueryResult> Handle(GetApprenticeshipsQuery query, CancellationToken cancellationToken)
         {
             var matchedApprenticeshipDetails = new List<ApprenticeshipDetails>();
 
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 matchedApprenticeshipDetails.Add(details);
             }
 
-            return new GetApprenticeshipsQueryResponse
+            return new GetApprenticeshipsQueryResult
             {
                 Apprenticeships = matchedApprenticeshipDetails,
                 TotalApprenticeshipsFound = searchResult.TotalApprenticeshipsFound,

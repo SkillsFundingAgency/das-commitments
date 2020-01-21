@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues
 {
-    public class GetApprenticeshipsFilterValuesQueryHandler : IRequestHandler<GetApprenticeshipsFilterValuesQuery, GetApprenticeshipsFilterValuesResponse>
+    public class GetApprenticeshipsFilterValuesQueryHandler : IRequestHandler<GetApprenticeshipsFilterValuesQuery, GetApprenticeshipsFilterValuesQueryResult>
     {
         private readonly IProviderCommitmentsDbContext _dbContext;
 
@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             _dbContext = dbContext;
         }
 
-        public async Task<GetApprenticeshipsFilterValuesResponse> Handle(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        public async Task<GetApprenticeshipsFilterValuesQueryResult> Handle(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
            var dbTasks = new []{
                 GetDistinctEmployerNames(request, cancellationToken),
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
 
             Task.WaitAll(dbTasks.ToArray<Task>());
             
-            return await Task.FromResult(new GetApprenticeshipsFilterValuesResponse
+            return await Task.FromResult(new GetApprenticeshipsFilterValuesQueryResult
             {
                 EmployerNames = dbTasks[0].Result,
                 CourseNames = dbTasks[1].Result,
