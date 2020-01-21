@@ -9,12 +9,9 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
-<<<<<<< HEAD:src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/Controllers/ApprenticeshipsController.cs
 using SFA.DAS.CommitmentsV2.Types;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
-=======
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
->>>>>>> manage_apprentices:src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/Controllers/ApprenticeshipController.cs
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
