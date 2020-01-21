@@ -208,7 +208,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
-            var request = new GetApprenticeshipRequest
+            var request = new GetApprenticeshipsRequest
             {
                 ProviderId = 10,
             };
@@ -224,7 +224,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndPageNumberIsCorrectPassedIn()
         {
             //Arrange
-            var request = new GetApprenticeshipRequest
+            var request = new GetApprenticeshipsRequest
             {
                 ProviderId = 10,
                 PageNumber = 2
@@ -243,7 +243,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndPagItemCountIsCorrectPassedIn()
         {
             //Arrange
-            var request = new GetApprenticeshipRequest
+            var request = new GetApprenticeshipsRequest
             {
                 ProviderId = 10,
                 PageItemCount = 3
@@ -260,7 +260,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndPageDataIsCorrectPassedIn()
         {
             //Arrange
-            var request = new GetApprenticeshipRequest
+            var request = new GetApprenticeshipsRequest
             {
                 ProviderId = 10,
                 PageNumber = 2,
@@ -279,7 +279,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilter()
         {
             //Arrange
-            var request = new GetApprenticeshipRequest
+            var request = new GetApprenticeshipsRequest
             {
                 ProviderId = 10,
                 SortField = "test"
@@ -296,7 +296,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilterAndReverse()
         {
             //Arrange
-            var request = new GetApprenticeshipRequest
+            var request = new GetApprenticeshipsRequest
             {
                 ProviderId = 10,
                 SortField = "test",
