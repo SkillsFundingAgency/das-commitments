@@ -4,9 +4,9 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 {
-    public class GetApprenticeshipsValidator : AbstractValidator<GetApprenticeshipsRequest>
+    public class GetApprenticeshipsQueryValidator : AbstractValidator<GetApprenticeshipsQuery>
     {
-        public GetApprenticeshipsValidator()
+        public GetApprenticeshipsQueryValidator()
         {
             RuleFor(request => request.ProviderId).Must(id => id > 0).WithMessage("The provider id must be set");
            

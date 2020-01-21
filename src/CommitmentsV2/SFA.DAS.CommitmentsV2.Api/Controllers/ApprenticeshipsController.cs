@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             try
             {
-                var response = await _mediator.Send(new GetApprenticeshipsRequest
+                var response = await _mediator.Send(new GetApprenticeshipsQuery
                 {
                     ProviderId = request.ProviderId ?? 0, 
                     PageNumber = request.PageNumber, 
