@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         {
             //Arrange
             var providerId = 10;
-            var expectedResponse = new GetApprenticeshipsFilterValuesResponse
+            var expectedResponse = new GetApprenticeshipsFilterValuesQueryResult
             {
                 EmployerNames = new[] {"Test 1", "Test 2"},
                 CourseNames = new[] {"Test 3", "Test 4"},
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             Assert.IsNotNull(result);
 
-            var filterValues = result.Value as GetApprenticeshipsFilterValuesResponse;
+            var filterValues = result.Value as GetApprenticeshipsFilterValuesQueryResult;
 
             filterValues.Should().BeEquivalentTo(expectedResponse);
         }

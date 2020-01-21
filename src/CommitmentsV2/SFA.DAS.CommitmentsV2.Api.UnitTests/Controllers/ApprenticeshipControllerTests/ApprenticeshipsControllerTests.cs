@@ -107,7 +107,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 .ReturnsAsync(expectedApprenticeship);
 
             _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsQuery>(r => r.ProviderId.Equals(request.ProviderId)),
-                It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprenticeshipsQueryResponse
+                It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Queries.GetApprenticeships.GetApprenticeshipsQueryResult
             {
                     Apprenticeships = new []{ new ApprenticeshipDetails() },
                     TotalApprenticeshipsFound = expectedTotalApprenticeshipsFound,

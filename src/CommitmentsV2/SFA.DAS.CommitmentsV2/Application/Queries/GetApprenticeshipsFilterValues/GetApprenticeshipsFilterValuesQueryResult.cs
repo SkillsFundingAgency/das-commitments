@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues
 {
-    public class GetApprenticeshipsFilterValuesResponse
+    public class GetApprenticeshipsFilterValuesQueryResult
     {
         public IEnumerable<string> EmployerNames { get; set; }
         public IEnumerable<string> CourseNames { get; set; }
