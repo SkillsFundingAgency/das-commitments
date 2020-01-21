@@ -1,39 +1,32 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using Apprenticeship = SFA.DAS.CommitmentsV2.Models.Apprenticeship;
 using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
-using Originator = SFA.DAS.CommitmentsV2.Types.Originator;
 
-namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
+namespace SFA.DAS.CommitmentsV2.Domain.Extensions
 {
-    public interface IAlertsMapper
+    public static class AlertsExtensions
     {
-        IEnumerable<string> Map(Apprenticeship source);
-    }
-
-    public class AlertsMapper : IAlertsMapper
-    {
-        public IEnumerable<string> Map(Apprenticeship source)
+        public static IEnumerable<Alerts> MapAlerts(this Apprenticeship source)
         {
-            var result = new List<string>();
+            var result = new List<Alerts>();
 
             if (HasCourseDataLock(source) ||
                 HasPriceDataLock(source))
             {
-                result.Add("ILR data mismatch");
+                result.Add(Alerts.IlrDataMismatch);
             }
 
             if (HasCourseDataLockPendingChanges(source) ||
                 HasPriceDataLockPendingChanges(source))
             {
-                result.Add("Changes pending");
+                result.Add(Alerts.ChangesPending);
             }
 
             if (HasCourseDataLockChangesRequested(source))
             {
-                result.Add("Changes requested");
+                result.Add(Alerts.ChangesRequested);
             }
 
             if (source.ApprenticeshipUpdate == null)
@@ -44,34 +37,34 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
             if (source.ApprenticeshipUpdate.Any(c =>
                 c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending))
             {
-                result.Add("Changes for review");
+                result.Add(Alerts.ChangesForReview);
             }
             else if (source.ApprenticeshipUpdate.Any(c =>
                 c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending))
             {
-                result.Add("Changes pending");
+                result.Add(Alerts.ChangesPending);
             }
-            
+
             return result;
         }
 
-        private bool HasCourseDataLock(Apprenticeship source)
+        private static bool HasCourseDataLock(Apprenticeship source)
         {
-            return source.DataLockStatus.Any(x => 
-                x.WithCourseError() && 
+            return source.DataLockStatus.Any(x =>
+                x.WithCourseError() &&
                 x.TriageStatus == TriageStatus.Unknown &&
                 !x.IsResolved);
         }
 
-        private bool HasPriceDataLock(Apprenticeship source)
+        private static bool HasPriceDataLock(Apprenticeship source)
         {
-            return source.DataLockStatus.Any(x => 
-                x.IsPriceOnly() && 
+            return source.DataLockStatus.Any(x =>
+                x.IsPriceOnly() &&
                 x.TriageStatus == TriageStatus.Unknown &&
                 !x.IsResolved);
         }
 
-        private bool HasCourseDataLockPendingChanges(Apprenticeship source)
+        private static bool HasCourseDataLockPendingChanges(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
@@ -79,15 +72,15 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 !x.IsResolved);
         }
 
-        private bool HasPriceDataLockPendingChanges(Apprenticeship source)
+        private static bool HasPriceDataLockPendingChanges(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
-                x.IsPriceOnly() && 
+                x.IsPriceOnly() &&
                 x.TriageStatus == TriageStatus.Change &&
                 !x.IsResolved);
         }
 
-        private bool HasCourseDataLockChangesRequested(Apprenticeship source)
+        private static bool HasCourseDataLockChangesRequested(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&

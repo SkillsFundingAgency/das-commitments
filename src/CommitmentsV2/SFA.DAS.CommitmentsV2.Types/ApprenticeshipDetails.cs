@@ -14,6 +14,6 @@ namespace SFA.DAS.CommitmentsV2.Types
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
-        public IEnumerable<string> Alerts { get; set; }
+        public IEnumerable<Alerts> Alerts { get; set; }
     }
 }

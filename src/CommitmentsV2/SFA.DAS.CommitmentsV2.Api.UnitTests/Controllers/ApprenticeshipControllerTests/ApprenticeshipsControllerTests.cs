@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 StartDate = DateTime.Now.AddDays(2),
                 EndDate = DateTime.Now.AddMonths(2),
                 PaymentStatus = PaymentStatus.Active,
-                Alerts = new []{"one", "two"}
+                Alerts = new []{Alerts.IlrDataMismatch, Alerts.ChangesForReview}
             };
 
             _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(request.ProviderId)),

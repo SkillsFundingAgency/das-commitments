@@ -15,7 +15,6 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
             For<IAuthenticationService>().Use<AuthenticationService>().Singleton();
             For<IModelMapper>().Use<ModelMapper>();
-            For<IAlertsMapper>().Use<AlertsMapper>();
         }
     }
 }
