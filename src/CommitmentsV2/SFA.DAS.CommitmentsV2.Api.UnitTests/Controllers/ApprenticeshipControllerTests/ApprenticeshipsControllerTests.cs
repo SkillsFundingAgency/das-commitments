@@ -14,7 +14,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
-
+using ApprenticeshipDetailsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse.ApprenticeshipDetailsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             const int expectedTotalApprenticeshipsFound = 10;
             const int expectedTotalApprenticeshipsWithAlertsFound = 3;
 
-            var expectedApprenticeship = new ApprenticeshipDetails
+            var expectedApprenticeship = new ApprenticeshipDetailsResponse
             {
                 Id = new Fixture().Create<long>(),
                 FirstName = "George",
@@ -102,10 +102,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 Alerts = new []{Alerts.IlrDataMismatch, Alerts.ChangesForReview}
             };
 
+            _mapper.Setup(x =>
+                    x.Map<ApprenticeshipDetailsResponse>(It.IsAny<ApprenticeshipDetails>()))
+                .ReturnsAsync(expectedApprenticeship);
+
             _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsQuery>(r => r.ProviderId.Equals(request.ProviderId)),
                 It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Queries.GetApprenticeships.GetApprenticeshipsQueryResult
             {
-                    Apprenticeships = new []{ expectedApprenticeship},
+                    Apprenticeships = new []{ new ApprenticeshipDetails() },
                     TotalApprenticeshipsFound = expectedTotalApprenticeshipsFound,
                     TotalApprenticeshipsWithAlertsFound = expectedTotalApprenticeshipsWithAlertsFound
             });
@@ -123,17 +127,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             var actualApprenticeship = response.Apprenticeships.First();
 
-            Assert.AreEqual(expectedApprenticeship.Id, actualApprenticeship.Id);
-            Assert.AreEqual(expectedApprenticeship.FirstName, actualApprenticeship.FirstName);
-            Assert.AreEqual(expectedApprenticeship.LastName, actualApprenticeship.LastName);
-            Assert.AreEqual(expectedApprenticeship.Uln, actualApprenticeship.Uln);
-            Assert.AreEqual(expectedApprenticeship.EmployerName, actualApprenticeship.EmployerName);
-            Assert.AreEqual(expectedApprenticeship.CourseName, actualApprenticeship.CourseName);
-            Assert.AreEqual(expectedApprenticeship.StartDate, actualApprenticeship.StartDate);
-            Assert.AreEqual(expectedApprenticeship.EndDate, actualApprenticeship.EndDate);
-            Assert.AreEqual(expectedApprenticeship.PaymentStatus, actualApprenticeship.PaymentStatus);
-            Assert.AreEqual(expectedApprenticeship.Alerts, actualApprenticeship.Alerts);
-            
+            Assert.AreEqual(expectedApprenticeship, actualApprenticeship);
             Assert.AreEqual(expectedTotalApprenticeshipsFound, response.TotalApprenticeshipsFound);
             Assert.AreEqual(expectedTotalApprenticeshipsWithAlertsFound, response.TotalApprenticeshipsWithAlertsFound);
         }
@@ -147,6 +141,5 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             Assert.IsNotNull(result);
         }
-
     }
 }

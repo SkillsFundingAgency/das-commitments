@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
@@ -63,20 +64,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     return NotFound();
                 }
 
-                var mappedApprenticeships = response.Apprenticeships.Select(x => new GetApprenticeshipsResponse.ApprenticeshipDetailsResponse
+                var mappedApprenticeships = new List<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>();
+
+                foreach (var apprenticeship in response.Apprenticeships)
                 {
-                    Id = x.Id,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    Uln = x.Uln,
-                    EmployerName = x.EmployerName,
-                    CourseName = x.CourseName,
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate,
-                    PaymentStatus = x.PaymentStatus,
-                    ApprenticeshipStatus = x.ApprenticeshipStatus == ApprenticeshipStatus.WaitingToStart ? "Waiting to Start" : x.ApprenticeshipStatus.ToString(),
-                    Alerts = x.Alerts
-                });
+                    var mappedResponse =
+                        await _modelMapper
+                            .Map<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>(apprenticeship);
+
+                    mappedApprenticeships.Add(mappedResponse);
+                }
 
                 return Ok(new GetApprenticeshipsResponse
                 {
