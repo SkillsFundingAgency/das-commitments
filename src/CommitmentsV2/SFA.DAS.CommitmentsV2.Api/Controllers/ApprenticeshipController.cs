@@ -68,29 +68,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     SearchFilters = filterValues
                 });
 
-                if (response == null)
+                if (queryResult == null)
                 {
                     return NotFound();
                 }
 
-                var mappedApprenticeships = new List<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>();
+                var response = await _modelMapper.Map<GetApprenticeshipsResponse>(queryResult);
 
-                foreach (var apprenticeship in response.Apprenticeships)
-                {
-                    var mappedResponse =
-                        await _modelMapper
-                            .Map<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>(apprenticeship);
-
-                    mappedApprenticeships.Add(mappedResponse);
-                }
-
-                return Ok(new GetApprenticeshipsResponse
-                {
-                    Apprenticeships = mappedApprenticeships,
-                    TotalApprenticeshipsFound = response.TotalApprenticeshipsFound,
-                    TotalApprenticeshipsWithAlertsFound = response.TotalApprenticeshipsWithAlertsFound,
-                    TotalApprenticeships = response.TotalApprenticeships
-                });
+                return Ok(response);
             }
             catch (Exception e)
             {

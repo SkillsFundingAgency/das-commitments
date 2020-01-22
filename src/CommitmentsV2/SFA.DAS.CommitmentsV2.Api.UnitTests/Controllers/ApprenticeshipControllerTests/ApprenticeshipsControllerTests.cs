@@ -242,6 +242,27 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             Assert.IsNotNull(response);
             Assert.AreEqual(expectedTotalApprenticeships, response.TotalApprenticeships);
         }
+		
+		[Test]
+        public async Task ThenTheQueryResultIsMapped()
+        {
+            //Arrange
+            var expectedProviderId = 10;
+            var request = new GetApprenticeshipsRequest
+            {
+                ProviderId = expectedProviderId
+            };
+            _mediator.Setup(x => x.Send(It.Is<GetApprenticeshipsQuery>(c => c.ProviderId.Equals(expectedProviderId)),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetApprenticeshipsQueryResult());
+            
+            //Act
+            var result = await _controller.GetApprenticeships(request) as OkObjectResult;
+
+            //Assert
+            Assert.IsNotNull(result);
+            _mapper.Verify(x=>x.Map<GetApprenticeshipsResponse>(It.IsAny<GetApprenticeshipsQueryResult>()), Times.Once);
+        }
 
         [Test]
         public async Task ReturnNotFoundIfNullIsReturned()
