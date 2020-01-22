@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             try
             {
-                var response = await _mediator.Send(new GetApprenticeshipsQuery
+                var queryResult = await _mediator.Send(new GetApprenticeshipsQuery
                 {
                     ProviderId = request.ProviderId ?? 0,
                     PageNumber = request.PageNumber,
@@ -57,28 +57,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     ReverseSort = request.ReverseSort
                 });
 
-                if (response == null)
+                if (queryResult == null)
                 {
                     return NotFound();
                 }
 
-                var mappedApprenticeships = new List<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>();
+                var response = await _modelMapper.Map<GetApprenticeshipsResponse>(queryResult);
 
-                foreach (var apprenticeship in response.Apprenticeships)
-                {
-                    var mappedResponse =
-                        await _modelMapper
-                            .Map<GetApprenticeshipsResponse.ApprenticeshipDetailsResponse>(apprenticeship);
-
-                    mappedApprenticeships.Add(mappedResponse);
-                }
-
-                return Ok(new GetApprenticeshipsResponse
-                {
-                    Apprenticeships = mappedApprenticeships,
-                    TotalApprenticeshipsFound = response.TotalApprenticeshipsFound,
-                    TotalApprenticeshipsWithAlertsFound = response.TotalApprenticeshipsWithAlertsFound
-                });
+                return Ok(response);
             }
             catch (Exception e)
             {
