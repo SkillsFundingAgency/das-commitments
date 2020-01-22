@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
@@ -15,15 +12,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 {
     public class ProviderApproveCohortCommandHandler : IHandleMessages<ProviderApproveCohortCommand>
     {
-        private readonly IDistributedCache _distributedCache;
         private readonly ILogger<ProviderApproveCohortCommandHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public ProviderApproveCohortCommandHandler(IDistributedCache distributedCache,
+        public ProviderApproveCohortCommandHandler(
             ILogger<ProviderApproveCohortCommandHandler> logger,
-            IMediator mediator, Lazy<ProviderCommitmentsDbContext> dbContext)
+            Lazy<ProviderCommitmentsDbContext> dbContext)
         {
-            _distributedCache = distributedCache;
             _logger = logger;
             _dbContext = dbContext;
         }
@@ -37,8 +32,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
             cohort.Approve(Party.Provider, string.Empty, message.UserInfo, DateTime.UtcNow);
 
             await _dbContext.Value.SaveChangesAsync();
-
-            await _distributedCache.SetStringAsync(context.MessageId, "OK");
         }
     }
 }

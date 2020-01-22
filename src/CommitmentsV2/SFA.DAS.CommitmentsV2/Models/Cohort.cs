@@ -172,7 +172,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
         
-        public bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == Types.TransferApprovalStatus.Approved);
+        public virtual bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == Types.TransferApprovalStatus.Approved);
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
@@ -194,7 +194,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return draftApprenticeship;
         }
 
-        public void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
+        public virtual void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
         {
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
