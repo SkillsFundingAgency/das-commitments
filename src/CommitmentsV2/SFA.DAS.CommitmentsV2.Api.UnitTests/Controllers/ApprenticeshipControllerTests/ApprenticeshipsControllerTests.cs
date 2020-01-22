@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using AutoFixture;
 using AutoFixture.NUnit3;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +10,8 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
-using ApprenticeshipDetailsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse.ApprenticeshipDetailsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -120,130 +115,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test]
-        public async Task ReturnApprovedApprentices()
-        {
-            //Arrange
-            var request = new GetApprenticeshipsRequest
-            {
-                ProviderId = 10
-            };
-
-            var expectedApprenticeship = new ApprenticeshipDetailsResponse
-            {
-                Id = new Fixture().Create<long>(),
-                FirstName = "George",
-                LastName = "Test",
-                Uln = "12345",
-                EmployerName = "Test Corp",
-                CourseName = "Testing Level 1",
-                StartDate = DateTime.Now.AddDays(2),
-                EndDate = DateTime.Now.AddMonths(2),
-                PaymentStatus = PaymentStatus.Active,
-                Alerts = new []{Alerts.IlrDataMismatch, Alerts.ChangesForReview}
-            };
-
-            _mapper.Setup(x =>
-                    x.Map<ApprenticeshipDetailsResponse>(It.IsAny<ApprenticeshipDetails>()))
-                .ReturnsAsync(expectedApprenticeship);
-
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsQuery>(r => r.ProviderId.Equals(request.ProviderId)),
-                It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprenticeshipsQueryResult
-            {
-                    Apprenticeships = new []{ new ApprenticeshipDetails() }
-            });
-
-            //Act
-            var result = await _controller.GetApprenticeships(request) as OkObjectResult;
-
-            //Assert
-            Assert.IsNotNull(result);
-
-            var response = result.Value as GetApprenticeshipsResponse;
-
-            Assert.IsNotNull(response);
-            Assert.IsNotEmpty(response.Apprenticeships);
-
-            var actualApprenticeship = response.Apprenticeships.First();
-
-            Assert.AreEqual(expectedApprenticeship, actualApprenticeship);
-        }
-
-        [Test]
-        public async Task ReturnTotalNumberOfApprenticeshipsFound()
-        {
-            //Arrange
-            const int expectedTotalApprenticeshipsFound = 3;
-            var request = new GetApprenticeshipsRequest {ProviderId = 10};
-
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsQuery>(r => r.ProviderId.Equals(request.ProviderId)),
-                It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprenticeshipsQueryResult
-            {
-                Apprenticeships = new ApprenticeshipDetails[0],
-                TotalApprenticeshipsFound = expectedTotalApprenticeshipsFound
-            });
-
-            //Act
-            var result = await _controller.GetApprenticeships(request) as OkObjectResult;
-
-            //Assert
-            Assert.IsNotNull(result);
-            var response = result.Value as GetApprenticeshipsResponse;
-
-            Assert.IsNotNull(response);
-            Assert.AreEqual(expectedTotalApprenticeshipsFound, response.TotalApprenticeshipsFound);
-        }
-
-        [Test]
-        public async Task ReturnTotalNumberOfApprenticeshipsWithAlertsFound()
-        {
-            //Arrange
-            const int expectedTotalApprenticeshipsWithAlertsFound = 3;
-            var request = new GetApprenticeshipsRequest {ProviderId = 10};
-
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsQuery>(r => r.ProviderId.Equals(request.ProviderId)),
-                It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprenticeshipsQueryResult
-            {
-                Apprenticeships = new ApprenticeshipDetails[0],
-                TotalApprenticeshipsWithAlertsFound = expectedTotalApprenticeshipsWithAlertsFound
-            });
-
-            //Act
-            var result = await _controller.GetApprenticeships(request) as OkObjectResult;
-
-            //Assert
-            Assert.IsNotNull(result);
-            var response = result.Value as GetApprenticeshipsResponse;
-
-            Assert.IsNotNull(response);
-            Assert.AreEqual(expectedTotalApprenticeshipsWithAlertsFound, response.TotalApprenticeshipsWithAlertsFound);
-        }
-
-        [Test]
-        public async Task ReturnTotalNumberOfApprenticeshipsAvailable()
-        {
-            //Arrange
-            const int expectedTotalApprenticeships = 20;
-            var request = new GetApprenticeshipsRequest {ProviderId = 10};
-
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsQuery>(r => r.ProviderId.Equals(request.ProviderId)),
-                It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprenticeshipsQueryResult
-            {
-                Apprenticeships = new ApprenticeshipDetails[0],
-                TotalApprenticeships = expectedTotalApprenticeships
-            });
-
-            //Act
-            var result = await _controller.GetApprenticeships(request) as OkObjectResult;
-
-            //Assert
-            Assert.IsNotNull(result);
-            var response = result.Value as GetApprenticeshipsResponse;
-
-            Assert.IsNotNull(response);
-            Assert.AreEqual(expectedTotalApprenticeships, response.TotalApprenticeships);
-        }
-		
-		[Test]
         public async Task ThenTheQueryResultIsMapped()
         {
             //Arrange

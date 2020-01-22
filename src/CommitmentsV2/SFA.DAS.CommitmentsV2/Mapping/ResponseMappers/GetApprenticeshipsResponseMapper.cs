@@ -16,11 +16,12 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
             {
                 TotalApprenticeshipsFound = source.TotalApprenticeshipsFound,
                 TotalApprenticeshipsWithAlertsFound = source.TotalApprenticeshipsWithAlertsFound,
-                Apprenticeships = source.Apprenticeships.Select(MapApprenticeship)
+                Apprenticeships = source.Apprenticeships.Select(MapApprenticeship),
+                TotalApprenticeships = source.TotalApprenticeships
             });
         }
 
-        private ApprenticeshipDetailsResponse MapApprenticeship(ApprenticeshipDetails source)
+        private static ApprenticeshipDetailsResponse MapApprenticeship(ApprenticeshipDetails source)
         {
             return new ApprenticeshipDetailsResponse
             {

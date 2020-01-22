@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     EndDate = request.EndDate
                 };
 
-                var response = await _mediator.Send(new GetApprenticeshipsQuery
+                var queryResult = await _mediator.Send(new GetApprenticeshipsQuery
                 {
                     ProviderId = request.ProviderId ?? 0,
                     PageNumber = request.PageNumber,

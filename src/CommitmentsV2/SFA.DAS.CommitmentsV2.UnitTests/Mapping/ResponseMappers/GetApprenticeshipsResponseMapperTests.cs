@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
-using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -21,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             result.Apprenticeships.First().Should().BeEquivalentTo(source.Apprenticeships.First());
             result.TotalApprenticeshipsFound.Should().Be(source.TotalApprenticeshipsFound);
             result.TotalApprenticeshipsWithAlertsFound.Should().Be(source.TotalApprenticeshipsWithAlertsFound);
+            result.TotalApprenticeships.Should().Be(source.TotalApprenticeships);
         }
     }
 }
