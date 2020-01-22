@@ -7,10 +7,10 @@ using AutoFixture.NUnit3;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Api.Mappers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
@@ -84,9 +84,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_Then_Apprentices_Are_Default_Sorted(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
             GetApprenticeshipsQuery query,
+            Mock<ICurrentDateTime> currentDateTime,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
@@ -95,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 0;
             query.PageItemCount = 0;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -177,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -193,9 +192,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_And_Is_Reverse_Sorted_Then_Apprentices_Are_Default_Sorted_In_Reverse(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
             GetApprenticeshipsQuery query,
+            Mock<ICurrentDateTime> currentDateTime,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
@@ -204,7 +202,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -238,7 +236,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -251,8 +249,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_And_Is_And_There_Are_ApprenticeshipUpdates_These_Appear_First(
-            GetApprenticeshipsRequest request,
-            Mock<IApprenticeshipStatusMapper> statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -262,7 +259,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.ReverseSort = false;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -322,7 +319,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper.Object);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -336,8 +333,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_Sorted_By_Alerts_And_Is_Reverse_Sorted_Then_Apprentices_Are_Default_Sorted(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -347,7 +343,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -403,7 +399,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -417,8 +413,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Return_Per_Page(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -428,14 +423,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 2;
             query.ReverseSort = false;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = GetTestApprenticeships(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -448,8 +443,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Total_Found_Are_Return_With_Page_Data(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -458,14 +452,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 2;
             query.PageItemCount = 2;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
 
             var apprenticeships = GetTestApprenticeships(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -476,8 +470,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
          [Test, MoqAutoData]
         public async Task Then_Apprentices_With_Alerts_Total_Found_Are_Return_With_Page_Data(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -486,7 +479,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 2;
             query.PageItemCount = 2;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
 
             var apprenticeships = GetTestApprenticeships(query);
 
@@ -494,7 +487,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -505,8 +498,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Sorted_Apprentices_Are_Return_Per_Page(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -516,14 +508,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 2;
             query.ReverseSort = false;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = GetTestApprenticeships(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
 
             //Act
@@ -537,8 +529,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Reversed_Ordered_Apprentices_Are_Return_Per_Page(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -548,7 +539,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 2;
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = GetTestApprenticeships(query);
             
@@ -556,7 +547,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -569,20 +560,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         
         [Test, MoqAutoData]
         public async Task Then_Reverse_Sorted_Apprentices_Are_Return_Per_Page(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = GetTestApprenticeships(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             query.SortField = nameof(Apprenticeship.FirstName);
             query.PageNumber = 2;
@@ -600,8 +590,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         
         [Test, MoqAutoData]
         public async Task Then_Sorted_With_Alerts_Total_Found_Are_Return_With_Page_Data(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -611,14 +600,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 2;
             query.ReverseSort = false;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = GetTestApprenticeships(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -629,8 +618,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Reversed_Ordered_With_Alerts_Total_Found_Are_Return_With_Page_Data(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -640,14 +628,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 2;
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = GetTestApprenticeships(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -658,20 +646,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         
         [Test, MoqAutoData]
         public async Task Then_Reverse_Sorted_With_Alerts_Total_Found_Are_Return_With_Page_Data(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = GetTestApprenticeships(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             query.SortField = nameof(Apprenticeship.FirstName);
             query.PageNumber = 2;
@@ -686,20 +673,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Not_Returned_If_Page_Count_Is_Greater_Than_Items_Available(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = GetTestApprenticeships(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             query.SortField = null;
             query.PageNumber = 5;
@@ -716,8 +702,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_Name(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -725,7 +710,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 0;
             query.PageItemCount = 0;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = new List<Apprenticeship>
             {
@@ -781,7 +766,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
             query.SortField = nameof(Apprenticeship.FirstName);
             query.ReverseSort = false;
 
@@ -799,8 +784,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_Name(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -810,7 +794,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = nameof(Apprenticeship.FirstName);
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -864,7 +848,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
 
             //Act
@@ -881,8 +865,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Uln(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -890,7 +873,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 0;
             query.PageItemCount = 0;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -930,7 +913,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
             query.SortField = nameof(Apprenticeship.Uln);
             query.ReverseSort = false;
 
@@ -945,8 +928,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Uln(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -956,7 +938,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = nameof(Apprenticeship.Uln);
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -996,7 +978,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -1009,8 +991,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Employer_Name(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -1018,7 +999,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 0;
             query.PageItemCount = 0;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -1058,7 +1039,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
             query.SortField = nameof(Apprenticeship.Cohort.LegalEntityName);
             query.ReverseSort = false;
 
@@ -1073,8 +1054,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Employer_Name(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -1084,7 +1064,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = nameof(Apprenticeship.Cohort.LegalEntityName);
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -1124,7 +1104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -1137,8 +1117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Course_Name(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -1146,7 +1125,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 0;
             query.PageItemCount = 0;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -1186,7 +1165,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             query.SortField = nameof(Apprenticeship.CourseName);
             query.ReverseSort = false;
@@ -1202,8 +1181,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Course_Name(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -1213,7 +1191,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = nameof(Apprenticeship.CourseName);
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = new List<Apprenticeship>
             {
@@ -1254,7 +1232,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -1267,8 +1245,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Planned_Start_Date(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -1276,7 +1253,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 0;
             query.PageItemCount = 0;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = new List<Apprenticeship>
             {
@@ -1320,7 +1297,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
             query.SortField = nameof(Apprenticeship.StartDate);
             query.ReverseSort = false;
 
@@ -1335,8 +1312,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Planned_Start_Date(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -1346,7 +1322,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = nameof(Apprenticeship.StartDate);
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = new List<Apprenticeship>
             {
@@ -1390,7 +1366,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
 
             //Act
@@ -1404,8 +1380,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Planned_End_Date(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -1413,7 +1388,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 0;
             query.PageItemCount = 0;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = new List<Apprenticeship>
             {
@@ -1457,7 +1432,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
             query.SortField = nameof(Apprenticeship.EndDate);
             query.ReverseSort = false;
 
@@ -1472,8 +1447,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Planned_End_Date(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -1483,7 +1457,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = nameof(Apprenticeship.EndDate);
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = new List<Apprenticeship>
             {
@@ -1527,7 +1501,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -1541,13 +1515,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Payment_Status(
             GetApprenticeshipsQuery query,
+            Mock<ICurrentDateTime> currentDateTime,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             query.PageNumber = 0;
             query.PageItemCount = 0;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             
             var apprenticeships = new List<Apprenticeship>
             {
@@ -1594,7 +1569,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, new ApprenticeshipStatusMapper(new CurrentDateTime()));
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
             query.SortField = nameof(Apprenticeship.ApprenticeshipStatus);
             query.ReverseSort = false;
 
@@ -1610,6 +1585,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task And_Is_Reverse_Sorted_Then_Apprentices_Are_Sorted_By_Payment_Status(
             GetApprenticeshipsQuery query,
+            Mock<ICurrentDateTime> currentDateTime,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
@@ -1618,7 +1594,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = nameof(Apprenticeship.ApprenticeshipStatus);
             query.ReverseSort = true;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -1664,7 +1640,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, new ApprenticeshipStatusMapper(new CurrentDateTime()));
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -1677,8 +1653,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_First_Sorted_By_Alerts(
-            GetApprenticeshipsRequest request,
-            IApprenticeshipStatusMapper statusMapper,
+            Mock<ICurrentDateTime> currentDateTime,
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -1686,7 +1661,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageNumber = 0;
             query.PageItemCount = 0;
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(currentDateTime.Object);
             var Apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -1733,7 +1708,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(Apprenticeships);
-            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper, statusMapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
             //Act
             var actual = await handler.Handle(query, CancellationToken.None);
 

@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Api.Mappers;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -19,16 +18,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
     {
         private readonly ICommitmentsReadOnlyDbContext _dbContext;
         private readonly IMapper<Apprenticeship, ApprenticeshipDetails> _mapper;
-        private readonly IApprenticeshipStatusMapper _statusMapper;
-
+        
         public GetApprenticeshipsQueryHandler(
             ICommitmentsReadOnlyDbContext dbContext,
-            IMapper<Apprenticeship, ApprenticeshipDetails> mapper,
-            IApprenticeshipStatusMapper statusMapper)
+            IMapper<Apprenticeship, ApprenticeshipDetails> mapper)
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _statusMapper = statusMapper;
         }
 
         public async Task<GetApprenticeshipsQueryResult> Handle(GetApprenticeshipsQuery query, CancellationToken cancellationToken)
@@ -82,12 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
                 .ToListAsync(cancellationToken);
-
-            foreach (Apprenticeship app in apprenticeships)
-            {
-                app.ApprenticeshipStatus = _statusMapper.MapPaymentStatus(app.PaymentStatus, app.StartDate);
-            }
-
+            
             var apprenticeshipsWithoutAlerts = await _dbContext
                 .Apprenticeships
                 .Where(HasNoAlerts(providerId))
@@ -99,11 +90,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .ThenByDescending(x => x.StartDate)
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .ToListAsync(cancellationToken);
-
-            foreach (Apprenticeship app in apprenticeshipsWithoutAlerts)
-            {
-                app.ApprenticeshipStatus = _statusMapper.MapPaymentStatus(app.PaymentStatus, app.StartDate);
-            }
 
             var totalApprenticeshipsWithAlertsFound = apprenticeships.Count;
 
@@ -149,11 +135,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(HasAlerts(providerId), cancellationToken);
 
-            foreach (Apprenticeship app in apprenticeshipsQuery)
-            {
-                app.ApprenticeshipStatus = _statusMapper.MapPaymentStatus(app.PaymentStatus, app.StartDate);
-            }
-
             apprenticeshipsQuery = apprenticeshipsQuery
                 .OrderBy(GetOrderByField(fieldName))
                 .ThenBy(GetSecondarySortByField(fieldName))
@@ -173,11 +154,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId);
 
             var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.CountAsync(HasAlerts(providerId), cancellationToken);
-
-            foreach (Apprenticeship app in apprenticeshipsQuery)
-            {
-                app.ApprenticeshipStatus = _statusMapper.MapPaymentStatus(app.PaymentStatus, app.StartDate);
-            }
 
             apprenticeshipsQuery = apprenticeshipsQuery
                 .OrderByDescending(GetOrderByField(fieldName))
@@ -260,7 +236,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 case nameof(Apprenticeship.EndDate):
                     return apprenticeship => apprenticeship.EndDate;
                 case nameof(Apprenticeship.ApprenticeshipStatus):
-                    return apprenticeship => apprenticeship.ApprenticeshipStatus;
+                    return apprenticeship => apprenticeship.PaymentStatus;
                 case nameof(Apprenticeship.Uln):
                     return apprenticeship => apprenticeship.Uln;
                 default:
