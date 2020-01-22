@@ -24,7 +24,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             //Arrange
             var apprenticeship = CreateApprenticeship();
             apprenticeship.PaymentStatus = paymentStatus;
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime(DateTime.UtcNow.AddMonths(-2)));
+            apprenticeship.StartDate = DateTime.UtcNow.AddMonths(-2);
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             //Act
             var actual = await mapper.Map(apprenticeship);
@@ -39,7 +40,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             //Arrange
             var apprenticeship = CreateApprenticeship();
             apprenticeship.PaymentStatus = PaymentStatus.Active;
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime(DateTime.UtcNow.AddMonths(2)));
+            apprenticeship.StartDate = DateTime.UtcNow.AddMonths(2);
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             //Act
             var actual = await mapper.Map(apprenticeship);

@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 PaymentStatus = source.PaymentStatus,
+                ApprenticeshipStatus = source.ApprenticeshipStatus,
                 Alerts = source.Alerts
             });
         }
