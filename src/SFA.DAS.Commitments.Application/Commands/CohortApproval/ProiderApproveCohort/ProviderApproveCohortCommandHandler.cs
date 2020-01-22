@@ -2,23 +2,16 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using NServiceBus;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Messaging.Interfaces;
-using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
-using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
-using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 
 namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort
 {
@@ -26,12 +19,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
     {
         private readonly AbstractValidator<ProviderApproveCohortCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly IMessagePublisher _messagePublisher;
         private readonly ICommitmentsLogger _logger;
-        private readonly IEmployerAccountsService _employerAccountsService;
         private readonly IV2EventsPublisher _v2EventsPublisher;
         private readonly CohortApprovalService _cohortApprovalService;
-        private readonly HistoryService _historyService;
 
         public ProviderApproveCohortCommandHandler(AbstractValidator<ProviderApproveCohortCommand> validator,
             ICommitmentRepository commitmentRepository,
@@ -42,20 +32,15 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             IApprenticeshipEventsList apprenticeshipEventsList,
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
             IMediator mediator,
-            IMessagePublisher messagePublisher,
             ICommitmentsLogger logger,
             IApprenticeshipInfoService apprenticeshipInfoService,
-            IEmployerAccountsService employerAccountsService,
-            INotificationsPublisher notificationsPublisher,
             IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
-            _messagePublisher = messagePublisher;
             _logger = logger;
-            _employerAccountsService = employerAccountsService;
             _v2EventsPublisher = v2EventsPublisher;
-            _historyService = new HistoryService(historyRepository);
+            new HistoryService(historyRepository);
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, v2EventsPublisher);
         }
 
@@ -74,82 +59,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             };
 
             await _v2EventsPublisher.SendProviderApproveCohortCommand(message.CommitmentId, userInfo);
-
-            //var haveBothPartiesApproved = HaveBothPartiesApproved(commitment);
-            //var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
-
-            //await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
-
-            //await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);            
-
-            //if (haveBothPartiesApproved)
-            //{
-            //    if (commitment.HasTransferSenderAssigned)
-            //    {
-            //        await _cohortApprovalService.CreateTransferRequest(commitment, _messagePublisher);
-            //    }
-            //}
-            //else
-            //{
-            //    await PublishApprovalRequestedMessage(commitment);
-            //}
-
-            //await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
-
-            //if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
-            //{
-            //    await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
-            //}
         }
 
-        private async Task PublishApprovalRequestedMessage(Commitment commitment)
-        {
-            await _messagePublisher.PublishAsync(new CohortApprovalRequestedByProvider(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
-        }
-
-        private async Task UpdateCommitment(Commitment commitment, bool haveBothPartiesApproved, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
-        {
-            var updatedEditStatus = DetermineNewEditStatus(haveBothPartiesApproved);
-            var changeType = _cohortApprovalService.DetermineHistoryChangeType(haveBothPartiesApproved);
-            _historyService.TrackUpdate(commitment, changeType.ToString(), commitment.Id, null, CallerType.Provider, userId, commitment.ProviderId, commitment.EmployerAccountId, lastUpdatedByName);
-
-            commitment.EditStatus = updatedEditStatus;
-            commitment.LastAction = LastAction.Approve;
-            commitment.CommitmentStatus = CommitmentStatus.Active;
-            commitment.LastUpdatedByProviderEmail = lastUpdatedByEmail;
-            commitment.LastUpdatedByProviderName = lastUpdatedByName;
-            
-            if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
-            {
-                var account = await _employerAccountsService.GetAccount(commitment.EmployerAccountId);
-
-                commitment.ApprenticeshipEmployerTypeOnApproval = account.ApprenticeshipEmployerType;
-            }
-            
-            await Task.WhenAll(
-                _cohortApprovalService.AddMessageToCommitment(commitment, lastUpdatedByName, message, CallerType.Provider),
-                _commitmentRepository.UpdateCommitment(commitment),
-                _historyService.Save()
-            );
-        }
-
-        private EditStatus DetermineNewEditStatus(bool haveBothPartiesApproved)
-        {
-            return haveBothPartiesApproved ? EditStatus.Both : EditStatus.EmployerOnly;
-        }
-
-        private static AgreementStatus DetermineNewAgreementStatus(bool haveBothPartiesApproved)
-        {
-            var newAgreementStatus = haveBothPartiesApproved ? AgreementStatus.BothAgreed : AgreementStatus.ProviderAgreed;
-            return newAgreementStatus;
-        }
-
-        private bool HaveBothPartiesApproved(Commitment commitment)
-        {
-            var currentAgreementStatus = _cohortApprovalService.GetCurrentAgreementStatus(commitment);
-            return currentAgreementStatus == AgreementStatus.EmployerAgreed;
-        }
-
+       
         private async Task<Commitment> GetCommitment(long commitmentId)
         {
             var commitment = await _commitmentRepository.GetCommitmentById(commitmentId);
