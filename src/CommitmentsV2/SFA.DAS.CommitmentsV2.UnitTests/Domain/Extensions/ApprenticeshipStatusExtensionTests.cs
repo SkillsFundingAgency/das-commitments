@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             //Arrange
             var apprenticeship = CreateApprenticeship();
             apprenticeship.PaymentStatus = paymentStatus;
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime(DateTime.UtcNow.AddMonths(-2)));
 
             //Act
             var actual = await mapper.Map(apprenticeship);
