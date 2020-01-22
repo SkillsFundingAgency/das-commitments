@@ -5,7 +5,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Models;
@@ -29,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetApprenticeships([FromQuery]Types.Requests.GetApprenticeshipRequest request)
+        public async Task<IActionResult> GetApprenticeships([FromQuery]Types.Requests.GetApprenticeshipsRequest request)
         {
             try
             {
@@ -42,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     EndDate = request.EndDate
                 };
 
-                var response = await _mediator.Send(new GetApprenticeshipsRequest
+                var response = await _mediator.Send(new GetApprenticeshipsQuery
                 {
                     ProviderId = request.ProviderId ?? 0, 
                     PageNumber = request.PageNumber, 
@@ -57,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     return NotFound();
                 }
 
-                var mappedApprenticeships = response.Apprenticeships.Select(x => new ApprenticeshipDetailsResponse
+                var mappedApprenticeships = response.Apprenticeships.Select(x => new GetApprenticeshipsResponse.ApprenticeshipDetailsResponse
                 {
                     Id = x.Id,
                     FirstName = x.FirstName,

@@ -9,11 +9,12 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
+using ApprenticeshipUpdateStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.ApprenticeshipUpdateStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships.GetApprenticeshipsHandlerTests
 {
@@ -21,12 +22,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
     {
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_Apprenticeships(
-            GetApprenticeshipsRequest request,
+            GetApprenticeshipsQuery request,
             List<Apprenticeship> apprenticeships,
             ApprenticeshipDetails apprenticeshipDetails,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
-            GetApprenticeshipsHandler handler)
+            GetApprenticeshipsQueryHandler handler)
         {
             request.PageNumber = 0;
             request.PageItemCount = 0;
@@ -52,12 +53,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_Apprenticeships_Total_Found(
-            GetApprenticeshipsRequest request,
+            GetApprenticeshipsQuery request,
             List<Apprenticeship> apprenticeships,
             ApprenticeshipDetails apprenticeshipDetails,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
-            GetApprenticeshipsHandler handler)
+            GetApprenticeshipsQueryHandler handler)
         {
             request.PageNumber = 0;
             request.PageItemCount = 0;
@@ -82,8 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_Then_Apprentices_Are_Default_Sorted(
-            GetApprenticeshipsRequest request,
-            Mock<IAlertsMapper> alertsMapper,
+            GetApprenticeshipsQuery request,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
@@ -93,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.PageItemCount = 0;
             request.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -175,7 +175,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -191,9 +191,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Return_Per_Page(
-           GetApprenticeshipsRequest request,
-           Mock<IAlertsMapper> alertsMapper,
-           [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            GetApprenticeshipsQuery request,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             request.SortField = null;
@@ -202,14 +201,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.ReverseSort = false;
             request.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
 
             var apprenticeships = GetTestApprenticeships(request);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -222,8 +221,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Total_Found_Are_Return_With_Page_Data(
-            GetApprenticeshipsRequest request,
-            Mock<IAlertsMapper> alertsMapper,
+            GetApprenticeshipsQuery request,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
@@ -232,14 +230,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.PageItemCount = 2;
             request.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
 
             var apprenticeships = GetTestApprenticeships(request);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -250,9 +248,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_With_Alerts_Total_Found_Are_Return_With_Page_Data(
-           GetApprenticeshipsRequest request,
-           Mock<IAlertsMapper> alertsMapper,
-           [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            GetApprenticeshipsQuery request,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             request.SortField = null;
@@ -260,7 +257,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.PageItemCount = 2;
             request.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
 
             var apprenticeships = GetTestApprenticeships(request);
 
@@ -268,7 +265,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
-            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -279,27 +276,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Not_Returned_If_Page_Count_Is_Greater_Than_Items_Available(
-            GetApprenticeshipsRequest request,
-            Mock<IAlertsMapper> alertsMapper,
+            GetApprenticeshipsQuery query,
+          
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
 
-            var apprenticeships = GetTestApprenticeships(request);
+            var apprenticeships = GetTestApprenticeships(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
-            request.SortField = null;
-            request.PageNumber = 5;
-            request.PageItemCount = 2;
-            request.SearchFilters = new ApprenticeshipSearchFilters();
+            query.SortField = null;
+            query.PageNumber = 5;
+            query.PageItemCount = 2;
+            query.SearchFilters = new ApprenticeshipSearchFilters();
 
             //Act
-            var actual = await handler.Handle(request, CancellationToken.None);
+            var actual = await handler.Handle(query, CancellationToken.None);
 
             //Assert
             Assert.IsEmpty(actual.Apprenticeships);
@@ -308,8 +305,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_And_Is_And_There_Are_ApprenticeshipUpdates_These_Appear_First(
-            GetApprenticeshipsRequest request,
-            Mock<IAlertsMapper> alertsMapper,
+            GetApprenticeshipsQuery request,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
@@ -319,7 +315,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             request.ReverseSort = false;
             request.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -368,7 +364,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                         new ApprenticeshipUpdate
                         {
                             Status = (byte) ApprenticeshipUpdateStatus.Pending,
-                            Originator = (byte) Originator.Provider
+                            Originator = Originator.Provider
                         }
                     }
                 },
@@ -379,7 +375,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -393,25 +389,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_Total_Available_Apprenticeships(
-            GetApprenticeshipsRequest request,
+            GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
             ApprenticeshipDetails apprenticeshipDetails,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
-            GetApprenticeshipsHandler handler)
+            GetApprenticeshipsQueryHandler handler)
         {
             var filterCourseName = "Test Corse";
-            request.PageNumber = 0;
-            request.PageItemCount = 0;
-            request.SearchFilters = new ApprenticeshipSearchFilters
+            query.PageNumber = 0;
+            query.PageItemCount = 0;
+            query.SearchFilters = new ApprenticeshipSearchFilters
             {
                 CourseName = filterCourseName
             };
 
             apprenticeships[0].CourseName = filterCourseName;
 
-            apprenticeships[0].Cohort.ProviderId = request.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
 
 
             mockContext
@@ -420,16 +416,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             
             mockMapper
                 .Setup(mapper => mapper.Map(It.IsIn(apprenticeships
-                    .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId))))
+                    .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))))
                 .ReturnsAsync(apprenticeshipDetails);
 
-            var result = await handler.Handle(request, CancellationToken.None);
+            var result = await handler.Handle(query, CancellationToken.None);
 
             result.TotalApprenticeshipsFound.Should().Be(1);
 
             result.TotalApprenticeships
                 .Should().Be(apprenticeships
-                    .Count(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId));
+                    .Count(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId));
         }
 
     }

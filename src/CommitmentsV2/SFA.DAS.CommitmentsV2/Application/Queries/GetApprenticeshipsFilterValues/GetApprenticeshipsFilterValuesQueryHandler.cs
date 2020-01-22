@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues
 {
-    public class GetApprenticeshipsFilterValuesQueryHandler : IRequestHandler<GetApprenticeshipsFilterValuesQuery, GetApprenticeshipsFilterValuesResponse>
+    public class GetApprenticeshipsFilterValuesQueryHandler : IRequestHandler<GetApprenticeshipsFilterValuesQuery, GetApprenticeshipsFilterValuesQueryResult>
     {
         private readonly IProviderCommitmentsDbContext _dbContext;
 
@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             _dbContext = dbContext;
         }
 
-        public async Task<GetApprenticeshipsFilterValuesResponse> Handle(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        public async Task<GetApprenticeshipsFilterValuesQueryResult> Handle(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             var stringDbTasks = new []{
                 GetDistinctEmployerNames(request, cancellationToken),
@@ -36,8 +36,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             dbTasks.AddRange(stringDbTasks);
             dbTasks.AddRange(dateDbTasks);
 
-            Task.WaitAll(dbTasks.ToArray<Task>());
-
+            Task.WaitAll(dbTasks.ToArray<Task>());
+
             return await Task.FromResult(new GetApprenticeshipsFilterValuesResponse
             {
                 EmployerNames = stringDbTasks[0].Result,
@@ -61,7 +61,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         private Task<List<string>> GetDistinctCourseNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return _dbContext.Apprenticeships
-                .Include(apprenticeship => apprenticeship.Cohort)
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
                 .Select(apprenticeship => apprenticeship.CourseName)
                 .Distinct()

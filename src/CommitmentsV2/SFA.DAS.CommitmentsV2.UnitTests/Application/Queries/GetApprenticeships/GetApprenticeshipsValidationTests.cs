@@ -12,8 +12,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(long id, bool expectedIsValid)
         {
             // arrange
-            var validator = new GetApprenticeshipsValidator();
-            var validationResults = validator.Validate(new GetApprenticeshipsRequest
+            var validator = new GetApprenticeshipsQueryValidator();
+            var validationResults = validator.Validate(new GetApprenticeshipsQuery
             {
                 ProviderId = id,
                 PageNumber = 1,
@@ -35,8 +35,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public void Validate_WithSpecifiedSortField_ShouldOnlyBeAllowedIfPropertyOnApprenticeship(string fieldName, bool expected)
         {
             // arrange
-            var validator = new GetApprenticeshipsValidator();
-            var validationResults = validator.Validate(new GetApprenticeshipsRequest
+            var validator = new GetApprenticeshipsQueryValidator();
+            var validationResults = validator.Validate(new GetApprenticeshipsQuery
             {
                 ProviderId = 1, 
                 SortField = fieldName,

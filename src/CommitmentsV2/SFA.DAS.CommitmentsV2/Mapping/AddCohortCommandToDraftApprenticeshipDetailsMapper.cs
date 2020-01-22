@@ -6,7 +6,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
-    public class AddCohortCommandToDraftApprenticeshipDetailsMapper : IMapper<AddCohortCommand, DraftApprenticeshipDetails>
+    public class AddCohortCommandToDraftApprenticeshipDetailsMapper : IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;

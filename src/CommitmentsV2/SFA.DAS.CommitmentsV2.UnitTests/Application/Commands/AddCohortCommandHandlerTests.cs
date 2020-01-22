@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             EncodingServiceMock = new Mock<IEncodingService>();
 
             DraftApprenticeshipDetailsMapperMock =
-                new Mock<IMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
+                new Mock<IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
             DraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
                 .ReturnsAsync(() => new DraftApprenticeshipDetails());
 
@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IEncodingService> EncodingServiceMock { get; }
         public IEncodingService EncodingService => EncodingServiceMock.Object;
 
-        public Mock<IMapper<AddCohortCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
+        public Mock<IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
 
         public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
 

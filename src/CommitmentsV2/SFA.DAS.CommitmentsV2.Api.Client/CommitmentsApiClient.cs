@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
         }
 
-        public Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipRequest request, CancellationToken cancellationToken = default)
+        public Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
             var pageQuery = CreatePageQuery(request);
             var sortField = CreateSortFieldQuery(request);
@@ -134,6 +134,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<long?>($"api/employer-agreements/{accountLegalEntityId}/latest-id", null, cancellationToken);
         }
 
+        public Task<GetCohortsResponse> GetCohorts(GetCohortsRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetCohortsResponse>($"api/cohorts", request, cancellationToken);
+        }
+
         public Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken)
         {
             return _client.PostAsJson($"api/cohorts/{cohortId}/delete", userInfo, cancellationToken);
@@ -159,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get("api/test/provider");  
         }
 
-        private static string CreateFilterQuery(GetApprenticeshipRequest request)
+        private static string CreateFilterQuery(GetApprenticeshipsRequest request)
         {
             var filterQuery = string.Empty;
 
@@ -191,7 +196,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return filterQuery;
         }
 
-        private static string CreateSortFieldQuery(GetApprenticeshipRequest request)
+        private static string CreateSortFieldQuery(GetApprenticeshipsRequest request)
         {
             var sortField = "";
 
@@ -203,7 +208,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return sortField;
         }
 
-        private static string CreatePageQuery(GetApprenticeshipRequest request)
+        private static string CreatePageQuery(GetApprenticeshipsRequest request)
         {
             var pageQuery = string.Empty;
 
@@ -223,6 +228,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             }
 
             return pageQuery;
+        }
+
+        public Task<CreateCohortResponse> CreateCohort(CreateEmptyCohortRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<CreateEmptyCohortRequest, CreateCohortResponse>("api/cohorts/create-empty-cohort", request, cancellationToken);
         }
     }
 }
