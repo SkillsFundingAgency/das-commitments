@@ -8,5 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
         public IEnumerable<ApprenticeshipDetails> Apprenticeships { get; set; }
         public int TotalApprenticeshipsFound { get; set; }
         public int TotalApprenticeshipsWithAlertsFound { get; set; }
+        public int TotalApprenticeships { get; set; }
     }
 }

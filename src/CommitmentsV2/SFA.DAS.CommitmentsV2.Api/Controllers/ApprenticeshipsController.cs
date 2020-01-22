@@ -75,7 +75,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 {
                     Apprenticeships = mappedApprenticeships,
                     TotalApprenticeshipsFound = response.TotalApprenticeshipsFound,
-                    TotalApprenticeshipsWithAlertsFound = response.TotalApprenticeshipsWithAlertsFound
+                    TotalApprenticeshipsWithAlertsFound = response.TotalApprenticeshipsWithAlertsFound,
+                    TotalApprenticeships = response.TotalApprenticeships
                 });
             }
             catch (Exception e)

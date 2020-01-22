@@ -125,9 +125,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 ProviderId = 10
             };
 
-            const int expectedTotalApprenticeshipsFound = 10;
-            const int expectedTotalApprenticeshipsWithAlertsFound = 3;
-
             var expectedApprenticeship = new ApprenticeshipDetails
             {
                 Id = new Fixture().Create<long>(),
@@ -145,9 +142,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(request.ProviderId)),
                 It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Queries.GetApprenticeships.GetApprenticeshipsResponse
             {
-                    Apprenticeships = new []{ expectedApprenticeship},
-                    TotalApprenticeshipsFound = expectedTotalApprenticeshipsFound,
-                    TotalApprenticeshipsWithAlertsFound = expectedTotalApprenticeshipsWithAlertsFound
+                    Apprenticeships = new []{expectedApprenticeship}
             });
 
             //Act
@@ -173,9 +168,82 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             Assert.AreEqual(expectedApprenticeship.EndDate, actualApprenticeship.EndDate);
             Assert.AreEqual(expectedApprenticeship.PaymentStatus, actualApprenticeship.PaymentStatus);
             Assert.AreEqual(expectedApprenticeship.Alerts, actualApprenticeship.Alerts);
-            
+        }
+
+        [Test]
+        public async Task ReturnTotalNumberOfApprenticeshipsFound()
+        {
+             //Arrange
+             const int expectedTotalApprenticeshipsFound = 10;
+             var request = new GetApprenticeshipRequest {ProviderId = 10};
+
+             _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(request.ProviderId)),
+                It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Queries.GetApprenticeships.GetApprenticeshipsResponse
+            {
+                    Apprenticeships = new ApprenticeshipDetails[0],
+                    TotalApprenticeshipsFound = expectedTotalApprenticeshipsFound
+            });
+
+            //Act
+            var result = await _controller.GetApprenticeships(request) as OkObjectResult;
+
+            //Assert
+            Assert.IsNotNull(result);
+
+            var response = result.Value as GetApprenticeshipsResponse;
+
+            Assert.IsNotNull(response);
             Assert.AreEqual(expectedTotalApprenticeshipsFound, response.TotalApprenticeshipsFound);
+        }
+
+        [Test]
+        public async Task ReturnTotalNumberOfApprenticeshipsWithAlertsFound()
+        {
+            //Arrange
+            const int expectedTotalApprenticeshipsWithAlertsFound = 3;
+            var request = new GetApprenticeshipRequest {ProviderId = 10};
+
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(request.ProviderId)),
+                It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Queries.GetApprenticeships.GetApprenticeshipsResponse
+            {
+                Apprenticeships = new ApprenticeshipDetails[0],
+                TotalApprenticeshipsWithAlertsFound = expectedTotalApprenticeshipsWithAlertsFound
+            });
+
+            //Act
+            var result = await _controller.GetApprenticeships(request) as OkObjectResult;
+
+            //Assert
+            Assert.IsNotNull(result);
+            var response = result.Value as GetApprenticeshipsResponse;
+
+            Assert.IsNotNull(response);
             Assert.AreEqual(expectedTotalApprenticeshipsWithAlertsFound, response.TotalApprenticeshipsWithAlertsFound);
+        }
+
+        [Test]
+        public async Task ReturnTotalNumberOfApprenticeshipsAvailable()
+        {
+            //Arrange
+            const int expectedTotalApprenticeships = 20;
+            var request = new GetApprenticeshipRequest {ProviderId = 10};
+
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(request.ProviderId)),
+                It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Queries.GetApprenticeships.GetApprenticeshipsResponse
+            {
+                Apprenticeships = new ApprenticeshipDetails[0],
+                TotalApprenticeships = expectedTotalApprenticeships
+            });
+
+            //Act
+            var result = await _controller.GetApprenticeships(request) as OkObjectResult;
+
+            //Assert
+            Assert.IsNotNull(result);
+            var response = result.Value as GetApprenticeshipsResponse;
+
+            Assert.IsNotNull(response);
+            Assert.AreEqual(expectedTotalApprenticeships, response.TotalApprenticeships);
         }
 
         [Test]
@@ -187,6 +255,5 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             Assert.IsNotNull(result);
         }
-
     }
 }

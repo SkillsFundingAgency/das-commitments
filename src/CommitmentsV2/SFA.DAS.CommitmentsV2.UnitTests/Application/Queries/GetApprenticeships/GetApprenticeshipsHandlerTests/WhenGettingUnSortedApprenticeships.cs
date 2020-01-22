@@ -391,5 +391,46 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             
         }
 
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_Total_Available_Apprenticeships(
+            GetApprenticeshipsRequest request,
+            List<Apprenticeship> apprenticeships,
+            ApprenticeshipDetails apprenticeshipDetails,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
+            GetApprenticeshipsHandler handler)
+        {
+            var filterCourseName = "Test Corse";
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
+            request.SearchFilters = new ApprenticeshipSearchFilters
+            {
+                CourseName = filterCourseName
+            };
+
+            apprenticeships[0].CourseName = filterCourseName;
+
+            apprenticeships[0].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = request.ProviderId;
+
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+            
+            mockMapper
+                .Setup(mapper => mapper.Map(It.IsIn(apprenticeships
+                    .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId))))
+                .ReturnsAsync(apprenticeshipDetails);
+
+            var result = await handler.Handle(request, CancellationToken.None);
+
+            result.TotalApprenticeshipsFound.Should().Be(1);
+
+            result.TotalApprenticeships
+                .Should().Be(apprenticeships
+                    .Count(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId));
+        }
+
     }
 }
