@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Types.Providers;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
 using SFA.DAS.Providers.Api.Client;
 
@@ -26,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
         [Test]
         public async Task CheckHealthAsync_WhenFindAllAsyncSucceeds_ThenShouldReturnHealthyStatus()
         {
-            var healthCheckResult = await _fixture.SetFindAllAsyncSuccess().CheckHealthAsync();
+            var healthCheckResult = await _fixture.CheckHealthAsync();
             
             Assert.AreEqual(HealthStatus.Healthy, healthCheckResult.Status);
         }
@@ -34,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
         [Test]
         public async Task CheckHealthAsync_WhenFindAllAsyncFails_ThenShouldReturnDegradedStatus()
         {
-            var healthCheckResult = await _fixture.SetFindAllAsyncFailure().CheckHealthAsync();
+            var healthCheckResult = await _fixture.PingFailure().CheckHealthAsync();
             
             Assert.AreEqual(HealthStatus.Degraded, healthCheckResult.Status);
             Assert.AreEqual(_fixture.Exception.Message, healthCheckResult.Description);
@@ -65,16 +63,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
                 return HealthCheck.CheckHealthAsync(HealthCheckContext, CancellationToken);
             }
 
-            public ApprenticeshipInfoServiceHealthCheckTestsFixture SetFindAllAsyncSuccess()
+            public ApprenticeshipInfoServiceHealthCheckTestsFixture PingFailure()
             {
-                ProviderApiClient.Setup(c => c.FindAllAsync()).ReturnsAsync(new List<ProviderSummary>());
-                
-                return this;
-            }
-
-            public ApprenticeshipInfoServiceHealthCheckTestsFixture SetFindAllAsyncFailure()
-            {
-                ProviderApiClient.Setup(c => c.FindAllAsync()).ThrowsAsync(Exception);
+                ProviderApiClient.Setup(c => c.Ping()).ThrowsAsync(Exception);
                 
                 return this;
             }

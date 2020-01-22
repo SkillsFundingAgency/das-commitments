@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public TrainingProgramme TrainingProgramme { get; }
         public Mock<IAuthorizationService> AuthorizationService { get; }
         public Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup { get; }
-        public IMapper<AddCohortCommand, DraftApprenticeshipDetails> Mapper { get; }
+        public IOldMapper<AddCohortCommand, DraftApprenticeshipDetails> Mapper { get; }
 
         public AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture()
         {

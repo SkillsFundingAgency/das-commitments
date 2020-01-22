@@ -42,6 +42,43 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public void TheCohortHasCorrectTransferInformation(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortHasTransferInformation();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void TheCohortHasNoTransferInformation(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithNoTransferSender()
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortHasNoTransferInformation();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void TheCohortBelongsToTheGivenLegalEntity(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortBelongsToLegalEntity(); //this test covers the original cohort->legal entity relationship
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public void TheCohortBelongsToTheGivenAccountLegalEntity(Party creatingParty)
         {
             _fixture
@@ -49,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 .WithDraftApprenticeship()
                 .CreateCohort();
 
-            _fixture.VerifyCohortBelongsToLegalEntity();
+            _fixture.VerifyCohortBelongsToAccountLegalEntity(); //this test covers the new cohort->ale relationship
         }
 
         [TestCase(Party.Provider, Originator.Provider)]
@@ -82,6 +119,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         {
             _fixture
                 .WithCreatingParty(creatingParty)
+                .CreateCohort();
+
+            _fixture.VerifyException<DomainException>();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenCohortCannotHaveInvalidStartDate(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .WithInvalidStartDate()
                 .CreateCohort();
 
             _fixture.VerifyException<DomainException>();

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -11,7 +11,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.UnitOfWork;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
@@ -40,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IAuthenticationService> AuthenticationServiceMock { get; set; }
-        public GetDraftApprenticeHandler Handler { get; set; }
+        public GetDraftApprenticeshipQueryHandler Handler { get; set; }
 
         private long CohortId = 1;
         private long ApprenticeshipId = 1;
@@ -49,14 +48,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             AuthenticationServiceMock = new Mock<IAuthenticationService>();
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
-            Handler = new GetDraftApprenticeHandler(
+            Handler = new GetDraftApprenticeshipQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), 
                 AuthenticationServiceMock.Object);
         }
 
-        public Task<GetDraftApprenticeResponse> Handle()
+        public Task<GetDraftApprenticeshipQueryResult> Handle()
         {
-            var query = new GetDraftApprenticeRequest(CohortId, ApprenticeshipId);
+            var query = new GetDraftApprenticeshipQuery(CohortId, ApprenticeshipId);
             return Handler.Handle(query, CancellationToken.None);
         }
 
@@ -86,6 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             var commitment = new Cohort(
                 new Provider(),
                 new AccountLegalEntity(),
+                null,
                 draftApprenticeshipDetails,
                 creatingParty,
                 new UserInfo());

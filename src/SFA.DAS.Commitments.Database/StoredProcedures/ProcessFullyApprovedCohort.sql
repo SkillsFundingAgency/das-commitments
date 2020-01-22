@@ -17,5 +17,4 @@ BEGIN
     FROM [dbo].[Apprenticeship]
     WHERE CommitmentId = @cohortId
 
-    EXEC [dbo].[SetPaymentOrder] @employerAccountId = @accountId
 END

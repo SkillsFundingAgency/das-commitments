@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -15,6 +16,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Services
@@ -31,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IEmployerAgreementService _employerAgreementService;
         private readonly IEncodingService _encodingService;
+        private readonly IAccountApiClient _accountApiClient;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -41,7 +44,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             IAuthenticationService authenticationService,
             ICurrentDateTime currentDateTime,
             IEmployerAgreementService employerAgreementService,
-            IEncodingService encodingService)
+            IEncodingService encodingService,
+            IAccountApiClient accountApiClient)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -53,12 +57,13 @@ namespace SFA.DAS.CommitmentsV2.Services
             _currentDateTime = currentDateTime;
             _employerAgreementService = employerAgreementService;
             _encodingService = encodingService;
+            _accountApiClient = accountApiClient;
         }
-        
+
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
-            var cohort = await GetCohort(cohortId, db, cancellationToken);
+            var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
@@ -71,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
 
-            var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
+            var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
             if (party == Party.Employer)
@@ -82,21 +87,21 @@ namespace SFA.DAS.CommitmentsV2.Services
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
-        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
             var db = _dbContext.Value;
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
+            var transferSender = transferSenderId.HasValue  ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
-			await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
-            var cohort = originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
-            return cohort;
+            return originator.CreateCohort(provider, accountLegalEntity, transferSender, draftApprenticeshipDetails, userInfo);
         }
 
-        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
 
@@ -109,14 +114,31 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
+            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
+            return accountLegalEntity.CreateCohortWithOtherParty(provider, accountLegalEntity, transferSender, message, userInfo);
+        }
 
-            var cohort = accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
-            return cohort;
+        public async Task<Cohort> CreateEmptyCohort(long providerId, long accountId, long accountLegalEntityId, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var originatingParty = _authenticationService.GetUserParty();
+
+            if (originatingParty != Party.Provider)
+            {
+                throw new InvalidOperationException($"Only Providers can create empty cohort");
+            }
+
+            var db = _dbContext.Value;
+            var provider = await GetProvider(providerId, db, cancellationToken);
+            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
+           
+            var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
+
+            return originator.CreateCohort(provider, accountLegalEntity, userInfo);
         }
 
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
-            var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
+            var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
@@ -124,15 +146,10 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
-            var db = _dbContext.Value;
-
-            var party = _authenticationService.GetUserParty();
-            var cohort = await db.Cohorts
-                                .Include(c => c.Apprenticeships)
-                                .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
+            var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
 
             AssertHasProvider(cohortId, cohort.ProviderId);
-            AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
+            AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
 
             cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
@@ -141,7 +158,17 @@ namespace SFA.DAS.CommitmentsV2.Services
             return cohort;
         }
 
-        private ICohortOriginator GetCohortOriginator(Party originatingParty, Provider provider,  AccountLegalEntity accountLegalEntity)
+        public async Task<Cohort> DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
+
+            AssertHasApprenticeshipId(cohortId, apprenticeshipId);
+            cohort.DeleteDraftApprenticeship(apprenticeshipId, _authenticationService.GetUserParty(), userInfo);
+
+            return cohort;
+        }
+
+        private ICohortOriginator GetCohortOriginator(Party originatingParty, Provider provider, AccountLegalEntity accountLegalEntity)
         {
             switch (originatingParty)
             {
@@ -163,15 +190,15 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private void AssertHasApprenticeshipId(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        private static void AssertHasApprenticeshipId(long cohortId, long draftApprenticeshipDetailId)
         {
-            if (draftApprenticeshipDetails.Id < 1)
+            if (draftApprenticeshipDetailId < 1)
             {
                 throw new InvalidOperationException($"Cannot update cohort {cohortId} because the supplied draft apprenticeship does not have an id");
             }
         }
 
-        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId,  ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var accountLegalEntity =
                 await db.AccountLegalEntities.SingleOrDefaultAsync(x => x.Id == accountLegalEntityId,
@@ -183,13 +210,31 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             return accountLegalEntity;
         }
-        
-        private static async Task<Cohort> GetCohort(long cohortId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+
+        private static async Task<Account> GetAccount(long accountId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
-            var cohort = await db.Cohorts.Include(c => c.Apprenticeships).SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
-            if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
-            if (cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
-            return cohort;
+            var account = await db.Accounts.SingleOrDefaultAsync(x => x.Id == accountId, cancellationToken);
+            if (account == null)
+                throw new BadRequestException($"Account {accountId} was not found");
+
+            return account;
+        }
+
+        private async Task<Account> GetTransferSender(long employerAccountId, long transferSenderId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        {
+            await ValidateTransferSenderIdIsAFundingConnection(employerAccountId, transferSenderId);
+            return await GetAccount(transferSenderId, db, cancellationToken);
+        }
+
+        private async Task ValidateTransferSenderIdIsAFundingConnection(long accountId, long transferSenderId)
+        {
+            var hashedAccountId = _encodingService.Encode(accountId, EncodingType.AccountId);
+            var fundingConnections = await _accountApiClient.GetTransferConnections(hashedAccountId);
+            if (fundingConnections.Any(x => x.FundingEmployerAccountId == transferSenderId))
+            {
+                return;
+            }
+            throw new BadRequestException($"TransferSenderId {transferSenderId} is not a FundingEmployer for Account {accountId}");
         }
 
         private static async Task<Provider> GetProvider(long providerId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)

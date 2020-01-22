@@ -100,7 +100,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 DataLockCourseChangeTriaged = source.DataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Change),
                 DataLockPriceTriaged = source.DataLocks.Any(x => x.IsPriceOnly() && x.TriageStatus == TriageStatus.Change),
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
-                EndpointAssessorName = source.EndpointAssessorName
+                EndpointAssessorName = source.EndpointAssessorName,
+                ReservationId = source.ReservationId
             };
         }
 

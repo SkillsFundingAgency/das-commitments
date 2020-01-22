@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.Design;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.StateTracking
 {
@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.StateTracking
         {
             const string testMessage = "TestMessage";
             var cohort = new CommitmentsV2.Models.Cohort();
-            cohort.Messages.Add(new Message{Text = testMessage });
+            cohort.Messages.Add(new CommitmentsV2.Models.Message { Text = testMessage });
             Assert.AreEqual(testMessage, cohort.LastMessage);
         }
 

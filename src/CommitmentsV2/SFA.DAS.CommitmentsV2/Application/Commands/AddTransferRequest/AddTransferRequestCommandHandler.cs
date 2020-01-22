@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
@@ -33,10 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
             {
                 var db = _dbContext.Value;
 
-                var cohort = await db.Cohorts
-                    .Include(c => c.Apprenticeships)
-                    .Include(c => c.TransferRequests)
-                    .SingleAsync(c => c.Id == request.CohortId, cancellationToken: cancellationToken);
+                var cohort = await db.GetCohortAggregate(request.CohortId, cancellationToken: cancellationToken);
 
                 var fundingCapSummary = await _fundingCapService.FundingCourseSummary(cohort.Apprenticeships);
 

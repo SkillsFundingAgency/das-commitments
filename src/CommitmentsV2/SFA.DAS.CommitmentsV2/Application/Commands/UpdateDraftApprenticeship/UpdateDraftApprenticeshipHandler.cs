@@ -13,18 +13,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
 {
     public class UpdateDraftApprenticeshipHandler : IRequestHandler<UpdateDraftApprenticeshipCommand, UpdateDraftApprenticeshipResponse>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<AddCohortHandler> _logger;
-        private readonly IMapper<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
+        private readonly ILogger<UpdateDraftApprenticeshipHandler> _logger;
+        private readonly IOldMapper<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
         private readonly ICohortDomainService _cohortDomainService;
 
         public UpdateDraftApprenticeshipHandler(
-            Lazy<ProviderCommitmentsDbContext> dbContext,
-            ILogger<AddCohortHandler> logger,
-            IMapper<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
+            ILogger<UpdateDraftApprenticeshipHandler> logger,
+            IOldMapper<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
             ICohortDomainService cohortDomainService)
         {
-            _dbContext = dbContext;
             _logger = logger;
             _draftApprenticeshipDetailsMapper = draftApprenticeshipDetailsMapper;
             _cohortDomainService = cohortDomainService;

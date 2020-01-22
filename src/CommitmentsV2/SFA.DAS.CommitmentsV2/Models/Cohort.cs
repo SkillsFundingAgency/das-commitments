@@ -22,18 +22,26 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests = new HashSet<TransferRequest>();
         }
 
-        private Cohort(Provider provider, AccountLegalEntity accountLegalEntity, Party originatingParty, UserInfo userInfo) : this()
+        private Cohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            Account transferSender,
+            Party originatingParty, UserInfo userInfo) : this()
         {
             CheckIsEmployerOrProvider(originatingParty);
 
             EmployerAccountId = accountLegalEntity.AccountId;
+            AccountLegalEntityId = accountLegalEntity.Id;
+            ProviderId = provider.UkPrn;
+            ProviderName = provider.Name;
+            TransferSenderId = transferSender?.Id;
+            TransferSenderName = transferSender?.Name;
+
+            //Setting of these fields is here for backwards-compatibility only
             LegalEntityId = accountLegalEntity.LegalEntityId;
             LegalEntityName = accountLegalEntity.Name;
             LegalEntityAddress = accountLegalEntity.Address;
             LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
             AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
-            ProviderId = provider.UkPrn;
-            ProviderName = provider.Name;
 
             // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
             Reference = "";
@@ -42,7 +50,21 @@ namespace SFA.DAS.CommitmentsV2.Models
             CommitmentStatus = CommitmentStatus.New;
             CreatedOn = DateTime.UtcNow;
             LastAction = LastAction.None;
+        }
 
+        /// <summary>
+        /// Creates an empty cohort without draft apprenticeship
+        /// </summary>
+        internal Cohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            Party originatingParty,
+            UserInfo userInfo) : this(provider, accountLegalEntity, null, originatingParty, userInfo)
+        {
+            EditStatus = originatingParty.ToEditStatus();
+
+            StartTrackingSession(UserAction.CreateCohort, originatingParty, accountLegalEntity.AccountId, provider.UkPrn, userInfo);
+            ChangeTrackingSession.TrackInsert(this);
+            ChangeTrackingSession.CompleteTrackingSession();
         }
 
         /// <summary>
@@ -50,11 +72,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         /// </summary>
         internal Cohort(Provider provider,
             AccountLegalEntity accountLegalEntity,
+            Account transferSender,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             Party originatingParty,
-            UserInfo userInfo) : this(provider, accountLegalEntity, originatingParty, userInfo)
+            UserInfo userInfo) : this(provider, accountLegalEntity, transferSender, originatingParty, userInfo)
         {
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             EditStatus = originatingParty.ToEditStatus();
 
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, originatingParty);
@@ -73,9 +97,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         /// </summary>
         internal Cohort(Provider provider,
             AccountLegalEntity accountLegalEntity,
+            Account transferSender,
             Party originatingParty,
             string message,
-            UserInfo userInfo) : this(provider, accountLegalEntity, originatingParty, userInfo)
+            UserInfo userInfo) : this(provider, accountLegalEntity, transferSender, originatingParty, userInfo)
         {
             CheckIsEmployer(originatingParty);
 
@@ -94,6 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long Id { get; set; }
         public string Reference { get; set; }
         public long EmployerAccountId { get; set; }
+        public long? AccountLegalEntityId { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
         public string LegalEntityAddress { get; set; }
@@ -116,6 +142,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? TransferApprovalActionedOn { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public Originator Originator { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual ICollection<Apprenticeship> Apprenticeships { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
@@ -302,6 +329,76 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests.Add(transferRequest);
             TransferApprovalStatus = Types.TransferApprovalStatus.Pending;
             Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow, lastApprovedByParty));
+        }
+
+		public void Delete(Party modifyingParty, UserInfo userInfo)
+        {
+            CheckIsWithParty(modifyingParty);
+
+            StartTrackingSession(UserAction.DeleteCohort, modifyingParty, EmployerAccountId, ProviderId.Value, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+            
+            MarkAsDeletedAndEmitCohortDeletedEvent();
+
+            foreach (var draftApprenticeship in DraftApprenticeships.ToArray())
+            {
+                RemoveDraftApprenticeship(draftApprenticeship);
+            }
+
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+        public void DeleteDraftApprenticeship(long draftApprenticeshipId, Party modifyingParty, UserInfo userInfo)
+        {
+            CheckIsWithParty(modifyingParty);
+
+            var draftApprenticeship = DraftApprenticeships.Single(x => x.Id == draftApprenticeshipId);
+
+            StartTrackingSession(UserAction.DeleteDraftApprenticeship, modifyingParty, EmployerAccountId, ProviderId.Value, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+            ChangeTrackingSession.TrackDelete(draftApprenticeship);
+
+            RemoveDraftApprenticeship(draftApprenticeship);
+
+            ResetApprovals();
+            ResetTransferSenderRejection();
+
+            if (!DraftApprenticeships.Any())
+            {
+                MarkAsDeletedAndEmitCohortDeletedEvent();
+            }
+            
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+		
+		private void RemoveDraftApprenticeship(DraftApprenticeship draftApprenticeship)
+        {
+            ChangeTrackingSession.TrackDelete(draftApprenticeship);
+            Apprenticeships.Remove(draftApprenticeship);
+            Publish(() => new DraftApprenticeshipDeletedEvent
+            {
+                DraftApprenticeshipId = draftApprenticeship.Id,
+                CohortId = draftApprenticeship.CommitmentId,
+                Uln = draftApprenticeship.Uln,
+                ReservationId = draftApprenticeship.ReservationId,
+                DeletedOn = DateTime.UtcNow
+            });
+        }
+		
+		private void MarkAsDeletedAndEmitCohortDeletedEvent()
+        {
+            var approvalStatusPriorToDeletion = Approvals;
+            IsDeleted = true;
+            Publish(() => new CohortDeletedEvent(Id, EmployerAccountId, ProviderId.Value, approvalStatusPriorToDeletion, DateTime.UtcNow));
+        }
+
+        private void ResetTransferSenderRejection()
+        {
+            if (TransferApprovalStatus == Types.TransferApprovalStatus.Rejected)
+            {
+                TransferApprovalStatus = null;
+                TransferApprovalActionedOn = null;
+                LastAction = LastAction.AmendAfterRejected;
+            }
         }
 
         private void CheckThereIsNoPendingTransferRequest()

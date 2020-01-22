@@ -16,6 +16,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using Message = SFA.DAS.CommitmentsV2.Models.Message;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 {
@@ -29,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public const string LatestMessageCreatedByEmployer = "ohayou";
         public const string LatestMessageCreatedByProvider = "konbanwa";
         public bool HasTransferSender = true;
+        public bool CohortIsDeleted;
         public AgreementStatus? ApprenticeshipAgreementStatus = AgreementStatus.NotAgreed;
 
         [Test]
@@ -162,13 +164,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(response => Assert.IsFalse(response.IsCompleteForEmployer));
         }
 
+        [Test]
+        [NonParallelizable]
+        public async Task Handle_DeletedCohort_ShouldReturnNull()
+        {
+            CohortIsDeleted = true;
+            await CheckQueryResponse(Assert.IsNull);
+        }
+
         private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert, DraftApprenticeshipDetails apprenticeshipDetails = null)
         {
             var autoFixture = new Fixture();
 
             CohortId = autoFixture.Create<long>();
             Cohort = autoFixture.Build<Cohort>().Without(o=>o.Apprenticeships).Without(o=>o.TransferRequests).Without(o=>o.Messages).Create();
-            
+
+            Cohort.IsDeleted = CohortIsDeleted;
             if (!HasTransferSender)
             {
                 Cohort.TransferSenderId = null;

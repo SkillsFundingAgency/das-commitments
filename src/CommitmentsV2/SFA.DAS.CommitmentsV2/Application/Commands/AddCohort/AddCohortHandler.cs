@@ -19,14 +19,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         private readonly ILogger<AddCohortHandler> _logger;
         private readonly IEncodingService _encodingService;
 
-        private readonly IMapper<AddCohortCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
+        private readonly IOldMapper<AddCohortCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
         private readonly ICohortDomainService _cohortDomainService;
 
         public AddCohortHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IEncodingService encodingService,
             ILogger<AddCohortHandler> logger,
-            IMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
+            IOldMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
             ICohortDomainService cohortDomainService)
         {
             _dbContext = dbContext;
@@ -45,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             var cohort = await _cohortDomainService.CreateCohort(command.ProviderId, 
                 command.AccountId,
                 command.AccountLegalEntityId,
+                command.TransferSenderId,
                 draftApprenticeshipDetails,
                 command.UserInfo,
                 cancellationToken);

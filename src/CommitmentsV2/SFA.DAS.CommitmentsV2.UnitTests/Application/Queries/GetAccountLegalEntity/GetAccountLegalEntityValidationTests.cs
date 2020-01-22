@@ -12,8 +12,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
         public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(int id, bool expectedIsValid)
         {
             // arrange
-            var validator = new GetAccountLegalEntityValidator();
-            var validationResults = validator.Validate(new GetAccountLegalEntityRequest {AccountLegalEntityId = id});
+            var validator = new GetAccountLegalEntityQueryValidator();
+            var validationResults = validator.Validate(new GetAccountLegalEntityQuery {AccountLegalEntityId = id});
 
             // act
             var actualIsValid = validationResults.IsValid;

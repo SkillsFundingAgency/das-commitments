@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
                 Console.WriteLine("M - ApprovedCohortReturnedToProviderEvent");
                 Console.WriteLine("N - CohortApprovedByEmployer");
+                Console.WriteLine("O - CohortDeletedEvent");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -107,6 +108,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new CohortApprovedByEmployerEvent(cohortId, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortApprovedByEmployerEvent)}");
+                            break;
+                        case ConsoleKey.O:
+                            await _publisher.Publish(new CohortDeletedEvent(cohortId, 22222, 33333, Party.None, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(CohortDeletedEvent)}");
                             break;
                     }
                 }

@@ -32,13 +32,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             const long providerId = 1;
             const long accountId = 2;
             const long accountLegalEntityId = 3;
+            long? transferSenderId = 4;
 
             var fixtures = new AddCohortCommandHandlerTestFixture()
                                 .WithGeneratedHash(expectedHash);
 
-            var response = await fixtures.Handle(accountId, accountLegalEntityId, providerId, "Course1");
+            var response = await fixtures.Handle(accountId, accountLegalEntityId, providerId, transferSenderId, "Course1");
 
-            fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(providerId, accountId, accountLegalEntityId, 
+            fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(providerId, accountId, accountLegalEntityId, transferSenderId,
                 It.IsAny<DraftApprenticeshipDetails>(),
                 fixtures.UserInfo,
                 It.IsAny<CancellationToken>()));
@@ -86,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             EncodingServiceMock = new Mock<IEncodingService>();
 
             DraftApprenticeshipDetailsMapperMock =
-                new Mock<IMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
+                new Mock<IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
             DraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
                 .ReturnsAsync(() => new DraftApprenticeshipDetails());
 
@@ -94,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             commitment.Apprenticeships.Add(new DraftApprenticeship());
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
-            CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), 
+            CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(),
                     It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(commitment);
 
@@ -105,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IEncodingService> EncodingServiceMock { get; }
         public IEncodingService EncodingService => EncodingServiceMock.Object;
 
-        public Mock<IMapper<AddCohortCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
+        public Mock<IOldMapper<AddCohortCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
 
         public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
 
@@ -121,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, string courseCode)
+        public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, long? transferSenderId, string courseCode)
         {
             Db.SaveChanges();
             
@@ -139,6 +140,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 null,
                 null,
                 null,
+                transferSenderId,
                 UserInfo);
 
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
