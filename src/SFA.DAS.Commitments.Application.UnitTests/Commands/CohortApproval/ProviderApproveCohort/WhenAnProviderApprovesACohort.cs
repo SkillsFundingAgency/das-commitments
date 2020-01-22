@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using FluentValidation;
 using Moq;
 using NUnit.Framework;
@@ -27,7 +28,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             EmployerAccountsService.Setup(x => x.GetAccount(Commitment.EmployerAccountId)).ReturnsAsync(Account);
             SetupSuccessfulOverlapCheck();
-            
+            V2EventsPublisher.Setup(x => x.SendProviderApproveCohortCommand(It.IsAny<long>(), It.IsAny<UserInfo>()))
+                .Returns(Task.CompletedTask);
+
             Target = new ProviderApproveCohortCommandHandler(Validator,
                 CommitmentRepository.Object,
                 ApprenticeshipRepository.Object,
@@ -38,7 +41,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
                 ApprenticeshipEventsPublisher.Object,
                 Mediator.Object,
                 Mock.Of<ICommitmentsLogger>(),
-                Mock.Of<IApprenticeshipInfoService>());
+                Mock.Of<IApprenticeshipInfoService>(),
+                V2EventsPublisher.Object);
         }
 
         [Test]
@@ -71,6 +75,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             Commitment.ProviderCanApproveCommitment = false;
 
             Assert.ThrowsAsync<InvalidOperationException>(() => Target.Handle(Command));
+        }
+
+        [Test]
+        public async Task ThenAProviderApproveCohortCommandIsSent()
+        {
+            await Target.Handle(Command);
+            V2EventsPublisher.Verify(x => x.SendProviderApproveCohortCommand(Command.CommitmentId,
+                It.Is<UserInfo>(u =>
+                    u.UserId == Command.UserId &&
+                    u.UserDisplayName == Command.LastUpdatedByName &&
+                    u.UserEmail == Command.LastUpdatedByEmail)));
         }
     }
 }
