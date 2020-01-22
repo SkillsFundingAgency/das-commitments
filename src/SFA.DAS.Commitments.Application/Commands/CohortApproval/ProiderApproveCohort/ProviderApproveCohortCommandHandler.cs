@@ -64,12 +64,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
 
             var commitment = await GetCommitment(message.CommitmentId);
             await CheckCommitmentCanBeApproved(commitment, message.Caller.Id);
-
+            
             var userInfo = new UserInfo
             {
-                UserDisplayName = "testing",
-                UserEmail = "test@email.com",
-                UserId = "plop"
+                UserDisplayName = message.LastUpdatedByName,
+                UserEmail = message.LastUpdatedByEmail,
+                UserId = message.UserId
             };
 
             await _v2EventsPublisher.SendProviderApproveCohortCommand(message.CommitmentId, userInfo);
