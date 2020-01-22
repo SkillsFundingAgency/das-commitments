@@ -64,7 +64,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
                 MessagePublisher.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 ApprenticeshipInfoService.Object,
-                EmployerAccountsService.Object);
+                EmployerAccountsService.Object,
+                NotificationsPublisher.Object);
         }
 
         [Test]
@@ -138,6 +139,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
                 null,
                 null
                 ), Times.Exactly(Commitment.Apprenticeships.Count));
+        }
+
+        [Test]
+        public async Task ThenTheProviderApprovedCohortNotificationIsSent()
+        {
+            await Target.Handle(Command);
+            NotificationsPublisher.Verify(x => x.ProviderApprovedCohort(Commitment));
         }
     }
 }

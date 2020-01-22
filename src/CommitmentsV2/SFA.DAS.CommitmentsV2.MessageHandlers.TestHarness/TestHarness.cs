@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmployerAccounts.Messages.Events;
@@ -39,8 +41,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("G - BulkUploadIntoCohortCompletedEvent");
                 Console.WriteLine("H - CohortAssignedToProviderEvent");
                 Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
-                Console.WriteLine("M - ApprovedCohortReturnedToProviderEvent");
-                Console.WriteLine("N - CohortApprovedByEmployer");
+                Console.WriteLine("J - ApprovedCohortReturnedToProviderEvent");
+                Console.WriteLine("K - CohortApprovedByEmployer");
+                Console.WriteLine("L - SendEmailToEmployerCommand");
+                Console.WriteLine("M - RunHealthCheckCommand");
                 Console.WriteLine("O - CohortDeletedEvent");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
@@ -99,15 +103,25 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortTransferApprovalRequestedEvent)}");
                             break;
-                        case ConsoleKey.M:
+                        case ConsoleKey.J:
                             await _publisher.Publish(new ApprovedCohortReturnedToProviderEvent(cohortId, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(ApprovedCohortReturnedToProviderEvent)}");
                             break;
-                        case ConsoleKey.N:
+                        case ConsoleKey.K:
                             await _publisher.Publish(new CohortApprovedByEmployerEvent(cohortId, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortApprovedByEmployerEvent)}");
+                            break;
+                        case ConsoleKey.L:
+                            await _publisher.Send(new SendEmailToEmployerCommand(10003, "ABCDE", new Dictionary<string, string>(), "Test@test.com"), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(SendEmailToEmployerCommand)}");
+                            break;
+                        case ConsoleKey.M:
+                            await _publisher.Send(new RunHealthCheckCommand(), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(RunHealthCheckCommand)}");
                             break;
                         case ConsoleKey.O:
                             await _publisher.Publish(new CohortDeletedEvent(cohortId, 22222, 33333, Party.None, DateTime.Now));

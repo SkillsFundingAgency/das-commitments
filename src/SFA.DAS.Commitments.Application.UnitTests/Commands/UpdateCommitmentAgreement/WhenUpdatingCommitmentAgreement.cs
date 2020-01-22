@@ -8,6 +8,7 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
@@ -31,6 +32,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         private Mock<IApprenticeshipEventsPublisher> _mockApprenticeshipEventsPublisher;
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Mock<IMessagePublisher> _messagePublisher;
+        private Mock<INotificationsPublisher> _notificationsPublisher;
 
         [SetUp]
         public void Setup()
@@ -42,6 +44,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _messagePublisher = new Mock<IMessagePublisher>();
+            _notificationsPublisher = new Mock<INotificationsPublisher>();
+
             _handler = new UpdateCommitmentAgreementCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRespository.Object,
@@ -51,7 +55,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 _mockApprenticeshipEventsList.Object,
                 _mockApprenticeshipEventsPublisher.Object,
                 _mockHistoryRepository.Object,
-                _messagePublisher.Object);
+                _messagePublisher.Object,
+                _notificationsPublisher.Object);
 
             _validCommand = new UpdateCommitmentAgreementCommand
             {
@@ -332,5 +337,37 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                             y.ProviderId == commitment.ProviderId && y.AccountId == commitment.EmployerAccountId &&
                             y.CommitmentId == commitment.Id)));
         }
+
+        [Test]
+        public async Task ThenIfCallerIsProviderAndLastActionIsNone_NotifyProviderAmendedCohortIsNotCalled()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.ProviderOnly, ProviderId = 325 };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.LatestAction = LastAction.None;
+            _validCommand.Caller.CallerType = CallerType.Provider;
+            _validCommand.Caller.Id = 325;
+
+            await _handler.Handle(_validCommand);
+
+            _notificationsPublisher.Verify(x => x.ProviderAmendedCohort(It.IsAny<Commitment>()), Times.Never);
+        }
+
+        [TestCase(LastAction.Amend)]
+        [TestCase(LastAction.AmendAfterRejected)]
+        public async Task ThenIfCallerIsProviderAndLastActionIs_NotifyProviderAmendedCohortIsNotCalled(LastAction lastAction)
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.ProviderOnly, ProviderId = 325 };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.LatestAction = lastAction;
+            _validCommand.Caller.CallerType = CallerType.Provider;
+            _validCommand.Caller.Id = 325;
+
+            await _handler.Handle(_validCommand);
+
+            _notificationsPublisher.Verify(x => x.ProviderAmendedCohort(commitment), Times.Once);
+        }
+
     }
 }

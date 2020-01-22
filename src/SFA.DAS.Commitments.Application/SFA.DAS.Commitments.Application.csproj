@@ -173,6 +173,9 @@
     <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.43242, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Logger.1.0.0.43242\lib\net45\SFA.DAS.NLog.Logger.dll</HintPath>
     </Reference>
+    <Reference Include="SFA.DAS.Notifications.Messages, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Notifications.Messages.3.0.0\lib\netstandard2.0\SFA.DAS.Notifications.Messages.dll</HintPath>
+    </Reference>
     <Reference Include="SFA.DAS.NServiceBus, Version=15.0.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NServiceBus.15.0.8\lib\net462\SFA.DAS.NServiceBus.dll</HintPath>
     </Reference>
@@ -257,6 +260,8 @@
     <Compile Include="Commands\ValidateReservation\ValidateReservationHandler.cs" />
     <Compile Include="Commands\ValidateReservation\ValidateReservationRequest.cs" />
     <Compile Include="Commands\ValidateReservation\ValidateReservationResponse.cs" />
+    <Compile Include="Interfaces\INotificationsPublisher.cs" />
+    <Compile Include="Services\NotificationsPublisher.cs" />
     <Compile Include="Services\ReservationValidationRequest.cs" />
     <Compile Include="Services\ReservationValidationService.cs" />
     <Compile Include="Commands\ApprenticeshipValidator.cs" />

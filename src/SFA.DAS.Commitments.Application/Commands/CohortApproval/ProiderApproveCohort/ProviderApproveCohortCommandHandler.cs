@@ -46,6 +46,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             ICommitmentsLogger logger,
             IApprenticeshipInfoService apprenticeshipInfoService,
             IEmployerAccountsService employerAccountsService,
+            INotificationsPublisher notificationsPublisher,
             IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;

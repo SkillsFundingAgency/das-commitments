@@ -37,6 +37,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
         protected Mock<IMessagePublisher> MessagePublisher;
         protected Mock<IApprenticeshipInfoService> ApprenticeshipInfoService;
         protected Mock<IEmployerAccountsService> EmployerAccountsService;
+        protected Mock<INotificationsPublisher> NotificationsPublisher;
         protected AsyncRequestHandler<T> Target;
         protected T Command;
         protected Commitment Commitment;
@@ -93,6 +94,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
             Mediator = new Mock<IMediator>();
             MessagePublisher = new Mock<IMessagePublisher>();
             EmployerAccountsService = new Mock<IEmployerAccountsService>();
+            NotificationsPublisher = new Mock<INotificationsPublisher>();
         }
 
         protected Commitment CreateCommitment(long commitmentId, long employerAccountId, long providerId, long? transferSenderId = null, string transferSenderName = null)
