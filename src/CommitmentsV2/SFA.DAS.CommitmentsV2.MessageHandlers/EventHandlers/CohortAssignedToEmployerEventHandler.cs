@@ -5,6 +5,7 @@ using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
 
@@ -25,6 +26,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(CohortAssignedToEmployerEvent message, IMessageHandlerContext context)
         {
+            if(message.AssignedBy != Party.Provider)  return;
+
             var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
             var tokens = new Dictionary<string, string>
@@ -33,7 +36,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 {"cohort_reference", _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
             };
 
-            await _eventPublisher.Publish(new SendEmailToEmployerCommand(cohortSummary.AccountId, "EmployerCohortNotification",
+            await _eventPublisher.Publish(new SendEmailToEmployerCommand(cohortSummary.AccountId,
+                "EmployerCohortNotification",
                 tokens, cohortSummary.LastUpdatedByEmployerEmail));
         }
     }

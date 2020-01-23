@@ -222,7 +222,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     switch (WithParty)
                     {
                         case Party.Employer:
-                            Publish(() => new CohortAssignedToEmployerEvent(Id, now));
+                            Publish(() => new CohortAssignedToEmployerEvent(Id, now, modifyingParty));
                             break;
                         case Party.Provider:
                             Publish(() => new CohortAssignedToProviderEvent(Id, now));
@@ -273,7 +273,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             switch (EditStatus)
             {
                 case EditStatus.EmployerOnly:
-                    Publish(() => new CohortAssignedToEmployerEvent(Id, now));
+                    Publish(() => new CohortAssignedToEmployerEvent(Id, now, modifyingParty));
                     break;
                 case EditStatus.ProviderOnly:
                     Publish(() => new CohortAssignedToProviderEvent(Id, now));

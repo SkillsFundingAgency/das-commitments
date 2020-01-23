@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using MediatR;
@@ -9,10 +10,11 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
     [TestFixture]
     public class CohortAssignedToEmployerEventHandlerTests
@@ -26,35 +28,42 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [Test]
-        public async Task When_HandlingEvent_SendEmailToEmployer()
+        public async Task When_HandlingEvent_IfAssignedByProvider_SendEmailToEmployer()
         {
-            await _fixture.Handle();
+            await _fixture.WithAssignmentByParty(Party.Provider).Handle();
             _fixture.VerifyEmailSent();
+        }
+
+        [Test]
+        public async Task When_HandlingEvent_IfAssignedByTransferSender_EmailIsNotSent()
+        {
+            await _fixture.WithAssignmentByParty(Party.Employer).Handle();
+            _fixture.VerifyEmailNotSent();
         }
 
         public class CohortAssignedToEmployerEventHandlerTestsFixture
         {
             private readonly CohortAssignedToEmployerEventHandler _handler;
-            private readonly CohortAssignedToEmployerEvent _event;
+            private CohortAssignedToEmployerEvent _event;
             private readonly Mock<IMediator> _mediator;
             private readonly Mock<IMessageHandlerContext> _messageHandlerContext;
             private readonly Mock<IEventPublisher> _eventPublisher;
             private readonly Mock<IEncodingService> _encodingService;
             private readonly GetCohortSummaryQueryResult _cohortSummary;
             private readonly string _cohortReference;
+            private Fixture _autoFixture;
 
             public CohortAssignedToEmployerEventHandlerTestsFixture()
             {
-                var autoFixture = new Fixture();
-
+                _autoFixture = new Fixture();
                 _mediator = new Mock<IMediator>();
 
-                _cohortSummary = autoFixture.Create<GetCohortSummaryQueryResult>();
+                _cohortSummary = _autoFixture.Create<GetCohortSummaryQueryResult>();
                 _mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(_cohortSummary);
 
-                _cohortReference = autoFixture.Create<string>();
+                _cohortReference = _autoFixture.Create<string>();
                 _encodingService = new Mock<IEncodingService>();
                 _encodingService.Setup(x => x.Encode(It.Is<long>(id => id == _cohortSummary.CohortId),
                         EncodingType.CohortReference)).Returns(_cohortReference);
@@ -66,8 +75,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
-                _event = autoFixture.Create<CohortAssignedToEmployerEvent>();
+                _event = _autoFixture.Create<CohortAssignedToEmployerEvent>();
+            }
 
+            public CohortAssignedToEmployerEventHandlerTestsFixture WithAssignmentByParty(Party assigningParty)
+            {
+                _event = new CohortAssignedToEmployerEvent(_autoFixture.Create<long>(),
+                    _autoFixture.Create<DateTime>(),
+                    assigningParty);
+                return this;
             }
 
             public async Task Handle()
@@ -84,6 +100,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                     c.Tokens["cohort_reference"] == _cohortReference &&
                     c.Tokens["type"] == (_cohortSummary.IsApprovedByProvider ? "approval" : "review")
                     )));
+            }
+
+            public void VerifyEmailNotSent()
+            {
+                _eventPublisher.Verify(x => x.Publish(It.IsAny<SendEmailToEmployerCommand>()), Times.Never());
             }
         }
     }
