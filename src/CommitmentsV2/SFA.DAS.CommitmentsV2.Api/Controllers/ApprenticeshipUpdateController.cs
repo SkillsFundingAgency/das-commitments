@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return NotFound();
             }
 
-            var response = await _modelMapper.Map<GetApprenticeshipUpdateResponse>(result);
+            var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
             return Ok(response);
         }
     }
