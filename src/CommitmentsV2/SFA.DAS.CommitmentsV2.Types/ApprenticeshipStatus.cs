@@ -13,6 +13,8 @@ namespace SFA.DAS.CommitmentsV2.Types
         [Description("Stopped")]
         Stopped = 3,
         [Description("Completed")]
-        Completed = 4
+        Completed = 4,
+        [Description("Unknown")]
+        Unknown
     }
 }

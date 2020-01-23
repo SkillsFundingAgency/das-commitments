@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     case PaymentStatus.Completed:
                         return ApprenticeshipStatus.Completed;
                     default:
-                        throw new InvalidOperationException($"Unable to determine Status of Apprenticeship {Id}");
+                        return ApprenticeshipStatus.Unknown;
                 }
             }
         }
