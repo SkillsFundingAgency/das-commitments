@@ -84,9 +84,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             }
         }
 
+        
         [HttpGet]
-        [Route("filters/{providerId}")]
-        public async Task<IActionResult> GetApprenticeshipsFilterValues(long providerId)
+        [Route("filters")]
+        public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery]long providerId)
         {
             var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = providerId });
 
