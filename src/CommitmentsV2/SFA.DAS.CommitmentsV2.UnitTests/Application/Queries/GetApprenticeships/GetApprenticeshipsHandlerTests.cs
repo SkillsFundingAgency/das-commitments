@@ -24,9 +24,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Apprenticeships(
             GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
-            ApprenticeshipDetails apprenticeshipDetails,
+            GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
-            [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {
             query.PageNumber = 0;
@@ -54,9 +54,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Apprenticeships_Total_Found(
             GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
-            ApprenticeshipDetails apprenticeshipDetails,
+            GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
-            [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {
             query.PageNumber = 0;
