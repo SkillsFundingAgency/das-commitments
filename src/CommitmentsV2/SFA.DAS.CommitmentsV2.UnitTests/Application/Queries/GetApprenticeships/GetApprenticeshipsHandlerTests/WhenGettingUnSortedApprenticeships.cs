@@ -24,9 +24,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Apprenticeships(
             GetApprenticeshipsQuery request,
             List<Apprenticeship> apprenticeships,
-            ApprenticeshipDetails apprenticeshipDetails,
+            GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
-            [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {
             request.PageNumber = 0;
@@ -55,9 +55,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Apprenticeships_Total_Found(
             GetApprenticeshipsQuery request,
             List<Apprenticeship> apprenticeships,
-            ApprenticeshipDetails apprenticeshipDetails,
+            GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
-            [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {
             request.PageNumber = 0;
@@ -391,9 +391,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Total_Available_Apprenticeships(
             GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
-            ApprenticeshipDetails apprenticeshipDetails,
+            GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
-            [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {
             var filterCourseName = "Test Corse";

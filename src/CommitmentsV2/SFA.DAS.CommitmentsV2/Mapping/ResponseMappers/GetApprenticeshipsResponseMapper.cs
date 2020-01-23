@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Types;
 using ApprenticeshipDetailsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse.ApprenticeshipDetailsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
@@ -21,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
             });
         }
 
-        private static ApprenticeshipDetailsResponse MapApprenticeship(ApprenticeshipDetails source)
+        private ApprenticeshipDetailsResponse MapApprenticeship(GetApprenticeshipsQueryResult.ApprenticeshipDetails source)
         {
             return new ApprenticeshipDetailsResponse
             {
