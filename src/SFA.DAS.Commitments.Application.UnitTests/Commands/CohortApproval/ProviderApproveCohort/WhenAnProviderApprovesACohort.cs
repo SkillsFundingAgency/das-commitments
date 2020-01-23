@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             EmployerAccountsService.Setup(x => x.GetAccount(Commitment.EmployerAccountId)).ReturnsAsync(Account);
             SetupSuccessfulOverlapCheck();
-            V2EventsPublisher.Setup(x => x.SendProviderApproveCohortCommand(It.IsAny<long>(), It.IsAny<UserInfo>()))
+            V2EventsPublisher.Setup(x => x.SendProviderApproveCohortCommand(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<UserInfo>()))
                 .Returns(Task.CompletedTask);
 
             Target = new ProviderApproveCohortCommandHandler(Validator,
@@ -82,6 +82,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
         {
             await Target.Handle(Command);
             V2EventsPublisher.Verify(x => x.SendProviderApproveCohortCommand(Command.CommitmentId,
+                It.Is<string>(m => m == Command.Message),
                 It.Is<UserInfo>(u =>
                     u.UserId == Command.UserId &&
                     u.UserDisplayName == Command.LastUpdatedByName &&

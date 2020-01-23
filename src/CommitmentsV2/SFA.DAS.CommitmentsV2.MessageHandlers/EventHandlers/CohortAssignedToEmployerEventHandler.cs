@@ -32,7 +32,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var tokens = new Dictionary<string, string>
             {
-                {"type", cohortSummary.IsApprovedByProvider ? "approval" : "review"},
+                {"provider_name", cohortSummary.ProviderName },
+                {"employer_hashed_account", _encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId) },
                 {"cohort_reference", _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
             };
 

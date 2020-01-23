@@ -51,6 +51,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private readonly Mock<IEncodingService> _encodingService;
             private readonly GetCohortSummaryQueryResult _cohortSummary;
             private readonly string _cohortReference;
+            private readonly string _employerEncodedAccountId;
             private Fixture _autoFixture;
 
             public CohortAssignedToEmployerEventHandlerTestsFixture()
@@ -64,9 +65,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     .ReturnsAsync(_cohortSummary);
 
                 _cohortReference = _autoFixture.Create<string>();
+                _employerEncodedAccountId = _autoFixture.Create<string>();
                 _encodingService = new Mock<IEncodingService>();
                 _encodingService.Setup(x => x.Encode(It.Is<long>(id => id == _cohortSummary.CohortId),
                         EncodingType.CohortReference)).Returns(_cohortReference);
+                _encodingService.Setup(x => x.Encode(It.Is<long>(id => id == _cohortSummary.AccountId),
+                    EncodingType.AccountId)).Returns(_employerEncodedAccountId);
 
                 _eventPublisher = new Mock<IEventPublisher>();
                 _eventPublisher.Setup(x => x.Publish(It.IsAny<SendEmailToEmployerCommand>()));
@@ -97,8 +101,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     c.AccountId == _cohortSummary.AccountId &&
                     c.EmailAddress == _cohortSummary.LastUpdatedByEmployerEmail &&
                     c.Template == "EmployerCohortNotification" &&
-                    c.Tokens["cohort_reference"] == _cohortReference &&
-                    c.Tokens["type"] == (_cohortSummary.IsApprovedByProvider ? "approval" : "review")
+                    c.Tokens["provider_name"] == _cohortSummary.ProviderName &&
+                    c.Tokens["employer_hashed_account"] == _employerEncodedAccountId &&
+                    c.Tokens["cohort_reference"] == _cohortReference
                     )));
             }
 
