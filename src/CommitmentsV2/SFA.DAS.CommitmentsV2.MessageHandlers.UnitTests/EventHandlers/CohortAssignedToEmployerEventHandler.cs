@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task When_HandlingEvent_IfAssignedByTransferSender_EmailIsNotSent()
         {
-            await _fixture.WithAssignmentByParty(Party.Employer).Handle();
+            await _fixture.WithAssignmentByParty(Party.TransferSender).Handle();
             _fixture.VerifyEmailNotSent();
         }
 
