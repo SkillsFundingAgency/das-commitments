@@ -32,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 PaymentStatus = source.PaymentStatus,
+                ApprenticeshipStatus = source.ApprenticeshipStatus,
                 Alerts = source.Alerts
             };
         }
