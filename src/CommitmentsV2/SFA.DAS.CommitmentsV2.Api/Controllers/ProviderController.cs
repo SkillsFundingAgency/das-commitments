@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             _mediator = mediator;
         }
-        
+
         [HttpGet]
         [Route("{providerId}")]
         public async Task<IActionResult> GetProvider(long providerId)

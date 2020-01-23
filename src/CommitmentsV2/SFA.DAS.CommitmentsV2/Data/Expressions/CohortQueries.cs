@@ -14,5 +14,13 @@ namespace SFA.DAS.CommitmentsV2.Data.Expressions
                               cohort.TransferApprovalStatus ==
                               TransferApprovalStatus.Approved));
         }
+
+        public static Expression<Func<Cohort, bool>> IsFullyApproved()
+        {
+            return cohort => cohort.EditStatus == EditStatus.Both &&
+                             (!cohort.TransferSenderId.HasValue ||
+                              cohort.TransferApprovalStatus ==
+                              TransferApprovalStatus.Approved);
+        }
     }
 }
