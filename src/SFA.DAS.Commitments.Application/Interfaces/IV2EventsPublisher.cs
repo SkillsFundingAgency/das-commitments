@@ -21,6 +21,6 @@ namespace SFA.DAS.Commitments.Application.Interfaces
         Task PublishApprenticeshipResumed(Commitment commitment, Apprenticeship apprenticeship);
         Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<int> paymentOrder);
         Task PublishBulkUploadIntoCohortCompleted(long providerId, long cohortId, uint numberOfApprentices);
-        Task SendProviderApproveCohortCommand(long cohortId, UserInfo userInfo);
+        Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo);
     }
 }

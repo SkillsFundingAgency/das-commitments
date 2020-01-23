@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
@@ -29,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 
             var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
 
-            cohort.Approve(Party.Provider, string.Empty, message.UserInfo, DateTime.UtcNow);
+            cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow);
 
             await _dbContext.Value.SaveChangesAsync();
         }

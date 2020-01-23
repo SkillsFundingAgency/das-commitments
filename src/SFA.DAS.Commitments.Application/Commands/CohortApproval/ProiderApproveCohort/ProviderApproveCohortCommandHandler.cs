@@ -58,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
                 UserId = message.UserId
             };
 
-            await _v2EventsPublisher.SendProviderApproveCohortCommand(message.CommitmentId, userInfo);
+            await _v2EventsPublisher.SendProviderApproveCohortCommand(message.CommitmentId, message.Message, userInfo);
         }
 
        

@@ -246,6 +246,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 Publish(() => new CohortApprovedByEmployerEvent(Id, now));
             }
+
             if (IsApprovedByAllParties)
             {
                 Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId.Value, now));
