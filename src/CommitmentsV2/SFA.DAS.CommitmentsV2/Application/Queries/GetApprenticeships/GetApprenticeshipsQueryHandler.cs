@@ -17,11 +17,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
     public class GetApprenticeshipsQueryHandler : IRequestHandler<GetApprenticeshipsQuery, GetApprenticeshipsQueryResult>
     {
         private readonly ICommitmentsReadOnlyDbContext _dbContext;
+<<<<<<< HEAD
         private readonly IMapper<Apprenticeship, ApprenticeshipDetails> _mapper;
         
+=======
+        private readonly IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails> _mapper;
+
+>>>>>>> 2cabe15ae60302f10c87f0056921b6fe0754c3c7
         public GetApprenticeshipsQueryHandler(
             ICommitmentsReadOnlyDbContext dbContext,
-            IMapper<Apprenticeship, ApprenticeshipDetails> mapper)
+            IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails> mapper)
         {
             _dbContext = dbContext;
             _mapper = mapper;
@@ -29,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
         public async Task<GetApprenticeshipsQueryResult> Handle(GetApprenticeshipsQuery query, CancellationToken cancellationToken)
         {
-            var matchedApprenticeshipDetails = new List<ApprenticeshipDetails>();
+            var matchedApprenticeshipDetails = new List<GetApprenticeshipsQueryResult.ApprenticeshipDetails>();
 
             ApprenticeshipSearchResult searchResult;
 
