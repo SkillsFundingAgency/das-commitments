@@ -17,13 +17,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
     public class GetApprenticeshipsQueryHandler : IRequestHandler<GetApprenticeshipsQuery, GetApprenticeshipsQueryResult>
     {
         private readonly ICommitmentsReadOnlyDbContext _dbContext;
-<<<<<<< HEAD
-        private readonly IMapper<Apprenticeship, ApprenticeshipDetails> _mapper;
-        
-=======
         private readonly IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails> _mapper;
 
->>>>>>> 2cabe15ae60302f10c87f0056921b6fe0754c3c7
         public GetApprenticeshipsQueryHandler(
             ICommitmentsReadOnlyDbContext dbContext,
             IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails> mapper)

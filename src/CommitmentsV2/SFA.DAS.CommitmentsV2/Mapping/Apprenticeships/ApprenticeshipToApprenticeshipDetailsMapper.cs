@@ -10,17 +10,13 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
 {
     public class ApprenticeshipToApprenticeshipDetailsMapper : IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>
     {
-<<<<<<< HEAD
         private readonly ICurrentDateTime _currentDateTime;
 
         public ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime currentDateTime)
         {
             _currentDateTime = currentDateTime;
         }
-        public Task<ApprenticeshipDetails> Map(Apprenticeship source)
-=======
         public Task<GetApprenticeshipsQueryResult.ApprenticeshipDetails> Map(Apprenticeship source)
->>>>>>> 2cabe15ae60302f10c87f0056921b6fe0754c3c7
         {
             return Task.FromResult(new GetApprenticeshipsQueryResult.ApprenticeshipDetails
             {
