@@ -8,20 +8,17 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
     public class CohortTransferApprovalRequestedEventHandler : IHandleMessages<CohortTransferApprovalRequestedEvent>
     {
         private readonly IMediator _mediator;
-        private readonly IEventPublisher _eventPublisher;
         private readonly IEncodingService _encodingService;
 
-        public CohortTransferApprovalRequestedEventHandler(IMediator mediator, IEventPublisher eventPublisher, IEncodingService encodingService)
+        public CohortTransferApprovalRequestedEventHandler(IMediator mediator, IEncodingService encodingService)
         {
             _mediator = mediator;
-            _eventPublisher = eventPublisher;
             _encodingService = encodingService;
         }
 
@@ -45,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     {"cohort_reference", _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
                 };
 
-                await _eventPublisher.Publish(new SendEmailToEmployerCommand(cohortSummary.AccountId,
+                await context.Send(new SendEmailToEmployerCommand(cohortSummary.AccountId,
                     "EmployerTransferPendingFinalApproval", tokens,
                     cohortSummary.LastUpdatedByEmployerEmail));
             }

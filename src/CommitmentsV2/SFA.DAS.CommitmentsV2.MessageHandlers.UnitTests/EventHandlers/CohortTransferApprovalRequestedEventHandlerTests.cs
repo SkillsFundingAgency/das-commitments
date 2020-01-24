@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private Mock<IMediator> _mediator;
             private readonly Fixture _autoFixture;
             private Mock<IMessageHandlerContext> _messageHandlerContext;
-            private Mock<IEventPublisher> _eventPublisher;
+            public Mock<IPipelineContext> _pipelineContext;
             private readonly GetCohortSummaryQueryResult _cohortSummary;
             private readonly Mock<IEncodingService> _encodingService;
             private readonly string _cohortReference;
@@ -61,10 +61,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 
                 _autoFixture = new Fixture();
 
-                _eventPublisher = new Mock<IEventPublisher>();
-                _eventPublisher.Setup(x => x.Publish(It.IsAny<SendEmailToEmployerCommand>()));
-
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
+                _pipelineContext = _messageHandlerContext.As<IPipelineContext>();
 
                 _cohortReference = _autoFixture.Create<string>();
                 _employerEncodedAccountId = _autoFixture.Create<string>();
@@ -83,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(_cohortSummary);
 
-                _handler = new CohortTransferApprovalRequestedEventHandler(_mediator.Object, _eventPublisher.Object, _encodingService.Object);
+                _handler = new CohortTransferApprovalRequestedEventHandler(_mediator.Object, _encodingService.Object);
 
                 _event = new CohortTransferApprovalRequestedEvent(_autoFixture.Create<long>(),
                     _autoFixture.Create<DateTime>(), _autoFixture.Create<Party>()
@@ -114,7 +112,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyEmailSentToEmployer()
             {
-                _eventPublisher.Verify(x => x.Publish(It.Is<SendEmailToEmployerCommand>(c =>
+                _pipelineContext.Verify(x => x.Send(It.Is<SendEmailToEmployerCommand>(c =>
                     c.AccountId == _cohortSummary.AccountId &&
                     c.EmailAddress == _cohortSummary.LastUpdatedByEmployerEmail &&
                     c.Template == "EmployerTransferPendingFinalApproval" &&
@@ -122,7 +120,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     c.Tokens["sender_name"] == _cohortSummary.TransferSenderName &&
                     c.Tokens["employer_hashed_account"] == _employerEncodedAccountId &&
                     c.Tokens["cohort_reference"] == _cohortReference
-                )));
+                ), It.IsAny<SendOptions>()));
             }
         }
     }
