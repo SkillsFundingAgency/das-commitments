@@ -199,6 +199,16 @@ namespace SFA.DAS.Commitments.Application.Services
             });
         }
 
+        public async Task SendProviderSendCohortCommand(long cohortId, string message, UserInfo userInfo)
+        {
+            await _endpointInstance.Send<ProviderSendCohortCommand>(ev =>
+            {
+                ev.CohortId = cohortId;
+                ev.UserInfo = userInfo;
+                ev.Message = message;
+            });
+        }
+
         private enum ApprenticePreChecks
         {
             NotRequired = 1,
