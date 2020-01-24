@@ -137,9 +137,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Types.UnitTests", "SFA.DAS.Reservations.Api.Types.UnitTests\SFA.DAS.Reservations.Api.Types.UnitTests.csproj", "{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notification Templates", "Notification Templates", "{46E55DE2-FF6C-4D97-8651-A62F62820290}"
-	ProjectSection(SolutionItems) = preProject
-		EmployerCohortApproved.txt = EmployerCohortApproved.txt
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Shared", "CommitmentsV2\SFA.DAS.CommitmentsV2.Shared\SFA.DAS.CommitmentsV2.Shared.csproj", "{FE32E9B9-43DA-4B52-B14D-86BD449B265C}"
 EndProject
@@ -147,6 +144,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Share
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Employer", "Employer", "{06B3E9C9-3956-4ACC-B28E-F1B05E88E0E9}"
 	ProjectSection(SolutionItems) = preProject
+		EmployerCohortApproved.txt = EmployerCohortApproved.txt
+		EmployerCohortNotification.txt = EmployerCohortNotification.txt
 		EmployerTransferPendingFinalApproval.txt = EmployerTransferPendingFinalApproval.txt
 	EndProjectSection
 EndProject

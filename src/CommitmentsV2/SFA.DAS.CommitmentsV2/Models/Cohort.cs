@@ -249,7 +249,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (IsApprovedByAllParties)
             {
-                Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId.Value, now));
+                Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId.Value, now, modifyingParty));
             }
 
             ChangeTrackingSession.CompleteTrackingSession();
