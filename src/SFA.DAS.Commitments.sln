@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.705
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api", "SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj", "{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}"
 EndProject
@@ -144,6 +144,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Shared", "CommitmentsV2\SFA.DAS.CommitmentsV2.Shared\SFA.DAS.CommitmentsV2.Shared.csproj", "{FE32E9B9-43DA-4B52-B14D-86BD449B265C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Shared.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.Shared.UnitTests\SFA.DAS.CommitmentsV2.Shared.UnitTests.csproj", "{102B4BAE-0F8B-4135-A5D0-F692C775EAF0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Employer", "Employer", "{06B3E9C9-3956-4ACC-B28E-F1B05E88E0E9}"
+	ProjectSection(SolutionItems) = preProject
+		EmployerTransferPendingFinalApproval.txt = EmployerTransferPendingFinalApproval.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -414,6 +419,7 @@ Global
 		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{FE32E9B9-43DA-4B52-B14D-86BD449B265C} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{102B4BAE-0F8B-4135-A5D0-F692C775EAF0} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
+		{06B3E9C9-3956-4ACC-B28E-F1B05E88E0E9} = {46E55DE2-FF6C-4D97-8651-A62F62820290}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}
