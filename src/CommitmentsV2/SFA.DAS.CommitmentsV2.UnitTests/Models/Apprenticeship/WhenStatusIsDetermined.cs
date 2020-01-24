@@ -1,6 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using PaymentStatus = SFA.DAS.CommitmentsV2.Types.PaymentStatus;
 
@@ -57,13 +56,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
         private class ApprenticeshipStatusTestsFixture
         {
-            private readonly ApprovedApprenticeship _apprenticeship;
+            private readonly CommitmentsV2.Models.Apprenticeship _apprenticeship;
 
             public ApprenticeshipStatusTestsFixture()
             {
-                _apprenticeship = new ApprovedApprenticeship();
+                _apprenticeship = new CommitmentsV2.Models.Apprenticeship();
 
-                _apprenticeship = new ApprovedApprenticeship
+                _apprenticeship = new CommitmentsV2.Models.Apprenticeship
                 {
                     StartDate = DateTime.UtcNow.AddMonths(-1),
                     EndDate = DateTime.UtcNow.AddYears(1),

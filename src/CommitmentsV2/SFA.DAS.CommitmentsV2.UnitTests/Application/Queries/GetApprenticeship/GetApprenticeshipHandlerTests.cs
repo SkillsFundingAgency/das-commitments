@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             private Fixture _autoFixture;
             public long ApprenticeshipId { get; private set; }
             public long AccountLegalEntityId { get; private set; }
-            public ApprovedApprenticeship Apprenticeship { get; private set; }
+            public Apprenticeship Apprenticeship { get; private set; }
             public Cohort Cohort { get; private set; }
             public Provider Provider { get; private set; }
             public AccountLegalEntity AccountLegalEntity { get; private set; }
@@ -112,7 +112,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     Name = _autoFixture.Create<string>()
                 };
 
-                Apprenticeship = new ApprovedApprenticeship
+                Apprenticeship = new Apprenticeship
                 {
                     Id = ApprenticeshipId,
                     CommitmentId = Cohort.Id,
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                         break;
                 }
 
-                _db.ApprovedApprenticeships.Add(Apprenticeship);
+                _db.Apprenticeships.Add(Apprenticeship);
                 _db.SaveChanges();
             }
 

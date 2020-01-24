@@ -18,9 +18,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
@@ -437,7 +435,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 Message = fixture.Create<string>();
 
-                NewCohort = new Cohort {Apprenticeships = new List<Apprenticeship> {new DraftApprenticeship()}};
+                NewCohort = new Cohort {Apprenticeships = new List<ApprenticeshipBase> {new DraftApprenticeship()}};
 
                 Provider = new Mock<Provider>();
                 Provider.Setup(x => x.UkPrn).Returns(ProviderId);

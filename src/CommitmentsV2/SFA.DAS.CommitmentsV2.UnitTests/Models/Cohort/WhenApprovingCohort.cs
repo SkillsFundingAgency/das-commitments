@@ -348,10 +348,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 draftApprenticeshipDetailsComposer = draftApprenticeshipDetailsComposer.Without(d => d.Uln);
             }
             
-            CommitmentsV2.Models.Apprenticeship apprenticeship = new DraftApprenticeship(draftApprenticeshipDetailsComposer.Create(), Party.Provider).Set(a => a.AgreementStatus, agreementStatus);
-            
+            ApprenticeshipBase apprenticeship = new DraftApprenticeship(draftApprenticeshipDetailsComposer.Create(), Party.Provider).Set(a => a.AgreementStatus, agreementStatus);
             Cohort.Add(c => c.Apprenticeships, apprenticeship);
-            
             return this;
         }
 
