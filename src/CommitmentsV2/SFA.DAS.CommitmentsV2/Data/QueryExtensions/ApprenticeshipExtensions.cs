@@ -17,12 +17,12 @@ namespace SFA.DAS.CommitmentsV2.Data.QueryExtensions
         ///     The returned instance will not be tracked (i.e. the object is expected to be read-only).
         /// </remarks>
         public static Task<TResponse> GetById<TResponse>(
-            this DbSet<ApprovedApprenticeship> query,
+            this DbSet<Apprenticeship> query,
             long apprenticeshipId,
-            Expression<Func<ApprovedApprenticeship, TResponse>> select,
+            Expression<Func<Apprenticeship, TResponse>> select,
             CancellationToken cancellationToken)
         {
-            return query.GetById<ApprovedApprenticeship, TResponse>(a => a.Id == apprenticeshipId, select, cancellationToken);
+            return query.GetById<Apprenticeship, TResponse>(a => a.Id == apprenticeshipId, select, cancellationToken);
         }
     }
 }

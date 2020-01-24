@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void Arrange()
         {
             var fixture = new Fixture();
-            _source = fixture.Build<DraftApprenticeshipDetails>().With(x=>x.Uln, null).Create();
+            _source = fixture.Build<DraftApprenticeshipDetails>().Without(x=>x.Uln).Create();
         }
 
         [Test]

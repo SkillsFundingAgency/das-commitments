@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship
 
         public Task<bool> Handle(CanAccessApprenticeshipQuery request, CancellationToken cancellationToken)
         {
-            return _dbContext.Value.ApprovedApprenticeships.Include(a=>a.Cohort).AnyAsync(
+            return _dbContext.Value.Apprenticeships.Include(a=>a.Cohort).AnyAsync(
                 a => a.Id == request.ApprenticeshipId &&
                      (request.Party == Party.Employer && a.Cohort.EmployerAccountId == request.PartyId ||
                       request.Party == Party.Provider && a.Cohort.ProviderId == request.PartyId),
