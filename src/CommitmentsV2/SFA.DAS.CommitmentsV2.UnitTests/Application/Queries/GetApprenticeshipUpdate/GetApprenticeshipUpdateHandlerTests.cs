@@ -75,11 +75,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
             public GetApprenticeshipUpdateHandlerTestsFixture SeedData(short count = 1)
             {
-                _apprenticeshipUpdate = _autoFixture.Build<ApprenticeshipUpdate>().With(a => a.ApprenticeshipId, 1).Create();
+                _apprenticeshipUpdate = _autoFixture.Build<ApprenticeshipUpdate>().With(a => a.ApprenticeshipId, 1)
+                    .Without(c=>c.DataLockStatus).Without(c=>c.Apprenticeship).Create();
                 _db.ApprenticeshipUpdates.Add(_apprenticeshipUpdate);
 
                 for (short i = 2; i <= count; i++){
-                    var additionalRecord = _autoFixture.Build<ApprenticeshipUpdate>().With(a => a.ApprenticeshipId, i).Create();
+                    var additionalRecord = _autoFixture.Build<ApprenticeshipUpdate>().With(a => a.ApprenticeshipId, i).Without(c => c.DataLockStatus).Without(c => c.Apprenticeship).Create();
                     _db.ApprenticeshipUpdates.Add(additionalRecord);
                 }
                 _db.SaveChanges();

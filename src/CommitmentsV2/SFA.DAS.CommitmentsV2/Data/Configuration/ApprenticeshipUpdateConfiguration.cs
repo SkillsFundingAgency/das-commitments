@@ -8,8 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<ApprenticeshipUpdate> builder)
         {
-            builder.ToTable("ApprenticeshipUpdate");
-
+            builder.ToTable("ApprenticeshipUpdate").HasKey(e => e.Id);
             builder.Property(e => e.Cost).HasColumnType("decimal(18, 0)");
             builder.Property(e => e.CreatedOn).HasColumnType("datetime");
             builder.Property(e => e.DateOfBirth).HasColumnType("datetime");

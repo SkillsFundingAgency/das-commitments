@@ -10,6 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime FromDate { get; set; }
         public DateTime? ToDate { get; set; }
 
-        public virtual ApprovedApprenticeship ApprovedApprenticeship { get; set; }
+        public virtual Apprenticeship Apprenticeship { get; set; }
     }
 }

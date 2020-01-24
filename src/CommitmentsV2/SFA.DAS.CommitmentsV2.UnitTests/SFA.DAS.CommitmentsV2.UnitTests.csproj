@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.3.0" />
-    <PackageReference Include="AutoFixture.NUnit3" Version="4.3.0" />
+    <PackageReference Include="AutoFixture" Version="4.11.0" />
+    <PackageReference Include="AutoFixture.NUnit3" Version="4.11.0" />
     <PackageReference Include="CompareNETObjects" Version="4.58.0" />
     <PackageReference Include="EfCore.TestSupport" Version="1.6.1" />
     <PackageReference Include="FluentAssertions" Version="5.6.0" />
@@ -17,12 +17,14 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="2.2.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
-    <PackageReference Include="Moq" Version="4.12.0" />
+    <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="morelinq" Version="3.1.0" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.57" />
-    <PackageReference Include="SFA.DAS.Testing" Version="3.0.22" />
+    <PackageReference Include="SFA.DAS.Testing" Version="3.0.161" />
+    <PackageReference Include="SFA.DAS.Testing.AutoFixture" Version="3.0.161" />
+    <PackageReference Include="SFA.DAS.Testing.EntityFrameworkCore" Version="3.0.165" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.109.2" />
   </ItemGroup>
 
@@ -34,10 +36,8 @@
 
   <ItemGroup>
     <Reference Include="SFA.DAS.Apprenticeships.Api.Client">
-      <HintPath>..\..\..\..\das-apprenticeship-programs-api\src\SFA.DAS.Apprenticeships.Api.Client\bin\Debug\netstandard2.0\SFA.DAS.Apprenticeships.Api.Client.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Apprenticeships.Api.Types">
-      <HintPath>..\..\..\..\das-apprenticeship-programs-api\src\SFA.DAS.Apprenticeships.Api.Client\bin\Debug\netstandard2.0\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
     </Reference>
   </ItemGroup>
 
