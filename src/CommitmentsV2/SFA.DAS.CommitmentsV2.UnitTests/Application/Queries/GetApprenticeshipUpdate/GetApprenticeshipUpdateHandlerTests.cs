@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -52,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             private GetApprenticeshipUpdateQuery _request;
             private GetApprenticeshipUpdateQueryResult _result;
             private readonly Fixture _autoFixture;
-            private ApprenticeshipUpdate _apprenticeshipUpdate;
+            private List<ApprenticeshipUpdate> _apprenticeshipUpdate;
             private readonly long _apprenticeshipId;
 
             public GetApprenticeshipUpdateHandlerTestsFixture()
@@ -75,16 +77,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
             public GetApprenticeshipUpdateHandlerTestsFixture SeedData(short count = 1)
             {
-                _apprenticeshipUpdate = _autoFixture.Build<ApprenticeshipUpdate>().With(a => a.ApprenticeshipId, 1).Create();
-                _db.ApprenticeshipUpdates.Add(_apprenticeshipUpdate);
+                _apprenticeshipUpdate = _autoFixture.Build<List<ApprenticeshipUpdate>>().Create();
+                _apprenticeshipUpdate.ForEach(z => z.Id = 1);
+                _db.ApprenticeshipUpdates.AddRange(_apprenticeshipUpdate);
 
-                for (short i = 2; i <= count; i++){
-                    var additionalRecord = _autoFixture.Build<ApprenticeshipUpdate>().With(a => a.ApprenticeshipId, i).Create();
-                    _db.ApprenticeshipUpdates.Add(additionalRecord);
-                }
+                var additionalRecord = _autoFixture.Build<List<ApprenticeshipUpdate>>().Create();
+                additionalRecord.ForEach(z => z.Id = ++count);
+                _db.ApprenticeshipUpdates.AddRange(additionalRecord);
+
                 _db.SaveChanges();
                 return this;
             }
+
             public GetApprenticeshipUpdateHandlerTestsFixture WithNoMatchingApprenticeshipUpdates()
             {
                 _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId + 100);
@@ -93,11 +97,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
             public void VerifyResultMapping()
             {
-                AssertEquality(_apprenticeshipUpdate, _result);
+                Assert.AreEqual(_apprenticeshipUpdate.Count, _result.ApprenticeshipUpdates.Count);
+
+                foreach (var sourceItem in _apprenticeshipUpdate)
+                {
+                    AssertEquality(sourceItem, _result.ApprenticeshipUpdates.Single(x => x.Id == sourceItem.Id));
+                }
             }
         }
 
-        private static void AssertEquality(ApprenticeshipUpdate source, GetApprenticeshipUpdateQueryResult result)
+        private static void AssertEquality(ApprenticeshipUpdate source, GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate result)
         {
             Assert.AreEqual(source.Id, result.Id);
 
