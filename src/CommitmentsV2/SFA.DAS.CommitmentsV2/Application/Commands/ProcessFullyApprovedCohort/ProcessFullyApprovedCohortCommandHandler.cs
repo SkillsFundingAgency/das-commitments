@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
             
             await _db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
             
-            var events = await _db.Value.ApprovedApprenticeships
+            var events = await _db.Value.Apprenticeships
                 .Where(a => a.Cohort.Id == request.CohortId)
                 .Select(a => new ApprenticeshipCreatedEvent
                 {

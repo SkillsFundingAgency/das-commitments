@@ -7,6 +7,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {
     public interface IFundingCapService
     {
-        Task<IReadOnlyCollection<FundingCapCourseSummary>> FundingCourseSummary(IEnumerable<Apprenticeship> list);
+        Task<IReadOnlyCollection<FundingCapCourseSummary>> FundingCourseSummary(IEnumerable<ApprenticeshipBase> list);
     }
 }
