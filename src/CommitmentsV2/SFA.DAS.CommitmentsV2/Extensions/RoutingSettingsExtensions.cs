@@ -13,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
         {
             routingSettings.RouteToEndpoint(typeof(RunHealthCheckCommand), CommitmentsV2MessageHandler);
             routingSettings.RouteToEndpoint(typeof(SendEmailToEmployerCommand), CommitmentsV2MessageHandler);
+            routingSettings.RouteToEndpoint(typeof(TransferSenderApproveCohortCommand), CommitmentsV2MessageHandler);
             routingSettings.RouteToEndpoint(typeof(SendEmailCommand), NotificationsMessageHandler);
         }
     }

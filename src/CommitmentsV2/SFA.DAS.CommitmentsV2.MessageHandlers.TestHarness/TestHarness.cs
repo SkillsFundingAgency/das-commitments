@@ -24,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
             long accountId = 1001;
             long accountLegalEntityId = 2061;
             long cohortId = 186091;
+            UserInfo userInfo = new UserInfo { UserDisplayName = "Paul Graham", UserEmail = "paul.graham@test.com", UserId = "PG"};
 
             ConsoleKey key = ConsoleKey.Escape;
 
@@ -46,6 +47,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("L - SendEmailToEmployerCommand");
                 Console.WriteLine("M - RunHealthCheckCommand");
                 Console.WriteLine("O - CohortDeletedEvent");
+                Console.WriteLine("T - TransferSenderApproveCohortCommand");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -127,6 +129,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new CohortDeletedEvent(cohortId, 22222, 33333, Party.None, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortDeletedEvent)}");
+                            break;
+                        case ConsoleKey.T:
+                            await _publisher.Send(new TransferSenderApproveCohortCommand(10004, DateTime.UtcNow, userInfo), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(TransferSenderApproveCohortCommand)}");
                             break;
                     }
                 }
