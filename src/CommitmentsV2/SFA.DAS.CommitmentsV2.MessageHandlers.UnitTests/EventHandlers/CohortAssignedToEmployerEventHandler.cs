@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private CohortAssignedToEmployerEvent _event;
             private readonly Mock<IMediator> _mediator;
             private readonly Mock<IMessageHandlerContext> _messageHandlerContext;
-            private readonly Mock<IEventPublisher> _eventPublisher;
+            public Mock<IPipelineContext> _pipelineContext;
             private readonly Mock<IEncodingService> _encodingService;
             private readonly GetCohortSummaryQueryResult _cohortSummary;
             private readonly string _cohortReference;
@@ -72,12 +72,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _encodingService.Setup(x => x.Encode(It.Is<long>(id => id == _cohortSummary.AccountId),
                     EncodingType.AccountId)).Returns(_employerEncodedAccountId);
 
-                _eventPublisher = new Mock<IEventPublisher>();
-                _eventPublisher.Setup(x => x.Publish(It.IsAny<SendEmailToEmployerCommand>()));
-
-                _handler = new CohortAssignedToEmployerEventHandler(_mediator.Object, _eventPublisher.Object, _encodingService.Object);
+                _handler = new CohortAssignedToEmployerEventHandler(_mediator.Object, _encodingService.Object);
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
+                _pipelineContext = _messageHandlerContext.As<IPipelineContext>();
 
                 _event = _autoFixture.Create<CohortAssignedToEmployerEvent>();
             }
@@ -97,19 +95,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyEmailSent()
             {
-                _eventPublisher.Verify(x => x.Publish(It.Is<SendEmailToEmployerCommand>(c =>
+                _pipelineContext.Verify(x => x.Send(It.Is<SendEmailToEmployerCommand>(c =>
                     c.AccountId == _cohortSummary.AccountId &&
                     c.EmailAddress == _cohortSummary.LastUpdatedByEmployerEmail &&
                     c.Template == "EmployerCohortNotification" &&
                     c.Tokens["provider_name"] == _cohortSummary.ProviderName &&
                     c.Tokens["employer_hashed_account"] == _employerEncodedAccountId &&
                     c.Tokens["cohort_reference"] == _cohortReference
-                    )));
+                    ), It.IsAny<SendOptions>()));
             }
 
             public void VerifyEmailNotSent()
             {
-                _eventPublisher.Verify(x => x.Publish(It.IsAny<SendEmailToEmployerCommand>()), Times.Never());
+                _pipelineContext.Verify(x => x.Send(It.IsAny<SendEmailToEmployerCommand>(), It.IsAny<SendOptions>()), Times.Never());
             }
         }
     }

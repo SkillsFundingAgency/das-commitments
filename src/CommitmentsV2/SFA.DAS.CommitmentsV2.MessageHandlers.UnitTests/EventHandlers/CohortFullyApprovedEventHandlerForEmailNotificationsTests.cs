@@ -13,7 +13,6 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -42,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private Mock<IMediator> _mediator;
             private readonly Fixture _autoFixture;
             private Mock<IMessageHandlerContext> _messageHandlerContext;
-            private Mock<IEventPublisher> _eventPublisher;
+            public Mock<IPipelineContext> _pipelineContext;
             private readonly GetCohortSummaryQueryResult _cohortSummary;
             private readonly Mock<IEncodingService> _encodingService;
             private readonly string _cohortReference;
@@ -52,10 +51,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             {
                 _autoFixture = new Fixture();
 
-                _eventPublisher = new Mock<IEventPublisher>();
-                _eventPublisher.Setup(x => x.Publish(It.IsAny<SendEmailToEmployerCommand>()));
-
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
+                _pipelineContext = _messageHandlerContext.As<IPipelineContext>();
 
                 _cohortReference = _autoFixture.Create<string>();
                 _employerEncodedAccountId = _autoFixture.Create<string>();
@@ -74,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(_cohortSummary);
 
-                _handler = new CohortFullyApprovedEventHandlerForEmailNotifications(_mediator.Object, _eventPublisher.Object, _encodingService.Object);
+                _handler = new CohortFullyApprovedEventHandlerForEmailNotifications(_mediator.Object, _encodingService.Object);
 
                 _event = new CohortFullyApprovedEvent(_autoFixture.Create<long>(),
                     _autoFixture.Create<long>(),
@@ -103,12 +100,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyEmailSentToEmployer()
             {
-                _eventPublisher.Verify(x => x.Publish(It.Is<SendEmailToEmployerCommand>(c =>
+                _pipelineContext.Verify(x => x.Send(It.Is<SendEmailToEmployerCommand>(c =>
                     c.AccountId == _event.AccountId &&
                     c.EmailAddress == _cohortSummary.LastUpdatedByEmployerEmail &&
                     c.Template == "EmployerCohortApproved" &&
                     c.Tokens["cohort_reference"] == _cohortReference
-                )));
+                ), It.IsAny<SendOptions>()));
             }
         }
     }

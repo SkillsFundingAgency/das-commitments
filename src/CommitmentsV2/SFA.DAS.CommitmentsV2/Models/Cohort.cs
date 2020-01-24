@@ -255,7 +255,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
+        public virtual void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
         {
             CheckIsEmployerOrProvider(modifyingParty);
             CheckIsWithParty(modifyingParty);

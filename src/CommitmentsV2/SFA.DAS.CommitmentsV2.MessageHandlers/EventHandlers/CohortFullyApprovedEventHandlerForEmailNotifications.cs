@@ -14,13 +14,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     public class CohortFullyApprovedEventHandlerForEmailNotifications : IHandleMessages<CohortFullyApprovedEvent>
     {
         private readonly IMediator _mediator;
-        private readonly IEventPublisher _eventPublisher;
         private readonly IEncodingService _encodingService;
 
-        public CohortFullyApprovedEventHandlerForEmailNotifications(IMediator mediator, IEventPublisher eventPublisher, IEncodingService encodingService)
+        public CohortFullyApprovedEventHandlerForEmailNotifications(IMediator mediator, IEncodingService encodingService)
         {
             _mediator = mediator;
-            _eventPublisher = eventPublisher;
             _encodingService = encodingService;
         }
 
@@ -38,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 {"cohort_reference", _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
             };
 
-            await _eventPublisher.Publish(new SendEmailToEmployerCommand(message.AccountId, "EmployerCohortApproved",
+            await context.Send(new SendEmailToEmployerCommand(message.AccountId, "EmployerCohortApproved",
                 tokens, cohortSummary.LastUpdatedByEmployerEmail));
         }
     }
