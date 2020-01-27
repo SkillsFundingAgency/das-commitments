@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing;
 
@@ -81,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
     {
         public IFixture AutoFixture { get; }
         public Mock<IMediator> Mediator { get; }
+        public Mock<IAuthenticationService> AuthenticationService { get; }
         public CohortController Controller { get; }
         public GetCohortSummaryQueryResult GetCohortResult { get; }
         public GetCohortsRequest GetCohortsRequest { get; }
@@ -93,7 +95,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         {
             AutoFixture = new Fixture();
             Mediator = new Mock<IMediator>();
-            Controller = new CohortController(Mediator.Object);
+            AuthenticationService = new Mock<IAuthenticationService>();
+            Controller = new CohortController(Mediator.Object, AuthenticationService.Object);
 
             GetCohortResult = AutoFixture.Create<GetCohortSummaryQueryResult>();
             Mediator.Setup(m => m.Send(It.Is<GetCohortSummaryQuery>(q => q.CohortId == CohortId), CancellationToken.None)).ReturnsAsync(GetCohortResult);

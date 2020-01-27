@@ -131,9 +131,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Published {nameof(CohortDeletedEvent)}");
                             break;
                         case ConsoleKey.T:
-                            await _publisher.Send(new TransferSenderApproveCohortCommand(10004, DateTime.UtcNow, userInfo), new SendOptions());
+                            await _publisher.Send(new ApproveTransferRequestCommand(10004, DateTime.UtcNow, userInfo), new SendOptions());
                             Console.WriteLine();
-                            Console.WriteLine($"Sent {nameof(TransferSenderApproveCohortCommand)}");
+                            Console.WriteLine($"Sent {nameof(ApproveTransferRequestCommand)}");
                             break;
                     }
                 }

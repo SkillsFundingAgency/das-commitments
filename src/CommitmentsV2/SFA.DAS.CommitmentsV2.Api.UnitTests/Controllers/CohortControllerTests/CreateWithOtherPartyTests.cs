@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
@@ -36,6 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
     {
         public IFixture AutoFixture { get; }
         public Mock<IMediator> Mediator { get; }
+        public Mock<IAuthenticationService> AuthenticationService { get; }
         public CohortController Controller { get; }
         public CreateCohortWithOtherPartyRequest Request { get; }
         public AddCohortResult Result { get; }
@@ -44,7 +46,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         {
             AutoFixture = new Fixture();
             Mediator = new Mock<IMediator>();
-            Controller = new CohortController(Mediator.Object);
+            AuthenticationService = new Mock<IAuthenticationService>();
+            Controller = new CohortController(Mediator.Object, AuthenticationService.Object);
             Request = AutoFixture.Create<CreateCohortWithOtherPartyRequest>();
             Result = AutoFixture.Create<AddCohortResult>();
             

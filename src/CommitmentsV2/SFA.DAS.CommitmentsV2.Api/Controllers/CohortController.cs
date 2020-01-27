@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -23,10 +24,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class CohortController : ControllerBase
     {
         private readonly IMediator _mediator;
-        
-        public CohortController(IMediator mediator)
+        private readonly IAuthenticationService _authenticationService;
+
+        public CohortController(IMediator mediator, IAuthenticationService authenticationService )
         {
             _mediator = mediator;
+            _authenticationService = authenticationService;
         }
 
         [HttpGet]
@@ -137,7 +140,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{cohortId}/approve")]
         public async Task<IActionResult> Approve(long cohortId, [FromBody]ApproveCohortRequest request)
         {
-            var command = new ApproveCohortCommand(cohortId, request.Message, request.UserInfo);
+            var command = new ApproveCohortCommand(cohortId, request.Message, request.UserInfo, _authenticationService.GetUserParty());
             await _mediator.Send(command);
 
             return Ok();

@@ -9,19 +9,19 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 {
-    public class TransferSenderApproveCohortCommandHandler : IHandleMessages<TransferSenderApproveCohortCommand>
+    public class ApproveTransferRequestCommandHandler : IHandleMessages<ApproveTransferRequestCommand>
     {
-        private readonly ILogger<TransferSenderApproveCohortCommandHandler> _logger;
+        private readonly ILogger<ApproveTransferRequestCommandHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
 
-        public TransferSenderApproveCohortCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferSenderApproveCohortCommandHandler> logger)
+        public ApproveTransferRequestCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApproveTransferRequestCommandHandler> logger)
         {
             _logger = logger;
             _dbContext = dbContext;
         }
 
-        public async Task Handle(TransferSenderApproveCohortCommand message, IMessageHandlerContext context)
+        public async Task Handle(ApproveTransferRequestCommand message, IMessageHandlerContext context)
         {
             try
             {

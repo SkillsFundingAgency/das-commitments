@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using System;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -23,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
-                return _mediator.Send(new ApproveCohortCommand(message.CohortId, null, message.UserInfo));
+                return _mediator.Send(new ApproveCohortCommand(message.CohortId, null, message.UserInfo, Party.TransferSender));
             }
             catch (Exception e)
             {

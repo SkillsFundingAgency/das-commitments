@@ -74,14 +74,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         public DraftApprenticeship ExistingApprenticeshipDetails;
         public UserInfo TransferSenderUserInfo;
         public DateTime Now { get; }
-        public TransferSenderApproveCohortCommandHandler Sut;
-        public TransferSenderApproveCohortCommand TransferSenderApproveCohortCommand;
+        public ApproveTransferRequestCommandHandler Sut;
+        public ApproveTransferRequestCommand TransferSenderApproveCohortCommand;
         public ProviderCommitmentsDbContext Db { get; set; }
         public Cohort Cohort { get; set; }
         public TransferRequest TransferRequest { get; set; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
         public Fixture Fixture { get; set; }
-        public FakeLogger<TransferSenderApproveCohortCommandHandler> Logger { get; set; }
+        public FakeLogger<ApproveTransferRequestCommandHandler> Logger { get; set; }
 
         public TransferSenderApproveCohortCommandHandlerTestsFixture()
         {
@@ -95,8 +95,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                 .Options);
 
-            Logger = new FakeLogger<TransferSenderApproveCohortCommandHandler>();
-            Sut = new TransferSenderApproveCohortCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger);
+            Logger = new FakeLogger<ApproveTransferRequestCommandHandler>();
+            Sut = new ApproveTransferRequestCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger);
 
             Cohort = new Cohort(
                 new Provider(),
@@ -125,7 +125,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 transferRequestId = TransferRequest.Id;
             }
-            TransferSenderApproveCohortCommand = new TransferSenderApproveCohortCommand(transferRequestId, Now, TransferSenderUserInfo);
+            TransferSenderApproveCohortCommand = new ApproveTransferRequestCommand(transferRequestId, Now, TransferSenderUserInfo);
 
             return this;
         }

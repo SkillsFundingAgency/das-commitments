@@ -73,11 +73,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             return draftApprenticeship;
         }
 
-        public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, Party party, CancellationToken cancellationToken)
         {
 
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
-            var party = _authenticationService.GetUserParty();
 
             if (party == Party.Employer)
             {
