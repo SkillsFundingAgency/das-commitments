@@ -9,7 +9,8 @@ What happens next?
 A transfer request has been sent to ((sender_name)) for approval. You will receive a notification once ((sender_name)) approves or rejects the request.
 
 To view cohort ((cohort_reference)) and its progress, follow the link below.
-https://manage-apprenticeships.service.gov.uk/commitments/accounts/((employer_hashed_account))/apprentices/cohorts
+
+https://approvals.manage-apprenticeships.service.gov.uk/((employer_hashed_account))/unapproved
 
 This is an automated message. Please do not reply to this email.
 
