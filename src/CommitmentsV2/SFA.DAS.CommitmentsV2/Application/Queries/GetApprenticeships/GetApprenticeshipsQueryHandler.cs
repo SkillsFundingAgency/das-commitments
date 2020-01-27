@@ -244,7 +244,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                     return apprenticeship => apprenticeship.StartDate;
                 case nameof(Apprenticeship.EndDate):
                     return apprenticeship => apprenticeship.EndDate;
-                case nameof(Apprenticeship.PaymentStatus):
+                case nameof(Apprenticeship.ApprenticeshipStatus):
                     return apprenticeship => apprenticeship.PaymentStatus;
                 case nameof(Apprenticeship.Uln):
                     return apprenticeship => apprenticeship.Uln;

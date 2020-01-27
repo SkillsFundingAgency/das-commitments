@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -29,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.ReverseSort = true;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -86,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.ReverseSort = true;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             var apprenticeships = GetTestApprenticeships(query);
 
@@ -117,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.ReverseSort = true;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             var apprenticeships = GetTestApprenticeships(query);
 
