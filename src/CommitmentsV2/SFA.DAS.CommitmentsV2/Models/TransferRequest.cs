@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using SFA.DAS.Apprenticeships.Api.Client;
-using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class TransferRequest : Entity
+    public class TransferRequest : Aggregate, ITrackableEntity
     {
         public TransferRequest()
         {
@@ -37,11 +31,15 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new InvalidOperationException($"The TransferRequest is not in a Pending State and has already been approved or rejected");
             }
 
+            StartTrackingSession(UserAction.ApproveTransferRequest, Party.TransferSender, Cohort.EmployerAccountId, Cohort.ProviderId.Value, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
             TransferApprovalActionedByEmployerName = userInfo.UserDisplayName;
             TransferApprovalActionedByEmployerEmail = userInfo.UserEmail;
             Status = TransferApprovalStatus.Approved;
             TransferApprovalActionedOn = now;
-            Cohort.Approve(Party.TransferSender, null, userInfo, now);
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() => new TransferRequestApprovedEvent(Id, Cohort.Id, now, userInfo));
         }
     }
 }
