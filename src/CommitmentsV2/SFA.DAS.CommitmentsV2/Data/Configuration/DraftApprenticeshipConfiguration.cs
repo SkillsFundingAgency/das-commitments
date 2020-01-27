@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<DraftApprenticeship> builder)
         {
-            builder.HasBaseType<Apprenticeship>();
+            builder.HasBaseType<ApprenticeshipBase>();
         }
     }
 }

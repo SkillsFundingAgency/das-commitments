@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
@@ -61,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
                 ApprenticeshipId = AutoFixture.Create<long>();
 
-                Controller = new ApprenticeshipController(Mediator.Object, ModelMapper.Object);
+                Controller = new ApprenticeshipController(Mediator.Object, ModelMapper.Object, Mock.Of<ILogger<ApprenticeshipController>>());
             }
 
             public async Task Get()

@@ -45,6 +45,34 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
         }
 
+        public Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipsRequest request, CancellationToken cancellationToken = default)
+        {
+            var pageQuery = "";
+            var sortField = "";
+
+            if (request.PageNumber > 0)
+            {
+                pageQuery += $"pageNumber={request.PageNumber}";
+            }
+
+            if (request.PageItemCount > 0)
+            {
+                pageQuery += $"{(!string.IsNullOrEmpty(pageQuery)?"&" : "")}pageItemCount={request.PageItemCount}";
+            }
+
+            if (!string.IsNullOrEmpty(pageQuery))
+            {
+                pageQuery = $"&{pageQuery}";
+            }
+
+            if (!string.IsNullOrEmpty(request.SortField))
+            {
+                sortField = $"&sortField={request.SortField}";
+            }
+            return _client.Get<GetApprenticeshipsResponse>(
+                $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}{sortField}{pageQuery}", null, cancellationToken);
+        }
+
         public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetCohortResponse>($"api/cohorts/{cohortId}", null, cancellationToken);
@@ -145,6 +173,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<string> SecureProviderCheck()
         {
             return _client.Get("api/test/provider");  
+        }
+
+        public Task<GetApprovedProvidersResponse> GetApprovedProviders(long accountId, CancellationToken cancellationToken)
+        {
+            return _client.Get<GetApprovedProvidersResponse>($"api/accounts/{accountId}/providers/approved", null, cancellationToken);
         }
 
         public Task<CreateCohortResponse> CreateCohort(CreateEmptyCohortRequest request, CancellationToken cancellationToken = default)

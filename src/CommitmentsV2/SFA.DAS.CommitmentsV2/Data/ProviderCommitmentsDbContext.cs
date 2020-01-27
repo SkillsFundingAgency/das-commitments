@@ -5,12 +5,12 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data
 {
-    public class ProviderCommitmentsDbContext : DbContext
+    public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbContext
     {
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
         public virtual DbSet<DraftApprenticeship> DraftApprenticeships { get; set; }
-        public virtual DbSet<ApprovedApprenticeship> ApprovedApprenticeships { get; set; }
+        public virtual DbSet<Apprenticeship> Apprenticeships { get; set; }
         public virtual DbSet<ApprenticeshipUpdate> ApprenticeshipUpdates { get; set; }
         public virtual DbSet<AssessmentOrganisation> AssessmentOrganisations { get; set; }
         public virtual DbSet<BulkUpload> BulkUploads { get; set; }
@@ -42,12 +42,12 @@ namespace SFA.DAS.CommitmentsV2.Data
         {
             modelBuilder.ApplyConfiguration(new AccountConfiguration());
             modelBuilder.ApplyConfiguration(new AccountLegalEntityConfiguration());
-            modelBuilder.ApplyConfiguration(new ApprenticeshipConfiguration());
+            modelBuilder.ApplyConfiguration(new ApprenticeshipBaseConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeshipUpdateConfiguration());
             modelBuilder.ApplyConfiguration(new AssessmentOrganisationConfiguration());
             modelBuilder.ApplyConfiguration(new BulkUploadConfiguration());
             modelBuilder.ApplyConfiguration(new CohortConfiguration());
-            modelBuilder.ApplyConfiguration(new ConfirmedApprenticeshipConfiguration());
+            modelBuilder.ApplyConfiguration(new ApprenticeshipConfiguration());
             modelBuilder.ApplyConfiguration(new CustomProviderPaymentPriorityConfiguration());
             modelBuilder.ApplyConfiguration(new DataLockStatusConfiguration());
             modelBuilder.ApplyConfiguration(new DraftApprenticeshipConfiguration());
