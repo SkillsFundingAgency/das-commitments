@@ -11,6 +11,8 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
+using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -84,9 +86,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             }
         }
 
+        
         [HttpGet]
-        [Route("filters/{providerId}")]
-        public async Task<IActionResult> GetApprenticeshipsFilterValues(long providerId)
+        [Route("filters")]
+        public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery]long providerId)
         {
             var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = providerId });
 

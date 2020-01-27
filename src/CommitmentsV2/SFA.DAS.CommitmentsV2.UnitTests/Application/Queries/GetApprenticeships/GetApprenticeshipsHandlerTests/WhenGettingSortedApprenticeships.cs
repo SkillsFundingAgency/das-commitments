@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -30,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.ReverseSort = false;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             var apprenticeships = GetTestApprenticeships(query);
 
@@ -62,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.ReverseSort = false;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             var apprenticeships = GetTestApprenticeships(query);
 
@@ -88,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -170,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -233,7 +234,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -296,7 +297,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -360,7 +361,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -427,7 +428,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -485,7 +486,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Apprentices_Are_Sorted_By_Payment_Status(
+        public async Task Then_Apprentices_Are_Sorted_By_Apprenticeship_Status(
             GetApprenticeshipsQuery query,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
@@ -494,7 +495,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -504,7 +505,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     LastName = "Should_Be_Second",
                     Uln = "Uln",
                     CourseName = "Course",
-                    StartDate = DateTime.UtcNow.AddMonths(1),
+                    StartDate = DateTime.UtcNow.AddMonths(2),
                     ProviderRef = query.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "Employer"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -516,7 +517,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     LastName = "Should_Be_Third",
                     Uln = "Uln",
                     CourseName = "Course",
-                    StartDate = DateTime.UtcNow.AddMonths(2),
+                    StartDate = DateTime.UtcNow.AddMonths(3),
                     ProviderRef = query.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "Employer"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -528,7 +529,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     LastName = "Should_Be_First",
                     Uln = "Uln",
                     CourseName = "Course",
-                    StartDate = DateTime.UtcNow,
+                    StartDate = DateTime.UtcNow.AddMonths(-1),
                     ProviderRef = query.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "Employer"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -542,7 +543,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
             var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
-            query.SortField = nameof(Apprenticeship.PaymentStatus);
+            query.SortField = nameof(Apprenticeship.ApprenticeshipStatus);
             query.ReverseSort = false;
 
             //Act
@@ -564,7 +565,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.PageItemCount = 0;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
             var Apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
