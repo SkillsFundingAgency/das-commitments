@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
         {
             return new GetApprenticeshipUpdateQueryResult
             {
-                ApprenticeshipUpdates = await _dbContext.Value.ApprenticeshipUpdates.Where(x => x.ApprenticeshipId == request.ApprenticeshipId && x.Status == ApprenticeshipUpdateStatus.Pending)
+                ApprenticeshipUpdates = await _dbContext.Value.ApprenticeshipUpdates.Where(x => x.ApprenticeshipId == request.ApprenticeshipId && x.Status == request.Status)
                       .Select(update => new GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate
                       {
                           Id = update.Id,

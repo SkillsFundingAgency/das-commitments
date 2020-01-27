@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using MediatR;
@@ -25,24 +26,23 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
         }
 
         [Test]
-        public async Task WhenGetPendingUpdateRequestReceived_ThenShouldPassApprenticeIdToQuery()
+        public async Task WhenGetUpdateRequestReceived_ThenShouldPassApprenticeIdAndStatusToQuery()
         {
-            await _fixture.GetPendingUpdate();
-            _fixture.VerifyApprenticeshipIdPassedToQuery();
+            await _fixture.GetApprenticeshipUpdates();
+            _fixture.VerifyApprenticeshipIdAndStatusPassedToQuery();
         }
 
         [Test]
-        public async Task WhenGetPendingUpdateRequestReceivedAndNoRecordsFound_ThenShouldReturnNotFoundResponse()
+        public async Task WhenGetPendingUpdateRequestReceivedAndNoRecordsFound_ThenShouldReturnAnEmptyArray()
         {
-            await _fixture.WithNoPendingUpdateFound().GetPendingUpdate();
+            await _fixture.WithNoPendingUpdateFound().GetApprenticeshipUpdates();
             _fixture.VerifyNotFoundResult();
         }
-
 
         [Test]
         public async Task WhenGetPendingUpdateRequestReceived_ThenShouldReturnResponse()
         {
-            await _fixture.GetPendingUpdate();
+            await _fixture.GetApprenticeshipUpdates();
             _fixture.VerifyResult();
         }
 
@@ -53,8 +53,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
             public Mock<IModelMapper> ModelMapper { get; }
             public ApprenticeshipUpdateController Controller { get; }
             public long ApprenticeshipId { get; }
-            public GetApprenticeshipUpdateQueryResult QueryResult { get; }
-            public GetApprenticeshipUpdateResponse MapperResult { get; }
+            public CommitmentsV2.Types.ApprenticeshipUpdateStatus Status { get; }
+            public GetApprenticeshipUpdateQueryResult QueryResult { get; internal set; }
+            public GetApprenticeshipUpdatesResponse MapperResult { get; internal set; }
             public IActionResult Result { get; private set; }
 
             public GetPendingUpdateTestsFixture()
@@ -67,46 +68,54 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
                 Mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipUpdateQuery>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(QueryResult);
 
-                MapperResult = AutoFixture.Create<GetApprenticeshipUpdateResponse>();
+                MapperResult = AutoFixture.Create<GetApprenticeshipUpdatesResponse>();
 
                 ModelMapper = new Mock<IModelMapper>();
-                ModelMapper.Setup(x => x.Map<GetApprenticeshipUpdateResponse>(It.Is<GetApprenticeshipUpdateQueryResult>(r => r == QueryResult)))
+                ModelMapper.Setup(x => x.Map<GetApprenticeshipUpdatesResponse>(It.Is<GetApprenticeshipUpdateQueryResult>(r => r == QueryResult)))
                     .ReturnsAsync(MapperResult);
 
                 ApprenticeshipId = AutoFixture.Create<long>();
-
+                Status = CommitmentsV2.Types.ApprenticeshipUpdateStatus.Pending;
                 Controller = new ApprenticeshipUpdateController(Mediator.Object, ModelMapper.Object);
             }
 
             public GetPendingUpdateTestsFixture WithNoPendingUpdateFound()
             {
+                QueryResult = new GetApprenticeshipUpdateQueryResult { ApprenticeshipUpdates = new List<GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate>() };
                 Mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipUpdateQuery>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync((GetApprenticeshipUpdateQueryResult)null);
+                    .ReturnsAsync(QueryResult);
+
+                MapperResult = new GetApprenticeshipUpdatesResponse { ApprenticeshipUpdates = new List<GetApprenticeshipUpdatesResponse.ApprenticeshipUpdate>() };
+                ModelMapper.Setup(x => x.Map<GetApprenticeshipUpdatesResponse>(It.Is<GetApprenticeshipUpdateQueryResult>(r => r == QueryResult)))
+                   .ReturnsAsync(MapperResult);
 
                 return this;
             }
 
 
-            public async Task GetPendingUpdate()
+            public async Task GetApprenticeshipUpdates()
             {
-                Result = await Controller.GetPendingUpdate(ApprenticeshipId);
+                Result = await Controller.GetApprenticeshipUpdates(new Types.Requests.GetApprenticeshipUpdateRequest { ApprenticeshipId = ApprenticeshipId, Status = Status });
             }
 
-            public void VerifyApprenticeshipIdPassedToQuery()
+            public void VerifyApprenticeshipIdAndStatusPassedToQuery()
             {
-                Mediator.Verify(x => x.Send(It.Is<GetApprenticeshipUpdateQuery>(p => p.ApprenticeshipId == ApprenticeshipId), It.IsAny<CancellationToken>()));
+                Mediator.Verify(x => x.Send(It.Is<GetApprenticeshipUpdateQuery>(p => p.ApprenticeshipId == ApprenticeshipId && p.Status == Status ), It.IsAny<CancellationToken>()));
             }
 
             public void VerifyResult()
             {
                 Assert.IsInstanceOf<OkObjectResult>(Result);
                 var resultObject = (OkObjectResult)Result;
-                Assert.IsInstanceOf<GetApprenticeshipUpdateResponse>(resultObject.Value);
+                Assert.IsInstanceOf<GetApprenticeshipUpdatesResponse>(resultObject.Value);
                 Assert.AreSame(MapperResult, resultObject.Value);
             }
+
             public void VerifyNotFoundResult()
             {
-                Assert.IsInstanceOf<NotFoundResult>(Result);
+                Assert.IsNotNull(Result);
+                var model = Result.VerifyReturnsModel().WithModel<GetApprenticeshipUpdatesResponse>();
+                Assert.AreEqual(0, model.ApprenticeshipUpdates.Count);
             }
         }
     }

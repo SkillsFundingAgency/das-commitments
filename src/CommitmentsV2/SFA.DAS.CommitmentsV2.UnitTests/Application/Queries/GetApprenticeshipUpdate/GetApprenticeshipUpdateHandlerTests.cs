@@ -32,11 +32,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         }
 
         [Test]
-        public async Task Handle_ThenShouldReturnResultAsNull()
+        public async Task Handle_ThenShouldReturnAnEmptyArray()
         {
             _fixture.SeedData().WithNoMatchingApprenticeshipUpdates();
             var result = await _fixture.Handle();
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.ApprenticeshipUpdates.Count);
+        }
+
+        [Test]
+        public async Task Handle_WhenStatusNotFound_ThenShouldReturnAnEmptyArray()
+        {
+            _fixture.SeedData().WithNoMatchingApprenticeshipUpdatesForStatus();
+            var result = await _fixture.Handle();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.ApprenticeshipUpdates.Count);
+        }
+
+        [Test]
+        public async Task Handle_ThenShouldReturnArrayWithMatchedStatus()
+        {
+            _fixture.SeedData().ChangeStatusToRejectedInSeededData().WithRejectedStatus();
+            var result = await _fixture.Handle();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.ApprenticeshipUpdates.Count);
         }
 
         [Test]
@@ -62,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
                 _autoFixture = new Fixture();
 
                 _apprenticeshipId = 1;
-                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId);
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Pending);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
@@ -77,12 +96,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
             public GetApprenticeshipUpdateHandlerTestsFixture SeedData(short count = 1)
             {
-                _apprenticeshipUpdate = _autoFixture.Build<List<ApprenticeshipUpdate>>().Create();
-                _apprenticeshipUpdate.ForEach(z => z.Id = 1);
+                _apprenticeshipUpdate = _autoFixture.Create<List<ApprenticeshipUpdate>>();
+                _apprenticeshipUpdate.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.Status = Types.ApprenticeshipUpdateStatus.Pending; }) ;
                 _db.ApprenticeshipUpdates.AddRange(_apprenticeshipUpdate);
 
-                var additionalRecord = _autoFixture.Build<List<ApprenticeshipUpdate>>().Create();
-                additionalRecord.ForEach(z => z.Id = ++count);
+                var additionalRecord = _autoFixture.Create<List<ApprenticeshipUpdate>>();
+                additionalRecord.ForEach(z => z.ApprenticeshipId = ++count);
                 _db.ApprenticeshipUpdates.AddRange(additionalRecord);
 
                 _db.SaveChanges();
@@ -91,13 +110,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
             public GetApprenticeshipUpdateHandlerTestsFixture WithNoMatchingApprenticeshipUpdates()
             {
-                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId + 100);
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId + 100, Types.ApprenticeshipUpdateStatus.Pending);
+                return this;
+            }
+
+            public GetApprenticeshipUpdateHandlerTestsFixture WithRejectedStatus()
+            {
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Rejected);
+                return this;
+            }
+
+            public GetApprenticeshipUpdateHandlerTestsFixture WithNoMatchingApprenticeshipUpdatesForStatus()
+            {
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Approved);
+                return this;
+            }
+
+            public GetApprenticeshipUpdateHandlerTestsFixture ChangeStatusToRejectedInSeededData()
+            {
+                var apprenticeship = _db.ApprenticeshipUpdates.First(x => x.ApprenticeshipId == _apprenticeshipId && x.Status == Types.ApprenticeshipUpdateStatus.Pending);
+                apprenticeship.Status = Types.ApprenticeshipUpdateStatus.Rejected;
+                _db.SaveChanges();
                 return this;
             }
 
             public void VerifyResultMapping()
             {
-                Assert.AreEqual(_apprenticeshipUpdate.Count, _result.ApprenticeshipUpdates.Count);
+                Assert.AreEqual(3, _result.ApprenticeshipUpdates.Count);
 
                 foreach (var sourceItem in _apprenticeshipUpdate)
                 {
