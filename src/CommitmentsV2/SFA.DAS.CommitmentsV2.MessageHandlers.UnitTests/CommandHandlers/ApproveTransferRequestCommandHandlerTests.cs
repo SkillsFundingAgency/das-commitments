@@ -20,13 +20,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {
     [TestFixture]
     [Parallelizable(ParallelScope.All)]
-    public class TransferSenderApproveCohortCommandHandlerTests
+    public class ApproveTransferRequestCommandHandlerTests
     {
-
         [Test]
         public void Handle_WhenHandlingTransferSenderApproveCohortCommand_ThenItShouldUpdateCohortAndTransferRequestWithApprovalAction()
         {
-            var fixture = new TransferSenderApproveCohortCommandHandlerTestsFixture();
+            var fixture = new ApproveTransferRequestCommandHandlerTestsFixture();
             fixture.SetupTransfer().SetupTransferSenderApproveCohortCommand();
 
             fixture.Handle();
@@ -37,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         [Test]
         public void Handle_WhenHandlingTransferSenderApproveCohortCommand_ThenItShouldPublishTransferRequestApprovedEvent()
         {
-            var fixture = new TransferSenderApproveCohortCommandHandlerTestsFixture();
+            var fixture = new ApproveTransferRequestCommandHandlerTestsFixture();
             fixture.SetupTransfer().SetupTransferSenderApproveCohortCommand();
 
             fixture.Handle();
@@ -48,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         [Test]
         public void Handle_WhenHandlingTransferSenderApproveCohortCommand_ThenItShouldPublishChangeTrackingEvents()
         {
-            var fixture = new TransferSenderApproveCohortCommandHandlerTestsFixture();
+            var fixture = new ApproveTransferRequestCommandHandlerTestsFixture();
             fixture.SetupTransfer().SetupTransferSenderApproveCohortCommand();
 
             fixture.Handle();
@@ -59,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         [Test]
         public void Handle_WhenHandlingTransferSenderApproveCohortCommandFails_ThenItShouldAnExceptionAndLogIt()
         {
-            var fixture = new TransferSenderApproveCohortCommandHandlerTestsFixture();
+            var fixture = new ApproveTransferRequestCommandHandlerTestsFixture();
             fixture.SetupTransfer().SetupTransferSenderApproveCohortCommand(-1991);
 
             fixture.Handle();
@@ -68,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
     }
 
-    public class TransferSenderApproveCohortCommandHandlerTestsFixture
+    public class ApproveTransferRequestCommandHandlerTestsFixture
     {
         public Mock<IMessageHandlerContext> MessageHandlerContext;
         public DraftApprenticeship ExistingApprenticeshipDetails;
@@ -83,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         public Fixture Fixture { get; set; }
         public FakeLogger<ApproveTransferRequestCommandHandler> Logger { get; set; }
 
-        public TransferSenderApproveCohortCommandHandlerTestsFixture()
+        public ApproveTransferRequestCommandHandlerTestsFixture()
         {
             UnitOfWorkContext = new UnitOfWorkContext();
             MessageHandlerContext = new Mock<IMessageHandlerContext>();
@@ -119,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort};
         }
 
-        public TransferSenderApproveCohortCommandHandlerTestsFixture SetupTransferSenderApproveCohortCommand(long transferRequestId = 0)
+        public ApproveTransferRequestCommandHandlerTestsFixture SetupTransferSenderApproveCohortCommand(long transferRequestId = 0)
         {
             if (transferRequestId == 0)
             {
@@ -130,7 +129,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             return this;
         }
 
-        public TransferSenderApproveCohortCommandHandlerTestsFixture SetupTransfer()
+        public ApproveTransferRequestCommandHandlerTestsFixture SetupTransfer()
         {
             Db.TransferRequests.Add(TransferRequest);
             Db.SaveChanges();
@@ -180,8 +179,5 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             Assert.AreEqual(TransferSenderUserInfo.UserDisplayName, list[0].UpdatingUserName);
             Assert.AreEqual(Party.TransferSender, list[0].UpdatingParty);
         }
-
     }
 }
-
-// 

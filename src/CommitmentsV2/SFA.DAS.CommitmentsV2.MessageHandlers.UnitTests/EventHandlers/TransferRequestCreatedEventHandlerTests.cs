@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 new UserInfo()) {EmployerAccountId = 100, TransferSenderId = 99};
 
             TransferRequest = new TransferRequest
-                { Status = (byte)TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort};
+                { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort};
         }
 
         public TransferRequestCreatedEventHandlerTestsFixture SetupTransferCreatedEvent(Party lastApprovedParty)
@@ -120,5 +120,3 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
     }
 }
-
-
