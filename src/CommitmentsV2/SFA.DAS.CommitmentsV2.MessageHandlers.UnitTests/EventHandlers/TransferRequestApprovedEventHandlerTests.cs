@@ -1,11 +1,19 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
+using NServiceBus;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -14,40 +22,78 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     public class TransferRequestApprovedEventHandlerTests
     {
         [Test]
-        public async Task Handle_WhenHandlingTransferRequestApprovedEvent_ThenShouldCallMediatorWithCorrectCommand()
+        public async Task Handle_WhenHandlingTransferRequestApprovedEvent_ThenShouldFindCohortAndSetTransferApprovalProperties()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture();
+            var f = new TransferRequestApprovedEventHandlerTestsFixture().AddCohortToMemoryDb();
             await f.Handle();
-
-            f.VerifySend<ApproveCohortCommand>((c, m) =>
-                c.CohortId == m.CohortId && c.Message == null &&
-                c.UserInfo == m.UserInfo);
+            f.VerifyCohortApprovalPropertiesAreSet();
         }
 
         [Test]
         public void Handle_WhenHandlingTransferRequestApprovedEventAndMediatorThrowsException_ThenWelogErrorAndRethrowError()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture().SetupMediatorExecuteException();
-            Assert.ThrowsAsync<Exception>(() => f.Handle());
+            var f = new TransferRequestApprovedEventHandlerTestsFixture();
+            Assert.ThrowsAsync<BadRequestException>(() => f.Handle());
             Assert.IsTrue(f.Logger.HasErrors);
         }
     }
 
-    public class TransferRequestApprovedEventHandlerTestsFixture : EventHandlerTestsFixture<TransferRequestApprovedEvent, TransferRequestApprovedEventHandler>
+    public class TransferRequestApprovedEventHandlerTestsFixture //: EventHandlerTestsFixture<TransferRequestApprovedEvent, TransferRequestApprovedEventHandler>
     {
+        private Fixture _fixture;
         public FakeLogger<TransferRequestCreatedEvent> Logger { get; set; }
+        public ProviderCommitmentsDbContext Db { get; set; }
+        public Cohort Cohort { get; set; }
+        public DraftApprenticeship ExistingApprenticeshipDetails;
+        public UnitOfWorkContext UnitOfWorkContext { get; set; }
+        public TransferRequestApprovedEvent TransferRequestApprovedEvent { get; set; } 
+        public TransferRequestApprovedEventHandler Handler { get; set; } 
 
-        public TransferRequestApprovedEventHandlerTestsFixture() : base((m) => null)
+        public TransferRequestApprovedEventHandlerTestsFixture()
         {
+            _fixture = new Fixture();
+            UnitOfWorkContext = new UnitOfWorkContext();
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
+                .Options);
+
+            TransferRequestApprovedEvent = _fixture.Create<TransferRequestApprovedEvent>();
+
             Logger = new FakeLogger<TransferRequestCreatedEvent>();
-            Handler = new TransferRequestApprovedEventHandler(Mediator.Object, Logger);
+            Handler = new TransferRequestApprovedEventHandler(new Lazy<ProviderCommitmentsDbContext>(()=>Db), Logger);
+
+            Cohort = new Cohort(
+                    new Provider(),
+                    new AccountLegalEntity(),
+                    null,
+                    Party.Employer,
+                    "",
+                    new UserInfo())
+                { Id = TransferRequestApprovedEvent.CohortId, EmployerAccountId = 100, TransferSenderId = 99 };
+
+            ExistingApprenticeshipDetails = new DraftApprenticeship(_fixture.Build<DraftApprenticeshipDetails>().Create(), Party.Provider);
+            Cohort.Apprenticeships.Add(ExistingApprenticeshipDetails);
+            Cohort.EditStatus = EditStatus.Both;
+            Cohort.TransferApprovalStatus = TransferApprovalStatus.Pending;
         }
 
-        public TransferRequestApprovedEventHandlerTestsFixture SetupMediatorExecuteException()
+        public Task Handle()
         {
-            Mediator.Setup(x => x.Send(It.IsAny<ApproveCohortCommand>(), It.IsAny<CancellationToken>()))
-                .Throws<Exception>();
+            return Handler.Handle(TransferRequestApprovedEvent, Mock.Of<IMessageHandlerContext>());
+        }
+
+        public TransferRequestApprovedEventHandlerTestsFixture AddCohortToMemoryDb()
+        {
+            Db.Cohorts.Add(Cohort);
+            Db.SaveChanges();
+
             return this;
+        }
+        public void VerifyCohortApprovalPropertiesAreSet()
+        {
+            Assert.AreEqual(Cohort.TransferApprovalStatus, TransferApprovalStatus.Approved);
+            Assert.AreEqual(Cohort.TransferApprovalActionedOn, TransferRequestApprovedEvent.ApprovedOn);
         }
     }
 }

@@ -3,28 +3,32 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
     public class TransferRequestApprovedEventHandler : IHandleMessages<TransferRequestApprovedEvent>
     {
-        private readonly IMediator _mediator;
+        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<TransferRequestCreatedEvent> _logger;
 
-        public TransferRequestApprovedEventHandler(IMediator mediator, ILogger<TransferRequestCreatedEvent> logger)
+        public TransferRequestApprovedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestCreatedEvent> logger)
         {
-            _mediator = mediator;
+            _dbContext = dbContext;
             _logger = logger;
         }
 
-        public Task Handle(TransferRequestApprovedEvent message, IMessageHandlerContext context)
+        public async Task Handle(TransferRequestApprovedEvent message, IMessageHandlerContext context)
         {
             try
             {
-                return _mediator.Send(new ApproveCohortCommand(message.CohortId, null, message.UserInfo));
+                var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, new CancellationToken());
+                cohort.Approve(Party.TransferSender, null, message.UserInfo, message.ApprovedOn);
             }
             catch (Exception e)
             {
