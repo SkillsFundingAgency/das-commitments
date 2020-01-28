@@ -112,7 +112,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             Cohort.TransferApprovalStatus = TransferApprovalStatus.Pending;
             Cohort.TransferSenderId = 10900;
 
-
             TransferSenderUserInfo = Fixture.Create<UserInfo>();
             TransferRequest = new TransferRequest
                 { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort};

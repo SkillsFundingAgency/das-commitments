@@ -14,7 +14,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
         private readonly ILogger<ApproveTransferRequestCommandHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-
         public ApproveTransferRequestCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApproveTransferRequestCommandHandler> logger)
         {
             _logger = logger;
