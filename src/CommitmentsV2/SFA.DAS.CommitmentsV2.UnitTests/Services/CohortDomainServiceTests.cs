@@ -794,7 +794,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.ApproveCohort(CohortId, Message, UserInfo, Party, new CancellationToken());
+                    await CohortDomainService.ApproveCohort(CohortId, Message, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)

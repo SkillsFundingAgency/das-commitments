@@ -24,12 +24,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class CohortController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IAuthenticationService _authenticationService;
 
-        public CohortController(IMediator mediator, IAuthenticationService authenticationService )
+        public CohortController(IMediator mediator)
         {
             _mediator = mediator;
-            _authenticationService = authenticationService;
         }
 
         [HttpGet]
@@ -140,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{cohortId}/approve")]
         public async Task<IActionResult> Approve(long cohortId, [FromBody]ApproveCohortRequest request)
         {
-            var command = new ApproveCohortCommand(cohortId, request.Message, request.UserInfo, _authenticationService.GetUserParty());
+            var command = new ApproveCohortCommand(cohortId, request.Message, request.UserInfo);
             await _mediator.Send(command);
 
             return Ok();

@@ -6,7 +6,6 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -22,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             f.VerifySend<ApproveCohortCommand>((c, m) =>
                 c.CohortId == m.CohortId && c.Message == null &&
-                c.Party == Party.TransferSender && c.UserInfo == m.UserInfo);
+                c.UserInfo == m.UserInfo);
         }
 
         [Test]

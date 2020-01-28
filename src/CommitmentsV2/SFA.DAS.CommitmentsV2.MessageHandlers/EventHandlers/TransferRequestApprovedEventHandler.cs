@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
-                return _mediator.Send(new ApproveCohortCommand(message.CohortId, null, message.UserInfo, Party.TransferSender));
+                return _mediator.Send(new ApproveCohortCommand(message.CohortId, null, message.UserInfo));
             }
             catch (Exception e)
             {
