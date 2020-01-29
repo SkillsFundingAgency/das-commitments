@@ -7,7 +7,9 @@ using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.Services
@@ -17,7 +19,6 @@ namespace SFA.DAS.Commitments.Application.Services
         private readonly IEndpointInstance _endpointInstance;
         private readonly ICommitmentsLogger _logger;
         private readonly ICurrentDateTime _currentDateTime;
-
 
         public V2EventsPublisher(IEndpointInstance endpointInstance, ICommitmentsLogger logger, ICurrentDateTime currentDateTime)
         {
@@ -186,6 +187,12 @@ namespace SFA.DAS.Commitments.Application.Services
             return PublishWithLog(@event, $"Provider: {providerId} CohortId: {cohortId} Number of apprentices: {numberOfApprentices}");
         }
 
+        public Task SendApproveTransferRequestCommand(long transferRequestId, DateTime approvedOn, UserInfo userInfo)
+        {
+            var command = new ApproveTransferRequestCommand(transferRequestId, approvedOn, userInfo);
+            return SendCommandAndLog(command, $"TransferRequest Id {transferRequestId} approved");
+        }
+
         private enum ApprenticePreChecks
         {
             NotRequired = 1,
@@ -241,6 +248,22 @@ namespace SFA.DAS.Commitments.Application.Services
                 throw;
             }
         }
+
+        private async Task SendCommandAndLog<TCommand>(TCommand @event, string message) where TCommand : class
+        {
+            var logMessage = $"Send {typeof(TCommand).Name} message. {message}";
+            try
+            {
+                await _endpointInstance.Send(@event);
+                _logger.Info($"{logMessage} successful");
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, $"{logMessage} failed");
+                throw;
+            }
+        }
+
 
 
         private void DoPreChecks<TEvent>(ApprenticePreChecks checks, Apprenticeship apprenticeship) where TEvent : class

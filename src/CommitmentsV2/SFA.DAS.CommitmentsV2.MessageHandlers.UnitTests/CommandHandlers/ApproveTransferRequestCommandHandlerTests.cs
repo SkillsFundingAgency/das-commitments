@@ -123,6 +123,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 transferRequestId = TransferRequest.Id;
             }
+
             TransferSenderApproveCohortCommand = new ApproveTransferRequestCommand(transferRequestId, Now, TransferSenderUserInfo);
 
             return this;
@@ -170,7 +171,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             var list = UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Where(x=>x.StateChangeType == UserAction.ApproveTransferRequest).ToList();
 
             Assert.AreEqual(1, list.Count);
-
 
             Assert.AreEqual(UserAction.ApproveTransferRequest, list[0].StateChangeType);
             Assert.AreEqual(TransferRequest.Id, list[0].EntityId);

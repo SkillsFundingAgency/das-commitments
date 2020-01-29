@@ -10,8 +10,10 @@ namespace SFA.DAS.Commitments.Application.Extensions
         private const string NotificationsMessageHandler = "SFA.DAS.Notifications.Application";
 
         public static void AddRouting(this RoutingSettings routingSettings)
+
         {
             routingSettings.RouteToEndpoint(typeof(SendEmailToEmployerCommand), CommitmentsV2MessageHandler);
+            routingSettings.RouteToEndpoint(typeof(ApproveTransferRequestCommand), CommitmentsV2MessageHandler);
             routingSettings.RouteToEndpoint(typeof(SendEmailCommand), NotificationsMessageHandler);
         }
     }

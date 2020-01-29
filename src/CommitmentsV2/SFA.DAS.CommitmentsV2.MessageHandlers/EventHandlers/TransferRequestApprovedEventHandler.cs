@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
