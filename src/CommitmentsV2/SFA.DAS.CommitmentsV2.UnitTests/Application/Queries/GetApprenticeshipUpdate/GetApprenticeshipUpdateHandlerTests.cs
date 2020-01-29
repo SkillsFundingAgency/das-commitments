@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using AutoFixture.Kernel;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
@@ -15,12 +16,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
     [TestFixture]
     public class GetApprenticeshipUpdateHandlerTests
     {
-        private GetApprenticeshipUpdateHandlerTestsFixture _fixture;
+        private GetApprenticeshipUpdateHandlerTests_fixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new GetApprenticeshipUpdateHandlerTestsFixture();
+            _fixture = new GetApprenticeshipUpdateHandlerTests_fixture();
         }
 
         [Test]
@@ -66,25 +67,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             _fixture.VerifyResultMapping();
         }
 
-        public class GetApprenticeshipUpdateHandlerTestsFixture
+        public class GetApprenticeshipUpdateHandlerTests_fixture
         {
             private readonly GetApprenticeshipUpdateQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;
             private GetApprenticeshipUpdateQuery _request;
             private GetApprenticeshipUpdateQueryResult _result;
-            private readonly Fixture _autoFixture;
+            private readonly Fixture _autofixture;
             private List<ApprenticeshipUpdate> _apprenticeshipUpdate;
             private readonly long _apprenticeshipId;
 
-            public GetApprenticeshipUpdateHandlerTestsFixture()
+            public GetApprenticeshipUpdateHandlerTests_fixture()
             {
-                _autoFixture = new Fixture();
+                _autofixture = new Fixture();
 
                 _apprenticeshipId = 1;
                 _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Pending);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).EnableSensitiveDataLogging().Options);
                 _handler = new GetApprenticeshipUpdateQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
@@ -94,14 +95,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
                 return _result;
             }
 
-            public GetApprenticeshipUpdateHandlerTestsFixture SeedData(short count = 1)
+            public GetApprenticeshipUpdateHandlerTests_fixture SeedData(short count = 1)
             {
-
-                _apprenticeshipUpdate = _autoFixture.Create<List<ApprenticeshipUpdate>>();
-                _apprenticeshipUpdate.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.Status = Types.ApprenticeshipUpdateStatus.Pending; }) ;
+                _autofixture.Customizations.Add(new ApprenticeshipUpdateSpecimenBuilder());
+                _apprenticeshipUpdate = _autofixture.Create<List<ApprenticeshipUpdate>>();
                 _db.ApprenticeshipUpdates.AddRange(_apprenticeshipUpdate);
+                _apprenticeshipUpdate.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.Status = Types.ApprenticeshipUpdateStatus.Pending; });
 
-                var additionalRecord = _autoFixture.Create<List<ApprenticeshipUpdate>>();
+                var additionalRecord = _autofixture.Create<List<ApprenticeshipUpdate>>();
                 additionalRecord.ForEach(z => z.ApprenticeshipId = ++count);
                 _db.ApprenticeshipUpdates.AddRange(additionalRecord);
 
@@ -109,25 +110,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
                 return this;
             }
 
-            public GetApprenticeshipUpdateHandlerTestsFixture WithNoMatchingApprenticeshipUpdates()
+            public GetApprenticeshipUpdateHandlerTests_fixture WithNoMatchingApprenticeshipUpdates()
             {
                 _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId + 100, Types.ApprenticeshipUpdateStatus.Pending);
                 return this;
             }
 
-            public GetApprenticeshipUpdateHandlerTestsFixture WithRejectedStatus()
+            public GetApprenticeshipUpdateHandlerTests_fixture WithRejectedStatus()
             {
                 _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Rejected);
                 return this;
             }
 
-            public GetApprenticeshipUpdateHandlerTestsFixture WithNoMatchingApprenticeshipUpdatesForStatus()
+            public GetApprenticeshipUpdateHandlerTests_fixture WithNoMatchingApprenticeshipUpdatesForStatus()
             {
                 _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Approved);
                 return this;
             }
 
-            public GetApprenticeshipUpdateHandlerTestsFixture ChangeStatusToRejectedInSeededData()
+            public GetApprenticeshipUpdateHandlerTests_fixture ChangeStatusToRejectedInSeededData()
             {
                 var apprenticeship = _db.ApprenticeshipUpdates.First(x => x.ApprenticeshipId == _apprenticeshipId && x.Status == Types.ApprenticeshipUpdateStatus.Pending);
                 apprenticeship.Status = Types.ApprenticeshipUpdateStatus.Rejected;
@@ -161,6 +162,39 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             Assert.AreEqual(source.StartDate, result.StartDate);
             Assert.AreEqual(source.EndDate, result.EndDate);
             Assert.AreEqual(source.DateOfBirth, result.DateOfBirth);
+        }
+    }
+
+    public class ApprenticeshipUpdateSpecimenBuilder :
+    ISpecimenBuilder
+    {
+        public object Create(object request,
+            ISpecimenContext context)
+        {
+            var pi = request as Type;
+            
+            if (pi == null)
+            {
+                return new NoSpecimen();
+            }
+            if (pi == typeof(ApprenticeshipBase)
+                || pi.Name == "Apprenticeship")
+            {
+                return new Apprenticeship();
+            }
+
+            if (IsListOrCollection(pi) && pi.GetGenericArguments().Single() == typeof(DataLockStatus)
+               || pi.Name == "DataLockStatus")
+            {
+                return new List<DataLockStatus>();
+            }
+
+            return new NoSpecimen();
+        }
+
+        private bool IsListOrCollection(Type type)
+        {
+            return (type != typeof(string) && ((type.GetInterface(nameof(System.Collections.IEnumerable)) != null) || (type.GetInterface(nameof(System.Collections.ICollection)) != null)));
         }
     }
 }
