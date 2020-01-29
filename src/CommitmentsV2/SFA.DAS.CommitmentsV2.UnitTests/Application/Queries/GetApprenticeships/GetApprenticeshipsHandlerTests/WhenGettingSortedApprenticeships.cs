@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
-            var apprenticeships = GetTestApprenticeships(query);
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
-            var apprenticeships = GetTestApprenticeships(query);
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)

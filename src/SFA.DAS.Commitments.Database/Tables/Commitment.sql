@@ -48,3 +48,32 @@ GO
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_TransferSenderId] ON [dbo].[Commitment] ([TransferSenderId]) WHERE [TransferSenderId] IS NOT NULL 
 GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderIsDeleted] on [dbo].[Commitment] ([ProviderId], [IsDeleted]) INCLUDE(
+    [Reference],
+    [EmployerAccountId] , 
+    [LegalEntityId] ,
+    [LegalEntityName] , 
+	[LegalEntityAddress] ,
+	[LegalEntityOrganisationType] ,
+    [ProviderName] ,
+    [CommitmentStatus] , 
+    [EditStatus],
+    [CreatedOn] , 
+    [LastAction] , 
+	[LastUpdatedByEmployerName] ,
+    [LastUpdatedByEmployerEmail] , 
+    [LastUpdatedByProviderName] , 
+    [LastUpdatedByProviderEmail] ,
+    [TransferSenderId] ,
+    [TransferSenderName] ,
+	[TransferApprovalStatus] ,
+	[TransferApprovalActionedByEmployerName] ,
+	[TransferApprovalActionedByEmployerEmail] ,
+	[TransferApprovalActionedOn] ,
+	[AccountLegalEntityPublicHashedId] ,
+	[Originator] ,
+	[ApprenticeshipEmployerTypeOnApproval] ,
+	[IsFullApprovalProcessed] ,
+    [AccountLegalEntityId] ) WITH (ONLINE = ON)
+	GO
