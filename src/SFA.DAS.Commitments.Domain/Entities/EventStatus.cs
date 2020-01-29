@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.Commitments.Domain.Entities
 {
-    public enum EventStatus
+    public enum EventStatus : byte
     {
         None = 0,
         New = 1,

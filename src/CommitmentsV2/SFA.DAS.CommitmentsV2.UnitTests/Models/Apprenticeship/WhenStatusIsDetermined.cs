@@ -1,6 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using PaymentStatus = SFA.DAS.CommitmentsV2.Types.PaymentStatus;
 
@@ -49,15 +48,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
             _fixture.WithPaymentStatus(PaymentStatus.Completed).VerifyStatus(ApprenticeshipStatus.Completed);
         }
 
+        [Test]
+        public void All_PaymentStatus_Are_Mapped()
+        {
+            _fixture.VerifyAllPaymentStatusAreMappedToApprenticeshipStatus();
+        }
+
         private class ApprenticeshipStatusTestsFixture
         {
-            private readonly ApprovedApprenticeship _apprenticeship;
+            private readonly CommitmentsV2.Models.Apprenticeship _apprenticeship;
 
             public ApprenticeshipStatusTestsFixture()
             {
-                _apprenticeship = new ApprovedApprenticeship();
+                _apprenticeship = new CommitmentsV2.Models.Apprenticeship();
 
-                _apprenticeship = new ApprovedApprenticeship
+                _apprenticeship = new CommitmentsV2.Models.Apprenticeship
                 {
                     StartDate = DateTime.UtcNow.AddMonths(-1),
                     EndDate = DateTime.UtcNow.AddYears(1),
@@ -88,6 +93,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
             public void VerifyStatus(ApprenticeshipStatus expectedStatus)
             {
                 Assert.AreEqual(expectedStatus, _apprenticeship.Status);
+            }
+
+            internal void VerifyAllPaymentStatusAreMappedToApprenticeshipStatus()
+            {
+                foreach (PaymentStatus paymentStatus in Enum.GetValues(typeof(PaymentStatus)))
+                {
+                    _apprenticeship.PaymentStatus = paymentStatus;
+                    Assert.AreNotEqual(ApprenticeshipStatus.Unknown, _apprenticeship.Status, $"PaymentStatus : {paymentStatus.ToString()} is not mapped to Apprenticeship status");
+                }
             }
         }
     }

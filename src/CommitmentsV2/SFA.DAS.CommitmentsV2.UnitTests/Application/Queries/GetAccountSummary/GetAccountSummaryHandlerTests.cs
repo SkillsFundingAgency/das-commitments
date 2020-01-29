@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
             HandlerMock = new Mock<IRequestHandler<GetAccountSummaryQuery, GetAccountSummaryQueryResult>>();
             ValidatorMock = new Mock<IValidator<GetAccountSummaryQuery>>();
 
-            SeedApprenticeships = new List<ApprovedApprenticeship>();
+            SeedApprenticeships = new List<Apprenticeship>();
             SeedCohorts = new List<Cohort>();
 
             EmployerAccountId = autoFixture.Create<long>();
@@ -77,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
         public long EmployerAccountId { get; }
 
         public List<Cohort> SeedCohorts { get; set; }
-        public List<ApprovedApprenticeship> SeedApprenticeships { get; set; }
+        public List<Apprenticeship> SeedApprenticeships { get; set; }
 
         public GetAccountSummaryHandlerTestsFixture AddCohorts(int numberOfCohorts)
         {
@@ -117,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
                     Originator = Originator.Employer
                 };
 
-                var apprenticeship = new ApprovedApprenticeship
+                var apprenticeship = new Apprenticeship
                 {
                     Cohort = approvedCohort
                 };
@@ -168,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
         private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
             dbContext.Cohorts.AddRange(SeedCohorts);
-            dbContext.ApprovedApprenticeships.AddRange(SeedApprenticeships);
+            dbContext.Apprenticeships.AddRange(SeedApprenticeships);
             dbContext.SaveChanges(true);
         }
 

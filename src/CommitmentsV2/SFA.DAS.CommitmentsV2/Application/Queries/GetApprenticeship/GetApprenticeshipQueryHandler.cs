@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
             var requestingParty = _authenticationService.GetUserParty();
 
             var x = await _dbContext.Value
-                .ApprovedApprenticeships
+                .Apprenticeships
                 .GetById(request.ApprenticeshipId, apprenticeship => 
                     new GetApprenticeshipQueryResult
                     {

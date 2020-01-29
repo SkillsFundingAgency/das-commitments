@@ -96,6 +96,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
             public GetApprenticeshipUpdateHandlerTestsFixture SeedData(short count = 1)
             {
+
                 _apprenticeshipUpdate = _autoFixture.Create<List<ApprenticeshipUpdate>>();
                 _apprenticeshipUpdate.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.Status = Types.ApprenticeshipUpdateStatus.Pending; }) ;
                 _db.ApprenticeshipUpdates.AddRange(_apprenticeshipUpdate);
