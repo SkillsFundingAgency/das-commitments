@@ -422,6 +422,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
+            
             var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
