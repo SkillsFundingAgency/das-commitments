@@ -336,7 +336,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             var request = new GetApprenticeshipUpdateRequest { ApprenticeshipId = 1, Status = ApprenticeshipUpdateStatus.Pending };
             await _fixture.CommitmentsApiClient.GetApprenticeshipUpdates(request);
-            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>("api/apprenticeships/1", request, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/1/apprenticeshipupdates?status={request.Status}", null, CancellationToken.None));
         }
     }
 

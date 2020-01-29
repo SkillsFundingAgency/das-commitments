@@ -92,10 +92,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
                 return this;
             }
 
-
             public async Task GetApprenticeshipUpdates()
             {
-                Result = await Controller.GetApprenticeshipUpdates(new Types.Requests.GetApprenticeshipUpdateRequest { ApprenticeshipId = ApprenticeshipId, Status = Status });
+                Result = await Controller.GetApprenticeshipUpdates(ApprenticeshipId, Status);
             }
 
             public void VerifyApprenticeshipIdAndStatusPassedToQuery()

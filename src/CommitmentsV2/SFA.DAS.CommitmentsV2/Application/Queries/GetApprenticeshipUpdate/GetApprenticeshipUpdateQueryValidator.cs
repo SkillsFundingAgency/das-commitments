@@ -7,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
         public GetApprenticeshipUpdateQueryValidator()
         {
             RuleFor(q => q.ApprenticeshipId).GreaterThan(0);
+            RuleFor(q => q.Status).NotNull();
         }
     }
 }

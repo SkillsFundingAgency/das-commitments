@@ -196,7 +196,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<GetApprenticeshipUpdatesResponse> GetApprenticeshipUpdates(GetApprenticeshipUpdateRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{request.ApprenticeshipId}", request, cancellationToken);
+            return _client.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{request.ApprenticeshipId}/apprenticeshipupdates?status={request.Status}", null, cancellationToken);
         }
     }
 }

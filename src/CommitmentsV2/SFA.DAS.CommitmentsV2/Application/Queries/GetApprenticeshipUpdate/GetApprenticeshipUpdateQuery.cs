@@ -7,9 +7,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
     {
         public long ApprenticeshipId { get; }
 
-        public ApprenticeshipUpdateStatus Status { get; }
+        public ApprenticeshipUpdateStatus? Status { get; }
 
-        public GetApprenticeshipUpdateQuery(long apprenticeshipId, ApprenticeshipUpdateStatus status)
+        public GetApprenticeshipUpdateQuery(long apprenticeshipId, ApprenticeshipUpdateStatus? status)
         {
             ApprenticeshipId = apprenticeshipId;
             Status = status;
