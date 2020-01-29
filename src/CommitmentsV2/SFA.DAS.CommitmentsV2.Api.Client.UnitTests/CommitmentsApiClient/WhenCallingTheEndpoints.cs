@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -308,6 +309,35 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
 
             //Assert$
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}&sortField={request.SortField}", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectWhenPassingFilterValues()
+        {
+            //Arrange
+            var request = new GetApprenticeshipsRequest
+            {
+                ProviderId = 10,
+                EmployerName = "Test corp",
+                CourseName = "Test course",
+                Status = "Test status",
+                StartDate = DateTime.Now.AddDays(2),
+                EndDate = DateTime.Now.AddDays(4)
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(request);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>(
+                $"api/apprenticeships/?" +
+                $"providerId={request.ProviderId}&" +
+                $"reverseSort={request.ReverseSort}&" +
+                $"employerName={WebUtility.UrlEncode(request.EmployerName)}&" +
+                $"courseName={WebUtility.UrlEncode(request.CourseName)}&" +
+                $"status={WebUtility.UrlEncode(request.Status)}&" +
+                $"startDate={WebUtility.UrlEncode(request.StartDate.Value.ToString("u"))}&" +
+                $"endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}", null, CancellationToken.None));
         }
 
         [Test]

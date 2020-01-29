@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.3.0" />
-    <PackageReference Include="AutoFixture.NUnit3" Version="4.3.0" />
+    <PackageReference Include="AutoFixture" Version="4.11.0" />
+    <PackageReference Include="AutoFixture.NUnit3" Version="4.11.0" />
     <PackageReference Include="FluentAssertions" Version="5.6.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
@@ -25,6 +25,7 @@
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Types" Version="0.11.233" />
     <PackageReference Include="SFA.DAS.Providers.Api.Client" Version="0.11.233" />
     <PackageReference Include="SFA.DAS.Testing" Version="3.0.22" />
+    <PackageReference Include="SFA.DAS.Testing.AutoFixture" Version="3.0.161" />
   </ItemGroup>
 
   <ItemGroup>
