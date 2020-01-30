@@ -21,7 +21,6 @@ namespace SFA.DAS.Commitments.Application.Services
         private readonly ICommitmentsLogger _logger;
         private readonly ICurrentDateTime _currentDateTime;
 
-
         public V2EventsPublisher(IEndpointInstance endpointInstance, ICommitmentsLogger logger, ICurrentDateTime currentDateTime)
         {
             _endpointInstance = endpointInstance;
@@ -208,6 +207,12 @@ namespace SFA.DAS.Commitments.Application.Services
                 ev.Message = message;
             });
         }
+		
+		  public Task SendApproveTransferRequestCommand(long transferRequestId, DateTime approvedOn, UserInfo userInfo)
+        {
+            var command = new ApproveTransferRequestCommand(transferRequestId, approvedOn, userInfo);
+            return SendCommandAndLog(command, $"TransferRequest Id {transferRequestId} approved");
+        }
 
         private enum ApprenticePreChecks
         {
@@ -264,6 +269,22 @@ namespace SFA.DAS.Commitments.Application.Services
                 throw;
             }
         }
+
+        private async Task SendCommandAndLog<TCommand>(TCommand @event, string message) where TCommand : class
+        {
+            var logMessage = $"Send {typeof(TCommand).Name} message. {message}";
+            try
+            {
+                await _endpointInstance.Send(@event);
+                _logger.Info($"{logMessage} successful");
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, $"{logMessage} failed");
+                throw;
+            }
+        }
+
 
 
         private void DoPreChecks<TEvent>(ApprenticePreChecks checks, Apprenticeship apprenticeship) where TEvent : class

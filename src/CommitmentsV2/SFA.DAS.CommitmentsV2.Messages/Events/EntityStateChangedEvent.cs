@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         CreateCohort,
         CreateCohortWithOtherParty,
         DeleteDraftApprenticeship,
-		DeleteCohort
+		DeleteCohort,
+        ApproveTransferRequest
     }
 }

@@ -4,16 +4,14 @@ using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
-using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
-using SFA.DAS.Commitments.Application.Rules;
-using SFA.DAS.Commitments.Application.Services;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
-using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Messaging.Interfaces;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
 {
@@ -22,33 +20,17 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
         private readonly AbstractValidator<ApproveTransferRequestCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IMessagePublisher _messagePublisher;
-        private readonly ICommitmentsLogger _logger;
-        private readonly IEmployerAccountsService _employerAccountsService;
-        private readonly CohortApprovalService _cohortApprovalService;
-        private readonly HistoryService _historyService;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
         public ApproveTransferRequestCommandHandler(AbstractValidator<ApproveTransferRequestCommand> validator,
-            ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository,
-            IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime,
-            IApprenticeshipEventsList apprenticeshipEventsList,
-            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator,
+            ICommitmentRepository commitmentRepository, 
             IMessagePublisher messagePublisher,
-            IHistoryRepository historyRepository,
-            ICommitmentsLogger logger,
-            IApprenticeshipInfoService apprenticeshipInfoService,
-            IEmployerAccountsService employerAccountsService,
             IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
-            _logger = logger;
-            _employerAccountsService = employerAccountsService;
-            _historyService = new HistoryService(historyRepository);
-
-            _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
-                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, v2EventsPublisher);
-
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(ApproveTransferRequestCommand command)
@@ -64,39 +46,19 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
 
-            _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
+            await _v2EventsPublisher.SendApproveTransferRequestCommand(command.TransferRequestId, DateTime.UtcNow,
+                new UserInfo {UserEmail = command.UserEmail, UserDisplayName = command.UserName});
 
-            
-                _logger.Debug($"Approving transfer request for employer account ID: {commitment.EmployerAccountId}");
+            //await Task.WhenAll(
+            //    _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment),
+            //    _cohortApprovalService.CreatePriceHistory(commitment), ??????? TODO Check if this is covered
+            //    _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment),
+            //    _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId));
 
-                var account = await _employerAccountsService.GetAccount(commitment.EmployerAccountId);
-
-                await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
-                    TransferApprovalStatus.TransferApproved, command.UserEmail, command.UserName, account.ApprenticeshipEmployerType);
-
-            await UpdateCommitmentObjectWithNewValues(commitment);
-
-            await Task.WhenAll(
-                _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment),
-                _cohortApprovalService.CreatePriceHistory(commitment),
-                _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment),
-                _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId),
-                _historyService.Save());
-
-            await PublishApprovedMessage(command);
+            await PublishApprovedMessage(command); 
         }
 
-        private async Task UpdateCommitmentObjectWithNewValues(Commitment commitment)
-        {
-            var updatedCommitment = await _commitmentRepository.GetCommitmentById(commitment.Id);
-            commitment.TransferApprovalStatus = updatedCommitment.TransferApprovalStatus;
-            commitment.TransferApprovalActionedByEmployerEmail = updatedCommitment.TransferApprovalActionedByEmployerEmail;
-            commitment.TransferApprovalActionedByEmployerName = updatedCommitment.TransferApprovalActionedByEmployerName;
-            commitment.TransferApprovalActionedOn = updatedCommitment.TransferApprovalActionedOn;
-            commitment.ApprenticeshipEmployerTypeOnApproval = updatedCommitment.ApprenticeshipEmployerTypeOnApproval;
-        }
-
-    private static void CheckAuthorization(ApproveTransferRequestCommand message, Commitment commitment)
+        private static void CheckAuthorization(ApproveTransferRequestCommand message, Commitment commitment)
         {
             if (commitment.TransferSenderId != message.TransferSenderId)
                 throw new UnauthorizedException(
@@ -124,9 +86,5 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
                 command.TransferSenderId, command.UserName, command.UserEmail);
             await _messagePublisher.PublishAsync(message);
         }
-
-
-
     }
 }
-

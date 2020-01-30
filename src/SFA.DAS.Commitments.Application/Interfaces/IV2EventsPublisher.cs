@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -23,5 +24,6 @@ namespace SFA.DAS.Commitments.Application.Interfaces
         Task PublishBulkUploadIntoCohortCompleted(long providerId, long cohortId, uint numberOfApprentices);
         Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo);
         Task SendProviderSendCohortCommand(long cohortId, string message, UserInfo userInfo);
+        Task SendApproveTransferRequestCommand(long transferRequestId, DateTime approvedOn, UserInfo userInfo);
     }
 }
