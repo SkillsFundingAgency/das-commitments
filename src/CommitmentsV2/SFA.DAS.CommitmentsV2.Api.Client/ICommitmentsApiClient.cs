@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 		Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken = default);
         Task<GetApprovedProvidersResponse> GetApprovedProviders(long accountId, CancellationToken cancellationToken);
         Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default);
-        
+        Task<GetApprenticeshipResponse> GetApprenticeship(long apprenticeshipId, CancellationToken cancellationToken = default);
+        Task<GetPriceEpisodesResponse> GetPriceEpisodes(long apprenticeshipId, CancellationToken cancellationToken = default);
     }
 }

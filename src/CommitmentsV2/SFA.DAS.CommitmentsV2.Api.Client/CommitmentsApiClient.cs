@@ -174,7 +174,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get("api/test/provider");  
         }
-
         public Task<GetApprovedProvidersResponse> GetApprovedProviders(long accountId, CancellationToken cancellationToken)
         {
             return _client.Get<GetApprovedProvidersResponse>($"api/accounts/{accountId}/providers/approved", null, cancellationToken);
@@ -183,6 +182,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<CreateCohortResponse> CreateCohort(CreateEmptyCohortRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<CreateEmptyCohortRequest, CreateCohortResponse>("api/cohorts/create-empty-cohort", request, cancellationToken);
+        }
+
+        public Task<GetApprenticeshipResponse> GetApprenticeship(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetApprenticeshipResponse>($"api/apprenticeships/{apprenticeshipId}", null, cancellationToken);
+        }
+
+        public Task<GetPriceEpisodesResponse> GetPriceEpisodes(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetPriceEpisodesResponse>($"api/apprenticeships/{apprenticeshipId}/price-episodes", null, cancellationToken);
         }
     }
 }
