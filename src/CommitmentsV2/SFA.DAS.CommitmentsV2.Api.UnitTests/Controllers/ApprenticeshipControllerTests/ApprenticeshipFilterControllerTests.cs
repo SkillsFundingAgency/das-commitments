@@ -54,7 +54,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             {
                 EmployerNames = new[] {"Test 1", "Test 2"},
                 CourseNames = new[] {"Test 3", "Test 4"},
-                Statuses = new[] { "Test 5", "Test 6" },
                 StartDates = new[] { DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-2) },
                 EndDates = new[] { DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-4) }
             };
