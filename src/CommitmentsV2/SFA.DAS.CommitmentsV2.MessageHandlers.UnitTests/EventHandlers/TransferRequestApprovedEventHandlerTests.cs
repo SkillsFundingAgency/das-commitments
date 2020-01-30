@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public void Handle_WhenHandlingTransferRequestApprovedEventAndMediatorThrowsException_ThenWelogErrorAndRethrowError()
+        public void Handle_WhenHandlingTransferRequestApprovedEventAndItThrowsException_ThenWelogErrorAndRethrowError()
         {
             var f = new TransferRequestApprovedEventHandlerTestsFixture();
             Assert.ThrowsAsync<BadRequestException>(() => f.Handle());
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
     }
 
-    public class TransferRequestApprovedEventHandlerTestsFixture //: EventHandlerTestsFixture<TransferRequestApprovedEvent, TransferRequestApprovedEventHandler>
+    public class TransferRequestApprovedEventHandlerTestsFixture
     {
         private Fixture _fixture;
         public FakeLogger<TransferRequestCreatedEvent> Logger { get; set; }

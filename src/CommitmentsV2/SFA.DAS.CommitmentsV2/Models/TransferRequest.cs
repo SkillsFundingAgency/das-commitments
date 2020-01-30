@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (Status != TransferApprovalStatus.Pending)
             {
-                throw new InvalidOperationException($"The TransferRequest is not in a Pending State and has already been approved or rejected");
+                throw new InvalidOperationException($"The TransferRequest {Id} is not in a Pending State and has a current status of {Status}");
             }
 
             StartTrackingSession(UserAction.ApproveTransferRequest, Party.TransferSender, Cohort.EmployerAccountId, Cohort.ProviderId.Value, userInfo);
