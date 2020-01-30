@@ -95,6 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
+
             var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
@@ -102,8 +103,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             //Assert
             Assert.AreEqual(2, actual.Apprenticeships.Count());
-            Assert.AreEqual("C", actual.Apprenticeships.ElementAt(0).FirstName);
-            Assert.AreEqual("D", actual.Apprenticeships.ElementAt(1).FirstName);
+            Assert.AreEqual("D", actual.Apprenticeships.ElementAt(0).FirstName);
+            Assert.AreEqual("E", actual.Apprenticeships.ElementAt(1).FirstName);
         }
 
         [Test, MoqAutoData]
@@ -131,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await handler.Handle(query, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual(2, actual.TotalApprenticeshipsWithAlertsFound);
+            Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);
         }
     }
 }
