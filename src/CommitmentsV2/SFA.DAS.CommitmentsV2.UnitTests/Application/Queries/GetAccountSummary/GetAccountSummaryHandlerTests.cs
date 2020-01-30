@@ -62,22 +62,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
         {
             var autoFixture = new Fixture();
 
-            HandlerMock = new Mock<IRequestHandler<GetAccountSummaryRequest, GetAccountSummaryResponse>>();
-            ValidatorMock = new Mock<IValidator<GetAccountSummaryRequest>>();
+            HandlerMock = new Mock<IRequestHandler<GetAccountSummaryQuery, GetAccountSummaryQueryResult>>();
+            ValidatorMock = new Mock<IValidator<GetAccountSummaryQuery>>();
 
-            SeedApprenticeships = new List<ApprovedApprenticeship>();
+            SeedApprenticeships = new List<Apprenticeship>();
             SeedCohorts = new List<Cohort>();
 
             EmployerAccountId = autoFixture.Create<long>();
         }
 
-        public Mock<IRequestHandler<GetAccountSummaryRequest, GetAccountSummaryResponse>> HandlerMock { get; set; }
+        public Mock<IRequestHandler<GetAccountSummaryQuery, GetAccountSummaryQueryResult>> HandlerMock { get; set; }
 
-        public Mock<IValidator<GetAccountSummaryRequest>> ValidatorMock { get; set; }
+        public Mock<IValidator<GetAccountSummaryQuery>> ValidatorMock { get; set; }
         public long EmployerAccountId { get; }
 
         public List<Cohort> SeedCohorts { get; set; }
-        public List<ApprovedApprenticeship> SeedApprenticeships { get; set; }
+        public List<Apprenticeship> SeedApprenticeships { get; set; }
 
         public GetAccountSummaryHandlerTestsFixture AddCohorts(int numberOfCohorts)
         {
@@ -117,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
                     Originator = Originator.Employer
                 };
 
-                var apprenticeship = new ApprovedApprenticeship
+                var apprenticeship = new Apprenticeship
                 {
                     Cohort = approvedCohort
                 };
@@ -134,9 +134,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
             return this;
         }
 
-        public Task<GetAccountSummaryResponse> GetResponse()
+        public Task<GetAccountSummaryQueryResult> GetResponse()
         {
-            var request = new GetAccountSummaryRequest
+            var request = new GetAccountSummaryQuery
             {
                 AccountId = EmployerAccountId
             };
@@ -144,7 +144,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetAccountSummaryHandler(lazy);
+                var handler = new GetAccountSummaryQueryHandler(lazy);
 
                 return handler.Handle(request, CancellationToken.None);
             });
@@ -168,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
         private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
             dbContext.Cohorts.AddRange(SeedCohorts);
-            dbContext.ApprovedApprenticeships.AddRange(SeedApprenticeships);
+            dbContext.Apprenticeships.AddRange(SeedApprenticeships);
             dbContext.SaveChanges(true);
         }
 

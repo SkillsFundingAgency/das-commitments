@@ -83,5 +83,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             return new Cohort(provider, accountLegalEntity, transferSender, Party.Employer, message, userInfo);
         }
+
+        public Cohort CreateCohort(Provider provider, AccountLegalEntity accountLegalEntity, UserInfo userInfo)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

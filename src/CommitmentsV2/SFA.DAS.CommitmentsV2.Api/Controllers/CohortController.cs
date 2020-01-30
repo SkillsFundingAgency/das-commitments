@@ -68,11 +68,24 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
-        [Route("with-other-party")] // TODO: Remove after CV-388 has been deployed to PROD
         [Route("create-with-other-party")]
         public async Task<IActionResult> Create([FromBody]CreateCohortWithOtherPartyRequest request)
         {
             var command = new AddCohortWithOtherPartyCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.TransferSenderId, request.Message, request.UserInfo);
+            var result = await _mediator.Send(command);
+
+            return Ok(new CreateCohortResponse
+            {
+                CohortId = result.Id,
+                CohortReference = result.Reference
+            });
+        }
+
+        [HttpPost]
+        [Route("create-empty-cohort")]
+        public async Task<IActionResult> Create([FromBody]CreateEmptyCohortRequest request)
+        {
+            var command = new AddEmptyCohortCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.UserInfo);
             var result = await _mediator.Send(command);
 
             return Ok(new CreateCohortResponse
