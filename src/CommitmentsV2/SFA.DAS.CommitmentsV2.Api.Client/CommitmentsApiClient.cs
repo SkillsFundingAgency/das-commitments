@@ -201,7 +201,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             {
                 statusQueryParameter = $"?status={request.Status}";
             }
-            return _client.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{request.ApprenticeshipId}/apprenticeshipupdates{statusQueryParameter}", null, cancellationToken);
+            return _client.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{request.ApprenticeshipId}/updates{statusQueryParameter}", null, cancellationToken);
         }
     }
 }

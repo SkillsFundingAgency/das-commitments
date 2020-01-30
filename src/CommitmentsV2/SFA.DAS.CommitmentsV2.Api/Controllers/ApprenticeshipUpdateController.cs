@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("api/apprenticeships/{ApprenticeshipId}")]
+    [Route("api/apprenticeships/{ApprenticeshipId}/updates")]
     public class ApprenticeshipUpdateController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -25,7 +25,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("apprenticeshipupdates")]
         public async Task<IActionResult> GetApprenticeshipUpdates(long apprenticeshipId,[FromQuery] ApprenticeshipUpdateStatus? status)
         {
             var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, status));

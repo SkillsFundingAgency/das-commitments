@@ -339,7 +339,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             var request = new GetApprenticeshipUpdateRequest { ApprenticeshipId = apprenticeshipId, Status = status };
             await _fixture.CommitmentsApiClient.GetApprenticeshipUpdates(request);
-            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{apprenticeshipId}/apprenticeshipupdates?status={status}", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{apprenticeshipId}/updates?status={status}", null, CancellationToken.None));
         }
 
         [Test]
@@ -347,7 +347,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             var request = new GetApprenticeshipUpdateRequest { ApprenticeshipId = 1 };
             await _fixture.CommitmentsApiClient.GetApprenticeshipUpdates(request);
-            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{request.ApprenticeshipId}/apprenticeshipupdates", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{request.ApprenticeshipId}/updates", null, CancellationToken.None));
         }
     }
 
