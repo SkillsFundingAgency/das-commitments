@@ -4,12 +4,8 @@ using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
-using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
-using SFA.DAS.Commitments.Application.Rules;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 
@@ -19,29 +15,15 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
     {
         private readonly AbstractValidator<ProviderApproveCohortCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly ICommitmentsLogger _logger;
         private readonly IV2EventsPublisher _v2EventsPublisher;
-        private readonly CohortApprovalService _cohortApprovalService;
 
         public ProviderApproveCohortCommandHandler(AbstractValidator<ProviderApproveCohortCommand> validator,
             ICommitmentRepository commitmentRepository,
-            IApprenticeshipRepository apprenticeshipRepository,
-            IApprenticeshipOverlapRules overlapRules,
-            ICurrentDateTime currentDateTime,
-            IHistoryRepository historyRepository,
-            IApprenticeshipEventsList apprenticeshipEventsList,
-            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
-            IMediator mediator,
-            ICommitmentsLogger logger,
-            IApprenticeshipInfoService apprenticeshipInfoService,
-            IV2EventsPublisher v2EventsPublisher = null)
+            IV2EventsPublisher v2EventsPublisher)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
-            _logger = logger;
             _v2EventsPublisher = v2EventsPublisher;
-            new HistoryService(historyRepository);
-            _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, v2EventsPublisher);
         }
 
         protected override async Task HandleCore(ProviderApproveCohortCommand message)
@@ -49,7 +31,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             _validator.ValidateAndThrow(message);
 
             var commitment = await GetCommitment(message.CommitmentId);
-            await CheckCommitmentCanBeApproved(commitment, message.Caller.Id);
+            CheckCommitmentCanBeApproved(commitment, message.Caller.Id);
             
             var userInfo = new UserInfo
             {
@@ -68,13 +50,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             return commitment;
         }
 
-        private async Task CheckCommitmentCanBeApproved(Commitment commitment, long callerEmployerAccountId)
+        private void CheckCommitmentCanBeApproved(Commitment commitment, long callerEmployerAccountId)
         {
-            _cohortApprovalService.CheckCommitmentStatus(commitment);
             CheckEditStatus(commitment);
             CheckAuthorization(callerEmployerAccountId, commitment);
             CheckStateForApproval(commitment);
-            await _cohortApprovalService.CheckOverlaps(commitment);
         }
 
         private static void CheckEditStatus(Commitment commitment)

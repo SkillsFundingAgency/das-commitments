@@ -5,9 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
 using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 
@@ -33,15 +31,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
 
             Target = new ProviderApproveCohortCommandHandler(Validator,
                 CommitmentRepository.Object,
-                ApprenticeshipRepository.Object,
-                OverlapRules.Object,
-                CurrentDateTime.Object,
-                HistoryRepository.Object,
-                ApprenticeshipEventsList.Object,
-                ApprenticeshipEventsPublisher.Object,
-                Mediator.Object,
-                Mock.Of<ICommitmentsLogger>(),
-                Mock.Of<IApprenticeshipInfoService>(),
                 V2EventsPublisher.Object);
         }
 

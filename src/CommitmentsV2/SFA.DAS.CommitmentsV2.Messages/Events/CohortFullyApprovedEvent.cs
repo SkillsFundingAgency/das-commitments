@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public long AccountId { get; }
         public long ProviderId { get; }
         public DateTime UpdatedOn { get; }
-        public Party LastApprovedBy;
+        public Party LastApprovedBy { get; }
 
         public CohortFullyApprovedEvent(long cohortId, long accountId, long providerId, DateTime updatedOn, Party lastApprovedBy)
         {

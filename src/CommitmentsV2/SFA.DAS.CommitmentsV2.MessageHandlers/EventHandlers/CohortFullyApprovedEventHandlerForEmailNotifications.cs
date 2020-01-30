@@ -7,7 +7,6 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -24,12 +23,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(CohortFullyApprovedEvent message, IMessageHandlerContext context)
         {
-            var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
-
             //employer -> send to provider
             //provider -> send to employer
             //transfer sender -> send to both? or handle when transfer request is approved?
             if (message.LastApprovedBy != Party.Provider) return;
+
+            var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
             var tokens = new Dictionary<string, string>
             {

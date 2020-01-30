@@ -45,30 +45,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
         protected Account Account;
 
         [Test]
-        public void ThenIfTheCommitmentIsDeletedItCannotBeApproved()
-        {
-            Commitment.CommitmentStatus = CommitmentStatus.Deleted;
-
-            Assert.ThrowsAsync<InvalidOperationException>(() => Target.Handle(Command));
-        }
-
-        [Test]
         public void ThenIfTheCommitmentCannotEditedItCannotBeApproved()
         {
             Commitment.EditStatus = EditStatus.Neither;
 
             Assert.ThrowsAsync<InvalidOperationException>(() => Target.Handle(Command));
-        }
-
-        [Test]
-        public void ThenIfTheCommitmentHasOverlappingApprenticeshipsItCannotBeApproved()
-        {
-            var apprenticeship = Commitment.Apprenticeships.Last();
-            var apprenticeshipResult = new ApprenticeshipResult { Uln = apprenticeship.ULN };
-            ApprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == Commitment.Apprenticeships.First().ULN && y.Last() == Commitment.Apprenticeships.Last().ULN))).ReturnsAsync(new List<ApprenticeshipResult> { apprenticeshipResult });
-            OverlapRules.Setup(x => x.DetermineOverlap(It.Is<ApprenticeshipOverlapValidationRequest>(r => r.Uln == apprenticeship.ULN && r.ApprenticeshipId == apprenticeship.Id && r.StartDate == apprenticeship.StartDate.Value && r.EndDate == apprenticeship.EndDate.Value), apprenticeshipResult)).Returns(ValidationFailReason.OverlappingEndDate);
-
-            Assert.ThrowsAsync<ValidationException>(() => Target.Handle(Command));
         }
 
         protected bool VerifyHistoryItem(HistoryItem historyItem, CommitmentChangeType changeType, string userId, string lastUpdatedByName, CallerType callerType)
