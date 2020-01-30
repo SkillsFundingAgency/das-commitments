@@ -4,7 +4,7 @@ using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
 {
-    public class ReservationValidationRequestToValidationReservationMessageMapper : IMapper<ReservationValidationRequest, ReservationValidationMessage>
+    public class ReservationValidationRequestToValidationReservationMessageMapper : IOldMapper<ReservationValidationRequest, ReservationValidationMessage>
     {
         public Task<ReservationValidationMessage> Map(ReservationValidationRequest source)
         {

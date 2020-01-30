@@ -154,6 +154,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             Assert.AreEqual(AccountLegalEntity.AccountId, Cohort.EmployerAccountId);
         }
 
+        public void VerifyCohortBelongsToAccountLegalEntity()
+        {
+            Assert.AreEqual(AccountLegalEntity.Id, Cohort.AccountLegalEntityId);
+        }
+
         public void VerifyCohortHasTransferInformation()
         {
             Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);

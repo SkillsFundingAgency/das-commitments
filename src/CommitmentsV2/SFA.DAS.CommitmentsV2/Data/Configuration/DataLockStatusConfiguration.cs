@@ -8,8 +8,11 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<DataLockStatus> builder)
         {
+            builder.ToTable("DataLockStatus");
+
             builder.Property(e => e.DataLockEventDatetime).HasColumnType("datetime");
-            builder.Property(e => e.EventStatus).HasDefaultValueSql("((1))");
+            builder.Property(e => e.EventStatus).HasColumnType("tinyint").HasDefaultValueSql("((1))");
+            builder.Property(e => e.TriageStatus).HasColumnType("tinyint");
             builder.Property(e => e.Expired).HasColumnType("datetime");
             builder.Property(e => e.IlrActualStartDate).HasColumnType("datetime");
             builder.Property(e => e.IlrEffectiveFromDate).HasColumnType("datetime");
@@ -21,14 +24,14 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .IsRequired()
                 .HasMaxLength(25);
 
-            builder.HasOne(d => d.ApprovedApprenticeship)
+            builder.HasOne(d => d.Apprenticeship)
                 .WithMany(p => p.DataLockStatus)
                 .HasForeignKey(d => d.ApprenticeshipId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
-            builder.HasOne(d => d.ApprenticeshipUpdate)
-                .WithMany(p => p.DataLockStatus)
-                .HasForeignKey(d => d.ApprenticeshipUpdateId);
+            //builder.HasOne(d => d.ApprenticeshipUpdate)
+            //    .WithMany(p => p.DataLockStatus)
+            //    .HasForeignKey(d => d.ApprenticeshipUpdateId);
         }
     }
 }
