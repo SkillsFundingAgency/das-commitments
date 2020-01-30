@@ -73,12 +73,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
             approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
             approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].Cohort.CommitmentStatus = approvedApprenticeships[1].Cohort.CommitmentStatus;
+            approvedApprenticeships[2].PaymentStatus = approvedApprenticeships[1].PaymentStatus;
 
             var expectedStatuses = new[]
                 {
-                    Enum.GetName(typeof(CommitmentStatus), approvedApprenticeships[0].Cohort.CommitmentStatus),
-                    Enum.GetName(typeof(CommitmentStatus), approvedApprenticeships[1].Cohort.CommitmentStatus)
+                    approvedApprenticeships[0].PaymentStatus,
+                    approvedApprenticeships[1].PaymentStatus
                 };
 
             mockContext

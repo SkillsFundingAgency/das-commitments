@@ -10,6 +10,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -54,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             {
                 EmployerNames = new[] {"Test 1", "Test 2"},
                 CourseNames = new[] {"Test 3", "Test 4"},
-                Statuses = new[] { "Test 5", "Test 6" },
+                Statuses = new[] { PaymentStatus.Active, PaymentStatus.Completed },
                 StartDates = new[] { DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-2) },
                 EndDates = new[] { DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-4) }
             };

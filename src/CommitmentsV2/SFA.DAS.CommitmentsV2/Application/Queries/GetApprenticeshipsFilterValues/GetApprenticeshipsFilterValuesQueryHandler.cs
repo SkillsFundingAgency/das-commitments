@@ -23,8 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             var stringDbTasks = new []{
                 GetDistinctEmployerNames(request, cancellationToken),
-                GetDistinctCourseNames(request, cancellationToken),
-                GetDistinctStatuses(request, cancellationToken)
+                GetDistinctCourseNames(request, cancellationToken)
             };
 
             var dateDbTasks = new[]{
@@ -32,17 +31,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
                GetDistinctEndDates(request, cancellationToken)
             };
 
+            var statusesTask = GetDistinctStatuses(request, cancellationToken);
+
             var dbTasks = new List<Task>();
+            
             dbTasks.AddRange(stringDbTasks);
             dbTasks.AddRange(dateDbTasks);
+            dbTasks.Add(statusesTask);
 
             Task.WaitAll(dbTasks.ToArray<Task>());
-
             return await Task.FromResult(new GetApprenticeshipsFilterValuesQueryResult
             {
                 EmployerNames = stringDbTasks[0].Result,
                 CourseNames = stringDbTasks[1].Result,
-                Statuses = stringDbTasks[2].Result,
+                Statuses = statusesTask.Result,
                 StartDates = dateDbTasks[0].Result,
                 EndDates = dateDbTasks[1].Result
             });
@@ -67,14 +69,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
                 .ToListAsync(cancellationToken);
         }
 
-        private Task<List<string>> GetDistinctStatuses(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        private Task<List<PaymentStatus>> GetDistinctStatuses(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return _dbContext.Apprenticeships
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
-                .Select(apprenticeship => apprenticeship.Cohort.CommitmentStatus)
+                .Select(apprenticeship => apprenticeship.PaymentStatus)
                 .Distinct()
-                .Select(status => Enum.GetName(typeof(CommitmentStatus), status))
                 .ToListAsync(cancellationToken);
         }
 
