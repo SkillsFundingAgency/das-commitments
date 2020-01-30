@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         {
             query.SortField = null;
             query.PageNumber = 0;
-            query.PageItemCount = 2;
+            query.PageItemCount = 3;
             query.ReverseSort = false;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 
@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         {
             query.SortField = null;
             query.PageNumber = 2;
-            query.PageItemCount = 2;
+            query.PageItemCount = 3;
             query.ReverseSort = false;
             query.SearchFilters = new ApprenticeshipSearchFilters();
 

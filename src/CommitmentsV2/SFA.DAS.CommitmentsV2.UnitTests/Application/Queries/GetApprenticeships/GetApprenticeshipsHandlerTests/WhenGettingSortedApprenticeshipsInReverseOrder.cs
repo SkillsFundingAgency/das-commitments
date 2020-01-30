@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 new Apprenticeship
                 {
                     FirstName = "XX",
-                    LastName = "Should_Be_Second",
+                    LastName = "B",
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 new Apprenticeship
                 {
                     FirstName = "XX",
-                    LastName = "Should_Be_Third",
+                    LastName = "C",
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 new Apprenticeship
                 {
                     FirstName = "XX",
-                    LastName = "Should_Be_First",
+                    LastName = "A",
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
@@ -93,9 +93,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await handler.Handle(query, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(0).LastName);
-            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(1).LastName);
-            Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(2).LastName);        }
+            Assert.AreEqual("B", actual.Apprenticeships.ElementAt(0).LastName);
+            Assert.AreEqual("A", actual.Apprenticeships.ElementAt(1).LastName);
+            Assert.AreEqual("C", actual.Apprenticeships.ElementAt(2).LastName);        }
 
         [Test, MoqAutoData]
         public async Task Then_Reverse_Sorted_Apprentices_Are_Return_Per_Page(
@@ -122,8 +122,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             //Assert
             Assert.AreEqual(2, actual.Apprenticeships.Count());
-            Assert.AreEqual("B", actual.Apprenticeships.ElementAt(0).FirstName);
-            Assert.AreEqual("A", actual.Apprenticeships.ElementAt(1).FirstName);
+            Assert.AreEqual("D", actual.Apprenticeships.ElementAt(0).FirstName);
+            Assert.AreEqual("C", actual.Apprenticeships.ElementAt(1).FirstName);
         }
         
         [Test, MoqAutoData]
@@ -150,7 +150,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await handler.Handle(query, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual(2, actual.TotalApprenticeshipsWithAlertsFound);
+            Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);
         }
 
         [Test, MoqAutoData]

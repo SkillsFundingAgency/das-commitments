@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await handler.Handle(query, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual(2, actual.TotalApprenticeshipsWithAlertsFound);
+            Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);
         }
 
         [Test, MoqAutoData]
