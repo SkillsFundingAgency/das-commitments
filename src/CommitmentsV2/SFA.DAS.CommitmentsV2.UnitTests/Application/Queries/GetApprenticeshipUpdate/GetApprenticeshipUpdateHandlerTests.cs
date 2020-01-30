@@ -28,8 +28,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         public async Task Handle_ThenShouldReturnResultWithValues()
         {
             _fixture.SeedData();
-            await _fixture.Handle();
-            _fixture.VerifyResultMapping();
+             await _fixture.Handle();
+            _fixture.VerifyResultMapping(3);
         }
 
         [Test]
@@ -53,10 +53,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         [Test]
         public async Task Handle_ThenShouldReturnArrayWithMatchedStatus()
         {
-            _fixture.SeedData().ChangeStatusToRejectedInSeededData().WithRejectedStatus();
-            var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.ApprenticeshipUpdates.Count);
+            _fixture.SeedData().SetStatusRejectedForTheFirstApprenticeshipUpdate().WithRejectedStatus();
+            await _fixture.Handle();
+            _fixture.VerifyResultMapping(1);
         }
 
         [Test]
@@ -64,7 +63,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         {
             _fixture.SeedData(2);
             await _fixture.Handle();
-            _fixture.VerifyResultMapping();
+            _fixture.VerifyResultMapping(3);
+        }
+
+        [Test]
+        public async Task Handle_WhenStatusNull_ThenShouldReturnArrayWithMatchedApprenticeshipId()
+        {
+            _fixture.SeedData().SetStatusRejectedForTheFirstApprenticeshipUpdate().WithNullStatus();
+            await _fixture.Handle();
+            _fixture.VerifyResultMapping(3);
         }
 
         public class GetApprenticeshipUpdateHandlerTests_fixture
@@ -99,11 +106,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             {
                 _autofixture.Customizations.Add(new ApprenticeshipUpdateSpecimenBuilder());
                 _apprenticeshipUpdate = _autofixture.Create<List<ApprenticeshipUpdate>>();
+                _apprenticeshipUpdate.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.Status = Types.ApprenticeshipUpdateStatus.Pending;  z.Apprenticeship.Id = _apprenticeshipId; });
                 _db.ApprenticeshipUpdates.AddRange(_apprenticeshipUpdate);
-                _apprenticeshipUpdate.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.Status = Types.ApprenticeshipUpdateStatus.Pending; });
 
                 var additionalRecord = _autofixture.Create<List<ApprenticeshipUpdate>>();
-                additionalRecord.ForEach(z => z.ApprenticeshipId = ++count);
+                additionalRecord.ForEach(z => { z.ApprenticeshipId = ++count; z.Apprenticeship.Id = z.ApprenticeshipId; }) ;
                 _db.ApprenticeshipUpdates.AddRange(additionalRecord);
 
                 _db.SaveChanges();
@@ -122,13 +129,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
                 return this;
             }
 
+            internal GetApprenticeshipUpdateHandlerTests_fixture WithNullStatus()
+            {
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, null);
+                return this;
+            }
+
             public GetApprenticeshipUpdateHandlerTests_fixture WithNoMatchingApprenticeshipUpdatesForStatus()
             {
                 _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Approved);
                 return this;
             }
 
-            public GetApprenticeshipUpdateHandlerTests_fixture ChangeStatusToRejectedInSeededData()
+            public GetApprenticeshipUpdateHandlerTests_fixture SetStatusRejectedForTheFirstApprenticeshipUpdate()
             {
                 var apprenticeship = _db.ApprenticeshipUpdates.First(x => x.ApprenticeshipId == _apprenticeshipId && x.Status == Types.ApprenticeshipUpdateStatus.Pending);
                 apprenticeship.Status = Types.ApprenticeshipUpdateStatus.Rejected;
@@ -136,13 +149,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
                 return this;
             }
 
-            public void VerifyResultMapping()
+            public void VerifyResultMapping(int resultCount)
             {
-                Assert.AreEqual(3, _result.ApprenticeshipUpdates.Count);
+                Assert.AreEqual(resultCount, _result.ApprenticeshipUpdates.Count);
 
-                foreach (var sourceItem in _apprenticeshipUpdate)
+                foreach (var result in _result.ApprenticeshipUpdates)
                 {
-                    AssertEquality(sourceItem, _result.ApprenticeshipUpdates.Single(x => x.Id == sourceItem.Id));
+                    AssertEquality(_apprenticeshipUpdate.Single(x => x.Id == result.Id), result);
                 }
             }
         }

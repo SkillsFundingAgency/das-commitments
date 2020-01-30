@@ -331,12 +331,23 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetPriceEpisodesResponse>("api/apprenticeships/123/price-episodes", null, CancellationToken.None));
         }
 
-        [Test]
-        public async Task GetApprenticeshipUpdates_VerifyUrlAndData()
+        [TestCase(1, ApprenticeshipUpdateStatus.Approved)]
+        [TestCase(2, ApprenticeshipUpdateStatus.Deleted)]
+        [TestCase(3, ApprenticeshipUpdateStatus.Pending)]
+        [TestCase(4, ApprenticeshipUpdateStatus.Rejected)]
+        public async Task GetApprenticeshipUpdates_WithStatus_VerifyUrlAndData(int apprenticeshipId, ApprenticeshipUpdateStatus status)
         {
-            var request = new GetApprenticeshipUpdateRequest { ApprenticeshipId = 1, Status = ApprenticeshipUpdateStatus.Pending };
+            var request = new GetApprenticeshipUpdateRequest { ApprenticeshipId = apprenticeshipId, Status = status };
             await _fixture.CommitmentsApiClient.GetApprenticeshipUpdates(request);
-            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/1/apprenticeshipupdates?status={request.Status}", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{apprenticeshipId}/apprenticeshipupdates?status={status}", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprenticeshipUpdates_WithNullStatus_VerifyUrlAndData()
+        {
+            var request = new GetApprenticeshipUpdateRequest { ApprenticeshipId = 1 };
+            await _fixture.CommitmentsApiClient.GetApprenticeshipUpdates(request);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{request.ApprenticeshipId}/apprenticeshipupdates", null, CancellationToken.None));
         }
     }
 
