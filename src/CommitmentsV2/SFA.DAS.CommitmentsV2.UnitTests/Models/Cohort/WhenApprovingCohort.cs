@@ -349,9 +349,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             }
             
             ApprenticeshipBase apprenticeship = new DraftApprenticeship(draftApprenticeshipDetailsComposer.Create(), Party.Provider).Set(a => a.AgreementStatus, agreementStatus);
-            
             Cohort.Add(c => c.Apprenticeships, apprenticeship);
-            
             return this;
         }
 
