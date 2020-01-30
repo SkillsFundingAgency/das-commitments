@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
                 Reference = source.Reference,
-                PaymentStatus = source.PaymentStatus,
+                Status = source.Status,
                 StopDate = source.StopDate,
                 PauseDate = source.PauseDate,
                 EndpointAssessorName = source.EndpointAssessorName,
