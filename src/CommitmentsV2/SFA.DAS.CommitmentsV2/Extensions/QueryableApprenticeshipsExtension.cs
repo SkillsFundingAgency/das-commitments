@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -13,6 +14,28 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             if (filters == null)
             {
                 return apprenticeships;
+            }
+
+            if (!string.IsNullOrEmpty(filters.SearchTerm))
+            {
+                if(long.TryParse(filters.SearchTerm, out var result))
+                {
+                    apprenticeships = apprenticeships.Where(app =>
+                        app.Uln == filters.SearchTerm);
+                }
+                else
+                {
+                    var found = new List<Apprenticeship>();
+
+                    found.AddRange(apprenticeships.Where(app => 
+                        app.FirstName.StartsWith(filters.SearchTerm)));
+
+                    found.AddRange(apprenticeships.Where(app => 
+                        app.LastName.StartsWith(filters.SearchTerm)));
+
+                    apprenticeships = apprenticeships.Where(apprenticeship =>
+                        found.Any(foundApprentice => foundApprentice.Id == apprenticeship.Id));
+                }
             }
 
             if (!string.IsNullOrEmpty(filters?.EmployerName))

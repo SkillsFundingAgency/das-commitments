@@ -36,8 +36,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             dbTasks.AddRange(stringDbTasks);
             dbTasks.AddRange(dateDbTasks);
 
-            Task.WaitAll(dbTasks.ToArray<Task>());
-
+            Task.WaitAll(dbTasks.ToArray<Task>());
+
+
+
             return await Task.FromResult(new GetApprenticeshipsFilterValuesQueryResult
             {
                 EmployerNames = stringDbTasks[0].Result,
