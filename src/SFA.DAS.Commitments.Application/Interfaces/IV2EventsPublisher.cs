@@ -23,5 +23,6 @@ namespace SFA.DAS.Commitments.Application.Interfaces
         Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<int> paymentOrder);
         Task PublishBulkUploadIntoCohortCompleted(long providerId, long cohortId, uint numberOfApprentices);
         Task SendApproveTransferRequestCommand(long transferRequestId, DateTime approvedOn, UserInfo userInfo);
+        Task SendRejectTransferRequestCommand(long transferRequestId, DateTime rejectedOn, UserInfo userInfo);
     }
 }

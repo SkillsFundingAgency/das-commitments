@@ -193,6 +193,12 @@ namespace SFA.DAS.Commitments.Application.Services
             return SendCommandAndLog(command, $"TransferRequest Id {transferRequestId} approved");
         }
 
+        public Task SendRejectTransferRequestCommand(long transferRequestId, DateTime rejectedOn, UserInfo userInfo)
+        {
+            var command = new RejectTransferRequestCommand(transferRequestId, rejectedOn, userInfo);
+            return SendCommandAndLog(command, $"TransferRequest Id {transferRequestId} approved");
+        }
+
         private enum ApprenticePreChecks
         {
             NotRequired = 1,

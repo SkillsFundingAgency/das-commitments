@@ -13,7 +13,11 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Messaging.Interfaces;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 {
@@ -21,35 +25,21 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
     {
         private readonly AbstractValidator<RejectTransferRequestCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly ICurrentDateTime _currentDateTime;
-        private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
-        private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IMessagePublisher _messagePublisher;
         private readonly ICommitmentsLogger _logger;
-        private readonly CohortApprovalService _cohortApprovalService;
-        private readonly HistoryService _historyService;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
         public RejectTransferRequestCommandHandler(AbstractValidator<RejectTransferRequestCommand> validator,
-            ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository,
-            IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime,
-            IApprenticeshipEventsList apprenticeshipEventsList,
-            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator,
+            ICommitmentRepository commitmentRepository, 
             IMessagePublisher messagePublisher,
-            IHistoryRepository historyRepository,
             ICommitmentsLogger logger,
-            IApprenticeshipInfoService apprenticeshipInfoService)
+            IV2EventsPublisher v2EventsPublisher)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
-            _currentDateTime = currentDateTime;
-            _apprenticeshipEventsList = apprenticeshipEventsList;
-            _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _messagePublisher = messagePublisher;
             _logger = logger;
-            _historyService = new HistoryService(historyRepository);
-
-            _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
-                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, null);
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(RejectTransferRequestCommand command)
@@ -65,40 +55,10 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
 
-            _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderRejection.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
+            await _v2EventsPublisher.SendRejectTransferRequestCommand(command.TransferRequestId, DateTime.UtcNow,
+                new UserInfo {UserEmail = command.UserEmail, UserDisplayName = command.UserName});
 
-            await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
-                TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName);
-
-            await _commitmentRepository.ResetEditStatusToEmployer(command.CommitmentId);
-
-            await UpdateCommitmentObjectWithNewValues(commitment);
-
-            await Task.WhenAll(
-                 _cohortApprovalService.ResetApprenticeshipsAgreementStatuses(commitment),
-                 _historyService.Save(),
-                 PublishApprenticeshipUpdatedEvents(commitment),
-                 PublishRejectedMessage(command)
-            );
-        }
-
-        private async Task UpdateCommitmentObjectWithNewValues(Commitment commitment)
-        {
-            var updatedCommitment = await _commitmentRepository.GetCommitmentById(commitment.Id);
-            commitment.TransferApprovalStatus = updatedCommitment.TransferApprovalStatus;
-            commitment.TransferApprovalActionedByEmployerEmail = updatedCommitment.TransferApprovalActionedByEmployerEmail;
-            commitment.TransferApprovalActionedByEmployerName = updatedCommitment.TransferApprovalActionedByEmployerName;
-            commitment.TransferApprovalActionedOn = updatedCommitment.TransferApprovalActionedOn;
-            commitment.EditStatus = updatedCommitment.EditStatus;
-        }
-
-    private async Task PublishApprenticeshipUpdatedEvents(Commitment commitment)
-        {
-            commitment.Apprenticeships.ForEach(apprenticeship =>
-                _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED",
-                    _currentDateTime.Now, null)
-            );
-            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+            await PublishRejectedMessage(command);
         }
 
         private static void CheckAuthorization(RejectTransferRequestCommand message, Commitment commitment)
