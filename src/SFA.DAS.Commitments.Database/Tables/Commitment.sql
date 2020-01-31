@@ -80,9 +80,3 @@ CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderIsDeleted] on [dbo].[Commitment
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderDeletedLegalEntityName_Filter] ON [dbo].[Commitment] ([ProviderId],[IsDeleted]) INCLUDE ([LegalEntityName]) WITH (ONLINE=ON)
 GO
-CREATE NONCLUSTERED INDEX [IX_Commitment_IsApprovedTrainingName_Filter] ON [dbo].[Apprenticeship] ([IsApproved]) INCLUDE ([CommitmentId],[TrainingName]) WITH (ONLINE = ON)
-GO
-CREATE NONCLUSTERED INDEX [IX_Commitment_IsApprovedStartDate_Filter] ON [dbo].[Apprenticeship] ([IsApproved],[StartDate]) INCLUDE ([CommitmentId]) WITH (ONLINE=ON)
-GO
-CREATE NONCLUSTERED INDEX [IX_Commitment_IsApprovedEndDate_Filter] ON [dbo].[Apprenticeship] ([IsApproved],[EndDate]) INCLUDE ([CommitmentId]) WITH (ONLINE=ON)
-GO
