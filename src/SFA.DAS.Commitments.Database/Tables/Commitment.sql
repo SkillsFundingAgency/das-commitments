@@ -77,3 +77,6 @@ CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderIsDeleted] on [dbo].[Commitment
 	[IsFullApprovalProcessed] ,
     [AccountLegalEntityId] ) WITH (ONLINE = ON)
 	GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderDeletedLegalEntityName_Filter] ON [dbo].[Commitment] ([ProviderId],[IsDeleted]) INCLUDE ([LegalEntityName]) WITH (ONLINE=ON)
+GO
