@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -10,25 +11,28 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateControllerTests
 {
     [TestFixture]
     [Parallelizable]
-    public class GetPendingUpdateTests
+    public class GetApprenticeshipUpdatesTests
     {
-        private GetPendingUpdateTestsFixture _fixture;
+        private GetApprenticeshipUpdatesTestsFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new GetPendingUpdateTestsFixture();
+            _fixture = new GetApprenticeshipUpdatesTestsFixture();
         }
 
-        [Test]
-        public async Task WhenGetUpdateRequestReceived_ThenShouldPassApprenticeIdAndStatusToQuery()
+        [TestCase(ApprenticeshipUpdateStatus.Approved)]
+        [TestCase(ApprenticeshipUpdateStatus.Deleted)]
+        [TestCase(ApprenticeshipUpdateStatus.Pending)]
+        public async Task WhenGetUpdateRequestReceived_ThenShouldPassApprenticeIdAndStatusToQuery(ApprenticeshipUpdateStatus status)
         {
-            await _fixture.GetApprenticeshipUpdates();
+            await _fixture.SetStatus(status).GetApprenticeshipUpdates();
             _fixture.VerifyApprenticeshipIdAndStatusPassedToQuery();
         }
 
@@ -46,19 +50,33 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
             _fixture.VerifyResult();
         }
 
-        private class GetPendingUpdateTestsFixture
+        [Test]
+        public async Task WhenGetAllUpdatesRequestReceived_ThenShouldPassApprenticeIdAndNullStatusToQuery()
+        {
+            await _fixture.SetStatus(null).GetApprenticeshipUpdates();
+            _fixture.VerifyApprenticeshipIdAndStatusPassedToQuery();
+        }
+
+        [Test]
+        public async Task WhenGetAllUpdatesRequestReceived_ThenShouldReturnResponse()
+        {
+            await _fixture.SetStatus(null).GetApprenticeshipUpdates();
+            _fixture.VerifyResult();
+        }
+
+        private class GetApprenticeshipUpdatesTestsFixture
         {
             public IFixture AutoFixture { get; }
             public Mock<IMediator> Mediator { get; }
             public Mock<IModelMapper> ModelMapper { get; }
             public ApprenticeshipUpdateController Controller { get; }
             public long ApprenticeshipId { get; }
-            public CommitmentsV2.Types.ApprenticeshipUpdateStatus Status { get; }
-            public GetApprenticeshipUpdateQueryResult QueryResult { get; internal set; }
-            public GetApprenticeshipUpdatesResponse MapperResult { get; internal set; }
+            public CommitmentsV2.Types.ApprenticeshipUpdateStatus? Status { get; private set; }
+            public GetApprenticeshipUpdateQueryResult QueryResult { get; private set; }
+            public GetApprenticeshipUpdatesResponse MapperResult { get; private set; }
             public IActionResult Result { get; private set; }
 
-            public GetPendingUpdateTestsFixture()
+            public GetApprenticeshipUpdatesTestsFixture()
             {
                 AutoFixture = new Fixture();
 
@@ -79,7 +97,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
                 Controller = new ApprenticeshipUpdateController(Mediator.Object, ModelMapper.Object);
             }
 
-            public GetPendingUpdateTestsFixture WithNoPendingUpdateFound()
+            public GetApprenticeshipUpdatesTestsFixture WithNoPendingUpdateFound()
             {
                 QueryResult = new GetApprenticeshipUpdateQueryResult { ApprenticeshipUpdates = new List<GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate>() };
                 Mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipUpdateQuery>(), It.IsAny<CancellationToken>()))
@@ -89,6 +107,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
                 ModelMapper.Setup(x => x.Map<GetApprenticeshipUpdatesResponse>(It.Is<GetApprenticeshipUpdateQueryResult>(r => r == QueryResult)))
                    .ReturnsAsync(MapperResult);
 
+                return this;
+            }
+
+            internal GetApprenticeshipUpdatesTestsFixture SetStatus(ApprenticeshipUpdateStatus? status)
+            {
+                Status = status;
                 return this;
             }
 
