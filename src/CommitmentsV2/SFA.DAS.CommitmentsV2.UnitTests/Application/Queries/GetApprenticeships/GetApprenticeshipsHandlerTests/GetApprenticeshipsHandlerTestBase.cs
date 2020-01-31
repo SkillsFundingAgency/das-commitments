@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 {
     public abstract class GetApprenticeshipsHandlerTestBase
     {
-        protected static List<Apprenticeship> GetTestApprenticeships(GetApprenticeshipsQuery query)
+        protected static List<Apprenticeship> GetTestApprenticeshipsWithAlerts(GetApprenticeshipsQuery query)
         {
             var apprenticeships = new List<Apprenticeship>
             {
@@ -35,6 +35,89 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Cohort = new Cohort {LegalEntityName = "Employer"},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
+                },
+                new Apprenticeship
+                {
+                    FirstName = "C",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = query.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
+                },
+                new Apprenticeship
+                {
+                    FirstName = "D",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = query.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "E",
+                    LastName = "Fog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = query.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "F",
+                    LastName = "Fog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = query.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>()
+                }
+            };
+
+            AssignProviderToApprenticeships(query.ProviderId, apprenticeships);
+
+            return apprenticeships;
+        }
+
+         protected static List<Apprenticeship> GetTestApprenticeshipsWithoutAlerts(GetApprenticeshipsQuery query)
+        {
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    FirstName = "A",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = query.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "B",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = query.ProviderId.ToString(),
+                    Cohort = new Cohort {LegalEntityName = "Employer"},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
                 {

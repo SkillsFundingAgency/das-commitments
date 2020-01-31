@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
@@ -8,7 +7,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprenticesFilterValues
@@ -61,33 +59,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.CourseNames.Should().BeEquivalentTo(expectedCourseNames);
-        }
-
-        [Test, RecursiveMoqAutoData]
-        public async Task Then_Returns_All_Distinct_Statuses(
-            GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-            GetApprenticeshipsFilterValuesQueryHandler handler)
-        {
-            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].Cohort.CommitmentStatus = approvedApprenticeships[1].Cohort.CommitmentStatus;
-
-            var expectedStatuses = new[]
-                {
-                    Enum.GetName(typeof(CommitmentStatus), approvedApprenticeships[0].Cohort.CommitmentStatus),
-                    Enum.GetName(typeof(CommitmentStatus), approvedApprenticeships[1].Cohort.CommitmentStatus)
-                };
-
-            mockContext
-                .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(approvedApprenticeships);
-
-            var result = await handler.Handle(query, CancellationToken.None);
-
-            result.Statuses.Should().BeEquivalentTo(expectedStatuses);
         }
 
         [Test, RecursiveMoqAutoData]

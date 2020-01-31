@@ -23,8 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             var stringDbTasks = new []{
                 GetDistinctEmployerNames(request, cancellationToken),
-                GetDistinctCourseNames(request, cancellationToken),
-                GetDistinctStatuses(request, cancellationToken)
+                GetDistinctCourseNames(request, cancellationToken)
             };
 
             var dateDbTasks = new[]{
@@ -37,12 +36,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             dbTasks.AddRange(dateDbTasks);
 
             Task.WaitAll(dbTasks.ToArray<Task>());
-
             return await Task.FromResult(new GetApprenticeshipsFilterValuesQueryResult
             {
                 EmployerNames = stringDbTasks[0].Result,
                 CourseNames = stringDbTasks[1].Result,
-                Statuses = stringDbTasks[2].Result,
                 StartDates = dateDbTasks[0].Result,
                 EndDates = dateDbTasks[1].Result
             });
@@ -51,7 +48,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         private Task<List<string>> GetDistinctEmployerNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return _dbContext.Apprenticeships
-                .Include(apprenticeship => apprenticeship.Cohort)
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
                 .Select(apprenticeship => apprenticeship.Cohort.LegalEntityName)
                 .Distinct()
@@ -64,17 +60,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
                 .Select(apprenticeship => apprenticeship.CourseName)
                 .Distinct()
-                .ToListAsync(cancellationToken);
-        }
-
-        private Task<List<string>> GetDistinctStatuses(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
-        {
-            return _dbContext.Apprenticeships
-                .Include(apprenticeship => apprenticeship.Cohort)
-                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
-                .Select(apprenticeship => apprenticeship.Cohort.CommitmentStatus)
-                .Distinct()
-                .Select(status => Enum.GetName(typeof(CommitmentStatus), status))
                 .ToListAsync(cancellationToken);
         }
 
@@ -92,7 +77,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         private Task<List<DateTime>> GetDistinctEndDates(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return _dbContext.Apprenticeships
-                .Include(apprenticeship => apprenticeship.Cohort)
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId &&
                                          apprenticeship.EndDate.HasValue)
                 .Select(apprenticeship => apprenticeship.EndDate.Value)

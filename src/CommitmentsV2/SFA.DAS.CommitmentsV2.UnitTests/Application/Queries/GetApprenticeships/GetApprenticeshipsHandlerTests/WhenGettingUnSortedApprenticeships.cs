@@ -204,11 +204,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
-            var apprenticeships = GetTestApprenticeships(request);
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(request);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
+            
             var handler = new GetApprenticeshipsQueryHandler(mockContext.Object, mapper);
 
             //Act
@@ -233,7 +234,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
-            var apprenticeships = GetTestApprenticeships(request);
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(request);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -260,7 +261,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
-            var apprenticeships = GetTestApprenticeships(request);
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(request);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -272,7 +273,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await handler.Handle(request, CancellationToken.None);
 
             //Assert
-            Assert.AreEqual(2, actual.TotalApprenticeshipsWithAlertsFound);
+            Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);
         }
 
         [Test, MoqAutoData]
@@ -284,7 +285,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
 
-            var apprenticeships = GetTestApprenticeships(query);
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(query);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
