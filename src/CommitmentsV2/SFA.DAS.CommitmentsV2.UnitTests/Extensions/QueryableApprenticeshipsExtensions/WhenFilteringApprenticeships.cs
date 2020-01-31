@@ -143,7 +143,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         public void ThenShouldFilterStatus()
         {
             //Arrange
-            const PaymentStatus filterValue = PaymentStatus.Active;
+            var filterValue = ApprenticeshipStatus.Completed.MapToPaymentStatuses().First();
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -162,7 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             var filterValues = new ApprenticeshipSearchFilters
-                {Status = Enum.GetName(typeof(PaymentStatus), filterValue)};
+                {Status = ApprenticeshipStatus.Completed};
 
             //Act
             var result = apprenticeships.Filter(filterValues).ToList();
@@ -176,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         public void ThenShouldFilterStatusEvenWhenSomePaymentStatusesDoNotExist()
         {
             //Arrange
-            const PaymentStatus filterValue = PaymentStatus.Active;
+            var filterValue = ApprenticeshipStatus.Completed.MapToPaymentStatuses().First();
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -192,7 +192,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             var filterValues = new ApprenticeshipSearchFilters
-                {Status = Enum.GetName(typeof(PaymentStatus), filterValue)};
+                {Status = ApprenticeshipStatus.Completed};
 
             //Act
             var result = apprenticeships.Filter(filterValues).ToList();

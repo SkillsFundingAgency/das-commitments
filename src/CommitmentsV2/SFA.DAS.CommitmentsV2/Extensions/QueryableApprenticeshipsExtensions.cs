@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
 {
-    public static class QueryableApprenticeshipsExtension
+    public static class QueryableApprenticeshipsExtensions
     {
         public static IQueryable<Apprenticeship> Filter(this IQueryable<Apprenticeship> apprenticeships,
             ApprenticeshipSearchFilters filters)
@@ -15,19 +13,21 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 return apprenticeships;
             }
 
-            if (!string.IsNullOrEmpty(filters?.EmployerName))
+            if (!string.IsNullOrEmpty(filters.EmployerName))
             {
                 apprenticeships = apprenticeships.Where(app => app.Cohort != null && filters.EmployerName.Equals(app.Cohort.LegalEntityName));
             }
 
-            if (!string.IsNullOrEmpty(filters?.CourseName))
+            if (!string.IsNullOrEmpty(filters.CourseName))
             {
                 apprenticeships = apprenticeships.Where(app => filters.CourseName.Equals(app.CourseName));
             }
 
-            if (!string.IsNullOrEmpty(filters?.Status) && Enum.TryParse(filters.Status, out PaymentStatus paymentStatus))
+            if (filters.Status.HasValue)
             {
-                apprenticeships = apprenticeships.Where(app => paymentStatus.Equals(app.PaymentStatus));
+                var paymentStatuses = filters.Status.Value.MapToPaymentStatuses();
+
+                apprenticeships = apprenticeships.Where(app => paymentStatuses.Any(s => s.Equals(app.PaymentStatus)));
             }
 
             if (filters.StartDate.HasValue)

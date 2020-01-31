@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ApprenticeshipSearchFilters
 {
@@ -43,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ApprenticeshipSearchFilters
             //Arrange
             var filters = new CommitmentsV2.Models.ApprenticeshipSearchFilters
             {
-                Status = "Test"
+                Status = ApprenticeshipStatus.Completed
             };
 
             //Act
