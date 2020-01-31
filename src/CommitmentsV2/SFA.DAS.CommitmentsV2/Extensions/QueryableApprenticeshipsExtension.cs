@@ -25,16 +25,18 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 }
                 else
                 {
-                    var found = new List<Apprenticeship>();
+                    var found = new List<long>();
 
                     found.AddRange(apprenticeships.Where(app => 
-                        app.FirstName.StartsWith(filters.SearchTerm)));
+                        app.FirstName.StartsWith(filters.SearchTerm))
+                        .Select(apprenticeship => apprenticeship.Id));
 
                     found.AddRange(apprenticeships.Where(app => 
-                        app.LastName.StartsWith(filters.SearchTerm)));
+                        app.LastName.StartsWith(filters.SearchTerm))
+                        .Select(apprenticeship => apprenticeship.Id));
 
                     apprenticeships = apprenticeships.Where(apprenticeship =>
-                        found.Any(foundApprentice => foundApprentice.Id == apprenticeship.Id));
+                        found.Contains(apprenticeship.Id));
                 }
             }
 
