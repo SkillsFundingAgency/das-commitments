@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             {
                 var paymentStatuses = filters.Status.Value.MapToPaymentStatuses();
 
-                apprenticeships = apprenticeships.Where(app => paymentStatuses.Any(s => s.Equals(app.PaymentStatus)));
+                apprenticeships = apprenticeships.Where(app => paymentStatuses.Contains(app.PaymentStatus));
             }
 
             if (filters.StartDate.HasValue)
