@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
 {
@@ -25,9 +27,18 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
             if (filters.Status.HasValue)
             {
-                var paymentStatuses = filters.Status.Value.MapToPaymentStatuses();
+                var paymentStatuses = filters.Status.Value.MapToPaymentStatus();
 
-                apprenticeships = apprenticeships.Where(app => paymentStatuses.Contains(app.PaymentStatus));
+                apprenticeships = apprenticeships.Where(app => paymentStatuses == app.PaymentStatus);
+                switch (filters.Status)
+                {
+                    case ApprenticeshipStatus.WaitingToStart:
+                        apprenticeships = apprenticeships.Where(c => c.StartDate.HasValue && c.StartDate >= DateTime.UtcNow);
+                        break;
+                    case ApprenticeshipStatus.Live:
+                        apprenticeships = apprenticeships.Where(c => c.StartDate.HasValue && c.StartDate <= DateTime.UtcNow);
+                        break;
+                }
             }
 
             if (filters.StartDate.HasValue)

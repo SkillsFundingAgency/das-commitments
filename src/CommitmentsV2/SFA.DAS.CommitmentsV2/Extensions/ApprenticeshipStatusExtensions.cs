@@ -5,25 +5,19 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 {
     public static class ApprenticeshipStatusExtensions
     {
-        public static PaymentStatus[] MapToPaymentStatuses(this ApprenticeshipStatus status)
+        public static PaymentStatus MapToPaymentStatus(this ApprenticeshipStatus status)
         {
             switch (status)
             {
                 case ApprenticeshipStatus.WaitingToStart:
-                    return new[] {PaymentStatus.PendingApproval, PaymentStatus.Active};
-
                 case ApprenticeshipStatus.Live:
-                    return new[] {PaymentStatus.Active, PaymentStatus.Deleted};
-
+                    return PaymentStatus.Active;
                 case ApprenticeshipStatus.Paused:
-                    return new[] {PaymentStatus.Paused};
-
+                    return PaymentStatus.Paused;
                 case ApprenticeshipStatus.Stopped:
-                    return new[] {PaymentStatus.Withdrawn};
-
+                    return PaymentStatus.Withdrawn;
                 case ApprenticeshipStatus.Completed:
-                    return new[] {PaymentStatus.Completed};
-
+                    return PaymentStatus.Completed;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(status), status, null);
             }

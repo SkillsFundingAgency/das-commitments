@@ -1,25 +1,34 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.ApprenticeshipStatusExtensions
 {
+    [Parallelizable]
     public class WhenMappingToPaymentStatus
     {
 
-        [TestCase(ApprenticeshipStatus.WaitingToStart, new[]{PaymentStatus.PendingApproval, PaymentStatus.Active})]
-        [TestCase(ApprenticeshipStatus.Paused, new[]{PaymentStatus.Paused})]
-        [TestCase(ApprenticeshipStatus.Stopped, new[]{PaymentStatus.Withdrawn})]
-        [TestCase(ApprenticeshipStatus.Completed, new[]{PaymentStatus.Completed})]
-        [TestCase(ApprenticeshipStatus.Live, new[]{PaymentStatus.Active, PaymentStatus.Deleted})]
-        public void ShouldMapToCorrectValue(ApprenticeshipStatus source, PaymentStatus[] target)
+        [TestCase(ApprenticeshipStatus.WaitingToStart, PaymentStatus.Active)]
+        [TestCase(ApprenticeshipStatus.Paused, PaymentStatus.Paused)]
+        [TestCase(ApprenticeshipStatus.Stopped, PaymentStatus.Withdrawn)]
+        [TestCase(ApprenticeshipStatus.Completed, PaymentStatus.Completed)]
+        [TestCase(ApprenticeshipStatus.Live, PaymentStatus.Active)]
+        public void ShouldMapToCorrectValue(ApprenticeshipStatus source, PaymentStatus target)
         {
             //Act
-            var result = source.MapToPaymentStatuses();
+            var result = source.MapToPaymentStatus();
 
             //Assert
             Assert.AreEqual(target, result);
+        }
+
+        [Test]
+        public void Then_Throws_Exception_When_Cant_Map()
+        {
+            //Act Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() => ((ApprenticeshipStatus)9).MapToPaymentStatus());
         }
     }
 }
