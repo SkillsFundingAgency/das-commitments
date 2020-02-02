@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues
@@ -13,36 +14,51 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
     public class GetApprenticeshipsFilterValuesQueryHandler : IRequestHandler<GetApprenticeshipsFilterValuesQuery, GetApprenticeshipsFilterValuesQueryResult>
     {
         private readonly IProviderCommitmentsDbContext _dbContext;
+        private readonly ICacheStorageService _cacheStorageService;
 
-        public GetApprenticeshipsFilterValuesQueryHandler(IProviderCommitmentsDbContext dbContext)
+        public GetApprenticeshipsFilterValuesQueryHandler(IProviderCommitmentsDbContext dbContext, ICacheStorageService cacheStorageService)
         {
             _dbContext = dbContext;
+            _cacheStorageService = cacheStorageService;
         }
 
-        public async Task<GetApprenticeshipsFilterValuesQueryResult> Handle(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        public async Task<GetApprenticeshipsFilterValuesQueryResult> Handle(GetApprenticeshipsFilterValuesQuery query, CancellationToken cancellationToken)
         {
+            var cacheKey = $"{nameof(GetApprenticeshipsFilterValuesQueryResult)}-{query.ProviderId}";
+            var result = await _cacheStorageService.RetrieveFromCache<GetApprenticeshipsFilterValuesQueryResult>(cacheKey);
+
+            if(result != null)
+            {
+                return result;
+            }
+
             var stringDbTasks = new []{
-                GetDistinctEmployerNames(request, cancellationToken),
-                GetDistinctCourseNames(request, cancellationToken)
+                GetDistinctEmployerNames(query, cancellationToken),
+                GetDistinctCourseNames(query, cancellationToken)
             };
 
             var dateDbTasks = new[]{
-               GetDistinctStartDates(request, cancellationToken),
-               GetDistinctEndDates(request, cancellationToken)
+               GetDistinctStartDates(query, cancellationToken),
+               GetDistinctEndDates(query, cancellationToken)
             };
 
             var dbTasks = new List<Task>();
             dbTasks.AddRange(stringDbTasks);
             dbTasks.AddRange(dateDbTasks);
 
-            Task.WaitAll(dbTasks.ToArray<Task>());
-            return await Task.FromResult(new GetApprenticeshipsFilterValuesQueryResult
+            Task.WaitAll(dbTasks.ToArray<Task>());
+
+            var queryResult = await Task.FromResult(new GetApprenticeshipsFilterValuesQueryResult
             {
                 EmployerNames = stringDbTasks[0].Result,
                 CourseNames = stringDbTasks[1].Result,
                 StartDates = dateDbTasks[0].Result,
                 EndDates = dateDbTasks[1].Result
             });
+
+            await _cacheStorageService.SaveToCache(cacheKey, queryResult, 1);
+
+            return queryResult;
         }
 
         private Task<List<string>> GetDistinctEmployerNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
