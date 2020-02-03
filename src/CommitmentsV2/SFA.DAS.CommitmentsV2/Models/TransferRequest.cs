@@ -23,7 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public decimal? FundingCap { get; set; }
         public virtual Cohort Cohort { get; set; }
 
-
         public void Approve(UserInfo userInfo, DateTime now)
         {
             if (Status != TransferApprovalStatus.Pending)
@@ -40,6 +39,24 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
 
             Publish(() => new TransferRequestApprovedEvent(Id, Cohort.Id, now, userInfo));
+        }
+
+        public void Reject(UserInfo userInfo, DateTime rejectedOn)
+        {
+            if (Status != TransferApprovalStatus.Pending)
+            {
+                throw new InvalidOperationException($"The TransferRequest {Id} is not in a Pending State and has a current status of {Status}");
+            }
+
+            StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, Cohort.EmployerAccountId, Cohort.ProviderId.Value, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+            TransferApprovalActionedByEmployerName = userInfo.UserDisplayName;
+            TransferApprovalActionedByEmployerEmail = userInfo.UserEmail;
+            Status = TransferApprovalStatus.Rejected;
+            TransferApprovalActionedOn = rejectedOn;
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish( () => new TransferRequestRejectedEvent(Id, Cohort.Id, rejectedOn, userInfo));
         }
     }
 }
