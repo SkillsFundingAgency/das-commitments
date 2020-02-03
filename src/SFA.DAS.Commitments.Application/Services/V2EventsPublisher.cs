@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
+using Message = SFA.DAS.Commitments.Domain.Entities.Message;
 
 namespace SFA.DAS.Commitments.Application.Services
 {
@@ -187,7 +188,27 @@ namespace SFA.DAS.Commitments.Application.Services
             return PublishWithLog(@event, $"Provider: {providerId} CohortId: {cohortId} Number of apprentices: {numberOfApprentices}");
         }
 
-        public Task SendApproveTransferRequestCommand(long transferRequestId, DateTime approvedOn, UserInfo userInfo)
+        public async Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo)
+        {
+            await _endpointInstance.Send<ProviderApproveCohortCommand>(ev =>
+            {
+                ev.CohortId = cohortId;
+                ev.UserInfo = userInfo;
+                ev.Message = message;
+            });
+        }
+
+        public async Task SendProviderSendCohortCommand(long cohortId, string message, UserInfo userInfo)
+        {
+            await _endpointInstance.Send<ProviderSendCohortCommand>(ev =>
+            {
+                ev.CohortId = cohortId;
+                ev.UserInfo = userInfo;
+                ev.Message = message;
+            });
+        }
+		
+		  public Task SendApproveTransferRequestCommand(long transferRequestId, DateTime approvedOn, UserInfo userInfo)
         {
             var command = new ApproveTransferRequestCommand(transferRequestId, approvedOn, userInfo);
             return SendCommandAndLog(command, $"TransferRequest Id {transferRequestId} approved");

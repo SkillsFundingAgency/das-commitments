@@ -15,12 +15,14 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Messaging.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
+using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 {
@@ -34,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IMessagePublisher _messagePublisher;
         private readonly INotificationsPublisher _notificationsPublisher;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
         private readonly ICommitmentsLogger _logger;
         private readonly AbstractValidator<UpdateCommitmentAgreementCommand> _validator;
@@ -41,7 +44,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, 
             IApprenticeshipUpdateRules apprenticeshipUpdateRules, ICommitmentsLogger logger, AbstractValidator<UpdateCommitmentAgreementCommand> validator, 
             IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IHistoryRepository historyRepository, 
-            IMessagePublisher messagePublisher, INotificationsPublisher notificationsPublisher)
+            IMessagePublisher messagePublisher, INotificationsPublisher notificationsPublisher, IV2EventsPublisher v2EventsPublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -51,14 +54,18 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _historyRepository = historyRepository;
             _messagePublisher = messagePublisher;
             _notificationsPublisher = notificationsPublisher;
+            _v2EventsPublisher = v2EventsPublisher;
             _logger = logger;
             _validator = validator;
         }
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand command)
         {
-            bool ProviderHasAmendedCohort() => command.Caller.CallerType == CallerType.Provider &&
-                                         command.LatestAction != LastAction.None;
+            if (command.Caller.CallerType == CallerType.Employer)
+            {
+                throw new InvalidOperationException(
+                    "Method obsolete for Employer: Cohort Send functionality now handled in v2 API.");
+            }
 
             _validator.ValidateAndThrow(command);
 
@@ -67,26 +74,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
 
             CheckCommitmentCanBeUpdated(command, commitment);
-            
-            var providerHasPreviouslyApprovedCommitment = commitment.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed);
 
-            var updatedApprenticeships = await UpdateApprenticeshipAgreementStatuses(command, commitment, command.LatestAction);
-
-            var anyApprenticeshipsPendingAgreement = commitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
-            await UpdateCommitmentStatuses(command, commitment, anyApprenticeshipsPendingAgreement, command.LatestAction);
-            await CreateCommitmentMessage(command, commitment);
-
-            await PublishEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
-
-            if (ApprovedCommitmentIsBeingReturnedToProvider(command, providerHasPreviouslyApprovedCommitment))
+            var userInfo = new UserInfo
             {
-                await _messagePublisher.PublishAsync(new ApprovedCohortReturnedToProvider(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
-            }
+                UserDisplayName = command.LastUpdatedByName,
+                UserEmail = command.LastUpdatedByEmail,
+                UserId = command.UserId
+            };
 
-            if (ProviderHasAmendedCohort())
-            {
-                await _notificationsPublisher.ProviderAmendedCohort(commitment);
-            }
+            await _v2EventsPublisher.SendProviderSendCohortCommand(command.CommitmentId, command.Message, userInfo);
         }
 
         private static void CheckCommitmentCanBeUpdated(UpdateCommitmentAgreementCommand command, Commitment commitment)
