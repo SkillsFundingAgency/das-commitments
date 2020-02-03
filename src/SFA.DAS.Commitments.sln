@@ -147,6 +147,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Employer", "Employer", "{06
 		EmployerCohortApproved.txt = EmployerCohortApproved.txt
 		EmployerCohortNotification.txt = EmployerCohortNotification.txt
 		EmployerTransferPendingFinalApproval.txt = EmployerTransferPendingFinalApproval.txt
+		SenderApprovedCommitmentEmployerNotification.txt = SenderApprovedCommitmentEmployerNotification.txt
+		SenderRejectedCommitmentEmployerNotification.txt = SenderRejectedCommitmentEmployerNotification.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Provider", "Provider", "{03AFF74E-D0F7-4A38-8CA6-746F8F47EBC4}"
+	ProjectSection(SolutionItems) = preProject
+		SenderApprovedCommitmentProviderNotification.txt = SenderApprovedCommitmentProviderNotification.txt
+		SenderRejectedCommitmentProviderNotification.txt = SenderRejectedCommitmentProviderNotification.txt
 	EndProjectSection
 EndProject
 Global
@@ -419,6 +427,7 @@ Global
 		{FE32E9B9-43DA-4B52-B14D-86BD449B265C} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{102B4BAE-0F8B-4135-A5D0-F692C775EAF0} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{06B3E9C9-3956-4ACC-B28E-F1B05E88E0E9} = {46E55DE2-FF6C-4D97-8651-A62F62820290}
+		{03AFF74E-D0F7-4A38-8CA6-746F8F47EBC4} = {46E55DE2-FF6C-4D97-8651-A62F62820290}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}
