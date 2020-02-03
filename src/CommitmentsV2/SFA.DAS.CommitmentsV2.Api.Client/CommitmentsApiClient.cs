@@ -183,9 +183,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 filterQuery += $"&courseName={WebUtility.UrlEncode(request.CourseName)}";
             }
 
-            if (!string.IsNullOrEmpty(request.Status))
+            if (request.Status.HasValue)
             {
-                filterQuery += $"&status={WebUtility.UrlEncode(request.Status)}";
+                filterQuery += $"&status={WebUtility.UrlEncode(request.Status.Value.ToString())}";
             }
 
             if (request.StartDate.HasValue)

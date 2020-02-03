@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using Xunit.Extensions.AssertExtensions;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExtension
+namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExtensions
 {
     public class WhenFilteringApprenticeships
     {
@@ -143,7 +145,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         public void ThenShouldFilterStatus()
         {
             //Arrange
-            const PaymentStatus filterValue = PaymentStatus.Active;
+            var filterValue = ApprenticeshipStatus.Completed.MapToPaymentStatus();
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -162,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             var filterValues = new ApprenticeshipSearchFilters
-                {Status = Enum.GetName(typeof(PaymentStatus), filterValue)};
+                {Status = ApprenticeshipStatus.Completed};
 
             //Act
             var result = apprenticeships.Filter(filterValues).ToList();
@@ -173,10 +175,84 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         }
 
         [Test]
+        public void Then_If_Filtering_By_Waiting_To_Start_Adds_Date_Range()
+        {
+            //Arrange
+            var expectedApprenticeship = new Apprenticeship
+            {
+                Id = 3,
+                PaymentStatus = PaymentStatus.Active,
+                StartDate = DateTime.UtcNow.AddMonths(1)
+            };
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Id = 1,
+                    PaymentStatus = PaymentStatus.Completed
+                },
+                new Apprenticeship
+                {
+                    Id = 2,
+                    PaymentStatus = PaymentStatus.Active,
+                    StartDate = DateTime.UtcNow.AddMonths(-1)
+                },
+                expectedApprenticeship
+            }.AsQueryable();
+
+            var filterValues = new ApprenticeshipSearchFilters
+                { Status = ApprenticeshipStatus.WaitingToStart };
+
+            //Act
+            var result = apprenticeships.Filter(filterValues).ToList();
+
+            //Assert
+            Assert.AreEqual(1, result.Count);
+            result.Should().AllBeEquivalentTo(expectedApprenticeship);
+        }
+
+        [Test]
+        public void Then_If_Filtering_By_Live_Adds_Date_Range()
+        {
+            //Arrange
+            var expectedApprenticeship = new Apprenticeship
+            {
+                Id = 2,
+                PaymentStatus = PaymentStatus.Active,
+                StartDate = DateTime.UtcNow.AddMonths(-1)
+            };
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Id = 1,
+                    PaymentStatus = PaymentStatus.Completed
+                },
+                expectedApprenticeship,
+                new Apprenticeship
+                {
+                    Id = 3,
+                    PaymentStatus = PaymentStatus.Active,
+                    StartDate = DateTime.UtcNow.AddMonths(1)
+                }
+            }.AsQueryable();
+
+            var filterValues = new ApprenticeshipSearchFilters
+                { Status = ApprenticeshipStatus.Live };
+
+            //Act
+            var result = apprenticeships.Filter(filterValues).ToList();
+
+            //Assert
+            Assert.AreEqual(1, result.Count);
+            result.Should().AllBeEquivalentTo(expectedApprenticeship);
+        }
+
+        [Test]
         public void ThenShouldFilterStatusEvenWhenSomePaymentStatusesDoNotExist()
         {
             //Arrange
-            const PaymentStatus filterValue = PaymentStatus.Active;
+            var filterValue = ApprenticeshipStatus.Completed.MapToPaymentStatus();
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -192,7 +268,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             var filterValues = new ApprenticeshipSearchFilters
-                {Status = Enum.GetName(typeof(PaymentStatus), filterValue)};
+                {Status = ApprenticeshipStatus.Completed};
 
             //Act
             var result = apprenticeships.Filter(filterValues).ToList();
