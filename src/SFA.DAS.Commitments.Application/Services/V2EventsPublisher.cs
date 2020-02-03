@@ -270,8 +270,6 @@ namespace SFA.DAS.Commitments.Application.Services
             }
         }
 
-
-
         private void DoPreChecks<TEvent>(ApprenticePreChecks checks, Apprenticeship apprenticeship) where TEvent : class
         {
             void DoCheckIf(ApprenticePreChecks qualifyingFlag, Action check)
