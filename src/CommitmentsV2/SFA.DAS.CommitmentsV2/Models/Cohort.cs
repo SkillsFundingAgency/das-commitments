@@ -657,5 +657,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                 return approvals;
             }
         }
+
+        public void TransferRequestRejectedReturnCohortToEmployer()
+        {
+            CheckIsWithParty(Party.TransferSender);
+            EditStatus = EditStatus.EmployerOnly;
+        }
     }
 }

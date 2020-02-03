@@ -14,9 +14,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     public class TransferRequestApprovedEventHandler : IHandleMessages<TransferRequestApprovedEvent>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<TransferRequestCreatedEvent> _logger;
+        private readonly ILogger<TransferRequestApprovedEvent> _logger;
 
-        public TransferRequestApprovedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestCreatedEvent> logger)
+        public TransferRequestApprovedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestApprovedEvent> logger)
         {
             _dbContext = dbContext;
             _logger = logger;

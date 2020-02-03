@@ -8,6 +8,7 @@ using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -19,37 +20,45 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
     [TestFixture]
     [Parallelizable]
-    public class TransferRequestApprovedEventHandlerTests
+    public class TransferRequestRejectedEventHandlerTests
     {
         [Test]
-        public async Task Handle_WhenHandlingTransferRequestApprovedEvent_ThenShouldFindCohortAndSetTransferApprovalProperties()
+        public async Task Handle_WhenHandlingTransferRequestRejectedEvent_ThenShouldFindCohortAndResetCohortToBeWithEmployer()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture().AddCohortToMemoryDb();
+            var f = new TransferRequestRejectedEventHandlerTestsFixture().AddCohortToMemoryDb();
             await f.Handle();
-            f.VerifyCohortApprovalPropertiesAreSet();
+            f.VerifyCohortIsWithEmployer();
         }
 
         [Test]
-        public void Handle_WhenHandlingTransferRequestApprovedEventAndItThrowsException_ThenWelogErrorAndRethrowError()
+        public void Handle_WhenHandlingTransferRequestRejectedEventAndCohortIsNotFoundItThrowsException_ThenLogErrorAndRethrowError()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture();
+            var f = new TransferRequestRejectedEventHandlerTestsFixture();
             Assert.ThrowsAsync<BadRequestException>(() => f.Handle());
+            Assert.IsTrue(f.Logger.HasErrors);
+        }
+
+        [Test]
+        public void Handle_WhenHandlingTransferRequestRejectedEventAndCohortIsNotWithTransferSenderItThrowsException_ThenLogErrorAndRethrowError()
+        {
+            var f = new TransferRequestRejectedEventHandlerTestsFixture().WithEmployerParty().AddCohortToMemoryDb();
+            Assert.ThrowsAsync<DomainException>(() => f.Handle());
             Assert.IsTrue(f.Logger.HasErrors);
         }
     }
 
-    public class TransferRequestApprovedEventHandlerTestsFixture
+    public class TransferRequestRejectedEventHandlerTestsFixture
     {
         private Fixture _fixture;
-        public FakeLogger<TransferRequestApprovedEvent> Logger { get; set; }
+        public FakeLogger<TransferRequestRejectedEvent> Logger { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public Cohort Cohort { get; set; }
         public DraftApprenticeship ExistingApprenticeshipDetails;
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
-        public TransferRequestApprovedEvent TransferRequestApprovedEvent { get; set; } 
-        public TransferRequestApprovedEventHandler Handler { get; set; } 
+        public TransferRequestRejectedEvent TransferRequestRejectedEvent { get; set; } 
+        public TransferRequestRejectedEventHandler Handler { get; set; } 
 
-        public TransferRequestApprovedEventHandlerTestsFixture()
+        public TransferRequestRejectedEventHandlerTestsFixture()
         {
             _fixture = new Fixture();
             UnitOfWorkContext = new UnitOfWorkContext();
@@ -58,10 +67,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                 .Options);
 
-            TransferRequestApprovedEvent = _fixture.Create<TransferRequestApprovedEvent>();
+            TransferRequestRejectedEvent = _fixture.Create<TransferRequestRejectedEvent>();
 
-            Logger = new FakeLogger<TransferRequestApprovedEvent>();
-            Handler = new TransferRequestApprovedEventHandler(new Lazy<ProviderCommitmentsDbContext>(()=>Db), Logger);
+            Logger = new FakeLogger<TransferRequestRejectedEvent>();
+            Handler = new TransferRequestRejectedEventHandler(new Lazy<ProviderCommitmentsDbContext>(()=>Db), Logger);
 
             Cohort = new Cohort(
                     new Provider(),
@@ -70,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     Party.Employer,
                     "",
                     new UserInfo())
-                { Id = TransferRequestApprovedEvent.CohortId, EmployerAccountId = 100, TransferSenderId = 99 };
+                { Id = TransferRequestRejectedEvent.CohortId, EmployerAccountId = 100, TransferSenderId = 99 };
 
             ExistingApprenticeshipDetails = new DraftApprenticeship(_fixture.Build<DraftApprenticeshipDetails>().Create(), Party.Provider);
             Cohort.Apprenticeships.Add(ExistingApprenticeshipDetails);
@@ -80,20 +89,27 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public Task Handle()
         {
-            return Handler.Handle(TransferRequestApprovedEvent, Mock.Of<IMessageHandlerContext>());
+            return Handler.Handle(TransferRequestRejectedEvent, Mock.Of<IMessageHandlerContext>());
         }
 
-        public TransferRequestApprovedEventHandlerTestsFixture AddCohortToMemoryDb()
+        public TransferRequestRejectedEventHandlerTestsFixture AddCohortToMemoryDb()
         {
             Db.Cohorts.Add(Cohort);
             Db.SaveChanges();
 
             return this;
         }
-        public void VerifyCohortApprovalPropertiesAreSet()
+
+        public TransferRequestRejectedEventHandlerTestsFixture WithEmployerParty()
         {
-            Assert.AreEqual(Cohort.TransferApprovalStatus, TransferApprovalStatus.Approved);
-            Assert.AreEqual(Cohort.TransferApprovalActionedOn, TransferRequestApprovedEvent.ApprovedOn);
+            Cohort.EditStatus = EditStatus.EmployerOnly;
+            
+            return this;
+        }
+
+        public void VerifyCohortIsWithEmployer()
+        {
+            Assert.AreEqual(Party.Employer, Cohort.WithParty);
         }
     }
 }
