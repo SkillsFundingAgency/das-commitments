@@ -53,7 +53,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 apprenticeship.Uln == searchTerm.ToString()));
         }
 
-        //todo: case insensitive
-        //todo: combined first and last name
+        [Test, RecursiveMoqAutoData]
+        public void And_FirstName_And_LastName_Matches_SearchTerm_Then_Included(
+            string searchTerm,
+            List<Apprenticeship> apprenticeships)
+        {
+            apprenticeships[0].FirstName = searchTerm;
+            apprenticeships[1].LastName = searchTerm;
+            var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm};
+
+            var filtered = apprenticeships.AsQueryable().Filter(filter);
+
+            filtered.Count().Should().Be(apprenticeships.Count(apprenticeship =>
+                apprenticeship.FirstName == searchTerm ||
+                apprenticeship.LastName == searchTerm));
+        }
     }
 }
