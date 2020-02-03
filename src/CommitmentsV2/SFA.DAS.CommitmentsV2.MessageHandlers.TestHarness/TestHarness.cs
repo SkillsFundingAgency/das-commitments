@@ -47,7 +47,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("L - SendEmailToEmployerCommand");
                 Console.WriteLine("M - RunHealthCheckCommand");
                 Console.WriteLine("O - CohortDeletedEvent");
-                Console.WriteLine("T - TransferSenderApproveCohortCommand");
+                Console.WriteLine("P - ApproveTransferRequestCommand");
+                Console.WriteLine("Q - RejectTransferRequestCommand");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -130,10 +131,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortDeletedEvent)}");
                             break;
-                        case ConsoleKey.T:
+                        case ConsoleKey.P:
                             await _publisher.Send(new ApproveTransferRequestCommand(10004, DateTime.UtcNow, userInfo), new SendOptions());
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ApproveTransferRequestCommand)}");
+                            break;
+                        case ConsoleKey.Q:
+                            await _publisher.Send(new RejectTransferRequestCommand(10004, DateTime.UtcNow, userInfo), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(RejectTransferRequestCommand)}");
                             break;
                     }
                 }
