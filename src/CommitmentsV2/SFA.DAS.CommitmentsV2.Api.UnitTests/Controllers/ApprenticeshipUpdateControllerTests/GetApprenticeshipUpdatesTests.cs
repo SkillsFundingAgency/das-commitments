@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
             public Mock<IModelMapper> ModelMapper { get; }
             public ApprenticeshipUpdateController Controller { get; }
             public long ApprenticeshipId { get; }
-            public CommitmentsV2.Types.ApprenticeshipUpdateStatus? Status { get; private set; }
+            public GetApprenticeshipUpdatesRequest ApprenticeshipUpdatesRequest { get; private set; }
             public GetApprenticeshipUpdateQueryResult QueryResult { get; private set; }
             public GetApprenticeshipUpdatesResponse MapperResult { get; private set; }
             public IActionResult Result { get; private set; }
@@ -93,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
                     .ReturnsAsync(MapperResult);
 
                 ApprenticeshipId = AutoFixture.Create<long>();
-                Status = CommitmentsV2.Types.ApprenticeshipUpdateStatus.Pending;
+                ApprenticeshipUpdatesRequest = new GetApprenticeshipUpdatesRequest() { Status = ApprenticeshipUpdateStatus.Pending };
                 Controller = new ApprenticeshipUpdateController(Mediator.Object, ModelMapper.Object);
             }
 
@@ -112,18 +112,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
 
             internal GetApprenticeshipUpdatesTestsFixture SetStatus(ApprenticeshipUpdateStatus? status)
             {
-                Status = status;
+                ApprenticeshipUpdatesRequest = new GetApprenticeshipUpdatesRequest(){ Status = status };
                 return this;
             }
 
             public async Task GetApprenticeshipUpdates()
             {
-                Result = await Controller.GetApprenticeshipUpdates(ApprenticeshipId, Status);
+                Result = await Controller.GetApprenticeshipUpdates(ApprenticeshipId, ApprenticeshipUpdatesRequest);
             }
 
             public void VerifyApprenticeshipIdAndStatusPassedToQuery()
             {
-                Mediator.Verify(x => x.Send(It.Is<GetApprenticeshipUpdateQuery>(p => p.ApprenticeshipId == ApprenticeshipId && p.Status == Status ), It.IsAny<CancellationToken>()));
+                Mediator.Verify(x => x.Send(It.Is<GetApprenticeshipUpdateQuery>(p => p.ApprenticeshipId == ApprenticeshipId && p.Status == ApprenticeshipUpdatesRequest.Status ), It.IsAny<CancellationToken>()));
             }
 
             public void VerifyResult()
@@ -143,7 +143,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
         }
     }
 }
-
 
 
 

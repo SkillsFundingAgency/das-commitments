@@ -35,6 +35,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default);
         Task<GetApprenticeshipResponse> GetApprenticeship(long apprenticeshipId, CancellationToken cancellationToken = default);
         Task<GetPriceEpisodesResponse> GetPriceEpisodes(long apprenticeshipId, CancellationToken cancellationToken = default);
-        Task<GetApprenticeshipUpdatesResponse> GetApprenticeshipUpdates(GetApprenticeshipUpdateRequest request, CancellationToken cancellationToken = default);
+        Task<GetApprenticeshipUpdatesResponse> GetApprenticeshipUpdates(long apprenticeshipId, GetApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default);
     }
 }

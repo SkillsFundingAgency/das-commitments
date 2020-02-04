@@ -25,9 +25,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetApprenticeshipUpdates(long apprenticeshipId,[FromQuery] ApprenticeshipUpdateStatus? status)
+        public async Task<IActionResult> GetApprenticeshipUpdates(long apprenticeshipId,[FromQuery] GetApprenticeshipUpdatesRequest request)
         {
-            var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, status));
+            var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, request.Status));
             var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
             return Ok(response);
         }
