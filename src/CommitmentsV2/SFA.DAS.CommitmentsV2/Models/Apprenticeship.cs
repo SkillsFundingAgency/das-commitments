@@ -14,6 +14,27 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? PauseDate { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public Originator? PendingUpdateOriginator { get; set; }
+        public ApprenticeshipStatus Status
+        {
+            get
+            {
+                switch (PaymentStatus)
+                {
+                    case PaymentStatus.Active:
+                        return DateTime.UtcNow < StartDate
+                            ? ApprenticeshipStatus.WaitingToStart
+                            : ApprenticeshipStatus.Live;
+                    case PaymentStatus.Withdrawn:
+                        return ApprenticeshipStatus.Stopped;
+                    case PaymentStatus.Paused:
+                        return ApprenticeshipStatus.Paused;
+                    case PaymentStatus.Completed:
+                        return ApprenticeshipStatus.Completed;
+                    default:
+                        return ApprenticeshipStatus.Unknown;
+                }
+            }
+        }
         public Apprenticeship()
         {
             DataLockStatus = new List<DataLockStatus>();
