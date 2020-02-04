@@ -1,12 +1,20 @@
-﻿namespace SFA.DAS.CommitmentsV2.Types
+﻿using System.ComponentModel;
+
+namespace SFA.DAS.CommitmentsV2.Types
 {
-    public enum ApprenticeshipStatus
+    public enum ApprenticeshipStatus : short
     {
-        None = 0,
-        WaitingToStart = 1,
-        Live = 2,
-        Paused = 3,
-        Stopped = 4,
-        Completed = 5
+        [Description("Waiting to start")]
+        WaitingToStart = 0,
+        [Description("Live")]
+        Live = 1,
+        [Description("Paused")]
+        Paused = 2,
+        [Description("Stopped")]
+        Stopped = 3,
+        [Description("Completed")]
+        Completed = 4,
+        [Description("Unknown")]
+        Unknown
     }
 }

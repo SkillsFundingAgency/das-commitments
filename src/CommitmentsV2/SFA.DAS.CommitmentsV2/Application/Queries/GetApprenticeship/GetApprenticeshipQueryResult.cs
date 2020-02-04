@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public DateTime EndDate { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string Reference { get; set; }
-        public PaymentStatus PaymentStatus { get; set; }
+        public ApprenticeshipStatus Status { get; set; }
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
         public string EndpointAssessorName { get; set; }
