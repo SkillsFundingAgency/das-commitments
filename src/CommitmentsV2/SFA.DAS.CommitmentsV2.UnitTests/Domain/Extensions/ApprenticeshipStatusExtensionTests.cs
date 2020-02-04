@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
+using PaymentStatus = SFA.DAS.CommitmentsV2.Types.PaymentStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
 {
@@ -17,8 +18,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         [TestCase(PaymentStatus.Paused, ApprenticeshipStatus.Paused)]
         [TestCase(PaymentStatus.Withdrawn, ApprenticeshipStatus.Stopped)]
         [TestCase(PaymentStatus.Completed, ApprenticeshipStatus.Completed)]
-        [TestCase(PaymentStatus.Deleted, ApprenticeshipStatus.Live)]
-        [TestCase(null, ApprenticeshipStatus.WaitingToStart)]
+        [TestCase(null, ApprenticeshipStatus.Unknown)]
         public async Task And_Has_Started_The_Payment_Status_Is_Mapped_To_Apprenticeship_Status(PaymentStatus paymentStatus, ApprenticeshipStatus expected)
         {
             //Arrange

@@ -22,10 +22,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                     return ApprenticeshipStatus.Stopped;
                 case PaymentStatus.Completed:
                     return ApprenticeshipStatus.Completed;
-                case PaymentStatus.Deleted:
-                    return ApprenticeshipStatus.Live;
                 default:
-                    return ApprenticeshipStatus.WaitingToStart;
+                    return ApprenticeshipStatus.Unknown;
             }
         }
     }
