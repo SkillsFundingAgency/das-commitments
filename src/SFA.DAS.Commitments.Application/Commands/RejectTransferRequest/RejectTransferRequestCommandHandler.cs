@@ -25,20 +25,14 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
     {
         private readonly AbstractValidator<RejectTransferRequestCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly IMessagePublisher _messagePublisher;
-        private readonly ICommitmentsLogger _logger;
         private readonly IV2EventsPublisher _v2EventsPublisher;
 
         public RejectTransferRequestCommandHandler(AbstractValidator<RejectTransferRequestCommand> validator,
             ICommitmentRepository commitmentRepository, 
-            IMessagePublisher messagePublisher,
-            ICommitmentsLogger logger,
             IV2EventsPublisher v2EventsPublisher)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
-            _messagePublisher = messagePublisher;
-            _logger = logger;
             _v2EventsPublisher = v2EventsPublisher;
         }
 
@@ -57,8 +51,6 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 
             await _v2EventsPublisher.SendRejectTransferRequestCommand(command.TransferRequestId, DateTime.UtcNow,
                 new UserInfo {UserEmail = command.UserEmail, UserDisplayName = command.UserName});
-
-            await PublishRejectedMessage(command);
         }
 
         private static void CheckAuthorization(RejectTransferRequestCommand message, Commitment commitment)
@@ -81,13 +73,6 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 
             if (commitment.EditStatus != EditStatus.Both)
                 throw new InvalidOperationException($"Transfer Sender {commitment.TransferSenderId} not allowed to reject until both the provider and receiving employer have approved");
-        }
-
-        private async Task PublishRejectedMessage(RejectTransferRequestCommand command)
-        {
-            var message = new CohortRejectedByTransferSender(command.TransferRequestId, command.TransferReceiverId, command.CommitmentId,
-                command.TransferSenderId, command.UserName, command.UserEmail);
-            await _messagePublisher.PublishAsync(message);         
         }
     }
 }

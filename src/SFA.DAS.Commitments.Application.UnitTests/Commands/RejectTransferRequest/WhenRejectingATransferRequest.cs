@@ -12,10 +12,7 @@ using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
-using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Messaging.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
@@ -30,7 +27,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         private RejectTransferRequestCommand _command;
         private Commitment _commitment;
         private Mock<ICommitmentRepository> _commitmentRepository;
-        private Mock<IMessagePublisher> _messagePublisher;
         private Mock<IV2EventsPublisher> _v2EventsPublisher;
         private Mock<IHistoryRepository> _historyRepository;
         private RejectTransferRequestCommandHandler _sut;
@@ -40,7 +36,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         {
             _validator = new RejectTransferRequestValidator();
             _commitmentRepository = new Mock<ICommitmentRepository>();
-            _messagePublisher = new Mock<IMessagePublisher>();
             _v2EventsPublisher = new Mock<IV2EventsPublisher>();
             _historyRepository = new Mock<IHistoryRepository>();
 
@@ -61,33 +56,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
             _commitmentRepository.Setup(x => x.ResetEditStatusToEmployer(It.IsAny<long>()))
                 .Returns(() => Task.FromResult(new Unit()));
 
-            _sut = new RejectTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
-                _messagePublisher.Object, Mock.Of<ICommitmentsLogger>(),
-                _v2EventsPublisher.Object);
-        }
-
-        [Test]
-        public async Task ThenMessagePublisherSendsRejectedMessageAndNotApprovedMessage()
-        {
-            await _sut.Handle(_command);
-
-            _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortRejectedByTransferSender>(p =>
-                p.UserName == _command.UserName && p.UserEmail == _command.UserEmail &&
-                p.CommitmentId == _command.CommitmentId &&
-                p.ReceivingEmployerAccountId ==
-                _command.TransferReceiverId &&
-                p.SendingEmployerAccountId ==
-                _command.TransferSenderId)));
-
-            _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortApprovedByTransferSender>()), Times.Never);
-        }
-
-        [Test]
-        public async Task ThenCohortRejectedMessageIsPublished()
-        {
-            await _sut.Handle(_command);
-
-            _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortRejectedByTransferSender>()), Times.Once);
+            _sut = new RejectTransferRequestCommandHandler(_validator, _commitmentRepository.Object, _v2EventsPublisher.Object);
         }
 
         [Test]
@@ -95,7 +64,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         {
             await _sut.Handle(_command);
 
-            //_v2EventsPublisher.Verify(x => x.SendRejectTransferRequestCommand(It.Is<RejectTransferRequestCommand>(p=>p.TransferRequestId == _command.TransferRequestId), It.IsAny<DateTime>(), It.IsAny<UserInfo>()), Times.Once);
+            _v2EventsPublisher.Verify(x => x.SendRejectTransferRequestCommand(_command.TransferRequestId, It.IsAny<DateTime>(), It.IsAny<UserInfo>()), Times.Once);
         }
 
         [Test]

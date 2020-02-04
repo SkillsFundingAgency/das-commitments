@@ -14,6 +14,8 @@ using SFA.DAS.UnitOfWork.Context;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {
@@ -96,6 +98,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             _fixture.VerifyTransferRequestRejectedEventIsPublished();
         }
+
+        [Test]
+        public async Task WhenCallingRejectOnTransferRequest_ThenPublishesLegacyEventCohortRejectedByTransferSender()
+        {
+            _fixture
+                .WithTransferRequestAndCohortInDatabase()
+                .WithTransferApprovalStatus(TransferApprovalStatus.Pending);
+
+            await _fixture.Act();
+
+            _fixture.VerifyLegacyEventCohortRejectedByTransferSenderIsPublished();
+        }
+
     }
 
     public class RejectTransferRequestCommandHandlerTestsFixture
@@ -108,6 +123,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         private ProviderCommitmentsDbContext _db;
         private Mock<ILogger<RejectTransferRequestCommandHandler>> _mockLogger;
         private Mock<IMessageHandlerContext> _mockMessageHandlerContext;
+        private Mock<ILegacyTopicMessagePublisher> _legacyTopicMessagePublisher;
         private RejectTransferRequestCommandHandler _sut;
         private UnitOfWorkContext _unitOfWorkContext;
         private DateTime _rejectedOnDate;
@@ -125,9 +141,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _cohort = new Cohort
             {
                 TransferRequests = { _transferRequest },
+                EmployerAccountId = 8787,
                 AccountLegalEntityId = 234,
                 AccountLegalEntityPublicHashedId = "sfs1",
-                ProviderId = 234234
+                ProviderId = 234234,
+                TransferSenderId = 8999
+
             };
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -136,10 +155,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             _mockLogger = new Mock<ILogger<RejectTransferRequestCommandHandler>>();
             _mockMessageHandlerContext = new Mock<IMessageHandlerContext>();
+            _legacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
             _rejectedOnDate = new DateTime(2020, 01, 30, 14, 22, 00);
             _command = new RejectTransferRequestCommand(_transferRequestId, _rejectedOnDate, _userInfo);
             _unitOfWorkContext = new UnitOfWorkContext();
-            _sut = new RejectTransferRequestCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), _mockLogger.Object);
+            _sut = new RejectTransferRequestCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), _legacyTopicMessagePublisher.Object, _mockLogger.Object);
         }
 
         public async Task Act() => await _sut.Handle(_command, _mockMessageHandlerContext.Object);
@@ -203,6 +223,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             Assert.AreEqual(_userInfo.UserId, rejectedEvent.UpdatingUserId);
             Assert.AreEqual(_userInfo.UserDisplayName, rejectedEvent.UpdatingUserName);
             Assert.AreEqual(Party.TransferSender, rejectedEvent.UpdatingParty);
+        }
+
+        public void VerifyLegacyEventCohortRejectedByTransferSenderIsPublished()
+        {
+            _legacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortRejectedByTransferSender>(p =>
+                p.TransferRequestId == _command.TransferRequestId &&
+                p.ReceivingEmployerAccountId == _cohort.EmployerAccountId &&
+                p.CommitmentId == _cohort.Id &&
+                p.SendingEmployerAccountId == _cohort.TransferSenderId &&
+                p.UserName == _command.UserInfo.UserDisplayName &&
+                p.UserEmail == _command.UserInfo.UserEmail)));
         }
     }
 }
