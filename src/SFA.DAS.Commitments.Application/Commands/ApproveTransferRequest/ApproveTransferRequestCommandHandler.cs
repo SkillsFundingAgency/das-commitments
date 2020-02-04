@@ -19,17 +19,14 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
     {
         private readonly AbstractValidator<ApproveTransferRequestCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly IMessagePublisher _messagePublisher;
         private readonly IV2EventsPublisher _v2EventsPublisher;
 
         public ApproveTransferRequestCommandHandler(AbstractValidator<ApproveTransferRequestCommand> validator,
             ICommitmentRepository commitmentRepository, 
-            IMessagePublisher messagePublisher,
             IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
-            _messagePublisher = messagePublisher;
             _v2EventsPublisher = v2EventsPublisher;
         }
 
@@ -48,14 +45,6 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
 
             await _v2EventsPublisher.SendApproveTransferRequestCommand(command.TransferRequestId, DateTime.UtcNow,
                 new UserInfo {UserEmail = command.UserEmail, UserDisplayName = command.UserName});
-
-            //await Task.WhenAll(
-            //    _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment),
-            //    _cohortApprovalService.CreatePriceHistory(commitment), ??????? TODO Check if this is covered
-            //    _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment),
-            //    _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId));
-
-            await PublishApprovedMessage(command); 
         }
 
         private static void CheckAuthorization(ApproveTransferRequestCommand message, Commitment commitment)
@@ -78,13 +67,6 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             
             if (commitment.EditStatus != EditStatus.Both)
                 throw new InvalidOperationException($"Transfer Sender {commitment.TransferSenderId} not allowed to approve until both the provider and receiving employer have approved");
-        }
-
-        private async Task PublishApprovedMessage(ApproveTransferRequestCommand command)
-        {
-            var message = new CohortApprovedByTransferSender(command.TransferRequestId, command.TransferReceiverId, command.CommitmentId,
-                command.TransferSenderId, command.UserName, command.UserEmail);
-            await _messagePublisher.PublishAsync(message);
         }
     }
 }

@@ -9,9 +9,7 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Messaging.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
@@ -27,7 +25,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         private Commitment _commitment;
         private Mock<ICommitmentRepository> _commitmentRepository;
         private Mock<IV2EventsPublisher> _v2EventsPublisher;
-        private Mock<IMessagePublisher> _messagePublisher;
         private ApproveTransferRequestCommandHandler _sut;
 
         [SetUp]
@@ -35,7 +32,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         {
             _validator = new ApproveTransferRequestValidator();
             _commitmentRepository = new Mock<ICommitmentRepository>();
-            _messagePublisher = new Mock<IMessagePublisher>();
             _v2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             var fixture = new Fixture();
@@ -49,8 +45,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
             _commitmentRepository.Setup(x=>x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_commitment);
             _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
 
-            _sut = new ApproveTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
-                _messagePublisher.Object, _v2EventsPublisher.Object);
+            _sut = new ApproveTransferRequestCommandHandler(_validator, _commitmentRepository.Object, _v2EventsPublisher.Object);
         }
 
         [Test]
@@ -59,23 +54,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
             await _sut.Handle(_command);
             _v2EventsPublisher.Verify(x => x.SendApproveTransferRequestCommand(_command.TransferRequestId, It.IsAny<DateTime>(), 
                 It.Is<UserInfo>(p=>p.UserEmail == _command.UserEmail && p.UserDisplayName == _command.UserName)), Times.Once);
-        }
-
-        [Test]
-        public async Task ThenIfTheTransferSenderApprovesCohortEnsureMessagePublisherSendsApprovedMessageAndNotRejectedMessage()
-        {
-            await _sut.Handle(_command);
-
-            _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByTransferSender>(p =>
-                p.TransferRequestId == _command.TransferRequestId &&
-                p.UserName == _command.UserName && p.UserEmail == _command.UserEmail &&
-                p.CommitmentId == _command.CommitmentId &&
-                p.ReceivingEmployerAccountId ==
-                _command.TransferReceiverId &&
-                p.SendingEmployerAccountId ==
-                _command.TransferSenderId)));
-
-            _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortRejectedByTransferSender>()), Times.Never);
         }
 
         [Test]
