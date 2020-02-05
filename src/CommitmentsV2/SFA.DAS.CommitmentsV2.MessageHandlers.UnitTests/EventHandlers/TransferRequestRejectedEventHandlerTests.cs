@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             await f.Handle();
             f.VerifyCohortIsWithEmployer();
         }
+
+        [Test]
+        public async Task Handle_WhenHandlingTransferRequestRejectedEvent_ThenShouldTrackingTheUpdate()
+        {
+            var f = new TransferRequestRejectedEventHandlerTestsFixture().AddCohortToMemoryDb();
+            await f.Handle();
+            f.VerifyEntityIsBeingTracked();
+        }
+
 
         [Test]
         public async Task Handle_WhenHandlingTransferRequestRejectedEvent_ThenPublishesLegacyEventCohortRejectedByTransferSender()
@@ -134,5 +144,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 p.UserName == TransferRequestRejectedEvent.UserInfo.UserDisplayName &&
                 p.UserEmail == TransferRequestRejectedEvent.UserInfo.UserEmail)));
         }
+
+        public void VerifyEntityIsBeingTracked()
+        {
+            var list = UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Where(x => x.StateChangeType == UserAction.RejectTransferRequest).ToList();
+
+            Assert.AreEqual(1, list.Count);
+
+            Assert.AreEqual(UserAction.RejectTransferRequest, list[0].StateChangeType);
+            Assert.AreEqual(Cohort.Id, list[0].EntityId);
+            Assert.AreEqual(TransferRequestRejectedEvent.UserInfo.UserDisplayName, list[0].UpdatingUserName);
+            Assert.AreEqual(Party.TransferSender, list[0].UpdatingParty);
+        }
+
     }
 }
