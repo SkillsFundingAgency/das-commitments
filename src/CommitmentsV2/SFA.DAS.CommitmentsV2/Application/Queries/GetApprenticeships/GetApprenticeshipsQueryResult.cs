@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
         public IEnumerable<ApprenticeshipDetails> Apprenticeships { get; set; }
         public int TotalApprenticeshipsFound { get; set; }
         public int TotalApprenticeshipsWithAlertsFound { get; set; }
+        public int TotalApprenticeships { get; set; }
 
         public class ApprenticeshipDetails
         {
@@ -21,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
             public PaymentStatus PaymentStatus { get; set; }
+            public ApprenticeshipStatus ApprenticeshipStatus { get; set; }
             public IEnumerable<Alerts> Alerts { get; set; }
         }
     }
