@@ -15,7 +15,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                                typeof(Apprenticeship).GetProperties().Select(c => c.Name).Contains(field) ||
                                typeof(Cohort).GetProperties().Select(c => c.Name).Contains(field))
                 .WithMessage("Sort field must be empty or property on Apprenticeship ");
-
         }
     }
 }
