@@ -7,10 +7,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -47,18 +45,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [Test]
-        public void Handle_WhenHandlingTransferSenderApproveCohortCommand_ThenItShouldPublishTheLegacyEventCohortApprovedByTransferSender()
-        {
-            var fixture = new ApproveTransferRequestCommandHandlerTestsFixture();
-            fixture.SetupTransfer().SetupTransferSenderApproveCohortCommand();
-
-            fixture.Handle();
-
-            fixture.VerifyLegacyEventCohortApprovedByTransferSenderIsPublished();
-        }
-
-
-        [Test]
         public void Handle_WhenHandlingTransferSenderApproveCohortCommand_ThenItShouldPublishChangeTrackingEvents()
         {
             var fixture = new ApproveTransferRequestCommandHandlerTestsFixture();
@@ -83,12 +69,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
     public class ApproveTransferRequestCommandHandlerTestsFixture
     {
-        public Mock<IMessageHandlerContext> MessageHandlerContext;
-        public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
-        public DraftApprenticeship ExistingApprenticeshipDetails;
-        public UserInfo TransferSenderUserInfo;
+        public Mock<IMessageHandlerContext> MessageHandlerContext { get; set; }
+        public DraftApprenticeship ExistingApprenticeshipDetails { get; set; }
+        public UserInfo TransferSenderUserInfo { get; set; }
         public DateTime Now { get; }
-        public ApproveTransferRequestCommandHandler Sut;
+        public ApproveTransferRequestCommandHandler Sut { get; set; }
         public ApproveTransferRequestCommand TransferSenderApproveCohortCommand;
         public ProviderCommitmentsDbContext Db { get; set; }
         public Cohort Cohort { get; set; }
@@ -108,10 +93,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                 .Options);
-
-            LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
             Logger = new FakeLogger<ApproveTransferRequestCommandHandler>();
-            Sut = new ApproveTransferRequestCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), LegacyTopicMessagePublisher.Object, Logger);
+            Sut = new ApproveTransferRequestCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger);
 
             Cohort = new Cohort(
                 new Provider(),
@@ -193,17 +176,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             Assert.AreEqual(TransferSenderUserInfo.UserId, list[0].UpdatingUserId);
             Assert.AreEqual(TransferSenderUserInfo.UserDisplayName, list[0].UpdatingUserName);
             Assert.AreEqual(Party.TransferSender, list[0].UpdatingParty);
-        }
-
-        public void VerifyLegacyEventCohortApprovedByTransferSenderIsPublished()
-        {
-            LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByTransferSender>(p =>
-                p.TransferRequestId == TransferRequest.Id &&
-                p.ReceivingEmployerAccountId == Cohort.EmployerAccountId &&
-                p.CommitmentId == Cohort.Id &&
-                p.SendingEmployerAccountId == TransferRequest.Cohort.TransferSenderId &&
-                p.UserEmail == TransferSenderUserInfo.UserEmail &&
-                p.UserName == TransferSenderUserInfo.UserDisplayName)));
         }
     }
 }

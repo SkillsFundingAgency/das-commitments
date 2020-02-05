@@ -6,9 +6,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -27,6 +29,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var f = new TransferRequestRejectedEventHandlerTestsFixture().AddCohortToMemoryDb();
             await f.Handle();
             f.VerifyCohortIsWithEmployer();
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingTransferRequestRejectedEvent_ThenPublishesLegacyEventCohortRejectedByTransferSender()
+        {
+            var f = new TransferRequestRejectedEventHandlerTestsFixture().AddCohortToMemoryDb();
+            await f.Handle();
+            f.VerifyLegacyEventCohortRejectedByTransferSenderIsPublished();
         }
 
         [Test]
@@ -50,6 +60,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     {
         private Fixture _fixture;
         public FakeLogger<TransferRequestRejectedEvent> Logger { get; set; }
+        public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher { get; set; }
+
         public ProviderCommitmentsDbContext Db { get; set; }
         public Cohort Cohort { get; set; }
         public DraftApprenticeship ExistingApprenticeshipDetails;
@@ -69,7 +81,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             TransferRequestRejectedEvent = _fixture.Create<TransferRequestRejectedEvent>();
 
             Logger = new FakeLogger<TransferRequestRejectedEvent>();
-            Handler = new TransferRequestRejectedEventHandler(new Lazy<ProviderCommitmentsDbContext>(()=>Db), Logger);
+            LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
+            Handler = new TransferRequestRejectedEventHandler(new Lazy<ProviderCommitmentsDbContext>(()=>Db), LegacyTopicMessagePublisher.Object, Logger);
 
             Cohort = new Cohort(
                     new Provider(),
@@ -109,6 +122,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public void VerifyCohortIsWithEmployer()
         {
             Assert.AreEqual(Party.Employer, Cohort.WithParty);
+        }
+
+        public void VerifyLegacyEventCohortRejectedByTransferSenderIsPublished()
+        {
+            LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortRejectedByTransferSender>(p =>
+                p.TransferRequestId == TransferRequestRejectedEvent.TransferRequestId &&
+                p.ReceivingEmployerAccountId == Cohort.EmployerAccountId &&
+                p.CommitmentId == Cohort.Id &&
+                p.SendingEmployerAccountId == Cohort.TransferSenderId &&
+                p.UserName == TransferRequestRejectedEvent.UserInfo.UserDisplayName &&
+                p.UserEmail == TransferRequestRejectedEvent.UserInfo.UserEmail)));
         }
     }
 }
