@@ -9,7 +9,6 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -34,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public void Handle_WhenHandlingTransferRequestRejectedEventAndCohortIsNotFoundItThrowsException_ThenLogErrorAndRethrowError()
         {
             var f = new TransferRequestRejectedEventHandlerTestsFixture();
-            Assert.ThrowsAsync<BadRequestException>(() => f.Handle());
+            Assert.ThrowsAsync<InvalidOperationException>(() => f.Handle());
             Assert.IsTrue(f.Logger.HasErrors);
         }
 

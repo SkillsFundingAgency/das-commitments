@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 
@@ -24,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
-                var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, new CancellationToken());
+                var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
                 cohort.TransferRequestRejectedReturnCohortToEmployer();
                 _logger.LogInformation($"Cohort {message.CohortId} returned to Employer, after TransferRequest {message.TransferRequestId} was rejected");
             }

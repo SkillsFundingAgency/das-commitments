@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
@@ -26,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
-                var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, new CancellationToken());
+                var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
                 cohort.Approve(Party.TransferSender, null, message.UserInfo, message.ApprovedOn);
             }
             catch (Exception e)
