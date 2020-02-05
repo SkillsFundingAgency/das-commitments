@@ -27,7 +27,8 @@
 	[Originator] TINYINT NOT NULL DEFAULT 0,
 	[ApprenticeshipEmployerTypeOnApproval] TINYINT NULL,
 	[IsFullApprovalProcessed] BIT NOT NULL DEFAULT 0,
-	[IsDeleted] BIT NOT NULL DEFAULT 0
+	[IsDeleted] BIT NOT NULL DEFAULT 0, 
+    [AccountLegalEntityId] BIGINT NULL
 )
 GO
 
@@ -46,4 +47,36 @@ ON [dbo].[Commitment] ([EmployerAccountId], [CommitmentStatus])
 GO
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_TransferSenderId] ON [dbo].[Commitment] ([TransferSenderId]) WHERE [TransferSenderId] IS NOT NULL 
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderIsDeleted] on [dbo].[Commitment] ([ProviderId], [IsDeleted]) INCLUDE(
+    [Reference],
+    [EmployerAccountId] , 
+    [LegalEntityId] ,
+    [LegalEntityName] , 
+	[LegalEntityAddress] ,
+	[LegalEntityOrganisationType] ,
+    [ProviderName] ,
+    [CommitmentStatus] , 
+    [EditStatus],
+    [CreatedOn] , 
+    [LastAction] , 
+	[LastUpdatedByEmployerName] ,
+    [LastUpdatedByEmployerEmail] , 
+    [LastUpdatedByProviderName] , 
+    [LastUpdatedByProviderEmail] ,
+    [TransferSenderId] ,
+    [TransferSenderName] ,
+	[TransferApprovalStatus] ,
+	[TransferApprovalActionedByEmployerName] ,
+	[TransferApprovalActionedByEmployerEmail] ,
+	[TransferApprovalActionedOn] ,
+	[AccountLegalEntityPublicHashedId] ,
+	[Originator] ,
+	[ApprenticeshipEmployerTypeOnApproval] ,
+	[IsFullApprovalProcessed] ,
+    [AccountLegalEntityId] ) WITH (ONLINE = ON)
+	GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderDeletedLegalEntityName_Filter] ON [dbo].[Commitment] ([ProviderId],[IsDeleted]) INCLUDE ([LegalEntityName]) WITH (ONLINE=ON)
 GO

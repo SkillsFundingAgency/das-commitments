@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
                 .AddAccountWithLegalEntities(accountId, "Account123", accountLegalEntityId, maLegalEntityId, "LegalEntity456");
 
             // act
-            var response = await fixtures.GetResponse(new GetAccountLegalEntityRequest {AccountLegalEntityId = accountLegalEntityId });
+            var response = await fixtures.GetResponse(new GetAccountLegalEntityQuery {AccountLegalEntityId = accountLegalEntityId });
 
             // Assert
             Assert.IsNotNull(response);
@@ -47,17 +47,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
     {
         public GetEmployerHandlerTestFixtures()
         {
-            HandlerMock = new Mock<IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>>();    
-            ValidatorMock = new Mock<IValidator<GetAccountLegalEntityRequest>>();
+            HandlerMock = new Mock<IRequestHandler<GetAccountLegalEntityQuery, GetAccountLegalEntityQueryResult>>();    
+            ValidatorMock = new Mock<IValidator<GetAccountLegalEntityQuery>>();
             SeedAccounts = new List<Account>();
         }
 
-        public Mock<IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>> HandlerMock { get; set; }
+        public Mock<IRequestHandler<GetAccountLegalEntityQuery, GetAccountLegalEntityQueryResult>> HandlerMock { get; set; }
 
-        public IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse> Handler => HandlerMock.Object;
+        public IRequestHandler<GetAccountLegalEntityQuery, GetAccountLegalEntityQueryResult> Handler => HandlerMock.Object;
 
-        public Mock<IValidator<GetAccountLegalEntityRequest>> ValidatorMock { get; set; }
-        public IValidator<GetAccountLegalEntityRequest> Validator => ValidatorMock.Object;
+        public Mock<IValidator<GetAccountLegalEntityQuery>> ValidatorMock { get; set; }
+        public IValidator<GetAccountLegalEntityQuery> Validator => ValidatorMock.Object;
 
         public List<Account> SeedAccounts { get; }
 
@@ -74,14 +74,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             return this;
         }
 
-        public Task<GetAccountLegalEntityResponse> GetResponse(GetAccountLegalEntityRequest request)
+        public Task<GetAccountLegalEntityQueryResult> GetResponse(GetAccountLegalEntityQuery query)
         {
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetAccountLegalEntityHandler(lazy);
+                var handler = new GetAccountLegalEntityQueryHandler(lazy);
 
-                return handler.Handle(request, CancellationToken.None);
+                return handler.Handle(query, CancellationToken.None);
             });
         }
 

@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{AccountLegalEntityId}/signed")]
         public async Task<IActionResult> IsAgreementSignedForFeature(long accountLegalEntityId, [FromQuery] AgreementFeature[] agreementFeatures, CancellationToken cancellationToken)
         {
-            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityRequest{AccountLegalEntityId = accountLegalEntityId}, cancellationToken);
+            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityQuery{AccountLegalEntityId = accountLegalEntityId}, cancellationToken);
             var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId,
                 accountLegalEntity.MaLegalEntityId, agreementFeatures);
 
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{AccountLegalEntityId}/latest-id")]
         public async Task<IActionResult> GetLatestAgreementId(long accountLegalEntityId, CancellationToken cancellationToken)
         {
-            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityRequest { AccountLegalEntityId = accountLegalEntityId }, cancellationToken);
+            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityQuery { AccountLegalEntityId = accountLegalEntityId }, cancellationToken);
             var agreementId = await _employerAgreementService.GetLatestAgreementId(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
 
             return Ok(agreementId);

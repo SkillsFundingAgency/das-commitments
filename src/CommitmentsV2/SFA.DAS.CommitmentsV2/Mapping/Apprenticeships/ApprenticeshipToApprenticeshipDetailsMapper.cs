@@ -1,32 +1,35 @@
 ﻿using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
 {
-    public class ApprenticeshipToApprenticeshipDetailsMapper : IMapper<Apprenticeship, ApprenticeshipDetails>
+    public class ApprenticeshipToApprenticeshipDetailsMapper : IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>
     {
-        private readonly IAlertsMapper _alertsMapper;
+        private readonly ICurrentDateTime _currentDateTime;
 
-        public ApprenticeshipToApprenticeshipDetailsMapper(IAlertsMapper alertsMapper)
+        public ApprenticeshipToApprenticeshipDetailsMapper(ICurrentDateTime currentDateTime)
         {
-            _alertsMapper = alertsMapper;
+            _currentDateTime = currentDateTime;
         }
-
-        public Task<ApprenticeshipDetails> Map(Apprenticeship source)
+        public Task<GetApprenticeshipsQueryResult.ApprenticeshipDetails> Map(Apprenticeship source)
         {
-            return Task.FromResult(new ApprenticeshipDetails
+            return Task.FromResult(new GetApprenticeshipsQueryResult.ApprenticeshipDetails
             {
                 Id = source.Id,
-                ApprenticeFirstName = source.FirstName,
-                ApprenticeLastName = source.LastName,
+                FirstName = source.FirstName,
+                LastName = source.LastName,
                 CourseName = source.CourseName,
                 EmployerName = source.Cohort.LegalEntityName,
-                PlannedStartDate = source.StartDate.GetValueOrDefault(),
-                PlannedEndDateTime = source.EndDate.GetValueOrDefault(),
+                StartDate = source.StartDate.GetValueOrDefault(),
+                EndDate = source.EndDate.GetValueOrDefault(),
                 PaymentStatus = source.PaymentStatus,
+                ApprenticeshipStatus = source.MapApprenticeshipStatus(_currentDateTime),
                 Uln = source.Uln,
-                Alerts = _alertsMapper.Map(source)
+                Alerts = source.MapAlerts()
             });
         }
     }

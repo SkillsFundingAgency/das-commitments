@@ -7,13 +7,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
     [TestFixture]
     public class GetApprenticeshipsValidationTests
     {
-        [TestCase( (uint) 0, false)]
-        [TestCase( (uint) 1, true)]
-        public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(uint id, bool expectedIsValid)
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(long id, bool expectedIsValid)
         {
             // arrange
-            var validator = new GetApprenticeshipsValidator();
-            var validationResults = validator.Validate(new GetApprenticeshipsRequest {ProviderId = id});
+            var validator = new GetApprenticeshipsQueryValidator();
+            var validationResults = validator.Validate(new GetApprenticeshipsQuery
+            {
+                ProviderId = id,
+                PageNumber = 1,
+                PageItemCount = 1
+            });
 
             // act
             var actualIsValid = validationResults.IsValid;
@@ -26,15 +31,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [TestCase(null,true)]
         [TestCase("",true)]
         [TestCase(nameof(Apprenticeship.FirstName),true)]
-        //[TestCase(nameof(Apprenticeship.Cohort.LegalEntityName),true)]
+        [TestCase(nameof(Apprenticeship.Cohort.LegalEntityName),true)]
         public void Validate_WithSpecifiedSortField_ShouldOnlyBeAllowedIfPropertyOnApprenticeship(string fieldName, bool expected)
         {
             // arrange
-            var validator = new GetApprenticeshipsValidator();
-            var validationResults = validator.Validate(new GetApprenticeshipsRequest
+            var validator = new GetApprenticeshipsQueryValidator();
+            var validationResults = validator.Validate(new GetApprenticeshipsQuery
             {
                 ProviderId = 1, 
-                SortField = fieldName
+                SortField = fieldName,
+                PageNumber = 1,
+                PageItemCount = 1
             });
 
             // act

@@ -4,7 +4,17 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data
 {
-    public interface IProviderCommitmentsDbContext
+    public interface ICommitmentsReadOnlyDbContext : IProviderCommitmentsDbContext
+    {
+
+    }
+
+    public interface IProviderCommitmentsDbContext : ICommitmentsDbContext
+    {
+
+    }
+
+    public interface ICommitmentsDbContext
     {
         DbSet<Account> Accounts { get; set; }
         DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }

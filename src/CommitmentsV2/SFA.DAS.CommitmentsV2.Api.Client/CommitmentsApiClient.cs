@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Globalization;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -45,10 +46,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
         }
-
-        public Task<IEnumerable<Types.Responses.ApprenticeshipDetails>> GetApprenticeships(uint providerId, string sortField = "", bool reverseSort = false, bool isDownload = false, CancellationToken cancellationToken = default)
+        public Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{providerId}?sortField={sortField}&reverseSort={reverseSort}&isDownload={isDownload}", null, cancellationToken);
+            var pageQuery = CreatePageQuery(request);
+            var sortField = CreateSortFieldQuery(request);
+            var filterQuery = CreateFilterQuery(request);
+
+            return _client.Get<GetApprenticeshipsResponse>(
+                $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}{sortField}{filterQuery}{pageQuery}", null, cancellationToken);
+        }
+
+        public Task<GetApprenticeshipsFilterValuesResponse> GetApprenticeshipsFilterValues(long providerId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetApprenticeshipsFilterValuesResponse>(
+                $"api/apprenticeships/filters?providerId={providerId}", null, cancellationToken);
         }
 
         public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
@@ -122,11 +133,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<long?>($"api/employer-agreements/{accountLegalEntityId}/latest-id", null, cancellationToken);
         }
 
+        public Task<GetCohortsResponse> GetCohorts(GetCohortsRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetCohortsResponse>($"api/cohorts", request, cancellationToken);
+        }
+
         public Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken)
         {
             return _client.PostAsJson($"api/cohorts/{cohortId}/delete", userInfo, cancellationToken);
         }
-
 
         public Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default)
         {
@@ -146,6 +161,91 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<string> SecureProviderCheck()
         {
             return _client.Get("api/test/provider");  
+        }
+
+        private static string CreateFilterQuery(GetApprenticeshipsRequest request)
+        {
+            var filterQuery = string.Empty;
+
+            if (!string.IsNullOrEmpty(request.EmployerName))
+            {
+                filterQuery += $"&employerName={WebUtility.UrlEncode(request.EmployerName)}";
+            }
+
+            if (!string.IsNullOrEmpty(request.CourseName))
+            {
+                filterQuery += $"&courseName={WebUtility.UrlEncode(request.CourseName)}";
+            }
+
+            if (request.Status.HasValue)
+            {
+                filterQuery += $"&status={WebUtility.UrlEncode(request.Status.Value.ToString())}";
+            }
+
+            if (request.StartDate.HasValue)
+            {
+                filterQuery += $"&startDate={WebUtility.UrlEncode(request.StartDate.Value.ToString("u"))}";
+            }
+
+            if (request.EndDate.HasValue)
+            {
+                filterQuery += $"&endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}";
+            }
+
+            return filterQuery;
+        }
+
+        private static string CreateSortFieldQuery(GetApprenticeshipsRequest request)
+        {
+            var sortField = "";
+
+            if (!string.IsNullOrEmpty(request.SortField))
+            {
+                sortField = $"&sortField={request.SortField}";
+            }
+
+            return sortField;
+        }
+
+        private static string CreatePageQuery(GetApprenticeshipsRequest request)
+        {
+            var pageQuery = string.Empty;
+
+            if (request.PageNumber > 0)
+            {
+                pageQuery += $"pageNumber={request.PageNumber}";
+            }
+
+            if (request.PageItemCount > 0)
+            {
+                pageQuery += $"{(!string.IsNullOrEmpty(pageQuery) ? "&" : "")}pageItemCount={request.PageItemCount}";
+            }
+
+            if (!string.IsNullOrEmpty(pageQuery))
+            {
+                pageQuery = $"&{pageQuery}";
+            }
+
+            return pageQuery;
+        }
+        public Task<GetApprovedProvidersResponse> GetApprovedProviders(long accountId, CancellationToken cancellationToken)
+        {
+            return _client.Get<GetApprovedProvidersResponse>($"api/accounts/{accountId}/providers/approved", null, cancellationToken);
+        }
+
+        public Task<CreateCohortResponse> CreateCohort(CreateEmptyCohortRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<CreateEmptyCohortRequest, CreateCohortResponse>("api/cohorts/create-empty-cohort", request, cancellationToken);
+        }
+
+        public Task<GetApprenticeshipResponse> GetApprenticeship(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetApprenticeshipResponse>($"api/apprenticeships/{apprenticeshipId}", null, cancellationToken);
+        }
+
+        public Task<GetPriceEpisodesResponse> GetPriceEpisodes(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetPriceEpisodesResponse>($"api/apprenticeships/{apprenticeshipId}/price-episodes", null, cancellationToken);
         }
     }
 }

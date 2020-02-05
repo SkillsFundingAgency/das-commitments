@@ -23,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<ConfigurationRegistry>();
             registry.IncludeRegistry<CurrentDateTimeRegistry>();
             registry.IncludeRegistry<DataRegistry>();
+            registry.IncludeRegistry<ReadOnlyDataRegistry>();
             registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<EmployerAccountsRegistry>();
@@ -35,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<ReservationsApiClientRegistry>();
             registry.IncludeRegistry<StateServiceRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
+            registry.IncludeRegistry<CachingRegistry>();
         }
     }
 }
