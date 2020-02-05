@@ -659,10 +659,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public void TransferRequestRejectedReturnCohortToEmployer()
+        public void TransferRequestRejected(UserInfo userInfo)
         {
             CheckIsWithParty(Party.TransferSender);
+            StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, EmployerAccountId, ProviderId.Value, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
             EditStatus = EditStatus.EmployerOnly;
+            ChangeTrackingSession.CompleteTrackingSession();
         }
     }
 }
