@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             try
             {
                 var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
-                cohort.TransferRequestRejected(message.UserInfo);
+                cohort.RejectTransferRequest(message.UserInfo);
 
                 // Publish legacy event so Tasks can decrement it's counter
                 await _legacyTopicMessagePublisher.PublishAsync(new CohortRejectedByTransferSender(

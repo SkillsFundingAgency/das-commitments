@@ -660,7 +660,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public void TransferRequestRejected(UserInfo userInfo)
+        public void RejectTransferRequest(UserInfo userInfo)
         {
             CheckIsWithParty(Party.TransferSender);
             StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, EmployerAccountId, ProviderId.Value, userInfo);
