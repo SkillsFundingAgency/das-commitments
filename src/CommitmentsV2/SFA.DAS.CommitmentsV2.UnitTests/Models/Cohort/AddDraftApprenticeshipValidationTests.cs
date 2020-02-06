@@ -28,7 +28,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         [TestCase(null, null, true)]
         [TestCase("2022-01-20", null, true)]
-        [TestCase("2022-01-20", "2022-01-22", false)]
+        [TestCase("2022-01-20", "2022-02-22", false)]
+        [TestCase("2022-01-20", "2022-01-20", false)]
         [TestCase("2001-01-01", null, false)]
         public void EndDate_CheckValidation(string endDateString, string startDateString, bool passes)
         {
