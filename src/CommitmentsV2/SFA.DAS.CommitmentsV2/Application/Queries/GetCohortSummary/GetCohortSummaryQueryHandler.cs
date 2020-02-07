@@ -6,19 +6,16 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {
     public class GetCohortSummaryQueryHandler : IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
-        private readonly IEncodingService _encodingService;
 
-        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEncodingService encodingService)
+        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db)
         {
             _db = db;
-            _encodingService = encodingService;
         }
 
         public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
@@ -34,9 +31,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     CohortId = c.Id,
                     AccountId = c.EmployerAccountId,
                     CohortReference = c.Reference,
+                    AccountLegalEntityId = c.AccountLegalEntityId.Value,
                     AccountLegalEntityPublicHashedId = c.AccountLegalEntityPublicHashedId,
-                    LegalEntityName = c.LegalEntityName,
-                    ProviderName = c.ProviderName,
+                    LegalEntityName = c.AccountLegalEntity.Name,
+                    ProviderName = c.Provider.Name,
                     TransferSenderId = c.TransferSenderId,
                     WithParty = c.WithParty,
                     LatestMessageCreatedByEmployer = latestMessageCreatedByEmployer,
@@ -50,12 +48,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     IsCompleteForEmployer = c.Apprenticeships.Any() && !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null || a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null)
                 })
                 .SingleOrDefaultAsync(cancellationToken);
-
-            if (result != null)
-            {
-                result.AccountLegalEntityId = _encodingService.Decode(result.AccountLegalEntityPublicHashedId,
-                    EncodingType.PublicAccountLegalEntityId);
-            }
 
             return result;
         }
