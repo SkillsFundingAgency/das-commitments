@@ -58,3 +58,5 @@ CREATE NONCLUSTERED INDEX [IX_Apprenticeship_IsApprovedStartDate_Filter] ON [dbo
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_IsApprovedEndDate_Filter] ON [dbo].[Apprenticeship] ([IsApproved],[EndDate]) INCLUDE ([CommitmentId]) WITH (ONLINE=ON)
 GO
+CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_ApprovedNameSearch] ON [dbo].[Apprenticeship] ([IsApproved]) INCLUDE ([CommitmentId],[FirstName],[LastName])
+GO
