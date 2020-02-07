@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System.Globalization;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.Http;
@@ -47,30 +49,18 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
-            var pageQuery = "";
-            var sortField = "";
+            var pageQuery = CreatePageQuery(request);
+            var sortField = CreateSortFieldQuery(request);
+            var filterQuery = CreateFilterQuery(request);
 
-            if (request.PageNumber > 0)
-            {
-                pageQuery += $"pageNumber={request.PageNumber}";
-            }
-
-            if (request.PageItemCount > 0)
-            {
-                pageQuery += $"{(!string.IsNullOrEmpty(pageQuery)?"&" : "")}pageItemCount={request.PageItemCount}";
-            }
-
-            if (!string.IsNullOrEmpty(pageQuery))
-            {
-                pageQuery = $"&{pageQuery}";
-            }
-
-            if (!string.IsNullOrEmpty(request.SortField))
-            {
-                sortField = $"&sortField={request.SortField}";
-            }
             return _client.Get<GetApprenticeshipsResponse>(
-                $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}{sortField}{pageQuery}", null, cancellationToken);
+                $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}{sortField}{filterQuery}{pageQuery}", null, cancellationToken);
+        }
+
+        public Task<GetApprenticeshipsFilterValuesResponse> GetApprenticeshipsFilterValues(long providerId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetApprenticeshipsFilterValuesResponse>(
+                $"api/apprenticeships/filters?providerId={providerId}", null, cancellationToken);
         }
 
         public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
@@ -154,7 +144,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson($"api/cohorts/{cohortId}/delete", userInfo, cancellationToken);
         }
 
-
         public Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default)
         {
             return _client.Get<AccountResponse>($"api/accounts/{accountId}", null, cancellationToken);
@@ -173,6 +162,72 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<string> SecureProviderCheck()
         {
             return _client.Get("api/test/provider");  
+        }
+
+        private static string CreateFilterQuery(GetApprenticeshipsRequest request)
+        {
+            var filterQuery = string.Empty;
+
+            if (!string.IsNullOrEmpty(request.EmployerName))
+            {
+                filterQuery += $"&employerName={WebUtility.UrlEncode(request.EmployerName)}";
+            }
+
+            if (!string.IsNullOrEmpty(request.CourseName))
+            {
+                filterQuery += $"&courseName={WebUtility.UrlEncode(request.CourseName)}";
+            }
+
+            if (request.Status.HasValue)
+            {
+                filterQuery += $"&status={WebUtility.UrlEncode(request.Status.Value.ToString())}";
+            }
+
+            if (request.StartDate.HasValue)
+            {
+                filterQuery += $"&startDate={WebUtility.UrlEncode(request.StartDate.Value.ToString("u"))}";
+            }
+
+            if (request.EndDate.HasValue)
+            {
+                filterQuery += $"&endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}";
+            }
+
+            return filterQuery;
+        }
+
+        private static string CreateSortFieldQuery(GetApprenticeshipsRequest request)
+        {
+            var sortField = "";
+
+            if (!string.IsNullOrEmpty(request.SortField))
+            {
+                sortField = $"&sortField={request.SortField}";
+            }
+
+            return sortField;
+        }
+
+        private static string CreatePageQuery(GetApprenticeshipsRequest request)
+        {
+            var pageQuery = string.Empty;
+
+            if (request.PageNumber > 0)
+            {
+                pageQuery += $"pageNumber={request.PageNumber}";
+            }
+
+            if (request.PageItemCount > 0)
+            {
+                pageQuery += $"{(!string.IsNullOrEmpty(pageQuery) ? "&" : "")}pageItemCount={request.PageItemCount}";
+            }
+
+            if (!string.IsNullOrEmpty(pageQuery))
+            {
+                pageQuery = $"&{pageQuery}";
+            }
+
+            return pageQuery;
         }
         public Task<GetApprovedProvidersResponse> GetApprovedProviders(long accountId, CancellationToken cancellationToken)
         {

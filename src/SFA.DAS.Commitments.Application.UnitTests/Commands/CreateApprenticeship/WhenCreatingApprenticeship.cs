@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
-using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -83,7 +82,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 .With(x => x.FirstName, "First name")
                 .With(x => x.FirstName, "Last name")
                 .With(x => x.ProviderRef, "Provider ref")
-                .With(x => x.EmployerRef, null)
+                .With(x => x.EmployerRef, (string) null)
                 .With(x => x.StartDate, DateTime.Now.AddYears(5))
                 .With(x => x.EndDate, DateTime.Now.AddYears(7))
                 .With(x => x.DateOfBirth, DateTime.Now.AddYears(-16))

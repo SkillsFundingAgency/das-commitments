@@ -36,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<ReservationsApiClientRegistry>();
             registry.IncludeRegistry<StateServiceRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
+            registry.IncludeRegistry<CachingRegistry>();
         }
     }
 }
