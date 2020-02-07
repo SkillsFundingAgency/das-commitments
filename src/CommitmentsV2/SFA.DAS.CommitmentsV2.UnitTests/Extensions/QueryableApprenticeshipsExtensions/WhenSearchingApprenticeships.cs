@@ -54,19 +54,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         }
 
         [Test, RecursiveMoqAutoData]
-        public void And_FirstName_And_LastName_Matches_SearchTerm_Then_Included(
-            string searchTerm,
+        public void And_FirstName_And_LastName_Matches_SearchTerm_Split_on_The_Space(
+            string searchTermFirstName,
+            string searchTermLastName,
             List<Apprenticeship> apprenticeships)
         {
-            apprenticeships[0].FirstName = searchTerm;
-            apprenticeships[1].LastName = searchTerm;
+            var searchTerm = $"{searchTermFirstName} {searchTermLastName}";
+
+            apprenticeships[0].FirstName = searchTermFirstName;
+            apprenticeships[1].LastName = searchTermLastName;
             var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm};
 
             var filtered = apprenticeships.AsQueryable().Filter(filter);
 
             filtered.Count().Should().Be(apprenticeships.Count(apprenticeship =>
-                apprenticeship.FirstName == searchTerm ||
-                apprenticeship.LastName == searchTerm));
+                apprenticeship.FirstName == searchTermFirstName ||
+                apprenticeship.LastName == searchTermLastName));
         }
     }
 }
