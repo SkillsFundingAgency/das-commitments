@@ -1,0 +1,245 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoFixture.NUnit3;
+using FluentAssertions;
+using Moq;
+using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Parameters;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.Testing.AutoFixture;
+
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships.GetApprenticeshipsHandlerTests
+{
+    public class WhenGettingApprenticeships
+    {
+        [Test, RecursiveMoqAutoData]
+        public async Task ThenReturnUnsortedApprenticeshipsWhenNotOrdering(
+            List<Apprenticeship> apprenticeships,
+            [Frozen]GetApprenticeshipsQuery query,
+            [Frozen] Mock<IApprenticeshipSearch> mockSearch,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
+            GetApprenticeshipsQueryHandler handler)
+        {
+            query.SortField = "";
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+
+            mockSearch.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
+                .ReturnsAsync(new ApprenticeshipSearchResult
+                {
+                    Apprenticeships = apprenticeships
+                });
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(new List<Apprenticeship>());
+
+            await handler.Handle(query, CancellationToken.None);
+
+            mockSearch.Verify(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()), Times.Once);
+            
+            mockMapper
+                .Verify(mapper => mapper.Map(It.IsIn(apprenticeships
+                    .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))), Times.Once());
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task ThenReturnsOrderedApprenticeshipsWhenOrdering(
+            
+            [Frozen]GetApprenticeshipsQuery query,
+            List<Apprenticeship> apprenticeships,
+            GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IApprenticeshipSearch> mockSearch,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
+            GetApprenticeshipsQueryHandler handler)
+        {
+            query.SortField = "test";
+            query.ReverseSort = false;
+
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+
+            mockSearch.Setup(x => x.Find(It.IsAny<OrderedApprenticeshipSearchParameters>()))
+                .ReturnsAsync(new ApprenticeshipSearchResult
+                {
+                    Apprenticeships = apprenticeships
+                });
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(new List<Apprenticeship>());
+
+            await handler.Handle(query, CancellationToken.None);
+
+            mockSearch.Verify(x => x.Find(It.IsAny<OrderedApprenticeshipSearchParameters>()), Times.Once);
+            
+            mockMapper
+                .Verify(mapper => mapper.Map(It.IsIn(apprenticeships
+                    .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))), Times.Once());
+        }
+
+
+        [Test, RecursiveMoqAutoData]
+        public async Task ThenReturnReverseOrderedApprenticeshipsWhenOrderingInReverse(
+           
+            [Frozen]GetApprenticeshipsQuery query,
+            List<Apprenticeship> apprenticeships,
+            GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IApprenticeshipSearch> mockSearch,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
+            GetApprenticeshipsQueryHandler handler)
+        {
+            query.SortField = "test";
+            query.ReverseSort = true;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+
+            mockSearch.Setup(x => x.Find(It.IsAny<ReverseOrderedApprenticeshipSearchParameters>()))
+                .ReturnsAsync(new ApprenticeshipSearchResult
+                {
+                    Apprenticeships = apprenticeships
+                });
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(new List<Apprenticeship>());
+
+            await handler.Handle(query, CancellationToken.None);
+
+            mockSearch.Verify(x => x.Find(It.IsAny<ReverseOrderedApprenticeshipSearchParameters>()), Times.Once);
+            
+            mockMapper
+                .Verify(mapper => mapper.Map(It.IsIn(apprenticeships
+                    .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))), Times.Once());
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task ThenReturnsMappedApprenticeships( 
+            [Frozen]GetApprenticeshipsQuery query,
+            List<Apprenticeship> apprenticeships,
+            [Frozen]GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IApprenticeshipSearch> search,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
+            GetApprenticeshipsQueryHandler handler)
+        {
+            query.SortField = "";
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+
+            search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
+                .ReturnsAsync(new ApprenticeshipSearchResult
+                {
+                    Apprenticeships = apprenticeships
+                });
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            mockMapper
+                .Setup(mapper => mapper.Map(It.IsIn(apprenticeships
+                    .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))))
+                .ReturnsAsync(apprenticeshipDetails);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.Apprenticeships.Should().AllBeEquivalentTo(apprenticeshipDetails);
+
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task ThenReturnsTotalApprenticeshipsFound(
+            int totalApprenticeshipsFoundCount,
+            [Frozen]GetApprenticeshipsQuery query,
+            [Frozen] Mock<IApprenticeshipSearch> search,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            GetApprenticeshipsQueryHandler handler) 
+        {
+            query.SortField = "";
+
+            search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
+                .ReturnsAsync(new ApprenticeshipSearchResult
+                {
+                    Apprenticeships = new Apprenticeship[0],
+                    TotalApprenticeshipsFound = totalApprenticeshipsFoundCount
+                });
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(new List<Apprenticeship>());
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.TotalApprenticeshipsFound.Should().Be(totalApprenticeshipsFoundCount);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task ThenReturnsTotaApprenticeshipsFoundWithAlerts(
+            int totalApprenticeshipsFoundWithAlertsCount,
+            [Frozen]GetApprenticeshipsQuery query,
+            [Frozen] Mock<IApprenticeshipSearch> search,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            GetApprenticeshipsQueryHandler handler)
+        {
+            query.SortField = "";
+
+            search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
+                .ReturnsAsync(new ApprenticeshipSearchResult
+                {
+                    Apprenticeships = new Apprenticeship[0],
+                    TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsFoundWithAlertsCount
+                });
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(new List<Apprenticeship>());
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.TotalApprenticeshipsWithAlertsFound.Should().Be(totalApprenticeshipsFoundWithAlertsCount);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task ThenReturnsTotalAvailableApprenticeships(
+            [Frozen]GetApprenticeshipsQuery query,
+            List<Apprenticeship> apprenticeships,
+            GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IApprenticeshipSearch> search,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
+            GetApprenticeshipsQueryHandler handler)
+        {
+            query.SortField = "";
+
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+
+            search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
+                .ReturnsAsync(new ApprenticeshipSearchResult
+                {
+                    Apprenticeships = apprenticeships
+                });
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            mockMapper
+                .Setup(mapper => mapper.Map(It.IsIn(apprenticeships
+                    .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))))
+                .ReturnsAsync(apprenticeshipDetails);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+
+            result.TotalApprenticeships
+                .Should().Be(apprenticeships
+                    .Count(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId));
+        }
+    }
+}
