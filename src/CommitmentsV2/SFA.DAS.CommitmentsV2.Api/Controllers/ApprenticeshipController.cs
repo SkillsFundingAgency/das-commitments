@@ -100,5 +100,18 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet]
+        [Route("{apprenticeshipId}/datalocks-status")]
+        public async Task<IActionResult> GetDataLocks(long apprenticeshipId)
+        {
+            var query = new GetApprenticeshipQuery(apprenticeshipId);
+            var result = await _mediator.Send(query);
+
+            if (result == null) { return NotFound(); }
+
+            var response = await _modelMapper.Map<GetApprenticeshipResponse>(result);
+            return Ok(response);
+        }
     }
 }
