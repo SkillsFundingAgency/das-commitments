@@ -10,6 +10,11 @@
 --------------------------------------------------------------------------------------
 */
 
-DROP PROCEDURE IF EXISTS [dbo].[BulkUploadApprenticships]
-DROP PROCEDURE IF EXISTS [dbo].[GetActiveApprenticeships]
 
+--CV-565: Update old records that were created before the capture of AccountLegalEntityId
+update c set
+c.AccountLegalEntityId = ale.Id
+from
+Commitment c
+join AccountLegalEntities ale on ale.PublicHashedId = c.AccountLegalEntityPublicHashedId
+where c.AccountLegalEntityId IS NULL

@@ -19,7 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.HasOne(ale => ale.Account).WithMany(a => a.AccountLegalEntities).Metadata.DeleteBehavior = DeleteBehavior.Restrict;
 
             builder.HasQueryFilter(ale => ale.Deleted == null);
-
         }
     }
 }

@@ -11,3 +11,4 @@ Post-Deployment Script Template
 */
 
 EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
+
