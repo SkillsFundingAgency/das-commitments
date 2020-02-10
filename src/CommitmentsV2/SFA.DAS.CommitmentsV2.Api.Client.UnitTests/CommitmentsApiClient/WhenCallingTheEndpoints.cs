@@ -318,6 +318,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             var request = new GetApprenticeshipsRequest
             {
                 ProviderId = 10,
+                SearchTerm = "photon chocolate search termses",
                 EmployerName = "Test corp",
                 CourseName = "Test course",
                 Status = ApprenticeshipStatus.Completed,
@@ -333,6 +334,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 $"api/apprenticeships/?" +
                 $"providerId={request.ProviderId}&" +
                 $"reverseSort={request.ReverseSort}&" +
+                $"searchTerm={WebUtility.UrlEncode(request.SearchTerm)}&" +
                 $"employerName={WebUtility.UrlEncode(request.EmployerName)}&" +
                 $"courseName={WebUtility.UrlEncode(request.CourseName)}&" +
                 $"status={WebUtility.UrlEncode(request.Status.Value.ToString())}&" +

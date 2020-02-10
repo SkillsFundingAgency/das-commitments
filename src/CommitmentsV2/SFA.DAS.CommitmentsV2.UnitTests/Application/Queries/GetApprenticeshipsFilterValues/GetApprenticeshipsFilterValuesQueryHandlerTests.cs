@@ -10,30 +10,30 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprenticesFilterValues
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipsFilterValues
 {
-    public class GetApprovedApprenticesFilterValuesQueryHandlerTests
+    public class GetApprenticeshipsFilterValuesQueryHandlerTests
     {
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Employer_Names(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
+            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].Cohort.LegalEntityName = approvedApprenticeships[1].Cohort.LegalEntityName;
+            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[2].Cohort.LegalEntityName = apprenticeships[1].Cohort.LegalEntityName;
 
             var expectedEmployerNames = new[]
-                {approvedApprenticeships[0].Cohort.LegalEntityName, approvedApprenticeships[1].Cohort.LegalEntityName};
+                {apprenticeships[0].Cohort.LegalEntityName, apprenticeships[1].Cohort.LegalEntityName};
 
             mockContext
                 .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(approvedApprenticeships);
+                .ReturnsDbSet(apprenticeships);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
@@ -43,23 +43,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Course_Names(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
+            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].CourseName = approvedApprenticeships[1].CourseName;
+            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[2].CourseName = apprenticeships[1].CourseName;
 
             var expectedCourseNames = new[]
-                {approvedApprenticeships[0].CourseName, approvedApprenticeships[1].CourseName};
+                {apprenticeships[0].CourseName, apprenticeships[1].CourseName};
 
             mockContext
                 .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(approvedApprenticeships);
+                .ReturnsDbSet(apprenticeships);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
@@ -69,26 +69,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Planned_Start_Dates(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
+            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].StartDate = approvedApprenticeships[1].StartDate;
+            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[2].StartDate = apprenticeships[1].StartDate;
 
             var expectedStartDates = new[]
             {
-                approvedApprenticeships[0].StartDate.Value,
-                approvedApprenticeships[1].StartDate.Value
+                apprenticeships[0].StartDate.Value,
+                apprenticeships[1].StartDate.Value
             };
 
             mockContext
                 .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(approvedApprenticeships);
+                .ReturnsDbSet(apprenticeships);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
@@ -98,26 +98,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Planned_End_Dates(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
+            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            approvedApprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].Cohort.ProviderId = query.ProviderId;
-            approvedApprenticeships[2].EndDate = approvedApprenticeships[1].EndDate;
+            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[2].EndDate = apprenticeships[1].EndDate;
 
             var expectedEndDates = new[]
             {
-                approvedApprenticeships[0].EndDate.Value,
-                approvedApprenticeships[1].EndDate.Value
+                apprenticeships[0].EndDate.Value,
+                apprenticeships[1].EndDate.Value
             };
 
             mockContext
                 .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(approvedApprenticeships);
+                .ReturnsDbSet(apprenticeships);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
         [Test,RecursiveMoqAutoData]
         public async Task Then_Adds_Result_To_Cache_For_One_Minute(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
+            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -135,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             //Arrange
             mockContext
                 .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(approvedApprenticeships);
+                .ReturnsDbSet(apprenticeships);
             SetupEmptyCache(query, cacheStorageService);
 
             //Act
@@ -148,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
         [Test, RecursiveMoqAutoData]
         public async Task Then_Checks_The_Caches_For_That_Providers_Filter_Values_And_Returns_If_Exists(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
+            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
             GetApprenticeshipsFilterValuesQueryResult queryResult,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
@@ -157,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             //Arrange
             mockContext
                 .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(approvedApprenticeships);
+                .ReturnsDbSet(apprenticeships);
             cacheStorageService
                 .Setup(x => x.RetrieveFromCache<GetApprenticeshipsFilterValuesQueryResult>(
                     $"{nameof(GetApprenticeshipsFilterValuesQueryResult)}-{query.ProviderId}"))
