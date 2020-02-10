@@ -7,9 +7,9 @@ namespace SFA.DAS.CommitmentsV2.Extensions
     public static class DownloadRestrictionsExtensions
     {
         public static IQueryable<Apprenticeship> DownloadsFilter(this IQueryable<Apprenticeship> apprenticeships,
-            int pageNumber)
+            bool isDownload)
         {
-            if (pageNumber == 0)
+            if (isDownload)
             {
                 apprenticeships = apprenticeships.Where(app => app.EndDate > DateTime.UtcNow.AddMonths(-12));
             }

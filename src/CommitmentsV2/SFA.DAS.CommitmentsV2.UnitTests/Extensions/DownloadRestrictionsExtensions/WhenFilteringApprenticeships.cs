@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.DownloadRestrictionsExtensi
             }.AsQueryable();
 
             //Act
-            var result = apprenticeships.DownloadsFilter(0);
+            var result = apprenticeships.DownloadsFilter(true);
 
             //Assert
             Assert.AreEqual(2, result.Count());
