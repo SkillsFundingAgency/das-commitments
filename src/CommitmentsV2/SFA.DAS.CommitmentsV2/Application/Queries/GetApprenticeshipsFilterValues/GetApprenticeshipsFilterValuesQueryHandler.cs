@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             return _dbContext.Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
-                .Select(apprenticeship => apprenticeship.Cohort.LegalEntityName)
+                .Select(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
                 .Distinct()
                 .ToListAsync(cancellationToken);
         }

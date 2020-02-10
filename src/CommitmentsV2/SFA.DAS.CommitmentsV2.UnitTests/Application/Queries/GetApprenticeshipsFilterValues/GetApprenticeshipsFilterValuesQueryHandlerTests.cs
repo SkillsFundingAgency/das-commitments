@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
@@ -8,6 +9,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipsFilterValues
@@ -26,10 +28,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             apprenticeships[0].Cohort.ProviderId = query.ProviderId;
             apprenticeships[1].Cohort.ProviderId = query.ProviderId;
             apprenticeships[2].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[2].Cohort.LegalEntityName = apprenticeships[1].Cohort.LegalEntityName;
+            apprenticeships[1].Cohort.AccountLegalEntity = CreateAccountLegalEntity("test");
+            apprenticeships[2].Cohort.AccountLegalEntity = apprenticeships[1].Cohort.AccountLegalEntity;
 
             var expectedEmployerNames = new[]
-                {apprenticeships[0].Cohort.LegalEntityName, apprenticeships[1].Cohort.LegalEntityName};
+                {apprenticeships[0].Cohort.AccountLegalEntity.Name, apprenticeships[1].Cohort.AccountLegalEntity.Name};
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -177,6 +180,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(x => x.RetrieveFromCache<GetApprenticeshipsFilterValuesQueryResult>(
                     $"{nameof(GetApprenticeshipsFilterValuesQueryResult)}-{query.ProviderId}"))
                 .ReturnsAsync((GetApprenticeshipsFilterValuesQueryResult) null);
+        }
+
+        private AccountLegalEntity CreateAccountLegalEntity(string name)
+        {
+            var account = new Account(1, "", "", name, DateTime.UtcNow);
+            return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",
+                DateTime.UtcNow);
         }
     }
 }

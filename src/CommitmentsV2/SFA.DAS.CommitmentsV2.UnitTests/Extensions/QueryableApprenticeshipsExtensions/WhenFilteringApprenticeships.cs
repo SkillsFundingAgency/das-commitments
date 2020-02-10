@@ -24,21 +24,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 {
                     Cohort = new Cohort
                     {
-                        LegalEntityName = filterValue
+                        AccountLegalEntity = CreateAccountLegalEntity(filterValue)
                     }
                 },
                 new Apprenticeship
                 {
                     Cohort = new Cohort
                     {
-                        LegalEntityName = filterValue
+                        AccountLegalEntity = CreateAccountLegalEntity(filterValue)
                     }
                 },
                 new Apprenticeship
                 {
                     Cohort = new Cohort
                     {
-                        LegalEntityName = "no filter value"
+                        AccountLegalEntity = CreateAccountLegalEntity("no filter value")
                     }
                 }
             }.AsQueryable();
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.AreEqual(2, result.Count);
-            Assert.IsTrue(result.All(a => a.Cohort.LegalEntityName.Equals(filterValue)));
+            Assert.IsTrue(result.All(a => a.Cohort.AccountLegalEntity.Name.Equals(filterValue)));
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 {
                     Cohort = new Cohort
                     {
-                        LegalEntityName = filterValue
+                        AccountLegalEntity = CreateAccountLegalEntity(filterValue)
                     }
                 },
                 new Apprenticeship(),
@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 {
                     Cohort = new Cohort
                     {
-                        LegalEntityName = "ACME Supplies"
+                        AccountLegalEntity = CreateAccountLegalEntity("ACME Supplies")
                     }
                 }
             }.AsQueryable();
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.AreEqual(1, result.Count);
-            Assert.IsTrue(result.All(a => a.Cohort.LegalEntityName.Equals(filterValue)));
+            Assert.IsTrue(result.All(a => a.Cohort.AccountLegalEntity.Name.Equals(filterValue)));
         }
 
         [Test]
@@ -470,6 +470,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.AreEqual(3, result.Count);
+        }
+
+        private AccountLegalEntity CreateAccountLegalEntity(string name)
+        {
+            var account = new Account(1, "", "", name, DateTime.UtcNow);
+            return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",
+                DateTime.UtcNow);
         }
     }
 }

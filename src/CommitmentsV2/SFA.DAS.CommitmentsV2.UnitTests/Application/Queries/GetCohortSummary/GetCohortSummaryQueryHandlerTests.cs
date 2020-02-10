@@ -177,7 +177,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             var autoFixture = new Fixture();
 
             CohortId = autoFixture.Create<long>();
-            Cohort = autoFixture.Build<Cohort>().Without(o=>o.Apprenticeships).Without(o=>o.TransferRequests).Without(o=>o.Messages).Create();
+            Cohort = autoFixture.Build<Cohort>().Without(o=>o.Apprenticeships).Without(o=>o.TransferRequests).Without(o=>o.Messages).Without(o=>o.AccountLegalEntity).Without(o=>o.Provider).Create();
 
             Cohort.IsDeleted = CohortIsDeleted;
             if (!HasTransferSender)

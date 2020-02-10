@@ -40,6 +40,14 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .IsRequired()
                 .HasMaxLength(100);
 
+            builder.HasOne(c => c.Provider)
+                .WithMany(c => c.Cohort)
+                .HasForeignKey(c => c.ProviderId);
+
+            builder.HasOne(c => c.AccountLegalEntity)
+                .WithMany(c => c.Cohort)
+                .HasForeignKey(c => c.AccountLegalEntityId);
+
             builder.Property(e => e.TransferApprovalActionedByEmployerEmail).HasMaxLength(255);
             builder.Property(e => e.TransferApprovalActionedByEmployerName).HasMaxLength(255);
             builder.Property(e => e.TransferSenderName).HasMaxLength(100);

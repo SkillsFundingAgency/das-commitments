@@ -159,7 +159,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.IsDeleted, false)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Without(o => o.AccountLegalEntity)
+                .Without(o => o.Provider)
+                .Create();
 
             SeedCohorts.Add(cohort);
             return this;
@@ -175,7 +178,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.TransferApprovalStatus)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Without(o => o.AccountLegalEntity)
+                .Without(o => o.Provider)
+                .Create();
 
             SeedCohorts.Add(cohort);
             return this;
@@ -190,7 +196,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.IsDeleted, false)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Without(o => o.AccountLegalEntity)
+                .Without(o => o.Provider)
+                .Create();
 
             SeedCohorts.Add(cohort);
             return this;
@@ -206,7 +215,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.IsDeleted, false)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Without(o => o.AccountLegalEntity)
+                .Without(o => o.Provider)
+                .Create();
 
             var account = new Account(TransferSenderId, "hashedId", "publicHashedId", "TransferSender", DateTime.Now);
 
@@ -224,7 +236,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.IsDeleted, false)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Without(o => o.AccountLegalEntity)
+                .Without(o => o.Provider)
+                .Create();
 
             cohort.Apprenticeships.Add(new DraftApprenticeship());
             cohort.Apprenticeships.Add(new DraftApprenticeship());

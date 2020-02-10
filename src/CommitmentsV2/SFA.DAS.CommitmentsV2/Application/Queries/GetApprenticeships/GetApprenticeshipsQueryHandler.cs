@@ -154,10 +154,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             query = query.OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
-                .ThenBy(x => x.Cohort.LegalEntityName)
+                .ThenBy(x => x.Cohort.AccountLegalEntity.Name)
                 .ThenBy(x => x.CourseName)
                 .ThenByDescending(x => x.StartDate)
-                .Include(apprenticeship => apprenticeship.Cohort);
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
+                .Include(apprenticeship => apprenticeship.Cohort.Provider);
 
             if (skipCount > 0)
             {
@@ -179,12 +181,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             query = query.OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
-                .ThenBy(x => x.Cohort.LegalEntityName)
+                .ThenBy(x => x.Cohort.AccountLegalEntity.Name)
                 .ThenBy(x => x.CourseName)
                 .ThenByDescending(x => x.StartDate)
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
-                .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate);
+                .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
+                .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
+                .Include(apprenticeship => apprenticeship.Cohort.Provider);
 
             if (skipCount > 0)
             {
@@ -223,7 +227,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .ThenBy(GetSecondarySortByField(fieldName))
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
-                .Include(apprenticeship => apprenticeship.DataLockStatus);
+                .Include(apprenticeship => apprenticeship.DataLockStatus)
+                .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
+                .Include(apprenticeship => apprenticeship.Cohort.Provider);
 
             var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(cancellationToken);
 
@@ -245,7 +251,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .ThenByDescending(GetSecondarySortByField(fieldName))
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
-                .Include(apprenticeship => apprenticeship.DataLockStatus);
+                .Include(apprenticeship => apprenticeship.DataLockStatus)
+                .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
+                .Include(apprenticeship => apprenticeship.Cohort.Provider);
 
             var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(cancellationToken);
 
@@ -314,8 +322,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                     return apprenticeship => apprenticeship.LastName;
                 case nameof(Apprenticeship.CourseName):
                     return apprenticeship => apprenticeship.CourseName;
-                case nameof(Apprenticeship.Cohort.LegalEntityName):
-                    return apprenticeship => apprenticeship.Cohort.LegalEntityName;
+                case nameof(Apprenticeship.Cohort.AccountLegalEntity.Name):
+                    return apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name;
                 case nameof(Apprenticeship.StartDate):
                     return apprenticeship => apprenticeship.StartDate;
                 case nameof(Apprenticeship.EndDate):

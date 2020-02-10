@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = query.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1}}
 
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = query.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>()
                 }
@@ -135,6 +135,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             //Assert
             Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);
+        }
+        private AccountLegalEntity CreateAccountLegalEntity(string name)
+        {
+            var account = new Account(1, "", "", name, DateTime.UtcNow);
+            return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",
+                DateTime.UtcNow);
         }
     }
 }

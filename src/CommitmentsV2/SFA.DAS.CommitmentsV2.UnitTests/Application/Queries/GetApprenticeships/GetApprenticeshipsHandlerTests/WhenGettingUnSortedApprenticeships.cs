@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow.AddMonths(2),
                     EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -132,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Should_Be_Fourth"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Should_Be_Fourth")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -145,7 +145,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -158,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -171,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 }
@@ -335,7 +335,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
                     {
@@ -355,7 +355,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -368,7 +368,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
                     {
@@ -438,6 +438,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Should().Be(apprenticeships
                     .Count(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId));
         }
-
+        private AccountLegalEntity CreateAccountLegalEntity(string name)
+        {
+            var account = new Account(1, "", "", name, DateTime.UtcNow);
+            return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",
+                DateTime.UtcNow);
+        }
     }
 }

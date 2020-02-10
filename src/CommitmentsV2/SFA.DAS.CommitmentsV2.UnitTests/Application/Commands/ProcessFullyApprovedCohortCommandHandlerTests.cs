@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeships(bool isFundedByTransfer)
         {
-            var cohortBuilder = AutoFixture.Build<Cohort>().Without(c => c.Apprenticeships).With(x=> x.IsDeleted, false);
+            var cohortBuilder = AutoFixture.Build<Cohort>().Without(c => c.Apprenticeships).Without(c => c.AccountLegalEntity).Without(c => c.Provider).With(x=> x.IsDeleted, false);
 
             if (!isFundedByTransfer)
             {

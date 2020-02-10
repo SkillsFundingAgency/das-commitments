@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -18,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime Created { get; private set; }
         public DateTime? Updated { get; private set; }
         public DateTime? Deleted { get; private set; }
+        public virtual IEnumerable<Cohort> Cohort { get; set; }
 
         internal AccountLegalEntity(Account account, long id, long maLegalEntityId, string legalEntityId, string publicHashedId, 
             string name, OrganisationType organisationType, string address, DateTime created)

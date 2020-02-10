@@ -612,7 +612,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     EditStatus = creatingParty.ToEditStatus(),
                     ProviderId = ProviderId,
                     EmployerAccountId = AccountId,
-                    AccountLegalEntityPublicHashedId = AccountLegalEntityPublicHashedId
+                    AccountLegalEntityPublicHashedId = AccountLegalEntityPublicHashedId,
                 };
                 
                 Db.Cohorts.Add(Cohort);
