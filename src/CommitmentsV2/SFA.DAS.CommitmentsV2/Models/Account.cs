@@ -16,6 +16,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private readonly List<AccountLegalEntity> _accountLegalEntities = new List<AccountLegalEntity>();
 
+        public ICollection<Cohort> TransferFundedCohorts { get; set; }
+
         public Account(long id, string hashedId, string publicHashedId, string name, DateTime created)
         {
             Id = id;
