@@ -4,17 +4,17 @@ using AutoFixture.NUnit3;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Handlers;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Parameters;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships.SearchTests
 {
-    public class WhenGettingSearchParameterHandler
+    public class WhenGettingSearchParameterService
     {
         [Test, MoqAutoData]
         public async Task ThenWillGetSearchHandler(
-            [Frozen]Mock<IApprenticeshipSearchHandler<ApprenticeshipSearchParameters>> handler, 
+            [Frozen]Mock<IApprenticeshipSearchService<ApprenticeshipSearchParameters>> service, 
             [Frozen]Mock<IServiceProvider> serviceProvider,
             ApprenticeshipSearchParameters searchParameters,
             ApprenticeshipSearch search)
@@ -24,9 +24,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             serviceProvider.Setup(x =>
                     x.GetService(It.IsAny<Type>()))
-                           .Returns(handler.Object);
+                           .Returns(service.Object);
 
-            handler.Setup(x => x.Find(searchParameters))
+            service.Setup(x => x.Find(searchParameters))
                    .ReturnsAsync(expectedResult);
 
             //Act

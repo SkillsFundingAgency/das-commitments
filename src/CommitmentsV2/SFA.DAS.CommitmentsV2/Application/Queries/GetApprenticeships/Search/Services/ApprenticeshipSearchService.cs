@@ -5,20 +5,20 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Parameters;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Handlers
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services
 {
-    public class ApprenticeshipSearchHandler : IApprenticeshipSearchHandler<ApprenticeshipSearchParameters>
+    public class ApprenticeshipSearchService : IApprenticeshipSearchService<ApprenticeshipSearchParameters>
     {
         private readonly ICommitmentsReadOnlyDbContext _dbContext;
 
-        public ApprenticeshipSearchHandler(ICommitmentsReadOnlyDbContext dbContext)
+        public ApprenticeshipSearchService(ICommitmentsReadOnlyDbContext dbContext)
         {
             _dbContext = dbContext;
         }

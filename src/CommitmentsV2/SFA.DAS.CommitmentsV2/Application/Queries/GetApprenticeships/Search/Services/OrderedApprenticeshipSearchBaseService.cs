@@ -9,9 +9,9 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Handlers
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services
 {
-    public abstract class OrderedApprenticeshipSearchBaseHandler
+    public abstract class OrderedApprenticeshipSearchBaseService
     {
         protected static async Task<ApprenticeshipSearchResult> CreatePagedApprenticeshipSearchResult(CancellationToken cancellationToken, int pageNumber,
             int pageItemCount, IQueryable<Apprenticeship> apprenticeshipsQuery, int totalApprenticeshipsFound,

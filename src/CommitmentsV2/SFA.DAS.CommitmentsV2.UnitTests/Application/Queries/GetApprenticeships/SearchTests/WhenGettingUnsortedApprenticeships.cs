@@ -6,8 +6,8 @@ using AutoFixture.NUnit3;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Handlers;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Parameters;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -16,14 +16,14 @@ using ApprenticeshipUpdateStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships.SearchTests
 {
-    public class WhenGettingUnsortedApprenticeships : SearchParameterHandlerTestBase
+    public class WhenGettingUnsortedApprenticeships : SearchParameterServiceTestBase
     {
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_Apprenticeships(
             ApprenticeshipSearchParameters searchParameters,
             List<Apprenticeship> apprenticeships,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
-            ApprenticeshipSearchHandler handler)
+            ApprenticeshipSearchService service)
         {
             searchParameters.PageNumber = 0;
             searchParameters.PageItemCount = 0;
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var expectedApprenticeships =
                 apprenticeships.Where(app => app.Cohort.ProviderId == searchParameters.ProviderId);
 
-            var result = await handler.Find(searchParameters);
+            var result = await service.Find(searchParameters);
 
             result.Apprenticeships.Count()
                 .Should().Be(apprenticeships
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             ApprenticeshipSearchParameters searchParameters,
             List<Apprenticeship> apprenticeships,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
-            ApprenticeshipSearchHandler handler)
+            ApprenticeshipSearchService service)
         {
             searchParameters.PageNumber = 0;
             searchParameters.PageItemCount = 0;
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
-            var result = await handler.Find(searchParameters);
+            var result = await service.Find(searchParameters);
 
             result.TotalApprenticeshipsFound
                 .Should().Be(apprenticeships
@@ -165,10 +165,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new ApprenticeshipSearchHandler(mockContext.Object);
+            
+            var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
-            var actual = await handler.Find(searchParameters);
+            var actual = await service.Find(searchParameters);
 
             //Assert
             Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).FirstName);
@@ -196,10 +197,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
             
-            var handler = new ApprenticeshipSearchHandler(mockContext.Object);
+            var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
-            var actual = await handler.Find(searchParameters);
+            var actual = await service.Find(searchParameters);
 
             //Assert
             Assert.AreEqual(2, actual.Apprenticeships.Count());
@@ -222,10 +223,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new ApprenticeshipSearchHandler(mockContext.Object);
+            
+            var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
-            var actual = await handler.Find(searchParameters);
+            var actual = await service.Find(searchParameters);
 
             //Assert
             Assert.AreEqual(apprenticeships.Count, actual.TotalApprenticeshipsFound);
@@ -247,10 +249,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
-            var handler = new ApprenticeshipSearchHandler(mockContext.Object);
+            var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
-            var actual = await handler.Find(searchParameters);
+            var actual = await service.Find(searchParameters);
 
             //Assert
             Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);
@@ -267,14 +269,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new ApprenticeshipSearchHandler(mockContext.Object);
+            
+            var service = new ApprenticeshipSearchService(mockContext.Object);
 
             searchParameters.PageNumber = 5;
             searchParameters.PageItemCount = 2;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
             //Act
-            var actual = await handler.Find(searchParameters);
+            var actual = await service.Find(searchParameters);
 
             //Assert
             Assert.IsEmpty(actual.Apprenticeships);
@@ -287,7 +290,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
-            
             searchParameters.PageNumber = 0;
             searchParameters.PageItemCount = 0;
             searchParameters.ReverseSort = false;
@@ -352,16 +354,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new ApprenticeshipSearchHandler(mockContext.Object);
+            
+            var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
-            var actual = await handler.Find(searchParameters);
+            var actual = await service.Find(searchParameters);
 
             //Assert
             Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(0).LastName);
             Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(1).LastName);
             Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(2).LastName);
-            
         }
     }
 }

@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Handlers;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Parameters;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -14,7 +14,7 @@ using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships.SearchTests
 {
-    public class WhenGettingUnsortedApprenticeshipsInReverserOrder : SearchParameterHandlerTestBase
+    public class WhenGettingUnsortedApprenticeshipsInReverserOrder : SearchParameterServiceTestBase
     {
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_And_Is_Reverse_Sorted_Then_Apprentices_Are_Default_Sorted_In_Reverse(
@@ -61,10 +61,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new ApprenticeshipSearchHandler(mockContext.Object);
+            
+            var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
-            var actual = await handler.Find(searchParameters);
+            var actual = await service.Find(searchParameters);
 
             //Assert
             Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).LastName);
@@ -89,10 +90,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
-            var handler = new ApprenticeshipSearchHandler(mockContext.Object);
+            var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
-            var actual = await handler.Find(searchParameters);
+            var actual = await service.Find(searchParameters);
 
             //Assert
             Assert.AreEqual(2, actual.Apprenticeships.Count());
@@ -116,10 +117,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            var handler = new ApprenticeshipSearchHandler(mockContext.Object);
+            
+            var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
-            var actual = await handler.Find(searchParameters);
+            var actual = await service.Find(searchParameters);
 
             //Assert
             Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);

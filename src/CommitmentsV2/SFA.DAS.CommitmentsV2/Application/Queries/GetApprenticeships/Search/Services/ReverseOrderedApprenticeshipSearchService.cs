@@ -1,17 +1,17 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Parameters;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Extensions;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Handlers
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services
 {
-    public class ReverseOrderedApprenticeshipSearchHandler : OrderedApprenticeshipSearchBaseHandler, IApprenticeshipSearchHandler<ReverseOrderedApprenticeshipSearchParameters>
+    public class ReverseOrderedApprenticeshipSearchService : OrderedApprenticeshipSearchBaseService, IApprenticeshipSearchService<ReverseOrderedApprenticeshipSearchParameters>
     {
         private readonly ICommitmentsReadOnlyDbContext _dbContext;
 
-        public ReverseOrderedApprenticeshipSearchHandler(ICommitmentsReadOnlyDbContext dbContext)
+        public ReverseOrderedApprenticeshipSearchService(ICommitmentsReadOnlyDbContext dbContext)
         {
             _dbContext = dbContext;
         }
