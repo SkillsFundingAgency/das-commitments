@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
 {
@@ -83,6 +84,24 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             }
 
             return apprenticeships;
+        }
+
+        public static IQueryable<Apprenticeship> WithAlerts(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
+        {
+            if (hasAlerts)
+            {
+                return apprenticeships.Where(apprenticeship => apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3) || 
+                                                                   apprenticeship.ApprenticeshipUpdate != null &&
+                                                                   apprenticeship.ApprenticeshipUpdate.Any(
+                                                                       c => c.Status == ApprenticeshipUpdateStatus.Pending 
+                                                                            && (c.Originator == Originator.Employer 
+                                                                                || c.Originator == Originator.Provider)));
+            }
+
+            return apprenticeships.Where(apprenticeship =>
+                !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3) &&
+                (apprenticeship.ApprenticeshipUpdate == null ||
+                apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
         }
     }
 }

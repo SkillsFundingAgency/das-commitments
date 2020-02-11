@@ -6,8 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
-using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services
 {
@@ -36,19 +34,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 TotalApprenticeshipsFound = totalApprenticeshipsFound,
                 TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlertsFound
             };
-        }
-
-        protected static Expression<Func<Apprenticeship, bool>> HasAlerts(long? providerId)
-        {
-            return apprenticeship => apprenticeship.Cohort.ProviderId == providerId
-                                     && (apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3)
-                                         || 
-                                         apprenticeship.ApprenticeshipUpdate != null &&
-                                         apprenticeship.ApprenticeshipUpdate.Any(
-                                             c => c.Status == ApprenticeshipUpdateStatus.Pending 
-                                                  && (c.Originator == Originator.Employer 
-                                                      || c.Originator == Originator.Provider)
-                                                  ));
         }
 
         protected Expression<Func<Apprenticeship, object>> GetOrderByField(string fieldName)

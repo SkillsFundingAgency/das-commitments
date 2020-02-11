@@ -616,7 +616,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 };
                 
                 Db.Cohorts.Add(Cohort);
-
+                
                 return this;
             }
 

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +7,6 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Servic
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
-using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services
 {
@@ -158,28 +154,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
         {
             return _dbContext
                 .Apprenticeships
-                .Where(withAlerts ? HasAlerts(providerId) : HasNoAlerts(providerId))
+                .Where(app => app.Cohort.ProviderId == providerId)
+                .WithAlerts(withAlerts)
                 .Filter(filters);
-        }
-
-        private static Expression<Func<Apprenticeship, bool>> HasAlerts(long? providerId)
-        {
-            return apprenticeship => apprenticeship.Cohort.ProviderId == providerId
-                                     && (apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3)
-                                         || 
-                                         apprenticeship.ApprenticeshipUpdate != null &&
-                                         apprenticeship.ApprenticeshipUpdate.Any(
-                                             c => c.Status == ApprenticeshipUpdateStatus.Pending 
-                                                  && (c.Originator == Originator.Employer 
-                                                      || c.Originator == Originator.Provider)
-                                         ));
-        }
-
-        private static Expression<Func<Apprenticeship, bool>> HasNoAlerts(long? providerId)
-        {
-            return apprenticeship => apprenticeship.Cohort.ProviderId == providerId
-                                     && !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3)
-                                     && apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending);
         }
     }
 }
