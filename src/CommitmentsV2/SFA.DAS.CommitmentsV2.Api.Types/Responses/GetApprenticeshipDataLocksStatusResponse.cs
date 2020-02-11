@@ -6,9 +6,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
     public class GetApprenticeshipDataLocksStatusResponse
     {
-        public IReadOnlyCollection<ApprenticeshipDatalockStatus> ApprenticeshipDatalocksStatus { get; set; }
+        public IReadOnlyCollection<DataLock> DataLocks { get; set; }
 
-        public class ApprenticeshipDatalockStatus
+        public class DataLock
         {
             public long Id { get; set; }
             public DateTime DataLockEventDatetime { get; set; }
@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public DateTime? IlrPriceEffectiveToDate { get; set; }
             public decimal? IlrTotalCost { get; set; }
             public DataLockErrorCode ErrorCode { get; set; }
-            public Status Status { get; set; }
+            public Status DataLockStatus  { get; set; }
             public TriageStatus TriageStatus { get; set; }
             public bool IsResolved { get; set; }
         }

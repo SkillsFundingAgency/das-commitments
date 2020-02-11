@@ -102,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{apprenticeshipId}/datalocks-status")]
+        [Route("{apprenticeshipId}/datalocks")]
         public async Task<IActionResult> GetDataLocks(long apprenticeshipId)
         {
             var query = new GetApprenticeshipQuery(apprenticeshipId);
