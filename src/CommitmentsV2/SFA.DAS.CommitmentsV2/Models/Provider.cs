@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
         }
 
-        internal Provider(long ukPrn, string name, DateTime created, DateTime updated)
+        public Provider(long ukPrn, string name, DateTime created, DateTime updated)
         {
             UkPrn = ukPrn;
             Name = name;
@@ -19,10 +19,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             Updated = updated;
         }
 
-        public virtual long UkPrn { get; set; }
+        public long UkPrn { get; set; }
         public string Name { get; set; }
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
+        public virtual ICollection<Cohort> Cohorts { get; set; }
 
         public virtual Cohort CreateCohort(Provider provider,
             AccountLegalEntity accountLegalEntity,
@@ -38,6 +39,5 @@ namespace SFA.DAS.CommitmentsV2.Models
             return new Cohort(provider, accountLegalEntity, Party.Provider, userInfo);
         }
 
-        public virtual IEnumerable<Cohort> Cohort { get; set; }
     }
 }
