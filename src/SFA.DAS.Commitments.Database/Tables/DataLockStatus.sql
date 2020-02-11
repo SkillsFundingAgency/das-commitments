@@ -34,3 +34,5 @@ CREATE NONCLUSTERED INDEX [IX_DataLockStatus_ApprenticeshipId2]
 ON [dbo].[DataLockStatus] ([ApprenticeshipId], [IsExpired], [IsResolved], [EventStatus])
 INCLUDE ([DataLockEventId], [ErrorCode], [TriageStatus])
 GO
+CREATE NONCLUSTERED INDEX [IDX_DataLockStatus_StatusEventStatusResolvedSearch] ON [dbo].[DataLockStatus] ([Status],[IsResolved],[EventStatus]) INCLUDE ([ApprenticeshipId])
+GO
