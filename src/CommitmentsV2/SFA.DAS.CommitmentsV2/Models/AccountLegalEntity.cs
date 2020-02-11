@@ -20,8 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? Updated { get; private set; }
         public DateTime? Deleted { get; private set; }
         public virtual ICollection<Cohort> Cohorts { get; set; }
-        public long? AccountLegalEntityId { get; set; }
-
+        
         internal AccountLegalEntity(Account account, long id, long maLegalEntityId, string legalEntityId, string publicHashedId, 
             string name, OrganisationType organisationType, string address, DateTime created)
         {

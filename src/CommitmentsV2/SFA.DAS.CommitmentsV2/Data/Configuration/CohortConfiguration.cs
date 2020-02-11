@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.HasOne(c => c.AccountLegalEntity)
                 .WithMany(c => c.Cohorts)
                 .HasForeignKey(c => c.AccountLegalEntityId)
-                .HasPrincipalKey(c=>c.AccountLegalEntityId)
+                .HasPrincipalKey(c=>c.Id)
                 .IsRequired(false);
 
             builder.Property(e => e.TransferApprovalActionedByEmployerEmail).HasMaxLength(255);
