@@ -29,6 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 LastName = source.LastName,
                 Uln = source.Uln,
                 EmployerName = source.EmployerName,
+                ProviderName = source.ProviderName,
                 CourseName = source.CourseName,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
