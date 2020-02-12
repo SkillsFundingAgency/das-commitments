@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
@@ -19,18 +20,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
         private readonly IAccountApiClient _accountApiClient;
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly IEventPublisher _eventPublisher;
+        private readonly ILogger<ProcessFullyApprovedCohortCommandHandler> _logger;
 
-        public ProcessFullyApprovedCohortCommandHandler(IAccountApiClient accountApiClient, Lazy<ProviderCommitmentsDbContext> db, IEventPublisher eventPublisher)
+        public ProcessFullyApprovedCohortCommandHandler(IAccountApiClient accountApiClient, Lazy<ProviderCommitmentsDbContext> db, IEventPublisher eventPublisher, ILogger<ProcessFullyApprovedCohortCommandHandler> logger)
         {
             _accountApiClient = accountApiClient;
             _db = db;
             _eventPublisher = eventPublisher;
+            _logger = logger;
         }
 
         protected override async Task Handle(ProcessFullyApprovedCohortCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Handling ProcessFullyApprovedCohortCommand for Cohort {request.CohortId}");
+
             var account = await _accountApiClient.GetAccount(request.AccountId);
             var apprenticeshipEmployerType = account.ApprenticeshipEmployerType.ToEnum<ApprenticeshipEmployerType>();
+
+            _logger.LogInformation($"Account {request.AccountId} is of type {apprenticeshipEmployerType}");
             
             await _db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
             
@@ -43,7 +50,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     AgreedOn = a.AgreedOn.Value,
                     AccountId = a.Cohort.EmployerAccountId,
                     AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntityPublicHashedId,
-                    LegalEntityName = a.Cohort.LegalEntityName,
+                    AccountLegalEntityId = a.Cohort.AccountLegalEntityId.Value,
+                    LegalEntityName = a.Cohort.AccountLegalEntity.Name,
                     ProviderId = a.Cohort.ProviderId.Value,
                     TransferSenderId = a.Cohort.TransferSenderId,
                     ApprenticeshipEmployerTypeOnApproval = apprenticeshipEmployerType,
@@ -62,8 +70,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                         .ToArray()
                 })
                 .ToListAsync(cancellationToken);
-            
-            var tasks = events.Select(_eventPublisher.Publish);
+
+            _logger.LogInformation($"Created {events.Count} ApprenticeshipCreatedEvent(s) for Cohort {request.CohortId}");
+
+            var tasks = events.Select(e =>
+            {
+                _logger.LogInformation($"Emitting ApprenticeshipCreatedEvent for Apprenticeship {e.ApprenticeshipId}");
+                return _eventPublisher.Publish(e);
+            });
 
             await Task.WhenAll(tasks);
         }
