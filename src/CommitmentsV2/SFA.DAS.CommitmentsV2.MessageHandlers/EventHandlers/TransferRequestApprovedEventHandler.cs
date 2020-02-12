@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
-                var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
+                var cohort = await _dbContext.Value.Cohorts.Include(c=>c.Apprenticeships).SingleAsync(c => c.Id == message.CohortId);
                 cohort.Approve(Party.TransferSender, null, message.UserInfo, message.ApprovedOn);
 
                 // Publish legacy event so Tasks can decrement it's counter
@@ -41,8 +41,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     cohort.TransferSenderId.Value,
                     message.UserInfo.UserDisplayName,
                     message.UserInfo.UserEmail));
-
-
             }
             catch (Exception e)
             {

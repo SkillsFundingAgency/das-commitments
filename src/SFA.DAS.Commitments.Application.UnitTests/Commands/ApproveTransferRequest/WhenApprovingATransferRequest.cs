@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         {
             await _sut.Handle(_command);
             _v2EventsPublisher.Verify(x => x.SendApproveTransferRequestCommand(_command.TransferRequestId, It.IsAny<DateTime>(), 
-                It.Is<UserInfo>(p=>p.UserEmail == _command.UserEmail && p.UserDisplayName == _command.UserName)), Times.Once);
+                It.Is<UserInfo>(p=>p.UserId == _command.UserId && p.UserEmail == _command.UserEmail && p.UserDisplayName == _command.UserName)), Times.Once);
         }
 
         [Test]

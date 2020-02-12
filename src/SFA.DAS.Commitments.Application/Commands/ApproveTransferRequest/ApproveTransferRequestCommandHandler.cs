@@ -6,9 +6,7 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Messaging.Interfaces;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
@@ -44,7 +42,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             CheckCommitmentStatus(commitment, command);
 
             await _v2EventsPublisher.SendApproveTransferRequestCommand(command.TransferRequestId, DateTime.UtcNow,
-                new UserInfo {UserEmail = command.UserEmail, UserDisplayName = command.UserName});
+                new UserInfo {UserId = command.UserId, UserEmail = command.UserEmail, UserDisplayName = command.UserName});
         }
 
         private static void CheckAuthorization(ApproveTransferRequestCommand message, Commitment commitment)
