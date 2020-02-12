@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
@@ -127,15 +128,15 @@ namespace SFA.DAS.CommitmentsV2.Extensions
         }
 
         public static IQueryable<Apprenticeship> WithProviderOrEmployerId(
-            this IQueryable<Apprenticeship> apprenticeships, ApprenticeshipSearchParameters searchParameters)
+            this IQueryable<Apprenticeship> apprenticeships, IEmployerProviderIdentifier identifier)
         {
-            if (searchParameters.ProviderId.HasValue)
+            if (identifier.ProviderId.HasValue)
             {
-                return apprenticeships.Where(app => app.Cohort.ProviderId == searchParameters.ProviderId);
+                return apprenticeships.Where(app => app.Cohort.ProviderId == identifier.ProviderId);
             }
 
-            return searchParameters.EmployerAccountId.HasValue ? 
-                apprenticeships.Where(app => app.Cohort.EmployerAccountId == searchParameters.EmployerAccountId) : apprenticeships;
+            return identifier.EmployerAccountId.HasValue ? 
+                apprenticeships.Where(app => app.Cohort.EmployerAccountId == identifier.EmployerAccountId) : apprenticeships;
         }
     }
 }
