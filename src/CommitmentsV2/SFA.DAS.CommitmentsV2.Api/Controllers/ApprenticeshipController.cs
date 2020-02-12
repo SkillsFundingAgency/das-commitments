@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -105,12 +106,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{apprenticeshipId}/datalocks")]
         public async Task<IActionResult> GetDataLocks(long apprenticeshipId)
         {
-            var query = new GetApprenticeshipQuery(apprenticeshipId);
+            var query = new GetDataLocksQuery(apprenticeshipId);
             var result = await _mediator.Send(query);
 
-            if (result == null) { return NotFound(); }
-
-            var response = await _modelMapper.Map<GetApprenticeshipResponse>(result);
+            var response = await _modelMapper.Map<GetDataLocksResponse>(result);
             return Ok(response);
         }
     }

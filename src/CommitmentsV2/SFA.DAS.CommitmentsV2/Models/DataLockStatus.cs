@@ -22,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool IsResolved { get; set; }
         public byte EventStatus { get; set; }
         public DateTime? Expired { get; set; }
+        public bool IsExpired { get; set; }
 
         public virtual Apprenticeship Apprenticeship { get; set; }
         public virtual ApprenticeshipUpdate ApprenticeshipUpdate { get; set; }

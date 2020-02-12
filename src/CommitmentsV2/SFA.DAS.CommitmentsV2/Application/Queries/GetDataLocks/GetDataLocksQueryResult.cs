@@ -1,10 +1,10 @@
-﻿using System;
+﻿using SFA.DAS.CommitmentsV2.Types;
+using System;
 using System.Collections.Generic;
-using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks
 {
-    public class GetDataLocksResponse
+    public class GetDataLocksQueryResult
     {
         public IReadOnlyCollection<DataLock> DataLocks { get; set; }
 
@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public DateTime? IlrPriceEffectiveToDate { get; set; }
             public decimal? IlrTotalCost { get; set; }
             public DataLockErrorCode ErrorCode { get; set; }
-            public Status DataLockStatus  { get; set; }
+            public Status DataLockStatus { get; set; }
             public TriageStatus TriageStatus { get; set; }
             public bool IsResolved { get; set; }
         }
