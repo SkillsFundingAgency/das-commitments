@@ -130,7 +130,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             SeedAccounts = new List<Account>();
             _autoFixture = new Fixture();
             AccountId = _autoFixture.Create<long>();
-            TransferSenderId = _autoFixture.Create<long>();
+            TransferSenderId = AccountId + 1;
+
+            TransferSender = new Account(TransferSenderId, "", "", "TransferSender", DateTime.UtcNow);
+            Account = new Account(AccountId,"","","TEST", DateTime.UtcNow);
+            AccountLegalEntity = new AccountLegalEntity(Account, 1,1, "", "","TEST", OrganisationType.Charities, "", DateTime.UtcNow);
+            Provider = new Provider(1, "TEST PROVIDER", DateTime.UtcNow, DateTime.UtcNow);
         }
 
         public long AccountId { get; }
@@ -138,7 +143,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         public long NonMatchingAccountId => AccountId + 100;
         public List<Cohort> SeedCohorts { get; }
         public List<Account> SeedAccounts { get; }
-
+        public Account Account { get; }
+        public Account TransferSender { get; }
+        public AccountLegalEntity AccountLegalEntity { get; }
+        public Provider Provider { get; set; }
 
 
         public Task<GetCohortsResult> GetResponse(GetCohortsQuery query)
@@ -157,9 +165,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var cohort = _autoFixture.Build<Cohort>().With(o=>o.EmployerAccountId, accountId)
                 .With(o => o.EditStatus, EditStatus.Neither)
                 .With(o => o.IsDeleted, false)
+                .With(o => o.AccountLegalEntity, AccountLegalEntity)
+                .With(o => o.Provider, Provider)
                 .Without(o => o.Apprenticeships)
+                .Without(o => o.TransferSender)
                 .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Create();
 
             SeedCohorts.Add(cohort);
             return this;
@@ -171,6 +183,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.EmployerAccountId, accountId)
                 .With(o => o.EditStatus, EditStatus.Both)
                 .With(o => o.IsDeleted, false)
+                .With(o => o.AccountLegalEntity, AccountLegalEntity)
+                .With(o => o.Provider, Provider)
+                .Without(o => o.TransferSender)
                 .Without(o => o.TransferSenderId)
                 .Without(o => o.TransferApprovalStatus)
                 .Without(o => o.Apprenticeships)
@@ -188,6 +203,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.EditStatus, EditStatus.Both)
                 .With(o => o.TransferApprovalStatus, TransferApprovalStatus.Approved)
                 .With(o => o.IsDeleted, false)
+                .With(o => o.AccountLegalEntity, AccountLegalEntity)
+                .With(o => o.Provider, Provider)
+                .With(o => o.TransferSender, TransferSender)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages).Create();
@@ -204,13 +222,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.EditStatus, EditStatus.Both)
                 .With(o => o.TransferApprovalStatus, TransferApprovalStatus.Pending)
                 .With(o => o.IsDeleted, false)
+                .With(o => o.AccountLegalEntity, AccountLegalEntity)
+                .With(o => o.Provider, Provider)
+                .With(o => o.TransferSender, TransferSender)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages).Create();
 
-            var account = new Account(TransferSenderId, "hashedId", "publicHashedId", "TransferSender", DateTime.Now);
-
-            SeedAccounts.Add(account);
             SeedCohorts.Add(cohort);
             return this;
         }
@@ -222,8 +240,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.EmployerAccountId, accountId)
                 .With(o => o.EditStatus, EditStatus.Neither)
                 .With(o => o.IsDeleted, false)
+                .With(o => o.AccountLegalEntity, AccountLegalEntity)
+                .With(o => o.Provider, Provider)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
+                .Without(o => o.TransferSender)
                 .Without(o => o.Messages).Create();
 
             cohort.Apprenticeships.Add(new DraftApprenticeship());

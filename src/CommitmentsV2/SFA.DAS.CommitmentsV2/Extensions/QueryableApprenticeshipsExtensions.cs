@@ -29,13 +29,29 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 {
                     var found = new List<long>();
 
-                    found.AddRange(apprenticeships.Where(app => 
-                        app.FirstName.StartsWith(filters.SearchTerm))
-                        .Select(apprenticeship => apprenticeship.Id));
+                    if (!filters.SearchTerm.Contains(" "))
+                    {
+                        found.AddRange(apprenticeships.Where(app =>
+                                app.FirstName.StartsWith(filters.SearchTerm))
+                            .Select(apprenticeship => apprenticeship.Id));
 
-                    found.AddRange(apprenticeships.Where(app => 
-                        app.LastName.StartsWith(filters.SearchTerm))
-                        .Select(apprenticeship => apprenticeship.Id));
+                        found.AddRange(apprenticeships.Where(app =>
+                                app.LastName.StartsWith(filters.SearchTerm))
+                            .Select(apprenticeship => apprenticeship.Id));
+                    }
+                    else
+                    {
+                        var firstName = filters.SearchTerm.Substring(0, filters.SearchTerm.IndexOf(' '));
+                        var lastName = filters.SearchTerm.Substring(firstName.Length + 1);
+                        
+                        found.AddRange(apprenticeships.Where(app =>
+                                app.FirstName.StartsWith(firstName))
+                            .Select(apprenticeship => apprenticeship.Id));
+                        
+                        found.AddRange(apprenticeships.Where(app =>
+                                app.LastName.StartsWith(lastName))
+                            .Select(apprenticeship => apprenticeship.Id));
+                    }
 
                     apprenticeships = apprenticeships.Where(apprenticeship =>
                         found.Contains(apprenticeship.Id));
