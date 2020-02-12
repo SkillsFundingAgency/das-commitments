@@ -13,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string SortField { get; set; }
         public bool ReverseSort { get; set; }
 
+        public string SearchTerm { get; set; }
         public string EmployerName { get; set; }
         public string CourseName { get; set; }
         public ApprenticeshipStatus? Status { get; set; }

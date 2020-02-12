@@ -168,6 +168,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             var filterQuery = string.Empty;
 
+            if (!string.IsNullOrEmpty(request.SearchTerm))
+            {
+                filterQuery += $"&searchTerm={WebUtility.UrlEncode(request.SearchTerm)}";
+            }
+
             if (!string.IsNullOrEmpty(request.EmployerName))
             {
                 filterQuery += $"&employerName={WebUtility.UrlEncode(request.EmployerName)}";

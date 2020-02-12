@@ -66,6 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             _mediator.Verify(m => m.Send(
                 It.Is<GetApprenticeshipsQuery>(r => 
+                   r.SearchFilters.SearchTerm.Equals(request.SearchTerm) &&
                    r.SearchFilters.EmployerName.Equals(request.EmployerName) &&
                    r.SearchFilters.CourseName.Equals(request.CourseName) &&
                    r.SearchFilters.Status.Equals(request.Status) &&
