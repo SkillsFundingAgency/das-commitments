@@ -53,16 +53,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             }
 
             request.Tokens.Add("cohort_reference", cohortSummary.CohortReference);
+            request.Tokens.Add("type", cohortSummary.LastAction == LastAction.Approve ? "approval" : "review");
 
             if (cohortSummary.IsFundedByTransfer)
             {
                 request.TemplateId = "ProviderTransferCommitmentNotification";
-                request.Tokens.Add("receiving_employer", cohortSummary.LegalEntityName);
+                request.Tokens.Add("employer_name", cohortSummary.LegalEntityName);
             }
             else
             {
                 request.TemplateId = "ProviderCommitmentNotification";
-                request.Tokens.Add("type", cohortSummary.LastAction == LastAction.Approve ? "approval" : "review");
             }
 
             return request;
