@@ -8,11 +8,11 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
 {
     public class GetDataLocksResponseMapper : IMapper<GetDataLocksQueryResult, GetDataLocksResponse>
     {
-        public Task<GetDataLocksResponse> Map(GetDataLocksQueryResult source)
+        public Task<GetDataLocksResponse> Map(GetDataLocksQueryResult result)
         {
             return Task.FromResult(new GetDataLocksResponse
             {
-                DataLocks = source.DataLocks.Select(source => new GetDataLocksResponse.DataLock
+                DataLocks = result.DataLocks.Select(source => new GetDataLocksResponse.DataLock
                 {
                     Id = source.Id,
                     DataLockEventDatetime = source.DataLockEventDatetime,
