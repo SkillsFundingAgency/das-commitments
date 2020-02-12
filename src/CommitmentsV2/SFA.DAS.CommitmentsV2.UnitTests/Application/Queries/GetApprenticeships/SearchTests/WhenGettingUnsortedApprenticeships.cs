@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
     public class WhenGettingUnsortedApprenticeships : SearchParameterServiceTestBase
     {
         [Test, RecursiveMoqAutoData]
-        public async Task Then_Returns_Apprenticeships(
+        public async Task Then_Returns_Provider_Apprenticeships(
             ApprenticeshipSearchParameters searchParameters,
             List<Apprenticeship> apprenticeships,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.PageNumber = 0;
             searchParameters.PageItemCount = 0;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
+            searchParameters.EmployerAccountId = null;
 
             apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId;
             apprenticeships[1].Cohort.ProviderId = searchParameters.ProviderId;
@@ -44,6 +45,37 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             result.Apprenticeships.Count()
                 .Should().Be(apprenticeships
                     .Count(apprenticeship => apprenticeship.Cohort.ProviderId == searchParameters.ProviderId));
+
+            result.Apprenticeships.Should().BeEquivalentTo(expectedApprenticeships);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_Employer_Apprenticeships(
+            ApprenticeshipSearchParameters searchParameters,
+            List<Apprenticeship> apprenticeships,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            ApprenticeshipSearchService service)
+        {
+            searchParameters.PageNumber = 0;
+            searchParameters.PageItemCount = 0;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+            searchParameters.ProviderId = null;
+
+            apprenticeships[0].Cohort.EmployerAccountId = searchParameters.EmployerAccountId.Value;
+            apprenticeships[1].Cohort.EmployerAccountId = searchParameters.EmployerAccountId.Value;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var expectedApprenticeships =
+                apprenticeships.Where(app => app.Cohort.EmployerAccountId == searchParameters.EmployerAccountId);
+
+            var result = await service.Find(searchParameters);
+
+            result.Apprenticeships.Count()
+                .Should().Be(apprenticeships
+                    .Count(apprenticeship => apprenticeship.Cohort.EmployerAccountId == searchParameters.EmployerAccountId));
 
             result.Apprenticeships.Should().BeEquivalentTo(expectedApprenticeships);
         }

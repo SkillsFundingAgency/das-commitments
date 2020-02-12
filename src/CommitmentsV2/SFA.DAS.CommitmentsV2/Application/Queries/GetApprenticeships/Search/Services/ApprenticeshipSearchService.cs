@@ -21,9 +21,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 
         public async Task<ApprenticeshipSearchResult> Find(ApprenticeshipSearchParameters searchParameters)
         {
-            var totalApprenticeshipsWithoutAlerts = await GetApprenticeshipsQuery(searchParameters.ProviderId, searchParameters.Filters, false).CountAsync(searchParameters.CancellationToken);
+            var totalApprenticeshipsWithoutAlerts = await GetApprenticeshipsQuery(searchParameters, false).CountAsync(searchParameters.CancellationToken);
 
-            var totalApprenticeshipsWithAlerts = await GetApprenticeshipsQuery(searchParameters.ProviderId, searchParameters.Filters, true).CountAsync(searchParameters.CancellationToken);
+            var totalApprenticeshipsWithAlerts = await GetApprenticeshipsQuery(searchParameters, true).CountAsync(searchParameters.CancellationToken);
 
             var skipCount = searchParameters.PageNumber > 0 ? (searchParameters.PageNumber - 1) * searchParameters.PageItemCount : 0;
 
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 if (skipCount < totalApprenticeshipsWithoutAlerts)
                 {
                     var apprenticeshipsWithoutAlerts =
-                        await GetApprenticeshipsWithoutAlerts(searchParameters.CancellationToken, searchParameters.ProviderId, skipCount, searchParameters.PageItemCount, true, searchParameters.Filters);
+                        await GetApprenticeshipsWithoutAlerts(searchParameters.CancellationToken, searchParameters, skipCount);
 
                     apprentices.AddRange(apprenticeshipsWithoutAlerts);
                 }
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 
                 searchParameters.PageItemCount = searchParameters.PageItemCount - apprentices.Count > 0 ? searchParameters.PageItemCount - apprentices.Count : 0;
 
-                var apprenticeshipsWithAlerts = await GetApprenticeshipsWithAlerts(searchParameters.CancellationToken, searchParameters.ProviderId, skipCount, searchParameters.PageItemCount, true, searchParameters.Filters);
+                var apprenticeshipsWithAlerts = await GetApprenticeshipsWithAlerts(searchParameters.CancellationToken, searchParameters, skipCount);
 
                 apprentices.AddRange(apprenticeshipsWithAlerts);
             }
@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 if (skipCount < totalApprenticeshipsWithAlerts)
                 {
                     var apprenticeshipsWithAlerts =
-                        await GetApprenticeshipsWithAlerts(searchParameters.CancellationToken, searchParameters.ProviderId, skipCount, searchParameters.PageItemCount, false, searchParameters.Filters);
+                        await GetApprenticeshipsWithAlerts(searchParameters.CancellationToken, searchParameters, skipCount);
 
                     apprentices.AddRange(apprenticeshipsWithAlerts);
                 }
@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 
                 searchParameters.PageItemCount = searchParameters.PageItemCount - apprentices.Count > 0 ? searchParameters.PageItemCount - apprentices.Count : 0;
 
-                var apprenticeshipsWithoutAlerts = await GetApprenticeshipsWithoutAlerts(searchParameters.CancellationToken, searchParameters.ProviderId,  skipCount, searchParameters.PageItemCount, false, searchParameters.Filters);
+                var apprenticeshipsWithoutAlerts = await GetApprenticeshipsWithoutAlerts(searchParameters.CancellationToken, searchParameters,  skipCount);
 
                 apprentices.AddRange(apprenticeshipsWithoutAlerts);
             }
@@ -98,9 +98,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             };
         }
 
-        private async Task<List<Apprenticeship>> GetApprenticeshipsWithoutAlerts(CancellationToken cancellationToken, long? providerId, int skipCount, int pageItemCount, bool reverseOrder, ApprenticeshipSearchFilters filters)
+        private async Task<List<Apprenticeship>> GetApprenticeshipsWithoutAlerts(CancellationToken cancellationToken, ApprenticeshipSearchParameters searchParameters, int skipCount)
         {
-            var query = GetApprenticeshipsQuery(providerId, filters, false);
+            var query = GetApprenticeshipsQuery(searchParameters, false);
 
             query = query.OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
@@ -115,17 +115,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 query = query.Skip(skipCount);
             }
 
-            if (pageItemCount > 0)
+            if (searchParameters.PageItemCount > 0)
             {
-                query = query.Take(pageItemCount);
+                query = query.Take(searchParameters.PageItemCount);
             }
 
             return await query.ToListAsync(cancellationToken);
         }
 
-        private async Task<List<Apprenticeship>> GetApprenticeshipsWithAlerts(CancellationToken cancellationToken, long? providerId, int skipCount, int pageItemCount, bool reverseOrder, ApprenticeshipSearchFilters filters)
+        private async Task<List<Apprenticeship>> GetApprenticeshipsWithAlerts(CancellationToken cancellationToken, ApprenticeshipSearchParameters searchParameters, int skipCount)
         {
-            var query = GetApprenticeshipsQuery(providerId, filters, true);
+            var query = GetApprenticeshipsQuery(searchParameters,  true);
 
             query = query.OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
@@ -142,21 +142,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 query = query.Skip(skipCount);
             }
 
-            if (pageItemCount > 0)
+            if (searchParameters.PageItemCount > 0)
             {
-                query = query.Take(pageItemCount);
+                query = query.Take(searchParameters.PageItemCount);
             }
 
             return await query.ToListAsync(cancellationToken);
         }
 
-        private IQueryable<Apprenticeship> GetApprenticeshipsQuery(long? providerId, ApprenticeshipSearchFilters filters, bool withAlerts)
-        {
+        private IQueryable<Apprenticeship> GetApprenticeshipsQuery(ApprenticeshipSearchParameters searchParameters, bool withAlerts)
+        { 
             return _dbContext
                 .Apprenticeships
-                .Where(app => app.Cohort.ProviderId == providerId)
+                .WithProviderOrEmployerId(searchParameters)
                 .WithAlerts(withAlerts)
-                .Filter(filters);
+                .Filter(searchParameters.Filters);
         }
     }
 }

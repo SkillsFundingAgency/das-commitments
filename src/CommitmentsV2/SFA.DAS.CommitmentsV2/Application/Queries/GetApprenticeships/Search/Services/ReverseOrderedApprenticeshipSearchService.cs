@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
         {
             var apprenticeshipsQuery = _dbContext
                 .Apprenticeships
-                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == searchParameters.ProviderId)
+                .WithProviderOrEmployerId(searchParameters)
                 .Filter(searchParameters.Filters);
 
             var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.WithAlerts(true).CountAsync(searchParameters.CancellationToken);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -21,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
+                    EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
+                    EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
@@ -45,6 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
+                    EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
@@ -57,6 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
+                    EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>()
@@ -69,6 +72,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
+                    EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>()
@@ -81,72 +85,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
+                    EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {LegalEntityName = "Employer"},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId.Value, apprenticeships);
-
-            return apprenticeships;
-        }
-
-         protected static List<Apprenticeship> GetTestApprenticeshipsWithoutAlerts(GetApprenticeshipsQuery query)
-        {
-            var apprenticeships = new List<Apprenticeship>
+            if (searchParameters.ProviderId.HasValue)
             {
-                new Apprenticeship
-                {
-                    FirstName = "A",
-                    LastName = "Zog",
-                    Uln = "Uln",
-                    CourseName = "Course",
-                    StartDate = DateTime.UtcNow,
-                    ProviderRef = query.ProviderId.ToString(),
-                    Cohort = new Cohort {LegalEntityName = "Employer"},
-                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>()
-                },
-                new Apprenticeship
-                {
-                    FirstName = "B",
-                    LastName = "Zog",
-                    Uln = "Uln",
-                    CourseName = "Course",
-                    StartDate = DateTime.UtcNow,
-                    ProviderRef = query.ProviderId.ToString(),
-                    Cohort = new Cohort {LegalEntityName = "Employer"},
-                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>()
-                },
-                new Apprenticeship
-                {
-                    FirstName = "C",
-                    LastName = "Zog",
-                    Uln = "Uln",
-                    CourseName = "Course",
-                    StartDate = DateTime.UtcNow,
-                    ProviderRef = query.ProviderId.ToString(),
-                    Cohort = new Cohort {LegalEntityName = "Employer"},
-                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>()
-                },
-                new Apprenticeship
-                {
-                    FirstName = "D",
-                    LastName = "Fog",
-                    Uln = "Uln",
-                    CourseName = "Course",
-                    StartDate = DateTime.UtcNow,
-                    ProviderRef = query.ProviderId.ToString(),
-                    Cohort = new Cohort {LegalEntityName = "Employer"},
-                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>()
-                }
-            };
+                AssignProviderToApprenticeships(searchParameters.ProviderId.Value, apprenticeships);
+            }
 
-            AssignProviderToApprenticeships(query.ProviderId, apprenticeships);
+            if (searchParameters.EmployerAccountId.HasValue)
+            {
+                AssignEmployerToApprenticeships(searchParameters.EmployerAccountId.Value, apprenticeships);
+            }
 
             return apprenticeships;
         }
@@ -156,6 +110,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             foreach (var apprenticeship in apprenticeships)
             {
                 apprenticeship.Cohort.ProviderId = providerId;
+            }
+        }
+
+        protected static void AssignEmployerToApprenticeships(long employerAccountId, IEnumerable<Apprenticeship> apprenticeships)
+        {
+            foreach (var apprenticeship in apprenticeships)
+            {
+                apprenticeship.Cohort.EmployerAccountId = employerAccountId;
             }
         }
     }

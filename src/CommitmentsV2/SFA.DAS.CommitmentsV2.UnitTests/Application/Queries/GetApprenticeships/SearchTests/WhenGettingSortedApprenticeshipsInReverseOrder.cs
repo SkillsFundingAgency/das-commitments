@@ -18,6 +18,70 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
     public class WhenGettingSortedApprenticeshipsInReverseOrder : SearchParameterServiceTestBase
     {
         [Test, MoqAutoData]
+        public async Task Then_Reverse_Sorted_Apprentices_Are_Return_For_Provider(
+            ReverseOrderedApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.FieldName = nameof(Apprenticeship.FirstName);
+            searchParameters.PageNumber = 0;
+            searchParameters.PageItemCount = 0;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+            searchParameters.EmployerAccountId = null;
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+
+            apprenticeships[1].ProviderRef = null;
+            apprenticeships[1].Cohort.ProviderId = null;
+
+           
+
+            var service = new ReverseOrderedApprenticeshipSearchService(mockContext.Object);
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(apprenticeships.Count -1, actual.Apprenticeships.Count());
+            Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
+        }
+
+        [Test, MoqAutoData]
+        public async Task Then_Reverse_Sorted_Apprentices_Are_Return_For_Employer(
+            ReverseOrderedApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.FieldName = nameof(Apprenticeship.FirstName);
+            searchParameters.PageNumber = 0;
+            searchParameters.PageItemCount = 0;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+            searchParameters.ProviderId = null;
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+
+            apprenticeships[1].EmployerRef = null;
+            apprenticeships[1].Cohort.EmployerAccountId = 0;
+
+            var service = new ReverseOrderedApprenticeshipSearchService(mockContext.Object);
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(apprenticeships.Count -1, actual.Apprenticeships.Count());
+            Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
+        }
+
+        [Test, MoqAutoData]
         public async Task And_Sorted_By_Alerts_And_Is_Reverse_Sorted_Then_Apprentices_Are_Default_Sorted(
             ReverseOrderedApprenticeshipSearchParameters searchParameters,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)

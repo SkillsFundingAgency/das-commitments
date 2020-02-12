@@ -5,6 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 {
     public class ApprenticeshipSearchParameters
     {
+        public long? EmployerAccountId { get; set; }
         public long? ProviderId { get; set; }
         public int PageNumber { get; set; }
         public int PageItemCount { get; set; }

@@ -37,6 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             {
                 var searchParameters = new ApprenticeshipSearchParameters
                 {
+                    EmployerAccountId = query.EmployerAccountId,
                     ProviderId = query.ProviderId,
                     PageNumber = query.PageNumber,
                     PageItemCount = query.PageItemCount,
@@ -53,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 {
                     var searchParameters = new ReverseOrderedApprenticeshipSearchParameters
                     {
+                        EmployerAccountId = query.EmployerAccountId,
                         ProviderId = query.ProviderId,
                         PageNumber = query.PageNumber,
                         PageItemCount = query.PageItemCount,
@@ -68,6 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 {
                     var searchParameters = new OrderedApprenticeshipSearchParameters
                     {
+                        EmployerAccountId = query.EmployerAccountId,
                         ProviderId = query.ProviderId,
                         PageNumber = query.PageNumber,
                         PageItemCount = query.PageItemCount,

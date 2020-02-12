@@ -16,7 +16,7 @@ using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships.GetApprenticeshipsHandlerTests
 {
-    public class WhenGettingApprenticeships
+    public class WhenGettingProviderApprenticeships
     {
         [Test, RecursiveMoqAutoData]
         public async Task ThenReturnUnsortedApprenticeshipsWhenNotOrdering(
@@ -28,6 +28,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsQueryHandler handler)
         {
             query.SortField = "";
+            query.EmployerAccountId = null;
+
             apprenticeships[1].Cohort.ProviderId = query.ProviderId;
 
             mockSearch.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
@@ -42,7 +44,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             await handler.Handle(query, CancellationToken.None);
 
-            mockSearch.Verify(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()), Times.Once);
+            mockSearch.Verify(x => x.Find(It.Is<ApprenticeshipSearchParameters>(sp => 
+                sp.ProviderId.Equals(query.ProviderId) &&
+                sp.EmployerAccountId == null)), Times.Once);
             
             mockMapper
                 .Verify(mapper => mapper.Map(It.IsIn(apprenticeships
@@ -62,6 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         {
             query.SortField = "test";
             query.ReverseSort = false;
+            query.EmployerAccountId = null;
 
             apprenticeships[1].Cohort.ProviderId = query.ProviderId;
 
@@ -76,8 +81,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(new List<Apprenticeship>());
 
             await handler.Handle(query, CancellationToken.None);
-
-            mockSearch.Verify(x => x.Find(It.IsAny<OrderedApprenticeshipSearchParameters>()), Times.Once);
+            
+            mockSearch.Verify(x => x.Find(It.Is<OrderedApprenticeshipSearchParameters>(sp => 
+                sp.ProviderId.Equals(query.ProviderId) &&
+                sp.EmployerAccountId == null)), Times.Once);
             
             mockMapper
                 .Verify(mapper => mapper.Map(It.IsIn(apprenticeships
@@ -98,6 +105,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         {
             query.SortField = "test";
             query.ReverseSort = true;
+            query.EmployerAccountId = null;
+
             apprenticeships[1].Cohort.ProviderId = query.ProviderId;
 
             mockSearch.Setup(x => x.Find(It.IsAny<ReverseOrderedApprenticeshipSearchParameters>()))
@@ -111,8 +120,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(new List<Apprenticeship>());
 
             await handler.Handle(query, CancellationToken.None);
-
-            mockSearch.Verify(x => x.Find(It.IsAny<ReverseOrderedApprenticeshipSearchParameters>()), Times.Once);
+            
+            mockSearch.Verify(x => x.Find(It.Is<ReverseOrderedApprenticeshipSearchParameters>(sp => 
+                sp.ProviderId.Equals(query.ProviderId) &&
+                sp.EmployerAccountId == null)), Times.Once);
             
             mockMapper
                 .Verify(mapper => mapper.Map(It.IsIn(apprenticeships
@@ -130,6 +141,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsQueryHandler handler)
         {
             query.SortField = "";
+            query.EmployerAccountId = null;
+
             apprenticeships[1].Cohort.ProviderId = query.ProviderId;
 
             search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
@@ -162,6 +175,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsQueryHandler handler) 
         {
             query.SortField = "";
+            query.EmployerAccountId = null;
 
             search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
                 .ReturnsAsync(new ApprenticeshipSearchResult
@@ -188,6 +202,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsQueryHandler handler)
         {
             query.SortField = "";
+            query.EmployerAccountId = null;
 
             search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
                 .ReturnsAsync(new ApprenticeshipSearchResult
@@ -216,6 +231,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsQueryHandler handler)
         {
             query.SortField = "";
+            query.EmployerAccountId = null;
 
             apprenticeships[1].Cohort.ProviderId = query.ProviderId;
 

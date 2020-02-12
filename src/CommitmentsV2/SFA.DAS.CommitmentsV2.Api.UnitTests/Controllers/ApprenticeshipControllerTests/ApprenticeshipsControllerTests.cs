@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test]
-        public async Task GetApprentices()
+        public async Task GetProviderApprentices()
         {
             //Arrange
             var request = new GetApprenticeshipsRequest
@@ -48,6 +48,25 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Verify(m => m.Send(
                 It.Is<GetApprenticeshipsQuery>(r => 
                     r.ProviderId.Equals(request.ProviderId)), 
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetEmployerApprentices()
+        {
+            //Arrange
+            var request = new GetApprenticeshipsRequest
+            {
+                AccountId = 10
+            };
+
+            //Act
+            await _controller.GetApprenticeships(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<GetApprenticeshipsQuery>(r => 
+                    r.EmployerAccountId.Equals(request.AccountId)), 
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -124,10 +143,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             {
                 ProviderId = expectedProviderId
             };
-            _mediator.Setup(x => x.Send(It.Is<GetApprenticeshipsQuery>(c => c.ProviderId.Equals(expectedProviderId)),
+            
+            _mediator.Setup(x => x.Send(It.Is<GetApprenticeshipsQuery>(c => c.ProviderId.Value.Equals(expectedProviderId)),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetApprenticeshipsQueryResult());
-            
+
             //Act
             var result = await _controller.GetApprenticeships(request) as OkObjectResult;
 

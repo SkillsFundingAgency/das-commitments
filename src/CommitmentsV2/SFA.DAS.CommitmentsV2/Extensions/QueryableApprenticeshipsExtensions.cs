@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
@@ -102,6 +103,18 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3) &&
                 (apprenticeship.ApprenticeshipUpdate == null ||
                 apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
+        }
+
+        public static IQueryable<Apprenticeship> WithProviderOrEmployerId(
+            this IQueryable<Apprenticeship> apprenticeships, ApprenticeshipSearchParameters searchParameters)
+        {
+            if (searchParameters.ProviderId.HasValue)
+            {
+                return apprenticeships.Where(app => app.Cohort.ProviderId == searchParameters.ProviderId);
+            }
+
+            return searchParameters.EmployerAccountId.HasValue ? 
+                apprenticeships.Where(app => app.Cohort.EmployerAccountId == searchParameters.EmployerAccountId) : apprenticeships;
         }
     }
 }
