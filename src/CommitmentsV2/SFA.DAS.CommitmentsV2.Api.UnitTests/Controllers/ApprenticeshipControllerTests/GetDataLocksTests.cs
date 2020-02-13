@@ -8,7 +8,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
