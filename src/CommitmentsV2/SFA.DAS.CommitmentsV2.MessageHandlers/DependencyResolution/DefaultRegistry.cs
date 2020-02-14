@@ -15,7 +15,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
             For<IFundingCapService>().Use<FundingCapService>().Singleton();
             For<ITopicClientFactory>().Use<TopicClientFactory>();
             For<ILegacyTopicMessagePublisher>().Use<LegacyTopicMessagePublisher>().Ctor<string>("connectionString").Is(ctx=>ctx.GetInstance<CommitmentsV2Configuration>().MessageServiceBusConnectionString);
-            For<IAccountApiClient>().Use(c => new AccountApiClient(c.GetInstance<AccountApiConfiguration>()));
         }
     }
 }

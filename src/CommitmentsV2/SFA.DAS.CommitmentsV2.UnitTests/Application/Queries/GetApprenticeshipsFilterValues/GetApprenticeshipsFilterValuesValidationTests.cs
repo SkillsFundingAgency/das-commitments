@@ -1,10 +1,10 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprenticesFilterValues
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipsFilterValues
 {
     [TestFixture]
-    public class GetApprovedApprenticesFilterValuesValidationTests
+    public class GetApprenticeshipsFilterValuesValidationTests
     {
         [TestCase( 0, false)]
         [TestCase( 1, true)]

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmployerAccounts.Messages.Events;
@@ -22,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
             long accountId = 1001;
             long accountLegalEntityId = 2061;
             long cohortId = 186091;
+            UserInfo userInfo = new UserInfo { UserDisplayName = "Paul Graham", UserEmail = "paul.graham@test.com", UserId = "PG"};
 
             ConsoleKey key = ConsoleKey.Escape;
 
@@ -39,9 +42,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("G - BulkUploadIntoCohortCompletedEvent");
                 Console.WriteLine("H - CohortAssignedToProviderEvent");
                 Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
-                Console.WriteLine("M - ApprovedCohortReturnedToProviderEvent");
-                Console.WriteLine("N - CohortApprovedByEmployer");
+                Console.WriteLine("J - ApprovedCohortReturnedToProviderEvent");
+                Console.WriteLine("K - CohortApprovedByEmployer");
+                Console.WriteLine("L - SendEmailToEmployerCommand");
+                Console.WriteLine("M - RunHealthCheckCommand");
                 Console.WriteLine("O - CohortDeletedEvent");
+                Console.WriteLine("P - ApproveTransferRequestCommand");
+                Console.WriteLine("Q - RejectTransferRequestCommand");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -99,20 +106,40 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortTransferApprovalRequestedEvent)}");
                             break;
-                        case ConsoleKey.M:
+                        case ConsoleKey.J:
                             await _publisher.Publish(new ApprovedCohortReturnedToProviderEvent(cohortId, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(ApprovedCohortReturnedToProviderEvent)}");
                             break;
-                        case ConsoleKey.N:
+                        case ConsoleKey.K:
                             await _publisher.Publish(new CohortApprovedByEmployerEvent(cohortId, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortApprovedByEmployerEvent)}");
+                            break;
+                        case ConsoleKey.L:
+                            await _publisher.Send(new SendEmailToEmployerCommand(10003, "ABCDE", new Dictionary<string, string>(), "Test@test.com"), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(SendEmailToEmployerCommand)}");
+                            break;
+                        case ConsoleKey.M:
+                            await _publisher.Send(new RunHealthCheckCommand(), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(RunHealthCheckCommand)}");
                             break;
                         case ConsoleKey.O:
                             await _publisher.Publish(new CohortDeletedEvent(cohortId, 22222, 33333, Party.None, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortDeletedEvent)}");
+                            break;
+                        case ConsoleKey.P:
+                            await _publisher.Send(new ApproveTransferRequestCommand(10004, DateTime.UtcNow, userInfo), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(ApproveTransferRequestCommand)}");
+                            break;
+                        case ConsoleKey.Q:
+                            await _publisher.Send(new RejectTransferRequestCommand(10004, DateTime.UtcNow, userInfo), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(RejectTransferRequestCommand)}");
                             break;
                     }
                 }

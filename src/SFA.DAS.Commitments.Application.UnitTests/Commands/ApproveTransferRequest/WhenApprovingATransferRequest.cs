@@ -1,30 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
-using FluentAssertions;
 using FluentValidation;
-using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
-using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
-using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
-using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
-using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Events;
-using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Messaging.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
-using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequest
@@ -36,17 +24,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         private ApproveTransferRequestCommand _command;
         private Commitment _commitment;
         private Mock<ICommitmentRepository> _commitmentRepository;
-        private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
-        private Mock<IApprenticeshipOverlapRules> _overlapRules;
-        private Mock<ICurrentDateTime> _currentDateTime;
-        private IApprenticeshipEventsList _apprenticeshipEventsList;
-        private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
         private Mock<IV2EventsPublisher> _v2EventsPublisher;
-        private Mock<IMediator> _mediator;
-        private Mock<IMessagePublisher> _messagePublisher;
-        private Mock<IHistoryRepository> _historyRepository;
-        private Mock<IEmployerAccountsService> _employerAccountsService;
-        private Account _account;
         private ApproveTransferRequestCommandHandler _sut;
 
         [SetUp]
@@ -54,15 +32,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         {
             _validator = new ApproveTransferRequestValidator();
             _commitmentRepository = new Mock<ICommitmentRepository>();
-            _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
-            _overlapRules = new Mock<IApprenticeshipOverlapRules>();
-            _currentDateTime = new Mock<ICurrentDateTime>();
-            _apprenticeshipEventsList = new ApprenticeshipEventsList();
-            _apprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
-            _mediator = new Mock<IMediator>();
-            _messagePublisher = new Mock<IMessagePublisher>();
-            _historyRepository = new Mock<IHistoryRepository>();
-            _employerAccountsService = new Mock<IEmployerAccountsService>();
             _v2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             var fixture = new Fixture();
@@ -73,88 +42,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
                 .With(x => x.TransferApprovalStatus, TransferApprovalStatus.Pending)
                 .With(x => x.EditStatus, EditStatus.Both).Create();
 
-            _account = fixture.Create<Account>();
-
             _commitmentRepository.Setup(x=>x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_commitment);
             _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
-            _employerAccountsService.Setup(s => s.GetAccount(_commitment.EmployerAccountId)).ReturnsAsync(_account);
 
-            _sut = new ApproveTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
-                _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
-                _apprenticeshipEventsList, _apprenticeshipEventsPublisher.Object, _mediator.Object,
-                _messagePublisher.Object, _historyRepository.Object, Mock.Of<ICommitmentsLogger>(),
-                Mock.Of<IApprenticeshipInfoService>(), _employerAccountsService.Object, _v2EventsPublisher.Object);
-        }
-
-        [TestCase(ApprenticeshipEmployerType.NonLevy)]
-        [TestCase(ApprenticeshipEmployerType.Levy)]
-        public async Task ThenEnsureRespositoryIsCalledWithApprovalStatus(ApprenticeshipEmployerType? apprenticeshipEmployerTypeOnApproval)
-        {
-            _command.TransferRequestId = 6467;
-            _account.ApprenticeshipEmployerType = apprenticeshipEmployerTypeOnApproval.GetValueOrDefault();
-            await _sut.Handle(_command);
-
-            _commitmentRepository.Verify(x => x.SetTransferRequestApproval(_command.TransferRequestId, _command.CommitmentId, TransferApprovalStatus.TransferApproved, _command.UserEmail, _command.UserName, apprenticeshipEmployerTypeOnApproval));
+            _sut = new ApproveTransferRequestCommandHandler(_validator, _commitmentRepository.Object, _v2EventsPublisher.Object);
         }
 
         [Test]
-        public async Task ThenIfTheTransferSenderApprovesCohortEnsureMessagePublisherSendsApprovedMessageAndNotRejectedMessage()
+        public async Task ThenIfTheTransferSenderApprovesCohortEnsureWeSendApproveTransferRequestCommandToV2Publisher()
         {
             await _sut.Handle(_command);
-
-            _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByTransferSender>(p =>
-                p.TransferRequestId == _command.TransferRequestId &&
-                p.UserName == _command.UserName && p.UserEmail == _command.UserEmail &&
-                p.CommitmentId == _command.CommitmentId &&
-                p.ReceivingEmployerAccountId ==
-                _command.TransferReceiverId &&
-                p.SendingEmployerAccountId ==
-                _command.TransferSenderId)));
-
-            _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortRejectedByTransferSender>()), Times.Never);
-        }
-
-        [Test]
-        public async Task ThenIfTheTransferSenderApprovesCohortEnsureApprenticeshipUpdatesAreUpdatedInRepository()
-        {
-            await _sut.Handle(_command);
-
-            _commitment.Apprenticeships.ForEach(
-                x=> x.PaymentStatus.Should().Be(PaymentStatus.Active));
-            _apprenticeshipRepository.Verify(x=>x.UpdateApprenticeshipStatuses(_commitment.Apprenticeships));
-        }
-
-        [Test]
-        public async Task ThenIfTheTransferSenderApprovesCohortEnsurePriceHistoryIsUpdated()
-        {
-            await _sut.Handle(_command);
-            _apprenticeshipRepository.Verify(x => x.CreatePriceHistoryForApprenticeshipsInCommitment(_commitment.Id));
-        }
-
-        [Test]
-        public async Task ThenIfTheTransferSenderApprovesCohortEnsureHistoryRecordIsAddedInRepository()
-        {
-            await _sut.Handle(_command);
-
-            //_historyRepository.Verify(x => x.InsertHistory(It.IsAny<List<HistoryItem>>()));
-            _historyRepository.Verify(x => x.InsertHistory(It.Is<List<HistoryItem>>(p =>
-                p[0].EmployerAccountId == _command.TransferSenderId &&
-                p[0].ChangeType == CommitmentChangeType.TransferSenderApproval.ToString() &&
-                p[0].CommitmentId == _commitment.Id)));
-        }
-
-        [Test]
-        public async Task ThenIfTheTransferSenderApprovesCohortEnsureEventsPublisherIsCalledForApprovedEvents()
-        {
-            await _sut.Handle(_command);
-            _apprenticeshipEventsPublisher.Verify(x => x.Publish(It.IsAny<IApprenticeshipEventsList>()));
-        }
-
-        [Test]
-        public async Task ThenIfTheTransferSenderApprovesCohortEnsureReorderPayementsCommandIsCalled()
-        {
-            await _sut.Handle(_command);
-            _mediator.Verify(x => x.SendAsync(It.Is<SetPaymentOrderCommand>(p => p.AccountId == _commitment.EmployerAccountId)));
+            _v2EventsPublisher.Verify(x => x.SendApproveTransferRequestCommand(_command.TransferRequestId, It.IsAny<DateTime>(), 
+                It.Is<UserInfo>(p=>p.UserId == _command.UserId && p.UserEmail == _command.UserEmail && p.UserDisplayName == _command.UserName)), Times.Once);
         }
 
         [Test]
@@ -192,13 +91,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         {
             _commitment.EditStatus = status;
             Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Handle(_command));
-        }
-
-        [Test]
-        public async Task ThenIfTheTransferSenderApprovesCohortEnsureCreateApprenticeshipEventsAreSentToV2Publisher()
-        {
-            await _sut.Handle(_command);
-            _v2EventsPublisher.Verify(x => x.PublishApprenticeshipCreated(It.IsAny<IApprenticeshipEvent>()), Times.Exactly(3));
         }
     }
 }

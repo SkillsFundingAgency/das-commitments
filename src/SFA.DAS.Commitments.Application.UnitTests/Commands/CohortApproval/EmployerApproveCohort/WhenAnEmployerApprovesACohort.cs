@@ -258,5 +258,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
 
             MessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByEmployer>(y => y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId && y.CommitmentId == Commitment.Id)));
         }
+
+        [Test]
+        public async Task ThenTheProviderApprovedCohortNotificationIsNotSent()
+        {
+            await Target.Handle(Command);
+            NotificationsPublisher.Verify(x => x.ProviderApprovedCohort(It.IsAny<Commitment>()), Times.Never);
+        }
     }
 }

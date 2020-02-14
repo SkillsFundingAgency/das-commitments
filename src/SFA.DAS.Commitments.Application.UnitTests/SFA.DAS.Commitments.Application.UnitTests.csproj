@@ -224,7 +224,6 @@
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenAnEmployerApprovesACohortWhichHasATransferSender.cs" />
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenAnEmployerApprovesACohort.cs" />
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenValidatingCommand.cs" />
-    <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenAnProviderApprovesACohortWhichHasATransferSender.cs" />
     <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenAnProviderApprovesACohort.cs" />
     <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenCreatingApprenticeshipUpdate.cs" />
@@ -329,6 +328,7 @@
     <Compile Include="Services\EventUpgradeHandler\WhenExecute.cs" />
     <Compile Include="Services\MessagePublisherWithV2Upgrade\WhenPublishAsync.cs" />
     <Compile Include="Services\ReservationValidationServiceTests.cs" />
+    <Compile Include="Services\NotificationsPublisherTests.cs" />
     <Compile Include="Services\V2EventsPublisherTests.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="TestHelper.cs" />
