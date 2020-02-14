@@ -176,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
         
-        public bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == Types.TransferApprovalStatus.Approved);
+        public virtual bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == Types.TransferApprovalStatus.Approved);
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
@@ -198,7 +198,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return draftApprenticeship;
         }
 
-        public void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
+        public virtual void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
         {
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
@@ -226,7 +226,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     switch (WithParty)
                     {
                         case Party.Employer:
-                            Publish(() => new CohortAssignedToEmployerEvent(Id, now));
+                            Publish(() => new CohortAssignedToEmployerEvent(Id, now, modifyingParty));
                             break;
                         case Party.Provider:
                             Publish(() => new CohortAssignedToProviderEvent(Id, now));
@@ -250,15 +250,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 Publish(() => new CohortApprovedByEmployerEvent(Id, now));
             }
+
             if (IsApprovedByAllParties)
             {
-                Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId.Value, now));
+                Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId.Value, now, modifyingParty));
             }
 
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
+        public virtual void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
         {
             CheckIsEmployerOrProvider(modifyingParty);
             CheckIsWithParty(modifyingParty);
@@ -276,7 +277,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             switch (EditStatus)
             {
                 case EditStatus.EmployerOnly:
-                    Publish(() => new CohortAssignedToEmployerEvent(Id, now));
+                    Publish(() => new CohortAssignedToEmployerEvent(Id, now, modifyingParty));
                     break;
                 case EditStatus.ProviderOnly:
                     Publish(() => new CohortAssignedToProviderEvent(Id, now));
@@ -661,6 +662,15 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                 return approvals;
             }
+        }
+
+        public void RejectTransferRequest(UserInfo userInfo)
+        {
+            CheckIsWithParty(Party.TransferSender);
+            StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, EmployerAccountId, ProviderId.Value, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+            EditStatus = EditStatus.EmployerOnly;
+            ChangeTrackingSession.CompleteTrackingSession();
         }
     }
 }

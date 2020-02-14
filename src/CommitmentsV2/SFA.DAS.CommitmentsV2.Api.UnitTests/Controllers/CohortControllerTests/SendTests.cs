@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         public SendCohortRequest Request { get; set; }
 
         private const long CohortId = 123;
-        
+
         public SendTestsFixture()
         {
             AutoFixture = new Fixture();
@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             Controller = new CohortController(Mediator.Object);
             Request = AutoFixture.Create<SendCohortRequest>();
 
-            Mediator.Setup(m => m.Send(It.Is<SendCohortCommand>(c => 
+            Mediator.Setup(m => m.Send(It.Is<SendCohortCommand>(c =>
                     c.CohortId == CohortId &&
                     c.Message == Request.Message &&
                     c.UserInfo == Request.UserInfo), CancellationToken.None))
