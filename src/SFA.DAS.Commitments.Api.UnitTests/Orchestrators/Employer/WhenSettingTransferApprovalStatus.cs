@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             MockMediator.Verify(
                 x => x.SendAsync(It.Is<ApproveTransferRequestCommand>(p =>
                     p.TransferSenderId == 1 && p.CommitmentId == 2 && p.TransferRequestId == 3 &&
-                    p.TransferReceiverId == request.TransferReceiverId)), Times.Once);
+                    p.TransferReceiverId == request.TransferReceiverId && p.UserId == request.UserId && p.UserEmail == request.UserEmail && p.UserName == request.UserName)), Times.Once);
         }
 
         [Test]

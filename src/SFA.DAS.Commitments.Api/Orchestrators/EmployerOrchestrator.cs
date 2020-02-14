@@ -315,6 +315,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     TransferReceiverId = transferApprovalRequest.TransferReceiverId,
                     TransferRequestId = transferRequestId,
                     CommitmentId = commitmentId,
+                    UserId = transferApprovalRequest.UserId,
                     UserEmail = transferApprovalRequest.UserEmail,
                     UserName = transferApprovalRequest.UserName
                 });
@@ -327,6 +328,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     TransferReceiverId = transferApprovalRequest.TransferReceiverId,
                     TransferRequestId = transferRequestId,
                     CommitmentId = commitmentId,
+                    UserId = transferApprovalRequest.UserId,
                     UserEmail = transferApprovalRequest.UserEmail,
                     UserName = transferApprovalRequest.UserName
                 });

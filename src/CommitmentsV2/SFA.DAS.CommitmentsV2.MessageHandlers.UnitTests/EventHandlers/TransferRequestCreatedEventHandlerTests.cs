@@ -21,29 +21,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     [Parallelizable(ParallelScope.All)]
     public class TransferRequestCreatedEventHandlerTests
     {
-
-        [Test]
-        public void
-            Handle_WhenHandlingTransferRequestCreatedEvent_IfLastApprovedByPartyIsEmployer_ThenShouldRelayMessageToAzureServiceBus()
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void Handle_WhenHandlingTransferRequestCreatedEvent_ThenShouldRelayMessageToAzureServiceBus(Party lastParty)
         {
             var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
-            fixture.SetupTransfer().SetupTransferCreatedEvent(Party.Employer);
+            fixture.SetupTransfer().SetupTransferCreatedEvent(lastParty);
 
             fixture.Handle();
 
             fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
-        }
-
-        [Test]
-        public void
-            Handle_WhenHandlingTransferRequestCreatedEvent_IfLastApprovedByPartyIsEmployer_ThenShouldNoyRelayMessageToAzureServiceBus()
-        {
-            var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
-            fixture.SetupTransfer().SetupTransferCreatedEvent(Party.Provider);
-
-            fixture.Handle();
-
-            fixture.VerifyMessageNotRelayed();
         }
     }
 
@@ -80,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 new UserInfo()) {EmployerAccountId = 100, TransferSenderId = 99};
 
             TransferRequest = new TransferRequest
-                { Status = (byte)TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort};
+                { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort};
         }
 
         public TransferRequestCreatedEventHandlerTestsFixture SetupTransferCreatedEvent(Party lastApprovedParty)
@@ -120,5 +107,3 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
     }
 }
-
-

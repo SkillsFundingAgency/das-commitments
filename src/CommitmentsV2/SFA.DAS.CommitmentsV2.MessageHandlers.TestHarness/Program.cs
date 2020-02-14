@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NServiceBus.Configuration;
@@ -37,11 +39,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
 
             if (isDevelopment)
             {
-                endpointConfiguration.UseLearningTransport();
+                endpointConfiguration.UseLearningTransport(s => s.AddRouting());
             }
             else
             {
-                endpointConfiguration.UseAzureServiceBusTransport(config.ServiceBusConnectionString);
+                endpointConfiguration.UseAzureServiceBusTransport(config.ServiceBusConnectionString, s => s.AddRouting());
             }
 
             var endpoint = await Endpoint.Start(endpointConfiguration);
