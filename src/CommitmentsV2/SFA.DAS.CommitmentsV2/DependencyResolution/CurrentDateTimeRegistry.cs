@@ -1,7 +1,7 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Shared.Services;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
