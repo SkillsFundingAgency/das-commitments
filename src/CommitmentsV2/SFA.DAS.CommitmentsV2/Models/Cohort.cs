@@ -32,11 +32,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             EmployerAccountId = accountLegalEntity.AccountId;
             AccountLegalEntityId = accountLegalEntity.Id;
             ProviderId = provider.UkPrn;
-            ProviderName = provider.Name;
             TransferSenderId = transferSender?.Id;
-            TransferSenderName = transferSender?.Name;
 
             //Setting of these fields is here for backwards-compatibility only
+            ProviderName = provider.Name;
+            TransferSenderName = transferSender?.Name;
             LegalEntityId = accountLegalEntity.LegalEntityId;
             LegalEntityName = accountLegalEntity.Name;
             LegalEntityAddress = accountLegalEntity.Address;
@@ -147,6 +147,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<ApprenticeshipBase> Apprenticeships { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
         public virtual ICollection<TransferRequest> TransferRequests { get; set; }
+
+        public virtual AccountLegalEntity AccountLegalEntity { get; set; }
+        public virtual Provider Provider { get; set; }
+        public virtual Account TransferSender { get; set; }
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
@@ -445,17 +449,18 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildEndDateValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.EndDate <= DateTime.Today)
+            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.EndDate < Constants.DasStartDate)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be in the past");
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be earlier than May 2017");
                 yield break;
             }
 
             if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.StartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.StartDate)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
             }
         }
+
 
         private IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
