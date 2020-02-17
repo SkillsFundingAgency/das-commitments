@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var fixture = new CohortAssignedToProviderEventHandlerTestsFixture().SetupTransferCohort();
             await fixture.Handle();
 
-            fixture.VerfiyProviderTransferEmailRequestIsCreatedAndSentCorrectly();
+            fixture.VerfiyProviderTransferEmailRequestIsCreatedAndSentCorrectly(fixture.GetCohortSummaryQueryResult.LastAction);
         }
     }
 
@@ -94,14 +94,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     p.Tokens["type"] == actionType), default));
         }
 
-        public void VerfiyProviderTransferEmailRequestIsCreatedAndSentCorrectly()
+        public void VerfiyProviderTransferEmailRequestIsCreatedAndSentCorrectly(LastAction lastAction)
         {
+            var actionType = lastAction == LastAction.Approve ? "approval" : "review";
+
             PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(GetCohortSummaryQueryResult.ProviderId.Value,
                 It.Is<ProviderEmailRequest>(p =>
                     p.TemplateId == "ProviderTransferCommitmentNotification" &&
                     p.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
                     p.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
-                    p.Tokens["receiving_employer"] == GetCohortSummaryQueryResult.LegalEntityName), default));
+                    p.Tokens["employer_name"] == GetCohortSummaryQueryResult.LegalEntityName &&
+                    p.Tokens["type"] == actionType), default));
         }
     }
 }

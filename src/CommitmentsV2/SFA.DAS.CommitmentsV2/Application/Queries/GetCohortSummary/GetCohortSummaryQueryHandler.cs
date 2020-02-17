@@ -36,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     LegalEntityName = c.AccountLegalEntity.Name,
                     ProviderName = c.Provider.Name,
                     TransferSenderId = c.TransferSenderId,
+                    TransferSenderName = c.TransferSenderName,
                     WithParty = c.WithParty,
                     LatestMessageCreatedByEmployer = latestMessageCreatedByEmployer,
                     LatestMessageCreatedByProvider = latestMessageCreatedByProvider,

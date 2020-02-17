@@ -102,9 +102,12 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             throw new NotImplementedException();
         }
 
-        public Task<ICollection<TransferConnectionViewModel>> GetTransferConnections(string accountHashedId)
+        public async Task<ICollection<TransferConnectionViewModel>> GetTransferConnections(string accountHashedId)
         {
-            throw new NotImplementedException();
+            var url = $"api/accounts/{accountHashedId}/transfers/connections";
+            var response = await _httpClient.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<ICollection<TransferConnectionViewModel>>(json);
         }
 
         public Task<ICollection<AccountDetailViewModel>> GetUserAccounts(string userId)

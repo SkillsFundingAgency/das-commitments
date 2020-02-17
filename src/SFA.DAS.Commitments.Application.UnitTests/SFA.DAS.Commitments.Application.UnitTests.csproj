@@ -224,14 +224,10 @@
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenAnEmployerApprovesACohortWhichHasATransferSender.cs" />
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenAnEmployerApprovesACohort.cs" />
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenValidatingCommand.cs" />
-    <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenAnProviderApprovesACohortWhichHasATransferSender.cs" />
     <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenAnProviderApprovesACohort.cs" />
     <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenCreatingApprenticeshipUpdate.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenValidatingRequest.cs" />
-    <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
-    <Compile Include="Commands\CreateApprenticeship\WhenEmployerCreatesApprenticeship.cs" />
-    <Compile Include="Commands\CreateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateBulkUpload\WhenCreatingBulkUpload.cs" />
     <Compile Include="Commands\CreateBulkUpload\WhenValidatngCreatingBulkUpload.cs" />
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
@@ -276,9 +272,6 @@
     <Compile Include="Commands\UpdateApprenticeshipStopDate\WhenUpdatingAnApprenticeshipStopDate.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStopDate\WhenEditingTheStopDateOfAnApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStopDate\WhenValidatingUpdateApprenticeshipStopDateCommand.cs" />
-    <Compile Include="Commands\UpdateApprenticeship\WhenEmployerUpdatesApprenticeship.cs" />
-    <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
-    <Compile Include="Commands\UpdateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\WhenUpdatingCommitmentAgreement.cs" />
     <Compile Include="Commands\ApproveDataLockTriage\WhenApprovingDataLockTriage.cs" />
     <Compile Include="Commands\RejectDataLockTriage\WhenRejectingDataLockTriage.cs" />
@@ -335,6 +328,7 @@
     <Compile Include="Services\EventUpgradeHandler\WhenExecute.cs" />
     <Compile Include="Services\MessagePublisherWithV2Upgrade\WhenPublishAsync.cs" />
     <Compile Include="Services\ReservationValidationServiceTests.cs" />
+    <Compile Include="Services\NotificationsPublisherTests.cs" />
     <Compile Include="Services\V2EventsPublisherTests.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="TestHelper.cs" />
