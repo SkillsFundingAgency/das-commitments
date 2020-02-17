@@ -71,7 +71,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.Cohort.LastUpdatedByProviderName.Should().Be(expectedLastUpdatedByProviderName);
             _fixture.Cohort.LastUpdatedByProviderEmail.Should().Be(expectedLastUpdatedByProviderEmail);
         }
-        
+
+        [TestCase(Party.Employer, "Employer", "foo@foo.com", "Employer", "foo@foo.com", null, null)]
+        [TestCase(Party.Provider, "Provider", "bar@bar.com", null, null, "Provider", "bar@bar.com")]
+        public void ThenCohortShouldNoLongerBeDraft(Party modifyingParty, string userDisplayName, string userEmail, string expectedLastUpdatedByEmployerName, string expectedLastUpdatedByEmployerEmail, string expectedLastUpdatedByProviderName, string expectedLastUpdatedByProviderEmail)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetEditStatus(modifyingParty.ToEditStatus())
+                .SetUserInfo(userDisplayName, userEmail)
+                .SetIsDraft(true)
+                .SendToOtherParty();
+
+            _fixture.Cohort.IsDraft.Should().Be(false);
+        }
+
+
         [TestCase(Party.Employer, typeof(CohortAssignedToProviderEvent))]
         [TestCase(Party.Provider, typeof(CohortAssignedToEmployerEvent))]
         public void ThenShouldPublishEvent(Party modifyingParty, Type expectedEventType)
@@ -206,6 +220,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             Cohort.Set(c => c.LastAction, lastAction);
             
+            return this;
+        }
+
+        public WhenSendingCohortToOtherPartyTestsFixture SetIsDraft(bool isDraft)
+        {
+            Cohort.Set(c => c.IsDraft, isDraft);
             return this;
         }
 

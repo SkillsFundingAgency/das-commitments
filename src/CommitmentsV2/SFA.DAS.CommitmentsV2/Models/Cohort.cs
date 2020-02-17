@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             AccountLegalEntityId = accountLegalEntity.Id;
             ProviderId = provider.UkPrn;
             TransferSenderId = transferSender?.Id;
+            IsDraft = true;
 
             //Setting of these fields is here for backwards-compatibility only
             ProviderName = provider.Name;
@@ -61,6 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             UserInfo userInfo) : this(provider, accountLegalEntity, null, originatingParty, userInfo)
         {
             EditStatus = originatingParty.ToEditStatus();
+            IsDraft = true;
 
             StartTrackingSession(UserAction.CreateCohort, originatingParty, accountLegalEntity.AccountId, provider.UkPrn, userInfo);
             ChangeTrackingSession.TrackInsert(this);
@@ -80,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             EditStatus = originatingParty.ToEditStatus();
+            IsDraft = true;
 
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, originatingParty);
             Apprenticeships.Add(draftApprenticeship);
@@ -103,6 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             UserInfo userInfo) : this(provider, accountLegalEntity, transferSender, originatingParty, userInfo)
         {
             CheckIsEmployer(originatingParty);
+            IsDraft = false;
 
             EditStatus = originatingParty.GetOtherParty().ToEditStatus();
             LastAction = LastAction.Amend;
@@ -143,6 +147,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string AccountLegalEntityPublicHashedId { get; set; }
         public Originator Originator { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsDraft { get; set; }
 
         public virtual ICollection<ApprenticeshipBase> Apprenticeships { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
@@ -214,7 +219,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 {
                     var otherParty = modifyingParty.GetOtherParty();
                     var isApprovedByOtherParty = IsApprovedByParty(otherParty);
-                
+
+                    IsDraft = false;
                     EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
                     LastAction = LastAction.Approve;
                     CommitmentStatus = CommitmentStatus.Active;
@@ -267,6 +273,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartTrackingSession(UserAction.SendCohort, modifyingParty, EmployerAccountId, ProviderId.Value, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
+            IsDraft = false;
             EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;

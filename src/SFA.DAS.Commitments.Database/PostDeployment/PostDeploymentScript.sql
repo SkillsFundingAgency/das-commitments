@@ -12,3 +12,6 @@ Post-Deployment Script Template
 
 EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
 
+--CV-515: Add IsDraft flag - update existing data
+update Commitment set IsDraft = 1 where LastAction = 0
+
