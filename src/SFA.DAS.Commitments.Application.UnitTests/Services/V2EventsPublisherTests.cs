@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Services;
@@ -269,13 +270,58 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
+        #region SendApproveTransferRequestCommand
+        [Test]
+        public async Task ApproveTransferRequestCommandSent_ShouldMapPropertiesCorrectly()
+        {
+            var f = new V2EventsPublisherTestFixtures<SFA.DAS.CommitmentsV2.Messages.Commands.ApproveTransferRequestCommand>();
+
+            await f.CreateV2EventsPublisher().SendApproveTransferRequestCommand(f.TransferRequestId, f.Now, f.UserInfo);
+
+            f.VerfiyApproveTransferRequestCommandWasSent();
+        }
+
+        [Test]
+        public void ApproveTransferRequestCommandSent_ShouldThrowExceptionAndLogTheError()
+        {
+            var f = new V2EventsPublisherTestFixtures<SFA.DAS.CommitmentsV2.Messages.Commands.ApproveTransferRequestCommand>().ThrowsExceptionWhenCallingSend();
+
+            Assert.CatchAsync<Exception>( () => f.CreateV2EventsPublisher().SendApproveTransferRequestCommand(1, f.Now, f.UserInfo));
+
+            f.VerfiyErrorwasLogged();
+        }
+        #endregion
+
+        #region SendRejectTransferRequestCommand
+        [Test]
+        public async Task RejectTransferRequestCommandSent_ShouldMapPropertiesCorrectly()
+        {
+            var f = new V2EventsPublisherTestFixtures<SFA.DAS.CommitmentsV2.Messages.Commands.RejectTransferRequestCommand>();
+
+            await f.CreateV2EventsPublisher().SendRejectTransferRequestCommand(f.TransferRequestId, f.Now, f.UserInfo);
+
+            f.VerfiyRejectTransferRequestCommandWasSent();
+        }
+
+        [Test]
+        public void RejectTransferRequestCommandSent_ShouldThrowExceptionAndLogTheError()
+        {
+            var f = new V2EventsPublisherTestFixtures<SFA.DAS.CommitmentsV2.Messages.Commands.RejectTransferRequestCommand>().ThrowsExceptionWhenCallingSend();
+
+            Assert.CatchAsync<Exception>(() => f.CreateV2EventsPublisher().SendRejectTransferRequestCommand(1, f.Now, f.UserInfo));
+
+            f.VerfiyErrorwasLogged();
+        }
+        #endregion
     }
 
     internal class V2EventsPublisherTestFixtures<TEvent> where TEvent : class
     {
         public V2EventsPublisherTestFixtures()
         {
+            TransferRequestId = 9798;
             Now = DateTime.Now;
+            UserInfo = new UserInfo();
             EndpointInstanceMock = new Mock<IEndpointInstance>();
             MessageSessionMock = EndpointInstanceMock.As<IMessageSession>();
             CommitmentsLoggerMock = new Mock<ICommitmentsLogger>();
@@ -294,7 +340,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             PaymentOrder = new List<int> {100, 200};
         }
 
+        public long TransferRequestId { get; }
         public DateTime Now { get; }
+        public UserInfo UserInfo { get; }
         public List<int> PaymentOrder { get; }
         public Mock<IEndpointInstance> EndpointInstanceMock { get; }
         public Mock<IMessageSession> MessageSessionMock { get; }
@@ -410,11 +458,49 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             return this;
         }
 
+        public V2EventsPublisherTestFixtures<TEvent> ThrowsExceptionWhenCallingSend()
+        {
+            EndpointInstanceMock.Setup(x => x.Send(It.IsAny<object>(), It.IsAny<SendOptions>()))
+                .ThrowsAsync(new InvalidCastException());
+            
+            return this;
+        }
+
+        public void VerfiyApproveTransferRequestCommandWasSent()
+        {
+            EndpointInstanceMock.Verify(x =>
+                x.Send(It.Is<object>(o => o is SFA.DAS.CommitmentsV2.Messages.Commands.ApproveTransferRequestCommand),
+                    It.IsAny<SendOptions>()));
+            EndpointInstanceMock.Verify(x => x.Send(It.Is<object>(o =>
+                    ((CommitmentsV2.Messages.Commands.ApproveTransferRequestCommand) o).TransferRequestId == TransferRequestId &&
+                    ((CommitmentsV2.Messages.Commands.ApproveTransferRequestCommand) o).ApprovedOn == Now &&
+                    ((CommitmentsV2.Messages.Commands.ApproveTransferRequestCommand) o).UserInfo == UserInfo),
+                It.IsAny<SendOptions>()));
+        }
+
+        public void VerfiyRejectTransferRequestCommandWasSent()
+        {
+            EndpointInstanceMock.Verify(x =>
+                x.Send(It.Is<object>(o => o is SFA.DAS.CommitmentsV2.Messages.Commands.RejectTransferRequestCommand),
+                    It.IsAny<SendOptions>()));
+            EndpointInstanceMock.Verify(x => x.Send(It.Is<object>(o =>
+                    ((CommitmentsV2.Messages.Commands.RejectTransferRequestCommand)o).TransferRequestId == TransferRequestId &&
+                    ((CommitmentsV2.Messages.Commands.RejectTransferRequestCommand)o).RejectedOn == Now &&
+                    ((CommitmentsV2.Messages.Commands.RejectTransferRequestCommand)o).UserInfo == UserInfo),
+                It.IsAny<SendOptions>()));
+        }
+
+
+        public void VerfiyErrorwasLogged()
+        {
+            CommitmentsLoggerMock.Verify(x => x.Error(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<int?>()));
+        }
+
         private V2EventsPublisherTestFixtures<TEvent> SetUpMessageBuilder() 
         {
             EndpointInstanceMock
                 .Setup(epi => epi.Publish<TEvent>(It.IsAny<Action<TEvent>>(), It.IsAny<PublishOptions>()))
-                .Callback<Action<TEvent>, PublishOptions>((messageBuilder, options) => CallMessageBuilder(messageBuilder))
+                .Callback<Action<TEvent>, PublishOptions>((command, options) => CallMessageBuilder(command))
                 .Returns(Task.CompletedTask);
 
             return this;

@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             Controller = new CohortController(Mediator.Object);
             Request = AutoFixture.Create<CreateCohortRequest>();
             Result = AutoFixture.Create<AddCohortResult>();
-            
+
             Mediator
                 .Setup(m => m.Send(It.Is<AddCohortCommand>(c =>
                     c.AccountId == Request.AccountId &&
