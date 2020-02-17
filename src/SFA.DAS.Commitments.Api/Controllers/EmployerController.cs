@@ -118,15 +118,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response);
         }
 
-        [Route("{accountId}/commitments/")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> CreateCommitment(long accountId, CommitmentRequest commitment)
-        {
-            var response = await _employerOrchestrator.CreateCommitment(accountId, commitment);
-
-            return CreatedAtRoute("GetCommitmentForEmployer", new { accountId, commitmentId = response }, new CommitmentView { Id = response });
-        }
-
         [Route("{accountId}/commitments/{commitmentId}")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody] CommitmentSubmission values)
@@ -151,26 +142,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> DeleteCommitment(long accountId, long commitmentId, [FromBody] DeleteRequest deleteRequest)
         {
             await _employerOrchestrator.DeleteCommitment(accountId, commitmentId, deleteRequest.UserId, deleteRequest.LastUpdatedByInfo?.Name);
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-
-        [Route("{accountId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForEmployer")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> CreateApprenticeship(long accountId, long commitmentId, ApprenticeshipRequest apprenticeshipRequest)
-        {
-            var response = await _employerOrchestrator.CreateApprenticeship(accountId, commitmentId, apprenticeshipRequest);
-
-            return CreatedAtRoute("GetApprenticeshipForEmployer", new { accountId, commitmentId, apprenticeshipId = response }, default(Apprenticeship));
-        }
-
-
-        [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest)
-        {
-            await _employerOrchestrator.PutApprenticeship(accountId, commitmentId, apprenticeshipId, apprenticeshipRequest);
 
             return StatusCode(HttpStatusCode.NoContent);
         }
