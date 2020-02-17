@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         public async Task WhenPostRequestReceived_ThenShouldReturnResponse()
         {
             var fixture = new CreateEmptyCohortTestsFixture();
-            var result= await fixture.Create();
+            var result = await fixture.Create();
 
             fixture.VerifyResponse(result);
         }
