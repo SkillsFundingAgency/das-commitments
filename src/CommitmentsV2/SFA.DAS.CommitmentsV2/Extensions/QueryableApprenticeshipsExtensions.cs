@@ -46,10 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                         var lastName = filters.SearchTerm.Substring(firstName.Length + 1);
                         
                         found.AddRange(apprenticeships.Where(app =>
-                                app.FirstName.StartsWith(firstName))
-                            .Select(apprenticeship => apprenticeship.Id));
-                        
-                        found.AddRange(apprenticeships.Where(app =>
+                                app.FirstName.StartsWith(firstName) && 
                                 app.LastName.StartsWith(lastName))
                             .Select(apprenticeship => apprenticeship.Id));
                     }
