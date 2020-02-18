@@ -123,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         }
 
         [Test]
-        public void ThenShouldFilterProviderNamesEvenWhenSomeCohortDoNotExist()
+        public void ThenFilteringOfProviderNamesWillStillWorkEvenWhenApprenticeshipCohortDoNotExist()
         {
             //Arrange
             const string filterValue = "Test Corp";

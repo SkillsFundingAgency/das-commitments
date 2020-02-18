@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test]
-        public async Task GetProviderApprovedApprentices()
+        public async Task GetProviderApprentices()
         {
             //Arrange
             var providerId = 10;
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 It.IsAny<CancellationToken>()), Times.Once);
         }
         [Test]
-        public async Task GetEmployerApprovedApprentices()
+        public async Task GetEmployerApprentices()
         {
             //Arrange
             var employerAccountId = 10;
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test]
-        public async Task ReturnProviderApprovedApprentices()
+        public async Task ReturnProviderApprentices()
         {
             //Arrange
             var providerId = 10;
@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test]
-        public async Task ReturnEmployerApprovedApprentices()
+        public async Task ReturnEmployerApprentices()
         {
             //Arrange
             var employerAccountId = 10;
@@ -95,8 +95,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             {
                 EmployerNames = new[] {"Test 1", "Test 2"},
                 CourseNames = new[] {"Test 3", "Test 4"},
-                StartDates = new[] { DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-2) },
-                EndDates = new[] { DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-4) }
+                StartDates = new[] { DateTime.Now.AddDays(-4), DateTime.Now.AddDays(-3) },
+                EndDates = new[] { DateTime.Now.AddDays(-2), DateTime.Now.AddDays(-1) }
             };
 
             _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(employerAccountId)),

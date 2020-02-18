@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
     {
         [Test, MoqAutoData]
         public void Then_The_First_Line_Of_The_File_Is_The_Headers(
-            List<SomethingToCsv> listToWriteToCsv,
+            List<TestModel> listToWriteToCsv,
             CreateCsvService createCsvService)
         {
             var actual = createCsvService.GenerateCsvContent(listToWriteToCsv);
@@ -22,13 +22,13 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             var fileString = System.Text.Encoding.Default.GetString(actual);
             var headerLine = fileString.Split(Environment.NewLine)[0];
 
-            Assert.That(headerLine.Contains(nameof(SomethingToCsv.Id)));
-            Assert.That(!headerLine.Contains(nameof(SomethingToCsv.InternalStuff)));
+            Assert.That(headerLine.Contains(nameof(TestModel.Id)));
+            Assert.That(!headerLine.Contains(nameof(TestModel.TestValue)));
         }
 
         [Test, MoqAutoData]
         public void Then_The_Csv_File_Content_Is_Generated(
-            List<SomethingToCsv> listToWriteToCsv,
+            List<TestModel> listToWriteToCsv,
             CreateCsvService createCsvService)
         {
             var actual = createCsvService.GenerateCsvContent(listToWriteToCsv);
@@ -46,17 +46,17 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
         public void And_Nothing_Is_Passed_To_The_Content_Generator_Then_Exception_Is_Thrown(
             CreateCsvService createCsvService)
         {
-            List<SomethingToCsv> nullList = null;
+            List<TestModel> nullList = null;
 
             Assert.Throws<WriterException>(() => createCsvService.GenerateCsvContent(nullList));
         }
     }
 
-    public class SomethingToCsv
+    public class TestModel
     {
         public int Id { get; set; }
         public string Description { get; set; }
         [CsvHelper.Configuration.Attributes.Ignore]
-        public long InternalStuff { get; set; }
+        public long TestValue { get; set; }
     }
 }

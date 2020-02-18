@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 {
                     RuleFor(request => request.ProviderId)
                         .Must(id => id.Value == 0)
-                        .WithMessage("he provider id must be zero if employer account id is set");
+                        .WithMessage("The provider id must be zero if employer account id is set");
                 });
 
                 Unless(request => request.ProviderId.Value == 0, () =>
