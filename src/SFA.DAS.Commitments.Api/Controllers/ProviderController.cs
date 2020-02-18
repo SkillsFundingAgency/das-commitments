@@ -127,25 +127,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-
-        [Route("{providerId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForProvider")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> CreateApprenticeship(long providerId, long commitmentId, [FromBody] ApprenticeshipRequest apprenticeshipRequest)
-        {
-            var response = await _providerOrchestrator.CreateApprenticeship(providerId, commitmentId, apprenticeshipRequest);
-
-            return CreatedAtRoute("GetApprenticeshipForProvider", new {providerId, commitmentId, apprenticeshipId = response}, default(Apprenticeship));
-        }
-
-        [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "UpdateApprenticeshipForProvider")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest)
-        {
-            await _providerOrchestrator.PutApprenticeship(providerId, commitmentId, apprenticeshipId, apprenticeshipRequest);
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/bulk")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> PostBulkUpload(long providerId, long commitmentId, BulkApprenticeshipRequest bulkRequest)

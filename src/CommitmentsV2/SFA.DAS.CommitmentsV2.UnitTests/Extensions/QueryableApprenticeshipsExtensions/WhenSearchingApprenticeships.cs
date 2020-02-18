@@ -54,22 +54,67 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         }
 
         [Test, RecursiveMoqAutoData]
-        public void And_FirstName_And_LastName_Matches_SearchTerm_Split_on_The_Space(
-            string searchTermFirstName,
-            string searchTermLastName,
+        public void And_FirstName_Or_LastName_Matches_SearchTerm_Then_Included(
+            string searchTerm,
             List<Apprenticeship> apprenticeships)
         {
-            var searchTerm = $"{searchTermFirstName} {searchTermLastName}";
-
-            apprenticeships[0].FirstName = searchTermFirstName;
-            apprenticeships[1].LastName = searchTermLastName;
-            var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm};
+            apprenticeships[0].FirstName = searchTerm;
+            apprenticeships[1].LastName = searchTerm;
+            var filter = new ApprenticeshipSearchFilters {SearchTerm = searchTerm};
 
             var filtered = apprenticeships.AsQueryable().Filter(filter);
 
             filtered.Count().Should().Be(apprenticeships.Count(apprenticeship =>
-                apprenticeship.FirstName == searchTermFirstName ||
-                apprenticeship.LastName == searchTermLastName));
+                apprenticeship.FirstName == searchTerm ||
+                apprenticeship.LastName == searchTerm));
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void And_Name_Is_Searched_With_Uln_Then_Returns_No_Results(
+            string searchName,
+            string searchUln,
+            List<Apprenticeship> apprenticeships)
+        {
+            apprenticeships[0].FirstName = searchName;
+            apprenticeships[0].Uln = searchUln.Substring(0, 9);
+            var searchTerm = searchName + " " + searchUln;
+            var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm};
+
+            var filtered = apprenticeships.AsQueryable().Filter(filter);
+
+            filtered.Count().Should().Be(0);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void And_First_Name_Matches_But_Last_Name_Does_Not_Match_Search_Term_Then_Returns_Nothing(
+            string searchTermFirstName,
+            string searchTermLastName,
+            List<Apprenticeship> apprenticeships)
+        {
+            apprenticeships[0].FirstName = searchTermFirstName;
+            apprenticeships[0].LastName = "noMatch";
+            var searchTerm = searchTermFirstName + " " + searchTermLastName;
+            var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm};
+
+            var filtered = apprenticeships.AsQueryable().Filter(filter);
+
+            filtered.Count().Should().Be(0);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void And_Last_Name_Matches_But_First_Name_Does_Not_Match_Search_Term_Then_Returns_Nothing(
+            string searchTermFirstName,
+            string searchTermLastName,
+            List<Apprenticeship> apprenticeships)
+        {
+            apprenticeships[0].FirstName = "noMatch";
+            apprenticeships[0].LastName = searchTermLastName;
+            var searchTerm = searchTermFirstName + " " + searchTermLastName;
+            var filter = new ApprenticeshipSearchFilters { SearchTerm = searchTerm };
+
+            var filtered = apprenticeships.AsQueryable().Filter(filter);
+
+            filtered.Count().Should().Be(0);
         }
     }
 }

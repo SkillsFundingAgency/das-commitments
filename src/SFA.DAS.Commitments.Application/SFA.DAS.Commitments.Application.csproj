@@ -300,9 +300,6 @@
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommand.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommandHandler.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsValidator.cs" />
-    <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommand.cs" />
-    <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandHandler.cs" />
-    <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipValidator.cs" />
     <Compile Include="Commands\CreateCommitment\CreateCommitmentCommand.cs" />
     <Compile Include="Commands\CreateCommitment\CreateCommitmentCommandHandler.cs" />
     <Compile Include="Commands\CreateCommitment\CreateCommitmentValidator.cs" />
@@ -321,9 +318,6 @@
     <Compile Include="Commands\UpdateApprenticeshipStopDate\UpdateApprenticeshipStopDateCommandValidator.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStopDate\UpdateApprenticeshipStopDateCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStopDate\UpdateApprenticeshipStopDateCommandHandler.cs" />
-    <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
-    <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />
-    <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipValidator.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandValidator.cs" />
