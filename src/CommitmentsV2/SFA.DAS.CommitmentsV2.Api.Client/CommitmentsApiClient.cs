@@ -49,12 +49,25 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         }
         public Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
+            if (request.ProviderId.HasValue && request.AccountId.HasValue)
+            {
+                throw new NotSupportedException("Api currently does not support both a provider Id and employer account Id lookup for apprentices.");
+            }
+
             var pageQuery = CreatePageQuery(request);
             var sortField = CreateSortFieldQuery(request);
             var filterQuery = CreateFilterQuery(request);
 
+            if (request.ProviderId.HasValue)
+            {
+                return _client.Get<GetApprenticeshipsResponse>(
+                    $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}{sortField}{filterQuery}{pageQuery}",
+                    null, cancellationToken);
+            }
+
             return _client.Get<GetApprenticeshipsResponse>(
-                $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort={request.ReverseSort}{sortField}{filterQuery}{pageQuery}", null, cancellationToken);
+                $"api/apprenticeships/?employerAccountId={request.AccountId}&reverseSort={request.ReverseSort}{sortField}{filterQuery}{pageQuery}",
+                null, cancellationToken);
         }
 
         public Task<GetApprenticeshipsFilterValuesResponse> GetApprenticeshipsFilterValues(GetApprenticeshipFiltersRequest request, CancellationToken cancellationToken = default)
