@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             }
 
             return _client.Get<GetApprenticeshipsResponse>(
-                $"api/apprenticeships/?employerAccountId={request.AccountId}&reverseSort={request.ReverseSort}{sortField}{filterQuery}{pageQuery}",
+                $"api/apprenticeships/?accountId={request.AccountId}&reverseSort={request.ReverseSort}{sortField}{filterQuery}{pageQuery}",
                 null, cancellationToken);
         }
 

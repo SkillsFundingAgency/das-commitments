@@ -235,7 +235,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(request);
 
             //Assert
-            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?employerAccountId={request.AccountId}&reverseSort=False", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?accountId={request.AccountId}&reverseSort=False", null, CancellationToken.None));
         }
 
          
