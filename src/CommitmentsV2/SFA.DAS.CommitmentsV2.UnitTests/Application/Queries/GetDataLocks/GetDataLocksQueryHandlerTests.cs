@@ -91,11 +91,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             {
                 _autofixture.Customizations.Add(new DataLockStatusSpecimenBuilder());
                 _dataLocks = _autofixture.Create<List<DataLockStatus>>();
-                _dataLocks.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.IsExpired = false; z.EventStatus = 1; z.Apprenticeship.Id = z.ApprenticeshipId; });
+                _dataLocks.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.IsExpired = false; z.EventStatus = Types.EventStatus.New; z.Apprenticeship.Id = z.ApprenticeshipId; });
                 _db.DataLocks.AddRange(_dataLocks);
 
                 var additionalRecord = _autofixture.Create<List<DataLockStatus>>();
-                additionalRecord.ForEach(z => { z.ApprenticeshipId = ++count; z.Apprenticeship.Id = z.ApprenticeshipId; z.IsExpired = false; z.EventStatus = 1; });
+                additionalRecord.ForEach(z => { z.ApprenticeshipId = ++count; z.Apprenticeship.Id = z.ApprenticeshipId; z.IsExpired = false; z.EventStatus = Types.EventStatus.New; });
                 _db.DataLocks.AddRange(additionalRecord);
 
                 _db.SaveChanges();
@@ -117,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
 
             internal async Task<GetDataLocksQueryHandlerTestsFixture> SetEventStatusRemoved()
             {
-                await _db.DataLocks.Where(x => x.ApprenticeshipId == _apprenticeshipId).ForEachAsync(x => x.EventStatus = 3);
+                await _db.DataLocks.Where(x => x.ApprenticeshipId == _apprenticeshipId).ForEachAsync(x => x.EventStatus = Types.EventStatus.Removed);
                 _db.SaveChanges();
                 return this;
             }

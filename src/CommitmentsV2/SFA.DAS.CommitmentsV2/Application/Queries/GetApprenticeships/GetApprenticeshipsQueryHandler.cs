@@ -286,7 +286,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
         private static Expression<Func<Apprenticeship, bool>> HasAlerts(long? providerId)
         {
             return apprenticeship => apprenticeship.Cohort.ProviderId == providerId
-                                     && (apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3)
+                                     && (apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed)
                                          || 
                                          apprenticeship.ApprenticeshipUpdate != null &&
                                          apprenticeship.ApprenticeshipUpdate.Any(
@@ -299,7 +299,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
         private static Expression<Func<Apprenticeship, bool>> HasNoAlerts(long? providerId)
         {
             return apprenticeship => apprenticeship.Cohort.ProviderId == providerId
-                                     && !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3)
+                                     && !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed)
                                      && apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending);
         }
 

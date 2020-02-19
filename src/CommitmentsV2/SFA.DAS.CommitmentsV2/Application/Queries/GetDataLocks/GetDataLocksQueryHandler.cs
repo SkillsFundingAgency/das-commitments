@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks
         public async Task<GetDataLocksQueryResult> Handle(GetDataLocksQuery request, CancellationToken cancellationToken)
         {
             var dataLocks = _dbContext.Value.DataLocks.Where(x => x.ApprenticeshipId == request.ApprenticeshipId
-                          && x.EventStatus != 3 && !x.IsExpired);
+                          && x.EventStatus != Types.EventStatus.Removed && !x.IsExpired);
 
             return new GetDataLocksQueryResult
             {

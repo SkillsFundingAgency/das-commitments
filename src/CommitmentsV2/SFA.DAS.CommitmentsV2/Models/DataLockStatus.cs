@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public TriageStatus TriageStatus { get; set; }
         public long? ApprenticeshipUpdateId { get; set; }
         public bool IsResolved { get; set; }
-        public byte EventStatus { get; set; }
+        public EventStatus EventStatus { get; set; }
         public DateTime? Expired { get; set; }
         public bool IsExpired { get; set; }
 
