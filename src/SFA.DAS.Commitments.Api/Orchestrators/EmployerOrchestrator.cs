@@ -3,12 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -119,27 +116,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return _commitmentMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
-        public async Task<long> CreateCommitment(long accountId, Commitment.CommitmentRequest commitmentRequest)
-        {
-            _logger.Trace($"Creating commitment for employer account {accountId}", accountId: accountId);
-
-            commitmentRequest.Commitment.EmployerAccountId = accountId;
-
-            var commitment = _commitmentMapper.MapFrom(commitmentRequest.Commitment);
-            var id = await _mediator.SendAsync(new CreateCommitmentCommand
-            {
-                Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
-                Commitment = commitment,
-                UserId = commitmentRequest.UserId,
-                Message = commitmentRequest.Message,
-                LastAction = (LastAction) commitmentRequest.LastAction
-            });
-
-            _logger.Info($"Created commitment {id} for employer account {accountId}", accountId: accountId);
-
-            return id;
-        }
-
         public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetApprenticeships(long accountId)
         {
             _logger.Trace($"Getting apprenticeships for employer account {accountId}", accountId: accountId);
@@ -216,53 +192,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
            
             return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer);
-        }
-
-        public async Task<long> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship.ApprenticeshipRequest apprenticeshipRequest)
-        {
-            _logger.Trace($"Creating apprenticeship for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
-
-            apprenticeshipRequest.Apprenticeship.CommitmentId = commitmentId;
-
-            var id = await _mediator.SendAsync(new CreateApprenticeshipCommand
-            {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Employer,
-                    Id = accountId
-                },
-                CommitmentId = commitmentId,
-                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Employer),
-                UserId = apprenticeshipRequest.UserId,
-                UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
-            });
-
-            _logger.Info($"Created apprenticeship {id} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: id);
-
-            return id;
-        }
-
-        public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship.ApprenticeshipRequest apprenticeshipRequest)
-        {
-            _logger.Trace($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
-
-            apprenticeshipRequest.Apprenticeship.CommitmentId = commitmentId;
-
-            await _mediator.SendAsync(new UpdateApprenticeshipCommand
-            {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Employer,
-                    Id = accountId
-                },
-                CommitmentId = commitmentId,
-                ApprenticeshipId = apprenticeshipId,
-                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Employer),
-                UserId = apprenticeshipRequest.UserId,
-                UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
-            });
-
-            _logger.Info($"Updated apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
         }
 
         public async Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship.ApprenticeshipStopDate stopDate)
