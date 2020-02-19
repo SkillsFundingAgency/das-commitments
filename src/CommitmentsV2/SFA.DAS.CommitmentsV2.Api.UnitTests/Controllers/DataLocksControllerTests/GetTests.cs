@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
@@ -11,11 +10,11 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
+namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.DataLocksControllerTests
 {
     [TestFixture]
     [Parallelizable]
-    public class GetDataLocksTests
+    public class GetTests
     {
         private GetDataLocksTestsFixture _fixture;
 
@@ -37,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             public IFixture AutoFixture { get; }
             public Mock<IMediator> Mediator { get; }
             public Mock<IModelMapper> ModelMapper { get; }
-            public ApprenticeshipController Controller { get; }
+            public DataLocksController Controller { get; }
             public long ApprenticeshipId { get; }
             public GetDataLocksQueryResult QueryResult { get; }
             public GetDataLocksResponse MapperResult { get; }
@@ -62,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
                 ApprenticeshipId = AutoFixture.Create<long>();
 
-                Controller = new ApprenticeshipController(Mediator.Object, ModelMapper.Object, Mock.Of<ILogger<ApprenticeshipController>>());
+                Controller = new DataLocksController(Mediator.Object, ModelMapper.Object);
             }
 
             public async Task GetDataLocks()
