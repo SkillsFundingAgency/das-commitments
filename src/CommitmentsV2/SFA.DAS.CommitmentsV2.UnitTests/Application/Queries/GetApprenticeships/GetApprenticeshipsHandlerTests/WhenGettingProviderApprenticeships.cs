@@ -238,7 +238,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
                 .ReturnsAsync(new ApprenticeshipSearchResult
                 {
-                    Apprenticeships = apprenticeships
+                    Apprenticeships = apprenticeships,
+                    TotalAvailableApprenticeships = apprenticeships.Count
                 });
 
             mockContext
@@ -253,9 +254,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var result = await handler.Handle(query, CancellationToken.None);
 
 
-            result.TotalApprenticeships
-                .Should().Be(apprenticeships
-                    .Count(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId));
+            result.TotalApprenticeships.Should().Be(apprenticeships.Count);
         }
     }
 }

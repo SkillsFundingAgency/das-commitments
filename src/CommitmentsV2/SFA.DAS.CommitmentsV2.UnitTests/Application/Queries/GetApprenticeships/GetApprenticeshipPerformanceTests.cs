@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             await service.Find(searchParameters);
 
-            mockContext.Verify(context => context.Apprenticeships, Times.Exactly(3));
+            mockContext.Verify(context => context.Apprenticeships, Times.Exactly(4));
 
             mockMapper.Verify(x => x.Map(It.Is<Apprenticeship>(app => !app.DataLockStatus.Any())), Times.Never);
         }
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             await service.Find(searchParameters);
 
-            mockContext.Verify(context => context.Apprenticeships, Times.Exactly(3));
+            mockContext.Verify(context => context.Apprenticeships, Times.Exactly(4));
 
             mockMapper.Verify(x => x.Map(It.Is<Apprenticeship>(app => app.DataLockStatus.Any())), Times.Never);
         }

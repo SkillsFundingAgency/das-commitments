@@ -21,9 +21,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 
         public async Task<ApprenticeshipSearchResult> Find(ApprenticeshipSearchParameters searchParameters)
         {
-            var totalApprenticeshipsWithoutAlerts = await GetApprenticeshipsQuery(searchParameters, false).CountAsync(searchParameters.CancellationToken);
+            var totalApprenticeshipsWithoutAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, false).CountAsync(searchParameters.CancellationToken);
 
-            var totalApprenticeshipsWithAlerts = await GetApprenticeshipsQuery(searchParameters, true).CountAsync(searchParameters.CancellationToken);
+            var totalApprenticeshipsWithAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, true).CountAsync(searchParameters.CancellationToken);
+
+            var totalApprenticeships = await GetApprenticeshipsQuery(searchParameters).CountAsync(searchParameters.CancellationToken);
 
             var skipCount = searchParameters.PageNumber > 0 ? (searchParameters.PageNumber - 1) * searchParameters.PageItemCount : 0;
 
@@ -94,13 +96,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             {
                 Apprenticeships = apprentices,
                 TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
-                TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts
+                TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
+                TotalAvailableApprenticeships = totalApprenticeships
             };
         }
 
         private async Task<List<Apprenticeship>> GetApprenticeshipsWithoutAlerts(CancellationToken cancellationToken, ApprenticeshipSearchParameters searchParameters, int skipCount)
         {
-            var query = GetApprenticeshipsQuery(searchParameters, false);
+            var query = GetApprenticeshipsWithFiltersQuery(searchParameters, false);
 
             query = query.OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
@@ -125,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 
         private async Task<List<Apprenticeship>> GetApprenticeshipsWithAlerts(CancellationToken cancellationToken, ApprenticeshipSearchParameters searchParameters, int skipCount)
         {
-            var query = GetApprenticeshipsQuery(searchParameters,  true);
+            var query = GetApprenticeshipsWithFiltersQuery(searchParameters,  true);
 
             query = query.OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
@@ -150,11 +153,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             return await query.ToListAsync(cancellationToken);
         }
 
-        private IQueryable<Apprenticeship> GetApprenticeshipsQuery(ApprenticeshipSearchParameters searchParameters, bool withAlerts)
+        private IQueryable<Apprenticeship> GetApprenticeshipsQuery(ApprenticeshipSearchParameters searchParameters)
         { 
             return _dbContext
                 .Apprenticeships
-                .WithProviderOrEmployerId(searchParameters)
+                .WithProviderOrEmployerId(searchParameters);
+        }
+
+        private IQueryable<Apprenticeship> GetApprenticeshipsWithFiltersQuery(ApprenticeshipSearchParameters searchParameters, bool withAlerts)
+        { 
+            return GetApprenticeshipsQuery(searchParameters)
                 .WithAlerts(withAlerts)
                 .Filter(searchParameters.Filters);
         }

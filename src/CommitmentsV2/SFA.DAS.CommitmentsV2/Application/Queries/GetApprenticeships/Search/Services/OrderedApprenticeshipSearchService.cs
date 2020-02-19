@@ -20,8 +20,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
         {
             var apprenticeshipsQuery = _dbContext
                 .Apprenticeships
-                .WithProviderOrEmployerId(searchParameters)
-                .Filter(searchParameters.Filters);
+                .WithProviderOrEmployerId(searchParameters);
+
+            var totalAvailableApprenticeships = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
+
+            apprenticeshipsQuery = apprenticeshipsQuery.Filter(searchParameters.Filters);
 
             var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.WithAlerts(true).CountAsync(searchParameters.CancellationToken);
 
@@ -34,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 
             var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
 
-            return await CreatePagedApprenticeshipSearchResult(searchParameters.CancellationToken, searchParameters.PageNumber, searchParameters.PageItemCount, apprenticeshipsQuery, totalApprenticeshipsFound, totalApprenticeshipsWithAlertsFound);
+            return await CreatePagedApprenticeshipSearchResult(searchParameters.CancellationToken, searchParameters.PageNumber, searchParameters.PageItemCount, apprenticeshipsQuery, totalApprenticeshipsFound, totalApprenticeshipsWithAlertsFound, totalAvailableApprenticeships);
         }
     }
 }

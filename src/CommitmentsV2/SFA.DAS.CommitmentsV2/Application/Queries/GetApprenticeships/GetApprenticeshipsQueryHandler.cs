@@ -2,10 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
-using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -13,16 +11,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 {
     public class GetApprenticeshipsQueryHandler : IRequestHandler<GetApprenticeshipsQuery, GetApprenticeshipsQueryResult>
     {
-        private readonly ICommitmentsReadOnlyDbContext _dbContext;
         private readonly IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails> _mapper;
         private readonly IApprenticeshipSearch _apprenticeshipSearch;
 
         public GetApprenticeshipsQueryHandler(
-            ICommitmentsReadOnlyDbContext dbContext,
             IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails> mapper,
             IApprenticeshipSearch apprenticeshipSearch)
         {
-            _dbContext = dbContext;
             _mapper = mapper;
             _apprenticeshipSearch = apprenticeshipSearch;
         }
@@ -90,14 +85,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 matchedApprenticeshipDetails.Add(details);
             }
 
-            var totalAvailableApprenticeships = await _dbContext.Apprenticeships.CountAsync(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId, cancellationToken: cancellationToken);
-
             return new GetApprenticeshipsQueryResult
             {
                 Apprenticeships = matchedApprenticeshipDetails,
                 TotalApprenticeshipsFound = searchResult.TotalApprenticeshipsFound,
                 TotalApprenticeshipsWithAlertsFound = searchResult.TotalApprenticeshipsWithAlertsFound,
-                TotalApprenticeships = totalAvailableApprenticeships
+                TotalApprenticeships = searchResult.TotalAvailableApprenticeships
             };
         }
     }

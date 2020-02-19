@@ -12,8 +12,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
     public abstract class OrderedApprenticeshipSearchBaseService
     {
         protected static async Task<ApprenticeshipSearchResult> CreatePagedApprenticeshipSearchResult(CancellationToken cancellationToken, int pageNumber,
-            int pageItemCount, IQueryable<Apprenticeship> apprenticeshipsQuery, int totalApprenticeshipsFound,
-            int totalApprenticeshipsWithAlertsFound)
+            int pageItemCount, IQueryable<Apprenticeship> apprenticeshipsQuery, 
+            int totalApprenticeshipsFound,
+            int totalApprenticeshipsWithAlertsFound,
+            int totalAvailableApprenticeships)
         {
             List<Apprenticeship> apprenticeships;
 
@@ -32,7 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             {
                 Apprenticeships = apprenticeships,
                 TotalApprenticeshipsFound = totalApprenticeshipsFound,
-                TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlertsFound
+                TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlertsFound,
+                TotalAvailableApprenticeships = totalAvailableApprenticeships
             };
         }
 

@@ -266,6 +266,62 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
+        public async Task Then_Total_Apprentices_Found_Will_Be_Return_For_Provider(
+            ApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.PageNumber = 2;
+            searchParameters.PageItemCount = 2;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+            apprenticeships[0].Cohort.ProviderId = null;
+            apprenticeships[0].ProviderRef = null;
+            searchParameters.EmployerAccountId = null;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var service = new ApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(5, actual.TotalApprenticeshipsFound);
+        }
+
+        [Test, MoqAutoData]
+        public async Task Then_Total_Apprentices_Found_Will_Be_Return_For_Employer(
+            ApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.PageNumber = 2;
+            searchParameters.PageItemCount = 2;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+            apprenticeships[0].Cohort.EmployerAccountId = 0;
+            apprenticeships[0].EmployerRef = null;
+            searchParameters.ProviderId = null;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var service = new ApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(5, actual.TotalApprenticeshipsFound);
+        }
+
+        [Test, MoqAutoData]
         public async Task Then_Apprentices_With_Alerts_Total_Found_Are_Return_With_Page_Data(
             ApprenticeshipSearchParameters searchParameters,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)

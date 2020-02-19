@@ -687,5 +687,67 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(1).LastName);
             Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(2).LastName);
         }
+
+        [Test, MoqAutoData]
+        public async Task Then_Will_Return_Total_Apprenticeships_For_Provider(
+            OrderedApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.FieldName = nameof(Apprenticeship.FirstName);
+            searchParameters.PageNumber = 2;
+            searchParameters.PageItemCount = 2;
+            searchParameters.ReverseSort = false;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+
+            apprenticeships[0].Cohort.ProviderId = null;
+            apprenticeships[0].ProviderRef = null;
+            searchParameters.EmployerAccountId = null;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+           
+            var service = new OrderedApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(5, actual.TotalAvailableApprenticeships);
+        }
+
+        [Test, MoqAutoData]
+        public async Task Then_Will_Return_Total_Apprenticeships_For_Employer(
+            OrderedApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.FieldName = nameof(Apprenticeship.FirstName);
+            searchParameters.PageNumber = 2;
+            searchParameters.PageItemCount = 2;
+            searchParameters.ReverseSort = false;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+
+            apprenticeships[0].Cohort.EmployerAccountId = 0;
+            apprenticeships[0].EmployerRef = null;
+            searchParameters.ProviderId = null;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+           
+            var service = new OrderedApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(5, actual.TotalAvailableApprenticeships);
+        }
     }
 }
