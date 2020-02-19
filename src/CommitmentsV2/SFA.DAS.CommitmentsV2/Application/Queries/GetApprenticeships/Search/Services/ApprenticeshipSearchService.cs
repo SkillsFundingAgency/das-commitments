@@ -47,7 +47,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     {
                         Apprenticeships = apprentices,
                         TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
-                        TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts
+                        TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
+                        TotalAvailableApprenticeships = totalApprenticeships
                     };
                 }
 
@@ -77,7 +78,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     {
                         Apprenticeships = apprentices,
                         TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
-                        TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts
+                        TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
+                        TotalAvailableApprenticeships = totalApprenticeships
                     };
                 }
 
