@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using Moq;
-using MoreLinq.Extensions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Data;
@@ -26,9 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId);
             apprenticeships[2].Cohort.LegalEntityName = apprenticeships[1].Cohort.LegalEntityName;
 
             var expectedEmployerNames = new[]
@@ -52,9 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId);
             apprenticeships[2].CourseName = apprenticeships[1].CourseName;
 
             var expectedCourseNames = new[]
@@ -78,9 +72,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId);
             apprenticeships[2].StartDate = apprenticeships[1].StartDate;
 
             var expectedStartDates = new[]
@@ -107,9 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId);
             apprenticeships[2].EndDate = apprenticeships[1].EndDate;
 
             var expectedEndDates = new[]
@@ -183,9 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId);
 
             apprenticeships[0].Cohort.LegalEntityName = "B";
             apprenticeships[1].Cohort.LegalEntityName = "C";
@@ -216,9 +204,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId);
 
             apprenticeships[0].CourseName = "B";
             apprenticeships[1].CourseName= "C";
@@ -249,9 +235,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId);
 
             var now = DateTime.UtcNow;
 
@@ -284,9 +268,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             SetupEmptyCache(query, cacheStorageService);
-            apprenticeships[0].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
-            apprenticeships[2].Cohort.ProviderId = query.ProviderId;
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId);
 
             var now = DateTime.UtcNow;
 
@@ -309,6 +291,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             result.EndDates.Should().BeEquivalentTo(expectedEndDates);
         }
+
+        private void SetProviderIdOnApprenticeship(IList<CommitmentsV2.Models.Apprenticeship> apprenticeships,long providerId)
+        {
+            apprenticeships[0].Cohort.ProviderId = providerId;
+            apprenticeships[1].Cohort.ProviderId = providerId;
+            apprenticeships[2].Cohort.ProviderId = providerId;
+        }
+
         private static void SetupEmptyCache(GetApprenticeshipsFilterValuesQuery query, Mock<ICacheStorageService> cacheStorageService)
         {
             cacheStorageService
