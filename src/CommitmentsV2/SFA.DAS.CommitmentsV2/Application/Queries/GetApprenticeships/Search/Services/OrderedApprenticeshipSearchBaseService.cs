@@ -70,6 +70,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             {
                 case nameof(Apprenticeship.FirstName):
                     return apprenticeship => apprenticeship.LastName;
+                case nameof(Apprenticeship.ApprenticeshipStatus):
+                    return apprenticeship => apprenticeship.StartDate;
                 default:
                     return GetOrderByField(fieldName);
             }
