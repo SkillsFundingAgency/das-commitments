@@ -127,7 +127,7 @@
       <HintPath>..\packages\SFA.DAS.Common.Domain.1.4.272\lib\net462\SFA.DAS.Common.Domain.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Encoding, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Encoding.1.1.57\lib\netstandard2.0\SFA.DAS.Encoding.dll</HintPath>
+      <HintPath>..\packages\SFA.DAS.Encoding.1.1.61\lib\netstandard2.0\SFA.DAS.Encoding.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Client, Version=2.0.0.35796, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Client.2.0.0.35796\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>

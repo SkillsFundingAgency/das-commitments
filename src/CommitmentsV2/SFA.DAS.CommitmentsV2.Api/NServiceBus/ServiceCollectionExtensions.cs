@@ -18,6 +18,8 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
 {
     public static class ServiceCollectionExtensions
     {
+        private const string EndpointName = "SFA.DAS.CommitmentsV2.Api";
+
         public static IServiceCollection AddNServiceBus(this IServiceCollection services)
         {
             return services
@@ -28,8 +30,8 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
                     var configuration = p.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
                     var runInDevelopmentMode = hostingEnvironment.IsDevelopment() || hostingEnvironment.EnvironmentName == Domain.Constants.IntegrationTestEnvironment;
 
-                    var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.Api")
-                        .UseErrorQueue()
+                    var endpointConfiguration = new EndpointConfiguration(EndpointName)
+                        .UseErrorQueue($"{EndpointName}-errors")
                         .UseInstallers()
                         .UseLicense(configuration.NServiceBusLicense)
                         .UseMessageConventions()

@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                 logger.Info($"configuration-found?:{configuration != null} environment:{environment.EnvironmentType} nsb-transport-connection:{!string.IsNullOrWhiteSpace(configuration?.TransportConnectionString)} nsb-endpoint:{configuration.EndpointName} nsb-license:{!string.IsNullOrWhiteSpace(configuration.License)}");
 
                 var endpointConfiguration = new EndpointConfiguration(configuration.EndpointName)
-                    .UseErrorQueue()
+                    .UseErrorQueue($"{ServiceName}-errors")
                     .UseInstallers()
                     .UseLicense(configuration.License)
                     .UseMessageConventions()
