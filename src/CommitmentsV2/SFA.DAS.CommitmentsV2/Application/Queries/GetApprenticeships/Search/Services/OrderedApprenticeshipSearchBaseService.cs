@@ -30,8 +30,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .ToListAsync(cancellationToken);
             }
 
-            var statuses = apprenticeships.Select(x => x.Status).ToArray();
-
             return new ApprenticeshipSearchResult
             {
                 Apprenticeships = apprenticeships,
