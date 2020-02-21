@@ -249,7 +249,7 @@
                         "value": "[parameters('keyVaultResourceGroup')]"
                     },
                     "serverFarmId": {
-                        "value": "[resourceId(parameters('sharedResourceGroupName'), 'Microsoft.Web/serverfarms', parameters('sharedResourceGroupName'))]"
+                        "value": "[resourceId(parameters('sharedResourceGroupName'), 'Microsoft.Web/serverfarms', parameters('sharedBackEndAppServicePlan'))]"
                     }
                 }
             }
