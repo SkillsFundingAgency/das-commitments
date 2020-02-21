@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
                     var runInDevelopmentMode = hostingEnvironment.IsDevelopment() || hostingEnvironment.EnvironmentName == Domain.Constants.IntegrationTestEnvironment;
 
                     var endpointConfiguration = new EndpointConfiguration(EndpointName)
-                        .UseErrorQueue($"{EndpointName}-errors")
+                        //.UseErrorQueue($"{EndpointName}-errors")
                         .UseInstallers()
                         .UseLicense(configuration.NServiceBusLicense)
                         .UseMessageConventions()
