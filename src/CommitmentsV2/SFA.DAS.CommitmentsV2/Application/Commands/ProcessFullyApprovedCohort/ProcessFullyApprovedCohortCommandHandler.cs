@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     AccountId = a.Cohort.EmployerAccountId,
                     AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntityPublicHashedId,
                     LegalEntityName = a.Cohort.LegalEntityName,
-                    ProviderId = a.Cohort.ProviderId.Value,
+                    ProviderId = a.Cohort.ProviderId,
                     TransferSenderId = a.Cohort.TransferSenderId,
                     ApprenticeshipEmployerTypeOnApproval = apprenticeshipEmployerType,
                     Uln = a.Uln,

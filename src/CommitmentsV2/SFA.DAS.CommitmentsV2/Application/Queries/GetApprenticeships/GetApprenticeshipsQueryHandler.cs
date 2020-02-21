@@ -158,8 +158,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .ThenBy(x => x.CourseName)
                 .ThenByDescending(x => x.StartDate)
                 .Include(apprenticeship => apprenticeship.Cohort)
-                .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
-                .Include(apprenticeship => apprenticeship.Cohort.Provider);
+                    .ThenInclude(cohort => cohort.AccountLegalEntity);
 
             if (skipCount > 0)
             {
@@ -184,11 +183,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .ThenBy(x => x.Cohort.AccountLegalEntity.Name)
                 .ThenBy(x => x.CourseName)
                 .ThenByDescending(x => x.StartDate)
-                .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
-                .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
-                .Include(apprenticeship => apprenticeship.Cohort.Provider);
+                .Include(apprenticeship => apprenticeship.Cohort)
+                    .ThenInclude(cohort => cohort.AccountLegalEntity);
 
             if (skipCount > 0)
             {
@@ -199,6 +197,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             {
                 query = query.Take(pageItemCount);
             }
+
+            var result = query.ToList();
 
             return await query.ToListAsync(cancellationToken);
         }

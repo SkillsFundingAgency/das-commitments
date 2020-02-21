@@ -139,7 +139,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.AccountId == apprenticeship.Cohort.EmployerAccountId &&
                           apprenticeshipCreatedEvent.AccountLegalEntityPublicHashedId == apprenticeship.Cohort.AccountLegalEntityPublicHashedId &&
                           apprenticeshipCreatedEvent.LegalEntityName == apprenticeship.Cohort.LegalEntityName &&
-                          apprenticeshipCreatedEvent.ProviderId == apprenticeship.Cohort.ProviderId.Value &&
+                          apprenticeshipCreatedEvent.ProviderId == apprenticeship.Cohort.ProviderId &&
                           apprenticeshipCreatedEvent.TransferSenderId == apprenticeship.Cohort.TransferSenderId &&
                           apprenticeshipCreatedEvent.ApprenticeshipEmployerTypeOnApproval == apprenticeshipEmployerType &&
                           apprenticeshipCreatedEvent.Uln == apprenticeship.Uln &&
