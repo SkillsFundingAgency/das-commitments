@@ -331,31 +331,133 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, RecursiveMoqAutoData]
-        public async Task Then_Checks_The_Caches_For_That_Employers_Filter_Values_And_Returns_If_Exists(
+        public async Task Then_Returns_Ordered_LegalEntityNames(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            GetApprenticeshipsFilterValuesQueryResult queryResult,
+            List<Apprenticeship> apprenticeships,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
         {
-            query.ProviderId = null;
+            query.EmployerAccountId = null;
+            SetupEmptyCache(query, cacheStorageService);
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId ?? 0);
 
-            //Arrange
+            apprenticeships[0].Cohort.AccountLegalEntity = CreateAccountLegalEntity("B");
+            apprenticeships[1].Cohort.AccountLegalEntity = CreateAccountLegalEntity("C");
+            apprenticeships[2].Cohort.AccountLegalEntity = CreateAccountLegalEntity("A");
+
+            var expectedEmployerNames = new[]
+            {
+                "A",
+                "B",
+                "C"
+            };
+
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            cacheStorageService
-                .Setup(x => x.RetrieveFromCache<GetApprenticeshipsFilterValuesQueryResult>(
-                    $"{nameof(GetApprenticeshipsFilterValuesQueryResult)}-{query.EmployerAccountId}"))
-                .ReturnsAsync(queryResult);
 
-            //Act
-            var actual = await handler.Handle(query, CancellationToken.None);
+            var result = await handler.Handle(query, CancellationToken.None);
 
-            //Assert
-            mockContext.Verify(x => x.Apprenticeships, Times.Never);
-            actual.Should().BeEquivalentTo(queryResult);
+            result.EmployerNames.Should().BeEquivalentTo(expectedEmployerNames);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_Ordered_CourseNames(
+            GetApprenticeshipsFilterValuesQuery query,
+            List<Apprenticeship> apprenticeships,
+            [Frozen] Mock<ICacheStorageService> cacheStorageService,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            GetApprenticeshipsFilterValuesQueryHandler handler)
+        {
+            SetupEmptyCache(query, cacheStorageService);
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId ?? 0);
+            query.EmployerAccountId = null;
+            apprenticeships[0].CourseName = "B";
+            apprenticeships[1].CourseName= "C";
+            apprenticeships[2].CourseName= "A";
+
+            var expectedCourseNames = new[]
+            {
+                apprenticeships[2].CourseName,
+                apprenticeships[0].CourseName,
+                apprenticeships[1].CourseName
+            };
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+            
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.CourseNames.Should().BeEquivalentTo(expectedCourseNames);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_Ordered_PlannedStartDates(
+            GetApprenticeshipsFilterValuesQuery query,
+            List<Apprenticeship> apprenticeships,
+            [Frozen] Mock<ICacheStorageService> cacheStorageService,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            GetApprenticeshipsFilterValuesQueryHandler handler)
+        {
+            SetupEmptyCache(query, cacheStorageService);
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId ?? 0);
+                
+            var now = DateTime.UtcNow;
+
+            apprenticeships[0].StartDate = now.AddMonths(-1);
+            apprenticeships[1].StartDate = now.AddMonths(-2);
+            apprenticeships[2].StartDate = now;
+            var expectedStartDates = new[]
+            {
+                apprenticeships[2].StartDate,
+                apprenticeships[0].StartDate,
+                apprenticeships[1].StartDate
+            };
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.StartDates.Should().BeEquivalentTo(expectedStartDates);
+        }
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_Ordered_PlannedEndDates(
+            GetApprenticeshipsFilterValuesQuery query,
+            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            [Frozen] Mock<ICacheStorageService> cacheStorageService,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            GetApprenticeshipsFilterValuesQueryHandler handler)
+        {
+            SetupEmptyCache(query, cacheStorageService);
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId ?? 0);
+
+            var now = DateTime.UtcNow;
+
+            apprenticeships[0].EndDate = now.AddMonths(-1);
+            apprenticeships[1].EndDate = now.AddMonths(-2);
+            apprenticeships[2].EndDate = now;
+
+            var expectedEndDates = new[]
+            {
+                apprenticeships[2].EndDate,
+                apprenticeships[0].EndDate,
+                apprenticeships[1].EndDate
+            };
+
+            mockContext.Setup(context => context.Apprenticeships).ReturnsDbSet(apprenticeships);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+            result.EndDates.Should().BeEquivalentTo(expectedEndDates);
+        }
+
+        private void SetProviderIdOnApprenticeship(IList<CommitmentsV2.Models.Apprenticeship> apprenticeships,long providerId)
+        {
+            apprenticeships[0].Cohort.ProviderId = providerId;
+            apprenticeships[1].Cohort.ProviderId = providerId;
+            apprenticeships[2].Cohort.ProviderId = providerId;
         }
 
         private static void SetupEmptyCache(GetApprenticeshipsFilterValuesQuery query, Mock<ICacheStorageService> cacheStorageService)
