@@ -61,10 +61,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             apprenticeships[0].Cohort.EmployerAccountId = query.EmployerAccountId.Value;
             apprenticeships[1].Cohort.EmployerAccountId = query.EmployerAccountId.Value;
             apprenticeships[2].Cohort.EmployerAccountId = query.EmployerAccountId.Value;
-            apprenticeships[2].Cohort.ProviderName = apprenticeships[1].Cohort.ProviderName;
+            apprenticeships[2].Cohort.Provider = apprenticeships[1].Cohort.Provider;
 
             var expectedProviderNames = new[]
-                {apprenticeships[0].Cohort.ProviderName, apprenticeships[1].Cohort.ProviderName};
+                {apprenticeships[0].Cohort.Provider.Name, apprenticeships[1].Cohort.Provider.Name};
 
             mockContext
                 .Setup(context => context.Apprenticeships)
