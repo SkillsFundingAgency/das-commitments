@@ -1,12 +1,11 @@
 ﻿using Newtonsoft.Json;
-using SFA.DAS.Authentication.Extensions.Legacy;
-using SFA.DAS.Http;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Reservations.Api.Types;
 using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.Authentication.Extensions.Legacy;
 
 namespace SFA.DAS.Reservations.Api.Client
 {
