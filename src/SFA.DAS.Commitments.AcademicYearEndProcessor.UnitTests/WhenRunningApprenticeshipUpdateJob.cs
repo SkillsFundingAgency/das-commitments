@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.NUnit3;
 using Moq;
-
 using NUnit.Framework;
-
 using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -28,8 +26,6 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         private Mock<ICurrentDateTime> _currentDateTime;
         private Mock<IMessagePublisher> _mockMessageBuilder;
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
-
-
         private AcademicYearEndExpiryProcessor _sut;
 
         [SetUp]
