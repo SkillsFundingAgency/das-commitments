@@ -22,7 +22,7 @@ using SFA.DAS.NServiceBus.Services;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
-    [Parallelizable]
+    [Parallelizable(ParallelScope.None)]
     public class ProcessFullyApprovedCohortCommandHandlerTests
     {
         private ProcessFullyApprovedCohortCommandFixture _fixture;
