@@ -26,9 +26,15 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             var encodedContent = Convert.ToBase64String(
                 _protector.Protect(
                     System.Text.Encoding.UTF8.GetBytes(cookieContent)));
-            
-            
-            _httpContext.Response.Cookies.Append(cookieName, encodedContent);
+
+            var options = new CookieOptions
+            {
+                IsEssential = true,
+                HttpOnly = true,
+                Expires = DateTimeOffset.Now.AddDays(expiryDays)
+            };
+
+            _httpContext.Response.Cookies.Append(cookieName, encodedContent, options);
         }
 
         public T Get(string cookieName)
@@ -51,10 +57,10 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             }
         }
 
-        public void Update(string cookieName, T item)
+        public void Update(string cookieName, T item, int expiryDays = 1)
         {
             Delete(cookieName);
-            Create(item, cookieName);
+            Create(item, cookieName, expiryDays);
         }
     }
 }
