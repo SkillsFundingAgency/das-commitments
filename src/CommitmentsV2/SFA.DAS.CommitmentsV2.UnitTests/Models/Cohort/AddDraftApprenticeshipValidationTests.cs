@@ -7,6 +7,8 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
@@ -28,7 +30,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         [TestCase(null, null, true)]
         [TestCase("2022-01-20", null, true)]
-        [TestCase("2022-01-20", "2022-01-22", false)]
+        [TestCase("2022-01-20", "2022-02-22", false)]
+        [TestCase("2022-01-20", "2022-01-20", false)]
         [TestCase("2001-01-01", null, false)]
         public void EndDate_CheckValidation(string endDateString, string startDateString, bool passes)
         {

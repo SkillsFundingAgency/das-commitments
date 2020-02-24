@@ -11,7 +11,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
-using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Types;
 
 
@@ -23,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class CohortController : ControllerBase
     {
         private readonly IMediator _mediator;
-        
+
         public CohortController(IMediator mediator)
         {
             _mediator = mediator;

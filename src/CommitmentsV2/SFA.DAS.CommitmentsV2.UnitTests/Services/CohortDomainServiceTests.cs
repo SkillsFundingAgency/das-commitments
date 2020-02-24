@@ -20,6 +20,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
@@ -616,7 +617,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 };
                 
                 Db.Cohorts.Add(Cohort);
-
+                
                 return this;
             }
 

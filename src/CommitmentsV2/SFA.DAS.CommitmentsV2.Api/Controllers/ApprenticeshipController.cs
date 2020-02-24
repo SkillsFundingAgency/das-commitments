@@ -60,7 +60,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
                 var queryResult = await _mediator.Send(new GetApprenticeshipsQuery
                 {
-                    ProviderId = request.ProviderId ?? 0,
+                    EmployerAccountId = request.AccountId,
+                    ProviderId = request.ProviderId,
                     PageNumber = request.PageNumber,
                     PageItemCount = request.PageItemCount,
                     SortField = request.SortField,
@@ -87,9 +88,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         
         [HttpGet]
         [Route("filters")]
-        public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery]long providerId)
+        public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery]long? providerId, [FromQuery]long? employerAccountId)
         {
-            var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = providerId });
+            var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = providerId, EmployerAccountId = employerAccountId});
 
             if (response == null)
             {

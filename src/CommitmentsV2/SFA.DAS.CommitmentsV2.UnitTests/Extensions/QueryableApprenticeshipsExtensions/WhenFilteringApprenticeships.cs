@@ -6,7 +6,6 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExtensions
 {
@@ -82,6 +81,78 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             //Assert
             Assert.AreEqual(1, result.Count);
             Assert.IsTrue(result.All(a => a.Cohort.AccountLegalEntity.Name.Equals(filterValue)));
+        }
+
+         [Test]
+        public void ThenShouldFilterProviderNames()
+        {
+            //Arrange
+            const string filterValue = "Test Corp";
+
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        ProviderName = filterValue
+                    }
+                },
+                new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        ProviderName = filterValue
+                    }
+                },
+                new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        ProviderName = "no filter value"
+                    }
+                }
+            }.AsQueryable();
+
+            //Act
+            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters {ProviderName = filterValue}).ToList();
+
+            //Assert
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(result.All(a => a.Cohort.ProviderName.Equals(filterValue)));
+        }
+
+        [Test]
+        public void ThenFilteringOfProviderNamesWillStillWorkEvenWhenApprenticeshipCohortDoNotExist()
+        {
+            //Arrange
+            const string filterValue = "Test Corp";
+
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        ProviderName = filterValue
+                    }
+                },
+                new Apprenticeship(),
+                new Apprenticeship
+                {
+                    Cohort = new Cohort
+                    {
+                        ProviderName = "ACME Supplies"
+                    }
+                }
+            }.AsQueryable();
+
+            //Act
+            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters{ProviderName = filterValue}).ToList();
+
+            //Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.All(a => a.Cohort.ProviderName.Equals(filterValue)));
         }
 
         [Test]

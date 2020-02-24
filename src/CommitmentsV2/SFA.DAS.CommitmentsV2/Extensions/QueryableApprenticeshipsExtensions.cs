@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using ApprenticeshipUpdateStatus = SFA.DAS.CommitmentsV2.Models.ApprenticeshipUpdateStatus;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
 {
@@ -43,10 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                         var lastName = filters.SearchTerm.Substring(firstName.Length + 1);
                         
                         found.AddRange(apprenticeships.Where(app =>
-                                app.FirstName.StartsWith(firstName))
-                            .Select(apprenticeship => apprenticeship.Id));
-                        
-                        found.AddRange(apprenticeships.Where(app =>
+                                app.FirstName.StartsWith(firstName) && 
                                 app.LastName.StartsWith(lastName))
                             .Select(apprenticeship => apprenticeship.Id));
                     }
@@ -59,6 +59,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             if (!string.IsNullOrEmpty(filters.EmployerName))
             {
                 apprenticeships = apprenticeships.Where(app => app.Cohort != null && filters.EmployerName.Equals(app.Cohort.AccountLegalEntity.Name));
+            }
+
+            if (!string.IsNullOrEmpty(filters.ProviderName))
+            {
+                apprenticeships = apprenticeships.Where(app => app.Cohort != null && filters.ProviderName.Equals(app.Cohort.ProviderName));
             }
 
             if (!string.IsNullOrEmpty(filters.CourseName))
@@ -99,6 +104,36 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             }
 
             return apprenticeships;
+        }
+
+        public static IQueryable<Apprenticeship> WithAlerts(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
+        {
+            if (hasAlerts)
+            {
+                return apprenticeships.Where(apprenticeship => apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3) || 
+                                                                   apprenticeship.ApprenticeshipUpdate != null &&
+                                                                   apprenticeship.ApprenticeshipUpdate.Any(
+                                                                       c => c.Status == ApprenticeshipUpdateStatus.Pending 
+                                                                            && (c.Originator == Originator.Employer 
+                                                                                || c.Originator == Originator.Provider)));
+            }
+
+            return apprenticeships.Where(apprenticeship =>
+                !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != 3) &&
+                (apprenticeship.ApprenticeshipUpdate == null ||
+                apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
+        }
+
+        public static IQueryable<Apprenticeship> WithProviderOrEmployerId(
+            this IQueryable<Apprenticeship> apprenticeships, IEmployerProviderIdentifier identifier)
+        {
+            if (identifier.ProviderId.HasValue)
+            {
+                return apprenticeships.Where(app => app.Cohort.ProviderId == identifier.ProviderId);
+            }
+
+            return identifier.EmployerAccountId.HasValue ? 
+                apprenticeships.Where(app => app.Cohort.EmployerAccountId == identifier.EmployerAccountId) : apprenticeships;
         }
     }
 }

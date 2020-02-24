@@ -37,18 +37,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
         protected Mock<IMessagePublisher> MessagePublisher;
         protected Mock<IApprenticeshipInfoService> ApprenticeshipInfoService;
         protected Mock<IEmployerAccountsService> EmployerAccountsService;
+        protected Mock<INotificationsPublisher> NotificationsPublisher;
+        protected Mock<IV2EventsPublisher> V2EventsPublisher;
         protected AsyncRequestHandler<T> Target;
         protected T Command;
         protected Commitment Commitment;
         protected Account Account;
-
-        [Test]
-        public void ThenIfTheCommitmentIsDeletedItCannotBeApproved()
-        {
-            Commitment.CommitmentStatus = CommitmentStatus.Deleted;
-
-            Assert.ThrowsAsync<InvalidOperationException>(() => Target.Handle(Command));
-        }
 
         [Test]
         public void ThenIfTheCommitmentCannotEditedItCannotBeApproved()
@@ -56,17 +50,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
             Commitment.EditStatus = EditStatus.Neither;
 
             Assert.ThrowsAsync<InvalidOperationException>(() => Target.Handle(Command));
-        }
-
-        [Test]
-        public void ThenIfTheCommitmentHasOverlappingApprenticeshipsItCannotBeApproved()
-        {
-            var apprenticeship = Commitment.Apprenticeships.Last();
-            var apprenticeshipResult = new ApprenticeshipResult { Uln = apprenticeship.ULN };
-            ApprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == Commitment.Apprenticeships.First().ULN && y.Last() == Commitment.Apprenticeships.Last().ULN))).ReturnsAsync(new List<ApprenticeshipResult> { apprenticeshipResult });
-            OverlapRules.Setup(x => x.DetermineOverlap(It.Is<ApprenticeshipOverlapValidationRequest>(r => r.Uln == apprenticeship.ULN && r.ApprenticeshipId == apprenticeship.Id && r.StartDate == apprenticeship.StartDate.Value && r.EndDate == apprenticeship.EndDate.Value), apprenticeshipResult)).Returns(ValidationFailReason.OverlappingEndDate);
-
-            Assert.ThrowsAsync<ValidationException>(() => Target.Handle(Command));
         }
 
         protected bool VerifyHistoryItem(HistoryItem historyItem, CommitmentChangeType changeType, string userId, string lastUpdatedByName, CallerType callerType)
@@ -93,6 +76,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
             Mediator = new Mock<IMediator>();
             MessagePublisher = new Mock<IMessagePublisher>();
             EmployerAccountsService = new Mock<IEmployerAccountsService>();
+            NotificationsPublisher = new Mock<INotificationsPublisher>();
+            V2EventsPublisher = new Mock<IV2EventsPublisher>();
         }
 
         protected Commitment CreateCommitment(long commitmentId, long employerAccountId, long providerId, long? transferSenderId = null, string transferSenderName = null)

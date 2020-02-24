@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.Commitments.Events;
@@ -30,21 +29,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
-                if (message.LastApprovedByParty == Types.Party.Employer)
-                {
-                    var db = _dbContext.Value;
-                    var transferRequest = await db.TransferRequests.Include(c => c.Cohort)
-                        .SingleAsync(x => x.Id == message.TransferRequestId);
+                var db = _dbContext.Value;
+                var transferRequest = await db.TransferRequests.Include(c => c.Cohort)
+                    .SingleAsync(x => x.Id == message.TransferRequestId);
 
-                    await _legacyTopicMessagePublisher.PublishAsync(new CohortApprovalByTransferSenderRequested
-                    {
-                        TransferRequestId = message.TransferRequestId,
-                        ReceivingEmployerAccountId = transferRequest.Cohort.EmployerAccountId,
-                        SendingEmployerAccountId = transferRequest.Cohort.TransferSenderId.Value,
-                        TransferCost = transferRequest.Cost,
-                        CommitmentId = transferRequest.CommitmentId
-                    });
-                }
+                await _legacyTopicMessagePublisher.PublishAsync(new CohortApprovalByTransferSenderRequested
+                {
+                    TransferRequestId = message.TransferRequestId,
+                    ReceivingEmployerAccountId = transferRequest.Cohort.EmployerAccountId,
+                    SendingEmployerAccountId = transferRequest.Cohort.TransferSenderId.Value,
+                    TransferCost = transferRequest.Cost,
+                    CommitmentId = transferRequest.CommitmentId
+                });
             }
             catch (Exception e)
             {

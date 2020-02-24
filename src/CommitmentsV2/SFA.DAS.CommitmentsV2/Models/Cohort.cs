@@ -32,11 +32,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             EmployerAccountId = accountLegalEntity.AccountId;
             AccountLegalEntityId = accountLegalEntity.Id;
             ProviderId = provider.UkPrn;
-            ProviderName = provider.Name;
             TransferSenderId = transferSender?.Id;
-            TransferSenderName = transferSender?.Name;
 
             //Setting of these fields is here for backwards-compatibility only
+            ProviderName = provider.Name;
+            TransferSenderName = transferSender?.Name;
             LegalEntityId = accountLegalEntity.LegalEntityId;
             LegalEntityName = accountLegalEntity.Name;
             LegalEntityAddress = accountLegalEntity.Address;
@@ -150,6 +150,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual Provider Provider { get; set; }
         public virtual AccountLegalEntity AccountLegalEntity { get; set; }
 
+        public virtual Account TransferSender { get; set; }
+
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
         public int DraftApprenticeshipCount => DraftApprenticeships.Count();
@@ -174,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
         
-        public bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == Types.TransferApprovalStatus.Approved);
+        public virtual bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == Types.TransferApprovalStatus.Approved);
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
@@ -196,7 +198,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return draftApprenticeship;
         }
 
-        public void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
+        public virtual void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
         {
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
@@ -224,7 +226,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     switch (WithParty)
                     {
                         case Party.Employer:
-                            Publish(() => new CohortAssignedToEmployerEvent(Id, now));
+                            Publish(() => new CohortAssignedToEmployerEvent(Id, now, modifyingParty));
                             break;
                         case Party.Provider:
                             Publish(() => new CohortAssignedToProviderEvent(Id, now));
@@ -248,15 +250,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 Publish(() => new CohortApprovedByEmployerEvent(Id, now));
             }
+
             if (IsApprovedByAllParties)
             {
-                Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId, now));
+                Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId, now, modifyingParty));
             }
 
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
+        public virtual void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
         {
             CheckIsEmployerOrProvider(modifyingParty);
             CheckIsWithParty(modifyingParty);
@@ -274,7 +277,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             switch (EditStatus)
             {
                 case EditStatus.EmployerOnly:
-                    Publish(() => new CohortAssignedToEmployerEvent(Id, now));
+                    Publish(() => new CohortAssignedToEmployerEvent(Id, now, modifyingParty));
                     break;
                 case EditStatus.ProviderOnly:
                     Publish(() => new CohortAssignedToProviderEvent(Id, now));
@@ -447,17 +450,18 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildEndDateValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.EndDate <= DateTime.Today)
+            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.EndDate < Constants.DasStartDate)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be in the past");
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be earlier than May 2017");
                 yield break;
             }
 
             if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.StartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.StartDate)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
             }
         }
+
 
         private IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
@@ -658,6 +662,15 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                 return approvals;
             }
+        }
+
+        public void RejectTransferRequest(UserInfo userInfo)
+        {
+            CheckIsWithParty(Party.TransferSender);
+            StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, EmployerAccountId, ProviderId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+            EditStatus = EditStatus.EmployerOnly;
+            ChangeTrackingSession.CompleteTrackingSession();
         }
     }
 }

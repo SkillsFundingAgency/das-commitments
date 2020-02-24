@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
@@ -83,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);
             }
-			
+
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
@@ -93,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var db = _dbContext.Value;
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
-            var transferSender = transferSenderId.HasValue  ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
+            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
@@ -130,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var db = _dbContext.Value;
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
-           
+
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
             return originator.CreateCohort(provider, accountLegalEntity, userInfo);
@@ -198,7 +199,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId,  ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var accountLegalEntity =
                 await db.AccountLegalEntities.SingleOrDefaultAsync(x => x.Id == accountLegalEntityId,
