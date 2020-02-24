@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     "",
                     new UserInfo())
                 {Id = CohortId, EmployerAccountId = 100, TransferSenderId = 99};
-            Cohort.EditStatus = EditStatus.EmployerOnly;
+            Cohort.WithParty = Party.Employer;
         }
 
         public Task Handle()

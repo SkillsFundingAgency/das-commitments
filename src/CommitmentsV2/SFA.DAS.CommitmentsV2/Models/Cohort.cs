@@ -61,6 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Party originatingParty,
             UserInfo userInfo) : this(provider, accountLegalEntity, null, originatingParty, userInfo)
         {
+            WithParty = originatingParty;
             EditStatus = originatingParty.ToEditStatus();
             IsDraft = true;
 
@@ -81,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            WithParty = originatingParty;
             EditStatus = originatingParty.ToEditStatus();
             IsDraft = true;
 
@@ -108,6 +110,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckIsEmployer(originatingParty);
             IsDraft = false;
 
+            WithParty = originatingParty.GetOtherParty();
             EditStatus = originatingParty.GetOtherParty().ToEditStatus();
             LastAction = LastAction.Amend;
             if (message != null)
@@ -163,25 +166,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public string LastMessage => Messages.OrderByDescending(x => x.Id).FirstOrDefault()?.Text;
 
-        public Party WithParty
-        {
-            get
-            {
-                switch (EditStatus)
-                {
-                    case EditStatus.EmployerOnly:
-                        return Party.Employer;
-                    case EditStatus.ProviderOnly:
-                        return Party.Provider;
-                    case EditStatus.Both when TransferSenderId != null && TransferApprovalStatus != Types.TransferApprovalStatus.Approved:
-                        return Party.TransferSender;
-                    default:
-                        return Party.None;
-                }
-            }
-        }
-        
-        public virtual bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == Types.TransferApprovalStatus.Approved);
+        public Party WithParty { get; set; }
+
+        public virtual bool IsApprovedByAllParties => WithParty == Party.None;
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
@@ -222,6 +209,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                     IsDraft = false;
                     EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
+                    WithParty = isApprovedByOtherParty
+                        ? TransferSenderId.HasValue ? Party.TransferSender : Party.None
+                        : otherParty;
                     LastAction = LastAction.Approve;
                     CommitmentStatus = CommitmentStatus.Active;
                     TransferApprovalStatus = null;
@@ -247,6 +237,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 case Party.TransferSender:
                     TransferApprovalStatus = Types.TransferApprovalStatus.Approved;
                     TransferApprovalActionedOn = now;
+                    WithParty = Party.None;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(modifyingParty));
@@ -275,6 +266,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             IsDraft = false;
             EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
+            WithParty = modifyingParty.GetOtherParty();
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
             TransferApprovalStatus = null;
@@ -423,7 +415,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void AddMessage(string text, Party sendingParty, UserInfo userInfo)
         {
-            Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text == null || EditStatus == EditStatus.Both ? "" : text));
+            Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text ?? ""));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -557,15 +549,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void CheckIsWithParty(Party party)
         {
-            // Employers can modify Provider-assigned cohorts during their initial creation
-            if (party == Party.Employer && EditStatus == EditStatus.ProviderOnly && LastAction == LastAction.None)
-            {
-                return;
-            }
-            
             if (party != WithParty)
             {
-                throw new DomainException(nameof(party), $"Cohort must be with the party; {party} is not valid");
+                throw new DomainException(nameof(WithParty), $"Cohort must be with the party; {party} is not valid");
             }
         }
 
@@ -607,12 +593,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 case Party.Employer:
                     return Apprenticeships.Count > 0 &&
-                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed) ||
-                           EditStatus == EditStatus.Both;
+                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed || a.AgreementStatus == AgreementStatus.BothAgreed);
                 case Party.Provider:
                     return Apprenticeships.Count > 0 &&
-                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed) ||
-                           EditStatus == EditStatus.Both;
+                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed || a.AgreementStatus == AgreementStatus.BothAgreed);
                 case Party.TransferSender:
                     return TransferSenderId != null &&
                            TransferApprovalStatus == Types.TransferApprovalStatus.Approved;
@@ -677,6 +661,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, EmployerAccountId, ProviderId.Value, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
             EditStatus = EditStatus.EmployerOnly;
+            WithParty = Party.Employer;
             ChangeTrackingSession.CompleteTrackingSession();
         }
     }

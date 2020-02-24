@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public Provider Provider;
         public long CohortId;
         public long AccountLegalEntityId;
-        public EditStatus EditStatus = EditStatus.EmployerOnly;
+        public Party WithParty = Party.Employer;
         public const string LatestMessageCreatedByEmployer = "ohayou";
         public const string LatestMessageCreatedByProvider = "konbanwa";
         public bool HasTransferSender = true;
@@ -64,23 +64,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(response => Assert.AreEqual(AccountLegalEntity.Name, response.LegalEntityName, "Did not return expected legal entity name"));
         }
 
-        [TestCase(EditStatus.EmployerOnly, Party.Employer)]
-        [TestCase(EditStatus.ProviderOnly, Party.Provider)]
-        [TestCase(EditStatus.Neither, Party.None)]
-        [TestCase(EditStatus.Both, Party.TransferSender)]
-        public async Task Handle_WithSpecifiedIdAndEditStatus_ShouldReturnExpectedParty(EditStatus editStatus, Party expectedParty)
+        [TestCase(Party.Employer, Party.Employer)]
+        [TestCase(Party.Provider, Party.Provider)]
+        [TestCase(Party.None, Party.None)]
+        [TestCase(Party.TransferSender, Party.TransferSender)]
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedParty(Party withParty, Party expectedParty)
         {
-            EditStatus = editStatus;
+            WithParty = withParty;
             HasTransferSender = true;
             await CheckQueryResponse(response => Assert.AreEqual(expectedParty, response.WithParty, "Did not return expected Party type"));
         }
 
         [Test]
-        public async Task Handle_WithEditStatusOfBothAndHasTransferSender_ShouldReturnTransferSender()
+        public async Task Handle_WithTransferSender_ShouldReturnTransferSender()
         {
-            EditStatus = EditStatus.Both;
+            WithParty = Party.TransferSender;
             HasTransferSender = false;
-            await CheckQueryResponse(response => Assert.AreEqual(Party.None, response.WithParty, "Did not return expected Party type"));
+            await CheckQueryResponse(response => Assert.AreEqual(Party.TransferSender, response.WithParty, "Did not return expected Party type"));
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         [TestCase(null, false)]
         public async Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedIsApprovedByEmployer(AgreementStatus? agreementStatus, bool expectIsApprovedByEmployer)
         {
-            EditStatus = EditStatus.EmployerOnly;
+            WithParty = Party.Employer;
             ApprenticeshipAgreementStatus = agreementStatus;
             await CheckQueryResponse(response => Assert.AreEqual(expectIsApprovedByEmployer, response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
         }
@@ -203,7 +203,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
-                .AddCommitment(CohortId, Cohort, EditStatus, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider, ApprenticeshipAgreementStatus);
+                .AddCommitment(CohortId, Cohort, WithParty, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider, ApprenticeshipAgreementStatus);
 
             // act
             var response = await fixtures.GetResult(new GetCohortSummaryQuery(CohortId));
@@ -274,10 +274,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
         public List<Cohort> SeedCohorts { get; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, EditStatus editStatus, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, AgreementStatus? apprenticeshipAgreementStatus)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, Party withParty, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, AgreementStatus? apprenticeshipAgreementStatus)
         {
             cohort.Id =  cohortId;
-            cohort.EditStatus = editStatus;
+            cohort.WithParty = withParty;
 
             cohort.Messages.Add(new Message
             {

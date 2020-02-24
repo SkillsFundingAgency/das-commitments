@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             ExistingApprenticeshipDetails = new DraftApprenticeship(_fixture.Build<DraftApprenticeshipDetails>().Create(), Party.Provider);
             Cohort.Apprenticeships.Add(ExistingApprenticeshipDetails);
-            Cohort.EditStatus = EditStatus.Both;
+            Cohort.WithParty = Party.TransferSender;
             Cohort.TransferApprovalStatus = TransferApprovalStatus.Pending;
         }
 

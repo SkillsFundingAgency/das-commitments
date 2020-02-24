@@ -29,7 +29,8 @@
 	[IsFullApprovalProcessed] BIT NOT NULL DEFAULT 0,
 	[IsDeleted] BIT NOT NULL DEFAULT 0, 
     [AccountLegalEntityId] BIGINT NULL,
-	[IsDraft] BIT NOT NULL DEFAULT 1
+	[IsDraft] BIT NOT NULL DEFAULT 1,
+	[WithParty] SMALLINT NOT NULL DEFAULT 0
 )
 GO
 
