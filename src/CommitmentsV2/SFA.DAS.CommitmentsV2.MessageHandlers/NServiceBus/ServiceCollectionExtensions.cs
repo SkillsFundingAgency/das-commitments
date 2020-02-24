@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                     }
                     else
                     {
-                        endpointConfiguration.UseAzureServiceBusTransport(configuration.ServiceBusConnectionString,s => s.AddRouting());
+                        endpointConfiguration.UseAzureServiceBusTransport(configuration.SharedServiceBusEndpointUrl,s => s.AddRouting());
                     }
                     
                     var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
