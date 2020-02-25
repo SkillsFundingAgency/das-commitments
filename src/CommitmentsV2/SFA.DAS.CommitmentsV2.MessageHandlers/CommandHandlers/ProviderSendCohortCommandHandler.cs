@@ -28,6 +28,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 
             var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
 
+            if (cohort.WithParty != Party.Provider)
+            {
+                _logger.LogWarning($"Cohort {message.CohortId} has already been SentToOtherParty by the Provider");
+                return;
+            }
+
             cohort.SendToOtherParty(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow);
 
             await _dbContext.Value.SaveChangesAsync();

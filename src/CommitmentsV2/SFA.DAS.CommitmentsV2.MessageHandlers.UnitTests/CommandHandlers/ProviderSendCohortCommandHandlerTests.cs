@@ -32,6 +32,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _fixture.VerifyCohortIsSentToOtherParty();
         }
 
+        [Test]
+        public async Task When_HandlingCommand_CohortIsAlreadySentToOtherParty_Then_ShouldNotCallSendToOtherParty()
+        {
+            await _fixture.SetWithPartyToEmployer().Handle();
+            _fixture.VerifySendToOtherPartyIsNotCalled();
+        }
+
         public class ProviderSendCohortCommandHandlerTestsFixture
         {
             private ProviderSendCohortCommandHandler _handler;
@@ -55,12 +62,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
                 _cohort = new Mock<Cohort>();
                 _cohort.Setup(x => x.Id).Returns(_command.CohortId);
+                _cohort.Setup(x => x.WithParty).Returns(Party.Provider);
                 _cohort.Setup(x => x.IsApprovedByAllParties).Returns(false);
                 _cohort.Setup(x =>
                     x.SendToOtherParty(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()));
 
                 _dbContext.Object.Cohorts.Add(_cohort.Object);
                 _dbContext.Object.SaveChanges();
+            }
+
+            public ProviderSendCohortCommandHandlerTestsFixture SetWithPartyToEmployer()
+            {
+                _cohort.Setup(x => x.WithParty).Returns(Party.Employer);
+                return this;
             }
 
             public async Task Handle()
@@ -71,6 +85,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             public void VerifyCohortIsSentToOtherParty()
             {
                 _cohort.Verify(x => x.SendToOtherParty(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Once);
+            }
+
+            public void VerifySendToOtherPartyIsNotCalled()
+            {
+                _cohort.Verify(x => x.SendToOtherParty(It.IsAny<Party>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Never);
             }
         }
     }

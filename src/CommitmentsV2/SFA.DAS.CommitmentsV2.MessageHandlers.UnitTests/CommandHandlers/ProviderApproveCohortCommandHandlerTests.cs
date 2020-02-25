@@ -26,10 +26,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [Test]
-        public async Task When_HandlingCommand_Approve_Cohort()
+        public async Task When_HandlingCommand_ApproveCohort()
         {
             await _fixture.Handle();
             _fixture.VerifyCohortApproval();
+        }
+
+        [Test]
+        public async Task When_HandlingCommand_ApproveCohort_Again_ShouldNotCallCohortApproval()
+        {
+            await _fixture.AddAlreadyApprovedByProvider().Handle();
+            _fixture.VerifyCohortApprovalWasNotCalled();
         }
 
         public class ProviderApproveCohortCommandHandlerTestsFixture
@@ -55,12 +62,20 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
                 _cohort = new Mock<Cohort>();
                 _cohort.Setup(x => x.Id).Returns(_command.CohortId);
+                _cohort.Setup(x => x.Approvals).Returns(Party.None);
                 _cohort.Setup(x => x.IsApprovedByAllParties).Returns(false);
+
                 _cohort.Setup(x =>
                     x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()));
                
                _dbContext.Object.Cohorts.Add(_cohort.Object);
                 _dbContext.Object.SaveChanges();
+            }
+
+            public ProviderApproveCohortCommandHandlerTestsFixture AddAlreadyApprovedByProvider()
+            {
+                _cohort.Setup(x => x.Approvals).Returns(Party.Provider);
+                return this;
             }
 
             public async Task Handle()
@@ -71,6 +86,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             public void VerifyCohortApproval()
             {
                 _cohort.Verify(x=> x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Once);
+            }
+            public void VerifyCohortApprovalWasNotCalled()
+            {
+                _cohort.Verify(x => x.Approve(It.IsAny<Party>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Never);
             }
         }
     }
