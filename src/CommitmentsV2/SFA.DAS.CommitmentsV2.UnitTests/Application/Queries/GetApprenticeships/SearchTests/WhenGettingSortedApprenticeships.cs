@@ -732,9 +732,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
             var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
-
             apprenticeships[0].Cohort.EmployerAccountId = 0;
             apprenticeships[0].EmployerRef = null;
+
             searchParameters.ProviderId = null;
 
             mockContext
@@ -748,6 +748,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             //Assert
             Assert.AreEqual(5, actual.TotalAvailableApprenticeships);
+        }
+
+        [Test, MoqAutoData]
+        public async Task Then_Will_Return_Page_Number_Of_One_If_Only_Page(
+            OrderedApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.FieldName = nameof(Apprenticeship.FirstName);
+            searchParameters.PageNumber = 20;
+            searchParameters.PageItemCount = 2;
+            searchParameters.ReverseSort = false;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+            searchParameters.ProviderId = null;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+           
+            var service = new OrderedApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(3, actual.PageNumber);
+            Assert.IsNotEmpty(actual.Apprenticeships);
         }
     }
 }

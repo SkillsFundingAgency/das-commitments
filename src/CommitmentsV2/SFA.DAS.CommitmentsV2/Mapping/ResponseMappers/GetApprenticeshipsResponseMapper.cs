@@ -16,7 +16,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 TotalApprenticeshipsFound = source.TotalApprenticeshipsFound,
                 TotalApprenticeshipsWithAlertsFound = source.TotalApprenticeshipsWithAlertsFound,
                 Apprenticeships = source.Apprenticeships.Select(MapApprenticeship),
-                TotalApprenticeships = source.TotalApprenticeships
+                TotalApprenticeships = source.TotalApprenticeships,
+                PageNumber = source.PageNumber
             });
         }
 

@@ -90,7 +90,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 Apprenticeships = matchedApprenticeshipDetails,
                 TotalApprenticeshipsFound = searchResult.TotalApprenticeshipsFound,
                 TotalApprenticeshipsWithAlertsFound = searchResult.TotalApprenticeshipsWithAlertsFound,
-                TotalApprenticeships = searchResult.TotalAvailableApprenticeships
+                TotalApprenticeships = searchResult.TotalAvailableApprenticeships,
+                PageNumber = searchResult.PageNumber
             };
         }
     }

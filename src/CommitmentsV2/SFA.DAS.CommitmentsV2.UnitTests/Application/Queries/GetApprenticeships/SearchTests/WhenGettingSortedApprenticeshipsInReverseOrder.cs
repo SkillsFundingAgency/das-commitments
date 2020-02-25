@@ -742,5 +742,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Assert
             Assert.AreEqual(5, actual.TotalAvailableApprenticeships);
         }
+
+        [Test, MoqAutoData]
+        public async Task Then_Will_Return_Page_Number_Of_One_If_Only_Page(
+            ReverseOrderedApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            searchParameters.FieldName = nameof(Apprenticeship.FirstName);
+            searchParameters.PageNumber = 20;
+            searchParameters.PageItemCount = 2;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+            
+            var service = new ReverseOrderedApprenticeshipSearchService(mockContext.Object);
+            searchParameters.ProviderId = null;
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(3, actual.PageNumber);
+            Assert.IsNotEmpty(actual.Apprenticeships);
+        }
     }
 }

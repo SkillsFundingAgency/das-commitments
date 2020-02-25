@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,8 +27,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             var totalApprenticeshipsWithAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, true).CountAsync(searchParameters.CancellationToken);
 
             var totalApprenticeships = await GetApprenticeshipsQuery(searchParameters).CountAsync(searchParameters.CancellationToken);
+            
+            var totalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts;
 
-            var skipCount = searchParameters.PageNumber > 0 ? (searchParameters.PageNumber - 1) * searchParameters.PageItemCount : 0;
+            var selectedPageNumber = searchParameters.PageNumber;
+
+            if (searchParameters.PageNumber > 0 && searchParameters.PageItemCount > 0)
+            {
+                var maxPageCount = (int) Math.Round((double)totalApprenticeshipsFound / searchParameters.PageItemCount, MidpointRounding.AwayFromZero);
+
+                selectedPageNumber = searchParameters.PageNumber <= maxPageCount
+                    ? searchParameters.PageNumber
+                    : maxPageCount;
+            }
+
+            var skipCount = selectedPageNumber > 0 ? (selectedPageNumber - 1) * searchParameters.PageItemCount : 0;
 
             var apprentices = new List<Apprenticeship>();
 
@@ -48,7 +62,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                         Apprenticeships = apprentices,
                         TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
                         TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
-                        TotalAvailableApprenticeships = totalApprenticeships
+                        TotalAvailableApprenticeships = totalApprenticeships,
+                        PageNumber = 1
                     };
                 }
 
@@ -79,7 +94,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                         Apprenticeships = apprentices,
                         TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
                         TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
-                        TotalAvailableApprenticeships = totalApprenticeships
+                        TotalAvailableApprenticeships = totalApprenticeships,
+                        PageNumber = 1
                     };
                 }
 
@@ -97,9 +113,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             return new ApprenticeshipSearchResult
             {
                 Apprenticeships = apprentices,
-                TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
+                TotalApprenticeshipsFound = totalApprenticeshipsFound,
                 TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
-                TotalAvailableApprenticeships = totalApprenticeships
+                TotalAvailableApprenticeships = totalApprenticeships,
+                PageNumber = selectedPageNumber
             };
         }
 

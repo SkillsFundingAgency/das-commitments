@@ -184,5 +184,61 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Assert
             Assert.AreEqual(5, actual.TotalAvailableApprenticeships);
         }
+
+        [Test, MoqAutoData]
+        public async Task Then_Will_Return_The_Last_Page_Number_If_Page_Number_Exceeds_Limit(
+            ApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.ReverseSort = true;
+            searchParameters.PageNumber = 10;
+            searchParameters.PageItemCount = 2;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+           searchParameters.EmployerAccountId = null;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var service = new ApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(3, actual.PageNumber);
+            Assert.IsNotEmpty(actual.Apprenticeships);
+        }
+
+        [Test, MoqAutoData]
+        public async Task Then_Will_Return_Page_Number_Of_One_If_Only_Page(
+            ApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.ReverseSort = true;
+            searchParameters.PageNumber = 0;
+            searchParameters.PageItemCount = 3;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+            searchParameters.EmployerAccountId = null;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var service = new ApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(1, actual.PageNumber);
+            Assert.IsNotEmpty(actual.Apprenticeships);
+        }
     }
 }
