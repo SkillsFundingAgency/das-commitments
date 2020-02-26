@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{LegalEntityName = "XX", AccountLegalEntity = CreateAccountLegalEntity("test")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1}}
 
@@ -50,13 +50,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{LegalEntityName = "XX", AccountLegalEntity = CreateAccountLegalEntity("test")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -168,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
             var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
-            apprenticeships[0].Cohort.ProviderId = null;
+            apprenticeships[0].Cohort.ProviderId = 0;
             apprenticeships[0].ProviderRef = null;
             searchParameters.EmployerAccountId = null;
 

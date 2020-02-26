@@ -127,10 +127,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             query = query.OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
-                .ThenBy(x => x.Cohort.LegalEntityName)
+                .ThenBy(x => x.Cohort.AccountLegalEntity.Name)
                 .ThenBy(x => x.CourseName)
                 .ThenByDescending(x => x.StartDate)
-                .Include(apprenticeship => apprenticeship.Cohort);
+                .Include(apprenticeship => apprenticeship.Cohort)
+                    .ThenInclude(cohort => cohort.AccountLegalEntity);
 
             if (skipCount > 0)
             {
@@ -152,12 +153,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             query = query.OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
-                .ThenBy(x => x.Cohort.LegalEntityName)
+                .ThenBy(x => x.Cohort.AccountLegalEntity.Name)
                 .ThenBy(x => x.CourseName)
                 .ThenByDescending(x => x.StartDate)
-                .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
-                .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate);
+                .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
+                .Include(apprenticeship => apprenticeship.Cohort)
+                    .ThenInclude(cohort => cohort.AccountLegalEntity); 
 
             if (skipCount > 0)
             {

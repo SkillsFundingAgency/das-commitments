@@ -32,7 +32,10 @@ namespace SFA.DAS.CommitmentsV2.Data
         protected ProviderCommitmentsDbContext()
         {
         }
-
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLazyLoadingProxies();
+        }
         public virtual Task ExecuteSqlCommandAsync(string sql, params object[] parameters)
         {
             return Database.ExecuteSqlCommandAsync(sql, parameters);

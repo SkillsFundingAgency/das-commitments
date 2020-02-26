@@ -438,8 +438,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 NewCohort = new Cohort {Apprenticeships = new List<ApprenticeshipBase> {new DraftApprenticeship()}};
 
-                Provider = new Mock<Provider>();
-                Provider.Setup(x => x.UkPrn).Returns(ProviderId);
+                Provider = new Mock<Provider>(()=> new Provider(ProviderId, "Test Provider", DateTime.UtcNow, DateTime.UtcNow));
                 Provider.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
                 Db.Providers.Add(Provider.Object);
@@ -611,9 +610,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     Id = CohortId,
                     EditStatus = creatingParty.ToEditStatus(),
+                    Provider = Provider.Object,
                     ProviderId = ProviderId,
                     EmployerAccountId = AccountId,
-                    AccountLegalEntityPublicHashedId = AccountLegalEntityPublicHashedId
+                    AccountLegalEntityPublicHashedId = AccountLegalEntityPublicHashedId,
                 };
                 
                 Db.Cohorts.Add(Cohort);

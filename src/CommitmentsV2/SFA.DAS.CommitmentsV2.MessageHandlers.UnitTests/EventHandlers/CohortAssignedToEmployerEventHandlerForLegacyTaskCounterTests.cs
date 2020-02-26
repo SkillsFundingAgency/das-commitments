@@ -112,7 +112,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerifyLegacyEventCohortApprovalRequestedByProviderIsSent()
         {
-            LegacyTopicMessagePublisher.Verify(x=>x.PublishAsync(It.Is<CohortApprovalRequestedByProvider>(p=> p.AccountId == Cohort.EmployerAccountId && p.ProviderId == Cohort.ProviderId.Value && p.CommitmentId == Cohort.Id)));
+            LegacyTopicMessagePublisher.Verify(x=>x.PublishAsync(It.Is<CohortApprovalRequestedByProvider>(p=> p.AccountId == Cohort.EmployerAccountId && p.ProviderId == Cohort.ProviderId && p.CommitmentId == Cohort.Id)));
         }
 
         public void VerifyLegacyEventCohortApprovalRequestedByProviderIsNotSent()

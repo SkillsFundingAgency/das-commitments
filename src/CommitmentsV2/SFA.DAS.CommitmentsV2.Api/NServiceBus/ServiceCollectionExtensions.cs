@@ -31,7 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
                     var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.Api")
                         .UseErrorQueue()
                         .UseInstallers()
-                        .UseLicense(configuration.NServiceBusLicense)
                         .UseMessageConventions()
                         .UseNewtonsoftJsonSerializer()
                         .UseNLogFactory()
@@ -47,6 +46,11 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
                     else
                     {
                         endpointConfiguration.UseAzureServiceBusTransport(configuration.ServiceBusConnectionString, s => s.AddRouting());
+                    }
+
+                    if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
+                    {
+                        endpointConfiguration.UseLicense(configuration.NServiceBusLicense);
                     }
                     
                     var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();

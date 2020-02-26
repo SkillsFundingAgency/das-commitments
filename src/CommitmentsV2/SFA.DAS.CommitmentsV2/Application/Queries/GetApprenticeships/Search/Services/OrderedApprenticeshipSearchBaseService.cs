@@ -54,8 +54,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     return apprenticeship => apprenticeship.LastName;
                 case nameof(Apprenticeship.CourseName):
                     return apprenticeship => apprenticeship.CourseName;
-                case nameof(Apprenticeship.Cohort.LegalEntityName):
-                    return apprenticeship => apprenticeship.Cohort.LegalEntityName;
+                case nameof(Apprenticeship.Cohort.AccountLegalEntity.Name):
+                    return apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name;
                 case nameof(Apprenticeship.StartDate):
                     return apprenticeship => apprenticeship.StartDate;
                 case nameof(Apprenticeship.EndDate):

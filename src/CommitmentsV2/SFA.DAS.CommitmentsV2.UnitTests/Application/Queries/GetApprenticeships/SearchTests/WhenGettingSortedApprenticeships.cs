@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
 
             apprenticeships[1].ProviderRef = null;
-            apprenticeships[1].Cohort.ProviderId = null;
+            apprenticeships[1].Cohort.ProviderId = 0;
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -160,8 +160,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -171,8 +171,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -182,8 +182,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -193,13 +193,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -241,8 +241,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "BB_Should_Be_Second_Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -251,8 +251,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "CC_Should_Be_Third_Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -261,13 +261,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "AA_Should_Be_First_Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -305,8 +305,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "BB_Should_Be_Second_Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("BB_Should_Be_Second_Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -315,8 +315,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "CC_Should_Be_Third_Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("CC_Should_Be_Third_Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -325,13 +325,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "AA_Should_Be_First_Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("AA_Should_Be_First_Employer") },
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -339,16 +339,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var service = new OrderedApprenticeshipSearchService(mockContext.Object);
             
-            searchParameters.FieldName = nameof(Apprenticeship.Cohort.LegalEntityName);
+            searchParameters.FieldName= nameof(Apprenticeship.Cohort.AccountLegalEntity.Name);
             searchParameters.ReverseSort = false;
 
             //Act
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual("AA_Should_Be_First_Employer", actual.Apprenticeships.ElementAt(0).Cohort.LegalEntityName);
-            Assert.AreEqual("BB_Should_Be_Second_Employer", actual.Apprenticeships.ElementAt(1).Cohort.LegalEntityName);
-            Assert.AreEqual("CC_Should_Be_Third_Employer", actual.Apprenticeships.ElementAt(2).Cohort.LegalEntityName);
+            Assert.AreEqual("AA_Should_Be_First_Employer", actual.Apprenticeships.ElementAt(0).Cohort.AccountLegalEntity.Name);
+            Assert.AreEqual("BB_Should_Be_Second_Employer", actual.Apprenticeships.ElementAt(1).Cohort.AccountLegalEntity.Name);
+            Assert.AreEqual("CC_Should_Be_Third_Employer", actual.Apprenticeships.ElementAt(2).Cohort.AccountLegalEntity.Name);
         }
 
         [Test, MoqAutoData]
@@ -369,8 +369,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "BB_Should_Be_Second_Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -379,8 +379,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "CC_Should_Be_Third_Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -389,13 +389,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "AA_Should_Be_First_Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -434,8 +434,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(1),
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -445,8 +445,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(2),
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -456,13 +456,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -501,8 +501,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     EndDate = DateTime.UtcNow.AddMonths(1),
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -512,8 +512,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     EndDate = DateTime.UtcNow.AddMonths(2),
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 },
                 new Apprenticeship
@@ -523,13 +523,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     EndDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -568,8 +568,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(2),
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>(),
                     PaymentStatus = PaymentStatus.Paused
                 },
@@ -580,8 +580,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(3),
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>(),
                     PaymentStatus = PaymentStatus.Completed
                 },
@@ -592,14 +592,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(-1),
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    ProviderRef = "Provider ref",
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>(),
                     PaymentStatus = PaymentStatus.Active
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -639,7 +639,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(1),
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>(),
                     PendingUpdateOriginator = Originator.Provider
                 },
@@ -651,7 +651,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(2),
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>(),
                     PendingUpdateOriginator = Originator.Provider
                 },
@@ -663,15 +663,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>(),
                     PendingUpdateOriginator = null
                 }
             };
 
-            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = searchParameters.ProviderId;
-            apprenticeships[2].Cohort.ProviderId = searchParameters.ProviderId;
+            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId ?? 0;
+            apprenticeships[1].Cohort.ProviderId = searchParameters.ProviderId ?? 0;
+            apprenticeships[2].Cohort.ProviderId = searchParameters.ProviderId ?? 0;
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -693,16 +693,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             OrderedApprenticeshipSearchParameters searchParameters,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
-            //Arrange
-            searchParameters.FieldName = nameof(Apprenticeship.FirstName);
-            searchParameters.PageNumber = 2;
-            searchParameters.PageItemCount = 2;
             searchParameters.ReverseSort = false;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
             var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
 
-            apprenticeships[0].Cohort.ProviderId = null;
+            apprenticeships[0].Cohort.ProviderId = 0;
             apprenticeships[0].ProviderRef = null;
             searchParameters.EmployerAccountId = null;
 

@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = "";
             query.EmployerAccountId = null;
 
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
 
             mockSearch.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
                 .ReturnsAsync(new ApprenticeshipSearchResult
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.ReverseSort = false;
             query.EmployerAccountId = null;
 
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
 
             mockSearch.Setup(x => x.Find(It.IsAny<OrderedApprenticeshipSearchParameters>()))
                 .ReturnsAsync(new ApprenticeshipSearchResult
@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.ReverseSort = true;
             query.EmployerAccountId = null;
 
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
 
             mockSearch.Setup(x => x.Find(It.IsAny<ReverseOrderedApprenticeshipSearchParameters>()))
                 .ReturnsAsync(new ApprenticeshipSearchResult
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = "";
             query.EmployerAccountId = null;
 
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
 
             search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
                 .ReturnsAsync(new ApprenticeshipSearchResult
@@ -231,7 +231,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = "";
             query.EmployerAccountId = null;
 
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
 
             search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
                 .ReturnsAsync(new ApprenticeshipSearchResult
@@ -267,7 +267,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             query.SortField = "";
             query.EmployerAccountId = null;
 
-            apprenticeships[1].Cohort.ProviderId = query.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
 
             search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
                 .ReturnsAsync(searchResult);
