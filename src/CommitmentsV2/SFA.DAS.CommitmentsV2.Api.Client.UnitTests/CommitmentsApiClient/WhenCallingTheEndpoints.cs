@@ -217,7 +217,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeships(request);
 
-            //Assert$
+            //Assert
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?providerId={request.ProviderId}&reverseSort=False", null, CancellationToken.None));
         }
 
@@ -294,7 +294,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
-        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilterAndReverse()
+        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedWithSortAndReverse()
         {
             //Arrange
             var request = new GetApprenticeshipsRequest

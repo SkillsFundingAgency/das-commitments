@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class CohortController : ControllerBase
     {
         private readonly IMediator _mediator;
-        
+
         public CohortController(IMediator mediator)
         {
             _mediator = mediator;

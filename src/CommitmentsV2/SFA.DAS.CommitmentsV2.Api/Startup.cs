@@ -49,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 {
                     o.AddAuthorization();
                     o.Filters.Add<ValidateModelStateFilter>();
+                    o.Filters.Add<StopwatchFilter>();
                 })
                 .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>())
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);

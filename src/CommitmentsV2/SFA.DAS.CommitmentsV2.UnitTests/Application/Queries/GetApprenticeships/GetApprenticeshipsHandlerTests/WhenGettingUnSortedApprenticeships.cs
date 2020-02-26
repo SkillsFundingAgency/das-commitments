@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {
-            request.PageNumber = 0;
+            request.PageNumber = 1;
             request.PageItemCount = 0;
             request.SearchFilters = new ApprenticeshipSearchFilters();
 
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {
-            request.PageNumber = 0;
+            request.PageNumber = 1;
             request.PageItemCount = 0;
             request.SearchFilters = new ApprenticeshipSearchFilters();
 
@@ -104,6 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "Should_Be_Third",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -116,6 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow.AddMonths(2),
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -128,6 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "Should_Be_Fourth"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -140,6 +143,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "Should_Be_Fifth",
                     StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -152,6 +156,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -164,6 +169,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -327,6 +333,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -346,6 +353,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -358,6 +366,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX"},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -398,8 +407,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {
-            var filterCourseName = "Test Corse";
-            query.PageNumber = 0;
+            var filterCourseName = "Test Course";
+            query.PageNumber = 1;
             query.PageItemCount = 0;
             query.SearchFilters = new ApprenticeshipSearchFilters
             {
