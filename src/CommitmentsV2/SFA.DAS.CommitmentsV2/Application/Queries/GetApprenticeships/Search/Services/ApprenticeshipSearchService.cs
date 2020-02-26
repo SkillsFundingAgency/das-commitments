@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                         TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
                         TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
                         TotalAvailableApprenticeships = totalApprenticeships,
-                        PageNumber = 1
+                        PageNumber = selectedPageNumber
                     };
                 }
 
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                         TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
                         TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
                         TotalAvailableApprenticeships = totalApprenticeships,
-                        PageNumber = 1
+                        PageNumber = selectedPageNumber
                     };
                 }
 

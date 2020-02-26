@@ -516,13 +516,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         
         [Test, MoqAutoData]
-        public async Task Then_Will_Return_Page_Number_Of_One_If_Only_Page(
+        public async Task Then_Will_Return_Page_Number_If_All_Apprenticeships_Are_With_Alerts(
             ApprenticeshipSearchParameters searchParameters,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
         {
             //Arrange
             searchParameters.ReverseSort = false;
-            searchParameters.PageNumber = 0;
+            searchParameters.PageNumber = 2;
             searchParameters.PageItemCount = 2;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
@@ -539,7 +539,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(1, actual.PageNumber);
+            Assert.AreEqual( searchParameters.PageNumber, actual.PageNumber);
             Assert.IsNotEmpty(actual.Apprenticeships);
         }
     }
