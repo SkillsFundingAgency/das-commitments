@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 
             if (searchParameters.PageNumber > 0 && searchParameters.PageItemCount > 0)
             {
-                var maxPageCount = (int) Math.Round((double)totalApprenticeshipsFound / searchParameters.PageItemCount, MidpointRounding.AwayFromZero);
+                var maxPageCount = (int) Math.Ceiling((double)totalApprenticeshipsFound / searchParameters.PageItemCount);
 
                 selectedPageNumber = searchParameters.PageNumber <= maxPageCount
                     ? searchParameters.PageNumber

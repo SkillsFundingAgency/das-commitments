@@ -758,7 +758,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             searchParameters.FieldName = nameof(Apprenticeship.FirstName);
             searchParameters.PageNumber = 20;
-            searchParameters.PageItemCount = 2;
+            searchParameters.PageItemCount = 5;
             searchParameters.ReverseSort = false;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
@@ -775,7 +775,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(3, actual.PageNumber);
+            Assert.AreEqual(2, actual.PageNumber);
             Assert.IsNotEmpty(actual.Apprenticeships);
         }
     }

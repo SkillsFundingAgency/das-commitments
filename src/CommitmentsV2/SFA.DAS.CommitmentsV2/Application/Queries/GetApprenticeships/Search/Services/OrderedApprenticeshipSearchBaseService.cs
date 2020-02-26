@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             }
             else
             {
-                var maxPageNumber =  (int) Math.Round((double)totalApprenticeshipsFound / pageItemCount, MidpointRounding.AwayFromZero);
+                var maxPageNumber =  (int) Math.Ceiling((double)totalApprenticeshipsFound / pageItemCount);
                 selectedPageNumber = pageNumber <= maxPageNumber ? pageNumber : maxPageNumber;
 
                 apprenticeships = await apprenticeshipsQuery.Skip((selectedPageNumber - 1) * pageItemCount)
