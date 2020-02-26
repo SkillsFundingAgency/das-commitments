@@ -92,7 +92,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 return this;
             }
 
-
             public async Task Handle()
             {
                 await _handler.Handle(_command, _messageHandlerContext.Object);
@@ -107,10 +106,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 _cohort.Verify(x => x.SendToOtherParty(It.IsAny<Party>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Never);
             }
+
             public void VerifyHasError()
             {
                 Assert.IsTrue(_logger.HasErrors);
             }
+
             public void VerifyHasWarning()
             {
                 Assert.IsTrue(_logger.HasWarnings);

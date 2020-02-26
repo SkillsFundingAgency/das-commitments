@@ -57,7 +57,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             fixture.VerifyHasWarning();
         }
 
-
         [Test]
         public void Handle_WhenHandlingTransferSenderApproveCohortCommand_ThenItShouldPublishChangeTrackingEvents()
         {
@@ -196,7 +195,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             Assert.AreEqual(0, list.Count);
         }
-
 
         public void VerifyEntityIsBeingTracked()
         {

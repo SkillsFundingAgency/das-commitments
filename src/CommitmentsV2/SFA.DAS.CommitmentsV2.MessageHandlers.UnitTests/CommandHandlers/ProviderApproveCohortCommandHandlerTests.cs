@@ -87,6 +87,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _cohort.Setup(x => x.Approvals).Returns(Party.Provider);
                 return this;
             }
+
             public ProviderApproveCohortCommandHandlerTestsFixture SetupNullMessage()
             {
                 _command = null;
@@ -112,6 +113,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 Assert.IsTrue(_logger.HasErrors);
             }
+
             public void VerifyHasWarning()
             {
                 Assert.IsTrue(_logger.HasWarnings);

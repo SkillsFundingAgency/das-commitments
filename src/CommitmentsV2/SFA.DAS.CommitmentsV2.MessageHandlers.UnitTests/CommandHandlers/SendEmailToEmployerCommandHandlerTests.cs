@@ -204,6 +204,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 Assert.IsTrue(Logger.HasErrors);
             }
+
             public void VerifyHasWarning()
             {
                 Assert.IsTrue(Logger.HasWarnings);
