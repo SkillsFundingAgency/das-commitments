@@ -4,6 +4,7 @@
     {
         public long TransferReceiverId { get; set; }
         public TransferApprovalStatus TransferApprovalStatus { get; set; }
+        public string UserId { get; set; }
         public string UserEmail { get; set; }
         public string UserName { get; set; }
 

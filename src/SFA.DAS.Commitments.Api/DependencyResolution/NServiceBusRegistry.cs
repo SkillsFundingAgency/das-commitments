@@ -1,5 +1,6 @@
 using System;
 using NServiceBus;
+using SFA.DAS.Commitments.Application.Extensions;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NServiceBus.Configuration;
@@ -51,13 +52,13 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
 
                 if (environment.IsDevelopment)
                 {
-                    endpointConfiguration.UseLearningTransport();
+                    endpointConfiguration.UseLearningTransport(s => s.AddRouting());
                 }
                 else
                 {
-                    endpointConfiguration.UseAzureServiceBusTransport(configuration.TransportConnectionString);
+                    endpointConfiguration.UseAzureServiceBusTransport(configuration.TransportConnectionString, s => s.AddRouting());
                 }
-                
+
                 var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
 
                 return endpoint;

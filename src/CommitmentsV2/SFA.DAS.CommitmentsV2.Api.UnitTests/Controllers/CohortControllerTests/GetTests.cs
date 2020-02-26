@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         public GetCohortSummaryQueryResult GetCohortResult { get; }
         public GetCohortsRequest GetCohortsRequest { get; }
         public GetCohortsResult GetCohortsResult { get; }
-        
+
         public long AccountId = 1;
         private const long CohortId = 123;
 
@@ -98,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             GetCohortResult = AutoFixture.Create<GetCohortSummaryQueryResult>();
             Mediator.Setup(m => m.Send(It.Is<GetCohortSummaryQuery>(q => q.CohortId == CohortId), CancellationToken.None)).ReturnsAsync(GetCohortResult);
 
-            GetCohortsRequest = AutoFixture.Build<GetCohortsRequest>().With(x=>x.AccountId, AccountId).Create();
+            GetCohortsRequest = AutoFixture.Build<GetCohortsRequest>().With(x => x.AccountId, AccountId).Create();
             GetCohortsResult = AutoFixture.Create<GetCohortsResult>();
             Mediator.Setup(m => m.Send(It.Is<GetCohortsQuery>(q => q.AccountId == AccountId), CancellationToken.None)).ReturnsAsync(GetCohortsResult);
         }
