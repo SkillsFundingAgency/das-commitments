@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -53,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             fixture.Handle();
 
             fixture.VerifyTransferRequestApprovedEventIsNotPublished();
+            fixture.VerifyHasWarning();
         }
 
 
@@ -170,6 +172,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         public void VerifyHasError()
         {
             Assert.IsTrue(Logger.HasErrors);
+        }
+
+        public void VerifyHasWarning()
+        {
+            Assert.IsTrue(Logger.HasWarnings);
         }
 
         public void VerifyTransferRequestApprovedEventIsPublished()

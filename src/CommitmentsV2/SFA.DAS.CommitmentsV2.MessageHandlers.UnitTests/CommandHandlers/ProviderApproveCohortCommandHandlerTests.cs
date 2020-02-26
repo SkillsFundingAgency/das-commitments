@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Moq;
 using NServiceBus;
@@ -10,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
@@ -33,10 +33,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [Test]
-        public async Task When_HandlingCommand_ApproveCohort_Again_ShouldNotCallCohortApproval()
+        public async Task When_HandlingCommand_ApproveCohort_Again_ShouldNotCallCohortApprovalAndShouldLogWarning()
         {
             await _fixture.AddAlreadyApprovedByProvider().Handle();
             _fixture.VerifyCohortApprovalWasNotCalled();
+            _fixture.VerifyHasWarning();
+        }
+
+        [Test]
+        public void Handle_WhenHandlingCommandAndItFails_ThenItShouldThrowAnExceptionAndLogIt()
+        {
+            Assert.ThrowsAsync<NullReferenceException>( () =>_fixture.SetupNullMessage().Handle());
+            _fixture.VerifyHasError();
         }
 
         public class ProviderApproveCohortCommandHandlerTestsFixture
@@ -45,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             private ProviderApproveCohortCommand _command;
             public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
+            private FakeLogger<ProviderApproveCohortCommandHandler> _logger;
             private Mock<Cohort> _cohort;
 
             public ProviderApproveCohortCommandHandlerTestsFixture()
@@ -52,8 +61,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 var autoFixture = new Fixture();
 
                 _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
-                
-                _handler = new ProviderApproveCohortCommandHandler(Mock.Of<ILogger<ProviderApproveCohortCommandHandler>>(),
+                _logger = new FakeLogger<ProviderApproveCohortCommandHandler>();
+
+                _handler = new ProviderApproveCohortCommandHandler(_logger,
                     new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object));
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
@@ -77,6 +87,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _cohort.Setup(x => x.Approvals).Returns(Party.Provider);
                 return this;
             }
+            public ProviderApproveCohortCommandHandlerTestsFixture SetupNullMessage()
+            {
+                _command = null;
+                return this;
+            }
 
             public async Task Handle()
             {
@@ -87,9 +102,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 _cohort.Verify(x=> x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Once);
             }
+
             public void VerifyCohortApprovalWasNotCalled()
             {
                 _cohort.Verify(x => x.Approve(It.IsAny<Party>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Never);
+            }
+
+            public void VerifyHasError()
+            {
+                Assert.IsTrue(_logger.HasErrors);
+            }
+            public void VerifyHasWarning()
+            {
+                Assert.IsTrue(_logger.HasWarnings);
             }
         }
     }

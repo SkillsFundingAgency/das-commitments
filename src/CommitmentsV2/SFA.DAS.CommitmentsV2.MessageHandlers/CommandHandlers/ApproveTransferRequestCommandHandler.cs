@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -37,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
             }
             catch (Exception e)
             {
-                _logger.LogError("Error processing TransferSenderApproveCohortCommand", e);
+                _logger.LogError($"Error processing {nameof(ApproveTransferRequestCommand)}", e);
                 throw;
             }
         }

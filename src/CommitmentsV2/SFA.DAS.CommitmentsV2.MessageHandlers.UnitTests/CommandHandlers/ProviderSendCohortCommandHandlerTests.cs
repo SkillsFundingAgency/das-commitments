@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Moq;
 using NServiceBus;
@@ -10,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
@@ -33,10 +33,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [Test]
-        public async Task When_HandlingCommand_CohortIsAlreadySentToOtherParty_Then_ShouldNotCallSendToOtherParty()
+        public async Task When_HandlingCommand_CohortIsAlreadySentToOtherParty_Then_ShouldNotCallSendToOtherPartyAndLogWarning()
         {
             await _fixture.SetWithPartyToEmployer().Handle();
             _fixture.VerifySendToOtherPartyIsNotCalled();
+            _fixture.VerifyHasWarning();
+        }
+
+        [Test]
+        public void Handle_WhenHandlingCommandAndItFails_ThenItShouldThrowAnExceptionAndLogIt()
+        {
+            Assert.ThrowsAsync<NullReferenceException>(() => _fixture.SetupNullMessage().Handle());
+            _fixture.VerifyHasError();
         }
 
         public class ProviderSendCohortCommandHandlerTestsFixture
@@ -45,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             private ProviderSendCohortCommand _command;
             public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
+            private FakeLogger<ProviderSendCohortCommandHandler> _logger;
             private Mock<Cohort> _cohort;
 
             public ProviderSendCohortCommandHandlerTestsFixture()
@@ -52,8 +61,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 var autoFixture = new Fixture();
 
                 _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+                _logger = new FakeLogger<ProviderSendCohortCommandHandler>();
 
-                _handler = new ProviderSendCohortCommandHandler(Mock.Of<ILogger<ProviderSendCohortCommandHandler>>(),
+                _handler = new ProviderSendCohortCommandHandler(_logger,
                     new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object));
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
@@ -76,6 +86,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _cohort.Setup(x => x.WithParty).Returns(Party.Employer);
                 return this;
             }
+            public ProviderSendCohortCommandHandlerTestsFixture SetupNullMessage()
+            {
+                _command = null;
+                return this;
+            }
+
 
             public async Task Handle()
             {
@@ -90,6 +106,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             public void VerifySendToOtherPartyIsNotCalled()
             {
                 _cohort.Verify(x => x.SendToOtherParty(It.IsAny<Party>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Never);
+            }
+            public void VerifyHasError()
+            {
+                Assert.IsTrue(_logger.HasErrors);
+            }
+            public void VerifyHasWarning()
+            {
+                Assert.IsTrue(_logger.HasWarnings);
             }
         }
     }

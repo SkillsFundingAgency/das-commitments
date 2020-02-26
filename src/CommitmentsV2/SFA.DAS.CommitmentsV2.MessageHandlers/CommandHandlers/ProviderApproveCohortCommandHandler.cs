@@ -24,19 +24,27 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 
         public async Task Handle(ProviderApproveCohortCommand message, IMessageHandlerContext context)
         {
-            _logger.LogInformation($"Handled {nameof(ProviderApproveCohortCommand)} with MessageId '{context.MessageId}'");
-
-            var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
-
-            if (cohort.Approvals.HasFlag(Party.Provider))
+            try
             {
-                _logger.LogWarning($"Cohort {message.CohortId} has already been approved by the Provider");
-                return;
+                _logger.LogInformation($"Handled {nameof(ProviderApproveCohortCommand)} with MessageId '{context.MessageId}'");
+
+                var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
+
+                if (cohort.Approvals.HasFlag(Party.Provider))
+                {
+                    _logger.LogWarning($"Cohort {message.CohortId} has already been approved by the Provider");
+                    return;
+                }
+
+                cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow);
+
+                await _dbContext.Value.SaveChangesAsync();
             }
-
-            cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow);
-
-            await _dbContext.Value.SaveChangesAsync();
+            catch (Exception e)
+            {
+                _logger.LogError($"Error processing {nameof(ProviderApproveCohortCommand)}", e);
+                throw;
+            }
         }
     }
 }
