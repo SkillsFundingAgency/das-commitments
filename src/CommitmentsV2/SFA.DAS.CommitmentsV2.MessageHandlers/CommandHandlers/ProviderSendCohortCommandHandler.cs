@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
         {
             try
             {
-                _logger.LogInformation($"Handled {nameof(ProviderSendCohortCommand)} with MessageId '{context.MessageId}'");
+                _logger.LogInformation($"Handling {nameof(ProviderSendCohortCommand)} with MessageId '{context.MessageId}'");
 
                 var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
 
