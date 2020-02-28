@@ -2,9 +2,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -23,17 +25,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("pending")]
-        public async Task<IActionResult> GetPendingUpdate(long apprenticeshipId)
+        public async Task<IActionResult> GetApprenticeshipUpdates(long apprenticeshipId,[FromQuery] GetApprenticeshipUpdatesRequest request)
         {
-            var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId));
-
-            if (result == null)
-            {
-                return NotFound();
-            }
-
-            var response = await _modelMapper.Map<GetApprenticeshipUpdateResponse>(result);
+            var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, request.Status));
+            var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
             return Ok(response);
         }
     }

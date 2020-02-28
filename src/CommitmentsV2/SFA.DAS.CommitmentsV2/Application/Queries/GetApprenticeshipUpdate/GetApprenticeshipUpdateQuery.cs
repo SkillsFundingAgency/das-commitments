@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
 {
@@ -6,9 +7,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
     {
         public long ApprenticeshipId { get; }
 
-        public GetApprenticeshipUpdateQuery(long apprenticeshipId)
+        public ApprenticeshipUpdateStatus? Status { get; }
+
+        public GetApprenticeshipUpdateQuery(long apprenticeshipId, ApprenticeshipUpdateStatus? status)
         {
             ApprenticeshipId = apprenticeshipId;
+            Status = status;
         }
     }
 }
