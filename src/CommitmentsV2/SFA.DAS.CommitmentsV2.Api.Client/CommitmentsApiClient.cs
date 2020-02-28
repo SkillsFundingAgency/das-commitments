@@ -46,7 +46,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
         }
-
         public Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
             var pageQuery = CreatePageQuery(request);
@@ -252,6 +251,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<GetPriceEpisodesResponse> GetPriceEpisodes(long apprenticeshipId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetPriceEpisodesResponse>($"api/apprenticeships/{apprenticeshipId}/price-episodes", null, cancellationToken);
+        }
+
+        public Task<GetApprenticeshipUpdatesResponse> GetApprenticeshipUpdates(long apprenticeshipId, GetApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default)
+        {
+            var statusQueryParameter = string.Empty;
+            if (request.Status.HasValue)
+            {
+                statusQueryParameter = $"?status={request.Status}";
+            }
+            return _client.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{apprenticeshipId}/updates{statusQueryParameter}", null, cancellationToken);
         }
     }
 }
