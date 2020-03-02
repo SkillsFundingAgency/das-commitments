@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SFA.DAS.Authentication.Extensions.Legacy;
 using SFA.DAS.Http;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Reservations.Api.Types;
