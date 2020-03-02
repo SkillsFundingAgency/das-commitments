@@ -114,6 +114,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.ReverseSort = false;
             searchParameters.PageNumber = 0;
             searchParameters.PageItemCount = 0;
+            searchParameters.EmployerAccountId = null;
+
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
             var apprenticeships = new List<Apprenticeship>
@@ -414,6 +416,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.PageItemCount = 0;
             searchParameters.ReverseSort = false;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
+            
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -424,8 +427,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
+                    ProviderRef = "ABC",
+                    Cohort = new Cohort(),
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
                     {
@@ -443,8 +446,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
+                    ProviderRef = "ABC",
+                    Cohort = new Cohort(),
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -455,8 +458,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     Uln = "XX",
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
-                    ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
+                    ProviderRef = "ABC",
+                    Cohort = new Cohort(),
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
                     {

@@ -113,7 +113,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             foreach (var apprenticeship in apprenticeships)
             {
                 apprenticeship.Cohort.ProviderId = providerId;
-
+                apprenticeship.Cohort.Provider = new Provider
+                {
+                    UkPrn = providerId.GetValueOrDefault(),
+                    Name = "Test Provider",
+                    Created = DateTime.Now
+                };
             }
         }
 
