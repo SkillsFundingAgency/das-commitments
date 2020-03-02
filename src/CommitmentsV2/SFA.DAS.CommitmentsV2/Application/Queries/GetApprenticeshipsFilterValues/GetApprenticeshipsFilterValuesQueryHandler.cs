@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             }
             else
             {
-                queryResult.CourseNames = stringDbTasks[0].Result;
+                queryResult.CourseNames = stringDbTasks[1].Result;
             }
 
             await _cacheStorageService.SaveToCache(cacheKey, queryResult, 1);
