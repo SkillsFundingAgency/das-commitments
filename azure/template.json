@@ -14,6 +14,12 @@
         "resourceEnvironmentName": {
             "type": "string"
         },
+        "sharedServiceBusName": {
+            "type": "string"
+        },
+        "sharedResourceGroupName": {
+            "type": "string"
+        },
         "sharedBackEndAppServicePlan": {
             "type": "string"
         },
@@ -28,9 +34,6 @@
         "aspSku": {
             "type": "string",
             "defaultValue": "Basic"
-        },
-        "sharedBackEndAppServicePlanResourceGroupName": {
-            "type": "string"
         },
         "loggingRedisConnectionString": {
             "type": "securestring"
@@ -227,7 +230,7 @@
             "condition": "[greater(length(parameters('apiCustomHostName')), 0)]",
             "apiVersion": "2017-05-10",
             "name": "api-app-service-certificate",
-            "resourceGroup": "[parameters('sharedBackEndAppServicePlanResourceGroupName')]",
+            "resourceGroup": "[parameters('sharedResourceGroupName')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
@@ -246,7 +249,7 @@
                         "value": "[parameters('keyVaultResourceGroup')]"
                     },
                     "serverFarmId": {
-                        "value": "[resourceId(parameters('sharedBackEndAppServicePlanResourceGroupName'), 'Microsoft.Web/serverfarms', parameters('sharedBackEndAppServicePlan'))]"
+                        "value": "[resourceId(parameters('sharedResourceGroupName'), 'Microsoft.Web/serverfarms', parameters('sharedBackEndAppServicePlan'))]"
                     }
                 }
             }
@@ -269,7 +272,7 @@
                         "value": "[parameters('sharedBackEndAppServicePlan')]"
                     },
                     "appServicePlanResourceGroup": {
-                        "value": "[parameters('sharedBackEndAppServicePlanResourceGroupName')]"
+                        "value": "[parameters('sharedResourceGroupName')]"
                     },
                     "deployStagingSlot": {
                         "value": true
@@ -321,6 +324,34 @@
                 "api-app-insights",
                 "api-app-service-certificate"
             ]
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[concat('role-assignments-', copyIndex())]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('sharedResourceGroupName')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'role-assignment.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "principalId": {
+                        "value": "[createArray(reference('api-app-service').outputs.managedServiceIdentityId.value, reference('api-app-service').outputs.stagingManagedServiceIdentityId.value, reference('worker-app-service').outputs.managedServiceIdentityId.value)[copyIndex()]]"
+                    },
+                    "assignmentType": {
+                        "value": "ServiceBusOwner"
+                    },
+                    "resourceName": {
+                        "value": "[parameters('sharedServiceBusName')]"
+                    }
+                }
+            },
+            "copy": {
+                "name": "role-assignments",
+                "count": 3
+            }
         }
     ],
     "outputs": {
