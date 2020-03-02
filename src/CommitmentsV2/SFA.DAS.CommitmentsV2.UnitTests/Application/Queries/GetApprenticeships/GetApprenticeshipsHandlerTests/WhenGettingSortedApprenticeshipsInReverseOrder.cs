@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                         {
                             IsResolved = false,
                             Status = Status.Fail,
-                            EventStatus = 2
+                            EventStatus = EventStatus.Updated
                         }
                     },
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
