@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -19,29 +20,33 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
 
         public async Task<GetApprenticeshipUpdateQueryResult> Handle(GetApprenticeshipUpdateQuery request, CancellationToken cancellationToken)
         {
-            var update = await _dbContext.Value.ApprenticeshipUpdates.FirstOrDefaultAsync(
-                    x => x.ApprenticeshipId == request.ApprenticeshipId && x.Status == ApprenticeshipUpdateStatus.Pending, cancellationToken);
+            var apprenticeships = _dbContext.Value.ApprenticeshipUpdates.Where(x => x.ApprenticeshipId == request.ApprenticeshipId);
 
-            if (update != null)
+            if (request.Status.HasValue)
             {
-                return new GetApprenticeshipUpdateQueryResult
-                {
-                    Id = update.Id,
-                    ApprenticeshipId = update.ApprenticeshipId,
-                    Originator = update.Originator,
-                    FirstName = update.FirstName,
-                    LastName = update.LastName,
-                    TrainingType = update.TrainingType,
-                    TrainingCode = update.TrainingCode,
-                    TrainingName = update.TrainingName,
-                    Cost = update.Cost,
-                    StartDate = update.StartDate,
-                    EndDate = update.EndDate,
-                    DateOfBirth = update.DateOfBirth
-                };
+                apprenticeships = apprenticeships.Where(x => x.Status == request.Status);
             }
 
-            return null;
+            return new GetApprenticeshipUpdateQueryResult
+            {
+                ApprenticeshipUpdates = await apprenticeships
+                    .Select(update => new GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate
+                    {
+                        Id = update.Id,
+                        ApprenticeshipId = update.ApprenticeshipId,
+                        Originator = update.Originator,
+                        FirstName = update.FirstName,
+                        LastName = update.LastName,
+                        TrainingType = update.TrainingType,
+                        TrainingCode = update.TrainingCode,
+                        TrainingName = update.TrainingName,
+                        Cost = update.Cost,
+                        StartDate = update.StartDate,
+                        EndDate = update.EndDate,
+                        DateOfBirth = update.DateOfBirth
+                    }).ToListAsync(cancellationToken)
+            };
         }
     }
 }
+

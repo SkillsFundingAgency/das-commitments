@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using AutoFixture.Kernel;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
@@ -13,28 +16,46 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
     [TestFixture]
     public class GetApprenticeshipUpdateHandlerTests
     {
-        private GetApprenticeshipUpdateHandlerTestsFixture _fixture;
+        private GetApprenticeshipUpdateHandlerTests_fixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new GetApprenticeshipUpdateHandlerTestsFixture();
+            _fixture = new GetApprenticeshipUpdateHandlerTests_fixture();
         }
 
         [Test]
         public async Task Handle_ThenShouldReturnResultWithValues()
         {
             _fixture.SeedData();
-            await _fixture.Handle();
-            _fixture.VerifyResultMapping();
+             await _fixture.Handle();
+            _fixture.VerifyResultMapping(3);
         }
 
         [Test]
-        public async Task Handle_ThenShouldReturnResultAsNull()
+        public async Task Handle_ThenShouldReturnAnEmptyArray()
         {
             _fixture.SeedData().WithNoMatchingApprenticeshipUpdates();
             var result = await _fixture.Handle();
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.ApprenticeshipUpdates.Count);
+        }
+
+        [Test]
+        public async Task Handle_WhenStatusNotFound_ThenShouldReturnAnEmptyArray()
+        {
+            _fixture.SeedData().WithNoMatchingApprenticeshipUpdatesForStatus();
+            var result = await _fixture.Handle();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.ApprenticeshipUpdates.Count);
+        }
+
+        [Test]
+        public async Task Handle_ThenShouldReturnArrayWithMatchedStatus()
+        {
+            _fixture.SeedData().SetStatusRejectedForTheFirstApprenticeshipUpdate().WithRejectedStatus();
+            await _fixture.Handle();
+            _fixture.VerifyResultMapping(1);
         }
 
         [Test]
@@ -42,28 +63,36 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         {
             _fixture.SeedData(2);
             await _fixture.Handle();
-            _fixture.VerifyResultMapping();
+            _fixture.VerifyResultMapping(3);
         }
 
-        public class GetApprenticeshipUpdateHandlerTestsFixture
+        [Test]
+        public async Task Handle_WhenStatusNull_ThenShouldReturnArrayWithMatchedApprenticeshipId()
+        {
+            _fixture.SeedData().SetStatusRejectedForTheFirstApprenticeshipUpdate().WithNullStatus();
+            await _fixture.Handle();
+            _fixture.VerifyResultMapping(3);
+        }
+
+        public class GetApprenticeshipUpdateHandlerTests_fixture
         {
             private readonly GetApprenticeshipUpdateQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;
             private GetApprenticeshipUpdateQuery _request;
             private GetApprenticeshipUpdateQueryResult _result;
-            private readonly Fixture _autoFixture;
-            private ApprenticeshipUpdate _apprenticeshipUpdate;
+            private readonly Fixture _autofixture;
+            private List<ApprenticeshipUpdate> _apprenticeshipUpdate;
             private readonly long _apprenticeshipId;
 
-            public GetApprenticeshipUpdateHandlerTestsFixture()
+            public GetApprenticeshipUpdateHandlerTests_fixture()
             {
-                _autoFixture = new Fixture();
+                _autofixture = new Fixture();
 
                 _apprenticeshipId = 1;
-                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId);
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Pending);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).EnableSensitiveDataLogging().Options);
                 _handler = new GetApprenticeshipUpdateQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
@@ -73,32 +102,65 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
                 return _result;
             }
 
-            public GetApprenticeshipUpdateHandlerTestsFixture SeedData(short count = 1)
+            public GetApprenticeshipUpdateHandlerTests_fixture SeedData(short count = 1)
             {
-                _apprenticeshipUpdate = _autoFixture.Build<ApprenticeshipUpdate>().With(a => a.ApprenticeshipId, 1)
-                    .Without(c=>c.DataLockStatus).Without(c=>c.Apprenticeship).Create();
-                _db.ApprenticeshipUpdates.Add(_apprenticeshipUpdate);
+                _autofixture.Customizations.Add(new ApprenticeshipUpdateSpecimenBuilder());
+                _apprenticeshipUpdate = _autofixture.Create<List<ApprenticeshipUpdate>>();
+                _apprenticeshipUpdate.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.Status = Types.ApprenticeshipUpdateStatus.Pending;  z.Apprenticeship.Id = _apprenticeshipId; });
+                _db.ApprenticeshipUpdates.AddRange(_apprenticeshipUpdate);
 
-                for (short i = 2; i <= count; i++){
-                    var additionalRecord = _autoFixture.Build<ApprenticeshipUpdate>().With(a => a.ApprenticeshipId, i).Without(c => c.DataLockStatus).Without(c => c.Apprenticeship).Create();
-                    _db.ApprenticeshipUpdates.Add(additionalRecord);
-                }
+                var additionalRecord = _autofixture.Create<List<ApprenticeshipUpdate>>();
+                additionalRecord.ForEach(z => { z.ApprenticeshipId = ++count; z.Apprenticeship.Id = z.ApprenticeshipId; }) ;
+                _db.ApprenticeshipUpdates.AddRange(additionalRecord);
+
                 _db.SaveChanges();
                 return this;
             }
-            public GetApprenticeshipUpdateHandlerTestsFixture WithNoMatchingApprenticeshipUpdates()
+
+            public GetApprenticeshipUpdateHandlerTests_fixture WithNoMatchingApprenticeshipUpdates()
             {
-                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId + 100);
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId + 100, Types.ApprenticeshipUpdateStatus.Pending);
                 return this;
             }
 
-            public void VerifyResultMapping()
+            public GetApprenticeshipUpdateHandlerTests_fixture WithRejectedStatus()
             {
-                AssertEquality(_apprenticeshipUpdate, _result);
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Rejected);
+                return this;
+            }
+
+            internal GetApprenticeshipUpdateHandlerTests_fixture WithNullStatus()
+            {
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, null);
+                return this;
+            }
+
+            public GetApprenticeshipUpdateHandlerTests_fixture WithNoMatchingApprenticeshipUpdatesForStatus()
+            {
+                _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Approved);
+                return this;
+            }
+
+            public GetApprenticeshipUpdateHandlerTests_fixture SetStatusRejectedForTheFirstApprenticeshipUpdate()
+            {
+                var apprenticeship = _db.ApprenticeshipUpdates.First(x => x.ApprenticeshipId == _apprenticeshipId && x.Status == Types.ApprenticeshipUpdateStatus.Pending);
+                apprenticeship.Status = Types.ApprenticeshipUpdateStatus.Rejected;
+                _db.SaveChanges();
+                return this;
+            }
+
+            public void VerifyResultMapping(int resultCount)
+            {
+                Assert.AreEqual(resultCount, _result.ApprenticeshipUpdates.Count);
+
+                foreach (var result in _result.ApprenticeshipUpdates)
+                {
+                    AssertEquality(_apprenticeshipUpdate.Single(x => x.Id == result.Id), result);
+                }
             }
         }
 
-        private static void AssertEquality(ApprenticeshipUpdate source, GetApprenticeshipUpdateQueryResult result)
+        private static void AssertEquality(ApprenticeshipUpdate source, GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate result)
         {
             Assert.AreEqual(source.Id, result.Id);
 
@@ -113,6 +175,39 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             Assert.AreEqual(source.StartDate, result.StartDate);
             Assert.AreEqual(source.EndDate, result.EndDate);
             Assert.AreEqual(source.DateOfBirth, result.DateOfBirth);
+        }
+    }
+
+    public class ApprenticeshipUpdateSpecimenBuilder :
+    ISpecimenBuilder
+    {
+        public object Create(object request,
+            ISpecimenContext context)
+        {
+            var pi = request as Type;
+            
+            if (pi == null)
+            {
+                return new NoSpecimen();
+            }
+            if (pi == typeof(ApprenticeshipBase)
+                || pi.Name == "Apprenticeship")
+            {
+                return new Apprenticeship();
+            }
+
+            if (IsListOrCollection(pi) && pi.GetGenericArguments().Single() == typeof(DataLockStatus)
+               || pi.Name == "DataLockStatus")
+            {
+                return new List<DataLockStatus>();
+            }
+
+            return new NoSpecimen();
+        }
+
+        private bool IsListOrCollection(Type type)
+        {
+            return (type != typeof(string) && ((type.GetInterface(nameof(System.Collections.IEnumerable)) != null) || (type.GetInterface(nameof(System.Collections.ICollection)) != null)));
         }
     }
 }
