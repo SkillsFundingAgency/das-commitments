@@ -474,18 +474,54 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             result.EndDates.Should().BeEquivalentTo(expectedEndDates);
         }
 
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_Ordered_LegalEntityNames(
+            GetApprenticeshipsFilterValuesQuery query,
+            List<Apprenticeship> apprenticeships,
+            [Frozen] Mock<ICacheStorageService> cacheStorageService,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            GetApprenticeshipsFilterValuesQueryHandler handler)
+        {
+            query.EmployerAccountId = null;
+            SetupEmptyCache(query, cacheStorageService);
+            SetProviderIdOnApprenticeship(apprenticeships, query.ProviderId ?? 0);
+
+            apprenticeships[0].Cohort.AccountLegalEntity = CreateAccountLegalEntity("B");
+            apprenticeships[1].Cohort.AccountLegalEntity = CreateAccountLegalEntity("C");
+            apprenticeships[2].Cohort.AccountLegalEntity = CreateAccountLegalEntity("A");
+
+            var expectedEmployerNames = new[]
+            {
+                "A",
+                "B",
+                "C"
+            };
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.EmployerNames.Should().BeEquivalentTo(expectedEmployerNames);
+        }
+
         private void SetProviderIdOnApprenticeship(IList<CommitmentsV2.Models.Apprenticeship> apprenticeships,long? providerId)
         {
-            apprenticeships[0].Cohort.ProviderId = providerId;
-            apprenticeships[1].Cohort.ProviderId = providerId;
-            apprenticeships[2].Cohort.ProviderId = providerId;
+            var providerIdValue = providerId.GetValueOrDefault();
+
+            apprenticeships[0].Cohort.ProviderId = providerIdValue;
+            apprenticeships[1].Cohort.ProviderId = providerIdValue;
+            apprenticeships[2].Cohort.ProviderId = providerIdValue;
         }
 
         private void SetEmployerIdOnApprenticeship(IList<CommitmentsV2.Models.Apprenticeship> apprenticeships, long? employerAccountId)
         {
-            apprenticeships[0].Cohort.EmployerAccountId = employerAccountId.GetValueOrDefault();
-            apprenticeships[1].Cohort.EmployerAccountId = employerAccountId.GetValueOrDefault();
-            apprenticeships[2].Cohort.EmployerAccountId = employerAccountId.GetValueOrDefault();
+            var employerIdValue = employerAccountId.GetValueOrDefault();
+
+            apprenticeships[0].Cohort.EmployerAccountId = employerIdValue;
+            apprenticeships[1].Cohort.EmployerAccountId = employerIdValue;
+            apprenticeships[2].Cohort.EmployerAccountId = employerIdValue;
         }
 
         private static void SetupEmptyCache(GetApprenticeshipsFilterValuesQuery query, Mock<ICacheStorageService> cacheStorageService)

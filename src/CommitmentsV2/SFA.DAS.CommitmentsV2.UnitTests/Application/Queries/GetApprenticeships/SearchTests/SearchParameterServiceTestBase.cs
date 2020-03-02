@@ -107,12 +107,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
         }
 
-        protected static void AssignProviderToApprenticeships(long providerId, IEnumerable<Apprenticeship> apprenticeships)
+        protected static void AssignProviderToApprenticeships(long? providerId, IEnumerable<Apprenticeship> apprenticeships)
         {
 
             foreach (var apprenticeship in apprenticeships)
             {
-                apprenticeship.Cohort.ProviderId = providerId;
+                apprenticeship.Cohort.ProviderId = providerId.GetValueOrDefault();
                 apprenticeship.Cohort.Provider = new Provider
                 {
                     UkPrn = providerId.GetValueOrDefault(),
@@ -122,11 +122,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             }
         }
 
-        protected static void AssignEmployerToApprenticeships(long employerAccountId, IEnumerable<Apprenticeship> apprenticeships)
+        protected static void AssignEmployerToApprenticeships(long? employerAccountId, IEnumerable<Apprenticeship> apprenticeships)
         {
             foreach (var apprenticeship in apprenticeships)
             {
-                apprenticeship.Cohort.EmployerAccountId = employerAccountId;
+                apprenticeship.Cohort.EmployerAccountId = employerAccountId.GetValueOrDefault();
             }
         }
         protected static AccountLegalEntity CreateAccountLegalEntity(string name)
