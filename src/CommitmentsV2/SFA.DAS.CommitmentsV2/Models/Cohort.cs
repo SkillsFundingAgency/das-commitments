@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships = new HashSet<ApprenticeshipBase>();
             Messages = new HashSet<Message>();
             TransferRequests = new HashSet<TransferRequest>();
+            LastUpdatedOn = DateTime.UtcNow;
         }
 
         private Cohort(Provider provider,
@@ -48,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Reference = "";
             Originator = originatingParty.ToOriginator();
             UpdatedBy(originatingParty, userInfo);
+            LastUpdatedOn = DateTime.UtcNow;
             CommitmentStatus = CommitmentStatus.New;
             CreatedOn = DateTime.UtcNow;
             LastAction = LastAction.None;
@@ -152,6 +154,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool IsDeleted { get; set; }
         public bool IsDraft { get; set; }
 
+        public byte[] RowVersion { get; set; }
+        public DateTime LastUpdatedOn { get; set; }
+
         public virtual ICollection<ApprenticeshipBase> Apprenticeships { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
         public virtual ICollection<TransferRequest> TransferRequests { get; set; }
@@ -182,6 +187,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships.Add(draftApprenticeship);
             ResetApprovals();
             UpdatedBy(creator, userInfo);
+            LastUpdatedOn = DateTime.UtcNow;
 
             ChangeTrackingSession.TrackInsert(draftApprenticeship);
             ChangeTrackingSession.CompleteTrackingSession();
@@ -218,6 +224,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     DraftApprenticeships.ForEach(a => a.Approve(modifyingParty, now));
                     AddMessage(message, modifyingParty, userInfo);
                     UpdatedBy(modifyingParty, userInfo);
+                    LastUpdatedOn = DateTime.UtcNow;
 
                     switch (WithParty)
                     {
@@ -272,6 +279,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferApprovalStatus = null;
             AddMessage(message, modifyingParty, userInfo);
             UpdatedBy(modifyingParty, userInfo);
+            LastUpdatedOn = DateTime.UtcNow;
 
             switch (EditStatus)
             {
@@ -317,6 +325,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             UpdatedBy(modifyingParty, userInfo);
+            LastUpdatedOn = DateTime.UtcNow;
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
             ChangeTrackingSession.CompleteTrackingSession();
         }
@@ -341,7 +350,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             StartTrackingSession(UserAction.DeleteCohort, modifyingParty, EmployerAccountId, ProviderId.Value, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
-            
+            LastUpdatedOn = DateTime.UtcNow;
+
             MarkAsDeletedAndEmitCohortDeletedEvent();
 
             foreach (var draftApprenticeship in DraftApprenticeships.ToArray())
@@ -363,6 +373,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             RemoveDraftApprenticeship(draftApprenticeship);
 
+            LastUpdatedOn = DateTime.UtcNow;
             ResetApprovals();
             ResetTransferSenderRejection();
 
@@ -377,6 +388,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 		private void RemoveDraftApprenticeship(DraftApprenticeship draftApprenticeship)
         {
             ChangeTrackingSession.TrackDelete(draftApprenticeship);
+            LastUpdatedOn = DateTime.UtcNow;
             Apprenticeships.Remove(draftApprenticeship);
             Publish(() => new DraftApprenticeshipDeletedEvent
             {
@@ -662,6 +674,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(this);
             EditStatus = EditStatus.EmployerOnly;
             WithParty = Party.Employer;
+            LastUpdatedOn = DateTime.UtcNow;
             ChangeTrackingSession.CompleteTrackingSession();
         }
     }

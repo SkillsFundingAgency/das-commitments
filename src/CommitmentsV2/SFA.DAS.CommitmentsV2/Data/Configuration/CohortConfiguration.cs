@@ -10,6 +10,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         {
             builder.ToTable("Commitment");
 
+            builder.Property(p => p.RowVersion).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+            
             builder.HasQueryFilter(x => EF.Property<bool>(x, "IsDeleted") == false);
 
             builder.Property(e => e.AccountLegalEntityPublicHashedId)
