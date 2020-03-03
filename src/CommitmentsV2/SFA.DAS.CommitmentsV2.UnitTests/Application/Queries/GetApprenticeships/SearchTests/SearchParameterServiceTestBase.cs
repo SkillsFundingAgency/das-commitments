@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New} }
                 },
                 new Apprenticeship
                 {
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New} }
                 },
                 new Apprenticeship
                 {
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     EmployerRef = searchParameters.EmployerAccountId.ToString(),
                     Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1} }
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New} }
                 },
                 new Apprenticeship
                 {
