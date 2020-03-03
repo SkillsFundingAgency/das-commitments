@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                         {
                             IsResolved = false,
                             Status = Status.Fail,
-                            EventStatus = 1
+                            EventStatus = EventStatus.New
                         }
                     }
                 },
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                         {
                             IsResolved = true,
                             Status = Status.Fail,
-                            EventStatus = 1
+                            EventStatus = EventStatus.New
                         }
                     }
                 },
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                         {
                             IsResolved = false,
                             Status = Status.Pass,
-                            EventStatus = 1
+                            EventStatus = EventStatus.New
                         }
                     }
                 },
@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                         {
                             IsResolved = false,
                             Status = Status.Fail,
-                            EventStatus = 3
+                            EventStatus = EventStatus.Removed
                         }
                     }
                 },
