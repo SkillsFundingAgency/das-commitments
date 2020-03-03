@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Http;
+using SFA.DAS.Http.Configuration;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 
 namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
@@ -8,7 +9,7 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
     ///     to an IAzureADClientConfiguration, which has been removed from newer versions of the
     ///     SFA.DAS.Http package.
     /// </summary>
-    public class ReservationsClientApiConfigurationADAdapter : IAzureADClientConfiguration
+    public class ReservationsClientApiConfigurationADAdapter : IAzureActiveDirectoryClientConfiguration
     {
         private readonly ReservationsClientApiConfiguration _config;
 
@@ -21,5 +22,7 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
         public string ClientId => _config.ClientId;
         public string ClientSecret => _config.ClientSecret;
         public string IdentifierUri => _config.IdentifierUri;
+
+        public string ApiBaseUrl => _config.ApiBaseUrl;
     }
 }

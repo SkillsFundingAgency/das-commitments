@@ -262,5 +262,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             }
             return _client.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{apprenticeshipId}/updates{statusQueryParameter}", null, cancellationToken);
         }
+
+        public Task<GetDataLocksResponse> GetApprenticeshipDatalocksStatus(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetDataLocksResponse>($"api/apprenticeships/{apprenticeshipId}/datalocks", null, cancellationToken);
+        }
     }
 }
