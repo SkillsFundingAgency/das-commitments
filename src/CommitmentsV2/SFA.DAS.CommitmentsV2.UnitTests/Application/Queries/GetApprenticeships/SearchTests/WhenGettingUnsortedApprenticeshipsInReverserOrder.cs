@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     ProviderRef = searchParameters.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "XX", AccountLegalEntity = CreateAccountLegalEntity("test")},
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
-                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = 1}}
+                    DataLockStatus = new List<DataLockStatus>{new DataLockStatus { IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New}}
 
                 },
                 new Apprenticeship
