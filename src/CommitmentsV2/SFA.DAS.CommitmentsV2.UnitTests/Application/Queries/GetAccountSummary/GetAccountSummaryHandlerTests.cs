@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
             var response = await fixture.GetResponse();
 
-            Assert.AreEqual(expectedHasCohorts, response.HasCohorts);
+            Assert.AreEqual(expectedHasCohorts, response.HasCohorts, $"Number of Cohorts = {cohorts}");
         }
 
         [TestCase(0, false)]
