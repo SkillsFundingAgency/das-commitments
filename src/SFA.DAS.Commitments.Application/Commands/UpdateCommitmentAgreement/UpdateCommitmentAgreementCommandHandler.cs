@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
@@ -8,21 +6,14 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Messaging.Interfaces;
-using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
-using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
-using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 {
@@ -91,115 +82,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             CheckEditStatus(command, commitment);
             CheckAuthorization(command, commitment);
         }
-
-        private static bool ApprovedCommitmentIsBeingReturnedToProvider(UpdateCommitmentAgreementCommand command, bool providerHasPreviouslyApprovedCommitment)
-        {
-            return providerHasPreviouslyApprovedCommitment && command.LatestAction == LastAction.Amend && command.Caller.CallerType == CallerType.Employer;
-        }
-
-        private async Task PublishEventsForUpdatedApprenticeships(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
-        {
-            CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
-            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
-        }
-
-        private async Task CreateCommitmentMessage(UpdateCommitmentAgreementCommand command, Commitment commitment)
-        {
-            var cohortStatusChangeService = new CohortStatusChangeService(_commitmentRepository);
-            await cohortStatusChangeService.AddMessageToCommitment(commitment, command.LastUpdatedByName, command.Message, command.Caller.CallerType);
-        }
-
-        private async Task UpdateCommitmentStatuses(UpdateCommitmentAgreementCommand command, Commitment updatedCommitment, bool areAnyApprenticeshipsPendingAgreement, LastAction latestAction)
-        {
-            var updatedEditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement,
-                updatedCommitment.Apprenticeships.Count, latestAction);
-            var changeType = DetermineHistoryChangeType();
-            var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(updatedCommitment, changeType.ToString(), updatedCommitment.Id, null, command.Caller.CallerType, command.UserId, updatedCommitment.ProviderId, updatedCommitment.EmployerAccountId, command.LastUpdatedByName);
-
-            updatedCommitment.EditStatus = updatedEditStatus;
-            updatedCommitment.CommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
-            updatedCommitment.LastAction = latestAction;
-            updatedCommitment.TransferApprovalStatus = null;
-
-            SetLastUpdatedDetails(command, updatedCommitment);
-            await _commitmentRepository.UpdateCommitment(updatedCommitment);
-            await historyService.Save();
-        }
-
-        private CommitmentChangeType DetermineHistoryChangeType()
-        {
-            var changeType = CommitmentChangeType.SentForReview;
-            return changeType;
-        }
-
-        private static void SetLastUpdatedDetails(UpdateCommitmentAgreementCommand command, Commitment updatedCommitment)
-        {
-            if (command.Caller.CallerType == CallerType.Employer)
-            {
-                updatedCommitment.LastUpdatedByEmployerEmail = command.LastUpdatedByEmail;
-                updatedCommitment.LastUpdatedByEmployerName = command.LastUpdatedByName;
-            }
-            else
-            {
-                updatedCommitment.LastUpdatedByProviderEmail = command.LastUpdatedByEmail;
-                updatedCommitment.LastUpdatedByProviderName = command.LastUpdatedByName;
-            }
-        }
-
-        private async Task<IList<Apprenticeship>> UpdateApprenticeshipAgreementStatuses(UpdateCommitmentAgreementCommand command, Commitment commitment, LastAction latestAction)
-        {
-            var updatedApprenticeships = new List<Apprenticeship>();
-            foreach (var apprenticeship in commitment.Apprenticeships)
-            {
-                //todo: extract status stuff outside loop and set all apprenticeships to same agreement status?
-                var hasChanged = UpdateApprenticeshipStatuses(command, latestAction, apprenticeship);
-
-                if (hasChanged)
-                {
-                    updatedApprenticeships.Add(apprenticeship);
-                }
-            }
-
-            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(updatedApprenticeships);
-
-            return updatedApprenticeships;
-        }
-
-        private void CreateEventsForUpdatedApprenticeships(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
-        {
-            Parallel.ForEach(updatedApprenticeships, apprenticeship =>
-            {
-                AddApprenticeshipUpdatedEvent(commitment, apprenticeship);
-            });
-        }
-
-        private bool UpdateApprenticeshipStatuses(UpdateCommitmentAgreementCommand command, LastAction latestAction, Apprenticeship apprenticeship)
-        {
-            bool hasChanged = false;
-
-            var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, latestAction);
-            var newApprenticeshipPaymentStatus = PaymentStatus.PendingApproval;
-
-            if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
-            {
-                apprenticeship.AgreementStatus = newApprenticeshipAgreementStatus;
-                hasChanged = true;
-            }
-
-            if (apprenticeship.PaymentStatus != newApprenticeshipPaymentStatus)
-            {
-                apprenticeship.PaymentStatus = newApprenticeshipPaymentStatus;
-                hasChanged = true;
-            }
-            return hasChanged;
-        }
-
-        private void AddApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship)
-        {
-            _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
-        }
-
+        
         private void LogMessage(UpdateCommitmentAgreementCommand command)
         {
             string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called UpdateCommitmentAgreement for commitment {command.CommitmentId} with agreement status: {command.LatestAction}";

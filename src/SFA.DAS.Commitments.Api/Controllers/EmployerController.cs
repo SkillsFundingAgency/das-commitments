@@ -130,11 +130,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Route("{accountId}/commitments/{commitmentId}/approve")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
         [HttpPatch]
-        public async Task<IHttpActionResult> ApproveCohort(long accountId, long commitmentId, [FromBody] CommitmentSubmission values)
+        public IHttpActionResult ApproveCohort(long accountId, long commitmentId, [FromBody] CommitmentSubmission values)
         {
-            await _employerOrchestrator.ApproveCohort(accountId, commitmentId, values);
-
-            return StatusCode(HttpStatusCode.NoContent);
+            throw new InvalidOperationException();
         }
 
         [Route("{accountId}/commitments/{commitmentId}")]

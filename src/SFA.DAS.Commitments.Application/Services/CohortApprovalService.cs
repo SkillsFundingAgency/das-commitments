@@ -55,29 +55,6 @@ namespace SFA.DAS.Commitments.Application.Services
                 logger, v2EventsPublisher);
         }
 
-        internal void CheckCommitmentStatus(Commitment commitment)
-        {
-            if (commitment.CommitmentStatus == CommitmentStatus.Deleted)
-            {
-                throw new InvalidOperationException($"Commitment {commitment.Id} cannot be updated because status is {commitment.CommitmentStatus}");
-            }
-        }
-
-        internal async Task CheckOverlaps(Commitment commitment)
-        {
-            if (await _overlappingApprenticeshipService.CommitmentHasOverlappingApprenticeships(commitment))
-            {
-                throw new ValidationException("Unable to approve commitment with overlapping apprenticeships");
-            }
-        }
-
-        internal AgreementStatus GetCurrentAgreementStatus(Commitment commitment)
-        {
-            // Comment 1: This assumes, correctly, that during approval all apprenticeships have the same status.
-            // Comment 2: I hate comments.
-            return commitment.Apprenticeships.First().AgreementStatus;
-        }
-
         internal async Task UpdateApprenticeships(Commitment commitment, bool haveBothPartiesApproved, AgreementStatus newAgreementStatus)
         {
             var newPaymentStatus = DetermineNewPaymentStatus(commitment, haveBothPartiesApproved);
@@ -88,56 +65,6 @@ namespace SFA.DAS.Commitments.Application.Services
             if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned) await CreatePriceHistory(commitment);
         }
 
-        internal async Task UpdateApprenticeshipsPaymentStatusToPaid(Commitment commitment)
-        {
-            commitment.Apprenticeships.ForEach(x =>
-            {
-                x.PaymentStatus = PaymentStatus.Active;
-            });
-            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
-        }
-
-        internal async Task ResetApprenticeshipsAgreementStatuses(Commitment commitment)
-        {
-            commitment.Apprenticeships.ForEach(x =>
-            {
-                x.AgreementStatus = AgreementStatus.NotAgreed;
-            });
-            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
-        }
-
-        internal async Task AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText, CallerType createdBy)
-        {
-            var cohortStatusChangeService = new CohortStatusChangeService(_commitmentRepository);
-            await cohortStatusChangeService.AddMessageToCommitment(commitment, lastUpdatedByName, messageText, createdBy);
-        }
-
-        internal CommitmentChangeType DetermineHistoryChangeType(bool haveBothPartiesApproved)
-        {
-            return haveBothPartiesApproved ? CommitmentChangeType.FinalApproval : CommitmentChangeType.SentForApproval;
-        }
-
-        internal async Task PublishApprenticeshipEvents(Commitment commitment, bool haveBothPartiesApproved)
-        {
-            if (!haveBothPartiesApproved || commitment.HasTransferSenderAssigned)
-            {
-                await _apprenticeshipEventsService.PublishApprenticeshipAgreementUpdatedEvents(commitment);
-            }
-            else
-            {
-                await _apprenticeshipEventsService.PublishApprenticeshipFinalApprovalEvents(commitment);
-            }
-        }
-
-        internal async Task PublishApprenticeshipEventsWhenTransferSenderHasApproved(Commitment commitment)
-        {
-            await _apprenticeshipEventsService.PublishApprenticeshipFinalApprovalEvents(commitment);
-        }
-
-        internal async Task ReorderPayments(long employerAccountId)
-        {
-            await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = employerAccountId });
-        }
 
         //not sure why we can't dependency inject the message publisher
         internal async Task CreateTransferRequest(Commitment commitment, IMessagePublisher messagePublisher)

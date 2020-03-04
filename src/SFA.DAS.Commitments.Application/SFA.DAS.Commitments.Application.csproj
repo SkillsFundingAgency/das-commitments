@@ -283,9 +283,6 @@
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommand.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipValidator.cs" />
-    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommand.cs" />
-    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommandHandler.cs" />
-    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommandValidator.cs" />
     <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommand.cs" />
     <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommandHandler.cs" />
     <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommandValidator.cs" />

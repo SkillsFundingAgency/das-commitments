@@ -33,17 +33,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _currentDateTime = currentDateTime;
         }
 
-        public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
-        {
-            _logger.Debug($"Creating apprenticeship - {apprenticeship.FirstName} {apprenticeship.LastName}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId);
-
-            return await WithTransaction(async (connection, trans)=>
-                {
-                    var apprenticeshipId = await _apprenticeshipTransactions.CreateApprenticeship(connection, trans, apprenticeship);
-                    return apprenticeshipId;
-                });
-        }
-
         public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeship.Id}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId, apprenticeshipId: apprenticeship.Id);
@@ -163,35 +152,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, AgreementStatus agreementStatus)
-        {
-            _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} agreement status to {agreementStatus}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
-            await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@id", apprenticeshipId, DbType.Int64);
-                parameters.Add("@agreementStatus", agreementStatus, DbType.Int16);
-                parameters.Add("@agreedOn", _currentDateTime.Now, DbType.DateTime);
-
-                var returnCode = await connection.ExecuteAsync(
-                    "UPDATE [dbo].[Apprenticeship] SET AgreementStatus = @agreementStatus " +
-                    "WHERE Id = @id;",
-                    parameters,
-                    commandType: CommandType.Text);
-
-                if (agreementStatus == AgreementStatus.BothAgreed)
-                {
-                    returnCode = await connection.ExecuteAsync(
-                        "UPDATE [dbo].[Apprenticeship] SET AgreedOn = @agreedOn " +
-                        "WHERE Id = @id AND AgreedOn IS NULL;",
-                        parameters,
-                        commandType: CommandType.Text);
-                }
-
-                return returnCode;
-            });
-        }
 
         public async Task UpdateApprenticeshipStopDate(long commitmentId, long apprenticeshipId, DateTime stopDate)
         {

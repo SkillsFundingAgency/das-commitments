@@ -7,8 +7,6 @@ namespace SFA.DAS.Commitments.Domain.Data
 {
     public interface IApprenticeshipRepository
     {
-        Task<long> CreateApprenticeship(Apprenticeship apprenticeship);
-
         Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller);
 
         Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange);
@@ -20,8 +18,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task UpdateApprenticeshipEpa(long apprenticeshipId, string epaOrgId);
 
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
-
-        Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, AgreementStatus agreementStatus);
 
         Task UpdateApprenticeshipStatuses(List<Apprenticeship> apprenticeships);
 
