@@ -113,8 +113,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortIsUnapproved()
         {
-            //approval is the aggregate of contained apprenticeship approvals, currently :-(
-            Assert.IsTrue(Cohort.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
+            Assert.IsTrue(Cohort.Approvals == Party.None);
         }
 
         public void VerifyCohortContainsDraftApprenticeship()

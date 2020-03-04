@@ -110,7 +110,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                         Id = i,
                         FirstName = _autoFixture.Create<string>(),
                         LastName = _autoFixture.Create<string>(),
-                        AgreementStatus = AgreementStatus.NotAgreed,
                         Cost = _autoFixture.Create<int>(),
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
@@ -159,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyCohortIsUnapproved()
             {
-                Assert.IsTrue(Cohort.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
+                Assert.AreEqual(Party.None,Cohort.Approvals);
             }
 
             public void VerifyCohortIsApprovedByOtherParty()

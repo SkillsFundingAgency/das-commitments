@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         [Test]
         public void ThenEmployerUlnUpdateIsNotAllowed()
         {
-            Assert.Throws<DomainException>(() => _fixture.WithModifyingParty(Party.Employer).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate());
+            Assert.Throws<DomainException>(() => _fixture.WithModifyingParty(Party.Employer).WithUlnUpdateOnly().ApplyUpdate());
         }
 
         [TestCase(Party.Provider)]
@@ -123,21 +123,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
 
         }
 
-        [Test]
-        public void ThenPriorApprovalByEmployerIsNotResetByUlnUpdate()
-        {
-            var result = _fixture.WithModifyingParty(Party.Provider).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate();
-            Assert.AreNotEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
-        }
-
-        [TestCase(Party.Provider)]
-        [TestCase(Party.Employer)]
-        public void ThenPriorApprovalByOtherPartyIsNotResetByReferenceUpdate(Party modifyingParty)
-        {
-            var result = _fixture.WithModifyingParty(modifyingParty).WithPriorApprovalByOtherParty().WithReferenceUpdateOnly().ApplyUpdate();
-            Assert.AreNotEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
-        }
-
         private class DraftApprenticeshipUpdateTestFixture
         {
             private readonly Fixture _autoFixture;
@@ -177,23 +162,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             public DraftApprenticeshipUpdateTestFixture WithModifyingParty(Party party)
             {
                 _modifyingParty = party;
-                return this;
-            }
-
-            public DraftApprenticeshipUpdateTestFixture WithPriorApprovalByOtherParty()
-            {
-                switch (_modifyingParty.GetOtherParty())
-                {
-                    case Party.Employer:
-                        _draftApprenticeship.AgreementStatus = AgreementStatus.EmployerAgreed;
-                        break;
-                    case Party.Provider:
-                        _draftApprenticeship.AgreementStatus = AgreementStatus.ProviderAgreed;
-                        break;
-                    default:
-                        break;
-                }
-
                 return this;
             }
 

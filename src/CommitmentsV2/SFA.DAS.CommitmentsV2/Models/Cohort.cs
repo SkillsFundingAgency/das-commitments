@@ -201,7 +201,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
-            CheckHasDraftApprenticeships();
+            CheckIsCompleteForParty(modifyingParty);
 
             StartTrackingSession(UserAction.ApproveCohort, modifyingParty, EmployerAccountId, ProviderId.Value, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
@@ -212,7 +212,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 case Party.Provider:
                 {
                     var otherParty = modifyingParty.GetOtherParty();
-                    var isApprovedByOtherParty = IsApprovedByParty(otherParty);
+                    var isApprovedByOtherParty = Approvals.HasFlag(otherParty);
 
                     IsDraft = false;
                     EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
@@ -222,7 +222,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     LastAction = LastAction.Approve;
                     CommitmentStatus = CommitmentStatus.Active;
                     TransferApprovalStatus = null;
-                    DraftApprenticeships.ForEach(a => a.Approve(modifyingParty, now));
+                    Approvals |= modifyingParty;
                     AddMessage(message, modifyingParty, userInfo);
                     UpdatedBy(modifyingParty, userInfo);
                     LastUpdatedOn = DateTime.UtcNow;
@@ -251,7 +251,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new ArgumentOutOfRangeException(nameof(modifyingParty));
             }
 
-            if (IsApprovedByParty(Party.Provider) && modifyingParty == Party.Employer)
+            if (Approvals.HasFlag(Party.Provider) && modifyingParty == Party.Employer)
             {
                 Publish(() => new CohortApprovedByEmployerEvent(Id, now));
             }
@@ -294,7 +294,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new ArgumentOutOfRangeException(nameof(EditStatus));
             }
             
-            if (IsApprovedByParty(Party.Provider))
+            if (Approvals.HasFlag(Party.Provider))
             {
                 Publish(() => new ApprovedCohortReturnedToProviderEvent(Id, now));
             }
@@ -552,19 +552,27 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckHasDraftApprenticeships()
-        {
-            if (!DraftApprenticeships.Any())
-            {
-                throw new DomainException(nameof(Apprenticeships), $"Cohort must have at least one draft apprenticeship");
-            }
-        }
-
         private void CheckIsWithParty(Party party)
         {
             if (party != WithParty)
             {
                 throw new DomainException(nameof(WithParty), $"Cohort must be with the party; {party} is not valid");
+            }
+        }
+
+        private void CheckIsCompleteForParty(Party party)
+        {
+            if (!DraftApprenticeships.Any())
+            {
+                throw new DomainException(nameof(Apprenticeships), $"Cohort must have at least one draft apprenticeship");
+            }
+
+            if (party == Party.Employer || party == Party.Provider)
+            {
+                if (DraftApprenticeships.Any(x => !x.IsCompleteForParty(party)))
+                {
+                    throw new DomainException(nameof(DraftApprenticeships), $"Cohort must be complete for {party}");
+                }
             }
         }
 
@@ -597,24 +605,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (draftApprenticeshipDetails == null)
             {
                 throw new DomainException(nameof(draftApprenticeshipDetails), "DraftApprenticeshipDetails must be supplied");
-            }
-        }
-
-        private bool IsApprovedByParty(Party party)
-        {
-            switch (party)
-            {
-                case Party.Employer:
-                    return Apprenticeships.Count > 0 &&
-                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed || a.AgreementStatus == AgreementStatus.BothAgreed);
-                case Party.Provider:
-                    return Apprenticeships.Count > 0 &&
-                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed || a.AgreementStatus == AgreementStatus.BothAgreed);
-                case Party.TransferSender:
-                    return TransferSenderId != null &&
-                           TransferApprovalStatus == Types.TransferApprovalStatus.Approved;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(party));
             }
         }
 

@@ -120,15 +120,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public WhenDeletingDraftApprenticeshipFixture WithApprovalOfOtherParty()
             {
-                var otherParty = Cohort.WithParty.GetOtherParty();
-                
-                foreach (var apprenticeship in Cohort.DraftApprenticeships)
-                {
-                    apprenticeship.AgreementStatus = otherParty == Party.Employer
-                        ? AgreementStatus.EmployerAgreed
-                        : AgreementStatus.ProviderAgreed;
-                }
-
+                Cohort.Approvals = Cohort.WithParty.GetOtherParty();
                 return this;
             }
 

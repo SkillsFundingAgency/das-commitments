@@ -8,6 +8,17 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
     {
+        public bool IsCompleteForParty(Party party)
+        {
+            switch (party)
+            {
+                case Party.Employer: return IsCompleteForEmployer;
+                case Party.Provider: return IsCompleteForProvider;
+                default:
+                    throw new InvalidOperationException($"Cannot determine completeness for Party {party}");
+            }
+        }
+
         private bool IsCompleteForEmployer => 
             FirstName != null &&
             LastName != null &&
@@ -37,38 +48,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             Merge(source, modifyingParty);
 
             ReservationId = source.ReservationId;
-        }
-
-        internal void Approve(Party modifyingParty, DateTime now)
-        {
-            CheckIsEmployerOrProvider(modifyingParty);
-
-            switch (modifyingParty)
-            {
-                case Party.Employer:
-                    CheckIsCompleteForEmployer();
-                
-                    AgreementStatus = AgreementStatus == AgreementStatus.ProviderAgreed
-                        ? AgreementStatus.BothAgreed
-                        : AgreementStatus.EmployerAgreed;
-                    
-                    break;
-                case Party.Provider:
-                    CheckIsCompleteForProvider();
-                
-                    AgreementStatus = AgreementStatus == AgreementStatus.EmployerAgreed
-                        ? AgreementStatus.BothAgreed
-                        : AgreementStatus.ProviderAgreed;
-                    
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(modifyingParty));
-            }
-
-            if (AgreementStatus == AgreementStatus.BothAgreed)
-            {
-                AgreedOn = now;
-            }
         }
 
         public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)

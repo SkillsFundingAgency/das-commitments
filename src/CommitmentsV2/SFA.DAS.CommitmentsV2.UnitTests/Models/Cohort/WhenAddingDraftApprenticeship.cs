@@ -190,22 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public WhenAddingDraftApprenticeshipTestsFixture WithApproval(Party approvingParty)
             {
-                var agreementStatus = AgreementStatus.NotAgreed;
-
-                switch (approvingParty)
-                {
-                    case Party.Employer:
-                        agreementStatus = AgreementStatus.EmployerAgreed;
-                        break;
-                    case Party.Provider:
-                        agreementStatus = AgreementStatus.ProviderAgreed;
-                        break;
-                    default:
-                        break;
-                }
-
-                Cohort.Apprenticeships.ForEach(a => a.AgreementStatus = agreementStatus);
-
+                Cohort.Approvals = approvingParty;
                 return this;
             }
 
