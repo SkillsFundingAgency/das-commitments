@@ -22,8 +22,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             searchParameters.Filters = new ApprenticeshipSearchFilters();
             searchParameters.EmployerAccountId = null;
 
-            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = searchParameters.ProviderId;
+            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId ?? 0;
+            apprenticeships[1].Cohort.ProviderId = searchParameters.ProviderId ?? 0;
 
             var expectedApprenticeships =
                 apprenticeships.Where(app => app.Cohort.ProviderId == searchParameters.ProviderId);

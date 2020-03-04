@@ -18,6 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             int totalAvailableApprenticeships)
         {
             List<Apprenticeship> apprenticeships;
+            var selectedPageNumber = pageNumber;
 
             if (pageItemCount < 1 || pageNumber < 1)
             {
@@ -25,7 +26,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             }
             else
             {
-                apprenticeships = await apprenticeshipsQuery.Skip((pageNumber - 1) * pageItemCount)
+                var maxPageNumber =  (int) Math.Ceiling((double)totalApprenticeshipsFound / pageItemCount);
+                selectedPageNumber = pageNumber <= maxPageNumber ? pageNumber : maxPageNumber;
+
+                apprenticeships = await apprenticeshipsQuery.Skip((selectedPageNumber - 1) * pageItemCount)
                     .Take(pageItemCount)
                     .ToListAsync(cancellationToken);
             }
@@ -35,7 +39,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 Apprenticeships = apprenticeships,
                 TotalApprenticeshipsFound = totalApprenticeshipsFound,
                 TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlertsFound,
-                TotalAvailableApprenticeships = totalAvailableApprenticeships
+                TotalAvailableApprenticeships = totalAvailableApprenticeships,
+                PageNumber = selectedPageNumber
             };
         }
 
@@ -49,8 +54,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     return apprenticeship => apprenticeship.LastName;
                 case nameof(Apprenticeship.CourseName):
                     return apprenticeship => apprenticeship.CourseName;
-                case nameof(Apprenticeship.Cohort.LegalEntityName):
-                    return apprenticeship => apprenticeship.Cohort.LegalEntityName;
+                case nameof(Apprenticeship.Cohort.AccountLegalEntity.Name):
+                    return apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name;
                 case nameof(Apprenticeship.StartDate):
                     return apprenticeship => apprenticeship.StartDate;
                 case nameof(Apprenticeship.EndDate):

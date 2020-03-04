@@ -8,21 +8,31 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 {
     public class CreateCsvService : ICreateCsvService
     {
-        public byte[] GenerateCsvContent<T>(IEnumerable<T> results)
+        private MemoryStream _memoryStream;
+        private StreamWriter _streamWriter;
+        private CsvWriter _csvWriter;
+
+        public MemoryStream GenerateCsvContent<T>(IEnumerable<T> results, bool hasHeader)
         {
-            using (var memoryStream = new MemoryStream())
+            _memoryStream = new MemoryStream();
+            _streamWriter = new StreamWriter(_memoryStream);
+            _csvWriter = new CsvWriter(_streamWriter, new CsvHelper.Configuration.Configuration
             {
-                using (var streamWriter = new StreamWriter(memoryStream))
-                {
-                    using (var csvWriter = new CsvWriter(streamWriter))
-                    {
-                        csvWriter.WriteRecords(results);
-                        streamWriter.Flush();
-                        memoryStream.Position = 0;
-                        return memoryStream.ToArray();
-                    }
-                }
-            }
+                HasHeaderRecord = hasHeader
+            });
+
+            _csvWriter.WriteRecords(results);
+            _streamWriter.Flush();
+            _memoryStream.Position = 0;
+
+            return _memoryStream;
+        }
+
+        public void Dispose()
+        {
+            _memoryStream.Dispose();
+            _csvWriter.Dispose();
+            _streamWriter.Dispose();
         }
     }
 }

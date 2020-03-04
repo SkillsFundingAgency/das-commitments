@@ -30,8 +30,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.Filters = new ApprenticeshipSearchFilters();
             searchParameters.EmployerAccountId = null;
 
-            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = searchParameters.ProviderId;
+            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId ?? 0;
+            apprenticeships[1].Cohort.ProviderId = searchParameters.ProviderId ?? 0;
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -91,8 +91,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.PageItemCount = 0;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
-            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId;
-            apprenticeships[1].Cohort.ProviderId = searchParameters.ProviderId;
+            apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId ?? 0;
+            apprenticeships[1].Cohort.ProviderId = searchParameters.ProviderId ?? 0;
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
@@ -128,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -140,7 +140,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow.AddMonths(2),
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -152,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Should_Be_Fourth"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Should_Be_Fourth")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -164,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Should_Be_Fifth",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -176,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 },
@@ -188,13 +188,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "XX",
                     StartDate = DateTime.UtcNow,
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "XX"},
+                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("XX")},
                     DataLockStatus = new List<DataLockStatus>(),
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>()
                 }
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -209,7 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).FirstName);
             Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(1).LastName);
             Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(2).Uln);
-            Assert.AreEqual("Should_Be_Fourth", actual.Apprenticeships.ElementAt(3).Cohort.LegalEntityName);
+            Assert.AreEqual("Should_Be_Fourth", actual.Apprenticeships.ElementAt(3).Cohort.AccountLegalEntity.Name);
             Assert.AreEqual("Should_Be_Fifth", actual.Apprenticeships.ElementAt(4).CourseName);
             Assert.AreEqual(DateTime.UtcNow.AddMonths(2).ToString("d"), actual.Apprenticeships.ElementAt(5).StartDate.Value.ToString("d"));
         }
@@ -278,7 +278,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
             var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
-            apprenticeships[0].Cohort.ProviderId = null;
+            apprenticeships[0].Cohort.ProviderId = 0;
             apprenticeships[0].ProviderRef = null;
             searchParameters.EmployerAccountId = null;
 
@@ -334,7 +334,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
             var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
-            apprenticeships[0].Cohort.ProviderId = null;
+            apprenticeships[0].Cohort.ProviderId = 0;
             apprenticeships[0].ProviderRef = null;
             searchParameters.EmployerAccountId = null;
 
@@ -405,31 +405,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);
         }
 
-        [Test, MoqAutoData]
-        public async Task Then_Apprentices_Are_Not_Returned_If_Page_Count_Is_Greater_Than_Items_Available(
-            ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
-        {
-            //Arrange
-            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
-
-            mockContext
-                .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(apprenticeships);
-            
-            var service = new ApprenticeshipSearchService(mockContext.Object);
-
-            searchParameters.PageNumber = 5;
-            searchParameters.PageItemCount = 2;
-            searchParameters.Filters = new ApprenticeshipSearchFilters();
-
-            //Act
-            var actual = await service.Find(searchParameters);
-
-            //Assert
-            Assert.IsEmpty(actual.Apprenticeships);
-
-        }
 
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_And_Is_And_There_Are_ApprenticeshipUpdates_These_Appear_First(
@@ -497,7 +472,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 },
             };
 
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -512,6 +487,63 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(0).LastName);
             Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(1).LastName);
             Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(2).LastName);
+        }
+
+        [Test, MoqAutoData]
+        public async Task Then_Will_Return_The_Last_Page_Number_If_Page_Number_Exceeds_Limit(
+            ApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.PageNumber = 10;
+            searchParameters.PageItemCount = 5;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+            searchParameters.ReverseSort = false;
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+            searchParameters.ProviderId = null;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var service = new ApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(2, actual.PageNumber);
+            Assert.IsNotEmpty(actual.Apprenticeships);
+        }
+
+        
+        [Test, MoqAutoData]
+        public async Task Then_Will_Return_Page_Number_If_All_Apprenticeships_Are_With_Alerts(
+            ApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.ReverseSort = false;
+            searchParameters.PageNumber = 2;
+            searchParameters.PageItemCount = 2;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+            searchParameters.ProviderId = null;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var service = new ApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual( searchParameters.PageNumber, actual.PageNumber);
+            Assert.IsNotEmpty(actual.Apprenticeships);
         }
     }
 }

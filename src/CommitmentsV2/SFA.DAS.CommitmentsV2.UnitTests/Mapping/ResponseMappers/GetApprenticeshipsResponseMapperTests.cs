@@ -21,6 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             result.TotalApprenticeshipsFound.Should().Be(source.TotalApprenticeshipsFound);
             result.TotalApprenticeshipsWithAlertsFound.Should().Be(source.TotalApprenticeshipsWithAlertsFound);
             result.TotalApprenticeships.Should().Be(source.TotalApprenticeships);
+            result.PageNumber.Should().Be(source.PageNumber);
         }
     }
 }

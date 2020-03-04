@@ -9,5 +9,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search
         public int TotalApprenticeshipsFound { get; set; }
         public int TotalApprenticeshipsWithAlertsFound { get; set; }
         public int TotalAvailableApprenticeships { get; set; }
+        public int PageNumber { get; set; }
     }
 }

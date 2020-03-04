@@ -115,5 +115,39 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 sp.EmployerAccountId.Equals(query.EmployerAccountId) &&
                 sp.ProviderId == null)), Times.Once);
         }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task ThenWillReturnCurrentSelectedPage(
+            [Frozen]GetApprenticeshipsQuery query,
+            List<Apprenticeship> apprenticeships,
+            ApprenticeshipSearchResult searchResult,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IApprenticeshipSearch> mockSearch,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
+            GetApprenticeshipsQueryHandler handler)
+        {
+            query.SortField = "test";
+            query.ReverseSort = true;
+            query.ProviderId = null;
+
+            apprenticeships[1].Cohort.EmployerAccountId = query.EmployerAccountId.Value;
+
+            mockSearch.Setup(x => x.Find(It.IsAny<ReverseOrderedApprenticeshipSearchParameters>()))
+                .ReturnsAsync(new ApprenticeshipSearchResult
+                {
+                    Apprenticeships = apprenticeships
+                });
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(new List<Apprenticeship>());
+
+            mockSearch.Setup(x => x.Find(It.IsAny<ReverseOrderedApprenticeshipSearchParameters>()))
+                .ReturnsAsync(searchResult);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            Assert.AreEqual(searchResult.PageNumber, result.PageNumber);
+        }
     }
 }
