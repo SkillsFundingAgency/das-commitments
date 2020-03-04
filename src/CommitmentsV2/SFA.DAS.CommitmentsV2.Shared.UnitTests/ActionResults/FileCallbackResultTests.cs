@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using SFA.DAS.CommitmentsV2.Shared.ActionResults;
@@ -23,5 +24,14 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ActionResults
         {
             Assert.Throws<ArgumentNullException>(() => new FileCallbackResult("text/csv", null));
         }
+
+        [Test]
+        public void Then_If_There_Is_No_Context_An_Exception_Is_Thrown()
+        {
+            var actionCallbackResult = new FileCallbackResult("text/csv", delegate { return null; });
+
+            Assert.Throws<ArgumentNullException>(() => actionCallbackResult.ExecuteResultAsync(null));
+        }
+
     }
 }
