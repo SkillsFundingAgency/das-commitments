@@ -172,8 +172,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string LastMessage => Messages.OrderByDescending(x => x.Id).FirstOrDefault()?.Text;
 
         public Party WithParty { get; set; }
+        public Party Approvals { get; set; }
 
-        public virtual bool IsApprovedByAllParties => WithParty == Party.None;
+        public virtual bool IsApprovedByAllParties => WithParty == Party.None; //todo: use new Approvals flag
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
@@ -185,7 +186,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, creator);
             Apprenticeships.Add(draftApprenticeship);
-            ResetApprovals();
+            Approvals = Party.None;
             UpdatedBy(creator, userInfo);
             LastUpdatedOn = DateTime.UtcNow;
 
@@ -297,8 +298,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 Publish(() => new ApprovedCohortReturnedToProviderEvent(Id, now));
             }
-            
-            ResetApprovals();
+
+            Approvals = Party.None;
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
@@ -318,11 +319,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(this);
             ChangeTrackingSession.TrackUpdate(existingDraftApprenticeship);
 
-            existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
-            if (existingDraftApprenticeship.AgreementStatus == AgreementStatus.NotAgreed)
+            if (existingDraftApprenticeship.IsOtherPartyApprovalRequiredForUpdate(draftApprenticeshipDetails))
             {
-                ResetApprovals();
+                Approvals = Party.None;
             }
+            existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
 
             UpdatedBy(modifyingParty, userInfo);
             LastUpdatedOn = DateTime.UtcNow;
@@ -374,7 +375,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             RemoveDraftApprenticeship(draftApprenticeship);
 
             LastUpdatedOn = DateTime.UtcNow;
-            ResetApprovals();
+            Approvals = Party.None;
             ResetTransferSenderRejection();
 
             if (!DraftApprenticeships.Any())
@@ -617,14 +618,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void ResetApprovals()
-        {
-            foreach (var apprenticeship in Apprenticeships)
-            {
-                apprenticeship.AgreementStatus = AgreementStatus.NotAgreed;
-            }
-        }
-
         private void UpdatedBy(Party party, UserInfo userInfo)
         {
             if (userInfo == null)
@@ -642,28 +635,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                     LastUpdatedByProviderName = userInfo.UserDisplayName;
                     LastUpdatedByProviderEmail = userInfo.UserEmail;
                     break;
-            }
-        }
-
-        public Party Approvals
-        {
-            get
-            {
-                var approvals = Party.None;
-                if (IsApprovedByParty(Party.Employer))
-                {
-                    approvals |= Party.Employer;
-                }
-                if (IsApprovedByParty(Party.Provider))
-                {
-                    approvals |= Party.Provider;
-                }
-                if (IsApprovedByParty(Party.TransferSender))
-                {
-                    approvals |= Party.TransferSender;
-                }
-
-                return approvals;
             }
         }
 

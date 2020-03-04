@@ -138,12 +138,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.Provider)
                 .SetWithParty(Party.Provider)
-                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
-                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
+                .SetApprovals(Party.Employer)
                 .SendToOtherParty();
-
-            _fixture.Cohort.Apprenticeships.Should().HaveCount(2)
-                .And.Subject.All(a => a.AgreementStatus == AgreementStatus.NotAgreed).Should().BeTrue();
+            _fixture.Cohort.Approvals.Should().Be(Party.None);
         }
 
         [Test]
@@ -219,6 +216,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             Cohort.Set(c => c.LastAction, lastAction);
             
+            return this;
+        }
+
+        public WhenSendingCohortToOtherPartyTestsFixture SetApprovals(Party approvals)
+        {
+            Cohort.Set(c => c.Approvals, approvals);
             return this;
         }
 

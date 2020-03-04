@@ -173,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyCohortIsUnapprovedByAllParties()
             {
-                Assert.IsTrue(Cohort.Apprenticeships.All(x=> x.AgreementStatus == AgreementStatus.NotAgreed));
+                Assert.IsTrue(Cohort.Approvals == Party.None);
             }
 
             public void VerifyCohortIsDeleted()

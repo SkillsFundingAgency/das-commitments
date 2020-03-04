@@ -25,3 +25,8 @@ CASE
     WHEN (EditStatus = 0 AND TransferApprovalStatus=0) THEN 4 --Approved by Employer and Provider and pending Transfer Sender's approval
     ELSE 0
 END
+
+
+--CV-514: Add Approvals flag
+update Commitment
+set Approvals = COALESCE((select top 1 a.AgreementStatus from Apprenticeship a where a.CommitmentId = Commitment.Id),0) + CASE WHEN TransferApprovalStatus = 1 THEN 4 ELSE 0 END

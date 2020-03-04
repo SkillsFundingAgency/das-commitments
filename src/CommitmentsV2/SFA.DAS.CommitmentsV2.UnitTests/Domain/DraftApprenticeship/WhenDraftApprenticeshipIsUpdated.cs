@@ -123,22 +123,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
 
         }
 
-        [TestCase(Party.Provider)]
-        [TestCase(Party.Employer)]
-        public void ThenPriorApprovalByOtherPartyIsReset(Party modifyingParty)
-        {
-            var result = _fixture.WithModifyingParty(modifyingParty).WithPriorApprovalByOtherParty().ApplyUpdate();
-            Assert.AreEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
-        }
-
-        [TestCase(Party.Provider)]
-        [TestCase(Party.Employer)]
-        public void ThenPriorApprovalByOtherPartyIsResetByTrainingCourseReset(Party modifyingParty)
-        {
-            var result = _fixture.WithModifyingParty(modifyingParty).WithPriorApprovalByOtherParty().WithTrainingCourseResetOnly().ApplyUpdate();
-            Assert.AreEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
-        }
-
         [Test]
         public void ThenPriorApprovalByEmployerIsNotResetByUlnUpdate()
         {

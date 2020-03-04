@@ -73,11 +73,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)
         {
-            if (IsOtherPartyApprovalRequired(source))
-            {
-                AgreementStatus = AgreementStatus.NotAgreed;
-            }
-
             FirstName = source.FirstName;
             LastName = source.LastName;
             if (modifyingParty == Party.Provider)
@@ -132,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private bool IsOtherPartyApprovalRequired(DraftApprenticeshipDetails update)
+        public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update)
         {
             if (FirstName != update.FirstName) return true;
             if (LastName != update.LastName) return true;

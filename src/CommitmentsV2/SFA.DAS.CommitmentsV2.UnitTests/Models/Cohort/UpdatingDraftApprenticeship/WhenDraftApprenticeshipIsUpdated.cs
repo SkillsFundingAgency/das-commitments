@@ -124,12 +124,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public UpdatingDraftApprenticeshipTestFixture WithPriorApprovalOfOtherParty()
             {
-                foreach (var apprentice in Cohort.DraftApprenticeships)
-                {
-                    apprentice.AgreementStatus = ModifyingParty.GetOtherParty() == Party.Employer
-                        ? AgreementStatus.EmployerAgreed
-                        : AgreementStatus.ProviderAgreed;
-                }
+                Cohort.Approvals = ModifyingParty.GetOtherParty();
                 return this;
             }
 
@@ -169,11 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyCohortIsApprovedByOtherParty()
             {
-                var expectedStatus = ModifyingParty.GetOtherParty() == Party.Employer
-                    ? AgreementStatus.EmployerAgreed
-                    : AgreementStatus.ProviderAgreed;
-
-                Assert.IsTrue(Cohort.Apprenticeships.All(x => x.AgreementStatus == expectedStatus));
+                Assert.IsTrue(Cohort.Approvals.HasFlag(ModifyingParty.GetOtherParty()));
             }
 
             public void VerifyDraftApprenticeshipTracking()
