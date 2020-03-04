@@ -60,6 +60,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
         }
 
         [Test]
+        public void ThenCohortAssignedToProviderEventIsPublished()
+        {
+            _fixture
+                .WithCreatingParty(Party.Employer)
+                .CreateCohort();
+
+            _fixture.VerifyCohortAssignedToProviderEventIsPublished();
+        }
+
+
+        [Test]
         public void ThenCohortMustBeWithOtherParty()
         {
             _fixture

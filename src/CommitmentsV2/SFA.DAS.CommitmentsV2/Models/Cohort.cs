@@ -111,6 +111,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 AddMessage(message, originatingParty, userInfo);
             }
 
+            Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
+
             StartTrackingSession(UserAction.CreateCohort, originatingParty, accountLegalEntity.AccountId, provider.UkPrn, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
