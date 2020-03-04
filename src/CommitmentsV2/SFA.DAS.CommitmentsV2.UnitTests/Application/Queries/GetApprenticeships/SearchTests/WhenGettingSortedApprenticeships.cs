@@ -620,6 +620,76 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
+        public async Task Then_Apprentices_Are_Sorted_By_Provider_Name(
+            OrderedApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.PageNumber = 0;
+            searchParameters.PageItemCount = 0;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow.AddMonths(2),
+                    ProviderRef = searchParameters.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "Employer", ProviderName = "Should_Be_Second"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PaymentStatus = PaymentStatus.Paused
+                },
+                new Apprenticeship
+                {
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow.AddMonths(3),
+                    ProviderRef = searchParameters.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "Employer", ProviderName = "Should_Be_Third"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PaymentStatus = PaymentStatus.Completed
+                },
+                new Apprenticeship
+                {
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow.AddMonths(-1),
+                    ProviderRef = searchParameters.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "Employer", ProviderName = "Should_Be_First"},
+                    DataLockStatus = new List<DataLockStatus>(),
+                    PaymentStatus = PaymentStatus.Active
+                }
+            };
+
+            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var service = new OrderedApprenticeshipSearchService(mockContext.Object);
+
+            searchParameters.FieldName = nameof(Apprenticeship.ApprenticeshipStatus);
+            searchParameters.ReverseSort = false;
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).Cohort.ProviderName);
+            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(1).Cohort.ProviderName);
+            Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(2).Cohort.ProviderName);
+        }
+
+        [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_First_Sorted_By_Alerts(
             OrderedApprenticeshipSearchParameters searchParameters,
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
