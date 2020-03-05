@@ -292,14 +292,9 @@
     <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestCommand.cs" />
     <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestCommandHandler.cs" />
     <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestValidator.cs" />
-    <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommand.cs" />
-    <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommandHandler.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommand.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommandHandler.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsValidator.cs" />
-    <Compile Include="Commands\CreateCommitment\CreateCommitmentCommand.cs" />
-    <Compile Include="Commands\CreateCommitment\CreateCommitmentCommandHandler.cs" />
-    <Compile Include="Commands\CreateCommitment\CreateCommitmentValidator.cs" />
     <Compile Include="Commands\UndoApprenticeshipChange\UndoApprenticeshipChangeCommand.cs" />
     <Compile Include="Commands\UndoApprenticeshipChange\UndoApprenticeshipChangeCommandHandler.cs" />
     <Compile Include="Commands\UndoApprenticeshipChange\UndoApprenticeshipChangeValidator.cs" />
@@ -435,8 +430,6 @@
     <Compile Include="Rules\ApprenticeshipUpdateRules.cs" />
     <Compile Include="Rules\ICommitmentRules.cs" />
     <Compile Include="Services\ApprenticeshipEventsService.cs" />
-    <Compile Include="Services\CohortApprovalService.cs" />
-    <Compile Include="Services\CohortStatusChangeService.cs" />
     <Compile Include="Services\HistoryService.cs" />
     <Compile Include="Services\InMemoryCache.cs" />
     <Compile Include="Services\OverlappingApprenticeshipService.cs" />

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Types;
-using Message = SFA.DAS.Commitments.Domain.Entities.Message;
-using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Domain.Data
 {
@@ -17,15 +13,10 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<Commitment> GetCommitmentById(long id);
         Task DeleteCommitment(long commitmentId);
         Task UpdateCommitment(Commitment commitment);
-        Task UpdateCommitmentReference(long commitmentId, string hashValue);
-        Task SetPaymentOrder(long accountId);
-        Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userId, string userName, ApprenticeshipEmployerType? apprenticeshipEmployerTypeOnApproval = null);
         Task<TransferRequest> GetTransferRequest(long transferRequestId);
         Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderAccountId);
         Task<IList<TransferRequestSummary>> GetPendingTransferRequests();
         Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverAccountId);
         Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, int fundingCap, List<TrainingCourseSummary> trainingCourses);
-        Task ResetEditStatusToEmployer(long commitmentId);
-        Task SaveMessage(long commitmentId, Message message);
     }
 }

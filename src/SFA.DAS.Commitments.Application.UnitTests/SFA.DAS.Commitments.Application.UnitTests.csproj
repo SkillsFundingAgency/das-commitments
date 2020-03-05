@@ -227,8 +227,6 @@
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenValidatingRequest.cs" />
     <Compile Include="Commands\CreateBulkUpload\WhenCreatingBulkUpload.cs" />
     <Compile Include="Commands\CreateBulkUpload\WhenValidatngCreatingBulkUpload.cs" />
-    <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
-    <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
     <Compile Include="Commands\DeleteApprenticeship\WhenDeletingApprenticeship.cs" />
     <Compile Include="Commands\DeleteApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenDeletingCommitment.cs" />
@@ -238,7 +236,6 @@
     <Compile Include="Commands\RejectApprenticeshipChange\WhenRejectingApprenticeshipChange.cs" />
     <Compile Include="Commands\RejectTransferRequest\WhenRejectingATransferRequest.cs" />
     <Compile Include="Commands\RejectTransferRequest\WhenValidatingCommand.cs" />
-    <Compile Include="Commands\SetPaymentOrder\WhenUpdatingPaymentOrder.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ApprenticeshipValidationTestBase.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingEmployerReference.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingTotalCost.cs" />
@@ -319,7 +316,6 @@
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewAgreementStatus.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineWhetherChangeRequireAgreement.cs" />
     <Compile Include="Rules\CommitmentRules\WhenDetermineAgreementStatus.cs" />
-    <Compile Include="Services\CohortApprovalService\WhenCreatingTransferRequest.cs" />
     <Compile Include="Services\EventConsumer\WhenConsumeCalledWithNoMatchingHandler.cs" />
     <Compile Include="Services\EventConsumer\WhenConsumeCalledWithAMatchingHandler.cs" />
     <Compile Include="Services\EventUpgradeHandler\WhenExecute.cs" />

@@ -586,34 +586,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<ApprenticeshipsResult> GetActiveApprenticeshipsByProvider(long providerId)
-        {
-            return await GetActiveApprenticeships("[GetActiveApprenticeshipsForProvider]", providerId);
-        }
-
-        public async Task<ApprenticeshipsResult> GetActiveApprenticeshipsByEmployer(long accountId)
-        {
-            return await GetActiveApprenticeships("[GetActiveApprenticeshipsForEmployer]", accountId);
-        }
-
-        private Task<ApprenticeshipsResult> GetActiveApprenticeships(string sprocName, long id)
-        {
-            return WithConnection(async c =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@id", id, DbType.Int64);
-
-                var apprenticeships = (await c.QueryAsync<Apprenticeship>(sprocName, parameters, commandType: CommandType.StoredProcedure))
-                    .ToList();
-                
-                return new ApprenticeshipsResult
-                {
-                    Apprenticeships = apprenticeships,
-                    TotalCount = apprenticeships.Count
-                };
-            });
-        }
-
         private static IEnumerable<ApprenticeshipStatusSummary> MapToApprenticeshipStatusSummaries(IEnumerable<dynamic> results)
         {
             var apprenticeshipsStatusSummaries = new Dictionary<string, ApprenticeshipStatusSummary>();
