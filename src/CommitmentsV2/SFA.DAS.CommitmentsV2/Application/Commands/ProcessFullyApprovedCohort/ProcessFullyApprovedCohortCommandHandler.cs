@@ -46,8 +46,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                 .Select(a => new ApprenticeshipCreatedEvent
                 {
                     ApprenticeshipId = a.Id,
-                    CreatedOn = a.Cohort.TransferApprovalActionedOn ?? a.AgreedOn.Value,
-                    AgreedOn = a.AgreedOn.Value,
+                    CreatedOn = a.Cohort.LastUpdatedOn,
+                    AgreedOn = a.Cohort.LastUpdatedOn,
                     AccountId = a.Cohort.EmployerAccountId,
                     AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntityPublicHashedId,
                     AccountLegalEntityId = a.Cohort.AccountLegalEntityId.Value,
