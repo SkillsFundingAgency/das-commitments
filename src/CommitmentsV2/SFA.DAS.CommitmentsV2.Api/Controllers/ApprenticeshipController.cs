@@ -56,7 +56,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     CourseName = request.CourseName,
                     Status = request.Status,
                     StartDate = request.StartDate,
-                    EndDate = request.EndDate
+                    EndDate = request.EndDate,
+                    ProviderName = request.ProviderName
                 };
 
                 var queryResult = await _mediator.Send(new GetApprenticeshipsQuery
