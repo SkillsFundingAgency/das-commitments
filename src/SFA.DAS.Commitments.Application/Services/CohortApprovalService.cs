@@ -55,17 +55,6 @@ namespace SFA.DAS.Commitments.Application.Services
                 logger, v2EventsPublisher);
         }
 
-        internal async Task UpdateApprenticeships(Commitment commitment, bool haveBothPartiesApproved, AgreementStatus newAgreementStatus)
-        {
-            var newPaymentStatus = DetermineNewPaymentStatus(commitment, haveBothPartiesApproved);
-            var agreedOn = DetermineAgreedOnDate(haveBothPartiesApproved);
-
-            await SetApprenticeshipsPaymentAndAgreementStatuses(commitment, newPaymentStatus, newAgreementStatus, agreedOn);
-
-            if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned) await CreatePriceHistory(commitment);
-        }
-
-
         //not sure why we can't dependency inject the message publisher
         internal async Task CreateTransferRequest(Commitment commitment, IMessagePublisher messagePublisher)
         {
@@ -122,29 +111,5 @@ namespace SFA.DAS.Commitments.Application.Services
                 };
             }
         }
-
-        private async Task SetApprenticeshipsPaymentAndAgreementStatuses(Commitment commitment, PaymentStatus paymentStatus, AgreementStatus newAgreementStatus, DateTime? agreedOn)
-        {
-            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Id, paymentStatus, newAgreementStatus, agreedOn);
-
-            commitment.Apprenticeships.ForEach(x =>
-            {
-                x.AgreementStatus = newAgreementStatus;
-                x.PaymentStatus = paymentStatus;
-                x.AgreedOn = agreedOn;
-            });
-        }
-
-        private DateTime? DetermineAgreedOnDate(bool haveBothPartiesApproved)
-        {
-            return haveBothPartiesApproved ? _currentDateTime.Now : (DateTime?)null;
-        }
-
-        private static PaymentStatus DetermineNewPaymentStatus(Commitment commitment, bool haveBothPartiesApproved)
-        {
-            return haveBothPartiesApproved && !commitment.HasTransferSenderAssigned ? PaymentStatus.Active : PaymentStatus.PendingApproval;
-        }
-
-
     }
 }
