@@ -20,7 +20,5 @@ FROM @ULNs u
 INNER JOIN [dbo].[Apprenticeship] a ON u.ULN = a.ULN
 INNER JOIN [dbo].[Commitment] c ON c.Id = a.CommitmentId
 WHERE
-a.AgreementStatus = 3 -- Both parties agreed - "right of the line"
-AND a.PaymentStatus <= 4 -- PendingApproval, Active, Paused, Withdrawn or Completed
--- (allowing PaymentStatus == 0 (PendingApproval) && AgreementStatus == 3, we catch transfer apprenticeships that have been approved by the receiver and provider, but not yet by the sender)
+a.Approvals in (3,7)
 END

@@ -17,6 +17,5 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderAccountId);
         Task<IList<TransferRequestSummary>> GetPendingTransferRequests();
         Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverAccountId);
-        Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, int fundingCap, List<TrainingCourseSummary> trainingCourses);
     }
 }

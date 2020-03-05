@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CourseCode != null &&
             DateOfBirth != null;
         
-        internal DraftApprenticeship()
+        public DraftApprenticeship()
         {
             CreatedOn = DateTime.UtcNow;
         }

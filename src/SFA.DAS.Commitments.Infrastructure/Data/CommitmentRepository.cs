@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
@@ -138,26 +133,6 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
             });
         }
 
-        public async Task UpdateCommitmentReference(long commitmentId, string hashValue)
-        {
-            _logger.Debug($"Updating Commitment Reference {hashValue} for commitment {commitmentId}", commitmentId: commitmentId);
-
-            await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@id", commitmentId, DbType.Int64);
-                parameters.Add("@reference", hashValue, DbType.String);
-
-                var returnCode = await connection.ExecuteAsync(
-                    sql: "UPDATE [dbo].[Commitment] SET Reference = @reference WHERE Id = @id;",
-                    param: parameters,
-                    commandType: CommandType.Text);
-
-                return returnCode;
-            });
-        }
-
-
         public async Task DeleteCommitment(long commitmentId)
         {
             _logger.Debug($"Deleting commitment {commitmentId}", commitmentId: commitmentId);
@@ -180,84 +155,7 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
             });
         }
 
-        public async Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName, ApprenticeshipEmployerType? apprenticeshipEmployerTypeOnApproval = null)
-        {
-            _logger.Debug($"Setting TransferRequest Approval to {transferApprovalStatus} and ApprenticeshipEmployerTypeOnApproval to {apprenticeshipEmployerTypeOnApproval} on commitment {commitmentId}", commitmentId: commitmentId);
-            try
-            {
-                //todo: await WithTransaction(async (connection, transaction) => ??
-                await WithConnection(async connection =>
-                {
-                    using (var tran = connection.BeginTransaction())
-                    {
-                        var count = await connection.ExecuteAsync(
-                            sql: "[dbo].[SetTransferRequestApproval]",
-                            transaction: tran,
-                            commandType: CommandType.StoredProcedure,
-                            param: new
-                            {
-                                @transferRequestId = transferRequestId,
-                                @commitmentId = commitmentId,
-                                @transferApprovalStatus = transferApprovalStatus,
-                                @transferStatusSetByEmployerName = userName,
-                                @transferStatusSetByEmployerEmail = userEmail,
-                                @apprenticeshipEmployerTypeOnApproval = apprenticeshipEmployerTypeOnApproval
-                            }
-                        );
-                        tran.Commit();
-                        return count;
-                    }
-                });
-            }
-            catch (Exception e)
-            {
-                if (e.InnerException is SqlException)
-                {
-                    throw new BadRequestException(e.InnerException.Message, e);
-                }
-                throw;
-            }
-        }
 
-        public async Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, int fundingCap, List<TrainingCourseSummary> trainingCourses)
-        {
-            _logger.Debug($"Starting a Transfer Request Approval", commitmentId: commitmentId);
-            try
-            {
-                long transferRequestId = 0;
-                var parameters = new DynamicParameters();
-                parameters.Add("@commitmentId", commitmentId, DbType.Int64);
-                parameters.Add("@cost", cost, DbType.Decimal);
-                parameters.Add("@trainingCourses", JsonConvert.SerializeObject(trainingCourses), DbType.String);
-                parameters.Add("@fundingCap", fundingCap, DbType.Decimal);
-                parameters.Add("@transferRequestId", transferRequestId, DbType.Int64, ParameterDirection.Output);
-
-                //todo: await WithTransaction(async (connection, transaction) => ??
-                return await WithConnection(async connection =>
-                {
-                    using (var tran = connection.BeginTransaction())
-                    {
-                        await connection.ExecuteAsync(
-                            sql: "[dbo].[StartATransferRequest]",
-                            transaction: tran,
-                            commandType: CommandType.StoredProcedure,
-                            param: parameters
-                        );
-                        tran.Commit();
-                        transferRequestId = parameters.Get<long>("@transferRequestId");
-                        return transferRequestId;
-                    }
-                });
-            }
-            catch (Exception e)
-            {
-                if (e.InnerException is SqlException)
-                {
-                    throw new BadRequestException(e.InnerException.Message, e);
-                }
-                throw;
-            }
-        }
 
         public Task<TransferRequest> GetTransferRequest(long transferRequestId)
         {
@@ -322,24 +220,6 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
             });
         }
 
-        public async Task ResetEditStatusToEmployer(long commitmentId)
-        {
-            _logger.Debug($"Resetting edit status of commitment {commitmentId} to Employer", commitmentId: commitmentId);
-
-            await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@id", commitmentId, DbType.Int64);
-                parameters.Add("@editStatus", EditStatus.EmployerOnly, DbType.Int32);
-
-                var returnCode = await connection.ExecuteAsync(
-                    sql: "UPDATE [dbo].[Commitment] SET EditStatus=@editStatus WHERE Id = @id;",
-                    param: parameters,
-                    commandType: CommandType.Text);
-
-                return returnCode;
-            });
-        }
         
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)
         {
