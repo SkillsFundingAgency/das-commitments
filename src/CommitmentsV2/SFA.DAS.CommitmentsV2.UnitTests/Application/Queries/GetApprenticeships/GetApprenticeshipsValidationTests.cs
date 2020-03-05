@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [TestCase(null,true)]
         [TestCase("",true)]
         [TestCase(nameof(Apprenticeship.FirstName),true)]
-        [TestCase(nameof(Apprenticeship.Cohort.LegalEntityName),true)]
+        [TestCase(nameof(Apprenticeship.Cohort.AccountLegalEntity.Name),true)]
         public void Validate_WithSpecifiedSortField_ShouldOnlyBeAllowedIfPropertyOnApprenticeship(string fieldName, bool expected)
         {
             // arrange

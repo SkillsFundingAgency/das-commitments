@@ -353,6 +353,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 ProviderId = 10,
                 SearchTerm = "photon chocolate search termses",
                 EmployerName = "Test corp",
+                ProviderName = "Test Provider",
                 CourseName = "Test course",
                 Status = ApprenticeshipStatus.Completed,
                 StartDate = DateTime.Now.AddDays(2),
@@ -369,6 +370,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 $"reverseSort={request.ReverseSort}&" +
                 $"searchTerm={WebUtility.UrlEncode(request.SearchTerm)}&" +
                 $"employerName={WebUtility.UrlEncode(request.EmployerName)}&" +
+                $"providerName={WebUtility.UrlEncode(request.ProviderName)}&" +
                 $"courseName={WebUtility.UrlEncode(request.CourseName)}&" +
                 $"status={WebUtility.UrlEncode(request.Status.Value.ToString())}&" +
                 $"startDate={WebUtility.UrlEncode(request.StartDate.Value.ToString("u"))}&" +

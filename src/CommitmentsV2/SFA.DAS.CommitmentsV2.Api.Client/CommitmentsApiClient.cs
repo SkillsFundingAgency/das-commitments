@@ -202,6 +202,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 filterQuery += $"&employerName={WebUtility.UrlEncode(request.EmployerName)}";
             }
 
+            if (!string.IsNullOrEmpty(request.ProviderName))
+            {
+                filterQuery += $"&providerName={WebUtility.UrlEncode(request.ProviderName)}";
+            }
+
             if (!string.IsNullOrEmpty(request.CourseName))
             {
                 filterQuery += $"&courseName={WebUtility.UrlEncode(request.CourseName)}";

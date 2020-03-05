@@ -112,7 +112,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var provider = new Provider {Name = "Test Provider"};
             var account = new Account(1, "", "", "", DateTime.UtcNow);
             var accountLegalEntity = new AccountLegalEntity(account, 1, 1, "", "", "Test Employer", OrganisationType.Charities, "", DateTime.UtcNow);
-
             var cohortBuilder = AutoFixture.Build<Cohort>()
                 .Without(c => c.Apprenticeships)
                 .With(c => c.AccountLegalEntity, accountLegalEntity)

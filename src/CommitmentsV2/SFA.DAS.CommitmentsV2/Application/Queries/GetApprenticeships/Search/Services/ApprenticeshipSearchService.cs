@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,8 +27,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             var totalApprenticeshipsWithAlerts = await GetApprenticeshipsWithFiltersQuery(searchParameters, true).CountAsync(searchParameters.CancellationToken);
 
             var totalApprenticeships = await GetApprenticeshipsQuery(searchParameters).CountAsync(searchParameters.CancellationToken);
+            
+            var totalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts;
 
-            var skipCount = searchParameters.PageNumber > 0 ? (searchParameters.PageNumber - 1) * searchParameters.PageItemCount : 0;
+            var selectedPageNumber = searchParameters.PageNumber;
+
+            if (searchParameters.PageNumber > 0 && searchParameters.PageItemCount > 0)
+            {
+                var maxPageCount = (int) Math.Ceiling((double)totalApprenticeshipsFound / searchParameters.PageItemCount);
+
+                selectedPageNumber = searchParameters.PageNumber <= maxPageCount
+                    ? searchParameters.PageNumber
+                    : maxPageCount;
+            }
+
+            var skipCount = selectedPageNumber > 0 ? (selectedPageNumber - 1) * searchParameters.PageItemCount : 0;
 
             var apprentices = new List<Apprenticeship>();
 
@@ -48,7 +62,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                         Apprenticeships = apprentices,
                         TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
                         TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
-                        TotalAvailableApprenticeships = totalApprenticeships
+                        TotalAvailableApprenticeships = totalApprenticeships,
+                        PageNumber = selectedPageNumber
                     };
                 }
 
@@ -79,7 +94,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                         Apprenticeships = apprentices,
                         TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
                         TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
-                        TotalAvailableApprenticeships = totalApprenticeships
+                        TotalAvailableApprenticeships = totalApprenticeships,
+                        PageNumber = selectedPageNumber
                     };
                 }
 
@@ -97,9 +113,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             return new ApprenticeshipSearchResult
             {
                 Apprenticeships = apprentices,
-                TotalApprenticeshipsFound = totalApprenticeshipsWithoutAlerts + totalApprenticeshipsWithAlerts,
+                TotalApprenticeshipsFound = totalApprenticeshipsFound,
                 TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsWithAlerts,
-                TotalAvailableApprenticeships = totalApprenticeships
+                TotalAvailableApprenticeships = totalApprenticeships,
+                PageNumber = selectedPageNumber
             };
         }
 
@@ -112,10 +129,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 query = query.OrderBy(x => x.FirstName)
                     .ThenBy(x => x.LastName)
                     .ThenBy(x => x.Uln)
-                    .ThenBy(x => x.Cohort.LegalEntityName)
+                    .ThenBy(x => x.Cohort.AccountLegalEntity.Name)
                     .ThenBy(x => x.CourseName)
                     .ThenByDescending(x => x.StartDate)
-                    .Include(apprenticeship => apprenticeship.Cohort);
+                    .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
+                    .Include(apprenticeship => apprenticeship.DataLockStatus)
+                    .Include(apprenticeship => apprenticeship.Cohort)
+                    .ThenInclude(cohort => cohort.AccountLegalEntity); 
             }
             else
             {
@@ -124,7 +144,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .ThenBy(x => x.CourseName)
                     .ThenBy(x => x.Cohort.Provider.Name)
                     .ThenByDescending(x => x.StartDate)
-                    .Include(apprenticeship => apprenticeship.Cohort);
+                    .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
+                    .Include(apprenticeship => apprenticeship.DataLockStatus)
+                    .Include(apprenticeship => apprenticeship.Cohort)
+                    .ThenInclude(cohort => cohort.Provider); 
             }
 
             if (skipCount > 0)
@@ -149,10 +172,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 query = query.OrderBy(x => x.FirstName)
                     .ThenBy(x => x.LastName)
                     .ThenBy(x => x.Uln)
-                    .ThenBy(x => x.Cohort.LegalEntityName)
+                    .ThenBy(x => x.Cohort.AccountLegalEntity.Name)
                     .ThenBy(x => x.CourseName)
                     .ThenByDescending(x => x.StartDate)
-                    .Include(apprenticeship => apprenticeship.Cohort);
+                    .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
+                    .Include(apprenticeship => apprenticeship.DataLockStatus)
+                    .Include(apprenticeship => apprenticeship.Cohort)
+                    .ThenInclude(cohort => cohort.AccountLegalEntity);
             }
             else
             {
@@ -161,8 +187,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .ThenBy(x => x.CourseName)
                     .ThenBy(x => x.Cohort.Provider.Name)
                     .ThenByDescending(x => x.StartDate)
-                    .Include(apprenticeship => apprenticeship.Cohort);
+                    .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
+                    .Include(apprenticeship => apprenticeship.DataLockStatus)
+                    .Include(apprenticeship => apprenticeship.Cohort)
+                    .ThenInclude(cohort => cohort.Provider);
+
             }
+                    
 
             if (skipCount > 0)
             {
