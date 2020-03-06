@@ -69,7 +69,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
 
-            mockSearch.Setup(x => x.Find(It.IsAny<OrderedApprenticeshipSearchParameters>()))
+            mockSearch.Setup(x => x.Find(
+                    It.Is<OrderedApprenticeshipSearchParameters>(sp => 
+                        sp.ProviderId.Equals(query.ProviderId)&&
+                        sp.EmployerAccountId.Equals(null))))
                 .ReturnsAsync(new ApprenticeshipSearchResult
                 {
                     Apprenticeships = apprenticeships
@@ -80,11 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(new List<Apprenticeship>());
 
             await handler.Handle(query, CancellationToken.None);
-            
-            mockSearch.Verify(x => x.Find(It.Is<OrderedApprenticeshipSearchParameters>(sp => 
-                sp.ProviderId.Equals(query.ProviderId) &&
-                sp.EmployerAccountId == null)), Times.Once);
-            
+
             mockMapper
                 .Verify(mapper => mapper.Map(It.IsIn(apprenticeships
                     .Where(apprenticeship => apprenticeship.Cohort.ProviderId == query.ProviderId))), Times.Once());
@@ -165,68 +164,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, RecursiveMoqAutoData]
-        public async Task ThenReturnsTotalApprenticeshipsFound(
-            int totalApprenticeshipsFoundCount,
-            [Frozen]GetApprenticeshipsQuery query,
-            [Frozen] Mock<IApprenticeshipSearch> search,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
-            GetApprenticeshipsQueryHandler handler) 
-        {
-            query.SortField = "";
-            query.EmployerAccountId = null;
-
-            search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
-                .ReturnsAsync(new ApprenticeshipSearchResult
-                {
-                    Apprenticeships = new Apprenticeship[0],
-                    TotalApprenticeshipsFound = totalApprenticeshipsFoundCount
-                });
-
-            mockContext
-                .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(new List<Apprenticeship>());
-
-            var result = await handler.Handle(query, CancellationToken.None);
-
-            result.TotalApprenticeshipsFound.Should().Be(totalApprenticeshipsFoundCount);
-        }
-
-        [Test, RecursiveMoqAutoData]
-        public async Task ThenReturnsTotaApprenticeshipsFoundWithAlerts(
+        public async Task ThenReturnsApprenticeshipsData(
             int totalApprenticeshipsFoundWithAlertsCount,
-            [Frozen]GetApprenticeshipsQuery query,
-            [Frozen] Mock<IApprenticeshipSearch> search,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
-            GetApprenticeshipsQueryHandler handler)
-        {
-            query.SortField = "";
-            query.EmployerAccountId = null;
-
-            search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
-                .ReturnsAsync(new ApprenticeshipSearchResult
-                {
-                    Apprenticeships = new Apprenticeship[0],
-                    TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsFoundWithAlertsCount
-                });
-
-            mockContext
-                .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(new List<Apprenticeship>());
-
-            var result = await handler.Handle(query, CancellationToken.None);
-
-            result.TotalApprenticeshipsWithAlertsFound.Should().Be(totalApprenticeshipsFoundWithAlertsCount);
-        }
-
-        [Test, RecursiveMoqAutoData]
-        public async Task ThenReturnsTotalAvailableApprenticeships(
-            [Frozen]GetApprenticeshipsQuery query,
+            int totalApprenticeshipsFoundCount,
             List<Apprenticeship> apprenticeships,
             GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen]GetApprenticeshipsQuery query,
             [Frozen] Mock<IApprenticeshipSearch> search,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
-            GetApprenticeshipsQueryHandler handler)
+            GetApprenticeshipsQueryHandler handler) 
         {
             query.SortField = "";
             query.EmployerAccountId = null;
@@ -236,13 +183,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
                 .ReturnsAsync(new ApprenticeshipSearchResult
                 {
-                    Apprenticeships = apprenticeships,
-                    TotalAvailableApprenticeships = apprenticeships.Count
+                    Apprenticeships = new Apprenticeship[0],
+                    TotalAvailableApprenticeships = apprenticeships.Count,
+                    TotalApprenticeshipsFound = totalApprenticeshipsFoundCount,
+                    TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsFoundWithAlertsCount
                 });
 
             mockContext
                 .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(apprenticeships);
+                .ReturnsDbSet(new List<Apprenticeship>());
 
             mockMapper
                 .Setup(mapper => mapper.Map(It.IsIn(apprenticeships
@@ -251,7 +200,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var result = await handler.Handle(query, CancellationToken.None);
 
-
+            result.TotalApprenticeshipsFound.Should().Be(totalApprenticeshipsFoundCount);
+            result.TotalApprenticeshipsWithAlertsFound.Should().Be(totalApprenticeshipsFoundWithAlertsCount);
             result.TotalApprenticeships.Should().Be(apprenticeships.Count);
         }
 

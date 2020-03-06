@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
             if (!string.IsNullOrEmpty(filters.ProviderName))
             {
-                apprenticeships = apprenticeships.Where(app => app.Cohort != null && filters.ProviderName.Equals(app.Cohort.ProviderName));
+                apprenticeships = apprenticeships.Where(app => app.Cohort != null && filters.ProviderName.Equals(app.Cohort.Provider.Name));
             }
 
             if (!string.IsNullOrEmpty(filters.CourseName))

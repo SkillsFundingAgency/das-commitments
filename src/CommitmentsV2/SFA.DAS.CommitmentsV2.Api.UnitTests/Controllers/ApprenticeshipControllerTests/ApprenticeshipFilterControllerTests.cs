@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -34,28 +35,34 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         public async Task GetProviderApprentices()
         {
             //Arrange
-            var providerId = 10;
+            var request = new GetApprenticeshipFiltersRequest
+            {
+                ProviderId = 10
+            };
 
             //Act
-            await _controller.GetApprenticeshipsFilterValues(providerId, null);
+            await _controller.GetApprenticeshipsFilterValues(request);
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.ProviderId.HasValue && r.ProviderId.Value.Equals(providerId)), 
+                It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.ProviderId.HasValue && r.ProviderId.Value.Equals(request.ProviderId)), 
                 It.IsAny<CancellationToken>()), Times.Once);
         }
         [Test]
         public async Task GetEmployerApprentices()
         {
             //Arrange
-            var employerAccountId = 10;
+            var request = new GetApprenticeshipFiltersRequest
+            {
+                AccountId = 10
+            };
 
             //Act
-            await _controller.GetApprenticeshipsFilterValues(null, employerAccountId);
+            await _controller.GetApprenticeshipsFilterValues(request);
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(employerAccountId)), 
+                It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.AccountId)), 
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -63,7 +70,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         public async Task ReturnProviderApprentices()
         {
             //Arrange
-            var providerId = 10;
+            var request = new GetApprenticeshipFiltersRequest
+            {
+                ProviderId = 10
+            };
+
             var expectedResponse = new GetApprenticeshipsFilterValuesQueryResult
             {
                 EmployerNames = new[] {"Test 1", "Test 2"},
@@ -72,11 +83,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 EndDates = new[] { DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-4) }
             };
 
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.ProviderId.HasValue && r.ProviderId.Value.Equals(providerId)),
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.ProviderId.HasValue && r.ProviderId.Value.Equals(request.ProviderId)),
                 It.IsAny<CancellationToken>())).ReturnsAsync(expectedResponse);
 
             //Act
-            var result = await _controller.GetApprenticeshipsFilterValues(providerId, null) as OkObjectResult;
+            var result = await _controller.GetApprenticeshipsFilterValues(request) as OkObjectResult;
 
             //Assert
             Assert.IsNotNull(result);
@@ -90,7 +101,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         public async Task ReturnEmployerApprentices()
         {
             //Arrange
-            var employerAccountId = 10;
+            var request = new GetApprenticeshipFiltersRequest
+            {
+                AccountId = 10
+            };
+
             var expectedResponse = new GetApprenticeshipsFilterValuesQueryResult
             {
                 EmployerNames = new[] {"Test 1", "Test 2"},
@@ -99,11 +114,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 EndDates = new[] { DateTime.Now.AddDays(-2), DateTime.Now.AddDays(-1) }
             };
 
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(employerAccountId)),
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.AccountId)),
                 It.IsAny<CancellationToken>())).ReturnsAsync(expectedResponse);
 
             //Act
-            var result = await _controller.GetApprenticeshipsFilterValues(null, employerAccountId) as OkObjectResult;
+            var result = await _controller.GetApprenticeshipsFilterValues(request) as OkObjectResult;
 
             //Assert
             Assert.IsNotNull(result);
@@ -116,8 +131,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         [Test]
         public async Task ReturnNotFoundIfNullIsReturned()
         {
+            //Arrange
+            var request = new GetApprenticeshipFiltersRequest
+            {
+                ProviderId = 10
+            };
+
             //Act
-            var result = await _controller.GetApprenticeshipsFilterValues(10, null) as NotFoundResult;
+            var result = await _controller.GetApprenticeshipsFilterValues(request) as NotFoundResult;
 
             //Assert
             Assert.IsNotNull(result);

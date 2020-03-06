@@ -95,21 +95,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 {
                     Cohort = new Cohort
                     {
-                        ProviderName = filterValue
+                        Provider = new Provider{Name = filterValue}
                     }
                 },
                 new Apprenticeship
                 {
                     Cohort = new Cohort
                     {
-                        ProviderName = filterValue
+                        Provider = new Provider{Name = filterValue}
                     }
                 },
                 new Apprenticeship
                 {
                     Cohort = new Cohort
                     {
-                        ProviderName = "no filter value"
+                        Provider = new Provider{Name = "no filter value"}
                     }
                 }
             }.AsQueryable();
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.AreEqual(2, result.Count);
-            Assert.IsTrue(result.All(a => a.Cohort.ProviderName.Equals(filterValue)));
+            Assert.IsTrue(result.All(a => a.Cohort.Provider.Name.Equals(filterValue)));
         }
 
         [Test]
@@ -134,7 +134,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 {
                     Cohort = new Cohort
                     {
-                        ProviderName = filterValue
+                        Provider = new Provider{Name = filterValue}
                     }
                 },
                 new Apprenticeship(),
@@ -142,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 {
                     Cohort = new Cohort
                     {
-                        ProviderName = "ACME Supplies"
+                        Provider = new Provider{Name = "ACME Supplies"}
                     }
                 }
             }.AsQueryable();
@@ -152,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.AreEqual(1, result.Count);
-            Assert.IsTrue(result.All(a => a.Cohort.ProviderName.Equals(filterValue)));
+            Assert.IsTrue(result.All(a => a.Cohort.Provider.Name.Equals(filterValue)));
         }
 
         [Test]

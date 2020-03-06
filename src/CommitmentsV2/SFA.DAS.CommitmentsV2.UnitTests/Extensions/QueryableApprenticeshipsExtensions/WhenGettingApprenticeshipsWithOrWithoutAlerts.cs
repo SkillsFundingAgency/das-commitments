@@ -9,14 +9,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 {
     public class WhenGettingApprenticeshipsWithOrWithoutAlerts
     {
+        private IQueryable<Apprenticeship> _apprenticeships;
+
+        [SetUp]
+        public void Arrange()
+        {
+            _apprenticeships = GetTestData();
+        }
+
         [Test]
         public void ThenWillReturnApprenticeshipsWithAlerts()
         {
-            //Arrange
-            var apprenticeships = GetTestData();
-
             //Act
-            var result = apprenticeships.WithAlerts(true).ToList();
+            var result = _apprenticeships.WithAlerts(true).ToList();
 
             //Assert
             Assert.AreEqual(2, result.Count);
@@ -27,11 +32,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         [Test]
         public void ThenWillReturnApprenticeshipsWithoutAlerts()
         {
-            //Arrange
-            var apprenticeships =  GetTestData();
-
             //Act
-            var result = apprenticeships.WithAlerts(false).ToList();
+            var result = _apprenticeships.WithAlerts(false).ToList();
 
             //Assert
             Assert.AreEqual(5, result.Count);

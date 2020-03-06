@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 case nameof(Apprenticeship.Uln):
                     return apprenticeship => apprenticeship.Uln;
                 case nameof(Apprenticeship.Cohort.ProviderName):
-                    return apprenticeship => apprenticeship.Cohort.ProviderName;
+                    return apprenticeship => apprenticeship.Cohort.Provider.Name;
                 default:
                     return apprenticeship => apprenticeship.FirstName;
             }
