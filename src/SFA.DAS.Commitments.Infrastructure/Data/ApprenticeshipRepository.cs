@@ -436,7 +436,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             parameters.Add("@commitmentId", commitmentId, DbType.Int64);
 
             await x.ExecuteAsync(
-                sql: "UPDATE Commitment Set [Approvals]=0 WHERE CommitmentId = @CommitmentId;",
+                sql: "UPDATE Commitment Set [Approvals]=0 WHERE Id = @CommitmentId;",
                 param: parameters,
                 transaction: tran,
                 commandType: CommandType.Text);
