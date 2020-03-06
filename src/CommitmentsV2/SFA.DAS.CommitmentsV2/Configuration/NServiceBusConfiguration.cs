@@ -3,7 +3,7 @@
     public class NServiceBusConfiguration
     {
         public string ServiceBusConnectionString { get; set; }
-
+        public string SharedServiceBusEndpointUrl { get; set; }
         public string NServiceBusLicense
         {
             get => _decodedNServiceBusLicense ??
