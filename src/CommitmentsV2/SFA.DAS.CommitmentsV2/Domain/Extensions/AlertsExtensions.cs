@@ -28,6 +28,11 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 result.Add(Alerts.ChangesRequested);
             }
 
+            if(EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(source))
+            {
+                result.Add(Alerts.ChangesRequested);
+            }
+
             if (source.ApprenticeshipUpdate == null)
             {
                 return result;
@@ -84,6 +89,15 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
                 x.TriageStatus == TriageStatus.Restart &&
+                !x.IsResolved);
+        }
+
+
+        private static bool EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(Apprenticeship source)
+        {
+            return !source.IsProviderSearch && source.DataLockStatus.Any(x =>
+                x.Status == Status.Fail &&
+                x.TriageStatus != TriageStatus.Unknown &&
                 !x.IsResolved);
         }
     }

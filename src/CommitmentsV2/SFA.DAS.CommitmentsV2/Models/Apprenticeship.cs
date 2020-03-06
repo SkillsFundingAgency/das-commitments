@@ -35,6 +35,9 @@ namespace SFA.DAS.CommitmentsV2.Models
                 }
             }
         }
+
+        public bool IsProviderSearch { get; set; }
+
         public Apprenticeship()
         {
             DataLockStatus = new List<DataLockStatus>();

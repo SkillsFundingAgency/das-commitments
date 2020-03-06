@@ -230,5 +230,46 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             result.PageNumber.Should().Be(searchResult.PageNumber);
         }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task ThenIsSetToBeFromProvider(
+            int totalApprenticeshipsFoundWithAlertsCount,
+            int totalApprenticeshipsFoundCount,
+            List<Apprenticeship> apprenticeships,
+            GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
+            [Frozen]GetApprenticeshipsQuery query,
+            [Frozen] Mock<IApprenticeshipSearch> search,
+            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
+            GetApprenticeshipsQueryHandler handler)
+        {
+            query.SortField = "";
+            query.EmployerAccountId = null;
+
+            apprenticeships[1].Cohort.ProviderId = query.ProviderId ?? 0;
+
+            search.Setup(x => x.Find(It.IsAny<ApprenticeshipSearchParameters>()))
+                .ReturnsAsync(new ApprenticeshipSearchResult
+                {
+                    Apprenticeships = apprenticeships,
+                    TotalAvailableApprenticeships = apprenticeships.Count,
+                    TotalApprenticeshipsFound = totalApprenticeshipsFoundCount,
+                    TotalApprenticeshipsWithAlertsFound = totalApprenticeshipsFoundWithAlertsCount
+                });
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(new List<Apprenticeship>());
+
+            mockMapper
+                .Setup(mapper => mapper.Map(It.IsIn(apprenticeships
+                    .Where(apprenticeship => apprenticeship.IsProviderSearch))))
+                .ReturnsAsync(apprenticeshipDetails);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.Apprenticeships.Should().AllBeEquivalentTo(apprenticeshipDetails);
+
+        }
     }
 }

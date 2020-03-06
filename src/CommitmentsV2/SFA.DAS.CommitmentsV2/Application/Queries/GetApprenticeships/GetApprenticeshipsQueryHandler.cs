@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -79,10 +80,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                     searchResult = await _apprenticeshipSearch.Find(searchParameters);
                 }
             }
+            searchResult.Apprenticeships = searchResult.Apprenticeships
+                .Select(c => { c.IsProviderSearch = query.ProviderId.HasValue; return c; })
+                .ToList();
 
             foreach (var apprenticeship in searchResult.Apprenticeships)
             {
-                var details = await _mapper.Map(apprenticeship);
+                var details = await _mapper.Map(apprenticeship); 
                 matchedApprenticeshipDetails.Add(details);
             }
 

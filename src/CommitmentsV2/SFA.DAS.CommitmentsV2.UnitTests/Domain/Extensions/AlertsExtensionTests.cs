@@ -195,5 +195,46 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
 
             result.Alerts.Should().BeEmpty();
         }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Employer_Has_Unresolved_Errors_That_Have_Known_Triage_Status(
+            Apprenticeship source,
+            DataLockStatus dataLockStatus,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            //Arrange
+            dataLockStatus.Status = Status.Fail;
+            dataLockStatus.TriageStatus = TriageStatus.Restart;
+            dataLockStatus.IsResolved = false;
+            source.IsProviderSearch = false;
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
+
+            //Act
+            var result = await mapper.Map(source);
+
+            //Assert
+            result.Alerts.Should().NotBeNullOrEmpty();
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesRequested });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Provider_Has_Unresolved_Errors_That_Have_Known_Triage_Status(
+            Apprenticeship source,
+            DataLockStatus dataLockStatus,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            //Arrange
+            dataLockStatus.Status = Status.Fail;
+            dataLockStatus.TriageStatus = TriageStatus.Restart;
+            dataLockStatus.IsResolved = false;
+            source.IsProviderSearch = true;
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
+
+            //Act
+            var result = await mapper.Map(source);
+
+            //Assert
+            result.Alerts.Should().BeNullOrEmpty();
+        }
     }
 }
