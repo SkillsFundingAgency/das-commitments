@@ -141,8 +141,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
             {
                 query = query.OrderBy(x => x.FirstName)
                     .ThenBy(x => x.LastName)
-                    .ThenBy(x => x.CourseName)
                     .ThenBy(x => x.Cohort.Provider.Name)
+                    .ThenBy(x => x.CourseName)
                     .ThenByDescending(x => x.StartDate)
                     .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
                     .Include(apprenticeship => apprenticeship.DataLockStatus)
