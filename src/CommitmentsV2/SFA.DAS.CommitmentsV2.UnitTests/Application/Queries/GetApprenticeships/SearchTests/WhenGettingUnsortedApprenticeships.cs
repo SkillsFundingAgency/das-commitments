@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             ApprenticeshipSearchService service)
         {
             searchParameters.PageNumber = 0;
-            searchParameters.PageItemCount = 0;
+            searchParameters.PageItemCount = 10;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
             searchParameters.EmployerAccountId = null;
 
@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             ApprenticeshipSearchService service)
         {
             searchParameters.PageNumber = 0;
-            searchParameters.PageItemCount = 0;
+            searchParameters.PageItemCount = 10;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
             searchParameters.ProviderId = null;
 
@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             ApprenticeshipSearchService service)
         {
             searchParameters.PageNumber = 0;
-            searchParameters.PageItemCount = 0;
+            searchParameters.PageItemCount = 10;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
             apprenticeships[0].Cohort.ProviderId = searchParameters.ProviderId ?? 0;

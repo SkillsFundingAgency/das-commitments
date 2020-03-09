@@ -212,7 +212,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
         { 
             return _dbContext
                 .Apprenticeships
-                .WithProviderOrEmployerId(searchParameters);
+                .WithProviderOrEmployerId(searchParameters)
+                .DownloadsFilter(searchParameters.PageNumber == 0);
         }
 
         private IQueryable<Apprenticeship> GetApprenticeshipsWithFiltersQuery(ApprenticeshipSearchParameters searchParameters, bool withAlerts)
