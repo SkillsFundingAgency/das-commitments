@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
             ApprenticeshipSearchService service)
         {
-            searchParameters.PageNumber = 0;
+            searchParameters.PageNumber = 1;
             searchParameters.PageItemCount = 10;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
