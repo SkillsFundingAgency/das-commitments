@@ -394,13 +394,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeshipFilterValues_VerifyUrlAndDataIsCorrectForEmployer()
         {
             //Arrange
-            var request = new GetApprenticeshipFiltersRequest { AccountId = 10 };
+            var request = new GetApprenticeshipFiltersRequest { EmployerAccountId = 10 };
 
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeshipsFilterValues(request, CancellationToken.None);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsFilterValuesResponse>($"api/apprenticeships/filters?employerAccountId={request.AccountId}", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsFilterValuesResponse>($"api/apprenticeships/filters?employerAccountId={request.EmployerAccountId}", null, CancellationToken.None));
         }
 
         [Test]
@@ -410,7 +410,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             var request = new GetApprenticeshipFiltersRequest
             {
                 ProviderId = 12,
-                AccountId = 10
+                EmployerAccountId = 10
             };
 
             //Act

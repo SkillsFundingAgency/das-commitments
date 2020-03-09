@@ -2,7 +2,7 @@
 {
     public class GetApprenticeshipFiltersRequest
     {
-        public long? AccountId { get; set; }
+        public long? EmployerAccountId { get; set; }
         public long? ProviderId { get; set; }
     }
 }

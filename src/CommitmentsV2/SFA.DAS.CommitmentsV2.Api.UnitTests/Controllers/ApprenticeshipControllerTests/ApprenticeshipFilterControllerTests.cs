@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Arrange
             var request = new GetApprenticeshipFiltersRequest
             {
-                AccountId = 10
+                EmployerAccountId = 10
             };
 
             //Act
@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.AccountId)), 
+                It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.EmployerAccountId)), 
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -103,7 +103,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Arrange
             var request = new GetApprenticeshipFiltersRequest
             {
-                AccountId = 10
+                EmployerAccountId = 10
             };
 
             var expectedResponse = new GetApprenticeshipsFilterValuesQueryResult
@@ -114,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 EndDates = new[] { DateTime.Now.AddDays(-2), DateTime.Now.AddDays(-1) }
             };
 
-            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.AccountId)),
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsFilterValuesQuery>(r =>  r.EmployerAccountId.HasValue && r.EmployerAccountId.Value.Equals(request.EmployerAccountId)),
                 It.IsAny<CancellationToken>())).ReturnsAsync(expectedResponse);
 
             //Act
