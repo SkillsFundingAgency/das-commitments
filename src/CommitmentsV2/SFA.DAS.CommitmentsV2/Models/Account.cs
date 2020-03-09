@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Created = created;
         }
 
-        private Account()
+        public Account()
         {
         }
 
