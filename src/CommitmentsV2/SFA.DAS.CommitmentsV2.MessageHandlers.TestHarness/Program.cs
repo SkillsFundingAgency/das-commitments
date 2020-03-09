@@ -17,6 +17,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
 {
     internal class Program
     {
+        private const string EndpointName = "SFA.DAS.CommitmentsV2.TestHarness";
+
         public static async Task Main()
         {
             var builder = new ConfigurationBuilder()
@@ -31,8 +33,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
             var config = provider.GetService<IOptions<CommitmentsV2Configuration>>().Value.NServiceBusConfiguration;
             var isDevelopment = Environment.GetEnvironmentVariable(EnvironmentVariableNames.EnvironmentName) == "LOCAL";
 
-            var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness")
-                .UseErrorQueue()
+            var endpointConfiguration = new EndpointConfiguration(EndpointName)
+                .UseErrorQueue($"{EndpointName}-errors")
                 .UseInstallers()
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer();
@@ -43,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
             }
             else
             {
-                endpointConfiguration.UseAzureServiceBusTransport(config.ServiceBusConnectionString, s => s.AddRouting());
+                endpointConfiguration.UseAzureServiceBusTransport(config.SharedServiceBusEndpointUrl, s => s.AddRouting());
             }
 
             var endpoint = await Endpoint.Start(endpointConfiguration);
