@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseLazyLoadingProxies();
+            
         }
         public override int SaveChanges()
         {
