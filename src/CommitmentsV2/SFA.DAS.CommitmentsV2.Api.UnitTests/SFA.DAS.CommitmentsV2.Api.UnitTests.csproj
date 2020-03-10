@@ -24,7 +24,7 @@
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Client" Version="0.11.233" />
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Types" Version="0.11.233" />
     <PackageReference Include="SFA.DAS.Providers.Api.Client" Version="0.11.233" />
-    <PackageReference Include="SFA.DAS.Testing" Version="3.0.22" />
+    <PackageReference Include="SFA.DAS.Testing" Version="3.0.167" />
     <PackageReference Include="SFA.DAS.Testing.AutoFixture" Version="3.0.161" />
   </ItemGroup>
 

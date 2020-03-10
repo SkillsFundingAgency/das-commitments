@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Testing.Fakes;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
