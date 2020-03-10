@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Notifications.Messages.Commands;
+using SFA.DAS.Testing.Fakes;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {
@@ -82,6 +83,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _fixture.SetupCommandWithoutEmailAddress().AddEmployeeOwnerWithEmail(email);
             await _fixture.Handle();
             _fixture.VerifyNoMessagesSent();
+            _fixture.VerifyHasWarning();
+        }
+
+        [Test]
+        public void When_HandlingCommandAndAnErrorOccurs_AnExceptionIsThrownAndLogged()
+        {
+            Assert.ThrowsAsync<NullReferenceException>(() => _fixture.SetupNullMessage().Handle());
+            _fixture.VerifyHasError();
         }
 
         private class SendEmailToEmployerCommandHandlerTestsFixture
@@ -89,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             public SendEmailToEmployerCommandHandler Handler;
             public SendEmailToEmployerCommand Command;
             public Mock<IAccountApiClient> AccountApiClient;
-            public Mock<ILogger<SendEmailToEmployerCommandHandler>> Logger;
+            public FakeLogger<SendEmailToEmployerCommandHandler> Logger;
             public Mock<IMessageHandlerContext> MessageHandlerContext;
             public Mock<IPipelineContext> PipelineContext;
 
@@ -110,13 +119,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 Tokens = _autoFixture.Create<Dictionary<string, string>>();
                 Employees = _autoFixture.CreateMany<TeamMemberViewModel>().ToList();
 
-                Logger = new Mock<ILogger<SendEmailToEmployerCommandHandler>>();
+                Logger = new FakeLogger<SendEmailToEmployerCommandHandler>();
                 MessageHandlerContext = new Mock<IMessageHandlerContext>();
                 PipelineContext = MessageHandlerContext.As<IPipelineContext>();
                 AccountApiClient = new Mock<IAccountApiClient>();
                 AccountApiClient.Setup(x => x.GetAccountUsers(It.IsAny<long>())).ReturnsAsync(Employees);
 
-                Handler = new SendEmailToEmployerCommandHandler(AccountApiClient.Object, Logger.Object);
+                Handler = new SendEmailToEmployerCommandHandler(AccountApiClient.Object, Logger);
             }
 
             public SendEmailToEmployerCommandHandlerTestsFixture SetupCommandWithoutEmailAddress()
@@ -128,6 +137,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             public SendEmailToEmployerCommandHandlerTestsFixture SetupCommandWithSpecificEmailAddress(string email)
             {
                 Command = new SendEmailToEmployerCommand(AccountId, TemplateId, Tokens, email);
+                return this;
+            }
+
+            public SendEmailToEmployerCommandHandlerTestsFixture SetupNullMessage()
+            {
+                Command = null;
                 return this;
             }
 
@@ -182,6 +197,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 PipelineContext.Verify(x=>x.Send(It.IsAny<SendEmailCommand>(), It.IsAny<SendOptions>()), Times.Exactly(2));
                 PipelineContext.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress == "owner@test.com"), It.IsAny<SendOptions>()), Times.Once);
                 PipelineContext.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress == "transactor@test.com"), It.IsAny<SendOptions>()), Times.Once);
+            }
+
+            public void VerifyHasError()
+            {
+                Assert.IsTrue(Logger.HasErrors);
+            }
+
+            public void VerifyHasWarning()
+            {
+                Assert.IsTrue(Logger.HasWarnings);
             }
         }
     }

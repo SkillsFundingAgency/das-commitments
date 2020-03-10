@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
@@ -14,6 +13,7 @@ using SFA.DAS.UnitOfWork.Context;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.Testing.Fakes;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {
@@ -29,9 +29,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [Test]
-        public Task WhenHandlingRejectTransferRequestCommand_AndDbDoesNotHaveRecord_ThenExceptionThrown()
+        public void WhenHandlingRejectTransferRequestCommand_AndDbDoesNotHaveRecord_ThenExceptionThrownAndLogged()
         {
-            return Task.FromResult(Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.Act()));
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.Act());
+            _fixture.VerifyHasError();
         }
 
         [Test]
@@ -44,7 +45,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
         [TestCase(TransferApprovalStatus.Pending, false)]
         [TestCase(TransferApprovalStatus.Approved, true)]
-        [TestCase(TransferApprovalStatus.Rejected, true)]
         public async Task WhenCallingRejectOnTransferRequest_ThenTransferApprovalStatusHandledCorrectly(TransferApprovalStatus status, bool shouldThrowException)
         {
             _fixture
@@ -59,6 +59,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 await _fixture.Act();
             }
+        }
+
+        [Test]
+        public async Task WhenCallingRejectOnTransferRequestAndAlreadyBeenRejected_ThenShouldSwallowMessageAndLogWarning()
+        {
+            _fixture
+                .WithTransferRequestAndCohortInDatabase()
+                .WithTransferApprovalStatus(TransferApprovalStatus.Rejected);
+
+            await _fixture.Act();
+            _fixture.VerifyHasWarning();
         }
 
         [Test]
@@ -106,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         private TransferRequest _transferRequest;
         private Cohort _cohort;
         private ProviderCommitmentsDbContext _db;
-        private Mock<ILogger<RejectTransferRequestCommandHandler>> _mockLogger;
+        private FakeLogger<RejectTransferRequestCommandHandler> _logger;
         private Mock<IMessageHandlerContext> _mockMessageHandlerContext;
         private RejectTransferRequestCommandHandler _sut;
         private UnitOfWorkContext _unitOfWorkContext;
@@ -137,12 +148,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                 .Options);
 
-            _mockLogger = new Mock<ILogger<RejectTransferRequestCommandHandler>>();
+            _logger = new FakeLogger<RejectTransferRequestCommandHandler>();
             _mockMessageHandlerContext = new Mock<IMessageHandlerContext>();
             _rejectedOnDate = new DateTime(2020, 01, 30, 14, 22, 00);
             _command = new RejectTransferRequestCommand(_transferRequestId, _rejectedOnDate, _userInfo);
             _unitOfWorkContext = new UnitOfWorkContext();
-            _sut = new RejectTransferRequestCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), _mockLogger.Object);
+            _sut = new RejectTransferRequestCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), _logger);
         }
 
         public async Task Act() => await _sut.Handle(_command, _mockMessageHandlerContext.Object);
@@ -200,6 +211,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             Assert.AreEqual(_userInfo.UserId, rejectedEvent.UpdatingUserId);
             Assert.AreEqual(_userInfo.UserDisplayName, rejectedEvent.UpdatingUserName);
             Assert.AreEqual(Party.TransferSender, rejectedEvent.UpdatingParty);
+        }
+
+        public void VerifyHasError()
+        {
+            Assert.IsTrue(_logger.HasErrors);
+        }
+
+        public void VerifyHasWarning()
+        {
+            Assert.IsTrue(_logger.HasWarnings);
         }
     }
 }

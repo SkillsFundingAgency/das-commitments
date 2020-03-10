@@ -46,6 +46,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [Test]
+        public void Handle_WhenHandlingTransferSenderApproveCohortCommand_ForASecondTime_ThenItShouldLogWarningAndReturn()
+        {
+            var fixture = new ApproveTransferRequestCommandHandlerTestsFixture();
+            fixture.SetupTransfer().SetupTransferSenderApproveCohortCommand().SetTransferStatusToApproved();
+
+            fixture.Handle();
+
+            fixture.VerifyTransferRequestApprovedEventIsNotPublished();
+            fixture.VerifyHasWarning();
+        }
+
+        [Test]
         public void Handle_WhenHandlingTransferSenderApproveCohortCommand_ThenItShouldPublishChangeTrackingEvents()
         {
             var fixture = new ApproveTransferRequestCommandHandlerTestsFixture();
@@ -137,6 +149,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             return this;
         }
 
+        public ApproveTransferRequestCommandHandlerTestsFixture SetTransferStatusToApproved()
+        {
+            TransferRequest.Status = TransferApprovalStatus.Approved;
+            return this;
+        }
+
         public Task Handle()
         {
             return Sut.Handle(TransferSenderApproveCohortCommand, Mock.Of<IMessageHandlerContext>());
@@ -155,6 +173,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             Assert.IsTrue(Logger.HasErrors);
         }
 
+        public void VerifyHasWarning()
+        {
+            Assert.IsTrue(Logger.HasWarnings);
+        }
+
         public void VerifyTransferRequestApprovedEventIsPublished()
         { 
             var list = UnitOfWorkContext.GetEvents().OfType<TransferRequestApprovedEvent>().ToList();
@@ -164,6 +187,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             Assert.AreEqual(TransferRequest.Id, list[0].TransferRequestId);
             Assert.AreEqual(TransferSenderUserInfo, list[0].UserInfo);
             Assert.AreEqual(Now, list[0].ApprovedOn);
+        }
+
+        public void VerifyTransferRequestApprovedEventIsNotPublished()
+        {
+            var list = UnitOfWorkContext.GetEvents().OfType<TransferRequestApprovedEvent>().ToList();
+
+            Assert.AreEqual(0, list.Count);
         }
 
         public void VerifyEntityIsBeingTracked()
