@@ -30,3 +30,8 @@ END
 --CV-514: Add Approvals flag
 update Commitment
 set Approvals = COALESCE((select top 1 a.AgreementStatus from Apprenticeship a where a.CommitmentId = Commitment.Id),0) + CASE WHEN TransferApprovalStatus = 1 THEN 4 ELSE 0 END
+
+update Commitment
+set [EmployerAndProviderApprovedOn] = (select top 1 a.AgreedOn from Apprenticeship a where a.CommitmentId = Commitment.Id)
+where EditStatus = 0 and [EmployerAndProviderApprovedOn] IS NULL
+
