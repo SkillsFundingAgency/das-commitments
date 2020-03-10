@@ -13,8 +13,7 @@ Post-Deployment Script Template
 EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
 
 --CV-515: Add IsDraft flag - update existing data
-update Commitment set IsDraft = 1 where LastAction = 0
-
+update Commitment set IsDraft = 0 where LastAction <> 0
 
 --CV-516: Add WithParty field - update existing data
 update Commitment set WithParty = 
@@ -25,7 +24,6 @@ CASE
     WHEN (EditStatus = 0 AND TransferApprovalStatus=0) THEN 4 --Approved by Employer and Provider and pending Transfer Sender's approval
     ELSE 0
 END
-
 
 --CV-514: Add Approvals flag
 update Commitment
