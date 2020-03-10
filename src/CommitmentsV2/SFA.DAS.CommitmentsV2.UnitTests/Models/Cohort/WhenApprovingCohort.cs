@@ -319,6 +319,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.VerifyCohortTracking();
         }
+
+        [TestCase(Party.Employer, true, true)]
+        [TestCase(Party.Employer, false, false)]
+        [TestCase(Party.Provider, true, true)]
+        [TestCase(Party.Provider, false, false)]
+        public void ThenTheEmployerAndProviderApprovedOnDateIsSetCorrectly(Party modifyingParty, bool otherPartyHasApproved, bool expectApprovedOnDate)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetApprovals(otherPartyHasApproved ? modifyingParty.GetOtherParty(): Party.None)
+                .AddDraftApprenticeship()
+                .Approve();
+
+            _fixture.VerifyEmployerAndProviderApprovedOnDate(expectApprovedOnDate);
+        }
     }
 
     public class WhenApprovingCohortFixture
@@ -438,5 +453,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                                                                                 nameof(Cohort)));
         }
 
+        public void VerifyEmployerAndProviderApprovedOnDate(bool expectValue)
+        {
+            if (expectValue)
+            {
+                Assert.AreEqual(DateTime.UtcNow.Date, Cohort.EmployerAndProviderApprovedOn?.Date);
+            }
+            else
+            {
+                Assert.IsNull(Cohort.EmployerAndProviderApprovedOn);
+            }
+        }
     }
 }

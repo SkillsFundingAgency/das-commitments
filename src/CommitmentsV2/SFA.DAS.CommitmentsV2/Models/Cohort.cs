@@ -173,6 +173,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public Party WithParty { get; set; }
         public Party Approvals { get; set; }
+        public DateTime? EmployerAndProviderApprovedOn { get; set; }
 
         public virtual bool IsApprovedByAllParties => WithParty == Party.None; //todo: use new Approvals flag
 
@@ -219,6 +220,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     WithParty = isApprovedByOtherParty
                         ? TransferSenderId.HasValue ? Party.TransferSender : Party.None
                         : otherParty;
+                    if (isApprovedByOtherParty) EmployerAndProviderApprovedOn = DateTime.UtcNow;
                     LastAction = LastAction.Approve;
                     CommitmentStatus = CommitmentStatus.Active;
                     TransferApprovalStatus = null;

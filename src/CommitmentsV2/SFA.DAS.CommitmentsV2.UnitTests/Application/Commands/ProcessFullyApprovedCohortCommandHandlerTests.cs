@@ -145,8 +145,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public bool IsValid(ApprenticeshipEmployerType apprenticeshipEmployerType, Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
         {
             var isValid = apprenticeshipCreatedEvent.ApprenticeshipId == apprenticeship.Id &&
-                          apprenticeshipCreatedEvent.CreatedOn == apprenticeship.Cohort.LastUpdatedOn &&
-                          apprenticeshipCreatedEvent.AgreedOn == apprenticeship.Cohort.LastUpdatedOn &&
+                          apprenticeshipCreatedEvent.CreatedOn.Date == DateTime.UtcNow.Date &&
+                          apprenticeshipCreatedEvent.AgreedOn == apprenticeship.Cohort.EmployerAndProviderApprovedOn &&
                           apprenticeshipCreatedEvent.AccountId == apprenticeship.Cohort.EmployerAccountId &&
                           apprenticeshipCreatedEvent.AccountLegalEntityPublicHashedId == apprenticeship.Cohort.AccountLegalEntityPublicHashedId &&
                           apprenticeshipCreatedEvent.LegalEntityName == apprenticeship.Cohort.AccountLegalEntity.Name &&
