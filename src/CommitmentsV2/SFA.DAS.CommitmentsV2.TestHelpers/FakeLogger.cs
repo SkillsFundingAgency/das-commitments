@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests
+namespace SFA.DAS.CommitmentsV2.TestHelpers
 {
     public class FakeLogger<T> : ILogger<T>
     {
@@ -26,5 +26,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests
 
         public bool HasErrors => LogMessages.Any(l => l.logLevel == LogLevel.Error);
         public bool HasInfo => LogMessages.Any(l => l.logLevel == LogLevel.Information);
+        public bool HasWarnings => LogMessages.Any(l => l.logLevel == LogLevel.Warning);
     }
 }
