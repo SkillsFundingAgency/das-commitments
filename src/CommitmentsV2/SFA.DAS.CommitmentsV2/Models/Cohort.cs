@@ -171,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public string LastMessage => Messages.OrderByDescending(x => x.Id).FirstOrDefault()?.Text;
 
-        public Party WithParty { get; set; }
+        public virtual Party WithParty { get; set; }
 
         public virtual bool IsApprovedByAllParties => WithParty == Party.None;
 
@@ -645,7 +645,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public Party Approvals
+        public virtual Party Approvals
         {
             get
             {
