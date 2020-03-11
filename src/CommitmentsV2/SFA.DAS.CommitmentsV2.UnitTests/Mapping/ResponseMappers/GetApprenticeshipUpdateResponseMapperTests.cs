@@ -1,108 +1,80 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using AutoFixture;
+using AutoFixture.Kernel;
+using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
 {
     [TestFixture]
-    public class UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandMapperTests :
-    MapperTester<GetApprenticeshipUpdateResponseMapper, GetApprenticeshipUpdateQueryResult, GetApprenticeshipUpdateResponse>
+    public class UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandMapperTests
     {
-        [Test]
-        public Task Map_Id_ShouldBeSet()
+        private readonly GetApprenticeshipUpdateResponseMapper _mapper;
+        private GetApprenticeshipUpdateQueryResult _source;
+        private GetApprenticeshipUpdatesResponse _result;
+
+        public UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandMapperTests()
         {
-            return AssertPropertySet(from => from.Id, (long)2);
+            _mapper = new GetApprenticeshipUpdateResponseMapper();
+        }
+
+        [SetUp]
+        public async Task Arrange()
+        {
+            var autoFixture = new Fixture();
+            autoFixture.Customizations.Add(new ApprenticeshipUpdateOriginatorSpecimenBuilder());
+            _source = autoFixture.Create<GetApprenticeshipUpdateQueryResult>();
+            _result = await _mapper.Map(TestHelper.Clone(_source));
         }
 
         [Test]
-        public Task Map_ApprenticeshipId_ShouldBeSet()
+        public void ApprenticeshipUpdatesAreMappedCorrectly()
         {
-            return AssertPropertySet(from => from.ApprenticeshipId, (long)2090);
-        }
-
-        [TestCase(Originator.Employer, Party.Employer)]
-        [TestCase(Originator.Provider, Party.Provider)]
-        public Task Map_Originator_ShouldBeSetToParty(Originator fromValue, Party expectedToValue)
-        {
-            return AssertPropertySet(from => from.Originator = fromValue, to => to.OriginatingParty == expectedToValue);
-        }
-
-        [TestCase(null)]
-        [TestCase(123.32)]
-        public Task Map_Cost_ShouldBeSet(decimal? value)
-        {
-            return AssertPropertySet(from => from.Cost, value);
+            var compare = new CompareLogic(new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = 100 });
+            var compareResult = compare.Compare(_source.ApprenticeshipUpdates, _result.ApprenticeshipUpdates);
+            Assert.IsTrue(compareResult.AreEqual);
         }
 
         [Test]
-        public Task Map_FirstName_ShouldBeSet()
+        public void ApprenticeshipUpdates_PartyIsMappedProperly()
         {
-            return AssertPropertySet(from => from.FirstName, "FirstName");
-        }
-
-        [Test]
-        public Task Map_LastName_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.FirstName, "LastName");
-        }
-
-        [TestCase(ProgrammeType.Standard)]
-        [TestCase(null)]
-        public Task Map_TrainingType_ShouldBeSet(ProgrammeType? value)
-        {
-            return AssertPropertySet(from => from.TrainingType, value);
-        }
-
-        [Test]
-        public Task Map_TrainingCode_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.TrainingCode, "XASA");
-        }
-
-        [Test]
-        public Task Map_TrainingName_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.TrainingName, "Training name of course");
-        }
-
-        [Test]
-        public Task Map_StartDateWithoutValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.StartDate, (DateTime?)null);
-        }
-
-        [Test]
-        public Task Map_StartDateWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.StartDate, (DateTime?)DateTime.Now);
-        }
-
-        [Test]
-        public Task Map_EndDateWithoutValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.EndDate, (DateTime?)null);
-        }
-
-        [Test]
-        public Task Map_EndDateWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.EndDate, (DateTime?)DateTime.Now);
-        }
-
-        [Test]
-        public Task Map_DateOfBirthWithoutValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.DateOfBirth, (DateTime?)null);
-        }
-
-        [Test]
-        public Task Map_DateOfBirthWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.DateOfBirth, (DateTime?)DateTime.Now);
+            foreach (var source in _source.ApprenticeshipUpdates)
+            {
+                var result = _result.ApprenticeshipUpdates.First(x => x.Id == source.Id);
+                Assert.AreEqual(source.Originator.ToParty(), result.OriginatingParty);
+            }
         }
     }
+
+    public class ApprenticeshipUpdateOriginatorSpecimenBuilder :
+    ISpecimenBuilder
+    {
+        public object Create(object request,
+            ISpecimenContext context)
+        {
+            var pi = request as PropertyInfo;
+
+            if (pi == null)
+            {
+                return new NoSpecimen();
+            }
+            if (pi == typeof(Originator)
+                || pi.Name == "Originator")
+            {
+                var enums = Enum.GetValues(typeof(Originator)).Cast<Originator>().Where(x => x != Originator.Unknown);
+                return enums.ElementAt((new Random()).Next(0, enums.Count()));
+            }
+
+            return new NoSpecimen();
+        }
+    }
+
 }

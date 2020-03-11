@@ -6,6 +6,7 @@
         Approved = 1,
         Rejected = 2,
         Deleted = 3,
-        Superceded = 4
+        Superceded = 4,
+        Expired = 5
     }
 }

@@ -65,6 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             return _dbContext.Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
+                .OrderBy(apprenticeship => apprenticeship.Cohort.LegalEntityName)
                 .Select(apprenticeship => apprenticeship.Cohort.LegalEntityName)
                 .Distinct()
                 .ToListAsync(cancellationToken);
@@ -74,6 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         {
             return _dbContext.Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
+                .OrderBy(apprenticeship => apprenticeship.CourseName)
                 .Select(apprenticeship => apprenticeship.CourseName)
                 .Distinct()
                 .ToListAsync(cancellationToken);
@@ -85,6 +87,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId 
                                          && apprenticeship.StartDate.HasValue)
+                .OrderBy(apprenticeship => apprenticeship.StartDate)
                 .Select(apprenticeship => apprenticeship.StartDate.Value)
                 .Distinct()
                 .ToListAsync(cancellationToken);
@@ -95,6 +98,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             return _dbContext.Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId &&
                                          apprenticeship.EndDate.HasValue)
+                .OrderBy(apprenticeship => apprenticeship.EndDate)
                 .Select(apprenticeship => apprenticeship.EndDate.Value)
                 .Distinct()
                 .ToListAsync(cancellationToken);

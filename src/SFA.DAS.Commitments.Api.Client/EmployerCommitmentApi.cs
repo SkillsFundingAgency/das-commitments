@@ -41,13 +41,6 @@ namespace SFA.DAS.Commitments.Api.Client
             return await _commitmentHelper.GetEmployerAccountSummary(url);
         }
 
-        public async Task<CommitmentView> CreateEmployerCommitment(long employerAccountId, CommitmentRequest commitment)
-        {
-            var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/commitments";
-
-            return await _commitmentHelper.PostCommitment(url, commitment);
-        }
-
         public async Task<List<CommitmentListItem>> GetEmployerCommitments(long employerAccountId)
         {
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/commitments";
@@ -102,20 +95,6 @@ namespace SFA.DAS.Commitments.Api.Client
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/apprenticeships/uln/{uln}";
 
             return await _commitmentHelper.GetApprenticeships(url);
-        }
-
-        public async Task CreateEmployerApprenticeship(long employerAccountId, long commitmentId, ApprenticeshipRequest apprenticeship)
-        {
-            var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/commitments/{commitmentId}/apprenticeships";
-
-            await _commitmentHelper.PostApprenticeship(url, apprenticeship);
-        }
-
-        public async Task UpdateEmployerApprenticeship(long employerAccountId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeship)
-        {
-            var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}";
-
-            await _commitmentHelper.PutApprenticeship(url, apprenticeship);
         }
 
         public async Task PatchEmployerApprenticeship(long employerAccountId, long apprenticeshipId, ApprenticeshipSubmission apprenticeshipSubmission)
