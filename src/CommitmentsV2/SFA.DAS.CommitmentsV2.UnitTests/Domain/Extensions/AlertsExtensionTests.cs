@@ -101,6 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             DataLockStatus dataLockStatus,
             ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
+            dataLockStatus.Status = Status.Fail;
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
             dataLockStatus.TriageStatus = TriageStatus.Change;
             dataLockStatus.IsResolved = false;

@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         {
             return !source.IsProviderSearch && source.DataLockStatus.Any(x =>
                 x.Status == Status.Fail &&
-                x.TriageStatus != TriageStatus.Unknown &&
+                (x.TriageStatus != TriageStatus.Unknown && x.TriageStatus != TriageStatus.Change) &&
                 !x.IsResolved);
         }
     }
