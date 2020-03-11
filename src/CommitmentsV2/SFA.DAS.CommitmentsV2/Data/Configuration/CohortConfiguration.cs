@@ -58,9 +58,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.Originator).IsRequired().HasColumnType("tinyint");
             builder.Ignore(e => e.DraftApprenticeships);
 
-            builder.HasOne(e => e.AccountLegalEntity)
-                .WithMany(ale => ale.Cohorts)
-                .HasForeignKey(d => d.AccountLegalEntityId);
 
             builder.HasOne(c => c.TransferSender)
                 .WithMany(c => c.TransferFundedCohorts)
