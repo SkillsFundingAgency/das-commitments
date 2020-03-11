@@ -135,7 +135,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
                     .Include(apprenticeship => apprenticeship.DataLockStatus)
                     .Include(apprenticeship => apprenticeship.Cohort)
-                    .ThenInclude(cohort => cohort.AccountLegalEntity); 
+                    .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
+                    .Include(apprenticeship => apprenticeship.Cohort.Provider); 
             }
             else
             {
@@ -147,7 +148,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
                     .Include(apprenticeship => apprenticeship.DataLockStatus)
                     .Include(apprenticeship => apprenticeship.Cohort)
-                    .ThenInclude(cohort => cohort.Provider); 
+                    .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
+                    .Include(apprenticeship => apprenticeship.Cohort.Provider);
             }
 
             if (skipCount > 0)
@@ -178,7 +180,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
                     .Include(apprenticeship => apprenticeship.DataLockStatus)
                     .Include(apprenticeship => apprenticeship.Cohort)
-                    .ThenInclude(cohort => cohort.AccountLegalEntity);
+                    .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
+                    .Include(apprenticeship => apprenticeship.Cohort.Provider);
             }
             else
             {
@@ -190,7 +193,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
                     .Include(apprenticeship => apprenticeship.DataLockStatus)
                     .Include(apprenticeship => apprenticeship.Cohort)
-                    .ThenInclude(cohort => cohort.Provider);
+                    .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
+                    .Include(apprenticeship => apprenticeship.Cohort.Provider);
 
             }
                     
