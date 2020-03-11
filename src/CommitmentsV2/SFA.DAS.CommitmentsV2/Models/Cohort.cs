@@ -158,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public string LastMessage => Messages.OrderByDescending(x => x.Id).FirstOrDefault()?.Text;
 
-        public Party WithParty
+        public virtual Party WithParty
         {
             get
             {
@@ -642,7 +642,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public Party Approvals
+        public virtual Party Approvals
         {
             get
             {
