@@ -45,11 +45,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.StateTracking
         [TestCase(true, true, true, Party.Employer | Party.Provider | Party.TransferSender)]
         public void PartyApprovalsReflectsTheApprovalsGiven(bool hasEmployerApproved, bool hasProviderApproved, bool hasTransferSenderApproved, Party expectedApprovals)
         {
-            var cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.EmployerOnly};
+            var cohort = new CommitmentsV2.Models.Cohort {WithParty = Party.Employer};
 
             if (hasEmployerApproved & hasProviderApproved)
             {
-                cohort.EditStatus = EditStatus.Both;
+                cohort.Apprenticeships.Add(new DraftApprenticeship { AgreementStatus = AgreementStatus.BothAgreed });
             }
             else if (hasProviderApproved)
             {

@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                                                 ProviderId = c.ProviderId.Value,
                                                 ProviderName = c.ProviderName,
                                                 CohortId = c.Id,
-                                                IsDraft = c.LastAction == LastAction.None,
+                                                IsDraft = c.IsDraft,
                                                 WithParty = c.WithParty,
                                                 CreatedOn = c.CreatedOn.Value,
                                                 TransferSenderName = transferSender.Name,

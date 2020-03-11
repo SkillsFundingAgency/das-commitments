@@ -28,7 +28,11 @@
 	[ApprenticeshipEmployerTypeOnApproval] TINYINT NULL,
 	[IsFullApprovalProcessed] BIT NOT NULL DEFAULT 0,
 	[IsDeleted] BIT NOT NULL DEFAULT 0, 
-    [AccountLegalEntityId] BIGINT NULL
+    [AccountLegalEntityId] BIGINT NULL,
+	[IsDraft] BIT NOT NULL DEFAULT 1,
+	[WithParty] SMALLINT NOT NULL DEFAULT 0,
+	[RowVersion] ROWVERSION NOT NULL,
+	[LastUpdatedOn] DATETIME2 DEFAULT GETDATE() NOT NULL
 )
 GO
 

@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public WhenDeletingDraftApprenticeshipFixture WithParty(Party party)
             {
-                Cohort.EditStatus = party.ToEditStatus();
+                Cohort.WithParty = party;
                 return this;
             }
 

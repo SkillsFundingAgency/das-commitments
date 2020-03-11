@@ -609,7 +609,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Cohort = new Cohort
                 {
                     Id = CohortId,
-                    EditStatus = creatingParty.ToEditStatus(),
+                    WithParty =  creatingParty,
                     ProviderId = ProviderId,
                     EmployerAccountId = AccountId,
                     AccountLegalEntityPublicHashedId = AccountLegalEntityPublicHashedId
