@@ -82,30 +82,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckIsCompleteForEmployer()
-        {
-            if (!IsCompleteForEmployer)
-            {
-                throw new DomainException(nameof(IsCompleteForEmployer), "Draft apprenticeship must be complete for employer");
-            }
-        }
-
-        private void CheckIsCompleteForProvider()
-        {
-            if (!IsCompleteForProvider)
-            {
-                throw new DomainException(nameof(IsCompleteForProvider), "Draft apprenticeship must be complete for provider");
-            }
-        }
-
-        private void CheckIsEmployerOrProvider(Party party)
-        {
-            if (party != Party.Employer && party != Party.Provider)
-            {
-                throw new DomainException(nameof(party), $"Party must be {Party.Employer} or {Party.Provider}; {party} is not valid");
-            }
-        }
-
         public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update)
         {
             if (FirstName != update.FirstName) return true;
