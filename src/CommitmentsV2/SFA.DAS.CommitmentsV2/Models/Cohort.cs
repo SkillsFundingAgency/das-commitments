@@ -171,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public string LastMessage => Messages.OrderByDescending(x => x.Id).FirstOrDefault()?.Text;
 
-        public Party WithParty { get; set; }
+        public virtual Party WithParty { get; set; }
         public Party Approvals { get; set; }
         public DateTime? EmployerAndProviderApprovedOn { get; set; }
 
