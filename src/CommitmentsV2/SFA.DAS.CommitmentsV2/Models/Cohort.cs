@@ -172,7 +172,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string LastMessage => Messages.OrderByDescending(x => x.Id).FirstOrDefault()?.Text;
 
         public virtual Party WithParty { get; set; }
-        public Party Approvals { get; set; }
+        public virtual Party Approvals { get; set; }
         public DateTime? EmployerAndProviderApprovedOn { get; set; }
 
         public virtual bool IsApprovedByAllParties => WithParty == Party.None; //todo: use new Approvals flag
