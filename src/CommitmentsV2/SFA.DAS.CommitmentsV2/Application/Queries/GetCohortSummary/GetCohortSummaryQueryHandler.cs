@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     CohortId = c.Id,
                     AccountId = c.EmployerAccountId,
                     CohortReference = c.Reference,
-                    AccountLegalEntityId = c.AccountLegalEntityId.Value,
+                    AccountLegalEntityId = c.AccountLegalEntity.Id,
                     AccountLegalEntityPublicHashedId = c.AccountLegalEntityPublicHashedId,
                     LegalEntityName = c.AccountLegalEntity.Name,
                     ProviderName = c.Provider.Name,

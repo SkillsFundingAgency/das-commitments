@@ -12,11 +12,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string Name { get; private set; }
         public DateTime Created { get; private set; }
         public DateTime? Updated { get; private set; }
-        public IEnumerable<AccountLegalEntity> AccountLegalEntities => _accountLegalEntities;
+        public virtual ICollection<AccountLegalEntity> AccountLegalEntities => _accountLegalEntities;
 
         private readonly List<AccountLegalEntity> _accountLegalEntities = new List<AccountLegalEntity>();
 
-        public ICollection<Cohort> TransferFundedCohorts { get; set; }
+        public virtual ICollection<Cohort> TransferFundedCohorts { get; set; }
 
         public Account(long id, string hashedId, string publicHashedId, string name, DateTime created)
         {
@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Created = created;
         }
 
-        private Account()
+        public Account()
         {
         }
 

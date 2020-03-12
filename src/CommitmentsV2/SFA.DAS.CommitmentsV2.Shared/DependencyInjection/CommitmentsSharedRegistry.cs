@@ -17,6 +17,8 @@ namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection
                 });
 
             For<ICommitmentsService>().Use<CommitmentsService>().Singleton();
+            For<ICurrentDateTime>().Use<CurrentDateTime>().Singleton();
+            For<ICreateCsvService>().Use<CreateCsvService>().Singleton();
 
             IncludeRegistry<CommitmentsSharedConfigurationRegistry>();
             IncludeRegistry<ApprenticeshipInfoServiceRegistry>();

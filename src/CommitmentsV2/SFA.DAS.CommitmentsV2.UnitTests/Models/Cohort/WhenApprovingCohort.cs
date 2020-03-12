@@ -135,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .Single().Should().Match<CohortFullyApprovedEvent>(e =>
                     e.CohortId == _fixture.Cohort.Id &&
                     e.AccountId == _fixture.Cohort.EmployerAccountId &&
-                    e.ProviderId == _fixture.Cohort.ProviderId.Value &&
+                    e.ProviderId == _fixture.Cohort.ProviderId &&
                     e.UpdatedOn == _fixture.Now);
         }
 
@@ -270,7 +270,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.UnitOfWorkContext.GetEvents().OfType<CohortFullyApprovedEvent>().Single(e =>
                     e.CohortId == _fixture.Cohort.Id &&
                     e.AccountId == _fixture.Cohort.EmployerAccountId &&
-                    e.ProviderId == _fixture.Cohort.ProviderId.Value &&
+                    e.ProviderId == _fixture.Cohort.ProviderId &&
                     e.UpdatedOn == _fixture.Now);
         }
         

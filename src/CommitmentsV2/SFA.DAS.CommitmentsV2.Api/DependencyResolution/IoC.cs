@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
             registry.IncludeRegistry<ApprenticeshipInfoServiceRegistry>();
             registry.IncludeRegistry<AuthorizationRegistry>();
+            registry.IncludeRegistry<ApprenticeshipSearchRegistry>();
             registry.IncludeRegistry<ConfigurationRegistry>();
             registry.IncludeRegistry<CurrentDateTimeRegistry>();
             registry.IncludeRegistry<DataRegistry>();
@@ -37,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<StateServiceRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
             registry.IncludeRegistry<CachingRegistry>();
+
         }
     }
 }

@@ -7,15 +7,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
     [TestFixture]
     public class GetApprenticeshipsValidationTests
     {
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(long id, bool expectedIsValid)
+        [TestCase(0, 1, true)]
+        [TestCase(1, 0, true)]
+        [TestCase(null, 1, true)]
+        [TestCase(1, null, true)]
+        [TestCase(1, 1, false)]
+        [TestCase(0, 0, false)]
+        [TestCase(null, null, false)]
+        [TestCase(null, 0, false)]
+        [TestCase(0, null, false)]
+        public void Validate_WithSpecifiedProviderAndEmployerId_ShouldSetIsValidCorrectly(long? providerId, long? employerId, bool expectedIsValid)
         {
             // arrange
             var validator = new GetApprenticeshipsQueryValidator();
             var validationResults = validator.Validate(new GetApprenticeshipsQuery
             {
-                ProviderId = id,
+                EmployerAccountId = employerId,
+                ProviderId = providerId,
                 PageNumber = 1,
                 PageItemCount = 1
             });
@@ -31,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [TestCase(null,true)]
         [TestCase("",true)]
         [TestCase(nameof(Apprenticeship.FirstName),true)]
-        [TestCase(nameof(Apprenticeship.Cohort.LegalEntityName),true)]
+        [TestCase(nameof(Apprenticeship.Cohort.AccountLegalEntity.Name),true)]
         public void Validate_WithSpecifiedSortField_ShouldOnlyBeAllowedIfPropertyOnApprenticeship(string fieldName, bool expected)
         {
             // arrange

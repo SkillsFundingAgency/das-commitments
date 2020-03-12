@@ -33,7 +33,6 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
                     var endpointConfiguration = new EndpointConfiguration(EndpointName)
                         .UseErrorQueue($"{EndpointName}-errors")
                         .UseInstallers()
-                        .UseLicense(configuration.NServiceBusLicense)
                         .UseMessageConventions()
                         .UseNewtonsoftJsonSerializer()
                         .UseNLogFactory()
@@ -49,6 +48,11 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
                     else
                     {
                         endpointConfiguration.UseAzureServiceBusTransport(configuration.SharedServiceBusEndpointUrl, s => s.AddRouting());
+                    }
+
+                    if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
+                    {
+                        endpointConfiguration.UseLicense(configuration.NServiceBusLicense);
                     }
                     
                     var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
