@@ -7,12 +7,12 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class AccountLegalEntity : ICohortOriginator
     {
-        public virtual long Id { get; private set; }
+        public long Id { get; private set; }
         public string LegalEntityId { get; private set; }
-        public virtual long MaLegalEntityId { get; private set; }
+        public long MaLegalEntityId { get; private set; }
         public string PublicHashedId { get; private set; }
         public virtual Account Account { get; private set; }
-        public virtual long AccountId { get; private set; }
+        public long AccountId { get; private set; }
         public string Name { get; private set; }
         public OrganisationType OrganisationType { get; private set; }
         public string Address { get; private set; }
@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual ICollection<Cohort> Cohorts { get; set; }
 
-        internal AccountLegalEntity(Account account, long id, long maLegalEntityId, string legalEntityId, string publicHashedId, 
+        public AccountLegalEntity(Account account, long id, long maLegalEntityId, string legalEntityId, string publicHashedId, 
             string name, OrganisationType organisationType, string address, DateTime created)
         {
             Id = id;
@@ -35,6 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             OrganisationType = organisationType;
             Address = address;
             Created = created;
+            Deleted = null;
         }
 
         public AccountLegalEntity()

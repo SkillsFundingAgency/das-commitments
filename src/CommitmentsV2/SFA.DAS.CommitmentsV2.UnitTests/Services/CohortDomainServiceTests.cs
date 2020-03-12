@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -389,6 +390,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public DraftApprenticeship ExistingDraftApprenticeship { get; }
             public long DraftApprenticeshipId { get; }
 
+            public Account EmployerAccount { get; set; }
             public Account TransferSenderAccount { get; set; }
             public Mock<Provider> Provider { get; set; }
             public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }
@@ -443,10 +445,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .Returns(NewCohort);
                 Db.Providers.Add(Provider.Object);
 
-                AccountLegalEntity = new Mock<AccountLegalEntity>();
-                AccountLegalEntity.Setup(x => x.Id).Returns(AccountLegalEntityId);
-                AccountLegalEntity.Setup(x => x.MaLegalEntityId).Returns(MaLegalEntityId);
-                AccountLegalEntity.Setup(x => x.AccountId).Returns(AccountId);
+                EmployerAccount = new Account(AccountId, "AAAA", "BBBB", "Account 1", DateTime.UtcNow);
+                Db.Accounts.Add(EmployerAccount);
+                AccountLegalEntity = new Mock<AccountLegalEntity>(()=>
+                    new AccountLegalEntity(EmployerAccount,AccountLegalEntityId,MaLegalEntityId,"test","ABC","Test",OrganisationType.CompaniesHouse,"test",DateTime.UtcNow));
                 AccountLegalEntity.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(), null,
                         It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
@@ -606,17 +608,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public CohortDomainServiceTestFixture WithExistingCohort(Party creatingParty)
             {
-                Cohort = new Cohort
-                {
-                    Id = CohortId,
-                    EditStatus = creatingParty.ToEditStatus(),
-                    Provider = Provider.Object,
-                    ProviderId = ProviderId,
-                    EmployerAccountId = AccountId,
-                    AccountLegalEntityPublicHashedId = AccountLegalEntityPublicHashedId,
-                };
+                //Cohort = new Cohort
+                //{
+                //    Id = CohortId,
+                //    EditStatus = creatingParty.ToEditStatus(),
+                //    Provider = Provider.Object,
+                //    ProviderId = ProviderId,
+                //    EmployerAccountId = AccountId,
+                //    AccountLegalEntityPublicHashedId = AccountLegalEntityPublicHashedId,
+                //    AccountLegalEntityId = AccountLegalEntityId,
+                //    AccountLegalEntity = AccountLegalEntity.Object,
+                //    TransferSenderId = null,
+                //};
+
+                Cohort = CreateCohort(AccountId, AccountLegalEntityId, null).Result;
                 
-                Db.Cohorts.Add(Cohort);
+                //Db.Cohorts.Add(Cohort);
                 
                 return this;
             }
@@ -787,6 +794,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     DomainErrors.AddRange(ex.DomainErrors);
                 }
             }
+
 
             public async Task ApproveCohort()
             {
