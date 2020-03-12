@@ -26,6 +26,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
+using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -455,6 +456,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         It.IsAny<string>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
 
+                AccountLegalEntity.Setup(x => x.Account).Returns(EmployerAccount);
                 AccountLegalEntity.Setup(x => x.Cohorts).Returns(new List<Cohort>());
 
                 Db.AccountLegalEntities.Add(AccountLegalEntity.Object);
