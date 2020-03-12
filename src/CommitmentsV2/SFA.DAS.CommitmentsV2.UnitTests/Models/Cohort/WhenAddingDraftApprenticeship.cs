@@ -29,7 +29,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [Test]
         public void ThenShouldAddDraftApprenticeshipToCohort()
         {
-            var draftApprenticeship = _fixture.AddDraftApprenticeship();
+            var draftApprenticeship = _fixture
+                .SetWithParty(Party.Employer)
+                .SetParty(Party.Employer)
+                .AddDraftApprenticeship();
 
             draftApprenticeship.Should().BeSameAs(_fixture.Cohort.Apprenticeships.SingleOrDefault());
         }
@@ -37,7 +40,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [Test]
         public void ThenShouldPublishDraftApprenticeshipCreatedEvent()
         {
-            var draftApprenticeship = _fixture.AddDraftApprenticeship();
+            var draftApprenticeship = _fixture
+                .SetWithParty(Party.Employer)
+                .SetParty(Party.Employer)
+                .AddDraftApprenticeship();
 
             _fixture.UnitOfWorkContext.GetEvents().OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e => 
                     e.CohortId == _fixture.Cohort.Id &&
@@ -50,7 +56,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [Test]
         public void ThenShouldReturnDraftApprenticeship()
         {
-            var draftApprenticeship = _fixture.AddDraftApprenticeship();
+            var draftApprenticeship = _fixture
+                .SetWithParty(Party.Employer)
+                .SetParty(Party.Employer)
+                .AddDraftApprenticeship();
 
             draftApprenticeship.Should().NotBeNull().And.Match<DraftApprenticeship>(d =>
                 d.FirstName == _fixture.DraftApprenticeshipDetails.FirstName &&
@@ -66,9 +75,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [Test]
-        public void AndEditStatusIsProviderOnlyAndPartyIsProviderThenShouldReturnDraftApprenticeship()
+        public void AndWithPartyIsProviderAndPartyIsProviderThenShouldReturnDraftApprenticeship()
         {
-            var draftApprenticeship = _fixture.SetEditStatus(EditStatus.ProviderOnly)
+            var draftApprenticeship = _fixture.SetWithParty(Party.Provider)
                 .SetParty(Party.Provider)
                 .AddDraftApprenticeship();
 
@@ -78,9 +87,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [Test]
-        public void AndEditStatusIsEmployerOnlyAndPartyIsEmployerThenShouldReturnDraftApprenticeship()
+        public void AndWithPartyIsEmployerAndPartyIsEmployerThenShouldReturnDraftApprenticeship()
         {
-            var draftApprenticeship = _fixture.SetEditStatus(EditStatus.EmployerOnly)
+            var draftApprenticeship = _fixture.SetWithParty(Party.Employer)
                 .SetParty(Party.Employer)
                 .AddDraftApprenticeship();
 
@@ -94,6 +103,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void ThenTheApprovalOfTheOtherPartyIsUndone(Party modifyingParty)
         {
             _fixture
+                .SetWithParty(modifyingParty)
+                .SetParty(modifyingParty)
                 .WithExistingDraftApprenticeship()
                 .WithApproval(modifyingParty.GetOtherParty())
                 .AddDraftApprenticeship();
@@ -106,6 +117,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void ThenStateChangesAreTracked(Party modifyingParty)
         {
             _fixture
+                .SetWithParty(modifyingParty)
+                .SetParty(modifyingParty)
                 .WithExistingDraftApprenticeship()
                 .AddDraftApprenticeship();
 
@@ -157,17 +170,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 return Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party, UserInfo);
             }
 
-            public WhenAddingDraftApprenticeshipTestsFixture SetEditStatus(EditStatus editStatus)
+            public WhenAddingDraftApprenticeshipTestsFixture SetWithParty(Party withParty)
             {
-                Cohort.Set(c => c.EditStatus, editStatus);
-
+                Cohort.Set(c => c.WithParty, withParty);
                 return this;
             }
 
             public WhenAddingDraftApprenticeshipTestsFixture SetParty(Party party)
             {
                 Party = party;
-
                 return this;
             }
 

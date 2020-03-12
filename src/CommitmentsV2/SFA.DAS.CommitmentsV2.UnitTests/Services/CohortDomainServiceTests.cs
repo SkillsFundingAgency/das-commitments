@@ -100,7 +100,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _fixture.VerifyCohortCreationWithOtherParty_WithTransferSender();
         }
-
         [Test]
         public async Task CreateCohortWithOtherParty_WithAnInvalidTransferSenderId_ThrowsBadRequestException()
         {
@@ -211,7 +210,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task AddDraftApprenticeship_Provider_Adds_Draft_Apprenticeship()
         {
-            _fixture.WithParty(Party.Employer).WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider);
+            _fixture.WithParty(Party.Provider).WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider);
             await _fixture.AddDraftApprenticeship();
             _fixture.VerifyProviderDraftApprenticeshipAdded();
         }
@@ -617,6 +616,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Cohort = new Cohort
                 {
                     Id = CohortId,
+					WithParty =  withParty,
                     Originator = creatingParty.ToOriginator(),
                     EditStatus = (withParty == Party.Employer || withParty == Party.Provider) ? withParty.ToEditStatus() : EditStatus.Both,
                     Provider = Provider.Object,

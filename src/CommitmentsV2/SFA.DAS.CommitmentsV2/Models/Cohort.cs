@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships = new HashSet<ApprenticeshipBase>();
             Messages = new HashSet<Message>();
             TransferRequests = new HashSet<TransferRequest>();
+            LastUpdatedOn = DateTime.UtcNow;
         }
 
         private Cohort(Provider provider,
@@ -33,6 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             AccountLegalEntityId = accountLegalEntity.Id;
             ProviderId = provider.UkPrn;
             TransferSenderId = transferSender?.Id;
+            IsDraft = true;
 
             //Setting of these fields is here for backwards-compatibility only
             ProviderName = provider.Name;
@@ -47,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Reference = "";
             Originator = originatingParty.ToOriginator();
             UpdatedBy(originatingParty, userInfo);
+            LastUpdatedOn = DateTime.UtcNow;
             CommitmentStatus = CommitmentStatus.New;
             CreatedOn = DateTime.UtcNow;
             LastAction = LastAction.None;
@@ -60,7 +63,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             Party originatingParty,
             UserInfo userInfo) : this(provider, accountLegalEntity, null, originatingParty, userInfo)
         {
+            WithParty = originatingParty;
             EditStatus = originatingParty.ToEditStatus();
+            IsDraft = true;
 
             StartTrackingSession(UserAction.CreateCohort, originatingParty, accountLegalEntity.AccountId, provider.UkPrn, userInfo);
             ChangeTrackingSession.TrackInsert(this);
@@ -79,7 +84,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            WithParty = originatingParty;
             EditStatus = originatingParty.ToEditStatus();
+            IsDraft = true;
 
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, originatingParty);
             Apprenticeships.Add(draftApprenticeship);
@@ -103,7 +110,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             UserInfo userInfo) : this(provider, accountLegalEntity, transferSender, originatingParty, userInfo)
         {
             CheckIsEmployer(originatingParty);
+            IsDraft = false;
 
+            WithParty = originatingParty.GetOtherParty();
             EditStatus = originatingParty.GetOtherParty().ToEditStatus();
             LastAction = LastAction.Amend;
             if (message != null)
@@ -143,6 +152,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string AccountLegalEntityPublicHashedId { get; set; }
         public Originator Originator { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsDraft { get; set; }
+
+        public byte[] RowVersion { get; set; }
+        public DateTime LastUpdatedOn { get; set; }
 
         public virtual ICollection<ApprenticeshipBase> Apprenticeships { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
@@ -158,25 +171,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public string LastMessage => Messages.OrderByDescending(x => x.Id).FirstOrDefault()?.Text;
 
-        public virtual Party WithParty
-        {
-            get
-            {
-                switch (EditStatus)
-                {
-                    case EditStatus.EmployerOnly:
-                        return Party.Employer;
-                    case EditStatus.ProviderOnly:
-                        return Party.Provider;
-                    case EditStatus.Both when TransferSenderId != null && TransferApprovalStatus != Types.TransferApprovalStatus.Approved:
-                        return Party.TransferSender;
-                    default:
-                        return Party.None;
-                }
-            }
-        }
-        
-        public virtual bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == Types.TransferApprovalStatus.Approved);
+        public virtual Party WithParty { get; set; }
+
+        public virtual bool IsApprovedByAllParties => WithParty == Party.None;
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
@@ -190,6 +187,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships.Add(draftApprenticeship);
             ResetApprovals();
             UpdatedBy(creator, userInfo);
+            LastUpdatedOn = DateTime.UtcNow;
 
             ChangeTrackingSession.TrackInsert(draftApprenticeship);
             ChangeTrackingSession.CompleteTrackingSession();
@@ -214,14 +212,19 @@ namespace SFA.DAS.CommitmentsV2.Models
                 {
                     var otherParty = modifyingParty.GetOtherParty();
                     var isApprovedByOtherParty = IsApprovedByParty(otherParty);
-                
+
+                    IsDraft = false;
                     EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
+                    WithParty = isApprovedByOtherParty
+                        ? TransferSenderId.HasValue ? Party.TransferSender : Party.None
+                        : otherParty;
                     LastAction = LastAction.Approve;
                     CommitmentStatus = CommitmentStatus.Active;
                     TransferApprovalStatus = null;
                     DraftApprenticeships.ForEach(a => a.Approve(modifyingParty, now));
                     AddMessage(message, modifyingParty, userInfo);
                     UpdatedBy(modifyingParty, userInfo);
+                    LastUpdatedOn = DateTime.UtcNow;
 
                     switch (WithParty)
                     {
@@ -241,6 +244,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 case Party.TransferSender:
                     TransferApprovalStatus = Types.TransferApprovalStatus.Approved;
                     TransferApprovalActionedOn = now;
+                    WithParty = Party.None;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(modifyingParty));
@@ -267,12 +271,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartTrackingSession(UserAction.SendCohort, modifyingParty, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
+            IsDraft = false;
             EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
+            WithParty = modifyingParty.GetOtherParty();
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
             TransferApprovalStatus = null;
             AddMessage(message, modifyingParty, userInfo);
             UpdatedBy(modifyingParty, userInfo);
+            LastUpdatedOn = DateTime.UtcNow;
 
             switch (EditStatus)
             {
@@ -318,6 +325,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             UpdatedBy(modifyingParty, userInfo);
+            LastUpdatedOn = DateTime.UtcNow;
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
             ChangeTrackingSession.CompleteTrackingSession();
         }
@@ -342,7 +350,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             StartTrackingSession(UserAction.DeleteCohort, modifyingParty, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
-            
+            LastUpdatedOn = DateTime.UtcNow;
+
             MarkAsDeletedAndEmitCohortDeletedEvent();
 
             foreach (var draftApprenticeship in DraftApprenticeships.ToArray())
@@ -364,6 +373,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             RemoveDraftApprenticeship(draftApprenticeship);
 
+            LastUpdatedOn = DateTime.UtcNow;
             ResetApprovals();
             ResetTransferSenderRejection();
 
@@ -378,6 +388,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 		private void RemoveDraftApprenticeship(DraftApprenticeship draftApprenticeship)
         {
             ChangeTrackingSession.TrackDelete(draftApprenticeship);
+            LastUpdatedOn = DateTime.UtcNow;
             Apprenticeships.Remove(draftApprenticeship);
             Publish(() => new DraftApprenticeshipDeletedEvent
             {
@@ -416,7 +427,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void AddMessage(string text, Party sendingParty, UserInfo userInfo)
         {
-            Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text == null || EditStatus == EditStatus.Both ? "" : text));
+            Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text ?? ""));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -550,15 +561,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void CheckIsWithParty(Party party)
         {
-            // Employers can modify Provider-assigned cohorts during their initial creation
-            if (party == Party.Employer && EditStatus == EditStatus.ProviderOnly && LastAction == LastAction.None)
-            {
-                return;
-            }
-            
             if (party != WithParty)
             {
-                throw new DomainException(nameof(party), $"Cohort must be with the party; {party} is not valid");
+                throw new DomainException(nameof(WithParty), $"Cohort must be with the party; {party} is not valid");
             }
         }
 
@@ -600,12 +605,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 case Party.Employer:
                     return Apprenticeships.Count > 0 &&
-                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed) ||
-                           EditStatus == EditStatus.Both;
+                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed || a.AgreementStatus == AgreementStatus.BothAgreed);
                 case Party.Provider:
                     return Apprenticeships.Count > 0 &&
-                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed) ||
-                           EditStatus == EditStatus.Both;
+                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed || a.AgreementStatus == AgreementStatus.BothAgreed);
                 case Party.TransferSender:
                     return TransferSenderId != null &&
                            TransferApprovalStatus == Types.TransferApprovalStatus.Approved;
@@ -670,6 +673,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
             EditStatus = EditStatus.EmployerOnly;
+            WithParty = Party.Employer;
+            LastUpdatedOn = DateTime.UtcNow;
             ChangeTrackingSession.CompleteTrackingSession();
         }
     }

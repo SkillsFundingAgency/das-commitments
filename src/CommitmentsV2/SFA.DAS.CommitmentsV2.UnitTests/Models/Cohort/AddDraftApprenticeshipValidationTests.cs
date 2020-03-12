@@ -4,6 +4,7 @@ using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
@@ -134,17 +135,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
         }
 
-        [TestCase(EditStatus.EmployerOnly, Party.None)]
-        [TestCase(EditStatus.EmployerOnly, Party.Provider)]
-        [TestCase(EditStatus.ProviderOnly, Party.None)]
-        public void Party_CheckValidation(EditStatus editStatus, Party party)
+        [TestCase(Party.Provider, Party.Employer)]
+        [TestCase(Party.Employer, Party.Provider)]
+        [TestCase(Party.None, Party.Provider)]
+        [TestCase(Party.None, Party.Employer)]
+        public void Party_CheckValidation(Party withParty, Party modifyingParty)
         {
-            _fixture.Cohort.EditStatus = editStatus;
+            _fixture.Cohort.WithParty = withParty;
 
-            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, party, _fixture.UserInfo));
-            var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(party));
+            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo));
+            var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(_fixture.Cohort.WithParty));
 
-            Assert.AreEqual($"Cohort must be with the party; {party} is not valid", domainError?.ErrorMessage);
+            Assert.AreEqual($"Cohort must be with the party; {modifyingParty} is not valid", domainError?.ErrorMessage);
         }
 
         [TestCase(1, "", "", true)]
@@ -185,13 +187,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public AddDraftApprenticeshipValidationTestsFixture WithProviderCohort()
         {
-            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1};
+            Cohort = new CommitmentsV2.Models.Cohort {WithParty = Party.Provider, ProviderId = 1};
             return this;
         }
 
         public AddDraftApprenticeshipValidationTestsFixture WithEmployerCohort()
         {
-            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.EmployerOnly};
+            Cohort = new CommitmentsV2.Models.Cohort {WithParty = Party.Employer};
             return this;
         }
 
