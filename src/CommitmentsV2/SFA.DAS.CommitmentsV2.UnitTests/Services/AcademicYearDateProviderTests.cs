@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Services;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {

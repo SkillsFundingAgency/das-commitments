@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public int TotalApprenticeshipsFound { get; set; }
         public int TotalApprenticeshipsWithAlertsFound { get; set; }
         public int TotalApprenticeships { get; set; }
+        public int PageNumber { get; set; }
 
         public class ApprenticeshipDetailsResponse
         {
@@ -18,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public string LastName { get; set; }
             public string Uln { get; set; }
             public string EmployerName { get; set; }
+            public string ProviderName { get; set; }
             public string CourseName { get; set; }
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }

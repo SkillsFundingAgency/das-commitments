@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
                         AccountLegalEntityId = _encodingService.Decode(apprenticeship.Cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
                         EmployerName = apprenticeship.Cohort.LegalEntityName,
-                        ProviderId = apprenticeship.Cohort.ProviderId.Value,
+                        ProviderId = apprenticeship.Cohort.ProviderId,
                         ProviderName = apprenticeship.Cohort.ProviderName,
                         DateOfBirth = apprenticeship.DateOfBirth.Value,
                         FirstName = apprenticeship.FirstName,

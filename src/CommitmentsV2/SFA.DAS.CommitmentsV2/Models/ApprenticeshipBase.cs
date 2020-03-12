@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? AgreedOn { get; set; }
         public string EpaOrgId { get; set; }
         public long? CloneOf { get; set; }
-
+        public bool IsProviderSearch { get; set; }
         public Guid? ReservationId { get; set; }
 
         public virtual Cohort Cohort { get; set; }
