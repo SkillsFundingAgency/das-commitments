@@ -101,6 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             DataLockStatus dataLockStatus,
             ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
+            dataLockStatus.Status = Status.Fail;
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
             dataLockStatus.TriageStatus = TriageStatus.Change;
             dataLockStatus.IsResolved = false;
@@ -194,6 +195,72 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Employer_Has_Unresolved_Errors_That_Have_Known_Triage_Status(
+            Apprenticeship source,
+            DataLockStatus dataLockStatus,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            //Arrange
+            dataLockStatus.Status = Status.Fail;
+            dataLockStatus.TriageStatus = TriageStatus.Restart;
+            dataLockStatus.IsResolved = false;
+            source.IsProviderSearch = false;
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
+
+            //Act
+            var result = await mapper.Map(source);
+
+            //Assert
+            result.Alerts.Should().NotBeNullOrEmpty();
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesRequested });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Employer_Has_Unresolved_Errors_That_Have_Known_Triage_Status_And_Has_Course_DataLock_Changes_Requested_Only_One_Changes_Requested_Added(
+            Apprenticeship source,
+            DataLockStatus dataLockStatus,
+            DataLockStatus dataLockStatus2,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            //Arrange
+            dataLockStatus.Status = Status.Fail;
+            dataLockStatus.TriageStatus = TriageStatus.Restart;
+            dataLockStatus.IsResolved = false;
+            dataLockStatus2.ErrorCode = DataLockErrorCode.Dlock03;
+            dataLockStatus2.TriageStatus = TriageStatus.Restart;
+            dataLockStatus2.IsResolved = false;
+            source.IsProviderSearch = false;
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus, dataLockStatus2 };
+
+            //Act
+            var result = await mapper.Map(source);
+
+            //Assert
+            result.Alerts.Should().NotBeNullOrEmpty();
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesRequested });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Provider_Has_Unresolved_Errors_That_Have_Known_Triage_Status(
+            Apprenticeship source,
+            DataLockStatus dataLockStatus,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            //Arrange
+            dataLockStatus.Status = Status.Fail;
+            dataLockStatus.TriageStatus = TriageStatus.Restart;
+            dataLockStatus.IsResolved = false;
+            source.IsProviderSearch = true;
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
+
+            //Act
+            var result = await mapper.Map(source);
+
+            //Assert
+            result.Alerts.Should().BeNullOrEmpty();
         }
     }
 }

@@ -206,7 +206,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
-        public async Task GetApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
+        public async Task GetApprenticeshipsForProvider_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
             var request = new GetApprenticeshipsRequest
@@ -219,6 +219,38 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
 
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?providerId={request.ProviderId}&reverseSort=False", null, CancellationToken.None));
+        }
+
+        
+        [Test]
+        public async Task GetApprenticeshipsForEmployer_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var request = new GetApprenticeshipsRequest
+            {
+                AccountId = 10,
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(request);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?accountId={request.AccountId}&reverseSort=False", null, CancellationToken.None));
+        }
+
+         
+        [Test]
+        public void GetApprenticeships_WillThrowExceptionIfBothProviderIdAndEmployerAccountIdAreUsed()
+        {
+            //Arrange
+            var request = new GetApprenticeshipsRequest
+            {
+                ProviderId = 11,
+                AccountId = 10,
+            };
+
+            //Act
+            Assert.ThrowsAsync<NotSupportedException>(() => _fixture.CommitmentsApiClient.GetApprenticeships(request));
         }
 
         [Test]
@@ -257,6 +289,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>(
                 $"api/apprenticeships/?providerId={request.ProviderId}&reverseSort=False&pageItemCount={request.PageItemCount}", null, CancellationToken.None));
         }
+
         [Test]
         public async Task GetApprenticeships_VerifyUrlAndPageDataIsCorrectPassedIn()
         {
@@ -320,6 +353,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 ProviderId = 10,
                 SearchTerm = "photon chocolate search termses",
                 EmployerName = "Test corp",
+                ProviderName = "Test Provider",
                 CourseName = "Test course",
                 Status = ApprenticeshipStatus.Completed,
                 StartDate = DateTime.Now.AddDays(2),
@@ -336,10 +370,51 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 $"reverseSort={request.ReverseSort}&" +
                 $"searchTerm={WebUtility.UrlEncode(request.SearchTerm)}&" +
                 $"employerName={WebUtility.UrlEncode(request.EmployerName)}&" +
+                $"providerName={WebUtility.UrlEncode(request.ProviderName)}&" +
                 $"courseName={WebUtility.UrlEncode(request.CourseName)}&" +
                 $"status={WebUtility.UrlEncode(request.Status.Value.ToString())}&" +
                 $"startDate={WebUtility.UrlEncode(request.StartDate.Value.ToString("u"))}&" +
                 $"endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprenticeshipFilterValues_VerifyUrlAndDataIsCorrectForProvider()
+        {
+            //Arrange
+            var request = new GetApprenticeshipFiltersRequest{ ProviderId = 10 };
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeshipsFilterValues(request, CancellationToken.None);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsFilterValuesResponse>($"api/apprenticeships/filters?providerId={request.ProviderId}", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprenticeshipFilterValues_VerifyUrlAndDataIsCorrectForEmployer()
+        {
+            //Arrange
+            var request = new GetApprenticeshipFiltersRequest { EmployerAccountId = 10 };
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeshipsFilterValues(request, CancellationToken.None);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsFilterValuesResponse>($"api/apprenticeships/filters?employerAccountId={request.EmployerAccountId}", null, CancellationToken.None));
+        }
+
+        [Test]
+        public void GetApprenticeshipFilterValues_VerifyExceptionIsThrowIfBothProviderAndEmployerIdIsUsed()
+        {
+            //Arrange
+            var request = new GetApprenticeshipFiltersRequest
+            {
+                ProviderId = 12,
+                EmployerAccountId = 10
+            };
+
+            //Act
+            Assert.ThrowsAsync<NotSupportedException>(() =>_fixture.CommitmentsApiClient.GetApprenticeshipsFilterValues(request, CancellationToken.None));
         }
 
         [Test]

@@ -9,7 +9,7 @@
       <Setting name="EnvironmentName" value="__EnvironmentName__" />
     </ConfigurationSettings>
     <Certificates>
-      <Certificate name="SSLCert" thumbprint="00A1E44D35D6936A0488057F6B2A58DAA1986943" thumbprintAlgorithm="sha1" />
+      <Certificate name="SSLCert" thumbprint="B434619877ACE08AC98F00DD045BCE888400F103" thumbprintAlgorithm="sha1" />
     </Certificates>
   </Role>
   <NetworkConfiguration>

@@ -22,7 +22,7 @@ using SFA.DAS.NServiceBus.Services;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
-    [Parallelizable]
+    [Parallelizable(ParallelScope.None)]
     public class ProcessFullyApprovedCohortCommandHandlerTests
     {
         private ProcessFullyApprovedCohortCommandFixture _fixture;
@@ -113,6 +113,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var account = new Account(1, "", "", "", DateTime.UtcNow);
             var accountLegalEntity = new AccountLegalEntity(account, 1, 1, "", "", "Test Employer", OrganisationType.Charities, "", DateTime.UtcNow);
 
+            AutoFixture.Inject(account);
+
             var cohortBuilder = AutoFixture.Build<Cohort>()
                 .Without(c => c.Apprenticeships)
                 .With(c => c.AccountLegalEntity, accountLegalEntity)
@@ -123,13 +125,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 cohortBuilder.Without(c => c.TransferSenderId).Without(c => c.TransferApprovalActionedOn);
             }
-            
+
             var apprenticeshipBuilder = AutoFixture.Build<Apprenticeship>().Without(a => a.DataLockStatus).Without(a => a.EpaOrg).Without(a => a.ApprenticeshipUpdate);
             var cohort1 = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
             var cohort2 = cohortBuilder.Create();
-            var apprenticeship1 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
+            
+            var apprenticeship1 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create(); 
             var apprenticeship2 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
             var apprenticeship3 = apprenticeshipBuilder.With(a => a.Cohort, cohort2).Create();
+            
             var apprenticeships1 = new[] { apprenticeship1, apprenticeship2 };
             var apprenticeships2 = new[] { apprenticeship1, apprenticeship2, apprenticeship3 };
             
@@ -137,6 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Db.Object.AccountLegalEntities.Add(accountLegalEntity);
             Db.Object.Providers.Add(provider);
             Db.Object.Apprenticeships.AddRange(apprenticeships2);
+
             Db.Object.SaveChanges();
             
             return this;
