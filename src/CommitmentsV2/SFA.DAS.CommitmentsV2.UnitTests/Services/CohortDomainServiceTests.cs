@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +25,6 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -34,129 +32,133 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     [TestFixture]
     public class CohortDomainServiceTests
     {
-        private CohortDomainServiceTestFixture _fixture;
-
-        [SetUp]
-        public void Arrange()
-        {
-            _fixture = new CohortDomainServiceTestFixture();
-        }
-
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task CreateCohort_CreatingParty_Creates_Cohort(Party party)
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(party)
                 .CreateCohort();
-            _fixture.VerifyCohortCreation(party);
+            f.VerifyCohortCreation(party);
         }
 
         [TestCase(Party.Employer)]
         public async Task CreateCohort_CreatingPartyWithTransferSenderId_Creates_Cohort(Party party)
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(party)
-                .CreateCohort(null, null, _fixture.TransferSenderId);
-            _fixture.VerifyCohortCreationWithTransferSender(party);
+                .CreateCohort(null, null, f.TransferSenderId);
+            f.VerifyCohortCreationWithTransferSender(party);
         }
 
         [Test]
         public async Task CreateCohort_WithAnInvalidTransferSenderId_ThrowsBadRequestException()
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(Party.Employer)
                 .CreateCohort(null, null, -1);
 
-            _fixture.VerifyException<BadRequestException>();
+            f.VerifyException<BadRequestException>();
         }
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task CreateCohort_CreatingPartyWithoutTransferSenderId_Creates_Cohort(Party party)
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(party)
                 .CreateCohort(null, null, null);
-            _fixture.VerifyCohortCreationWithoutTransferSender(party);
+            f.VerifyCohortCreationWithoutTransferSender(party);
         }
 
         [Test]
         public async Task CreateCohortWithOtherParty_WithNoTransferSenderId_Creates_Cohort()
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(Party.Employer)
                 .CreateCohortWithOtherParty();
 
-            _fixture.VerifyCohortCreationWithOtherParty_WithoutTransferSender();
+            f.VerifyCohortCreationWithOtherParty_WithoutTransferSender();
         }
 
         [Test]
         public async Task CreateCohortWithOtherParty_WithTransferSenderId_Creates_Cohort()
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(Party.Employer)
-                .CreateCohortWithOtherParty(_fixture.TransferSenderId);
+                .CreateCohortWithOtherParty(f.TransferSenderId);
 
-            _fixture.VerifyCohortCreationWithOtherParty_WithTransferSender();
+            f.VerifyCohortCreationWithOtherParty_WithTransferSender();
         }
         [Test]
         public async Task CreateCohortWithOtherParty_WithAnInvalidTransferSenderId_ThrowsBadRequestException()
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(Party.Employer)
                 .CreateCohortWithOtherParty(-1);
 
-            _fixture.VerifyException<BadRequestException>();
+            f.VerifyException<BadRequestException>();
         }
 
         [Test]
         public async Task CreateCohortWithOtherParty_Creates_CohortWithoutAMessage()
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(Party.Employer)
                 .WithNoMessage()
                 .CreateCohortWithOtherParty();
 
-            _fixture.VerifyCohortCreationWithOtherParty_WithoutTransferSender();
+            f.VerifyCohortCreationWithOtherParty_WithoutTransferSender();
         }
 
         [Test]
         public async Task CreateCohort_ThrowsBadRequest_WhenAccountLegalEntityNotFound()
         {
-            await _fixture
-                .CreateCohort(_fixture.AccountId, 2323);
+            var f = new CohortDomainServiceTestFixture();
+            await f
+                .CreateCohort(f.AccountId, 2323);
 
-            _fixture.VerifyException<BadRequestException>();
+            f.VerifyException<BadRequestException>();
         }
 
         [Test]
         public async Task CreateCohort_ThrowsBadRequest_WhenTransferSenderNotFound()
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .CreateCohort(null, null, -1);
 
-            _fixture.VerifyException<BadRequestException>();
+            f.VerifyException<BadRequestException>();
         }
 
         [Test]
         public async Task CreateCohortWithOtherParty_ThrowsBadRequest_WhenTransferSenderNotFound()
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(Party.Employer)
                 .CreateCohortWithOtherParty(-1);
 
-            _fixture.VerifyException<BadRequestException>();
+            f.VerifyException<BadRequestException>();
         }
 
 
         [Test]
         public async Task CreateCohort_ThrowsBadRequest_WhenAccountIdDoesNotMatchAccountIdOnLegalEntity()
         {
-            await _fixture
-                .CreateCohort(4545, _fixture.AccountLegalEntityId);
+            var f = new CohortDomainServiceTestFixture();
+            await f
+                .CreateCohort(4545, f.AccountLegalEntityId);
 
-            _fixture.VerifyException<BadRequestException>();
+            f.VerifyException<BadRequestException>();
         }
 
         [TestCase(Party.Employer, false)]
@@ -164,28 +166,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(Party.TransferSender, true)]
         public async Task CreateCohortWithOtherParty_Throws_If_Not_Employer(Party creatingParty, bool expectThrows)
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(creatingParty)
                 .CreateCohortWithOtherParty();
 
             if (expectThrows)
             {
-                _fixture.VerifyException<InvalidOperationException>();
+                f.VerifyException<InvalidOperationException>();
             }
             else
             {
-                _fixture.VerifyNoException();
+                f.VerifyNoException();
             }
         }
 
         [Test]
         public async Task CreateEmptyCohort_Creates_EmptyCohort()
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                   .WithParty(Party.Provider)
                   .CreateEmptyCohort();
 
-            _fixture.VerifyEmptyCohortCreation(Party.Provider);
+            f.VerifyEmptyCohortCreation(Party.Provider);
         }
 
         [TestCase(Party.Employer, true)]
@@ -193,33 +197,36 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(Party.TransferSender, true)]
         public async Task CreateEmptyCohort_Throws_If_Not_Provider(Party creatingParty, bool expectThrows)
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(creatingParty)
                 .CreateEmptyCohort();
 
             if (expectThrows)
             {
-                _fixture.VerifyException<InvalidOperationException>();
+                f.VerifyException<InvalidOperationException>();
             }
             else
             {
-                _fixture.VerifyNoException();
+                f.VerifyNoException();
             }
         }
 
         [Test]
         public async Task AddDraftApprenticeship_Provider_Adds_Draft_Apprenticeship()
         {
-            _fixture.WithParty(Party.Provider).WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider);
-            await _fixture.AddDraftApprenticeship();
-            _fixture.VerifyProviderDraftApprenticeshipAdded();
+            var f = new CohortDomainServiceTestFixture();
+            f.WithParty(Party.Provider).WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider);
+            await f.AddDraftApprenticeship();
+            f.VerifyProviderDraftApprenticeshipAdded();
         }
         
         [Test]
         public void AddDraftApprenticeship_CohortNotFound_ShouldThrowException()
         {
-            Assert.ThrowsAsync<BadRequestException>(_fixture.AddDraftApprenticeship,
-                $"Cohort {_fixture.CohortId} was not found");
+            var f = new CohortDomainServiceTestFixture();
+            Assert.ThrowsAsync<BadRequestException>(f.AddDraftApprenticeship,
+                $"Cohort {f.CohortId} was not found");
         }
 
         [TestCase("2019-07-31", null, true)]
@@ -229,13 +236,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public async Task StartDate_CheckIsWithinAYearOfEndOfCurrentTeachingYear_Validation(
             DateTime academicYearEndDate, DateTime? startDate, bool passes)
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(Party.Provider)
                 .WithAcademicYearEndDate(academicYearEndDate)
                 .WithStartDate(startDate)
                 .CreateCohort();
 
-            _fixture.VerifyStartDateException(passes);
+            f.VerifyStartDateException(passes);
         }
 
         [TestCase(UlnValidationResult.IsEmptyUlnNumber, true)]
@@ -244,133 +252,149 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(UlnValidationResult.IsInvalidUln, false)]
         public async Task Uln_Validation(UlnValidationResult validationResult, bool passes)
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(Party.Provider)
                 .WithUlnValidationResult(validationResult)
                 .CreateCohort();
 
-            _fixture.VerifyUlnException(passes);
+            f.VerifyUlnException(passes);
         }
 
         [TestCase(true, false)]
         [TestCase(false, true)]
         public async Task Reservation_Validation(bool hasValidationError, bool passes)
         {
-            await _fixture
+            var f = new CohortDomainServiceTestFixture();
+            await f
                 .WithParty(Party.Provider)
                 .WithReservationValidationResult(hasValidationError)
                 .CreateCohort();
 
-            _fixture.VerifyReservationException(passes);
+            f.VerifyReservationException(passes);
         }
 
         [Test]
         public async Task Reservation_Validation_Skipped()
         {
-            await _fixture.WithParty(Party.Provider).CreateCohort();
-            _fixture.VerifyReservationValidationNotPerformed();
+            var f = new CohortDomainServiceTestFixture();
+            await f.WithParty(Party.Provider).CreateCohort();
+            f.VerifyReservationValidationNotPerformed();
         }
 
         [Test]
         public async Task OverlapOnStartDate_Validation()
         {
-            await _fixture.WithParty(Party.Provider).WithUlnOverlapOnStartDate().CreateCohort();
-            _fixture.VerifyOverlapExceptionOnStartDate();
+            var f = new CohortDomainServiceTestFixture();
+            await f.WithParty(Party.Provider).WithUlnOverlapOnStartDate().CreateCohort();
+            f.VerifyOverlapExceptionOnStartDate();
         }
 
         [Test]
         public async Task OverlapOnEndDate_Validation()
         {
-            await _fixture.WithParty(Party.Provider).WithUlnOverlapOnEndDate().CreateCohort();
-            _fixture.VerifyOverlapExceptionOnEndDate();
+            var f = new CohortDomainServiceTestFixture();
+            await f.WithParty(Party.Provider).WithUlnOverlapOnEndDate().CreateCohort();
+            f.VerifyOverlapExceptionOnEndDate();
         }
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task UpdateDraftApprenticeship_IsSuccessful_ThenDraftApprenticeshipIsUpdated(Party withParty)
         {
-            _fixture.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeship();
-            await _fixture.UpdateDraftApprenticeship();
-            _fixture.VerifyDraftApprenticeshipUpdated();
+            var f = new CohortDomainServiceTestFixture();
+            f.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeship();
+            await f.UpdateDraftApprenticeship();
+            f.VerifyDraftApprenticeshipUpdated();
         }
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task UpdateDraftApprenticeship_WhenUserInfoDoesExist_ThenLastUpdatedFieldsAreSet(Party withParty)
         {
-            _fixture.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeship();
-            await _fixture.UpdateDraftApprenticeship();
-            _fixture.VerifyLastUpdatedFieldsAreSet(withParty);
+            var f = new CohortDomainServiceTestFixture();
+            f.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeship();
+            await f.UpdateDraftApprenticeship();
+            f.VerifyLastUpdatedFieldsAreSet(withParty);
         }
 
         [Test]
         public async Task UpdateDraftApprenticeship_WhenUserInfoDoesNotExist_ThenLastUpdatedFieldsAreNotSet()
         {
-            _fixture.WithParty(Party.Employer).WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer).WithExistingDraftApprenticeship().WithNoUserInfo();
-            await _fixture.UpdateDraftApprenticeship();
-            _fixture.VerifyLastUpdatedFieldsAreNotSet();
+            var f = new CohortDomainServiceTestFixture();
+            f.WithParty(Party.Employer).WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer).WithExistingDraftApprenticeship().WithNoUserInfo();
+            await f.UpdateDraftApprenticeship();
+            f.VerifyLastUpdatedFieldsAreNotSet();
         }
 
         [Test]
         public void AddDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
-            _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.AddDraftApprenticeship());
+            var f = new CohortDomainServiceTestFixture();
+            f.WithExistingCohortApprovedByAllParties(Party.Employer);
+            Assert.ThrowsAsync<InvalidOperationException>(() => f.AddDraftApprenticeship());
         }
         
         [Test]
         public void UpdateDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
-            _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.UpdateDraftApprenticeship());
+            var f = new CohortDomainServiceTestFixture();
+            f.WithExistingCohortApprovedByAllParties(Party.Employer);
+            Assert.ThrowsAsync<InvalidOperationException>(() => f.UpdateDraftApprenticeship());
         }
 
         [Test]
         public void SendCohortToOtherParty_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
-            _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.SendCohortToOtherParty());
+            var f = new CohortDomainServiceTestFixture();
+            f.WithExistingCohortApprovedByAllParties(Party.Employer);
+            Assert.ThrowsAsync<InvalidOperationException>(() => f.SendCohortToOtherParty());
         }
 
         [Test]
         public void ApproveCohort_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
-            _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+            var f = new CohortDomainServiceTestFixture();
+            f.WithExistingCohortApprovedByAllParties(Party.Employer);
+            Assert.ThrowsAsync<InvalidOperationException>(() => f.ApproveCohort());
         }
 
         [Test]
         public void ApproveCohort_WhenEmployerApprovesAndAgreementIsNotSigned_ShouldThrowException()
         {
-            _fixture.WithParty(Party.Employer).WithExistingUnapprovedCohort().WithDecodeOfPublicHashedAccountLegalEntity().WithAgreementSignedAs(false);
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+            var f = new CohortDomainServiceTestFixture();
+            f.WithParty(Party.Employer).WithExistingUnapprovedCohort().WithDecodeOfPublicHashedAccountLegalEntity().WithAgreementSignedAs(false);
+            Assert.ThrowsAsync<InvalidOperationException>(() => f.ApproveCohort());
         }
 
         [Test]
         public void ApproveCohort_WhenEmployerApprovesAndThereIsATransferSenderAndAgreementIsNotSigned_ShouldThrowException()
         {
-            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort();
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+            var f = new CohortDomainServiceTestFixture();
+            f.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort();
+            Assert.ThrowsAsync<InvalidOperationException>(() => f.ApproveCohort());
         }
 
         [Test]
         public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSigned_ShouldSucceed()
         {
-            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
+            var f = new CohortDomainServiceTestFixture();
+            f.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
                 .WithAgreementSignedAs(true)
                 .WithExistingDraftApprenticeship();
 
-            await _fixture.WithParty(Party.Employer).ApproveCohort();
-            _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
+            await f.WithParty(Party.Employer).ApproveCohort();
+            f.VerifyIsAgreementSignedIsCalledCorrectly();
         }
 
         [Test]
         public async Task DeleteDraftApprenticeship_WhenCohortIsWithEmployer()
         {
-            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer).WithExistingDraftApprenticeship();
-            await _fixture.WithParty(Party.Employer).DeleteDraftApprenticeship();
-            _fixture.VerifyDraftApprenticeshipDeleted();
+            var f = new CohortDomainServiceTestFixture();
+            f.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer).WithExistingDraftApprenticeship();
+            await f.WithParty(Party.Employer).DeleteDraftApprenticeship();
+            f.VerifyDraftApprenticeshipDeleted();
         }
 
         public class CohortDomainServiceTestFixture
