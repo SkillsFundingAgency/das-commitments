@@ -7,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
     {
         public long Id { get; set; }
         public long CohortId { get; set; }
+        public decimal? Cost { get; set; }
         public long ProviderId { get; set; }
         public string ProviderName { get; set; }
         public long EmployerAccountId { get; set; }
