@@ -37,10 +37,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                                             {
                                                 AccountId = c.EmployerAccountId,
                                                 LegalEntityName = c.LegalEntityName,
-                                                ProviderId = c.ProviderId.Value,
+                                                ProviderId = c.ProviderId,
                                                 ProviderName = c.ProviderName,
                                                 CohortId = c.Id,
-                                                IsDraft = c.LastAction == LastAction.None,
+                                                IsDraft = c.IsDraft,
                                                 WithParty = c.WithParty,
                                                 CreatedOn = c.CreatedOn.Value,
                                                 TransferSenderName = transferSender.Name,

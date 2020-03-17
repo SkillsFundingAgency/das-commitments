@@ -124,7 +124,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 
         public void VerifyCohortIsNotDraft()
         {
-            Assert.AreEqual(LastAction.Amend, Cohort.LastAction);
+            Assert.IsFalse(Cohort.IsDraft);
         }
 
         public void VerifyCohortIsWithOtherParty()

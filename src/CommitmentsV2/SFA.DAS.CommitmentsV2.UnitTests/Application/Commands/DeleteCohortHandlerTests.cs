@@ -158,6 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 Id = CohortId,
                 EditStatus = creatingParty.ToEditStatus(),
+                WithParty = creatingParty,
                 ProviderId = _autoFixture.Create<long>(),
                 EmployerAccountId = _autoFixture.Create<long>()
             };
@@ -195,7 +196,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Assert.AreEqual(Cohort.Id, emittedEvent.CohortId);
             Assert.AreEqual( Cohort.EmployerAccountId, emittedEvent.AccountId);
-            Assert.AreEqual( Cohort.ProviderId.Value,emittedEvent.ProviderId);
+            Assert.AreEqual( Cohort.ProviderId,emittedEvent.ProviderId);
             Assert.IsTrue( emittedEvent.ApprovedBy.HasFlag(party));
         }
     }

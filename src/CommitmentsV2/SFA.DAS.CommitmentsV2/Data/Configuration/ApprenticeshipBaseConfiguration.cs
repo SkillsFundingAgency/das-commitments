@@ -66,6 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.ProgrammeType).HasColumnName("TrainingType");
 
             builder.Ignore(e => e.ApprenticeshipStatus);
+            builder.Ignore(e => e.IsProviderSearch);
         }
 
         private void SetTablePerHierarchy(EntityTypeBuilder<ApprenticeshipBase> builder)

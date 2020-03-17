@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 ModifyingParty = modifyingParty;
                 Cohort = new CommitmentsV2.Models.Cohort
                 {
-                    EditStatus = modifyingParty.ToEditStatus(),
+                    WithParty = modifyingParty,
                     ProviderId = 1
                 };
 
