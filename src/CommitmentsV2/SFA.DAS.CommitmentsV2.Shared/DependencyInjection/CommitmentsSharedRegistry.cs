@@ -1,6 +1,4 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Client.DependencyResolution;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Shared.Services;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection
@@ -16,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection
                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
                 });
 
-            For<ICommitmentsService>().Use<CommitmentsService>().Singleton();
+
             For<ICurrentDateTime>().Use<CurrentDateTime>().Singleton();
             For<ICreateCsvService>().Use<CreateCsvService>().Singleton();
 
