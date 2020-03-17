@@ -20,5 +20,5 @@ FROM @ULNs u
 INNER JOIN [dbo].[Apprenticeship] a ON u.ULN = a.ULN
 INNER JOIN [dbo].[Commitment] c ON c.Id = a.CommitmentId
 WHERE
-a.Approvals in (3,7)
+c.Approvals in (3,7)
 END
