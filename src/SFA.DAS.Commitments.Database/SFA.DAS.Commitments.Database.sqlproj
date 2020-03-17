@@ -145,6 +145,7 @@
     <None Include="AdhocScripts\Support\DPP-1661\DPP-1661_Remove_DataLock_7_if_also_Datalock_9.sql" />
     <None Include="AdhocScripts\Support\AML-2937\AML-2937_Migrate_Provider_Assigned_New_Cohorts_To_Amended.sql" />
     <Build Include="UserDefinedTypes\Providers.sql" />
+    <None Include="AdhocScripts\Manual\CV-656-Insert-AccountLegalEntities.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
