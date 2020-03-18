@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 
         public string SearchTerm { get; set; }
         public string EmployerName { get; set; }
+        public string ProviderName { get; set; }
         public string CourseName { get; set; }
         public ApprenticeshipStatus? Status { get; set; }
         public DateTime? StartDate { get; set; }

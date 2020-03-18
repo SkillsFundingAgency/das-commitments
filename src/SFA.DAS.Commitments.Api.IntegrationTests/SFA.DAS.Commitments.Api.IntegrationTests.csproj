@@ -329,41 +329,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApiHost\IntegrationTestServer.cs" />
-    <Compile Include="ApiHost\Startup.cs" />
-    <Compile Include="ApiHost\TestRegistry.cs" />
-    <Compile Include="ApiHost\TestWebApiResolver.cs" />
-    <Compile Include="DatabaseSetup\CommitmentsDatabase.cs" />
-    <Compile Include="DatabaseSetup\Database.cs" />
-    <Compile Include="DatabaseSetup\DatabaseManagement.cs" />
-    <Compile Include="DatabaseSetup\Entities\DbSetupApprenticeship.cs" />
-    <Compile Include="DatabaseSetup\Entities\DbSetupApprenticeshipUpdate.cs" />
-    <Compile Include="DatabaseSetup\Entities\DbSetupCommitment.cs" />
-    <Compile Include="DatabaseSetup\Entities\DbSetupDataLockStatus.cs" />
-    <Compile Include="DatabaseSetup\Entities\DbSetupPriceHistory.cs" />
-    <Compile Include="DatabaseSetup\Generators\ApprenticeshipGenerator.cs" />
-    <Compile Include="DatabaseSetup\Generators\ApprenticeshipUpdateGenerator.cs" />
-    <Compile Include="DatabaseSetup\Generators\CommitmentGenerator.cs" />
-    <Compile Include="DatabaseSetup\Generators\DataLockStatusGenerator.cs" />
-    <Compile Include="DatabaseSetup\Generators\Generator.cs" />
-    <Compile Include="DatabaseSetup\Generators\PriceHistoryGenerator.cs" />
-    <Compile Include="DatabaseSetup\TestDataInjector.cs" />
-    <Compile Include="Helpers\Probability\BoundaryValue.cs" />
-    <Compile Include="Helpers\Probability\ProbabilityDistribution.cs" />
-    <Compile Include="DatabaseSetup\TestData.cs" />
-    <Compile Include="DatabaseSetup\TestDataVolume.cs" />
-    <Compile Include="Helpers\CallDetails.cs" />
-    <Compile Include="Helpers\CommitmentsApi.cs" />
-    <Compile Include="Helpers\TestEntities.cs" />
-    <Compile Include="Helpers\TestLog.cs" />
-    <Compile Include="Helpers\TestSetup.cs" />
-    <Compile Include="Helpers\TestIds.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tests\API\GetApprenticeship\WhenGettingEmployerApprenticeshipCost.cs" />
-    <Compile Include="Tests\API\GetApprenticeships\WhenGettingEmployerApprenticeships.cs" />
-    <Compile Include="Tests\API\GetCommitments\GetCommitments.cs" />
-    <Compile Include="Tests\API\ValidateOverlappingApprenticeships\WhenValidatingOverlappingApprenticeships.cs" />
-    <Compile Include="Tests\Scenarios\WhenSimulatingRealWorldApprenticeshipLoad.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">

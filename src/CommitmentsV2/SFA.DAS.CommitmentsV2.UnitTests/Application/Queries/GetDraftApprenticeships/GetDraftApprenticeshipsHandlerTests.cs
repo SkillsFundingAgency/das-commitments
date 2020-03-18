@@ -103,7 +103,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                     {
                         CommitmentId = _cohortId,
                         Cohort = _cohort,
-                        AgreementStatus = AgreementStatus.NotAgreed,
                         FirstName = _autoFixture.Create<string>(),
                         LastName = _autoFixture.Create<string>(),
                         Cost = _autoFixture.Create<int?>(),

@@ -10,8 +10,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 {
     public interface IApprenticeshipTransactions
     {
-        Task<long> CreateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship);
-
         DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship);
 
         Task<int> UpdateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship, Caller caller);

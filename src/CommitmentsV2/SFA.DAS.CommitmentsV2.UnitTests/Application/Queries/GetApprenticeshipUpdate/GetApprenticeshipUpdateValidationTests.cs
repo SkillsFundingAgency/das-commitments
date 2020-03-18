@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         [TestCase(-1, false)]
         [TestCase(0, false)]
         [TestCase(1, true)]
-        public void Validate_WithSpecifiedCohortId(int apprenticeshipId, bool expectedIsValid)
+        public void Validate_WithSpecifiedAppprenticeshipId(int apprenticeshipId, bool expectedIsValid)
         {
             var validator = new GetApprenticeshipUpdateQueryValidator();
             var validationResults = validator.Validate(new GetApprenticeshipUpdateQuery(apprenticeshipId, null));

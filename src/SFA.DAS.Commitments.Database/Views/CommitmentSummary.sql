@@ -59,4 +59,4 @@ GROUP BY
 	c.LastUpdatedByEmployerEmail, c.LastUpdatedByProviderEmail, c.LastUpdatedByEmployerName, c.LastUpdatedByProviderName, c.LegalEntityAddress, 
 	c.LegalEntityOrganisationType, c.TransferSenderId, c.TransferSenderName, c.TransferApprovalStatus, c.TransferApprovalActionedByEmployerEmail,
 	c.TransferApprovalActionedByEmployerName, c.TransferApprovalActionedOn, c.AccountLegalEntityPublicHashedId, c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
-	c.IsFullApprovalProcessed, c.IsDeleted, c.AccountLegalEntityId
+	c.IsFullApprovalProcessed, c.IsDeleted, c.AccountLegalEntityId, c.IsDraft, c.WithParty, c.RowVersion, c.LastUpdatedOn, c.Approvals, c.EmployerAndProviderApprovedOn

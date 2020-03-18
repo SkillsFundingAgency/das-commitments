@@ -15,7 +15,10 @@ namespace SFA.DAS.CommitmentsV2.Data
         public CommitmentsReadOnlyDbContext(DbContextOptions<CommitmentsReadOnlyDbContext> options) : base(options)
         {
         }
-
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            
+        }
         public override int SaveChanges()
         {
             throw new InvalidOperationException("Read only context");

@@ -171,6 +171,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.TransferSender)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages)
+                .Without(o => o.AccountLegalEntity)
+                .Without(o => o.Provider)
                 .Create();
 
             SeedCohorts.Add(cohort);
@@ -190,7 +192,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.TransferApprovalStatus)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Without(o => o.AccountLegalEntity)
+                .Without(o => o.Provider)
+                .Create();
 
             SeedCohorts.Add(cohort);
             return this;
@@ -208,7 +213,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.TransferSender, TransferSender)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Without(o => o.AccountLegalEntity)
+                .Without(o => o.Provider)
+                .Create();
 
             SeedCohorts.Add(cohort);
             return this;
@@ -227,7 +235,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.TransferSender, TransferSender)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Create();
 
             SeedCohorts.Add(cohort);
             return this;
@@ -245,7 +254,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.TransferSender)
-                .Without(o => o.Messages).Create();
+                .Without(o => o.Messages)
+                .Without(o => o.AccountLegalEntity)
+                .Without(o => o.Provider)
+                .Create();
 
             cohort.Apprenticeships.Add(new DraftApprenticeship());
             cohort.Apprenticeships.Add(new DraftApprenticeship());

@@ -3,7 +3,14 @@ AS
 
 SELECT 
 	a.Id,a.CommitmentId,a.FirstName,a.LastName, a.Cost,a.ULN,a.TrainingType,a.TrainingCode,a.TrainingName,
-	a.StartDate,a.EndDate,a.AgreementStatus,a.PaymentStatus,a.DateOfBirth,a.NINumber,a.EmployerRef,
+	a.StartDate,a.EndDate,	
+	CASE
+		WHEN c.Approvals & 3 = 3 THEN 3  --Both agreed
+		WHEN c.Approvals & 1 = 1 THEN 1  -- Employer only agreed
+		WHEN c.Approvals & 2 = 2 THEN 2  -- Provider agreed,
+		ELSE 0
+	END as AgreementStatus,
+	a.PaymentStatus,a.DateOfBirth,a.NINumber,a.EmployerRef,
 	a.ProviderRef,a.CreatedOn,a.AgreedOn,a.PaymentOrder,a.StopDate, a.PauseDate, a.HasHadDataLockSuccess,
 	c.EmployerAccountId, c.TransferSenderId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName,
 	c.LegalEntityId, c.AccountLegalEntityPublicHashedId, PendingUpdateOriginator AS UpdateOriginator,

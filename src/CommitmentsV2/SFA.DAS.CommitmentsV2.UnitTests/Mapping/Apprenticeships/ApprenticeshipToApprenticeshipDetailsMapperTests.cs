@@ -20,7 +20,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             result.FirstName.Should().Be(source.FirstName);
             result.LastName.Should().Be(source.LastName);
             result.CourseName.Should().Be(source.CourseName);
-            result.EmployerName.Should().Be(source.Cohort.LegalEntityName);
+            result.EmployerName.Should().Be(source.Cohort.AccountLegalEntity.Name);
+            result.ProviderName.Should().Be(source.Cohort.Provider.Name);
             result.StartDate.Should().Be(source.StartDate.Value);
             result.EndDate.Should().Be(source.EndDate.Value);
             result.PaymentStatus.Should().Be(source.PaymentStatus);

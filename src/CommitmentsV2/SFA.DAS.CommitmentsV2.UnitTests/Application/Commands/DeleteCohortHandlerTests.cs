@@ -77,7 +77,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task DeleteCohort_WhenApprovedByProvider_ShouldEmitCohortDeletedEventWithProviderApproval()
         {
             var f = new DeleteCohortHandlerTestsFixture();
-            f.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship().WithProviderApprovedDraftApprenticeship();
+            f.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship()
+                .WithProviderApproval();
             await f.Handle();
             f.VerifyCohortDeletedEventIsEmittedAndWasApprovedBy(Party.Provider);
         }
@@ -146,9 +147,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public DeleteCohortHandlerTestsFixture WithProviderApprovedDraftApprenticeship()
+        public DeleteCohortHandlerTestsFixture WithProviderApproval()
         {
-            DraftApprenticeship.AgreementStatus = AgreementStatus.ProviderAgreed;
+            Cohort.Approvals = Party.Provider;
             return this;
         }
 
@@ -158,6 +159,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 Id = CohortId,
                 EditStatus = creatingParty.ToEditStatus(),
+                WithParty = creatingParty,
                 ProviderId = _autoFixture.Create<long>(),
                 EmployerAccountId = _autoFixture.Create<long>()
             };
@@ -195,7 +197,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Assert.AreEqual(Cohort.Id, emittedEvent.CohortId);
             Assert.AreEqual( Cohort.EmployerAccountId, emittedEvent.AccountId);
-            Assert.AreEqual( Cohort.ProviderId.Value,emittedEvent.ProviderId);
+            Assert.AreEqual( Cohort.ProviderId,emittedEvent.ProviderId);
             Assert.IsTrue( emittedEvent.ApprovedBy.HasFlag(party));
         }
     }

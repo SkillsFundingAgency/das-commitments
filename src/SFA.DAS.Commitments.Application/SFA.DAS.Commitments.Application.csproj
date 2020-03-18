@@ -283,9 +283,6 @@
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommand.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipValidator.cs" />
-    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommand.cs" />
-    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommandHandler.cs" />
-    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommandValidator.cs" />
     <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommand.cs" />
     <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommandHandler.cs" />
     <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommandValidator.cs" />
@@ -295,14 +292,9 @@
     <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestCommand.cs" />
     <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestCommandHandler.cs" />
     <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestValidator.cs" />
-    <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommand.cs" />
-    <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommandHandler.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommand.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommandHandler.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsValidator.cs" />
-    <Compile Include="Commands\CreateCommitment\CreateCommitmentCommand.cs" />
-    <Compile Include="Commands\CreateCommitment\CreateCommitmentCommandHandler.cs" />
-    <Compile Include="Commands\CreateCommitment\CreateCommitmentValidator.cs" />
     <Compile Include="Commands\UndoApprenticeshipChange\UndoApprenticeshipChangeCommand.cs" />
     <Compile Include="Commands\UndoApprenticeshipChange\UndoApprenticeshipChangeCommandHandler.cs" />
     <Compile Include="Commands\UndoApprenticeshipChange\UndoApprenticeshipChangeValidator.cs" />
@@ -438,8 +430,6 @@
     <Compile Include="Rules\ApprenticeshipUpdateRules.cs" />
     <Compile Include="Rules\ICommitmentRules.cs" />
     <Compile Include="Services\ApprenticeshipEventsService.cs" />
-    <Compile Include="Services\CohortApprovalService.cs" />
-    <Compile Include="Services\CohortStatusChangeService.cs" />
     <Compile Include="Services\HistoryService.cs" />
     <Compile Include="Services\InMemoryCache.cs" />
     <Compile Include="Services\OverlappingApprenticeshipService.cs" />

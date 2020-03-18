@@ -33,17 +33,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _currentDateTime = currentDateTime;
         }
 
-        public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
-        {
-            _logger.Debug($"Creating apprenticeship - {apprenticeship.FirstName} {apprenticeship.LastName}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId);
-
-            return await WithTransaction(async (connection, trans)=>
-                {
-                    var apprenticeshipId = await _apprenticeshipTransactions.CreateApprenticeship(connection, trans, apprenticeship);
-                    return apprenticeshipId;
-                });
-        }
-
         public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeship.Id}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId, apprenticeshipId: apprenticeship.Id);
@@ -163,36 +152,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, AgreementStatus agreementStatus)
-        {
-            _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} agreement status to {agreementStatus}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
-
-            await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@id", apprenticeshipId, DbType.Int64);
-                parameters.Add("@agreementStatus", agreementStatus, DbType.Int16);
-                parameters.Add("@agreedOn", _currentDateTime.Now, DbType.DateTime);
-
-                var returnCode = await connection.ExecuteAsync(
-                    "UPDATE [dbo].[Apprenticeship] SET AgreementStatus = @agreementStatus " +
-                    "WHERE Id = @id;",
-                    parameters,
-                    commandType: CommandType.Text);
-
-                if (agreementStatus == AgreementStatus.BothAgreed)
-                {
-                    returnCode = await connection.ExecuteAsync(
-                        "UPDATE [dbo].[Apprenticeship] SET AgreedOn = @agreedOn " +
-                        "WHERE Id = @id AND AgreedOn IS NULL;",
-                        parameters,
-                        commandType: CommandType.Text);
-                }
-
-                return returnCode;
-            });
-        }
-
         public async Task UpdateApprenticeshipStopDate(long commitmentId, long apprenticeshipId, DateTime stopDate)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} stop date to {stopDate}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
@@ -219,47 +178,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             return results;
         }
-
-        public async Task UpdateApprenticeshipStatuses(List<Apprenticeship> apprenticeships)
-        {
-            await WithTransaction(async (connection, transaction) =>
-            {
-                foreach (var apprenticeship in apprenticeships)
-                {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@id", apprenticeship.Id, DbType.Int64);
-                    parameters.Add("@paymentStatus", apprenticeship.PaymentStatus, DbType.Int16);
-                    parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
-                    parameters.Add("@agreedOn", apprenticeship.AgreedOn, DbType.DateTime);
-
-                    await connection.ExecuteAsync(
-                        sql: "UpdateApprenticeshipStatuses",
-                        param: parameters,
-                        transaction: transaction,
-                        commandType: CommandType.StoredProcedure);
-                }
-                return 0;
-            });
-        }
-
-        public async Task UpdateApprenticeshipStatuses(long commitmentId, PaymentStatus? paymentStatus,
-            AgreementStatus? agreementStatus, DateTime? agreedOnDate)
-        {
-            await WithConnection(async connection =>
-            {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@commitmentId", commitmentId, DbType.Int64);
-                    parameters.Add("@paymentStatus", paymentStatus, DbType.Int16);
-                    parameters.Add("@agreementStatus", agreementStatus, DbType.Int16);
-                    parameters.Add("@agreedOn", agreedOnDate, DbType.DateTime);
-
-                    return await connection.ExecuteAsync(
-                        sql: "UpdateApprenticeshipStatusesForCommitment",
-                        param: parameters,
-                        commandType: CommandType.StoredProcedure);
-            });
-        }
-
+        
         public async Task DeleteApprenticeship(long apprenticeshipId)
         {
             _logger.Debug($"Deleting apprenticeship {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
@@ -472,6 +391,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             using (var tran = x.BeginTransaction())
             {
                 await DeleteCommitmentApprenticeships(commitmentId, x, tran);
+                await ResetCohortApprovals(commitmentId, x, tran);
                 BulkCopyApprenticeships(x, table, tran);
 
                 var commitment = await GetCommitment(commitmentId, x, tran);
@@ -508,6 +428,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 bulkCopy.ColumnMappings.Add("ReservationId", "ReservationId");
                 bulkCopy.WriteToServer(table);
             }
+        }
+
+        private static async Task ResetCohortApprovals(long commitmentId, SqlConnection x, SqlTransaction tran)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+
+            await x.ExecuteAsync(
+                sql: "UPDATE Commitment Set [Approvals]=0 WHERE Id = @CommitmentId;",
+                param: parameters,
+                transaction: tran,
+                commandType: CommandType.Text);
         }
 
         private static async Task DeleteCommitmentApprenticeships(long commitmentId, SqlConnection x, SqlTransaction tran)
@@ -651,34 +583,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     commandType: CommandType.StoredProcedure);
 
                 return  MapToApprenticeshipStatusSummaries(results);
-            });
-        }
-
-        public async Task<ApprenticeshipsResult> GetActiveApprenticeshipsByProvider(long providerId)
-        {
-            return await GetActiveApprenticeships("[GetActiveApprenticeshipsForProvider]", providerId);
-        }
-
-        public async Task<ApprenticeshipsResult> GetActiveApprenticeshipsByEmployer(long accountId)
-        {
-            return await GetActiveApprenticeships("[GetActiveApprenticeshipsForEmployer]", accountId);
-        }
-
-        private Task<ApprenticeshipsResult> GetActiveApprenticeships(string sprocName, long id)
-        {
-            return WithConnection(async c =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@id", id, DbType.Int64);
-
-                var apprenticeships = (await c.QueryAsync<Apprenticeship>(sprocName, parameters, commandType: CommandType.StoredProcedure))
-                    .ToList();
-                
-                return new ApprenticeshipsResult
-                {
-                    Apprenticeships = apprenticeships,
-                    TotalCount = apprenticeships.Count
-                };
             });
         }
 

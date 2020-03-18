@@ -11,7 +11,8 @@ namespace SFA.DAS.CommitmentsV2.Extensions
         {
             if (isDownload)
             {
-                apprenticeships = apprenticeships.Where(app => app.EndDate > DateTime.UtcNow.AddMonths(-12));
+                apprenticeships = apprenticeships
+                    .Where(app => !app.EndDate.HasValue || app.EndDate > DateTime.UtcNow.AddMonths(-12));
             }
 
             return apprenticeships;

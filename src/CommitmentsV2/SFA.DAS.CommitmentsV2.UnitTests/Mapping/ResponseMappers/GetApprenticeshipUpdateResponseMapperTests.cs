@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
                 || pi.Name == "Originator")
             {
                 var enums = Enum.GetValues(typeof(Originator)).Cast<Originator>().Where(x => x != Originator.Unknown);
-                return enums.ElementAt((new Random()).Next(0, enums.Count() -1));
+                return enums.ElementAt((new Random()).Next(0, enums.Count()));
             }
 
             return new NoSpecimen();

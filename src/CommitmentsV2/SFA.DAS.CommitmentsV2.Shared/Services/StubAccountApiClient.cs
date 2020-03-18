@@ -39,9 +39,12 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             throw new NotImplementedException();
         }
 
-        public Task<ICollection<TeamMemberViewModel>> GetAccountUsers(long accountId)
+        public async Task<ICollection<TeamMemberViewModel>> GetAccountUsers(long accountId)
         {
-            throw new NotImplementedException();
+            var url = $"api/accounts/internal/{accountId}/users";
+            var response = await _httpClient.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<ICollection<TeamMemberViewModel>>(json);
         }
 
         public Task<EmployerAgreementView> GetEmployerAgreement(string accountId, string legalEntityId, string agreementId)

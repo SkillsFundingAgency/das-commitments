@@ -30,7 +30,6 @@ using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitmentAgreements;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -403,27 +402,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved bulk upload for provider {providerId}", providerId: providerId);
             return result.Data;
-        }
-
-        public async Task<long> CreateCommitment(long providerId, CommitmentRequest commitmentRequest)
-        {
-            _logger.Trace($"Creating commitment for provider {providerId}", providerId: providerId);
-
-            commitmentRequest.Commitment.ProviderId = providerId;
-
-            var commitment = _commitmentMapper.MapFrom(commitmentRequest.Commitment);
-            var id = await _mediator.SendAsync(new CreateCommitmentCommand
-            {
-                Caller = new Caller { CallerType = CallerType.Provider, Id = providerId },
-                Commitment = commitment,
-                UserId = commitmentRequest.UserId,
-                Message = commitmentRequest.Message,
-                LastAction = (LastAction)commitmentRequest.LastAction
-            });
-
-            _logger.Info($"Created commitment {id} for provider {providerId}", providerId: providerId);
-
-            return id;
         }
     }
 }

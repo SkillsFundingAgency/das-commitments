@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     if(cohort.WithParty == Party.Employer)
                     {
                         await _legacyTopicMessagePublisher.PublishAsync(
-                            new CohortApprovalRequestedByProvider(cohort.EmployerAccountId, cohort.ProviderId.Value, cohort.Id));
+                            new CohortApprovalRequestedByProvider(cohort.EmployerAccountId, cohort.ProviderId, cohort.Id));
                         _logger.LogInformation($"Published legacy event '{typeof(CohortApprovalRequestedByProvider)}' for Cohort {message.CohortId}");
                     }
                 }

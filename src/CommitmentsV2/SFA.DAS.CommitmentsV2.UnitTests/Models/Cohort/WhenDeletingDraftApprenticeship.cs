@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public WhenDeletingDraftApprenticeshipFixture WithParty(Party party)
             {
-                Cohort.EditStatus = party.ToEditStatus();
+                Cohort.WithParty = party;
                 return this;
             }
 
@@ -120,15 +120,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public WhenDeletingDraftApprenticeshipFixture WithApprovalOfOtherParty()
             {
-                var otherParty = Cohort.WithParty.GetOtherParty();
-                
-                foreach (var apprenticeship in Cohort.DraftApprenticeships)
-                {
-                    apprenticeship.AgreementStatus = otherParty == Party.Employer
-                        ? AgreementStatus.EmployerAgreed
-                        : AgreementStatus.ProviderAgreed;
-                }
-
+                Cohort.Approvals = Cohort.WithParty.GetOtherParty();
                 return this;
             }
 
@@ -173,7 +165,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyCohortIsUnapprovedByAllParties()
             {
-                Assert.IsTrue(Cohort.Apprenticeships.All(x=> x.AgreementStatus == AgreementStatus.NotAgreed));
+                Assert.IsTrue(Cohort.Approvals == Party.None);
             }
 
             public void VerifyCohortIsDeleted()

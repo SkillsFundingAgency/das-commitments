@@ -7,6 +7,8 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
@@ -64,13 +66,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public UpdateDraftApprenticeshipValidationTestsFixture WithProviderCohort()
         {
-            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1 };
+            Cohort = new CommitmentsV2.Models.Cohort {WithParty = Party.Provider, ProviderId = 1 };
             return this;
         }
 
         public UpdateDraftApprenticeshipValidationTestsFixture WithEmployerCohort()
         {
-            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.EmployerOnly, ProviderId = 1 };
+            Cohort = new CommitmentsV2.Models.Cohort {WithParty = Party.Employer, ProviderId = 1 };
             return this;
         }
 

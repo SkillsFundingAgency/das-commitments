@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -87,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     "",
                     new UserInfo())
                 {Id = CohortId, EmployerAccountId = 100, TransferSenderId = 99};
-            Cohort.EditStatus = EditStatus.EmployerOnly;
+            Cohort.WithParty = Party.Employer;
         }
 
         public Task Handle()
@@ -112,7 +113,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerifyLegacyEventCohortApprovalRequestedByProviderIsSent()
         {
-            LegacyTopicMessagePublisher.Verify(x=>x.PublishAsync(It.Is<CohortApprovalRequestedByProvider>(p=> p.AccountId == Cohort.EmployerAccountId && p.ProviderId == Cohort.ProviderId.Value && p.CommitmentId == Cohort.Id)));
+            LegacyTopicMessagePublisher.Verify(x=>x.PublishAsync(It.Is<CohortApprovalRequestedByProvider>(p=> p.AccountId == Cohort.EmployerAccountId && p.ProviderId == Cohort.ProviderId && p.CommitmentId == Cohort.Id)));
         }
 
         public void VerifyLegacyEventCohortApprovalRequestedByProviderIsNotSent()

@@ -56,10 +56,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                     await Task.WhenAll(emails.Select(email =>
                         context.Send(new SendEmailCommand(message.Template,  email, message.Tokens))));
                 }
+                else
+                {
+                    _logger.LogWarning($"No Email Addresses found to send Template {message.Template} for AccountId {message.AccountId}");
+                }
             }
             catch (Exception e)
             {
-                _logger.LogError("Error processing SendEmailToEmployerCommand", e);
+                _logger.LogError($"Error processing {nameof(SendEmailToEmployerCommand)}", e);
                 throw;
             }
         }
