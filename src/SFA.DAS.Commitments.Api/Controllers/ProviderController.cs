@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,11 +39,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{providerId}/commitments/")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> CreateCommitment(long providerId, CommitmentRequest commitment)
+        public IHttpActionResult CreateCommitment(long providerId, CommitmentRequest commitment)
         {
-            var response = await _providerOrchestrator.CreateCommitment(providerId, commitment);
-
-            return CreatedAtRoute("GetCommitmentForProvider", new { providerId, commitmentId = response }, new CommitmentView { Id = response });
+            throw new InvalidOperationException();
         }
 
         [Route("{providerId}/commitmentagreements")]

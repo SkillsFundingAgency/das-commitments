@@ -38,7 +38,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
             var apprenticeshipEmployerType = account.ApprenticeshipEmployerType.ToEnum<ApprenticeshipEmployerType>();
 
             _logger.LogInformation($"Account {request.AccountId} is of type {apprenticeshipEmployerType}");
-            
+
+            var creationDate = DateTime.UtcNow;
+
             await _db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
             
             var events = await _db.Value.Apprenticeships
@@ -46,8 +48,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                 .Select(a => new ApprenticeshipCreatedEvent
                 {
                     ApprenticeshipId = a.Id,
-                    CreatedOn = a.Cohort.TransferApprovalActionedOn ?? a.AgreedOn.Value,
-                    AgreedOn = a.AgreedOn.Value,
+                    CreatedOn = creationDate,
+                    AgreedOn = a.Cohort.EmployerAndProviderApprovedOn.Value,
                     AccountId = a.Cohort.EmployerAccountId,
                     AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntityPublicHashedId,
                     AccountLegalEntityId = a.Cohort.AccountLegalEntity.Id,
