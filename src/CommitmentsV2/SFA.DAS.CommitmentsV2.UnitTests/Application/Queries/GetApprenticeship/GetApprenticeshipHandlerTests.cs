@@ -154,6 +154,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             {
                 Assert.AreEqual(Apprenticeship.Id, _result.Id);
                 Assert.AreEqual(Apprenticeship.CommitmentId, _result.CohortId);
+                Assert.AreEqual(Apprenticeship.Cost, _result.Cost);
                 Assert.AreEqual(Apprenticeship.FirstName, _result.FirstName);
                 Assert.AreEqual(Apprenticeship.LastName, _result.LastName);
                 Assert.AreEqual(Apprenticeship.Uln, _result.Uln);
