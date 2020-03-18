@@ -13,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
             {
                 Id = source.Id,
                 CohortId = source.CohortId,
+                Cost = source.Cost,
                 ProviderId = source.ProviderId,
                 ProviderName = source.ProviderName,
                 EmployerAccountId = source.EmployerAccountId,
