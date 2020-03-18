@@ -12,18 +12,15 @@ Post-Deployment Script Template
 
 EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
 
---CV-515: Add IsDraft flag - update existing data
-update Commitment set IsDraft = 0 where LastAction <> 0
 
---CV-516: Add WithParty field - update existing data
-update Commitment set WithParty = 
-CASE
-    WHEN (EditStatus = 1) THEN 1 --Employer
-    WHEN (EditStatus = 2) THEN 2 --Provider
-    WHEN (EditStatus = 0 AND TransferSenderId is null) THEN 0 --Approved by Employer and Provider and no Transfer Sender
-    WHEN (EditStatus = 0 AND TransferApprovalStatus=0) THEN 4 --Approved by Employer and Provider and pending Transfer Sender's approval
-    ELSE 0
-END
+--CV-514: Add Approvals flag
+update Commitment
+set Approvals = COALESCE((select top 1 a.AgreementStatus from Apprenticeship a where a.CommitmentId = Commitment.Id),0) + CASE WHEN TransferApprovalStatus = 1 THEN 4 ELSE 0 END
+
+update Commitment
+set [EmployerAndProviderApprovedOn] = (select top 1 a.AgreedOn from Apprenticeship a where a.CommitmentId = Commitment.Id)
+where EditStatus = 0 and [EmployerAndProviderApprovedOn] IS NULL
+
 
 --CV-564 - Data fix missing legal entity codes
 update [AccountLegalEntities] set [LegalEntityId]='cbbbe239-112b-4d63-a41d-7ceca6f577f5' where PublicHashedId ='X6N47Z' and [LegalEntityId]=''
