@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         CohortId = apprenticeship.CommitmentId,
                         CourseCode = apprenticeship.CourseCode,
                         CourseName = apprenticeship.CourseName,
+                        Cost = apprenticeship.Cost,
                         EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
                         AccountLegalEntityId = _encodingService.Decode(apprenticeship.Cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
                         EmployerName = apprenticeship.Cohort.LegalEntityName,
