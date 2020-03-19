@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public const string LatestMessageCreatedByProvider = "konbanwa";
         public bool HasTransferSender = true;
         public bool CohortIsDeleted;
-        public AgreementStatus? ApprenticeshipAgreementStatus = AgreementStatus.NotAgreed;
+        public Party Approvals;
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnValue()
@@ -131,15 +131,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(response => Assert.AreEqual(Cohort.LastUpdatedByProviderEmail, response.LastUpdatedByProviderEmail, "Did not return expected Last Updated By Provider Email"));
         }
 
-        [TestCase(AgreementStatus.NotAgreed, false)]
-        [TestCase(AgreementStatus.ProviderAgreed, false)]
-        [TestCase(AgreementStatus.EmployerAgreed, true)]
-        [TestCase(AgreementStatus.BothAgreed, true)]
+        [TestCase(Party.None, false)]
+        [TestCase(Party.Provider, false)]
+        [TestCase(Party.Employer, true)]
+        [TestCase(Party.Employer | Party.Provider, true)]
         [TestCase(null, false)]
-        public async Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedIsApprovedByEmployer(AgreementStatus? agreementStatus, bool expectIsApprovedByEmployer)
+        public async Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedIsApprovedByEmployer(Party approvals, bool expectIsApprovedByEmployer)
         {
             WithParty = Party.Employer;
-            ApprenticeshipAgreementStatus = agreementStatus;
+            Approvals = approvals;
             await CheckQueryResponse(response => Assert.AreEqual(expectIsApprovedByEmployer, response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
         }
 
@@ -198,12 +198,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             if (apprenticeshipDetails != null)
             {
                 Cohort.Apprenticeships.Add(new DraftApprenticeship(apprenticeshipDetails, Cohort.WithParty));
-                ApprenticeshipAgreementStatus = null;
             }
 
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
-                .AddCommitment(CohortId, Cohort, WithParty, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider, ApprenticeshipAgreementStatus);
+                .AddCommitment(CohortId, Cohort, WithParty, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider, Approvals);
 
             // act
             var response = await fixtures.GetResult(new GetCohortSummaryQuery(CohortId));
@@ -274,7 +273,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
         public List<Cohort> SeedCohorts { get; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, Party withParty, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, AgreementStatus? apprenticeshipAgreementStatus)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, Party withParty, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, Party approvals)
         {
             cohort.Id =  cohortId;
             cohort.WithParty = withParty;
@@ -307,13 +306,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 Text = latestMessageCreatedByProvider
             });
 
-            if (apprenticeshipAgreementStatus.HasValue)
-            {
-                cohort.Apprenticeships.Add(new DraftApprenticeship
-                {
-                    AgreementStatus = apprenticeshipAgreementStatus.Value
-                });
-            }
+            cohort.Approvals = approvals;
 
             SeedCohorts.Add(cohort);
             

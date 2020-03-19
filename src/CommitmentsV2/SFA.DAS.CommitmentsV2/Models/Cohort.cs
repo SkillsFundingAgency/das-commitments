@@ -172,8 +172,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string LastMessage => Messages.OrderByDescending(x => x.Id).FirstOrDefault()?.Text;
 
         public virtual Party WithParty { get; set; }
+        public virtual Party Approvals { get; set; }
+        public DateTime? EmployerAndProviderApprovedOn { get; set; }
 
-        public virtual bool IsApprovedByAllParties => WithParty == Party.None;
+        public virtual bool IsApprovedByAllParties => WithParty == Party.None; //todo: use new Approvals flag
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
@@ -185,7 +187,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, creator);
             Apprenticeships.Add(draftApprenticeship);
-            ResetApprovals();
+            Approvals = Party.None;
             UpdatedBy(creator, userInfo);
             LastUpdatedOn = DateTime.UtcNow;
 
@@ -200,7 +202,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
-            CheckHasDraftApprenticeships();
+            CheckIsCompleteForParty(modifyingParty);
 
             StartTrackingSession(UserAction.ApproveCohort, modifyingParty, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
@@ -211,17 +213,18 @@ namespace SFA.DAS.CommitmentsV2.Models
                 case Party.Provider:
                 {
                     var otherParty = modifyingParty.GetOtherParty();
-                    var isApprovedByOtherParty = IsApprovedByParty(otherParty);
+                    var isApprovedByOtherParty = Approvals.HasFlag(otherParty);
 
                     IsDraft = false;
                     EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
                     WithParty = isApprovedByOtherParty
                         ? TransferSenderId.HasValue ? Party.TransferSender : Party.None
                         : otherParty;
+                    if (isApprovedByOtherParty) EmployerAndProviderApprovedOn = DateTime.UtcNow;
                     LastAction = LastAction.Approve;
                     CommitmentStatus = CommitmentStatus.Active;
                     TransferApprovalStatus = null;
-                    DraftApprenticeships.ForEach(a => a.Approve(modifyingParty, now));
+                    Approvals |= modifyingParty;
                     AddMessage(message, modifyingParty, userInfo);
                     UpdatedBy(modifyingParty, userInfo);
                     LastUpdatedOn = DateTime.UtcNow;
@@ -250,7 +253,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new ArgumentOutOfRangeException(nameof(modifyingParty));
             }
 
-            if (IsApprovedByParty(Party.Provider) && modifyingParty == Party.Employer)
+            if (Approvals.HasFlag(Party.Provider) && modifyingParty == Party.Employer)
             {
                 Publish(() => new CohortApprovedByEmployerEvent(Id, now));
             }
@@ -293,12 +296,12 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new ArgumentOutOfRangeException(nameof(EditStatus));
             }
             
-            if (IsApprovedByParty(Party.Provider))
+            if (Approvals.HasFlag(Party.Provider))
             {
                 Publish(() => new ApprovedCohortReturnedToProviderEvent(Id, now));
             }
-            
-            ResetApprovals();
+
+            Approvals = Party.None;
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
@@ -318,11 +321,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(this);
             ChangeTrackingSession.TrackUpdate(existingDraftApprenticeship);
 
-            existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
-            if (existingDraftApprenticeship.AgreementStatus == AgreementStatus.NotAgreed)
+            if (existingDraftApprenticeship.IsOtherPartyApprovalRequiredForUpdate(draftApprenticeshipDetails))
             {
-                ResetApprovals();
+                Approvals = Party.None;
             }
+            existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
 
             UpdatedBy(modifyingParty, userInfo);
             LastUpdatedOn = DateTime.UtcNow;
@@ -374,7 +377,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             RemoveDraftApprenticeship(draftApprenticeship);
 
             LastUpdatedOn = DateTime.UtcNow;
-            ResetApprovals();
+            Approvals = Party.None;
             ResetTransferSenderRejection();
 
             if (!DraftApprenticeships.Any())
@@ -551,19 +554,27 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckHasDraftApprenticeships()
-        {
-            if (!DraftApprenticeships.Any())
-            {
-                throw new DomainException(nameof(Apprenticeships), $"Cohort must have at least one draft apprenticeship");
-            }
-        }
-
         private void CheckIsWithParty(Party party)
         {
             if (party != WithParty)
             {
                 throw new DomainException(nameof(WithParty), $"Cohort must be with the party; {party} is not valid");
+            }
+        }
+
+        private void CheckIsCompleteForParty(Party party)
+        {
+            if (!DraftApprenticeships.Any())
+            {
+                throw new DomainException(nameof(Apprenticeships), $"Cohort must have at least one draft apprenticeship");
+            }
+
+            if (party == Party.Employer || party == Party.Provider)
+            {
+                if (DraftApprenticeships.Any(x => !x.IsCompleteForParty(party)))
+                {
+                    throw new DomainException(nameof(DraftApprenticeships), $"Cohort must be complete for {party}");
+                }
             }
         }
 
@@ -599,32 +610,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private bool IsApprovedByParty(Party party)
-        {
-            switch (party)
-            {
-                case Party.Employer:
-                    return Apprenticeships.Count > 0 &&
-                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed || a.AgreementStatus == AgreementStatus.BothAgreed);
-                case Party.Provider:
-                    return Apprenticeships.Count > 0 &&
-                           Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed || a.AgreementStatus == AgreementStatus.BothAgreed);
-                case Party.TransferSender:
-                    return TransferSenderId != null &&
-                           TransferApprovalStatus == Types.TransferApprovalStatus.Approved;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(party));
-            }
-        }
-
-        private void ResetApprovals()
-        {
-            foreach (var apprenticeship in Apprenticeships)
-            {
-                apprenticeship.AgreementStatus = AgreementStatus.NotAgreed;
-            }
-        }
-
         private void UpdatedBy(Party party, UserInfo userInfo)
         {
             if (userInfo == null)
@@ -642,28 +627,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                     LastUpdatedByProviderName = userInfo.UserDisplayName;
                     LastUpdatedByProviderEmail = userInfo.UserEmail;
                     break;
-            }
-        }
-
-        public virtual Party Approvals
-        {
-            get
-            {
-                var approvals = Party.None;
-                if (IsApprovedByParty(Party.Employer))
-                {
-                    approvals |= Party.Employer;
-                }
-                if (IsApprovedByParty(Party.Provider))
-                {
-                    approvals |= Party.Provider;
-                }
-                if (IsApprovedByParty(Party.TransferSender))
-                {
-                    approvals |= Party.TransferSender;
-                }
-
-                return approvals;
             }
         }
 

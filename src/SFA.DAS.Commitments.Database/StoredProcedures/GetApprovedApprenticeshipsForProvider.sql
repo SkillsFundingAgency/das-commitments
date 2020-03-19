@@ -23,7 +23,7 @@ AS
 	a.PauseDate,
 	a.StopDate,
 	a.PaymentStatus,
-	a.AgreementStatus, -- this should always been bothagreed (this is not a valid property of an approved apprenticeship)
+	0 as AgreementStatus, -- this should always been bothagreed (this is not a valid property of an approved apprenticeship)
 	a.EmployerRef,
 	a.ProviderRef,
 	a.PendingUpdateOriginator as 'UpdateOriginator',

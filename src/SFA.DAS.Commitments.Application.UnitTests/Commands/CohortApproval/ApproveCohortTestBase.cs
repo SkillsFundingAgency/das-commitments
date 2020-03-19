@@ -52,18 +52,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
             Assert.ThrowsAsync<InvalidOperationException>(() => Target.Handle(Command));
         }
 
-        protected bool VerifyHistoryItem(HistoryItem historyItem, CommitmentChangeType changeType, string userId, string lastUpdatedByName, CallerType callerType)
-        {
-            return historyItem.ChangeType == changeType.ToString() &&
-                   historyItem.TrackedObject == Commitment &&
-                   historyItem.CommitmentId == Commitment.Id &&
-                   historyItem.UpdatedByRole == callerType.ToString() &&
-                   historyItem.UserId == userId &&
-                   historyItem.ProviderId == Commitment.ProviderId &&
-                   historyItem.EmployerAccountId == Commitment.EmployerAccountId &&
-                   historyItem.UpdatedByName == lastUpdatedByName;
-        }
-
         protected void SetUpCommonMocks()
         {
             CommitmentRepository = new Mock<ICommitmentRepository>();

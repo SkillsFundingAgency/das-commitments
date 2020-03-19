@@ -26,34 +26,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture = new WhenApprovingCohortFixture();
         }
         
-        [TestCase(Party.Employer, Party.Provider, AgreementStatus.EmployerAgreed)]
-        [TestCase(Party.Provider, Party.Employer, AgreementStatus.ProviderAgreed)]
-        public void AndPartyIsEmployerOrProviderThenShouldUpdateStatus(Party modifyingParty, Party expectedWithParty, AgreementStatus expectedAgreementStatus)
+        [TestCase(Party.Employer, Party.Provider)]
+        [TestCase(Party.Provider, Party.Employer)]
+        public void AndPartyIsEmployerOrProviderThenShouldUpdateStatus(Party modifyingParty, Party expectedWithParty)
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
-                .AddDraftApprenticeship(AgreementStatus.NotAgreed)
+                .AddDraftApprenticeship()
                 .Approve();
 
             _fixture.Cohort.WithParty.Should().Be(expectedWithParty);
             _fixture.Cohort.LastAction.Should().Be(LastAction.Approve);
             _fixture.Cohort.CommitmentStatus.Should().Be(CommitmentStatus.Active);
-            _fixture.Cohort.DraftApprenticeships.Should().OnlyContain(a => a.AgreementStatus == expectedAgreementStatus && a.AgreedOn == null);
         }
         
-        [TestCase(Party.Employer, AgreementStatus.ProviderAgreed, EditStatus.Both)]
-        [TestCase(Party.Provider, AgreementStatus.EmployerAgreed, EditStatus.Both)]
-        public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedThenShouldUpdateStatus(Party modifyingParty, AgreementStatus agreementStatus, EditStatus expectedEditStatus)
+        [TestCase(Party.Employer, EditStatus.Both)]
+        [TestCase(Party.Provider, EditStatus.Both)]
+        public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedThenShouldUpdateStatus(Party modifyingParty, EditStatus expectedEditStatus)
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
-                .AddDraftApprenticeship(agreementStatus)
+                .SetApprovals(modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship()
                 .Approve();
             
             _fixture.Cohort.EditStatus.Should().Be(expectedEditStatus);
             _fixture.Cohort.LastAction.Should().Be(LastAction.Approve);
             _fixture.Cohort.CommitmentStatus.Should().Be(CommitmentStatus.Active);
-            _fixture.Cohort.DraftApprenticeships.Should().OnlyContain(a => a.AgreementStatus == AgreementStatus.BothAgreed && a.AgreedOn == _fixture.Now);
         }
 
         [TestCase(Party.Employer, null, "", 0)]
@@ -64,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
-                .AddDraftApprenticeship(AgreementStatus.NotAgreed)
+                .AddDraftApprenticeship()
                 .SetMessage(message)
                 .Approve();
             
@@ -81,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
-                .AddDraftApprenticeship(AgreementStatus.NotAgreed)
+                .AddDraftApprenticeship()
                 .SetUserInfo(userDisplayName, userEmail)
                 .Approve();
             
@@ -97,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
-                .AddDraftApprenticeship(AgreementStatus.NotAgreed)
+                .AddDraftApprenticeship()
                 .SetUserInfo(userDisplayName, userEmail)
                 .SetIsDraft(true)
                 .Approve();
@@ -111,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
-                .AddDraftApprenticeship(AgreementStatus.NotAgreed)
+                .AddDraftApprenticeship()
                 .Approve();
 
             _fixture.UnitOfWorkContext.GetEvents().Single(e => e.GetType() == expectedEventType)
@@ -122,13 +121,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 });
         }
         
-        [TestCase(Party.Employer, AgreementStatus.ProviderAgreed)]
-        [TestCase(Party.Provider, AgreementStatus.EmployerAgreed)]
-        public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedThenShouldPublishFullyApprovedEvent(Party modifyingParty, AgreementStatus agreementStatus)
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedThenShouldPublishFullyApprovedEvent(Party modifyingParty)
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
-                .AddDraftApprenticeship(agreementStatus)
+                .SetApprovals(modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship()
                 .Approve();
 
             _fixture.UnitOfWorkContext.GetEvents().OfType<CohortFullyApprovedEvent>()
@@ -144,7 +144,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.Employer)
                 .SetWithParty(Party.Employer)
-                .AddDraftApprenticeship(AgreementStatus.ProviderAgreed)
+                .SetApprovals(Party.Provider)
+                .AddDraftApprenticeship()
                 .Approve();
 
             _fixture.UnitOfWorkContext.GetEvents()
@@ -159,12 +160,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void AndPartyIsProviderAndEmployerHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent()
         {
             Party modifyingParty = Party.Provider;
-            AgreementStatus agreementStatus = AgreementStatus.EmployerAgreed;
 
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
                 .SetTransferSender()
-                .AddDraftApprenticeship(agreementStatus)
+                .SetApprovals(modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship()
                 .Approve();
             
 				  _fixture.UnitOfWorkContext.GetEvents()
@@ -183,7 +184,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.SetModifyingParty(Party.Employer)
                 .SetWithParty(Party.Employer)
                 .SetTransferSender()
-                .AddDraftApprenticeship(AgreementStatus.ProviderAgreed)
+                .SetApprovals(Party.Provider)
+                .AddDraftApprenticeship()
                 .Approve();
 
             _fixture.UnitOfWorkContext.GetEvents()
@@ -236,7 +238,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(party)
                 .SetWithParty(party)
-                .AddDraftApprenticeship(AgreementStatus.NotAgreed, party == Party.Employer, party == Party.Provider);
+                .AddDraftApprenticeship(party == Party.Employer, party == Party.Provider);
 
             _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
         }
@@ -247,21 +249,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.SetModifyingParty(Party.TransferSender)
                 .SetWithParty(Party.TransferSender)
                 .SetTransferSender()
-                .AddDraftApprenticeship(AgreementStatus.BothAgreed)
+                .AddDraftApprenticeship()
                 .Approve();
             
             _fixture.Cohort.TransferApprovalStatus.Should().Be(TransferApprovalStatus.Approved);
             _fixture.Cohort.TransferApprovalActionedOn.Should().Be(_fixture.Now);
         }
         
-        [TestCase(Party.Employer, AgreementStatus.ProviderAgreed)]
-        [TestCase(Party.Provider, AgreementStatus.EmployerAgreed)]
-        public void AndPartyIsTransferSenderAndOtherPartyHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent(Party modifyingParty, AgreementStatus agreementStatus)
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void AndPartyIsTransferSenderAndOtherPartyHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent(Party modifyingParty)
         {
             _fixture.SetModifyingParty(Party.TransferSender)
                 .SetWithParty(Party.TransferSender)
                 .SetTransferSender()
-                .AddDraftApprenticeship(AgreementStatus.BothAgreed)
+                .SetApprovals(modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship()
                 .Approve();
 
             _fixture.UnitOfWorkContext.GetEvents().OfType<CohortFullyApprovedEvent>().Single(e =>
@@ -298,7 +301,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.Employer)
                 .SetWithParty(Party.Employer)
-                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
+                .AddDraftApprenticeship()
                 .SetTransferApprovalStatus(TransferApprovalStatus.Rejected)
                 .Approve();
 
@@ -311,10 +314,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
-                .AddDraftApprenticeship(AgreementStatus.NotAgreed)
+                .AddDraftApprenticeship()
                 .Approve();
 
             _fixture.VerifyCohortTracking();
+        }
+
+        [TestCase(Party.Employer, true, true)]
+        [TestCase(Party.Employer, false, false)]
+        [TestCase(Party.Provider, true, true)]
+        [TestCase(Party.Provider, false, false)]
+        public void ThenTheEmployerAndProviderApprovedOnDateIsSetCorrectly(Party modifyingParty, bool otherPartyHasApproved, bool expectApprovedOnDate)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetApprovals(otherPartyHasApproved ? modifyingParty.GetOtherParty(): Party.None)
+                .AddDraftApprenticeship()
+                .Approve();
+
+            _fixture.VerifyEmployerAndProviderApprovedOnDate(expectApprovedOnDate);
         }
     }
 
@@ -348,7 +366,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Cohort.Approve(Party, Message, UserInfo, Now);
         }
 
-        public WhenApprovingCohortFixture AddDraftApprenticeship(AgreementStatus agreementStatus, bool isIncompleteForEmployer = false, bool isIncompleteForProvider = false)
+        public WhenApprovingCohortFixture AddDraftApprenticeship(bool isIncompleteForEmployer = false, bool isIncompleteForProvider = false)
         {
             var draftApprenticeshipDetailsComposer = AutoFixture.Build<DraftApprenticeshipDetails>().WithAutoProperties();
             
@@ -362,7 +380,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 draftApprenticeshipDetailsComposer = draftApprenticeshipDetailsComposer.Without(d => d.Uln);
             }
             
-            ApprenticeshipBase apprenticeship = new DraftApprenticeship(draftApprenticeshipDetailsComposer.Create(), Party.Provider).Set(a => a.AgreementStatus, agreementStatus);
+            ApprenticeshipBase apprenticeship = new DraftApprenticeship(draftApprenticeshipDetailsComposer.Create(), Party.Provider);
             Cohort.Add(c => c.Apprenticeships, apprenticeship);
             return this;
         }
@@ -406,6 +424,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             return this;
         }
 
+        public WhenApprovingCohortFixture SetApprovals(Party approvals)
+        {
+            Cohort.Set(c => c.Approvals, approvals);
+            return this;
+        }
+
         public WhenApprovingCohortFixture SetUserInfo(string userDisplayName, string userEmail)
         {
             UserInfo.UserDisplayName = userDisplayName;
@@ -429,5 +453,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                                                                                 nameof(Cohort)));
         }
 
+        public void VerifyEmployerAndProviderApprovedOnDate(bool expectValue)
+        {
+            if (expectValue)
+            {
+                Assert.AreEqual(DateTime.UtcNow.Date, Cohort.EmployerAndProviderApprovedOn?.Date);
+            }
+            else
+            {
+                Assert.IsNull(Cohort.EmployerAndProviderApprovedOn);
+            }
+        }
     }
 }

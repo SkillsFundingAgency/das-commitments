@@ -126,7 +126,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.Employer)
                 .SetWithParty(Party.Employer)
-                .AddDraftApprenticeship(AgreementStatus.ProviderAgreed)
+                .AddDraftApprenticeship()
+                .SetApprovals(Party.Provider)
                 .SendToOtherParty();
             
             _fixture.UnitOfWorkContext.GetEvents().OfType<ApprovedCohortReturnedToProviderEvent>().Should().HaveCount(1)
@@ -138,12 +139,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.Provider)
                 .SetWithParty(Party.Provider)
-                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
-                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
+                .SetApprovals(Party.Employer)
                 .SendToOtherParty();
-
-            _fixture.Cohort.Apprenticeships.Should().HaveCount(2)
-                .And.Subject.All(a => a.AgreementStatus == AgreementStatus.NotAgreed).Should().BeTrue();
+            _fixture.Cohort.Approvals.Should().Be(Party.None);
         }
 
         [Test]
@@ -151,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.Employer)
                 .SetWithParty(Party.Employer)
-                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
+                .SetApprovals(Party.Employer)
                 .SetTransferApprovalStatus(TransferApprovalStatus.Rejected)
                 .SendToOtherParty();
 
@@ -196,9 +194,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Cohort.SendToOtherParty(Party, Message, UserInfo, Now);
         }
 
-        public WhenSendingCohortToOtherPartyTestsFixture AddDraftApprenticeship(AgreementStatus agreementStatus)
+        public WhenSendingCohortToOtherPartyTestsFixture AddDraftApprenticeship()
         {
-            ApprenticeshipBase apprenticeship = new DraftApprenticeship(new DraftApprenticeshipDetails(), Party.None).Set(a => a.AgreementStatus, agreementStatus);
+            ApprenticeshipBase apprenticeship = new DraftApprenticeship(new DraftApprenticeshipDetails(), Party.None);
             Cohort.Add(c => c.Apprenticeships, apprenticeship);
             return this;
         }
@@ -219,6 +217,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             Cohort.Set(c => c.LastAction, lastAction);
             
+            return this;
+        }
+
+        public WhenSendingCohortToOtherPartyTestsFixture SetApprovals(Party approvals)
+        {
+            Cohort.Set(c => c.Approvals, approvals);
             return this;
         }
 

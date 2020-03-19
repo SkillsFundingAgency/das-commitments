@@ -50,12 +50,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
             _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_commitment);
             _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.BothAgreed);
 
-            _historyRepository.Setup(x => x.InsertHistory(It.IsAny<List<HistoryItem>>()))
-                .Returns(() => Task.FromResult(new Unit()));
-
-            _commitmentRepository.Setup(x => x.ResetEditStatusToEmployer(It.IsAny<long>()))
-                .Returns(() => Task.FromResult(new Unit()));
-
             _sut = new RejectTransferRequestCommandHandler(_validator, _commitmentRepository.Object, _v2EventsPublisher.Object);
         }
 
