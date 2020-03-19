@@ -484,7 +484,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 Db.AccountLegalEntities.Add(AccountLegalEntity.Object);
 
-                TransferSenderId = fixture.Create<long>();
+                TransferSenderId = 23;
                 TransferSenderName = fixture.Create<string>();
                 TransferSenderAccount = new Account(TransferSenderId, "XXXX", "ZZZZ", TransferSenderName, new DateTime());
                 Db.Accounts.Add(TransferSenderAccount);
