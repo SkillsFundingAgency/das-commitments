@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         public void Configure(EntityTypeBuilder<Apprenticeship> builder)
         {
             builder.HasBaseType<ApprenticeshipBase>();
+            builder.Property(e => e.CompletionDate).HasColumnType("datetime");
         }
     }
 }

@@ -125,6 +125,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     DateOfBirth = _autoFixture.Create<DateTime>(),
                     StartDate = _autoFixture.Create<DateTime>(),
                     EndDate = _autoFixture.Create<DateTime>(),
+                    CompletionDate = _autoFixture.Create<DateTime>(),
                     Uln = _autoFixture.Create<string>(),
                     PaymentStatus = _autoFixture.Create<PaymentStatus>(),
                     EpaOrg = EndpointAssessmentOrganisation,
@@ -164,6 +165,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.Status, _result.Status);
                 Assert.AreEqual(Apprenticeship.StopDate, _result.StopDate);
                 Assert.AreEqual(Apprenticeship.PauseDate, _result.PauseDate);
+                Assert.AreEqual(Apprenticeship.CompletionDate, _result.CompletionDate);
                 Assert.AreEqual(Apprenticeship.HasHadDataLockSuccess, _result.HasHadDataLockSuccess);
                 Assert.AreEqual(Apprenticeship.CourseCode, _result.CourseCode);
                 Assert.AreEqual(AccountLegalEntityId, _result.AccountLegalEntityId);

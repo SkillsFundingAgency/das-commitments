@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        
+        public DateTime? CompletionDate { get; set; }
 
         public Apprenticeship()
         {
