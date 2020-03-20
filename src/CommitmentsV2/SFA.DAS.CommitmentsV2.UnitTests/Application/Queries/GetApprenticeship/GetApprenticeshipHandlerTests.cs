@@ -125,7 +125,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     DateOfBirth = _autoFixture.Create<DateTime>(),
                     StartDate = _autoFixture.Create<DateTime>(),
                     EndDate = _autoFixture.Create<DateTime>(),
-                    CompletionDate = _autoFixture.Create<DateTime>(),
                     Uln = _autoFixture.Create<string>(),
                     PaymentStatus = _autoFixture.Create<PaymentStatus>(),
                     EpaOrg = EndpointAssessmentOrganisation,
@@ -139,6 +138,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                         break;
                     case PaymentStatus.Paused:
                         Apprenticeship.PauseDate = _autoFixture.Create<DateTime>();
+                        break;
+                    case PaymentStatus.Completed:
+                        Apprenticeship.CompletionDate = _autoFixture.Create<DateTime>();
                         break;
                 }
 

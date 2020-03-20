@@ -43,5 +43,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             DataLockStatus = new List<DataLockStatus>();
             PriceHistory = new List<PriceHistory>();
         }
+
+        public virtual void Complete(DateTime completionDate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void UpdateCompletionDate(DateTime completionDate)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
