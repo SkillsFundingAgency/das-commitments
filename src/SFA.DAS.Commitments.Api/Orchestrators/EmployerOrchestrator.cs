@@ -23,7 +23,6 @@ using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriori
 using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
-using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
 using SFA.DAS.Commitments.Application.Commands.RejectTransferRequest;
@@ -213,23 +212,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             _logger.Info($"Updated stop date to {stopDate.NewStopDate} for  apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
-        }
-
-        public async Task ApproveCohort(long accountId, long commitmentId, CommitmentSubmission submission)
-        {
-            _logger.Trace($"Approving commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
-
-            await _mediator.SendAsync(new EmployerApproveCohortCommand
-            {
-                Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
-                CommitmentId = commitmentId,
-                LastUpdatedByName = submission.LastUpdatedByInfo.Name,
-                LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
-                UserId = submission.UserId,
-                Message = submission.Message
-            });
-
-            _logger.Info($"Approved commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
         }
 
         public async Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, Commitment.TransferApprovalRequest transferApprovalRequest)

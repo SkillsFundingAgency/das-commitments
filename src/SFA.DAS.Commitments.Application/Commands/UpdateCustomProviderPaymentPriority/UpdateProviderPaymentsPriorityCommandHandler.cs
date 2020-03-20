@@ -4,10 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority
 {
@@ -23,13 +21,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPr
             IMediator mediator,
             IV2EventsPublisher v2EventsPublisher)
         {
-            if (validator == null)
-                throw new ArgumentNullException(nameof(validator));
-            if (providerPaymentRepository == null)
-                throw new ArgumentNullException(nameof(providerPaymentRepository));
-            if (mediator == null)
-                throw new ArgumentNullException(nameof(mediator));
-
             _validator = validator;
             _providerPaymentRepository = providerPaymentRepository;
             _mediator = mediator;
@@ -45,12 +36,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPr
 
             _validator.ValidateAndThrow(message);
 
-            // Save new order to the database
             await _providerPaymentRepository.UpdateProviderPaymentPriority(message.EmployerAccountId, message.ProviderPriorities);
-
-            // Re-prioritise the apprenticeships & Send update events to Events Api
-            await Task.WhenAll(_mediator.SendAsync(new SetPaymentOrderCommand { AccountId = message.EmployerAccountId }),
-                _v2EventsPublisher.PublishPaymentOrderChanged(message.EmployerAccountId, MapToPaymentOrderForV2Event()));
+            await _v2EventsPublisher.PublishPaymentOrderChanged(message.EmployerAccountId, MapToPaymentOrderForV2Event());
         }
     }
 }

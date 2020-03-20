@@ -11,8 +11,7 @@
     <PackageReference Include="Moq" Version="4.10.1" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
-    <!--<PackageReference Include="SFA.DAS.CommitmentsV2.Api.Client" Version="4.1.181" />
-    <PackageReference Include="SFA.DAS.CommitmentsV2.Types" Version="4.1.181" />-->
+    <PackageReference Include="SFA.DAS.Testing.AutoFixture" Version="3.0.165" />
   </ItemGroup>
 
   <ItemGroup>

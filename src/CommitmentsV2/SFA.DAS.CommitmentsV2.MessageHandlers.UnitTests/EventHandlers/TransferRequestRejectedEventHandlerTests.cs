@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -105,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             ExistingApprenticeshipDetails = new DraftApprenticeship(_fixture.Build<DraftApprenticeshipDetails>().Create(), Party.Provider);
             Cohort.Apprenticeships.Add(ExistingApprenticeshipDetails);
-            Cohort.EditStatus = EditStatus.Both;
+            Cohort.WithParty = Party.TransferSender;
             Cohort.TransferApprovalStatus = TransferApprovalStatus.Pending;
         }
 
@@ -124,8 +125,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public TransferRequestRejectedEventHandlerTestsFixture WithEmployerParty()
         {
-            Cohort.EditStatus = EditStatus.EmployerOnly;
-            
+            Cohort.WithParty = Party.Employer;
             return this;
         }
 

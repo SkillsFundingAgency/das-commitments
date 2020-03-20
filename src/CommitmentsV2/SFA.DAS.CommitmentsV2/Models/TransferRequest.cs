@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new InvalidOperationException($"The TransferRequest {Id} is not in a Pending State and has a current status of {Status}");
             }
 
-            StartTrackingSession(UserAction.ApproveTransferRequest, Party.TransferSender, Cohort.EmployerAccountId, Cohort.ProviderId.Value, userInfo);
+            StartTrackingSession(UserAction.ApproveTransferRequest, Party.TransferSender, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
             TransferApprovalActionedByEmployerName = userInfo.UserDisplayName;
             TransferApprovalActionedByEmployerEmail = userInfo.UserEmail;
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new InvalidOperationException($"The TransferRequest {Id} is not in a Pending State and has a current status of {Status}");
             }
 
-            StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, Cohort.EmployerAccountId, Cohort.ProviderId.Value, userInfo);
+            StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
             TransferApprovalActionedByEmployerName = userInfo.UserDisplayName;
             TransferApprovalActionedByEmployerEmail = userInfo.UserEmail;

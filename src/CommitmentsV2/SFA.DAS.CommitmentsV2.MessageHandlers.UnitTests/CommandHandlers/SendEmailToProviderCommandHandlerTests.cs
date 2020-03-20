@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.PAS.Account.Api.ClientV2;
 using SFA.DAS.PAS.Account.Api.Types;
 
@@ -40,18 +43,25 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _fixture.VerifyEmailIsSentToExplicitAddress();
         }
 
+        [Test]
+        public void When_HandlingCommandAndAnErrorOccurs_AnExceptionIsThrownAndLogged()
+        {
+            Assert.ThrowsAsync<NullReferenceException>(() => _fixture.SetupNullMessage().Handle());
+            _fixture.VerifyHasError();
+        }
+
         private class SendEmailToProviderCommandHandlerTestsFixture
         {
             public SendEmailToProviderCommandHandler Handler;
             public SendEmailToProviderCommand Command;
             public Mock<IPasAccountApiClient> PasAccountApiClient;
             public Mock<IMessageHandlerContext> MessageHandlerContext;
+            public FakeLogger<SendEmailToProviderCommandHandler> Logger;
 
             public long ProviderId;
             public string TemplateId;
             public string ExplicitEmailAddress;
             public Dictionary<string, string> Tokens;
-            
 
             private Fixture _autoFixture;
 
@@ -66,17 +76,24 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 Command = new SendEmailToProviderCommand(ProviderId, TemplateId, Tokens, null);
 
                 MessageHandlerContext = new Mock<IMessageHandlerContext>();
+                Logger = new FakeLogger<SendEmailToProviderCommandHandler>();
 
                 PasAccountApiClient = new Mock<IPasAccountApiClient>();
                 PasAccountApiClient.Setup(x => x.SendEmailToAllProviderRecipients(It.IsAny<long>(),
                     It.IsAny<ProviderEmailRequest>(), It.IsAny<CancellationToken>()));
 
-                Handler = new SendEmailToProviderCommandHandler(PasAccountApiClient.Object);
+                Handler = new SendEmailToProviderCommandHandler(PasAccountApiClient.Object, Logger);
             }
 
             public SendEmailToProviderCommandHandlerTestsFixture SetExplicitEmailAddress()
             {
                 Command = new SendEmailToProviderCommand(ProviderId, TemplateId, Tokens, ExplicitEmailAddress);
+                return this;
+            }
+
+            public SendEmailToProviderCommandHandlerTestsFixture SetupNullMessage()
+            {
+                Command = null;
                 return this;
             }
 
@@ -100,6 +117,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                         r.ExplicitEmailAddresses.Single() == ExplicitEmailAddress
                         && r.TemplateId == TemplateId && r.Tokens == Tokens),
                     It.IsAny<CancellationToken>()));
+            }
+
+            public void VerifyHasError()
+            {
+                Assert.IsTrue(Logger.HasErrors);
             }
         }
     }

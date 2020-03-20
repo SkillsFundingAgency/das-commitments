@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void ThenShouldUpdateStatus(Party modifyingParty, EditStatus expectedEditStatus)
         {
             _fixture.SetModifyingParty(modifyingParty)
-                .SetEditStatus(modifyingParty.ToEditStatus())
+                .SetWithParty(modifyingParty)
                 .SendToOtherParty();
             
             _fixture.Cohort.EditStatus.Should().Be(expectedEditStatus);
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void ThenShouldAddMessage(Party modifyingParty, string message, string expectedMessage, byte expectedCreatedBy)
         {
             _fixture.SetModifyingParty(modifyingParty)
-                .SetEditStatus(modifyingParty.ToEditStatus())
+                .SetWithParty(modifyingParty)
                 .SetMessage(message)
                 .SendToOtherParty();
             
@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void ThenShouldSetLastUpdatedBy(Party modifyingParty, string userDisplayName, string userEmail, string expectedLastUpdatedByEmployerName, string expectedLastUpdatedByEmployerEmail, string expectedLastUpdatedByProviderName, string expectedLastUpdatedByProviderEmail)
         {
             _fixture.SetModifyingParty(modifyingParty)
-                .SetEditStatus(modifyingParty.ToEditStatus())
+                .SetWithParty(modifyingParty)
                 .SetUserInfo(userDisplayName, userEmail)
                 .SendToOtherParty();
             
@@ -71,13 +71,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.Cohort.LastUpdatedByProviderName.Should().Be(expectedLastUpdatedByProviderName);
             _fixture.Cohort.LastUpdatedByProviderEmail.Should().Be(expectedLastUpdatedByProviderEmail);
         }
-        
+
+        [TestCase(Party.Employer, "Employer", "foo@foo.com", "Employer", "foo@foo.com", null, null)]
+        [TestCase(Party.Provider, "Provider", "bar@bar.com", null, null, "Provider", "bar@bar.com")]
+        public void ThenCohortShouldNoLongerBeDraft(Party modifyingParty, string userDisplayName, string userEmail, string expectedLastUpdatedByEmployerName, string expectedLastUpdatedByEmployerEmail, string expectedLastUpdatedByProviderName, string expectedLastUpdatedByProviderEmail)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetUserInfo(userDisplayName, userEmail)
+                .SetIsDraft(true)
+                .SendToOtherParty();
+
+            _fixture.Cohort.IsDraft.Should().Be(false);
+        }
+
+
         [TestCase(Party.Employer, typeof(CohortAssignedToProviderEvent))]
         [TestCase(Party.Provider, typeof(CohortAssignedToEmployerEvent))]
         public void ThenShouldPublishEvent(Party modifyingParty, Type expectedEventType)
         {
             _fixture.SetModifyingParty(modifyingParty)
-                .SetEditStatus(modifyingParty.ToEditStatus())
+                .SetWithParty(modifyingParty)
                 .SendToOtherParty();
 
             _fixture.UnitOfWorkContext.GetEvents().Single(e => e.GetType() == expectedEventType)
@@ -96,12 +110,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.Invoking(f => f.SendToOtherParty()).Should().Throw<DomainException>();
         }
         
-        [TestCase(Party.Employer, EditStatus.ProviderOnly, LastAction.Amend)]
-        [TestCase(Party.Provider, EditStatus.EmployerOnly, LastAction.None)]
-        public void AndIsNotWithModifyingPartyThenShouldThrowException(Party modifyingParty, EditStatus editStatus, LastAction lastAction)
+        [TestCase(Party.Employer, Party.Provider, LastAction.Amend)]
+        [TestCase(Party.Provider, Party.Employer, LastAction.None)]
+        public void AndIsNotWithModifyingPartyThenShouldThrowException(Party modifyingParty, Party withParty, LastAction lastAction)
         {
             _fixture.SetModifyingParty(modifyingParty)
-                .SetEditStatus(editStatus)
+                .SetWithParty(withParty)
                 .SetLastAction(lastAction);
 
             _fixture.Invoking(f => f.SendToOtherParty()).Should().Throw<DomainException>();
@@ -111,8 +125,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void AndIsApprovedByProviderThenShouldPublishEvent()
         {
             _fixture.SetModifyingParty(Party.Employer)
-                .SetEditStatus(Party.Employer.ToEditStatus())
-                .AddDraftApprenticeship(AgreementStatus.ProviderAgreed)
+                .SetWithParty(Party.Employer)
+                .AddDraftApprenticeship()
+                .SetApprovals(Party.Provider)
                 .SendToOtherParty();
             
             _fixture.UnitOfWorkContext.GetEvents().OfType<ApprovedCohortReturnedToProviderEvent>().Should().HaveCount(1)
@@ -123,21 +138,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void ThenShouldResetApprovals()
         {
             _fixture.SetModifyingParty(Party.Provider)
-                .SetEditStatus(Party.Provider.ToEditStatus())
-                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
-                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
+                .SetWithParty(Party.Provider)
+                .SetApprovals(Party.Employer)
                 .SendToOtherParty();
-
-            _fixture.Cohort.Apprenticeships.Should().HaveCount(2)
-                .And.Subject.All(a => a.AgreementStatus == AgreementStatus.NotAgreed).Should().BeTrue();
+            _fixture.Cohort.Approvals.Should().Be(Party.None);
         }
 
         [Test]
         public void ThenShouldResetTransferApprovalStatus()
         {
             _fixture.SetModifyingParty(Party.Employer)
-                .SetEditStatus(Party.Employer.ToEditStatus())
-                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
+                .SetWithParty(Party.Employer)
+                .SetApprovals(Party.Employer)
                 .SetTransferApprovalStatus(TransferApprovalStatus.Rejected)
                 .SendToOtherParty();
 
@@ -149,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void ThenShouldPublishEvent(Party modifyingParty)
         {
             _fixture.SetModifyingParty(modifyingParty)
-                .SetEditStatus(modifyingParty.ToEditStatus())
+                .SetWithParty(modifyingParty)
                 .SendToOtherParty();
 
             _fixture.VerifyCohortTracking();
@@ -182,9 +194,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Cohort.SendToOtherParty(Party, Message, UserInfo, Now);
         }
 
-        public WhenSendingCohortToOtherPartyTestsFixture AddDraftApprenticeship(AgreementStatus agreementStatus)
+        public WhenSendingCohortToOtherPartyTestsFixture AddDraftApprenticeship()
         {
-            ApprenticeshipBase apprenticeship = new DraftApprenticeship(new DraftApprenticeshipDetails(), Party.None).Set(a => a.AgreementStatus, agreementStatus);
+            ApprenticeshipBase apprenticeship = new DraftApprenticeship(new DraftApprenticeshipDetails(), Party.None);
             Cohort.Add(c => c.Apprenticeships, apprenticeship);
             return this;
         }
@@ -195,10 +207,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             return this;
         }
 
-        public WhenSendingCohortToOtherPartyTestsFixture SetEditStatus(EditStatus editStatus)
+        public WhenSendingCohortToOtherPartyTestsFixture SetWithParty(Party withParty)
         {
-            Cohort.Set(c => c.EditStatus, editStatus);
-            
+            Cohort.Set(c => c.WithParty, withParty);
             return this;
         }
 
@@ -206,6 +217,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             Cohort.Set(c => c.LastAction, lastAction);
             
+            return this;
+        }
+
+        public WhenSendingCohortToOtherPartyTestsFixture SetApprovals(Party approvals)
+        {
+            Cohort.Set(c => c.Approvals, approvals);
+            return this;
+        }
+
+        public WhenSendingCohortToOtherPartyTestsFixture SetIsDraft(bool isDraft)
+        {
+            Cohort.Set(c => c.IsDraft, isDraft);
             return this;
         }
 

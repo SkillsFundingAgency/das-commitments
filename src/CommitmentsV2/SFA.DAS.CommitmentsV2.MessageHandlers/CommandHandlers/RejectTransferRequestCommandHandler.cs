@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 {
@@ -28,6 +29,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                     .Include(c => c.Cohort)
                     .Where(x => x.Id == message.TransferRequestId)
                     .SingleAsync();
+
+                if (transferRequest.Status == TransferApprovalStatus.Rejected)
+                {
+                    _logger.LogWarning($"Cohort {message.TransferRequestId} has already Rejected");
+                    return;
+                }
 
                 transferRequest.Reject(message.UserInfo, message.RejectedOn);
             }

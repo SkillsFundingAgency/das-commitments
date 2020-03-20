@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 ModifyingParty = modifyingParty;
                 Cohort = new CommitmentsV2.Models.Cohort
                 {
-                    EditStatus = modifyingParty.ToEditStatus(),
+                    WithParty = modifyingParty,
                     ProviderId = 1
                 };
 
@@ -110,7 +110,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                         Id = i,
                         FirstName = _autoFixture.Create<string>(),
                         LastName = _autoFixture.Create<string>(),
-                        AgreementStatus = AgreementStatus.NotAgreed,
                         Cost = _autoFixture.Create<int>(),
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
@@ -124,12 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public UpdatingDraftApprenticeshipTestFixture WithPriorApprovalOfOtherParty()
             {
-                foreach (var apprentice in Cohort.DraftApprenticeships)
-                {
-                    apprentice.AgreementStatus = ModifyingParty.GetOtherParty() == Party.Employer
-                        ? AgreementStatus.EmployerAgreed
-                        : AgreementStatus.ProviderAgreed;
-                }
+                Cohort.Approvals = ModifyingParty.GetOtherParty();
                 return this;
             }
 
@@ -164,16 +158,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyCohortIsUnapproved()
             {
-                Assert.IsTrue(Cohort.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
+                Assert.AreEqual(Party.None,Cohort.Approvals);
             }
 
             public void VerifyCohortIsApprovedByOtherParty()
             {
-                var expectedStatus = ModifyingParty.GetOtherParty() == Party.Employer
-                    ? AgreementStatus.EmployerAgreed
-                    : AgreementStatus.ProviderAgreed;
-
-                Assert.IsTrue(Cohort.Apprenticeships.All(x => x.AgreementStatus == expectedStatus));
+                Assert.IsTrue(Cohort.Approvals.HasFlag(ModifyingParty.GetOtherParty()));
             }
 
             public void VerifyDraftApprenticeshipTracking()

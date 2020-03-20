@@ -27,22 +27,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             _currentDateTime = currentDateTime;
         }
 
-        public async Task<long> CreateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)
-        {
-            var parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
-
-            var apprenticeshipId = (await connection.QueryAsync<long>(
-                sql:
-                                              "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, AgreementStatus, EmployerRef, ProviderRef, CreatedOn) " +
-                                              "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @paymentStatus, @agreementStatus, @employerRef, @providerRef, @createdOn); " +
-                                              "SELECT CAST(SCOPE_IDENTITY() as int);",
-                param: parameters,
-                commandType: CommandType.Text,
-                transaction: trans)).Single();
-
-            return apprenticeshipId;
-        }
-
         public DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship)
         {
             var parameters = new DynamicParameters();
@@ -59,7 +43,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@startDate", apprenticeship.StartDate, DbType.DateTime);
             parameters.Add("@endDate", apprenticeship.EndDate, DbType.DateTime);
             parameters.Add("@paymentStatus", apprenticeship.PaymentStatus, DbType.Int16);
-            parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
             parameters.Add("@employerRef", apprenticeship.EmployerRef, DbType.String);
             parameters.Add("@providerRef", apprenticeship.ProviderRef, DbType.String);
             parameters.Add("@createdOn", _currentDateTime.Now, DbType.DateTime);
@@ -77,7 +60,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
                 sql: "UPDATE [dbo].[Apprenticeship] " +
                     "SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, " +
                     "ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, " +
-                    "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, " +
+                    "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, " +
                     $"{refItem} WHERE Id = @id;",
                 param: parameters,
                 transaction: trans,

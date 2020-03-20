@@ -8,6 +8,17 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
     {
+        public bool IsCompleteForParty(Party party)
+        {
+            switch (party)
+            {
+                case Party.Employer: return IsCompleteForEmployer;
+                case Party.Provider: return IsCompleteForProvider;
+                default:
+                    throw new InvalidOperationException($"Cannot determine completeness for Party {party}");
+            }
+        }
+
         private bool IsCompleteForEmployer => 
             FirstName != null &&
             LastName != null &&
@@ -39,45 +50,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             ReservationId = source.ReservationId;
         }
 
-        internal void Approve(Party modifyingParty, DateTime now)
-        {
-            CheckIsEmployerOrProvider(modifyingParty);
-
-            switch (modifyingParty)
-            {
-                case Party.Employer:
-                    CheckIsCompleteForEmployer();
-                
-                    AgreementStatus = AgreementStatus == AgreementStatus.ProviderAgreed
-                        ? AgreementStatus.BothAgreed
-                        : AgreementStatus.EmployerAgreed;
-                    
-                    break;
-                case Party.Provider:
-                    CheckIsCompleteForProvider();
-                
-                    AgreementStatus = AgreementStatus == AgreementStatus.EmployerAgreed
-                        ? AgreementStatus.BothAgreed
-                        : AgreementStatus.ProviderAgreed;
-                    
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(modifyingParty));
-            }
-
-            if (AgreementStatus == AgreementStatus.BothAgreed)
-            {
-                AgreedOn = now;
-            }
-        }
-
         public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)
         {
-            if (IsOtherPartyApprovalRequired(source))
-            {
-                AgreementStatus = AgreementStatus.NotAgreed;
-            }
-
             FirstName = source.FirstName;
             LastName = source.LastName;
             if (modifyingParty == Party.Provider)
@@ -108,31 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckIsCompleteForEmployer()
-        {
-            if (!IsCompleteForEmployer)
-            {
-                throw new DomainException(nameof(IsCompleteForEmployer), "Draft apprenticeship must be complete for employer");
-            }
-        }
-
-        private void CheckIsCompleteForProvider()
-        {
-            if (!IsCompleteForProvider)
-            {
-                throw new DomainException(nameof(IsCompleteForProvider), "Draft apprenticeship must be complete for provider");
-            }
-        }
-
-        private void CheckIsEmployerOrProvider(Party party)
-        {
-            if (party != Party.Employer && party != Party.Provider)
-            {
-                throw new DomainException(nameof(party), $"Party must be {Party.Employer} or {Party.Provider}; {party} is not valid");
-            }
-        }
-
-        private bool IsOtherPartyApprovalRequired(DraftApprenticeshipDetails update)
+        public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update)
         {
             if (FirstName != update.FirstName) return true;
             if (LastName != update.LastName) return true;

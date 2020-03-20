@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
@@ -45,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetApprenticeships([FromQuery]Types.Requests.GetApprenticeshipsRequest request)
+        public async Task<IActionResult> GetApprenticeships([FromQuery]GetApprenticeshipsRequest request)
         {
             try
             {
@@ -56,12 +57,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     CourseName = request.CourseName,
                     Status = request.Status,
                     StartDate = request.StartDate,
-                    EndDate = request.EndDate
+                    EndDate = request.EndDate,
+                    ProviderName = request.ProviderName
                 };
 
                 var queryResult = await _mediator.Send(new GetApprenticeshipsQuery
                 {
-                    ProviderId = request.ProviderId ?? 0,
+                    EmployerAccountId = request.AccountId,
+                    ProviderId = request.ProviderId,
                     PageNumber = request.PageNumber,
                     PageItemCount = request.PageItemCount,
                     SortField = request.SortField,
@@ -88,9 +91,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         
         [HttpGet]
         [Route("filters")]
-        public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery]long providerId)
+        public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery]GetApprenticeshipFiltersRequest request)
         {
-            var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = providerId });
+            var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = request.ProviderId, EmployerAccountId = request.EmployerAccountId});
 
             if (response == null)
             {

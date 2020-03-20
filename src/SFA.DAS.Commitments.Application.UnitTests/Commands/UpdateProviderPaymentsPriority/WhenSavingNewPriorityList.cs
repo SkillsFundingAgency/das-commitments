@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Data;
@@ -49,22 +48,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
             await _handler.Handle(_validCommand);
 
             _mockProviderPaymentRepository.Verify(x => x.UpdateProviderPaymentPriority(It.IsAny<long>(), It.IsAny<IList<ProviderPaymentPriorityUpdateItem>>()));
-        }
-
-        [Test]
-        public async Task ShouldReOrderApprenticeshipPriorityOrder()
-        {
-            await _handler.Handle(_validCommand);
-
-            _mockCommitmentRepository.Verify(x => x.SetPaymentOrder(It.IsAny<long>()));
-        }
-
-        [Test]
-        public async Task ShouldRequestUpdateEventsToBeCreatedForChangedApprenticeships()
-        {
-            await _handler.Handle(_validCommand);
-
-            _mockApprenticeshipEventsPublisher.Verify(x => x.Publish(It.Is<IApprenticeshipEventsList>(y => y.Events.Count == 2)));
         }
 
         [Test]
@@ -119,8 +102,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
             {
                 cfg.Scan(scanner =>
                 {
-                    scanner.AssemblyContainingType(typeof(SetPaymentOrderCommandHandler));
-                    scanner.IncludeNamespaceContainingType<SetPaymentOrderCommandHandler>();
                     scanner.WithDefaultConventions();
                     scanner.AddAllTypesOf(typeof(IAsyncRequestHandler<,>));
                 });
