@@ -1,14 +1,13 @@
 Prod:		43b10276-fba2-4d3f-92b8-329699688611
 Dev:		n/a
-Subject:	Apprenticeship paused
+Subject:	Apprenticeship resumed
 ===========================================================
-((EMPLOYER)) unpaused the apprenticeship for ((APPRENTICE)) on ((DATE)).
+((EMPLOYER)) resumed the apprenticeship for ((APPRENTICE)) on ((DATE)).
 
-To view the details for ((APPRENTICE)), follow the link below.
-https://providers.apprenticeships.education.gov.uk/((URL))
+Sign into your apprenticeship account to view their details. https://providers.Apprenticeships.education.gov.uk/((URL))
 
-This is an automated message. Please do not reply to this email.
+Please do not reply to this email
 
 Kind regards,
-
 Apprenticeship service team
+
