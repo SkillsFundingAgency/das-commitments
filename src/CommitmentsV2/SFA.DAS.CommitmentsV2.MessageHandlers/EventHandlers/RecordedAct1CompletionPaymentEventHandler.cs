@@ -1,16 +1,12 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Commitments.Events;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -35,13 +31,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 {
                     var apprentice = await _dbContext.Value.Apprenticeships.SingleAsync(x => x.Id == message.ApprenticeshipId);
 
-                    apprentice.Complete(message.EventTime.DateTime);
+                    switch (apprentice.Status)
+                    {
+                        case ApprenticeshipStatus.Live:
+                            apprentice.Complete(message.EventTime.DateTime);
+                            break;
+                        case ApprenticeshipStatus.Completed:
+                            apprentice.UpdateCompletionDate(message.EventTime.DateTime);
+                            break;
+                        default:
+                            _logger.LogWarning($"Warning {nameof(RecordedAct1CompletionPaymentEventHandler)} - Cannot process CompletionEvent for apprenticeshipId {apprentice.Id} as status is {apprentice.Status}");
+                            break;
+                    }
                 }
-
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Error ....");
+                _logger.LogError(e, $"Error processing RecordedAct1CompletionPaymentEvent", e);
                 throw;
             }
         }
