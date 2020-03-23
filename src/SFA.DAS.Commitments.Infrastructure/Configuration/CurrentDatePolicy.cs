@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using Microsoft.Azure;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -24,7 +25,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
 
         private DateTime? GetCurrentTimeFromConfiguration()
         {
-            var cloudCurrentTime = CloudConfigurationManager.GetSetting("CurrentTime");
+            var cloudCurrentTime = ConfigurationManager.AppSettings["CurrentTime"];
 
             var result = default(DateTime?);
             DateTime parsedTime;
