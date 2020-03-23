@@ -41,10 +41,22 @@
         "loggingRedisKey": {
             "type": "string"
         },
-        "apiCustomHostName": {
+        "apiV1CustomHostName": {
             "type": "string"
         },
-        "apiCertificateName": {
+        "apiV1CertificateName": {
+            "type": "string"
+        },
+        "apiV2CustomHostName": {
+            "type": "string"
+        },
+        "apiV2CertificateName": {
+            "type": "string"
+        },
+        "supportCustomHostName": {
+            "type": "string"
+        },
+        "supportCertificateName": {
             "type": "string"
         },
         "appServiceAllowedIPs": {
@@ -63,7 +75,9 @@
         "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
         "workerStorageAccountName": "[toLower(concat('das', parameters('resourceEnvironmentName'), parameters('serviceName'), 'wkrstr'))]",
-        "apiAppServiceName": "[concat(variables('resourceNamePrefix'), 'api-as')]",
+        "apiV1AppServiceName": "[concat(variables('resourceNamePrefix'), 'api-v1-as')]",
+        "apiV2AppServiceName": "[concat(variables('resourceNamePrefix'), 'api-v2-as')]",
+        "supportAppServiceName": "[concat(variables('resourceNamePrefix'), '-supp-as')]",
         "workerAppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]"
     },
@@ -103,9 +117,7 @@
                         "value": "[variables('workerAppServiceName')]"
                     }
                 }
-            },
-            "dependsOn": [
-            ]
+            }
         },
         {
             "apiVersion": "2017-05-10",
@@ -200,13 +212,12 @@
                 }
             },
             "dependsOn": [
-                "worker-app-insights",
                 "worker-app-service-plan"
             ]
         },
         {
             "apiVersion": "2017-08-01",
-            "name": "api-app-insights",
+            "name": "api-v1-app-insights",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
@@ -216,20 +227,18 @@
                 },
                 "parameters": {
                     "appInsightsName": {
-                        "value": "[variables('apiAppServiceName')]"
+                        "value": "[variables('apiV1AppServiceName')]"
                     },
                     "attachedService": {
-                        "value": "[variables('apiAppServiceName')]"
+                        "value": "[variables('apiV1AppServiceName')]"
                     }
                 }
-            },
-            "dependsOn": [
-            ]
+            }
         },
         {
-            "condition": "[greater(length(parameters('apiCustomHostName')), 0)]",
+            "condition": "[greater(length(parameters('apiV1CustomHostName')), 0)]",
             "apiVersion": "2017-05-10",
-            "name": "api-app-service-certificate",
+            "name": "api-v1-app-service-certificate",
             "resourceGroup": "[parameters('sharedResourceGroupName')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -240,23 +249,20 @@
                 },
                 "parameters": {
                     "keyVaultCertificateName": {
-                        "value": "[parameters('apiCertificateName')]"
+                        "value": "[parameters('apiV1CertificateName')]"
                     },
                     "keyVaultName": {
                         "value": "[parameters('keyVaultName')]"
                     },
                     "keyVaultResourceGroup": {
                         "value": "[parameters('keyVaultResourceGroup')]"
-                    },
-                    "serverFarmId": {
-                        "value": "[resourceId(parameters('sharedResourceGroupName'), 'Microsoft.Web/serverfarms', parameters('sharedBackEndAppServicePlan'))]"
                     }
                 }
             }
         },
         {
             "apiVersion": "2017-05-10",
-            "name": "api-app-service",
+            "name": "api-v1-app-service",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
@@ -266,7 +272,131 @@
                 },
                 "parameters": {
                     "appServiceName": {
-                        "value": "[variables('apiAppServiceName')]"
+                        "value": "[variables('apiV1AppServiceName')]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[parameters('sharedBackEndAppServicePlan')]"
+                    },
+                    "appServicePlanResourceGroup": {
+                        "value": "[parameters('sharedResourceGroupName')]"
+                    },
+                    "deployStagingSlot": {
+                        "value": true
+                    },
+                    "appServiceAppSettings": {
+                        "value": [
+                            {
+                                "name": "ConfigurationStorageConnectionString",
+                                "value": "[parameters('configurationStorageConnectionString')]"
+                            },
+                            {
+                                "name": "EnvironmentName",
+                                "value": "[parameters('environmentName')]"
+                            },
+                            {
+                                "name": "LoggingRedisConnectionString",
+                                "value": "[parameters('loggingRedisConnectionString')]"
+                            },
+                            {
+                                "name": "LoggingRedisKey",
+                                "value": "[parameters('loggingRedisKey')]"
+                            },
+                            {
+                                "name": "ApiTokenSecret",
+                                "value": "[parameters('apiTokenSecret')]"
+                            },
+                            {
+                                "name": "ApiIssuers",
+                                "value": "[parameters('apiIssuers')]"
+                            },
+                            {
+                                "name": "ApiAudiences",
+                                "value": "[parameters('apiAudiences')]"
+                            },
+                            {
+                                "name": "MetadataEndpoint",
+                                "value": "[parameters('metadataEndpoint')]"
+                            },
+                            {
+                                "name": "CurrentTime",
+                                "value": ""
+                            },
+                            {
+                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                                "value": "[reference('api-v1-app-insights').outputs.InstrumentationKey.value]"
+                            }
+                        ]
+                    },
+                    "customHostName": {
+                        "value": "[parameters('apiV1CustomHostName')]"
+                    },
+                    "certificateThumbprint": {
+                        "value": "[if(greater(length(parameters('apiV1CustomHostname')), 0), reference('api-v1-app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
+                    },
+                    "ipSecurityRestrictions": {
+                        "value": "[parameters('appServiceAllowedIPs')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-08-01",
+            "name": "api-v2-app-insights",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appInsightsName": {
+                        "value": "[variables('apiV2AppServiceName')]"
+                    },
+                    "attachedService": {
+                        "value": "[variables('apiV2AppServiceName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[greater(length(parameters('apiV2CustomHostName')), 0)]",
+            "apiVersion": "2017-05-10",
+            "name": "api-v2-app-service-certificate",
+            "resourceGroup": "[parameters('sharedResourceGroupName')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'app-service-certificate.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "keyVaultCertificateName": {
+                        "value": "[parameters('apiV2CertificateName')]"
+                    },
+                    "keyVaultName": {
+                        "value": "[parameters('keyVaultName')]"
+                    },
+                    "keyVaultResourceGroup": {
+                        "value": "[parameters('keyVaultResourceGroup')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "api-v2-app-service",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServiceName": {
+                        "value": "[variables('apiV2AppServiceName')]"
                     },
                     "appServicePlanName": {
                         "value": "[parameters('sharedBackEndAppServicePlan')]"
@@ -297,7 +427,7 @@
                             },
                             {
                                 "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference('api-app-insights').outputs.InstrumentationKey.value]"
+                                "value": "[reference('api-v2-app-insights').outputs.InstrumentationKey.value]"
                             },
                             {
                                 "name": "WEBSITE_SWAP_WARMUP_PING_PATH",
@@ -310,20 +440,120 @@
                         ]
                     },
                     "customHostName": {
-                        "value": "[parameters('apiCustomHostName')]"
+                        "value": "[parameters('apiV2CustomHostName')]"
                     },
                     "certificateThumbprint": {
-                        "value": "[if(greater(length(parameters('apiCustomHostname')), 0), reference('api-app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
+                        "value": "[if(greater(length(parameters('apiV2CustomHostname')), 0), reference('api-v2-app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
                     },
                     "ipSecurityRestrictions": {
                         "value": "[parameters('appServiceAllowedIPs')]"
                     }
                 }
-            },
-            "dependsOn": [
-                "api-app-insights",
-                "api-app-service-certificate"
-            ]
+            }
+        },
+        {
+            "apiVersion": "2017-08-01",
+            "name": "support-app-insights",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appInsightsName": {
+                        "value": "[variables('supportAppServiceName')]"
+                    },
+                    "attachedService": {
+                        "value": "[variables('supportAppServiceName')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[greater(length(parameters('supportCustomHostName')), 0)]",
+            "apiVersion": "2017-05-10",
+            "name": "support-app-service-certificate",
+            "resourceGroup": "[parameters('sharedResourceGroupName')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'app-service-certificate.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "keyVaultCertificateName": {
+                        "value": "[parameters('supportCertificateName')]"
+                    },
+                    "keyVaultName": {
+                        "value": "[parameters('keyVaultName')]"
+                    },
+                    "keyVaultResourceGroup": {
+                        "value": "[parameters('keyVaultResourceGroup')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "support-app-service",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServiceName": {
+                        "value": "[variables('supportAppServiceName')]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[parameters('sharedBackEndAppServicePlan')]"
+                    },
+                    "appServicePlanResourceGroup": {
+                        "value": "[parameters('sharedResourceGroupName')]"
+                    },
+                    "deployStagingSlot": {
+                        "value": true
+                    },
+                    "appServiceAppSettings": {
+                        "value": [
+                            {
+                                "name": "ConfigurationStorageConnectionString",
+                                "value": "[parameters('configurationStorageConnectionString')]"
+                            },
+                            {
+                                "name": "EnvironmentName",
+                                "value": "[parameters('environmentName')]"
+                            },
+                            {
+                                "name": "LoggingRedisConnectionString",
+                                "value": "[parameters('loggingRedisConnectionString')]"
+                            },
+                            {
+                                "name": "LoggingRedisKey",
+                                "value": "[parameters('loggingRedisKey')]"
+                            },
+                            {
+                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                                "value": "[reference('support-app-insights').outputs.InstrumentationKey.value]"
+                            }
+                        ]
+                    },
+                    "customHostName": {
+                        "value": "[parameters('supportCustomHostName')]"
+                    },
+                    "certificateThumbprint": {
+                        "value": "[if(greater(length(parameters('supportCustomHostname')), 0), reference('support-app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
+                    },
+                    "ipSecurityRestrictions": {
+                        "value": "[parameters('appServiceAllowedIPs')]"
+                    }
+                }
+            }
         },
         {
             "apiVersion": "2017-05-10",
@@ -338,7 +568,7 @@
                 },
                 "parameters": {
                     "principalId": {
-                        "value": "[createArray(reference('api-app-service').outputs.managedServiceIdentityId.value, reference('api-app-service').outputs.stagingManagedServiceIdentityId.value, reference('worker-app-service').outputs.managedServiceIdentityId.value)[copyIndex()]]"
+                        "value": "[createArray(reference('api-v2-app-service').outputs.managedServiceIdentityId.value, reference('api-v2-app-service').outputs.stagingManagedServiceIdentityId.value, reference('worker-app-service').outputs.managedServiceIdentityId.value)[copyIndex()]]"
                     },
                     "assignmentType": {
                         "value": "ServiceBusOwner"
@@ -355,13 +585,21 @@
         }
     ],
     "outputs": {
-        "ApiAppServiceName": {
+        "ApiV1AppServiceName": {
             "type": "string",
-            "value": "[variables('apiAppServiceName')]"
+            "value": "[variables('apiV1AppServiceName')]"
+        },
+        "ApiV2AppServiceName": {
+            "type": "string",
+            "value": "[variables('apiV2AppServiceName')]"
         },
         "WorkerAppServiceName": {
             "type": "string",
             "value": "[variables('workerAppServiceName')]"
+        },
+        "SupportAppServiceName": {
+            "type": "string",
+            "value": "[variables('supportAppServiceName')]"
         }
     }
 }

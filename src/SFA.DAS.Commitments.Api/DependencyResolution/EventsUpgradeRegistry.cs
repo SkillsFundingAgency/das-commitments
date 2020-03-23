@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             {
                 return new FileStorageConfigurationRepository();
             }
-            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
+            return new AzureTableStorageConfigurationRepository(ConfigurationManager.AppSettings["ConfigurationStorageConnectionString"]);
         }
 
         private string GetEnvironmentName()
@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             string text = System.Environment.GetEnvironmentVariable("DASENV");
             if (string.IsNullOrEmpty(text))
             {
-                text = CloudConfigurationManager.GetSetting("EnvironmentName");
+                text = ConfigurationManager.AppSettings["EnvironmentName"];
             }
             return text;
         }

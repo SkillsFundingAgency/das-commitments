@@ -1,6 +1,6 @@
-﻿using Microsoft.Azure;
-using Owin;
+﻿using Owin;
 using SFA.DAS.Authentication.Extensions;
+using System.Configuration;
 
 namespace SFA.DAS.Commitments.Api
 {
@@ -10,10 +10,10 @@ namespace SFA.DAS.Commitments.Api
         {
             app.UseMixedModeAuthentication(new MixedModeAuthenticationOptions
             {
-                ValidIssuers = CloudConfigurationManager.GetSetting("ApiIssuers").Split(' '),
-                ValidAudiences = CloudConfigurationManager.GetSetting("ApiAudiences").Split(' '),
-                ApiTokenSecret = CloudConfigurationManager.GetSetting("ApiTokenSecret"),
-                MetadataEndpoint = CloudConfigurationManager.GetSetting("MetadataEndpoint")
+                ValidIssuers = ConfigurationManager.AppSettings["ApiIssuers"].Split(' '),
+                ValidAudiences = ConfigurationManager.AppSettings["ApiAudiences"].Split(' '),
+                ApiTokenSecret = ConfigurationManager.AppSettings["ApiTokenSecret"],
+                MetadataEndpoint = ConfigurationManager.AppSettings["MetadataEndpoint"]
             });
         }
     }

@@ -1,5 +1,5 @@
 ﻿using System;
-using Microsoft.Azure;
+using System.Configuration;
 using SFA.DAS.Commitments.Application.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Services
@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
             if (string.IsNullOrEmpty(environmentName))
             {
-                environmentName = CloudConfigurationManager.GetSetting("EnvironmentName");
+                environmentName = ConfigurationManager.AppSettings["EnvironmentName"];
             }
 
             if (!Enum.TryParse(environmentName, true, out Environment environment))

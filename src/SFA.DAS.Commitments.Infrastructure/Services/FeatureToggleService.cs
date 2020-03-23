@@ -1,5 +1,5 @@
-﻿using Microsoft.Azure;
-using SFA.DAS.Commitments.Domain.Interfaces;
+﻿using SFA.DAS.Commitments.Domain.Interfaces;
+using System.Configuration;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
@@ -7,7 +7,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
     {
         public bool IsEnabled(string featureToggleName)
         {
-            var value = CloudConfigurationManager.GetSetting($"FeatureToggle.{featureToggleName}");
+            var value = ConfigurationManager.AppSettings[$"FeatureToggle.{featureToggleName}"];
 
             if (value == null || !bool.TryParse(value, out var result))
             {

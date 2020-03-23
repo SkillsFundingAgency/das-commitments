@@ -1,5 +1,4 @@
-﻿using Microsoft.Azure;
-using SFA.DAS.Commitments.Domain.Data;
+﻿using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Notification.WebJob.Configuration;
@@ -18,6 +17,7 @@ using SFA.DAS.Commitments.Notification.WebJob.Services;
 using SFA.DAS.Http.TokenGenerators;
 using SFA.DAS.NLog.Logger.Web.MessageHandlers;
 using SFA.DAS.Notifications.Api.Client;
+using System.Configuration;
 using IConfiguration = SFA.DAS.Commitments.Domain.Interfaces.IConfiguration;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
@@ -97,7 +97,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 
             if (string.IsNullOrEmpty(environment))
             {
-                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+                environment = ConfigurationManager.AppSettings["EnvironmentName"];
             }
 
             var configurationRepository = GetConfigurationRepository();
@@ -111,7 +111,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 
         private static IConfigurationRepository GetConfigurationRepository()
         {
-            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
+            return new AzureTableStorageConfigurationRepository(ConfigurationManager.AppSettings["ConfigurationStorageConnectionString"]);
         }
     }
 }
