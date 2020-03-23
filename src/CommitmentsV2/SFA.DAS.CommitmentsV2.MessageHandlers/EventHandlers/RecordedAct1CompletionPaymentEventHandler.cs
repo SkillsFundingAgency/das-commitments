@@ -13,13 +13,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     public class RecordedAct1CompletionPaymentEventHandler : IHandleMessages<RecordedAct1CompletionPaymentFakeEvent>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILegacyTopicMessagePublisher _legacyTopicMessagePublisher;
         private readonly ILogger<RecordedAct1CompletionPaymentEventHandler> _logger;
 
-        public RecordedAct1CompletionPaymentEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<RecordedAct1CompletionPaymentEventHandler> logger)
+        public RecordedAct1CompletionPaymentEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<RecordedAct1CompletionPaymentEventHandler> logger)
         {
             _dbContext = dbContext;
-            _legacyTopicMessagePublisher = legacyTopicMessagePublisher;
             _logger = logger;
         }
 

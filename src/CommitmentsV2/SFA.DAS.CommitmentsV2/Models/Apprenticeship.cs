@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? PauseDate { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public Originator? PendingUpdateOriginator { get; set; }
-        public ApprenticeshipStatus Status
+        public virtual ApprenticeshipStatus Status
         {
             get
             {

@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         public bool IsApproved { get; set; }
 
-        public long Id { get; set; }
+        public virtual long Id { get; set; }
         public long CommitmentId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

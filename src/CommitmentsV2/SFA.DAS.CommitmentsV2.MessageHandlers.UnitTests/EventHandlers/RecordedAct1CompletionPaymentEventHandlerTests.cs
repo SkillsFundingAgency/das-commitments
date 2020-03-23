@@ -1,0 +1,129 @@
+﻿using System;
+using System.Threading.Tasks;
+using AutoFixture;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using NServiceBus;
+using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.CommitmentsV2.Types;
+
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
+{
+    [TestFixture]
+    public class RecordedAct1CompletionPaymentEventHandlerTests
+    {
+        public RecordedAct1CompletionPaymentEventHandlerTestsFixture _fixture;
+
+        [SetUp]
+        public void Arrange()
+        {
+            _fixture = new RecordedAct1CompletionPaymentEventHandlerTestsFixture();
+        }
+
+        [Test]
+        public async Task When_HandlingCompletionEventWithLiveApprenticeStatus_CompletionIsCalled()
+        {
+            _fixture.SetApprenticeshipStatus(ApprenticeshipStatus.Live);
+            await _fixture.Handle();
+            _fixture.VerifyApprenticeCompleteWasCalled();
+        }
+
+        [Test]
+        public async Task When_HandlingCompletionEventWithCompletedStatus_UpdateCompletionDateIsCalled()
+        {
+            _fixture.SetApprenticeshipStatus(ApprenticeshipStatus.Completed);
+            await _fixture.Handle();
+            _fixture.VerifyApprenticeUpdateCompletionDateWasCalled();
+        }
+
+        [TestCase(ApprenticeshipStatus.Paused)]
+        [TestCase(ApprenticeshipStatus.Stopped)]
+        [TestCase(ApprenticeshipStatus.Unknown)]
+        [TestCase(ApprenticeshipStatus.WaitingToStart)]
+        public async Task When_HandlingCompletionEventWithIncorrectStatus_WarningMessageIsLogged(ApprenticeshipStatus status)
+        {
+            _fixture.SetApprenticeshipStatus(status);
+            await _fixture.Handle();
+            _fixture.VerifyHasWarning();
+        }
+
+        [Test]
+        public void Handle_WhenHandlingCompletionEventAndItFails_ThenItShouldThrowAnExceptionAndLogIt()
+        {
+            Assert.ThrowsAsync<NullReferenceException>(() => _fixture.SetupNullMessage().Handle());
+            _fixture.VerifyHasError();
+        }
+
+        public class RecordedAct1CompletionPaymentEventHandlerTestsFixture
+        {
+            private RecordedAct1CompletionPaymentEventHandler _handler;
+            private RecordedAct1CompletionPaymentFakeEvent _event;
+            public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
+            private Mock<IMessageHandlerContext> _messageHandlerContext;
+            private FakeLogger<RecordedAct1CompletionPaymentEventHandler> _logger;
+            private Mock<Apprenticeship> _apprenticeship;
+
+            public RecordedAct1CompletionPaymentEventHandlerTestsFixture()
+            {
+                var autoFixture = new Fixture();
+
+                _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+                _logger = new FakeLogger<RecordedAct1CompletionPaymentEventHandler>();
+
+                _handler = new RecordedAct1CompletionPaymentEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _logger);
+
+                _messageHandlerContext = new Mock<IMessageHandlerContext>();
+
+                _event = autoFixture.Create<RecordedAct1CompletionPaymentFakeEvent>();
+
+                _apprenticeship = new Mock<Apprenticeship>();
+                _apprenticeship.Setup(x => x.Id).Returns(_event.ApprenticeshipId.Value);
+
+               _dbContext.Object.Apprenticeships.Add(_apprenticeship.Object);
+                _dbContext.Object.SaveChanges();
+            }
+
+            public RecordedAct1CompletionPaymentEventHandlerTestsFixture SetApprenticeshipStatus(ApprenticeshipStatus status)
+            {
+                _apprenticeship.Setup(x => x.Status).Returns(status);
+                return this;
+            }
+
+            public RecordedAct1CompletionPaymentEventHandlerTestsFixture SetupNullMessage()
+            {
+                _event = null;
+                return this;
+            }
+
+            public async Task Handle()
+            {
+                await _handler.Handle(_event, _messageHandlerContext.Object);
+            }
+
+            public void VerifyApprenticeCompleteWasCalled()
+            {
+                _apprenticeship.Verify(x=> x.Complete(_event.EventTime.DateTime), Times.Once);
+            }
+
+            public void VerifyApprenticeUpdateCompletionDateWasCalled()
+            {
+                _apprenticeship.Verify(x => x.UpdateCompletionDate(_event.EventTime.DateTime), Times.Once);
+            }
+            
+            public void VerifyHasError()
+            {
+                Assert.IsTrue(_logger.HasErrors);
+            }
+
+            public void VerifyHasWarning()
+            {
+                Assert.IsTrue(_logger.HasWarnings);
+            }
+        }
+    }
+}
