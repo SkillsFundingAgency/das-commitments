@@ -59,6 +59,18 @@
         "supportCertificateName": {
             "type": "string"
         },
+        "apiTokenSecret": {
+            "type": "securestring"
+        },
+        "apiIssuers": {
+            "type": "string"
+        },
+        "apiAudiences": {
+            "type": "string"
+        },
+        "metadataEndpoint": {
+            "type": "string"
+        },
         "appServiceAllowedIPs": {
             "type": "array",
             "defaultValue": [
