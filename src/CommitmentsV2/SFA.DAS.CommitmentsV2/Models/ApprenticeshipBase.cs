@@ -4,7 +4,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public abstract class ApprenticeshipBase
+    public abstract class ApprenticeshipBase : Aggregate
     {
         public bool IsApproved { get; set; }
 

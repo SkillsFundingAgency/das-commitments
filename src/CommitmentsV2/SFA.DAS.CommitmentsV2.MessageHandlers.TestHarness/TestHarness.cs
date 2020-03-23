@@ -46,6 +46,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("K - CohortApprovedByEmployer");
                 Console.WriteLine("L - SendEmailToEmployerCommand");
                 Console.WriteLine("M - RunHealthCheckCommand");
+                Console.WriteLine("N - RecordedAct1CompletionPaymentFakeEvent");
                 Console.WriteLine("O - CohortDeletedEvent");
                 Console.WriteLine("P - ApproveTransferRequestCommand");
                 Console.WriteLine("Q - RejectTransferRequestCommand");
@@ -125,6 +126,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Send(new RunHealthCheckCommand(), new SendOptions());
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(RunHealthCheckCommand)}");
+                            break;
+                        case ConsoleKey.N:
+                            await _publisher.Publish(new RecordedAct1CompletionPaymentFakeEvent { ApprenticeshipId = 630013, EventTime = new DateTimeOffset(DateTime.UtcNow)});
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(RecordedAct1CompletionPaymentFakeEvent)}");
                             break;
                         case ConsoleKey.O:
                             await _publisher.Publish(new CohortDeletedEvent(cohortId, 22222, 33333, Party.None, DateTime.Now));

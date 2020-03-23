@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class Apprenticeship : ApprenticeshipBase
+    public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     {
         public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
@@ -51,7 +54,15 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual void UpdateCompletionDate(DateTime completionDate)
         {
-            throw new NotImplementedException();
+            if (Status != ApprenticeshipStatus.Completed)
+            {
+                throw new DomainException("CompletionDate", "The completion date can only be updated if Apprenticeship Status is Completed");
+            }
+
+            StartTrackingSession(UserAction.CompletionPayment, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId,null);
+            ChangeTrackingSession.TrackUpdate(this);
+            CompletionDate = completionDate;
+            ChangeTrackingSession.CompleteTrackingSession();
         }
     }
 }

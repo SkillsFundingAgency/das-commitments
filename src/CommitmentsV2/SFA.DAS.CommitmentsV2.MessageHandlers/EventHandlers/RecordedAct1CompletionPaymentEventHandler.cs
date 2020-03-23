@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             {
                 if (message.ApprenticeshipId.HasValue)
                 {
-                    var apprentice = await _dbContext.Value.Apprenticeships.SingleAsync(x => x.Id == message.ApprenticeshipId);
+                    var apprentice = await _dbContext.Value.Apprenticeships.Include(x=>x.Cohort).SingleAsync(x => x.Id == message.ApprenticeshipId);
 
                     switch (apprentice.Status)
                     {
