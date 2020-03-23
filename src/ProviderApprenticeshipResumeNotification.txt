@@ -1,8 +1,8 @@
-Prod:		c4874276-4f9d-47b7-96c9-37e89f012ae1
+Prod:		43b10276-fba2-4d3f-92b8-329699688611
 Dev:		n/a
 Subject:	Apprenticeship paused
 ===========================================================
-((EMPLOYER)) paused the apprenticeship for ((APPRENTICE)) on ((DATE)).
+((EMPLOYER)) unpaused the apprenticeship for ((APPRENTICE)) on ((DATE)).
 
 To view the details for ((APPRENTICE)), follow the link below.
 https://providers.apprenticeships.education.gov.uk/((URL))
