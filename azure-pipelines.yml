@@ -30,34 +30,27 @@ jobs:
         inputs:
           updateAssemblyInfo: true
 
-      - task: DotNetCoreCLI@2
-        displayName: Restore
+      - task: VSBuild@1
+        displayName: 'Build API V1'
         inputs:
-          command: restore
-          projects: "src/**/*.csproj"
+          solution: 'src/SFA.DAS.Commitments.Api/SFA.DAS.Commitments.Api.csproj'
+          vsVersion: 15.0
+          msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+          platform: 'anycpu'
+          configuration: '$(buildConfiguration)'
+          clean: true
 
-      - task: DotNetCoreCLI@2
-        displayName: Build
+      - task: VSBuild@1
+        displayName: 'Build Support Site'
         inputs:
-          projects: "src/**/*.csproj"
-          arguments: "--configuration $(buildConfiguration) --no-restore"
-
-      - task: DotNetCoreCLI@2
-        displayName: Test
-        inputs:
-          command: test
-          projects: "**/*Tests.csproj"
-          arguments: "--configuration $(buildConfiguration) --no-build"
+          solution: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
+          vsVersion: 15.0
+          msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+          platform: 'anycpu'
+          configuration: '$(buildConfiguration)'
+          clean: true    
 
       - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
-
-      - task: DotNetCoreCLI@2
-        displayName: "Publish API V1 "
-        inputs:
-          command: publish
-          publishWebProjects: false
-          projects: "src/SFA.DAS.Commitments.Api/SFA.DAS.Commitments.Api.csproj"
-          arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build"
 
       - task: DotNetCoreCLI@2
         displayName: "Publish API V2"
@@ -74,15 +67,7 @@ jobs:
           publishWebProjects: false
           projects: "src/CommitmentsV2/SFA.DAS.CommitmentsV2.Host/SFA.DAS.CommitmentsV2.Host.csproj"
           arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build"
-
-      - task: DotNetCoreCLI@2
-        displayName: "Publish Support Site"
-        inputs:
-          command: publish
-          publishWebProjects: false
-          projects: "src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj"
-          arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build"          
-          
+    
       - task: DotNetCoreCLI@2
         displayName: "dotnet pack"
         inputs:
