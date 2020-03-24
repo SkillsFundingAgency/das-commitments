@@ -20,16 +20,14 @@ resources:
 
 jobs:
   - job: 'CodeBuild'
-    pool: 
-      name: 'DAS - Continuous Integration'
+    pool:
+      name: 'Continuous Integration 02 - SSD - 160ACU'
+      demands: 
+      - msbuild
+      - visualstudio
     workspace:
       clean: all
     steps:
-      - task: gittools.gitversion.gitversion-task.GitVersion@5
-        displayName: GitVersion
-        inputs:
-          updateAssemblyInfo: true
-
       - task: VSBuild@1
         displayName: 'Build API V1'
         inputs:
@@ -48,7 +46,18 @@ jobs:
           msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
           platform: 'anycpu'
           configuration: '$(buildConfiguration)'
-          clean: true    
+          clean: true
+
+  - job: 'CodeBuild'
+    pool: 
+      name: 'DAS - Continuous Integration'
+    workspace:
+      clean: all
+    steps:
+      - task: gittools.gitversion.gitversion-task.GitVersion@5
+        displayName: GitVersion
+        inputs:
+          updateAssemblyInfo: true
 
       - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
 
