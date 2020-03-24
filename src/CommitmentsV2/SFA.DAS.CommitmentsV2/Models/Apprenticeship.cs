@@ -49,7 +49,23 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual void Complete(DateTime completionDate)
         {
-            throw new NotImplementedException();
+            if (Status != ApprenticeshipStatus.Live)
+            {
+                throw new InvalidOperationException("Apprenticeship has to be live to be completed");
+            }
+
+            if (completionDate <= StartDate.Value)
+            {
+                throw new InvalidOperationException("The completion date must be after the apprenticeship start date");
+            }
+
+            StartTrackingSession(UserAction.ApprenticeshipCompleted, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
+            ChangeTrackingSession.TrackUpdate(this);
+            PaymentStatus = PaymentStatus.Completed;
+            CompletionDate = completionDate;
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() => new ApprenticeshipCompletedEvent{ ApprenticeshipId = Id, CompletionDate = completionDate});
         }
 
         public virtual void UpdateCompletionDate(DateTime completionDate)
