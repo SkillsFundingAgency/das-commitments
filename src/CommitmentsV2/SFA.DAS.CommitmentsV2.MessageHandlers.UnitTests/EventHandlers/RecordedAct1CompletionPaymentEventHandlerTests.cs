@@ -25,7 +25,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture = new RecordedAct1CompletionPaymentEventHandlerTestsFixture();
         }
 
-        [Ignore("Resolving test issue")]
         [Test]
         public async Task When_HandlingCompletionEventWithLiveApprenticeStatus_CompletionIsCalled()
         {
@@ -34,7 +33,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyApprenticeCompleteWasCalled();
         }
 
-        [Ignore("Resolving test issue")]
         [Test]
         public async Task When_HandlingCompletionEventWithCompletedStatus_UpdateCompletionDateIsCalled()
         {
@@ -43,7 +41,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyApprenticeUpdateCompletionDateWasCalled();
         }
 
-        [Ignore("Resolving test issue")]
         [TestCase(ApprenticeshipStatus.Paused)]
         [TestCase(ApprenticeshipStatus.Stopped)]
         [TestCase(ApprenticeshipStatus.Unknown)]
@@ -69,8 +66,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<RecordedAct1CompletionPaymentEventHandler> _logger;
-            private Mock<Apprenticeship> _apprenticeship;
-            private Mock<Cohort> _cohort;
+            private FakeApprenticeship _apprenticeship;
+            private Cohort _cohort;
 
             public RecordedAct1CompletionPaymentEventHandlerTestsFixture()
             {
@@ -85,21 +82,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 _event = autoFixture.Create<RecordedAct1CompletionPaymentFakeEvent>();
 
-                _cohort = new Mock<Cohort>();
-                _cohort.Setup(x => x.Id).Returns(1);
+                _cohort = new Cohort() {Id = 1};
 
-                _apprenticeship = new Mock<Apprenticeship>();
-                _apprenticeship.Setup(x => x.Id).Returns(_event.ApprenticeshipId.Value);
-                _apprenticeship.Setup(x => x.CommitmentId).Returns(1);
+                _apprenticeship = new FakeApprenticeship {Id = _event.ApprenticeshipId.Value, CommitmentId = 1};
+                _dbContext.Object.Apprenticeships.Add(_apprenticeship);
 
-                _dbContext.Object.Cohorts.Add(_cohort.Object);
-                _dbContext.Object.Apprenticeships.Add(_apprenticeship.Object);
+                _cohort.Apprenticeships.Add(_apprenticeship);
+                _dbContext.Object.Cohorts.Add(_cohort);
                 _dbContext.Object.SaveChanges();
             }
 
             public RecordedAct1CompletionPaymentEventHandlerTestsFixture SetApprenticeshipStatus(ApprenticeshipStatus status)
             {
-                _apprenticeship.Setup(x => x.Status).Returns(status);
+                _apprenticeship.TestStatus = status;
                 return this;
             }
 
@@ -116,14 +111,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyApprenticeCompleteWasCalled()
             {
-                _apprenticeship.Verify(x=> x.Complete(_event.EventTime.DateTime), Times.Once);
+                Assert.AreEqual(_apprenticeship.ValuePassedToComplete, _event.EventTime.DateTime);
             }
 
             public void VerifyApprenticeUpdateCompletionDateWasCalled()
             {
-                _apprenticeship.Verify(x => x.UpdateCompletionDate(_event.EventTime.DateTime), Times.Once);
+                Assert.AreEqual(_apprenticeship.ValuePassedToUpdateCompletionDate, _event.EventTime.DateTime);
             }
-            
+
             public void VerifyHasError()
             {
                 Assert.IsTrue(_logger.HasErrors);
@@ -132,6 +127,25 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public void VerifyHasWarning()
             {
                 Assert.IsTrue(_logger.HasWarnings);
+            }
+        }
+
+        private class FakeApprenticeship : Apprenticeship
+        {
+            public ApprenticeshipStatus TestStatus { get; set; }
+            public DateTime ValuePassedToComplete { get; set; }
+            public DateTime ValuePassedToUpdateCompletionDate { get; set; }
+
+            public override ApprenticeshipStatus Status => TestStatus;
+
+            public override void Complete(DateTime completionDate)
+            {
+                ValuePassedToComplete = completionDate;
+            }
+
+            public override void UpdateCompletionDate(DateTime completionDate)
+            {
+                ValuePassedToUpdateCompletionDate = completionDate;
             }
         }
     }
