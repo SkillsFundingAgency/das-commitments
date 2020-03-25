@@ -39,19 +39,9 @@ jobs:
           restoreSolution: 'src/SFA.DAS.Commitments.sln'
 
       - task: VSBuild@1
-        displayName: 'Build API V1'
+        displayName: 'Build solution'
         inputs:
-          solution: 'src/SFA.DAS.Commitments.Api/SFA.DAS.Commitments.Api.csproj'
-          vsVersion: 15.0
-          msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
-          platform: 'anycpu'
-          configuration: '$(buildConfiguration)'
-          clean: true
-
-      - task: VSBuild@1
-        displayName: 'Build Support Site'
-        inputs:
-          solution: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
+          solution: 'src/SFA.DAS.Commitments.sln'
           vsVersion: 15.0
           msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
           platform: 'anycpu'
