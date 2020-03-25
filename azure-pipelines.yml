@@ -19,7 +19,7 @@ resources:
     endpoint: "GitHub (SFA)"
 
 jobs:
-  - job: '.net 462'
+  - job: 'net462'
     pool:
       name: 'Continuous Integration 02 - SSD - 160ACU'
       demands: 
@@ -48,7 +48,7 @@ jobs:
           configuration: '$(buildConfiguration)'
           clean: true
 
-  - job: '.net core'
+  - job: 'netcore'
     pool: 
       name: 'DAS - Continuous Integration'
     workspace:
