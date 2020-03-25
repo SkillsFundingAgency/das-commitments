@@ -28,6 +28,16 @@ jobs:
     workspace:
       clean: all
     steps:
+      - task: NuGetToolInstaller@0
+        displayName: 'Use NuGet 4.3.0'
+        inputs:
+          versionSpec: 4.x
+
+      - task: NuGetCommand@2
+        displayName: 'NuGet restore'
+        inputs:
+          restoreSolution: 'src/SFA.DAS.Commitments.sln'
+
       - task: VSBuild@1
         displayName: 'Build API V1'
         inputs:
