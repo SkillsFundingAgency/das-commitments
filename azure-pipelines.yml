@@ -48,6 +48,14 @@ jobs:
           configuration: '$(buildConfiguration)'
           clean: true
 
+      - task: DotNetCoreCLI@2
+        displayName: "Publish API V2"
+        inputs:
+          command: publish
+          publishWebProjects: false
+          projects: "src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/SFA.DAS.CommitmentsV2.Api.csproj"
+          arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build"    
+
   - job: 'netcore'
     pool: 
       name: 'DAS - Continuous Integration'
@@ -60,6 +68,12 @@ jobs:
           updateAssemblyInfo: true
 
       - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
+
+      - task: DotNetCoreCLI@2
+        displayName: Restore
+        inputs:
+          command: restore
+          projects: "src/**/*.csproj"          
 
       - task: DotNetCoreCLI@2
         displayName: "Publish API V2"
