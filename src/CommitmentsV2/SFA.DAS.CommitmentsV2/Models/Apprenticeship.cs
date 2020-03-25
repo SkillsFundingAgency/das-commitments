@@ -79,6 +79,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(this);
             CompletionDate = completionDate;
             ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() => new ApprenticeshipCompletionDateUpdatedEvent { ApprenticeshipId = Id, CompletionDate = completionDate });
+
         }
     }
 }
