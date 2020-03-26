@@ -54,11 +54,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new InvalidOperationException("Apprenticeship has to be live to be completed");
             }
 
-            if (completionDate <= StartDate.Value)
-            {
-                throw new InvalidOperationException("The completion date must be after the apprenticeship start date");
-            }
-
             StartTrackingSession(UserAction.CompletionPayment, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
             ChangeTrackingSession.TrackUpdate(this);
             PaymentStatus = PaymentStatus.Completed;
