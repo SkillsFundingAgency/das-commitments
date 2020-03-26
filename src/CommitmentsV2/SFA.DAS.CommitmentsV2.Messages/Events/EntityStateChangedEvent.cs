@@ -24,7 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         ApproveCohort,
         SendCohort,
         AddDraftApprenticeship,
-        ApprenticeshipCompleted,
         UpdateDraftApprenticeship,
         CreateCohort,
         CreateCohortWithOtherParty,
