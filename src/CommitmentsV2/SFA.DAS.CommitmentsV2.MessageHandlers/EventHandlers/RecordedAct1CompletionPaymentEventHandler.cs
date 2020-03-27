@@ -42,6 +42,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                             break;
                     }
                 }
+                else
+                {
+                    _logger.LogWarning("Warning - No Apprenticeship Id found in RecordedAct1CompletionPaymentEvent");
+                }
             }
             catch (Exception e)
             {

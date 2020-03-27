@@ -59,6 +59,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyHasError();
         }
 
+        [Test]
+        public async Task Handle_WhenHandlingCompletionEventAndItHasNoApprenticeshipId_ThenItLogAWarning()
+        {
+            _fixture.SetApprenticeshipIdToNull();
+            await _fixture.Handle();
+            _fixture.VerifyHasWarning();
+        }
+
         public class RecordedAct1CompletionPaymentEventHandlerTestsFixture
         {
             private RecordedAct1CompletionPaymentEventHandler _handler;
@@ -101,6 +109,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public RecordedAct1CompletionPaymentEventHandlerTestsFixture SetupNullMessage()
             {
                 _event = null;
+                return this;
+            }
+
+            public RecordedAct1CompletionPaymentEventHandlerTestsFixture SetApprenticeshipIdToNull()
+            {
+                _event.ApprenticeshipId = null;
                 return this;
             }
 

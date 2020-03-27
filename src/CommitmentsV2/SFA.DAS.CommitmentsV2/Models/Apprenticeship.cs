@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new InvalidOperationException("Apprenticeship has to be live to be completed");
             }
 
-            StartTrackingSession(UserAction.CompletionPayment, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
+            StartTrackingSession(UserAction.Complete, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
             ChangeTrackingSession.TrackUpdate(this);
             PaymentStatus = PaymentStatus.Completed;
             CompletionDate = completionDate;
@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException("CompletionDate", "The completion date can only be updated if Apprenticeship Status is Completed");
             }
 
-            StartTrackingSession(UserAction.CompletionPayment, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId,null);
+            StartTrackingSession(UserAction.Complete, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId,null);
             ChangeTrackingSession.TrackUpdate(this);
             CompletionDate = completionDate;
             ChangeTrackingSession.CompleteTrackingSession();
