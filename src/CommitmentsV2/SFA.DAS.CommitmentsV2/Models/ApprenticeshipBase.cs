@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool IsProviderSearch { get; set; }
         public Guid? ReservationId { get; set; }
 
-        public Cohort Cohort { get; set; }
+        public virtual Cohort Cohort { get; set; }
         public virtual AssessmentOrganisation EpaOrg { get; set; }
 
         public ApprenticeshipStatus ApprenticeshipStatus { get; set; }

@@ -79,7 +79,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
             _fixture.VerifyApprenticeshipCompletedEventIsPublished();
         }
-
     }
 
     public class WhenCompletingApprenticeshipFixture
