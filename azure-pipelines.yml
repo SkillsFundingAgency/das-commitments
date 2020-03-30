@@ -65,12 +65,12 @@ jobs:
         displayName: Restore
         inputs:
           command: restore
-          projects: "src/CommitmentsV2/**/*.csproj"  
+          projects: "src/**/*.csproj"  
 
       - task: DotNetCoreCLI@2
         displayName: 'Build'
         inputs:
-          projects: 'src/CommitmentsV2/**/*.csproj'
+          projects: 'src/**/*.csproj'
           arguments: '/p:Configuration=$(buildConfiguration) --no-restore'            
 
       - task: DotNetCoreCLI@2
