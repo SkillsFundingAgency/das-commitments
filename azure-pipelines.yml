@@ -48,14 +48,6 @@ jobs:
           configuration: '$(buildConfiguration)'
           clean: true
 
-      - task: DotNetCoreCLI@2
-        displayName: "Publish API V2"
-        inputs:
-          command: publish
-          publishWebProjects: false
-          projects: "src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/SFA.DAS.CommitmentsV2.Api.csproj"
-          arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build"    
-
   - job: 'netcore'
     pool: 
       name: 'DAS - Continuous Integration'
@@ -73,7 +65,13 @@ jobs:
         displayName: Restore
         inputs:
           command: restore
-          projects: "src/**/*.csproj"          
+          projects: "src/CommitmentsV2/**/*.csproj"  
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Build'
+        inputs:
+          projects: 'src/CommitmentsV2/**/*.csproj'
+          arguments: '/p:Configuration=$(buildConfiguration) --no-restore'            
 
       - task: DotNetCoreCLI@2
         displayName: "Publish API V2"
