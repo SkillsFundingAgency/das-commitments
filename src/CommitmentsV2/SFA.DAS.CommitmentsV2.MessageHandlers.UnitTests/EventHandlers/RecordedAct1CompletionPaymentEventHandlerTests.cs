@@ -31,6 +31,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.SetApprenticeshipStatus(ApprenticeshipStatus.Live);
             await _fixture.Handle();
             _fixture.VerifyApprenticeCompleteWasCalled();
+            _fixture.VerifyHasInfo();
         }
 
         [Test]
@@ -39,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.SetApprenticeshipStatus(ApprenticeshipStatus.Completed);
             await _fixture.Handle();
             _fixture.VerifyApprenticeUpdateCompletionDateWasCalled();
+            _fixture.VerifyHasInfo();
         }
 
         [TestCase(ApprenticeshipStatus.Paused)]
@@ -141,6 +143,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public void VerifyHasWarning()
             {
                 Assert.IsTrue(_logger.HasWarnings);
+            }
+
+            public void VerifyHasInfo()
+            {
+                Assert.IsTrue(_logger.HasInfo);
             }
         }
 

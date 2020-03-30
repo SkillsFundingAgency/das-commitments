@@ -33,9 +33,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     {
                         case ApprenticeshipStatus.Live:
                             apprentice.Complete(message.EventTime.DateTime);
+                            _logger.LogInformation($"PaymentCompletion - Completed method called for ApprenticeshipId '{message.ApprenticeshipId}'");
                             break;
                         case ApprenticeshipStatus.Completed:
                             apprentice.UpdateCompletionDate(message.EventTime.DateTime);
+                            _logger.LogInformation($"PaymentCompletion - UpdateCompletionDate method called for ApprenticeshipId '{message.ApprenticeshipId}'");
                             break;
                         default:
                             _logger.LogWarning($"Warning {nameof(RecordedAct1CompletionPaymentEventHandler)} - Cannot process CompletionEvent for apprenticeshipId {apprentice.Id} as status is {apprentice.Status}");
