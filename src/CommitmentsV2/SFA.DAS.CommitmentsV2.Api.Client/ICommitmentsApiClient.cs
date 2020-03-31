@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipsRequest request, CancellationToken cancellationToken = default);
         Task<GetApprenticeshipsFilterValuesResponse> GetApprenticeshipsFilterValues(GetApprenticeshipFiltersRequest request, CancellationToken cancellationToken = default);
         Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default);
-        Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
+        Task<AccountLegalEntityResponse> GetAccountLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
         Task<GetProviderResponse> GetProvider(long providerId, CancellationToken cancellationToken = default);
         Task<string> SecureCheck();
         Task<string> SecureEmployerCheck();

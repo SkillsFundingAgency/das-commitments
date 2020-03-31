@@ -149,5 +149,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
                                                                                 && @event.EntityType ==
                                                                                 nameof(Cohort)));
         }
+
+        public void VerifyCohortAssignedToProviderEventIsPublished()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortAssignedToProviderEvent));
+        }
     }
 }

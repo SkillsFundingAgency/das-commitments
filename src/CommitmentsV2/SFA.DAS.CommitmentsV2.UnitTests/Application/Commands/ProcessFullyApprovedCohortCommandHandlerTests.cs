@@ -25,25 +25,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable(ParallelScope.None)]
     public class ProcessFullyApprovedCohortCommandHandlerTests
     {
-        private ProcessFullyApprovedCohortCommandFixture _fixture;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _fixture = new ProcessFullyApprovedCohortCommandFixture();
-        }
 
         [TestCase(ApprenticeshipEmployerType.NonLevy)]
         [TestCase(ApprenticeshipEmployerType.Levy)]
         public void Handle_WhenHandlingCommand_ThenShouldProcessFullyApprovedCohort(ApprenticeshipEmployerType apprenticeshipEmployerType)
         {
-            _fixture.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
+            var f = new ProcessFullyApprovedCohortCommandFixture();
+            f.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
                 .Handle();
             
-            _fixture.Db.Verify(d => d.ExecuteSqlCommandAsync(
+            f.Db.Verify(d => d.ExecuteSqlCommandAsync(
                     "EXEC ProcessFullyApprovedCohort @cohortId, @accountId, @apprenticeshipEmployerType",
-                    It.Is<SqlParameter>(p => p.ParameterName == "cohortId" && p.Value.Equals(_fixture.Command.CohortId)),
-                    It.Is<SqlParameter>(p => p.ParameterName == "accountId" && p.Value.Equals(_fixture.Command.AccountId)),
+                    It.Is<SqlParameter>(p => p.ParameterName == "cohortId" && p.Value.Equals(f.Command.CohortId)),
+                    It.Is<SqlParameter>(p => p.ParameterName == "accountId" && p.Value.Equals(f.Command.AccountId)),
                     It.Is<SqlParameter>(p => p.ParameterName == "apprenticeshipEmployerType" && p.Value.Equals(apprenticeshipEmployerType))),
                 Times.Once);
         }
@@ -54,14 +48,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(ApprenticeshipEmployerType.Levy, true)]
         public void Handle_WhenHandlingCommand_ThenShouldPublishEvents(ApprenticeshipEmployerType apprenticeshipEmployerType, bool isFundedByTransfer)
         {
-            _fixture.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
+            var f = new ProcessFullyApprovedCohortCommandFixture();
+            f.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
                 .SetApprovedApprenticeships(isFundedByTransfer)
                 .Handle();
             
-            _fixture.Apprenticeships.ForEach(
-                a => _fixture.EventPublisher.Verify(
+            f.Apprenticeships.ForEach(
+                a => f.EventPublisher.Verify(
                     p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                        e => _fixture.IsValid(apprenticeshipEmployerType, a, e))),
+                        e => f.IsValid(apprenticeshipEmployerType, a, e))),
                     Times.Once));
         }
     }
