@@ -153,6 +153,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Employer", "Employer", "{06
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Provider", "Provider", "{03AFF74E-D0F7-4A38-8CA6-746F8F47EBC4}"
 	ProjectSection(SolutionItems) = preProject
+		ProviderApprenticeshipPauseNotification.txt = ProviderApprenticeshipPauseNotification.txt
+		ProviderApprenticeshipResumeNotification.txt = ProviderApprenticeshipResumeNotification.txt
 		SenderApprovedCommitmentProviderNotification.txt = SenderApprovedCommitmentProviderNotification.txt
 		SenderRejectedCommitmentProviderNotification.txt = SenderRejectedCommitmentProviderNotification.txt
 	EndProjectSection

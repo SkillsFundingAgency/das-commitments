@@ -13,7 +13,7 @@ using SFA.DAS.UnitOfWork.Context;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.Testing.Fakes;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {
