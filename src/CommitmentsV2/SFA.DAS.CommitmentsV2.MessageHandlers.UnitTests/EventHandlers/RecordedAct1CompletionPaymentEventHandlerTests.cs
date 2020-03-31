@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task When_HandlingCompletionEventWithLiveApprenticeStatus_CompletionIsCalled()
         {
-            _fixture.SetApprenticeshipStatus(ApprenticeshipStatus.Live);
+            _fixture.WithApprenticeshipStatus(ApprenticeshipStatus.Live);
             await _fixture.Handle();
             _fixture.VerifyApprenticeCompleteWasCalled();
             _fixture.VerifyHasInfo();
@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task When_HandlingCompletionEventWithCompletedStatus_UpdateCompletionDateIsCalled()
         {
-            _fixture.SetApprenticeshipStatus(ApprenticeshipStatus.Completed);
+            _fixture.WithApprenticeshipStatus(ApprenticeshipStatus.Completed);
             await _fixture.Handle();
             _fixture.VerifyApprenticeUpdateCompletionDateWasCalled();
             _fixture.VerifyHasInfo();
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(ApprenticeshipStatus.WaitingToStart)]
         public async Task When_HandlingCompletionEventWithIncorrectStatus_WarningMessageIsLogged(ApprenticeshipStatus status)
         {
-            _fixture.SetApprenticeshipStatus(status);
+            _fixture.WithApprenticeshipStatus(status);
             await _fixture.Handle();
             _fixture.VerifyHasWarning();
         }
@@ -102,9 +102,29 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _dbContext.Object.SaveChanges();
             }
 
-            public RecordedAct1CompletionPaymentEventHandlerTestsFixture SetApprenticeshipStatus(ApprenticeshipStatus status)
+            public RecordedAct1CompletionPaymentEventHandlerTestsFixture WithApprenticeshipStatus(ApprenticeshipStatus status)
             {
-                _apprenticeship.TestStatus = status;
+                switch (status)
+                {
+                    case ApprenticeshipStatus.Live:
+                        _apprenticeship.PaymentStatus = PaymentStatus.Active;
+                        _apprenticeship.StartDate = _event.EventTime.UtcDateTime.AddMonths(-6);
+                        break;
+                    case ApprenticeshipStatus.WaitingToStart:
+                        _apprenticeship.PaymentStatus = PaymentStatus.Active;
+                        _apprenticeship.StartDate = _event.EventTime.UtcDateTime.AddMonths(6);
+                        break;
+                    case ApprenticeshipStatus.Completed:
+                        _apprenticeship.PaymentStatus = PaymentStatus.Completed;
+                        break;
+                    case ApprenticeshipStatus.Paused:
+                        _apprenticeship.PaymentStatus = PaymentStatus.Paused;
+                        break;
+                    case ApprenticeshipStatus.Stopped:
+                        _apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+                        break;
+                }
+
                 return this;
             }
 
@@ -127,12 +147,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyApprenticeCompleteWasCalled()
             {
-                Assert.AreEqual(_apprenticeship.ValuePassedToComplete, _event.EventTime.DateTime);
+                Assert.AreEqual(_apprenticeship.ValuePassedToComplete, _event.EventTime.UtcDateTime);
             }
 
             public void VerifyApprenticeUpdateCompletionDateWasCalled()
             {
-                Assert.AreEqual(_apprenticeship.ValuePassedToUpdateCompletionDate, _event.EventTime.DateTime);
+                Assert.AreEqual(_apprenticeship.ValuePassedToUpdateCompletionDate, _event.EventTime.UtcDateTime);
             }
 
             public void VerifyHasError()
@@ -153,11 +173,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         private class FakeApprenticeship : Apprenticeship
         {
-            public ApprenticeshipStatus TestStatus { get; set; }
+            public PaymentStatus TestStatus { get; set; }
             public DateTime ValuePassedToComplete { get; set; }
             public DateTime ValuePassedToUpdateCompletionDate { get; set; }
-
-            public override ApprenticeshipStatus Status => TestStatus;
 
             public override void Complete(DateTime completionDate)
             {

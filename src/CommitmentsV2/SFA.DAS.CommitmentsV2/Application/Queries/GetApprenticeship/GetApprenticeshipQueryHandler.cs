@@ -23,7 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
             _encodingService = encodingService;
         }
 
-
         public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
         {
             var requestingParty = _authenticationService.GetUserParty();
@@ -50,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         EndDate = apprenticeship.EndDate.Value,
                         EndpointAssessorName = apprenticeship.EpaOrg.Name,
                         Reference = requestingParty == Party.Provider ? apprenticeship.ProviderRef : apprenticeship.EmployerRef,
-                        Status = apprenticeship.Status,
+                        Status = apprenticeship.GetApprenticeshipStatus(null),
                         StopDate = apprenticeship.StopDate,
                         PauseDate = apprenticeship.PauseDate,
                         HasHadDataLockSuccess = apprenticeship.HasHadDataLockSuccess,
@@ -62,3 +61,5 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         }
     }
 }
+
+

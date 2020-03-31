@@ -119,14 +119,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
             switch (status)
             {
                 case ApprenticeshipStatus.Live:
-                    _apprenticeship.StartDate = DateTime.UtcNow.AddDays(-1);
+                    _apprenticeship.StartDate = _completionDate.AddMonths(-6);
                     _apprenticeship.PaymentStatus = PaymentStatus.Active;
                     break;
                 case ApprenticeshipStatus.Stopped:
                     _apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
                     break;
                 case ApprenticeshipStatus.WaitingToStart:
-                    _apprenticeship.StartDate = DateTime.UtcNow.AddDays(1);
+                    _apprenticeship.StartDate = _completionDate.AddMonths(6);
                     _apprenticeship.PaymentStatus = PaymentStatus.Active;
                     break;
                 case ApprenticeshipStatus.Paused:

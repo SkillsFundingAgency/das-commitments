@@ -164,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.EndDate, _result.EndDate);
                 Assert.AreEqual(Apprenticeship.CourseName, _result.CourseName);
                 Assert.AreEqual(Apprenticeship.EpaOrg.Name, _result.EndpointAssessorName);
-                Assert.AreEqual(Apprenticeship.Status, _result.Status);
+                Assert.AreEqual(Apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow), _result.Status);
                 Assert.AreEqual(Apprenticeship.StopDate, _result.StopDate);
                 Assert.AreEqual(Apprenticeship.PauseDate, _result.PauseDate);
                 Assert.AreEqual(Apprenticeship.CompletionDate, _result.CompletionDate);

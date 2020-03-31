@@ -128,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Sent {nameof(RunHealthCheckCommand)}");
                             break;
                         case ConsoleKey.N:
-                            await _publisher.Publish(new RecordedAct1CompletionPaymentFakeEvent { ApprenticeshipId = 630013, EventTime = new DateTimeOffset(DateTime.UtcNow)});
+                            await _publisher.Publish(new RecordedAct1CompletionPaymentFakeEvent { ApprenticeshipId = 1, EventTime = new DateTimeOffset(DateTime.UtcNow)});
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(RecordedAct1CompletionPaymentFakeEvent)}");
                             break;

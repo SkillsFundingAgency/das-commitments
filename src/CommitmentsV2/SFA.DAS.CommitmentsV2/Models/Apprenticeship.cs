@@ -12,33 +12,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
 
-        public int? PaymentOrder { get; set; }
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public Originator? PendingUpdateOriginator { get; set; }
-        public virtual ApprenticeshipStatus Status
-        {
-            get
-            {
-                switch (PaymentStatus)
-                {
-                    case PaymentStatus.Active:
-                        return DateTime.UtcNow < StartDate
-                            ? ApprenticeshipStatus.WaitingToStart
-                            : ApprenticeshipStatus.Live;
-                    case PaymentStatus.Withdrawn:
-                        return ApprenticeshipStatus.Stopped;
-                    case PaymentStatus.Paused:
-                        return ApprenticeshipStatus.Paused;
-                    case PaymentStatus.Completed:
-                        return ApprenticeshipStatus.Completed;
-                    default:
-                        return ApprenticeshipStatus.Unknown;
-                }
-            }
-        }
-
         public DateTime? CompletionDate { get; set; }
 
         public Apprenticeship()
@@ -49,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual void Complete(DateTime completionDate)
         {
-            if (Status != ApprenticeshipStatus.Live)
+            if (this.GetApprenticeshipStatus(completionDate) != ApprenticeshipStatus.Live)
             {
                 throw new InvalidOperationException("Apprenticeship has to be live to be completed");
             }
@@ -65,17 +42,36 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual void UpdateCompletionDate(DateTime completionDate)
         {
-            if (Status != ApprenticeshipStatus.Completed)
+            if (PaymentStatus != PaymentStatus.Completed)
             {
                 throw new DomainException("CompletionDate", "The completion date can only be updated if Apprenticeship Status is Completed");
             }
 
-            StartTrackingSession(UserAction.Complete, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId,null);
+            StartTrackingSession(UserAction.UpdateCompletionDate, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId,null);
             ChangeTrackingSession.TrackUpdate(this);
             CompletionDate = completionDate;
             ChangeTrackingSession.CompleteTrackingSession();
 
             Publish(() => new ApprenticeshipCompletionDateUpdatedEvent { ApprenticeshipId = Id, CompletionDate = completionDate });
+        }
+
+        public ApprenticeshipStatus GetApprenticeshipStatus(DateTime? effectiveDate)
+        {
+            switch (PaymentStatus)
+            {
+                case PaymentStatus.Active:
+                    return (effectiveDate ?? DateTime.UtcNow) < StartDate
+                        ? ApprenticeshipStatus.WaitingToStart
+                        : ApprenticeshipStatus.Live;
+                case PaymentStatus.Withdrawn:
+                    return ApprenticeshipStatus.Stopped;
+                case PaymentStatus.Paused:
+                    return ApprenticeshipStatus.Paused;
+                case PaymentStatus.Completed:
+                    return ApprenticeshipStatus.Completed;
+                default:
+                    return ApprenticeshipStatus.Unknown;
+            }
         }
     }
 }
