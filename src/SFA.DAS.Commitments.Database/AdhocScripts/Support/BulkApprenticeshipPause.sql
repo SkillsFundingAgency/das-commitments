@@ -49,27 +49,18 @@ while @@FETCH_STATUS = 0 begin
 	  
     --Just some vars here
     DECLARE @error INT
-	declare @apprenticeId BIGINT
     declare @originalHistoryId BIGINT
 	declare @originalHistoryJson NVARCHAR(MAX)
 	declare @historyJson NVARCHAR(MAX)
    
-    /* Read some data */
-   
-    select @apprenticeId = Id from Apprenticeship where Id = @apprenticeshipId 
-           
-    select top 1 @originalHistoryId = Id, @originalHistoryJson = UpdatedState from History where ApprenticeshipId = @apprenticeId order by Id desc
-  
+    /* Read some data */           
+    select top 1 @originalHistoryId = Id, @originalHistoryJson = UpdatedState from History where ApprenticeshipId = @apprenticeshipId order by Id desc
     /* End data read */
-
-    /* Validation checks - */
-    IF(@apprenticeId is null) BEGIN SET @error=50001 PRINT '-- ERROR - Apprenticeship record not found' GOTO batch_abort END
-    /* End Validation */
    
-    print '-- Apprenticeship Id: ' + convert(varchar, @apprenticeId)
+    print '-- Apprenticeship Id: ' + convert(varchar, @apprenticeshipId)
     
     /* Pause the record */
-    update Apprenticeship set PaymentStatus=2, PauseDate = @pauseDate where Id = @apprenticeId
+    update Apprenticeship set PaymentStatus=2, PauseDate = @pauseDate where Id = @apprenticeshipId
        
     if(@@ERROR != 0) BEGIN SET @error = @@ERROR GOTO batch_abort END
     print '-- Apprenticeship pause date: ' + convert(varchar, @pauseDate, 126)
