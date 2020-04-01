@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api", "SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj", "{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}"
 EndProject
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "SFA.DAS.CloudService", "SFA.DAS.Commitments.CloudService\SFA.DAS.CloudService.ccproj", "{3AABCD1E-260B-4333-9B7F-014F58D2F656}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Domain", "SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj", "{C4C803AF-747E-4747-A23B-DA43219009A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Application", "SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj", "{880CDAF6-D9EE-481B-B4D8-7DE9C215A770}"
@@ -64,6 +66,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8DEFE127-06E5-4CEE-9A89-5D5490A4C370}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Support.SubSite.UnitTests", "SFA.DAS.Commitments.Support.SubSite.UnitTests\SFA.DAS.Commitments.Support.SubSite.UnitTests.csproj", "{D7D3924E-48DE-495D-803D-DD0288242E16}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CloudServices", "CloudServices", "{0238CBAD-36DF-42B8-B303-0E5FB5864693}"
+EndProject
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "SFA.DAS.Commitments.Support.CloudService", "SFA.DAS.Commitments.Support.CloudService\SFA.DAS.Commitments.Support.CloudService.ccproj", "{48483E71-445F-46B8-9195-8D67E547C9A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.IntegrationTests", "SFA.DAS.Commitments.Api.IntegrationTests\SFA.DAS.Commitments.Api.IntegrationTests.csproj", "{30D5D7DA-8613-45CE-8521-B4FF7F2B6100}"
 EndProject
