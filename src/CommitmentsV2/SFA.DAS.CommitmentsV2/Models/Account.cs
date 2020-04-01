@@ -54,6 +54,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
+        public void SetLevyStatusToLevy()
+        {
+            //TODO: SetLevyStatus
+        }
+
 
         public void RemoveAccountLegalEntity(AccountLegalEntity accountLegalEntity, DateTime removed)
         {
