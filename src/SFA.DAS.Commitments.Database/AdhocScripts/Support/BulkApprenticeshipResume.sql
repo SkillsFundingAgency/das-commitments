@@ -50,7 +50,8 @@ while @@FETCH_STATUS = 0 begin
 	declare @originalHistoryJson NVARCHAR(MAX)
 	declare @historyJson NVARCHAR(MAX)
    
-    /* Read some data */         
+    /* Read some data */   
+	set @originalHistoryId = null
     select top 1 @originalHistoryId = Id, @originalHistoryJson = UpdatedState from History where ApprenticeshipId = @apprenticeshipId order by Id desc
   
     /* End data read */
