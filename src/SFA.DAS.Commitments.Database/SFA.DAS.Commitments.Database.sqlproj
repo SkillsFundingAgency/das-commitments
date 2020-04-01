@@ -146,6 +146,8 @@
     <None Include="AdhocScripts\Support\AML-2937\AML-2937_Migrate_Provider_Assigned_New_Cohorts_To_Amended.sql" />
     <Build Include="UserDefinedTypes\Providers.sql" />
     <None Include="AdhocScripts\Manual\CV-656-Insert-AccountLegalEntities.sql" />
+    <None Include="AdhocScripts\Support\BulkApprenticeshipPause.sql" />
+    <None Include="AdhocScripts\Support\BulkApprenticeshipResume.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
