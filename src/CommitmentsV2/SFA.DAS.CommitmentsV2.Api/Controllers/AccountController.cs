@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -33,7 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 AccountId = employer.AccountId,
                 HasApprenticeships = employer.HasApprenticeships,
-                HasCohorts = employer.HasCohorts
+                HasCohorts = employer.HasCohorts,
+                LevyStatus = ApprenticeshipEmployerType.NonLevy // TODO this needs to map from the Account field
             });
         }
 
