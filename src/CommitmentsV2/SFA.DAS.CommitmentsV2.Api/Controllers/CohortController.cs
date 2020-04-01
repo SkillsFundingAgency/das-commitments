@@ -118,7 +118,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider,
                 IsApprovedByEmployer = result.IsApprovedByEmployer,
                 IsApprovedByProvider = result.IsApprovedByProvider,
-                IsCompleteForEmployer = result.IsCompleteForEmployer
+                IsCompleteForEmployer = result.IsCompleteForEmployer,
+                LevyStatus = ApprenticeshipEmployerType.NonLevy // TODO : This needs to be linked to Account.LevyStatus (or/and ApprenticeshipEmployerTypeOnApproval depending on future use)
             });
         }
 

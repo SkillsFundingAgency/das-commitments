@@ -16,5 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool IsApprovedByEmployer { get; set; }
         public bool IsApprovedByProvider { get; set; }
         public bool IsCompleteForEmployer { get; set; }
+        public ApprenticeshipEmployerType LevyStatus { get; set; }
     }
 }
