@@ -71,9 +71,9 @@ while @@FETCH_STATUS = 0 begin
 		set @historyJson = JSON_MODIFY(@originalHistoryJson,'$.PaymentStatus', 1)	
 		set @historyJson = JSON_MODIFY(@historyJson,'strict $.PauseDate',null)
 
-		insert into History (ApprenticeshipId, UserId, UpdatedByRole, ChangeType, CreatedOn, ProviderId, EmployerAccountId, UpdatedByName, OriginalState, UpdatedState)
+		insert into History (EntityType, ApprenticeshipId, UserId, UpdatedByRole, ChangeType, CreatedOn, ProviderId, EmployerAccountId, UpdatedByName, OriginalState, UpdatedState)
 		select
-		ApprenticeshipId, 'DataFix', 'Employer', 'Resumed', GETDATE(), ProviderId, EmployerAccountId, 'DataFix', @originalHistoryJson, @historyJson
+		'Apprenticeship', ApprenticeshipId, 'DataFix', 'Employer', 'Resumed', GETDATE(), ProviderId, EmployerAccountId, 'DataFix', @originalHistoryJson, @historyJson
 		from History
 		where Id = @originalHistoryId
 
