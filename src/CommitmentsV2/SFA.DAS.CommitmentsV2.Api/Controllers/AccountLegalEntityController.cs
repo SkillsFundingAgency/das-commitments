@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -51,7 +52,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 AccountId = employer.AccountId,
                 MaLegalEntityId = employer.MaLegalEntityId,
                 AccountName = employer.AccountName,
-                LegalEntityName = employer.LegalEntityName
+                LegalEntityName = employer.LegalEntityName,
+                LevyStatus = ApprenticeshipEmployerType.NonLevy // TODO needs to map from Account
             });
         }
     }
