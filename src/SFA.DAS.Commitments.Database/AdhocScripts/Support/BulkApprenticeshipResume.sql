@@ -1,7 +1,7 @@
 ﻿/*
 Bulk Apprenticeship Resume script (by Employer Account Id)
 This script pauses all apprenticeships for specified employers with immediate effect.
-If an apprenticeship is already paused, stopped, or completed, it will be ignored and no change will be made.
+If an apprenticeship is not paused, it will be ignored and no change will be made.
 
 CAUTION: - Data modification scripts are dangerous: there may be no way to undo mistakes.
          - Some validation is included, but it may be possible to put the system into an invalid state.
