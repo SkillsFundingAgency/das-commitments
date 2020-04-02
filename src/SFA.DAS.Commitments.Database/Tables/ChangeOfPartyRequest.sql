@@ -4,7 +4,7 @@
 	[ApprenticeshipId] BIGINT NOT NULL,
 	[ChangeOfPartyType] TINYINT NOT NULL,
 	[OriginatingParty] TINYINT NOT NULL,
-	[AccountId] BIGINT NULL,
+	[AccountLegalEntityId] BIGINT NULL,
 	[ProviderId] BIGINT NULL,
 	[Price] INT NOT NULL,
 	[StartDate] DATETIME NOT NULL,
@@ -12,8 +12,8 @@
 	[CreatedOn] DATETIME NOT NULL DEFAULT GETDATE(),
 	[Status] TINYINT NOT NULL DEFAULT(0)
 	CONSTRAINT [FK_ChangeOfPartyRequest_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
-	CONSTRAINT [FK_ChangeOfPartyRequest_NewAccountId] FOREIGN KEY ([AccountId]) REFERENCES [Accounts]([Id]),
-	CONSTRAINT [FK_ChangeOfPartyRequest_NewProviderId] FOREIGN KEY ([ProviderId]) REFERENCES [Providers]([Ukprn])
+	CONSTRAINT [FK_ChangeOfPartyRequest_AccountLegalEntityId] FOREIGN KEY ([AccountLegalEntityId]) REFERENCES [AccountLegalEntities]([Id]),
+	CONSTRAINT [FK_ChangeOfPartyRequest_ProviderId] FOREIGN KEY ([ProviderId]) REFERENCES [Providers]([Ukprn])
 )
 
 
