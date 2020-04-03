@@ -1,6 +1,7 @@
 ﻿using System;
 using AutoFixture;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
@@ -78,6 +79,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             _fixture.CreateChangeOfPartyRequest();
             Assert.AreEqual(ChangeOfPartyRequestStatus.Pending, _fixture.Result.Status);
         }
+
+        [TestCase(Party.Provider, false)]
+        [TestCase(Party.Employer, false)]
+        [TestCase(Party.TransferSender, true)]
+        [TestCase(Party.None, true)]
+        public void ThenTheOriginatingPartyMustBeValid(Party originatingParty, bool expectThrow)
+        {
+            _fixture
+                .WithOriginatingParty(originatingParty)
+                .WithRequestType(originatingParty == Party.Provider ? ChangeOfPartyRequestType.ChangeEmployer : ChangeOfPartyRequestType.ChangeProvider)
+                .CreateChangeOfPartyRequest();
+
+            if (expectThrow) _fixture.VerifyException<DomainException>();
+        }
+
+        [TestCase(Party.Provider, ChangeOfPartyRequestType.ChangeEmployer, false)]
+        [TestCase(Party.Employer, ChangeOfPartyRequestType.ChangeProvider, false)]
+        [TestCase(Party.Employer, ChangeOfPartyRequestType.ChangeEmployer, true)]
+        [TestCase(Party.Provider, ChangeOfPartyRequestType.ChangeProvider, true)]
+        public void ThenTheRequestTypeMustBeValid(Party originatingParty, ChangeOfPartyRequestType requestType,
+            bool expectThrow)
+        {
+            _fixture
+                .WithOriginatingParty(originatingParty)
+                .WithRequestType(requestType)
+                .CreateChangeOfPartyRequest();
+
+            if (expectThrow) _fixture.VerifyException<DomainException>();
+        }
     }
 
     internal class ChangeOfPartyRequestCreationTestFixture
@@ -91,6 +121,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public DateTime StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
         public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
+        public Exception Exception { get; private set; }
 
         public ChangeOfPartyRequestCreationTestFixture()
         {
@@ -150,8 +181,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
 
         public void CreateChangeOfPartyRequest()
         {
-            Result = new CommitmentsV2.Models.ChangeOfPartyRequest(Apprenticeship, RequestType, OriginatingParty,
-                AccountLegalEntityId, ProviderId, Price, StartDate, EndDate);
+            Exception = null;
+
+            try
+            {
+                Result = new CommitmentsV2.Models.ChangeOfPartyRequest(Apprenticeship, RequestType, OriginatingParty,
+                    AccountLegalEntityId, ProviderId, Price, StartDate, EndDate);
+            }
+            catch (Exception ex)
+            {
+                Exception = ex;
+            }
+        }
+
+        public void VerifyException<T>()
+        {
+            Assert.IsNotNull(Exception);
+            Assert.IsInstanceOf<T>(Exception);
         }
     }
 }
