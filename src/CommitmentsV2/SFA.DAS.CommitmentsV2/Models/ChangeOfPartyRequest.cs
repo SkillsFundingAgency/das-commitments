@@ -24,5 +24,39 @@ namespace SFA.DAS.CommitmentsV2.Models
         //public virtual Apprenticeship Apprenticeship { get; set; }
         //public virtual AccountLegalEntity AccountLegalEntity { get; set; }
         //public virtual Provider Provider { get; set; }
+
+        public ChangeOfPartyRequest(Apprenticeship apprenticeship,
+            ChangeOfPartyRequestType changeOfPartyType,
+            Party originatingParty,
+            long? accountLegalEntityId,
+            long? providerId,
+            int price,
+            DateTime startDate,
+            DateTime? endDate)
+        {
+            
+            //todo: invariants
+
+            //start tracking
+
+            //state change
+            ApprenticeshipId = apprenticeship.Id;
+            ChangeOfPartyType = changeOfPartyType;
+            OriginatingParty = originatingParty;
+            AccountLegalEntityId = accountLegalEntityId;
+            ProviderId = providerId;
+            Price = price;
+            StartDate = startDate;
+            EndDate = endDate;
+
+            Status = ChangeOfPartyRequestStatus.Pending;
+            CreatedOn = DateTime.UtcNow;
+            LastUpdatedOn = DateTime.UtcNow;
+
+            //commit tracking
+
+            //events
+
+        }
     }
 }
