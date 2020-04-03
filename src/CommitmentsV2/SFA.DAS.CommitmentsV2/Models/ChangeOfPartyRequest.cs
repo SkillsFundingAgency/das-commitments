@@ -29,8 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public ChangeOfPartyRequest(Apprenticeship apprenticeship,
             ChangeOfPartyRequestType changeOfPartyType,
             Party originatingParty,
-            long? accountLegalEntityId,
-            long? providerId,
+            long newPartyId,
             int price,
             DateTime startDate,
             DateTime? endDate)
@@ -45,8 +44,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             ApprenticeshipId = apprenticeship.Id;
             ChangeOfPartyType = changeOfPartyType;
             OriginatingParty = originatingParty;
-            AccountLegalEntityId = accountLegalEntityId;
-            ProviderId = providerId;
+            AccountLegalEntityId = changeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? newPartyId : default(long?);
+            ProviderId = changeOfPartyType == ChangeOfPartyRequestType.ChangeProvider ? newPartyId : default(long?);
             Price = price;
             StartDate = startDate;
             EndDate = endDate;

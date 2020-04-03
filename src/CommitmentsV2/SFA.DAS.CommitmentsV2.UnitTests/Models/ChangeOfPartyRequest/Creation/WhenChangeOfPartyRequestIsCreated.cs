@@ -38,18 +38,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             Assert.AreEqual(_fixture.OriginatingParty, _fixture.Result.OriginatingParty);
         }
 
-        [Test]
-        public void ThenTheRequestHasCorrectProviderId()
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void ThenTheRequestHasCorrectNewPartyId(Party originatingParty)
         {
-            _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.ProviderId, _fixture.Result.ProviderId);
-        }
+            _fixture
+                .WithOriginatingParty(originatingParty)
+                .WithRequestType(originatingParty == Party.Provider ? ChangeOfPartyRequestType.ChangeEmployer : ChangeOfPartyRequestType.ChangeProvider)
+                .CreateChangeOfPartyRequest();
 
-        [Test]
-        public void ThenTheRequestHasCorrectAccountLegalEntityId()
-        {
-            _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.AccountLegalEntityId, _fixture.Result.AccountLegalEntityId);
+            if (originatingParty == Party.Provider)
+            {
+                Assert.AreEqual(_fixture.NewPartyId, _fixture.Result.AccountLegalEntityId);
+                Assert.AreEqual(null, _fixture.Result.ProviderId);
+            }
+            else
+            {
+                Assert.AreEqual(_fixture.NewPartyId, _fixture.Result.ProviderId);
+                Assert.AreEqual(null, _fixture.Result.AccountLegalEntityId);
+            }
         }
 
         [Test]
@@ -115,8 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public CommitmentsV2.Models.Apprenticeship Apprenticeship { get; private set; }
         public ChangeOfPartyRequestType RequestType { get; private set; }
         public Party OriginatingParty { get; private set; }
-        public long? ProviderId { get; private set; }
-        public long? AccountLegalEntityId { get; private set; }
+        public long NewPartyId { get; private set; }
         public int Price { get; private set; }
         public DateTime StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
@@ -130,8 +136,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             Apprenticeship = new CommitmentsV2.Models.Apprenticeship {Id = autoFixture.Create<long>()};
             RequestType = ChangeOfPartyRequestType.ChangeEmployer;
             OriginatingParty = Party.Provider;
-            ProviderId = null;
-            AccountLegalEntityId = autoFixture.Create<long>();
+            NewPartyId = autoFixture.Create<long>();
             Price = autoFixture.Create<int>();
             StartDate = autoFixture.Create<DateTime>();
             EndDate = autoFixture.Create<DateTime?>();
@@ -149,15 +154,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             return this;
         }
 
-        public ChangeOfPartyRequestCreationTestFixture WithAccountLegalEntityId(long? accountLegalEntityId)
+        public ChangeOfPartyRequestCreationTestFixture WithNewPartyId(long newPartyId)
         {
-            AccountLegalEntityId = accountLegalEntityId;
-            return this;
-        }
-
-        public ChangeOfPartyRequestCreationTestFixture WithProviderId(long? providerId)
-        {
-            ProviderId = providerId;
+            NewPartyId = newPartyId;
             return this;
         }
 
@@ -186,7 +185,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             try
             {
                 Result = new CommitmentsV2.Models.ChangeOfPartyRequest(Apprenticeship, RequestType, OriginatingParty,
-                    AccountLegalEntityId, ProviderId, Price, StartDate, EndDate);
+                    NewPartyId, Price, StartDate, EndDate);
             }
             catch (Exception ex)
             {
