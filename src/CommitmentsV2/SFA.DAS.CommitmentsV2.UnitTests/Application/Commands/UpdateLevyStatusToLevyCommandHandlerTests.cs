@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -18,16 +19,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable(ParallelScope.None)]
     public class UpdateLevyStatusToLevyCommandHandlerTests
     {
-
-        [TestCase(ApprenticeshipEmployerType.NonLevy)]
-        [TestCase(ApprenticeshipEmployerType.Levy)]
-        public void Handle_WhenHandlingCommand_ThenShouldUpdateTheLevyStatus(ApprenticeshipEmployerType apprenticeshipEmployerType)
+        [Test]
+        public void Handle_WhenHandlingCommand_ThenShouldUpdateTheLevyStatus()
         {
             var f = new UpdateLevyStatusToLevyCommandHandlerTestsFixture();
-            f.SetAccount(apprenticeshipEmployerType)
+            f.SetAccount()
                 .Handle();
 
-            Assert.IsTrue(f.IsValid());
+            Assert.IsTrue(f.IsValid(ApprenticeshipEmployerType.Levy));
+        }
+
+        [Test]
+        public void Handle_WhenHandlingCommand_AndAccountNotFound_ThenShouldnotUpdateTheLevyStatus()
+        {
+            var f = new UpdateLevyStatusToLevyCommandHandlerTestsFixture();
+            f.SetAccount();
+            f.Command.AccountId = 2;
+            f.Handle();
+
+            Assert.IsTrue(f.IsValid(ApprenticeshipEmployerType.NonLevy));
         }
     }
 
@@ -42,13 +52,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public UpdateLevyStatusToLevyCommandHandlerTestsFixture()
         {
             AutoFixture = new Fixture();
-            AccountId = AutoFixture.Create<long>();
+            AccountId = 1;
             Command = new UpdateLevyStatusToLevyCommand { AccountId = AccountId };
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
             Handler = new UpdateLevyStatusToLevyCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), Mock.Of<ILogger<UpdateLevyStatusToLevyCommandHandler>>());
 
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<object[]>())).Returns(Task.CompletedTask);
         }
 
         public Task Handle()
@@ -56,9 +65,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return Handler.Handle(Command, CancellationToken.None);
         }
 
-        public UpdateLevyStatusToLevyCommandHandlerTestsFixture SetAccount(ApprenticeshipEmployerType levyStatus)
+        public UpdateLevyStatusToLevyCommandHandlerTestsFixture SetAccount()
         {
-            var account = new Account(AccountId, "", "", "", DateTime.UtcNow) { LevyStatus = ApprenticeshipEmployerType.NonLevy};
+            var account = new Account(AccountId, "", "", "", DateTime.UtcNow);
 
             Db.Object.Accounts.Add(account);
             Db.Object.SaveChanges();
@@ -66,10 +75,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public bool IsValid()
+        public bool IsValid(ApprenticeshipEmployerType levyStatus)
         {
-            return true;
-           
+            return levyStatus == Db.Object.Accounts.First().LevyStatus;
         }
     }
 }

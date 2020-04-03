@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 MaLegalEntityId = employer.MaLegalEntityId,
                 AccountName = employer.AccountName,
                 LegalEntityName = employer.LegalEntityName,
-                LevyStatus = ApprenticeshipEmployerType.NonLevy // TODO needs to map from Account
+                LevyStatus = employer.LevyStatus
             });
         }
     }
