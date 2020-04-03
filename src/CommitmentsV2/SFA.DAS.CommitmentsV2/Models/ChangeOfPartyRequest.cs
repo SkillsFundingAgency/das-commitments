@@ -1,6 +1,8 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -32,13 +34,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             long newPartyId,
             int price,
             DateTime startDate,
-            DateTime? endDate)
+            DateTime? endDate,
+            UserInfo userInfo)
         {
             //invariants
             CheckOriginatingParty(originatingParty);
             CheckRequestType(originatingParty, changeOfPartyType);
 
             //start tracking
+            StartTrackingSession(UserAction.CreateChangeOfPartyRequest, originatingParty, apprenticeship.Cohort.AccountLegalEntityId, apprenticeship.Cohort.ProviderId, userInfo);
 
             //state change
             ApprenticeshipId = apprenticeship.Id;
@@ -55,6 +59,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             LastUpdatedOn = DateTime.UtcNow;
 
             //commit tracking
+            ChangeTrackingSession.TrackInsert(this);
+            ChangeTrackingSession.CompleteTrackingSession();
 
             //events
 

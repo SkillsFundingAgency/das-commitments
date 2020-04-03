@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
 {
@@ -44,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         {
             _fixture
                 .WithOriginatingParty(originatingParty)
-                .WithRequestType(originatingParty == Party.Provider ? ChangeOfPartyRequestType.ChangeEmployer : ChangeOfPartyRequestType.ChangeProvider)
+                .WithValidRequestTypeForOriginatingParty(originatingParty)
                 .CreateChangeOfPartyRequest();
 
             if (originatingParty == Party.Provider)
@@ -95,7 +98,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         {
             _fixture
                 .WithOriginatingParty(originatingParty)
-                .WithRequestType(originatingParty == Party.Provider ? ChangeOfPartyRequestType.ChangeEmployer : ChangeOfPartyRequestType.ChangeProvider)
+                .WithValidRequestTypeForOriginatingParty(originatingParty)
+                .WithValidRequestTypeForOriginatingParty(originatingParty)
                 .CreateChangeOfPartyRequest();
 
             if (expectThrow) _fixture.VerifyException<DomainException>();
@@ -115,6 +119,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
 
             if (expectThrow) _fixture.VerifyException<DomainException>();
         }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenTheStateChangesAreTracked(Party originatingParty)
+        {
+            _fixture
+                .WithOriginatingParty(originatingParty)
+                .WithValidRequestTypeForOriginatingParty(originatingParty)
+                .CreateChangeOfPartyRequest();
+
+            _fixture.VerifyTracking();
+        }
     }
 
     internal class ChangeOfPartyRequestCreationTestFixture
@@ -126,20 +142,40 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public int Price { get; private set; }
         public DateTime StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
+        public UserInfo UserInfo { get; private set; }
         public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
         public Exception Exception { get; private set; }
+        public UnitOfWorkContext UnitOfWorkContext { get; private set; }
 
         public ChangeOfPartyRequestCreationTestFixture()
         {
             var autoFixture = new Fixture();
 
-            Apprenticeship = new CommitmentsV2.Models.Apprenticeship {Id = autoFixture.Create<long>()};
+            UnitOfWorkContext = new UnitOfWorkContext();
+
+            Apprenticeship = new CommitmentsV2.Models.Apprenticeship
+            {
+                Id = autoFixture.Create<long>(),
+                Cohort = new CommitmentsV2.Models.Cohort
+                {
+                    EmployerAccountId = autoFixture.Create<long>(),
+                    ProviderId = autoFixture.Create<long>()
+                }
+            };
+
             RequestType = ChangeOfPartyRequestType.ChangeEmployer;
             OriginatingParty = Party.Provider;
             NewPartyId = autoFixture.Create<long>();
             Price = autoFixture.Create<int>();
             StartDate = autoFixture.Create<DateTime>();
             EndDate = autoFixture.Create<DateTime?>();
+            UserInfo = new UserInfo();
+        }
+
+        public ChangeOfPartyRequestCreationTestFixture WithOriginatingParty(Party originatingParty)
+        {
+            OriginatingParty = originatingParty;
+            return this;
         }
 
         public ChangeOfPartyRequestCreationTestFixture WithRequestType(ChangeOfPartyRequestType requestType)
@@ -148,9 +184,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             return this;
         }
 
-        public ChangeOfPartyRequestCreationTestFixture WithOriginatingParty(Party originatingParty)
+        public ChangeOfPartyRequestCreationTestFixture WithValidRequestTypeForOriginatingParty(Party originatingParty)
         {
-            OriginatingParty = originatingParty;
+            RequestType = originatingParty == Party.Provider
+                ? ChangeOfPartyRequestType.ChangeEmployer
+                : ChangeOfPartyRequestType.ChangeProvider;
             return this;
         }
 
@@ -184,8 +222,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
 
             try
             {
-                Result = new CommitmentsV2.Models.ChangeOfPartyRequest(Apprenticeship, RequestType, OriginatingParty,
-                    NewPartyId, Price, StartDate, EndDate);
+                Result = new CommitmentsV2.Models.ChangeOfPartyRequest(
+                    Apprenticeship,
+                    RequestType,
+                    OriginatingParty,
+                    NewPartyId,
+                    Price,
+                    StartDate,
+                    EndDate,
+                    UserInfo);
             }
             catch (Exception ex)
             {
@@ -198,5 +243,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
         }
+
+        public void VerifyTracking()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                                                                                && @event.EntityType ==
+                                                                                nameof(ChangeOfPartyRequest)));
+        }
+
     }
 }
