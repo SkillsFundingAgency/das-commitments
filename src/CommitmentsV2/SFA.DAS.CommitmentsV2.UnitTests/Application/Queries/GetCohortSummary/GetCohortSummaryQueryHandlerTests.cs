@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public bool HasTransferSender = true;
         public bool CohortIsDeleted;
         public Party Approvals;
+        public ApprenticeshipEmployerType LevyStatus = ApprenticeshipEmployerType.NonLevy;
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnValue()
@@ -173,11 +174,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(Assert.IsNull);
         }
 
+        [TestCase(ApprenticeshipEmployerType.Levy)]
+        [TestCase(ApprenticeshipEmployerType.NonLevy)]
+        public async Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedLevyStatus(ApprenticeshipEmployerType levyStatus)
+        {
+            LevyStatus = levyStatus;
+            await CheckQueryResponse(response => Assert.AreEqual(LevyStatus, response.LevyStatus, "Did not return expected LevyStatus"));
+        }
+
         private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert, DraftApprenticeshipDetails apprenticeshipDetails = null)
         {
             var autoFixture = new Fixture();
 
-            var account = new Account(autoFixture.Create<long>(), "", "", "", DateTime.UtcNow);
+            var account = new Account(autoFixture.Create<long>(), "", "", "", DateTime.UtcNow) { LevyStatus = LevyStatus };
             AccountLegalEntity = new AccountLegalEntity(account, 1, 1, "", "", autoFixture.Create<string>(),
                 OrganisationType.Charities, "", DateTime.UtcNow);
             Provider = new Provider{Name =autoFixture.Create<string>()};

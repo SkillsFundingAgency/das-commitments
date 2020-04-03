@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SFA.DAS.CommitmentsV2.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string Name { get; private set; }
         public DateTime Created { get; private set; }
         public DateTime? Updated { get; private set; }
+        public ApprenticeshipEmployerType LevyStatus { get; set; }
         public virtual ICollection<AccountLegalEntity> AccountLegalEntities => _accountLegalEntities;
 
         private readonly List<AccountLegalEntity> _accountLegalEntities = new List<AccountLegalEntity>();
@@ -54,9 +56,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public void SetLevyStatusToLevy()
+        public void UpdateLevyStatus(ApprenticeshipEmployerType apprenticeshipEmployerType)
         {
-            //TODO: SetLevyStatus
+            LevyStatus = apprenticeshipEmployerType;
         }
 
 

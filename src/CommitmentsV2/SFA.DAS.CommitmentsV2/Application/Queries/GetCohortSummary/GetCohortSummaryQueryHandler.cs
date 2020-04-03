@@ -47,7 +47,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     Approvals = c.Approvals,
                     IsApprovedByEmployer = c.Approvals.HasFlag(Party.Employer), //redundant
                     IsApprovedByProvider = c.Approvals.HasFlag(Party.Provider), //redundant
-                    IsCompleteForEmployer = c.Apprenticeships.Any() && !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null || a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null)
+                    IsCompleteForEmployer = c.Apprenticeships.Any() && !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null || a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null),
+                    LevyStatus = c.AccountLegalEntity.Account.LevyStatus
                 })
                 .SingleOrDefaultAsync(cancellationToken);
 

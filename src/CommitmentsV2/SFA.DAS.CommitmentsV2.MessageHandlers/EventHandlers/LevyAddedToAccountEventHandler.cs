@@ -1,10 +1,8 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy;
 using SFA.DAS.EmployerFinance.Messages.Events;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -20,10 +18,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _logger = logger;
         }
 
-        public Task Handle(LevyAddedToAccount message, IMessageHandlerContext context)
+        public async Task Handle(LevyAddedToAccount message, IMessageHandlerContext context)
         {
             _logger.LogInformation($"LevyAddedToAccount event received for Account {message.AccountId}");
-            throw new NotImplementedException();
+            await _mediator.Send(new UpdateLevyStatusToLevyCommand { AccountId = message.AccountId });
         }
     }
 }

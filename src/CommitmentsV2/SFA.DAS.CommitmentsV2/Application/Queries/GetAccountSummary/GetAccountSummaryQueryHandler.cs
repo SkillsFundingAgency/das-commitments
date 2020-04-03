@@ -29,11 +29,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
             var hasApprenticeships = await _dbContext.Value.Apprenticeships
                 .AnyAsync(a => a.Cohort.EmployerAccountId == query.AccountId, cancellationToken: cancellationToken);
 
+            var account = await _dbContext.Value.Accounts
+               .FirstAsync(a => a.Id == query.AccountId, cancellationToken: cancellationToken);
+
             return new GetAccountSummaryQueryResult
             {
                 AccountId = query.AccountId,
                 HasCohorts = hasCohorts,
-                HasApprenticeships = hasApprenticeships
+                HasApprenticeships = hasApprenticeships,
+                LevyStatus = account.LevyStatus
             };
         }
     }

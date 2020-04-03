@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -54,6 +55,41 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
             Assert.AreEqual(expectedHasApprentices, response.HasApprenticeships);
         }
+
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        [TestCase(10, true)]
+        public async Task Handle_Should_Return_LevyStatus_NonLevy(int apprentices,
+           bool expectedHasApprentices)
+        {
+            var fixture = new GetAccountSummaryHandlerTestsFixture();
+            fixture
+                .AddCohorts(10)
+                .AddApprentices(apprentices)
+                .AddNoise();
+
+            var response = await fixture.GetResponse();
+
+            Assert.AreEqual(ApprenticeshipEmployerType.NonLevy, response.LevyStatus);
+        }
+
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        [TestCase(10, true)]
+        public async Task Handle_Should_Return_LevyStatus_Levy(int apprentices,
+           bool expectedHasApprentices)
+        {
+            var fixture = new GetAccountSummaryHandlerTestsFixture();
+            fixture
+                .AddCohorts(10)
+                .AddApprentices(apprentices)
+                .AddNoise()
+                .SetEmployerLevyStatusToLevy();
+
+            var response = await fixture.GetResponse();
+
+            Assert.AreEqual(ApprenticeshipEmployerType.Levy, response.LevyStatus);
+        }
     }
 
     public class GetAccountSummaryHandlerTestsFixture
@@ -67,6 +103,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
             SeedApprenticeships = new List<Apprenticeship>();
             SeedCohorts = new List<Cohort>();
+            SeedAccounts = new List<Account>();
 
             EmployerAccountId = autoFixture.Create<long>();
         }
@@ -78,6 +115,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
         public List<Cohort> SeedCohorts { get; set; }
         public List<Apprenticeship> SeedApprenticeships { get; set; }
+        public List<Account> SeedAccounts { get; set; }
 
         public GetAccountSummaryHandlerTestsFixture AddCohorts(int numberOfCohorts)
         {
@@ -108,8 +146,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
         private void AddApprenticesForEmployerAccount(long employerAccountId, int numberOfApprentices)
         {
+            SeedAccounts.Add(new Account(employerAccountId, "XYZ", "ZZZ", "Account1", DateTime.Now));
+
             for (var i = 0; i < numberOfApprentices; i++)
             {
+             
                 var approvedCohort = new Cohort
                 {
                     EmployerAccountId = employerAccountId,
@@ -122,6 +163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
                     Cohort = approvedCohort
                 };
 
+                
                 SeedCohorts.Add(approvedCohort);
                 SeedApprenticeships.Add(apprenticeship);
             }
@@ -167,6 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
         private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
+            dbContext.Accounts.AddRange(SeedAccounts);
             dbContext.Cohorts.AddRange(SeedCohorts);
             dbContext.Apprenticeships.AddRange(SeedApprenticeships);
             dbContext.SaveChanges(true);
@@ -186,6 +229,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
                     connection.Close();
                 }
             }
+        }
+
+        internal void SetEmployerLevyStatusToLevy()
+        {
+            var account = SeedAccounts.First(x => x.Id == EmployerAccountId);
+            account.LevyStatus = ApprenticeshipEmployerType.Levy;
         }
 
         public static readonly LoggerFactory MyLoggerFactory

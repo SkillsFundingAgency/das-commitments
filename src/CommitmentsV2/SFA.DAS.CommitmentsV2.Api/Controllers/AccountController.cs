@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 AccountId = employer.AccountId,
                 HasApprenticeships = employer.HasApprenticeships,
                 HasCohorts = employer.HasCohorts,
-                LevyStatus = ApprenticeshipEmployerType.NonLevy // TODO this needs to map from the Account field
+                LevyStatus = employer.LevyStatus
             });
         }
 
