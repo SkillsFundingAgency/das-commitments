@@ -131,6 +131,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
 
             _fixture.VerifyTracking();
         }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenAChangeOfPartyRequestCreatedEventIsEmitted(Party originatingParty)
+        {
+            _fixture
+                .WithOriginatingParty(originatingParty)
+                .WithValidRequestTypeForOriginatingParty(originatingParty)
+                .CreateChangeOfPartyRequest();
+
+            _fixture.VerifyEvent();
+        }
     }
 
     internal class ChangeOfPartyRequestCreationTestFixture
@@ -251,5 +263,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
                                                                                 nameof(ChangeOfPartyRequest)));
         }
 
+        public void VerifyEvent()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is ChangeOfPartyRequestCreatedEvent));
+        }
     }
 }

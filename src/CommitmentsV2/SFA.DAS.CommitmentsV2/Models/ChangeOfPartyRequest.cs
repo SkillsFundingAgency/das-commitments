@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -63,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
 
             //events
-
+            Publish(() => new ChangeOfPartyRequestCreatedEvent { ChangeOfPartyRequestId = Id });
         }
 
         private void CheckOriginatingParty(Party originatingParty)
