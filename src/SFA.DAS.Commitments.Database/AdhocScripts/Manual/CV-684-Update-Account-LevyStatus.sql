@@ -6,6 +6,6 @@ Copy-paste the resulting output (a set of update statements), and execute those 
 */
 
 select
-'update [Accounts] set [LevyStatus]=1 where [Id]=' + convert(varchar,Id)
+'update [Accounts] set [LevyStatus]=0 where [Id]=' + convert(varchar,Id)
 from [employer_account].[Account]
-where ApprenticeshipEmployerType = 1
+where ApprenticeshipEmployerType = 0
