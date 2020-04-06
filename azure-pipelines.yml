@@ -83,6 +83,14 @@ steps:
       configuration: '$(buildConfiguration)'
       clean: true
 
+  - task: NuGetCommand@2
+    displayName: 'NuGet pack'
+    inputs:
+      command: pack
+      packagesToPack: 'src/SFA.DAS.Commitments.Api.Client/SFA.DAS.Commitments.Api.Client.csproj;src/SFA.DAS.Commitments.Api.Types/SFA.DAS.Commitments.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Client/SFA.DAS.ReservationsV2.Api.Client.csproj;src/SFA.DAS.Reservations.API.Types/SFA.DAS.Reservations.Api.Types.csproj ;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj; src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj;'
+      packDestination: '$(build.artifactstagingdirectory)/publish'
+      versioningScheme: byBuildNumber
+
   - task: DotNetCoreCLI@2
     displayName: 'dotnet pack'
     inputs:
@@ -97,7 +105,9 @@ steps:
     inputs:
       contents: |
         azure/**
-        **/*.nupkg
+        nuget-publish/*.nupkg
+        **/*.dacpac
+        SFA.DAS.Commitments.Host.WebJob/obj/Release/Package/**/*.*
       targetFolder: "$(build.artifactstagingdirectory)/publish"
 
   - task: PublishBuildArtifacts@1
