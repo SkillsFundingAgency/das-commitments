@@ -69,7 +69,7 @@ steps:
       command: custom
       projects: 'src/CommitmentsV2/**/*.csproj'
       custom: msbuild
-      arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)"'    
+      arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)"/publish'    
     
   - task: VSBuild@1
     displayName: 'Build v1 API'
