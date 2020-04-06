@@ -83,16 +83,6 @@ steps:
       configuration: '$(buildConfiguration)'
       clean: true
 
-  - task: VSBuild@1
-    displayName: 'Build v1 Web Job'
-    inputs:
-      solution: 'src/SFA.DAS.Commitments.Host.WebJob/SFA.DAS.Commitments.Host.WebJob.csproj'
-      vsVersion: 15.0
-      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
-      platform: 'anycpu'
-      configuration: '$(buildConfiguration)'
-      clean: true    
-
   - task: DotNetCoreCLI@2
     displayName: 'dotnet pack'
     inputs:
