@@ -2,9 +2,7 @@
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
-using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {

@@ -36,12 +36,21 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        
-
         public Apprenticeship()
         {
             DataLockStatus = new List<DataLockStatus>();
             PriceHistory = new List<PriceHistory>();
+        }
+
+        public ChangeOfPartyRequest CreateChangeOfPartyRequest(ChangeOfPartyRequestType changeOfPartyType,
+            Party originatingParty,
+            long newPartyId,
+            int price,
+            DateTime startDate,
+            DateTime? endDate,
+            UserInfo userInfo)
+        {
+            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, userInfo);
         }
     }
 }
