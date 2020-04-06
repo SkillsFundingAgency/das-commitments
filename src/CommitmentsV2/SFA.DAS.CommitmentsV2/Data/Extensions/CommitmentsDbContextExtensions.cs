@@ -36,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
                 .Include(a => a.DataLockStatus)
                 .Include(a => a.PriceHistory)
                 .Include(a => a.ApprenticeshipUpdate)
+                .Include(a => a.ChangeOfPartyRequests)
                 .SingleOrDefaultAsync(a => a.Id == apprenticeshipId, cancellationToken);
 
             if(apprenticeship == null) throw new BadRequestException($"Apprenticeship {apprenticeshipId} was not found");

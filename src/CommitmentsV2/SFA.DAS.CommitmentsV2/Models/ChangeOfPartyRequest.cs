@@ -23,9 +23,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         public byte[] RowVersion { get; set; }
         public DateTime LastUpdatedOn { get; set; }
 
-        //public virtual Apprenticeship Apprenticeship { get; set; }
+        public virtual Apprenticeship Apprenticeship { get; set; }
         //public virtual AccountLegalEntity AccountLegalEntity { get; set; }
         //public virtual Provider Provider { get; set; }
+
+        public ChangeOfPartyRequest()
+        {
+        }
 
         public ChangeOfPartyRequest(Apprenticeship apprenticeship,
             ChangeOfPartyRequestType changeOfPartyType,

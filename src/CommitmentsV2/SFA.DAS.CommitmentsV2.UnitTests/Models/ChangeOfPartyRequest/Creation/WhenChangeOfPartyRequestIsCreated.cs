@@ -90,6 +90,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             Assert.AreEqual(ChangeOfPartyRequestStatus.Pending, _fixture.Result.Status);
         }
 
+        [Test]
+        public void ThenTheRequestHasCorrectLastUpdatedOn()
+        {
+            _fixture.CreateChangeOfPartyRequest();
+            Assert.AreEqual(_fixture.Now, _fixture.Result.LastUpdatedOn);
+        }
+
         [TestCase(Party.Provider, false)]
         [TestCase(Party.Employer, false)]
         [TestCase(Party.TransferSender, true)]
@@ -158,12 +165,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
         public Exception Exception { get; private set; }
         public UnitOfWorkContext UnitOfWorkContext { get; private set; }
+        public DateTime Now { get; private set; }
 
         public ChangeOfPartyRequestCreationTestFixture()
         {
             var autoFixture = new Fixture();
 
             UnitOfWorkContext = new UnitOfWorkContext();
+
+            Now = DateTime.UtcNow;
 
             Apprenticeship = new CommitmentsV2.Models.Apprenticeship
             {
@@ -243,7 +253,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
                     StartDate,
                     EndDate,
                     UserInfo,
-                    DateTime.UtcNow);
+                    Now);
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -9,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
+        public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
 
         public int? PaymentOrder { get; set; }
         public DateTime? StopDate { get; set; }
@@ -41,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             DataLockStatus = new List<DataLockStatus>();
             PriceHistory = new List<PriceHistory>();
+            ChangeOfPartyRequests = new List<ChangeOfPartyRequest>();
         }
 
         public ChangeOfPartyRequest CreateChangeOfPartyRequest(ChangeOfPartyRequestType changeOfPartyType,
@@ -54,8 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckIsStoppedForChangeOfParty();
             CheckStartDateForChangeOfParty(startDate);
-
-            //todo: no other pending or approved cop requests
+            CheckNoPendingOrApprovedRequestsForChangeOfParty();
 
             return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, userInfo, now);
         }
@@ -73,6 +75,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (StopDate > startDate)
             {
                 throw new DomainException(nameof(StopDate), $"Change of Party requires that Stop Date of Apprenticeship {Id} ({StopDate}) be before or same as new Start Date of {startDate}");
+            }
+        }
+
+        private void CheckNoPendingOrApprovedRequestsForChangeOfParty()
+        {
+            if (ChangeOfPartyRequests.Any(x =>
+                x.Status == ChangeOfPartyRequestStatus.Approved || x.Status == ChangeOfPartyRequestStatus.Pending))
+            {
+                throw new DomainException(nameof(StopDate), $"Change of Party requires that no Pending or Approved requests exist for Apprenticeship {Id}");
             }
         }
     }

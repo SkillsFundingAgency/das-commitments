@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
@@ -56,12 +57,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
             }
         }
 
+        [TestCase(ChangeOfPartyRequestStatus.Pending, true)]
+        [TestCase(ChangeOfPartyRequestStatus.Approved, true)]
+        [TestCase(ChangeOfPartyRequestStatus.Rejected, false)]
+        [TestCase(ChangeOfPartyRequestStatus.Withdrawn, false)]
+        public void ThenApprenticeshipMustNotAlreadyHaveAPendingOrApprovedRequest(ChangeOfPartyRequestStatus status, bool expectThrow)
+        {
+            _fixture
+                .WithExistingChangeOfPartyRequest(status)
+                .CreateChangeOfPartyRequest();
+
+            if (expectThrow)
+            {
+                _fixture.VerifyException<DomainException>();
+            }
+            else
+            {
+                _fixture.VerifyResult();
+            }
+        }
+
         private class WhenCreatingChangeOfPartyRequestFixture
         {
             public CommitmentsV2.Models.Apprenticeship Apprenticeship { get; private set; }
             public PaymentStatus PaymentStatus { get; private set; }
             public DateTime? StopDate { get; private set; }
             public DateTime StartDate { get; private set; }
+            public List<CommitmentsV2.Models.ChangeOfPartyRequest> PreviousChangeOfPartyRequests { get; private set; }
             public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
             public UnitOfWorkContext UnitOfWorkContext { get; private set; }
             public Exception Exception { get; private set; }
@@ -73,6 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 PaymentStatus = PaymentStatus.Withdrawn;
                 StopDate = new DateTime(2020, 03, 01);
                 StartDate = StopDate.Value;
+                PreviousChangeOfPartyRequests = new List<CommitmentsV2.Models.ChangeOfPartyRequest>();
             }
 
             public WhenCreatingChangeOfPartyRequestFixture WithStatus(PaymentStatus paymentStatus)
@@ -94,6 +117,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 return this;
             }
 
+            public WhenCreatingChangeOfPartyRequestFixture WithExistingChangeOfPartyRequest(ChangeOfPartyRequestStatus status)
+            {
+                var request = new CommitmentsV2.Models.ChangeOfPartyRequest();
+
+                var t = typeof(CommitmentsV2.Models.ChangeOfPartyRequest);
+                t.GetProperty("Status").SetValue(request, status, null);
+
+                PreviousChangeOfPartyRequests.Add(request);
+
+                return this;
+            }
+
             public void CreateChangeOfPartyRequest()
             {
                 try
@@ -102,7 +137,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                     {
                         PaymentStatus = PaymentStatus,
                         StopDate = StopDate,
-                        Cohort = new CommitmentsV2.Models.Cohort()
+                        Cohort = new CommitmentsV2.Models.Cohort(),
+                        ChangeOfPartyRequests = PreviousChangeOfPartyRequests
                     };
 
                     Result = Apprenticeship.CreateChangeOfPartyRequest(ChangeOfPartyRequestType.ChangeEmployer, Party.Provider, 1,
