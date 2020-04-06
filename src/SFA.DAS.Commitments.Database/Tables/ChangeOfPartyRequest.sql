@@ -3,7 +3,7 @@
 	[Id] BIGINT NOT NULL IDENTITY PRIMARY KEY,
 	[ApprenticeshipId] BIGINT NOT NULL,
 	[ChangeOfPartyType] TINYINT NOT NULL,
-	[OriginatingParty] TINYINT NOT NULL,
+	[OriginatingParty] SMALLINT NOT NULL,
 	[AccountLegalEntityId] BIGINT NULL,
 	[ProviderId] BIGINT NULL,
 	[Price] INT NOT NULL,

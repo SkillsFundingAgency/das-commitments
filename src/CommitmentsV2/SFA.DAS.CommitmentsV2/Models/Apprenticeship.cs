@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (ChangeOfPartyRequests.Any(x =>
                 x.Status == ChangeOfPartyRequestStatus.Approved || x.Status == ChangeOfPartyRequestStatus.Pending))
             {
-                throw new DomainException(nameof(StopDate), $"Change of Party requires that no Pending or Approved requests exist for Apprenticeship {Id}");
+                throw new DomainException(nameof(ChangeOfPartyRequests), $"Change of Party requires that no Pending or Approved requests exist for Apprenticeship {Id}");
             }
         }
     }

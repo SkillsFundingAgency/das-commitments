@@ -8,22 +8,22 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class ChangeOfPartyRequest : Aggregate, ITrackableEntity
     {
-        public long Id { get; set; }
-        public long ApprenticeshipId { get; set; }
-        public ChangeOfPartyRequestType ChangeOfPartyType { get; set; }
-        public Party OriginatingParty { get; set; }
-        public long? AccountLegalEntityId { get; set; }
-        public long? ProviderId { get; set; }
-        public int Price { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public ChangeOfPartyRequestStatus Status { get; set; }
+        public long Id { get; private set; }
+        public long ApprenticeshipId { get; private set; }
+        public ChangeOfPartyRequestType ChangeOfPartyType { get; private set; }
+        public Party OriginatingParty { get; private set; }
+        public long? AccountLegalEntityId { get; private set; }
+        public long? ProviderId { get; private set; }
+        public int Price { get; private set; }
+        public DateTime StartDate { get; private set; }
+        public DateTime? EndDate { get; private set; }
+        public DateTime CreatedOn { get; private set; }
+        public ChangeOfPartyRequestStatus Status { get; private set; }
 
-        public byte[] RowVersion { get; set; }
-        public DateTime LastUpdatedOn { get; set; }
+        public byte[] RowVersion { get; private set; }
+        public DateTime LastUpdatedOn { get; private set; }
 
-        public virtual Apprenticeship Apprenticeship { get; set; }
+        public virtual Apprenticeship Apprenticeship { get; private set; }
         //public virtual AccountLegalEntity AccountLegalEntity { get; set; }
         //public virtual Provider Provider { get; set; }
 

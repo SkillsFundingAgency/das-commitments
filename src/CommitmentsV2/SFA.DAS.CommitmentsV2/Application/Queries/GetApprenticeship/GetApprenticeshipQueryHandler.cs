@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
@@ -26,7 +22,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
             _authenticationService = authenticationService;
             _encodingService = encodingService;
         }
-
 
         public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
         {

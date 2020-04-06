@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.CommitmentsV2.Types
 {
-    public enum ChangeOfPartyRequestStatus
+    public enum ChangeOfPartyRequestStatus : byte
     {
         Pending = 0,
         Rejected = 1,
