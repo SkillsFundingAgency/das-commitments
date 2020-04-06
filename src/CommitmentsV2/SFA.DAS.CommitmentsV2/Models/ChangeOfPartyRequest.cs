@@ -25,8 +25,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime LastUpdatedOn { get; private set; }
 
         public virtual Apprenticeship Apprenticeship { get; private set; }
-        //public virtual AccountLegalEntity AccountLegalEntity { get; set; }
-        //public virtual Provider Provider { get; set; }
 
         public ChangeOfPartyRequest()
         {
@@ -42,15 +40,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             UserInfo userInfo,
             DateTime now)
         {
-            //invariants
             CheckOriginatingParty(originatingParty);
             CheckRequestType(originatingParty, changeOfPartyType);
             CheckPrice(price);
 
-            //start tracking
             StartTrackingSession(UserAction.CreateChangeOfPartyRequest, originatingParty, apprenticeship.Cohort.AccountLegalEntityId, apprenticeship.Cohort.ProviderId, userInfo);
 
-            //state change
             ApprenticeshipId = apprenticeship.Id;
             ChangeOfPartyType = changeOfPartyType;
             OriginatingParty = originatingParty;
@@ -59,16 +54,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             Price = price;
             StartDate = startDate;
             EndDate = endDate;
-
             Status = ChangeOfPartyRequestStatus.Pending;
             CreatedOn = now;
             LastUpdatedOn = now;
 
-            //commit tracking
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
 
-            //events
             Publish(() => new ChangeOfPartyRequestCreatedEvent { ChangeOfPartyRequestId = Id });
         }
 
