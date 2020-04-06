@@ -29,5 +29,18 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
             if (cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
             return cohort;
         }
+
+        public static async Task<Apprenticeship> GetApprenticeshipAggregate(this ProviderCommitmentsDbContext db, long apprenticeshipId, CancellationToken cancellationToken)
+        {
+            var apprenticeship = await db.Apprenticeships
+                .Include(a => a.DataLockStatus)
+                .Include(a => a.PriceHistory)
+                .Include(a => a.ApprenticeshipUpdate)
+                .SingleOrDefaultAsync(a => a.Id == apprenticeshipId, cancellationToken);
+
+            if(apprenticeship == null) throw new BadRequestException($"Apprenticeship {apprenticeshipId} was not found");
+
+            return apprenticeship;
+        }
     }
 }

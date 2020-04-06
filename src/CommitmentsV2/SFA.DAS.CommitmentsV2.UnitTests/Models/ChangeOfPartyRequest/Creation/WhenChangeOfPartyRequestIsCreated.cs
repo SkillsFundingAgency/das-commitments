@@ -242,7 +242,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
                     Price,
                     StartDate,
                     EndDate,
-                    UserInfo);
+                    UserInfo,
+                    DateTime.UtcNow);
             }
             catch (Exception ex)
             {

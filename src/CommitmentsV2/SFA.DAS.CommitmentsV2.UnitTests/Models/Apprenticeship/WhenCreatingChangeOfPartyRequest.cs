@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -23,31 +24,107 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
             _fixture.VerifyResult();
         }
 
+        [TestCase(PaymentStatus.Active)]
+        [TestCase(PaymentStatus.Paused)]
+        [TestCase(PaymentStatus.Completed)]
+        public void ThenApprenticeshipMustAlreadyBeStopped(PaymentStatus status)
+        {
+            _fixture
+                .WithStatus(status)
+                .CreateChangeOfPartyRequest();
+
+            _fixture.VerifyException<DomainException>();
+        }
+
+        [TestCase("2019-06-01", true, Description = "Before stop")]
+        [TestCase("2020-02-29", true, Description = "Day before stop")]
+        [TestCase("2020-03-01", false, Description = "Day of stop")]
+        [TestCase("2020-06-01", false, Description = "After stop")]
+        public void ThenStartDateMustBeOnOrAfterStopDate(DateTime startDate, bool expectThrow)
+        {
+            _fixture
+                .WithStartDate(startDate)
+                .CreateChangeOfPartyRequest();
+
+            if (expectThrow)
+            {
+                _fixture.VerifyException<DomainException>();
+            }
+            else
+            {
+                _fixture.VerifyResult();
+            }
+        }
+
         private class WhenCreatingChangeOfPartyRequestFixture
         {
-            public CommitmentsV2.Models.Apprenticeship Apprenticeship { get; }
+            public CommitmentsV2.Models.Apprenticeship Apprenticeship { get; private set; }
+            public PaymentStatus PaymentStatus { get; private set; }
+            public DateTime? StopDate { get; private set; }
+            public DateTime StartDate { get; private set; }
             public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
             public UnitOfWorkContext UnitOfWorkContext { get; private set; }
+            public Exception Exception { get; private set; }
 
             public WhenCreatingChangeOfPartyRequestFixture()
             {
                 UnitOfWorkContext = new UnitOfWorkContext();
 
-                Apprenticeship = new CommitmentsV2.Models.Apprenticeship
-                {
-                    Cohort = new CommitmentsV2.Models.Cohort()
-                };
+                PaymentStatus = PaymentStatus.Withdrawn;
+                StopDate = new DateTime(2020, 03, 01);
+                StartDate = StopDate.Value;
+            }
+
+            public WhenCreatingChangeOfPartyRequestFixture WithStatus(PaymentStatus paymentStatus)
+            {
+                PaymentStatus = paymentStatus;
+                StopDate = paymentStatus == PaymentStatus.Withdrawn ? new DateTime(2020, 03, 01) : default;
+                return this;
+            }
+
+            public WhenCreatingChangeOfPartyRequestFixture WithStopDate(DateTime? stopDate)
+            {
+                StopDate = stopDate;
+                return this;
+            }
+
+            public WhenCreatingChangeOfPartyRequestFixture WithStartDate(DateTime startDate)
+            {
+                StartDate = startDate;
+                return this;
             }
 
             public void CreateChangeOfPartyRequest()
             {
-                Result = Apprenticeship.CreateChangeOfPartyRequest(ChangeOfPartyRequestType.ChangeEmployer, Party.Provider, 1,
-                    1000, DateTime.UtcNow, DateTime.UtcNow, new UserInfo());
+                try
+                {
+                    Apprenticeship = new CommitmentsV2.Models.Apprenticeship
+                    {
+                        PaymentStatus = PaymentStatus,
+                        StopDate = StopDate,
+                        Cohort = new CommitmentsV2.Models.Cohort()
+                    };
+
+                    Result = Apprenticeship.CreateChangeOfPartyRequest(ChangeOfPartyRequestType.ChangeEmployer, Party.Provider, 1,
+                        1000, StartDate, DateTime.UtcNow, new UserInfo(), DateTime.UtcNow);
+
+                }
+                catch (Exception e)
+                {
+                    Exception = e;
+                }
             }
 
             public void VerifyResult()
             {
+                Assert.IsNull(Exception);
                 Assert.IsNotNull(Result);
+            }
+
+            public void VerifyException<T>()
+            {
+                Assert.IsNotNull(Exception);
+                Assert.IsInstanceOf<T>(Exception);
             }
         }
     }

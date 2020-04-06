@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -48,9 +49,31 @@ namespace SFA.DAS.CommitmentsV2.Models
             int price,
             DateTime startDate,
             DateTime? endDate,
-            UserInfo userInfo)
+            UserInfo userInfo,
+            DateTime now)
         {
-            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, userInfo);
+            CheckIsStoppedForChangeOfParty();
+            CheckStartDateForChangeOfParty(startDate);
+
+            //todo: no other pending or approved cop requests
+
+            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, userInfo, now);
+        }
+
+        private void CheckIsStoppedForChangeOfParty()
+        {
+            if (PaymentStatus != PaymentStatus.Withdrawn)
+            {
+                throw new DomainException(nameof(PaymentStatus), $"Change of Party requires that Apprenticeship {Id} already be stopped but actual status is {PaymentStatus}");
+            }
+        }
+
+        private void CheckStartDateForChangeOfParty(DateTime startDate)
+        {
+            if (StopDate > startDate)
+            {
+                throw new DomainException(nameof(StopDate), $"Change of Party requires that Stop Date of Apprenticeship {Id} ({StopDate}) be before or same as new Start Date of {startDate}");
+            }
         }
     }
 }

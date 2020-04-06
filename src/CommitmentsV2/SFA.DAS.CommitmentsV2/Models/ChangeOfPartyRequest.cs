@@ -34,7 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             int price,
             DateTime startDate,
             DateTime? endDate,
-            UserInfo userInfo)
+            UserInfo userInfo,
+            DateTime now)
         {
             //invariants
             CheckOriginatingParty(originatingParty);
@@ -54,8 +55,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             EndDate = endDate;
 
             Status = ChangeOfPartyRequestStatus.Pending;
-            CreatedOn = DateTime.UtcNow;
-            LastUpdatedOn = DateTime.UtcNow;
+            CreatedOn = now;
+            LastUpdatedOn = now;
 
             //commit tracking
             ChangeTrackingSession.TrackInsert(this);
