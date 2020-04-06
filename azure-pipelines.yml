@@ -62,7 +62,15 @@ steps:
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
       clean: true
-   
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
+    inputs:
+      command: custom
+      projects: 'src/CommitmentsV2/**/*.csproj'
+      custom: msbuild
+      arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)"'    
+    
   - task: VSBuild@1
     displayName: 'Build v1 API'
     inputs:
