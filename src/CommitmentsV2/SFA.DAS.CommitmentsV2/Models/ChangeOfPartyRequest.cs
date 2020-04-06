@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class ChangeOfPartyRequest : Aggregate, ITrackableEntity
     {
-        public long Id { get; }
+        public long Id { get; set; }
         public long ApprenticeshipId { get; set; }
         public ChangeOfPartyRequestType ChangeOfPartyType { get; set; }
         public Party OriginatingParty { get; set; }

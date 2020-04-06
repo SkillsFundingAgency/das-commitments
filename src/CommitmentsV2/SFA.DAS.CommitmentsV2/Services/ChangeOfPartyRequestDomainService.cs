@@ -50,6 +50,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                 userInfo,
                 _currentDateTime.UtcNow);
 
+            _dbContext.Value.ChangeOfPartyRequests.Add(result);
+
             return result;
         }
     }

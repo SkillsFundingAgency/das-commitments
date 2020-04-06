@@ -8,7 +8,14 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<ChangeOfPartyRequest> builder)
         {
+            builder.ToTable("ChangeOfPartyRequest");
+            builder.HasKey(p => p.Id);
             builder.Property(p => p.RowVersion).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+
+            builder.HasOne(d => d.Apprenticeship)
+                .WithMany(p => p.ChangeOfPartyRequests)
+                .HasForeignKey(d => d.ApprenticeshipId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }
