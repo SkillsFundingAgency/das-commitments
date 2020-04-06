@@ -150,6 +150,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
 
             _fixture.VerifyEvent();
         }
+
+        [TestCase(-100, true)]
+        [TestCase(0, true)]
+        [TestCase(100001, true)]
+        [TestCase(100000, false)]
+        [TestCase(1, false)]
+        public void ThenPriceMustBeValid(int price, bool expectThrow)
+        {
+            _fixture
+                .WithPrice(price)
+                .CreateChangeOfPartyRequest();
+
+            _fixture.VerifyException<DomainException>(expectThrow);
+        }
     }
 
     internal class ChangeOfPartyRequestCreationTestFixture
@@ -261,10 +275,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             }
         }
 
-        public void VerifyException<T>()
+        public void VerifyException<T>(bool isThrown = true)
         {
-            Assert.IsNotNull(Exception);
-            Assert.IsInstanceOf<T>(Exception);
+            if (isThrown)
+            {
+                Assert.IsNotNull(Exception);
+                Assert.IsInstanceOf<T>(Exception);
+            }
+            else
+            {
+                Assert.IsNull(Exception);
+            }
         }
 
         public void VerifyTracking()

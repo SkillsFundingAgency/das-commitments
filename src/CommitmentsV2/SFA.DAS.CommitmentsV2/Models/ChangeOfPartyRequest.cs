@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
@@ -44,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             //invariants
             CheckOriginatingParty(originatingParty);
             CheckRequestType(originatingParty, changeOfPartyType);
+            CheckPrice(price);
 
             //start tracking
             StartTrackingSession(UserAction.CreateChangeOfPartyRequest, originatingParty, apprenticeship.Cohort.AccountLegalEntityId, apprenticeship.Cohort.ProviderId, userInfo);
@@ -98,6 +100,14 @@ namespace SFA.DAS.CommitmentsV2.Models
                     return ChangeOfPartyRequestType.ChangeProvider;
                 default:
                     throw new ArgumentException($"Invalid ChangeOfParty originator: {originatingParty}",nameof(originatingParty));
+            }
+        }
+
+        private void CheckPrice(int price)
+        {
+            if (price <= 0 || price > Constants.MaximumApprenticeshipCost)
+            {
+                throw new DomainException(nameof(Price), $"Change of Party for  Apprenticeship {ApprenticeshipId} requires Price between 1 and {Constants.MaximumApprenticeshipCost}; {price} is not valid");
             }
         }
     }
