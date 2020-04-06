@@ -97,9 +97,9 @@ steps:
     inputs:
       contents: |
         azure/**
-        nuget-publish/*.nupkg
-        **/*.dacpac
-        SFA.DAS.Commitments.Host.WebJob/obj/Release/Package/**/*.*
+        src/nuget-publish/*.nupkg
+        src/**/*.dacpac
+        src/SFA.DAS.Commitments.Host.WebJob/obj/Release/Package/**/*.*
       targetFolder: "$(build.artifactstagingdirectory)/publish"
 
   - task: PublishBuildArtifacts@1
