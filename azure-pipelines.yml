@@ -14,7 +14,7 @@ variables:
   - name: buildConfiguration
     value: 'release'
   - name: buildPlatform
-    value: 'anycpu'  
+    value: 'any cpu'  
 
 pool:
   name: 'Continuous Integration 02 - SSD - 160ACU'
@@ -69,7 +69,7 @@ steps:
       solution: 'src/SFA.DAS.Commitments.Api/SFA.DAS.Commitments.Api.csproj'
       vsVersion: 15.0
       msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
-      platform: '$(buildPlatform)'
+      platform: 'anycpu'
       configuration: '$(buildConfiguration)'
       clean: true    
 
@@ -79,7 +79,7 @@ steps:
       solution: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
       vsVersion: 15.0
       msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
-      platform: '$(buildPlatform)'
+      platform: 'anycpu'
       configuration: '$(buildConfiguration)'
       clean: true
 
