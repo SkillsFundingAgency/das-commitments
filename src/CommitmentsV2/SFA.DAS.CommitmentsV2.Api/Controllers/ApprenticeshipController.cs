@@ -87,7 +87,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 throw;
             }
         }
-
         
         [HttpGet]
         [Route("filters")]
@@ -101,6 +100,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             }
 
             return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("{apprenticeshipId}/change-of-party-request")]
+        public async Task<IActionResult> ChangeOfPartyRequest(long apprenticeshipId, ChangeOfPartyRequestRequest request)
+        {
+            return Ok(await Task.FromResult((object)null));
         }
     }
 }
