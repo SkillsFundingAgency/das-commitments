@@ -112,7 +112,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 ApprenticeshipId = apprenticeshipId, 
                 ChangeOfPartyRequestType = request.ChangeOfPartyRequestType,
-                PartyId = request.PartyId, 
+                NewPartyId = request.NewPartyId, 
                 NewStartDate = request.NewStartDate,
                 NewPrice = request.NewPrice, 
                 UserInfo = request.UserInfo
