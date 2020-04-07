@@ -8,7 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest
     {
         public long ApprenticeshipId { get; set; }
         public ChangeOfPartyRequestType ChangeOfPartyRequestType { get; set; }
-        public Party Party { get; set; }
         public long PartyId { get; set; }
         public int? NewPrice { get; set; }
         public DateTime? NewStartDate { get; set; }
