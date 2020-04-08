@@ -11,21 +11,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable]
     public class ChangeOfPartyRequestValidatorTests
     {
-        [TestCase(null, false)]
-        [TestCase(0, true)]
-        [TestCase(1, true)]
-        public void Validate_NewPrice_ShouldBeValidated(int? newPrice, bool isValid)
-        {
-            AssertValidationResult(r => r.NewPrice, newPrice, isValid);
-        }
-
-        [TestCase(false, false)]
-        [TestCase(true, true)]
-        public void Validate_NewStartDate_ShouldBeValidated(bool isSet, bool isValid)
-        {
-            AssertValidationResult(r => r.NewStartDate, isSet ? DateTime.Today : (DateTime?)null, isValid);
-        }
-
         [TestCase(0, false)]
         [TestCase(1, true)]
         public void Validate_NewPartyId_ShouldBeValidated(long newPartyId, bool isValid)
