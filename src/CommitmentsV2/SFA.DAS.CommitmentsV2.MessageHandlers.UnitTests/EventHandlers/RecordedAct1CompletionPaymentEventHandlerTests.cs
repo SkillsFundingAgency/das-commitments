@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Fakes;
+using SFA.DAS.Payments.ProviderPayments.Messages;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -72,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public class RecordedAct1CompletionPaymentEventHandlerTestsFixture
         {
             private RecordedAct1CompletionPaymentEventHandler _handler;
-            private RecordedAct1CompletionPaymentFakeEvent _event;
+            private RecordedAct1CompletionPayment _event;
             public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<RecordedAct1CompletionPaymentEventHandler> _logger;
@@ -90,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
-                _event = autoFixture.Create<RecordedAct1CompletionPaymentFakeEvent>();
+                _event = autoFixture.Create<RecordedAct1CompletionPayment>();
 
                 _cohort = new Cohort() {Id = 1};
 

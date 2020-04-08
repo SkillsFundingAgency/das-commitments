@@ -1,17 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Payments.ProviderPayments.Messages;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
-    public class RecordedAct1CompletionPaymentEventHandler : IHandleMessages<RecordedAct1CompletionPaymentFakeEvent>
+    public class RecordedAct1CompletionPaymentEventHandler : IHandleMessages<RecordedAct1CompletionPayment>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<RecordedAct1CompletionPaymentEventHandler> _logger;
@@ -22,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _logger = logger;
         }
 
-        public async Task Handle(RecordedAct1CompletionPaymentFakeEvent message, IMessageHandlerContext context)
+        public async Task Handle(RecordedAct1CompletionPayment message, IMessageHandlerContext context)
         {
             try
             {
