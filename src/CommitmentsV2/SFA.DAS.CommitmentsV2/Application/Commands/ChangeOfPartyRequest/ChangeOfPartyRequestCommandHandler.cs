@@ -1,7 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest
@@ -10,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest
     {
         private readonly IChangeOfPartyRequestDomainService _changeOfPartyRequestDomainService;
 
-        public ChangeOfPartyRequestCommandHandler(IChangeOfPartyRequestDomainService changeOfPartyRequestDomainService, ILogger<ChangeOfPartyRequestCommandHandler> logger)
+        public ChangeOfPartyRequestCommandHandler(IChangeOfPartyRequestDomainService changeOfPartyRequestDomainService)
         {
             _changeOfPartyRequestDomainService = changeOfPartyRequestDomainService;
         }
