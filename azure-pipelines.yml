@@ -64,12 +64,21 @@ steps:
       clean: true
 
   - task: DotNetCoreCLI@2
-    displayName: 'dotnet publish v2'
+    displayName: 'Publish v2 API'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/SFA.DAS.CommitmentsV2.Api.csproj'
+      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'      
+
+  - task: DotNetCoreCLI@2
+    displayName: 'publish v2 WebJob'
     inputs:
       command: custom
-      projects: 'src/CommitmentsV2/**/*.csproj'
+      projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Host/SFA.DAS.CommitmentsV2.Host.csproj'
       custom: msbuild
-      arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)"'
+      arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+
     
   - task: VSBuild@1
     displayName: 'Publish v1 API'
