@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeOfPartyRequests = new List<ChangeOfPartyRequest>();
         }
 
-        public ChangeOfPartyRequest CreateChangeOfPartyRequest(ChangeOfPartyRequestType changeOfPartyType,
+        public virtual ChangeOfPartyRequest CreateChangeOfPartyRequest(ChangeOfPartyRequestType changeOfPartyType,
             Party originatingParty,
             long newPartyId,
             int price,
