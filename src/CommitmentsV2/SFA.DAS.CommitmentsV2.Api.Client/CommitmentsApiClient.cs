@@ -300,7 +300,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task ChangeOfPartyRequest(long apprenticeshipId, ChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/change-of-party-request", request, cancellationToken);
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/change-of-party-requests", request, cancellationToken);
         }
     }
 }

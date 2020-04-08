@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -6,13 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Models;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -103,10 +104,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
-        [Route("{apprenticeshipId}/change-of-party-request")]
-        public async Task<IActionResult> ChangeOfPartyRequest(long apprenticeshipId, ChangeOfPartyRequestRequest request)
+        [Route("{apprenticeshipId}/change-of-party-requests")]
+        public async Task<IActionResult> ChangeOfPartyRequest(long apprenticeshipId, ChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
         {
-            return Ok(await Task.FromResult((object)null));
+            await _mediator.Send(new ChangeOfPartyRequestCommand
+            {
+                ApprenticeshipId = apprenticeshipId, 
+                ChangeOfPartyRequestType = request.ChangeOfPartyRequestType,
+                NewPartyId = request.NewPartyId, 
+                NewStartDate = request.NewStartDate,
+                NewPrice = request.NewPrice, 
+                UserInfo = request.UserInfo
+            }, cancellationToken);
+
+            return Ok();
         }
     }
 }
