@@ -119,7 +119,9 @@ steps:
   - task: VSTest@2
     displayName: 'VS test'
     inputs:
-      testAssemblyVer2: '**/bin/**/*UnitTests.dll'
+      testAssemblyVer2: |
+        **/bin/**/*Tests.dll
+        !**/CommitmentsV2/**
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'    
 
