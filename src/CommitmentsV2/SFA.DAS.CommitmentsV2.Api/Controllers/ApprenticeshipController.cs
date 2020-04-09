@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpPost]
         [Route("{apprenticeshipId}/change-of-party-requests")]
-        public async Task<IActionResult> ChangeOfPartyRequest(long apprenticeshipId, ChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CreateChangeOfPartyRequest(long apprenticeshipId, ChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
         {
             await _mediator.Send(new ChangeOfPartyRequestCommand
             {

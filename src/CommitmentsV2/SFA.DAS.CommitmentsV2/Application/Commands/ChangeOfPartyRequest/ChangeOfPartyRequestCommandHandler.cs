@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest
         protected override Task Handle(ChangeOfPartyRequestCommand command, CancellationToken cancellationToken)
         {
             return _changeOfPartyRequestDomainService.CreateChangeOfPartyRequest(command.ApprenticeshipId,
-                command.ChangeOfPartyRequestType, command.NewPartyId, command.NewPrice.Value, command.NewStartDate.Value, null,
+                command.ChangeOfPartyRequestType, command.NewPartyId, command.NewPrice, command.NewStartDate, null,
                 command.UserInfo, cancellationToken);
         }
     }
