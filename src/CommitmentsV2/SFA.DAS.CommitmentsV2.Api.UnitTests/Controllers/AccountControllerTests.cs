@@ -86,8 +86,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 var response = (AccountResponse) objectResult.Value;
 
                 Assert.AreEqual(MediatorQueryResult.AccountId, response.AccountId);
-                Assert.AreEqual(MediatorQueryResult.HasApprenticeships, response.HasApprenticeships);
-                Assert.AreEqual(MediatorQueryResult.HasCohorts, response.HasCohorts);
                 Assert.AreEqual(MediatorQueryResult.LevyStatus, response.LevyStatus);
             }
 

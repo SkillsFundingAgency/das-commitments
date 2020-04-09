@@ -33,8 +33,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(new AccountResponse
             {
                 AccountId = employer.AccountId,
-                HasApprenticeships = employer.HasApprenticeships,
-                HasCohorts = employer.HasCohorts,
                 LevyStatus = employer.LevyStatus
             });
         }

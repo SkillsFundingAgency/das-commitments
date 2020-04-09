@@ -6,12 +6,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using FluentValidation;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 using SFA.DAS.CommitmentsV2.Data;
@@ -23,68 +20,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
     [TestFixture]
     public class GetAccountSummaryHandlerTests
     {
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        [TestCase(10, true)]
-        public async Task Handle_Should_Return_Expected_HasCohorts_Value(int cohorts, bool expectedHasCohorts)
+        [Test]
+        public async Task Handle_Should_Return_LevyStatus_NonLevy()
         {
             var fixture = new GetAccountSummaryHandlerTestsFixture();
-            fixture
-                .AddCohorts(cohorts)
-                .AddApprentices(10)
-                .AddNoise();
-
-            var response = await fixture.GetResponse();
-
-            Assert.AreEqual(expectedHasCohorts, response.HasCohorts, $"Number of Cohorts = {cohorts}");
-        }
-
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        [TestCase(10, true)]
-        public async Task Handle_Should_Return_Expected_HasApprentices_Value(int apprentices,
-            bool expectedHasApprentices)
-        {
-            var fixture = new GetAccountSummaryHandlerTestsFixture();
-            fixture
-                .AddCohorts(10)
-                .AddApprentices(apprentices)
-                .AddNoise();
-
-            var response = await fixture.GetResponse();
-
-            Assert.AreEqual(expectedHasApprentices, response.HasApprenticeships);
-        }
-
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        [TestCase(10, true)]
-        public async Task Handle_Should_Return_LevyStatus_NonLevy(int apprentices,
-           bool expectedHasApprentices)
-        {
-            var fixture = new GetAccountSummaryHandlerTestsFixture();
-            fixture
-                .AddCohorts(10)
-                .AddApprentices(apprentices)
-                .AddNoise();
+            fixture.AddAccount();
+                
 
             var response = await fixture.GetResponse();
 
             Assert.AreEqual(ApprenticeshipEmployerType.NonLevy, response.LevyStatus);
         }
 
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        [TestCase(10, true)]
-        public async Task Handle_Should_Return_LevyStatus_Levy(int apprentices,
-           bool expectedHasApprentices)
+        public async Task Handle_Should_Return_LevyStatus_Levy()
         {
             var fixture = new GetAccountSummaryHandlerTestsFixture();
-            fixture
-                .AddCohorts(10)
-                .AddApprentices(apprentices)
-                .AddNoise()
-                .SetEmployerLevyStatusToLevy();
+            fixture.AddAccount().SetEmployerLevyStatusToLevy();
 
             var response = await fixture.GetResponse();
 
@@ -97,83 +48,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
         public GetAccountSummaryHandlerTestsFixture()
         {
             var autoFixture = new Fixture();
-
-            HandlerMock = new Mock<IRequestHandler<GetAccountSummaryQuery, GetAccountSummaryQueryResult>>();
-            ValidatorMock = new Mock<IValidator<GetAccountSummaryQuery>>();
-
-            SeedApprenticeships = new List<Apprenticeship>();
-            SeedCohorts = new List<Cohort>();
             SeedAccounts = new List<Account>();
 
             EmployerAccountId = autoFixture.Create<long>();
         }
 
-        public Mock<IRequestHandler<GetAccountSummaryQuery, GetAccountSummaryQueryResult>> HandlerMock { get; set; }
-
-        public Mock<IValidator<GetAccountSummaryQuery>> ValidatorMock { get; set; }
         public long EmployerAccountId { get; }
 
-        public List<Cohort> SeedCohorts { get; set; }
-        public List<Apprenticeship> SeedApprenticeships { get; set; }
         public List<Account> SeedAccounts { get; set; }
 
-        public GetAccountSummaryHandlerTestsFixture AddCohorts(int numberOfCohorts)
+        public GetAccountSummaryHandlerTestsFixture AddAccount()
         {
-            AddCohortsForEmployerAccount(EmployerAccountId, numberOfCohorts);
+            SeedAccounts.Add(new Account(EmployerAccountId, "XYZ", "ZZZ", "Account1", DateTime.Now));
             return this;
-        }
 
-        private void AddCohortsForEmployerAccount(long employerAccountId, int numberOfCohorts)
-        {
-            for (var i = 0; i < numberOfCohorts; i++)
-            {
-                var cohort = new Cohort
-                {
-                    EmployerAccountId = employerAccountId,
-                    EditStatus = EditStatus.EmployerOnly,
-                    Originator = Originator.Employer
-                };
-
-                SeedCohorts.Add(cohort);
-            }
-        }
-
-        public GetAccountSummaryHandlerTestsFixture AddApprentices(int numberOfApprentices)
-        {
-            AddApprenticesForEmployerAccount(EmployerAccountId, numberOfApprentices);
-            return this;
-        }
-
-        private void AddApprenticesForEmployerAccount(long employerAccountId, int numberOfApprentices)
-        {
-            SeedAccounts.Add(new Account(employerAccountId, "XYZ", "ZZZ", "Account1", DateTime.Now));
-
-            for (var i = 0; i < numberOfApprentices; i++)
-            {
-             
-                var approvedCohort = new Cohort
-                {
-                    EmployerAccountId = employerAccountId,
-                    EditStatus = EditStatus.Both,
-                    Originator = Originator.Employer
-                };
-
-                var apprenticeship = new Apprenticeship
-                {
-                    Cohort = approvedCohort
-                };
-
-                
-                SeedCohorts.Add(approvedCohort);
-                SeedApprenticeships.Add(apprenticeship);
-            }
-        }
-
-        public GetAccountSummaryHandlerTestsFixture AddNoise()
-        {
-            AddCohortsForEmployerAccount(EmployerAccountId + 1, 10);
-            AddApprenticesForEmployerAccount(EmployerAccountId + 1, 10);
-            return this;
         }
 
         public Task<GetAccountSummaryQueryResult> GetResponse()
@@ -210,8 +98,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
         private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
             dbContext.Accounts.AddRange(SeedAccounts);
-            dbContext.Cohorts.AddRange(SeedCohorts);
-            dbContext.Apprenticeships.AddRange(SeedApprenticeships);
             dbContext.SaveChanges(true);
         }
 

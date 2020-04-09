@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy
 
         protected override async Task Handle(UpdateLevyStatusToLevyCommand request, CancellationToken cancellationToken)
         {
-            var entity = await _db.Value.Accounts.SingleAsync(x => x.Id == request.AccountId, cancellationToken);
+            var entity = await _db.Value.Accounts.FirstOrDefaultAsync(x => x.Id == request.AccountId, cancellationToken);
 
             if (entity != null)
             {
