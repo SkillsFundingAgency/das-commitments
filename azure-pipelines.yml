@@ -115,7 +115,7 @@ steps:
     inputs:
       command: pack
       packagesToPack: 'src/SFA.DAS.Commitments.Events/SFA.DAS.Commitments.Events.csproj'
-      packDestination: '$(build.artifactstagingdirectory)/publish'
+      packDestination: '$(build.artifactstagingdirectory)/nuget-publish'
       versioningScheme: byBuildNumber
 
   - task: DotNetCoreCLI@2
