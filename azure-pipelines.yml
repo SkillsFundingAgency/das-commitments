@@ -103,12 +103,25 @@ steps:
   - task: VSBuild@1
     displayName: 'Publish v1 WebJob'
     inputs:
-      solution: 'src\SFA.DAS.Commitments.Host.WebJob\SFA.DAS.Commitments.Host.WebJob.csproj'
+      solution: 'src/SFA.DAS.Commitments.Host.WebJob/SFA.DAS.Commitments.Host.WebJob.csproj'
       vsVersion: 15.0
       msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
       platform: 'anycpu'
       configuration: '$(buildConfiguration)'
-      clean: true    
+      clean: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet test'
+    inputs:
+      command: test
+      projects: 'src/CommitmentsV2/**/*.UnitTests.csproj'
+
+  - task: VSTest@2
+    displayName: 'VS test'
+    inputs:
+      testAssemblyVer2: '**/bin/**/*UnitTests.dll'
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'    
 
   - task: NuGetCommand@2
     displayName: 'NuGet pack'
