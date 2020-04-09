@@ -43,6 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var party = _authenticationService.GetUserParty();
 
+            CheckPartyIsValid(party);
+
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, cancellationToken);
 
             if (party == Party.Provider && changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeEmployer)
@@ -62,6 +64,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             _dbContext.Value.ChangeOfPartyRequests.Add(result);
 
             return result;
+        }
+
+        private void CheckPartyIsValid(Party party)
+        {
+            if (party != Party.Provider)
+            {
+                throw new DomainException(nameof(party), $"CreateChangeOfPartyRequest is restricted to Providers only - {party} is invalid");
+            }
         }
 
         private async Task CheckProviderHasPermission(long providerId, long accountLegalEntityId)
