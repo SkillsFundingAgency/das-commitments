@@ -11,7 +11,7 @@ SELECT
 		ELSE 0
 	END as AgreementStatus,
 	a.PaymentStatus,a.DateOfBirth,a.NINumber,a.EmployerRef,
-	a.ProviderRef,a.CreatedOn,a.AgreedOn,a.PaymentOrder,a.StopDate, a.PauseDate, a.HasHadDataLockSuccess,
+	a.ProviderRef,a.CreatedOn,a.AgreedOn,a.PaymentOrder,a.StopDate, a.PauseDate, a.CompletionDate, a.HasHadDataLockSuccess,
 	c.EmployerAccountId, c.TransferSenderId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName,
 	c.LegalEntityId, c.AccountLegalEntityPublicHashedId, PendingUpdateOriginator AS UpdateOriginator,
 	CASE WHEN dlPrice.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockPrice',
