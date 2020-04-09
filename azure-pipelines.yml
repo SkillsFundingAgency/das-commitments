@@ -110,6 +110,14 @@ steps:
       configuration: '$(buildConfiguration)'
       clean: true    
 
+  - task: NuGetCommand@2
+    displayName: 'NuGet pack'
+    inputs:
+      command: pack
+      packagesToPack: 'src/SFA.DAS.Commitments.Events/SFA.DAS.Commitments.Events.csproj'
+      packDestination: '$(build.artifactstagingdirectory)/publish'
+      versioningScheme: byBuildNumber
+
   - task: DotNetCoreCLI@2
     displayName: 'dotnet pack'
     inputs:
