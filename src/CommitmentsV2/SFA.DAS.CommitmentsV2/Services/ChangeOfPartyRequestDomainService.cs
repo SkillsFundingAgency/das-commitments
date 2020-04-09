@@ -45,10 +45,10 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, cancellationToken);
 
-            //if (party == Party.Provider && changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeEmployer)
-            //{
-            //    await CheckProviderHasPermission(apprenticeship.Cohort.ProviderId, newPartyId);
-            //}
+            if (party == Party.Provider && changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeEmployer)
+            {
+                await CheckProviderHasPermission(apprenticeship.Cohort.ProviderId, newPartyId);
+            }
 
             var result = apprenticeship.CreateChangeOfPartyRequest(changeOfPartyRequestType,
                 party,

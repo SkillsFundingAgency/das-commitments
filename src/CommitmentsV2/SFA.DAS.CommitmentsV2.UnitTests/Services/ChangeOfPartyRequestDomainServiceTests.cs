@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -8,11 +10,13 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.ProviderRelationships.Api.Client;
+using SFA.DAS.ProviderRelationships.Types.Dtos;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -40,6 +44,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             await _fixture.CreateChangeOfPartyRequest();
             _fixture.VerifyResult();
+        }
+
+        [Test]
+        public async Task CreateChangeOfPartyRequest_Saves_Request_To_DbContext()
+        {
+            await _fixture.CreateChangeOfPartyRequest();
+            _fixture.VerifyResultAddedToDbContext();
+        }
+
+        [Test]
+        public async Task CreateChangeOfPartyRequest_Throws_If_Provider_Does_Not_Have_Permission()
+        {
+            _fixture.WithNoProviderPermission();
+            await _fixture.CreateChangeOfPartyRequest();
+            _fixture.VerifyException<DomainException>();
         }
 
         private class ChangeOfPartyRequestDomainServiceTestsFixture
@@ -76,6 +95,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 CurrentDateTime.Setup(d => d.UtcNow).Returns(Now);
 
                 ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
+                ProviderRelationshipsApiClient.Setup(x =>
+                        x.GetAccountProviderLegalEntitiesWithPermission(
+                            It.IsAny<GetAccountProviderLegalEntitiesWithPermissionRequest>(),
+                            It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new GetAccountProviderLegalEntitiesWithPermissionResponse
+                    {
+                        AccountProviderLegalEntities = new List<AccountProviderLegalEntityDto>
+                        {
+                            new AccountProviderLegalEntityDto {AccountLegalEntityId = NewPartyId}
+                        }
+                    });
 
                 AuthenticationService = new Mock<IAuthenticationService>();
                 AuthenticationService.Setup(x => x.GetUserParty()).Returns(OriginatingParty);
@@ -137,6 +167,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public ChangeOfPartyRequestDomainServiceTestsFixture WithNoProviderPermission()
+            {
+                ProviderRelationshipsApiClient.Setup(x =>
+                        x.GetAccountProviderLegalEntitiesWithPermission(
+                            It.IsAny<GetAccountProviderLegalEntitiesWithPermissionRequest>(),
+                            It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new GetAccountProviderLegalEntitiesWithPermissionResponse
+                    {
+                        AccountProviderLegalEntities = new List<AccountProviderLegalEntityDto>()
+                    });
+
+                return this;
+            }
+
             public async Task CreateChangeOfPartyRequest()
             {
                 AuthenticationService.Setup(x => x.GetUserParty()).Returns(OriginatingParty);
@@ -145,6 +189,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     Result = await _domainService.CreateChangeOfPartyRequest(ApprenticeshipId,
                         ChangeOfPartyRequestType, NewPartyId, Price, StartDate, EndDate, UserInfo, new CancellationToken());
+
+                    Db.SaveChanges();
                 }
                 catch (Exception ex)
                 {
@@ -172,6 +218,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.IsNull(Exception);
                 Assert.IsNotNull(Result);
                 Assert.AreEqual(ApprenticeshipChangeOfPartyRequestResult, Result);
+            }
+
+            public void VerifyResultAddedToDbContext()
+            {
+                Assert.Contains(Result, Db.ChangeOfPartyRequests.ToList());
+            }
+
+            public void VerifyException<T>()
+            {
+                Assert.IsNotNull(Exception);
+                Assert.IsInstanceOf<T>(Exception);
             }
         }
     }
