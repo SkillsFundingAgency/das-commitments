@@ -298,7 +298,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetDataLocksResponse>($"api/apprenticeships/{apprenticeshipId}/datalocks", null, cancellationToken);
         }
 
-        public Task ChangeOfPartyRequest(long apprenticeshipId, ChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
+        public Task CreateChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/change-of-party-requests", request, cancellationToken);
         }

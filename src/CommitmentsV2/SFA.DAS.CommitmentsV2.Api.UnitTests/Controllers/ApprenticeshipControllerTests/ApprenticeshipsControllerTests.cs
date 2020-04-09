@@ -169,7 +169,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test, MoqAutoData]
-        public async Task PostChangeOfPartyRequest(long apprenticeshipId, ChangeOfPartyRequestRequest request)
+        public async Task PostChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request)
         {
             await _controller.CreateChangeOfPartyRequest(apprenticeshipId, request);
 
