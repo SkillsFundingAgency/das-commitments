@@ -5,13 +5,14 @@ using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
-
+using SFA.DAS.Common.Domain.Types;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
+using ApprenticeshipEmployerTypeOnApproval = SFA.DAS.Commitments.Api.Types.Commitment.Types.ApprenticeshipEmployerType;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
@@ -103,7 +104,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     ProviderLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail },
                     Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
                     Messages = MapMessagesFrom(commitment.Messages),
-                    TransferSender = MapTransferSenderInfo(commitment)
+                    TransferSender = MapTransferSenderInfo(commitment),
+                    ApprenticeshipEmployerTypeOnApproval = (ApprenticeshipEmployerTypeOnApproval?) commitment.ApprenticeshipEmployerTypeOnApproval
                 };
         }
 
