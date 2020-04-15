@@ -38,16 +38,6 @@ steps:
 
   - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
 
-  - task: NuGetToolInstaller@0
-    displayName: 'Use NuGet 4.3.0'
-    inputs:
-      versionSpec: 4.x
-
-  - task: NuGetCommand@2
-    displayName: 'NuGet restore'
-    inputs:
-      restoreSolution: 'src/SFA.DAS.Commitments.sln'
-
   - task: DotNetCoreCLI@2
     displayName: Restore
     inputs:
@@ -114,16 +104,7 @@ steps:
     displayName: 'dotnet test'
     inputs:
       command: test
-      projects: 'src/CommitmentsV2/**/*.UnitTests.csproj'
-
-  - task: VSTest@2
-    displayName: 'VS test'
-    inputs:
-      testAssemblyVer2: |
-        **/bin/**/*Tests.dll
-        !**/CommitmentsV2/**
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'    
+      projects: 'src/CommitmentsV2/**/*.UnitTests.csproj'   
 
   - task: NuGetCommand@2
     displayName: 'NuGet pack'
