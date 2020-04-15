@@ -38,6 +38,11 @@ steps:
 
   - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
 
+  - task: NuGetToolInstaller@0
+    displayName: 'Use NuGet 4.3.0'
+    inputs:
+      versionSpec: 4.x
+
   - task: DotNetCoreCLI@2
     displayName: Restore
     inputs:
