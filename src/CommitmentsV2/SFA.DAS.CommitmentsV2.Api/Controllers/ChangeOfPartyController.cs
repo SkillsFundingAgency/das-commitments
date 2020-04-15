@@ -4,7 +4,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -21,6 +23,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             _mediator = mediator;
             _modelMapper = modelMapper;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            var result = await _mediator.Send(new GetChangeOfPartyRequestsQuery(apprenticeshipId), cancellationToken);
+            var response = await _modelMapper.Map<GetChangeOfPartyRequestsResponse>(result);
+            return Ok(response);
         }
 
         [HttpPost]

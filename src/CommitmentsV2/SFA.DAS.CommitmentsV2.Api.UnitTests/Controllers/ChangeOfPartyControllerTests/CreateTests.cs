@@ -11,14 +11,15 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControllerTests
 {
-    public class ChangeOfPartyControllerTests
+    [TestFixture]
+    public class CreateTests
     {
-        private ChangeOfPartyControllerTestsFixture _fixture;
+        private CreateTestsFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new ChangeOfPartyControllerTestsFixture();
+            _fixture = new CreateTestsFixture();
         }
 
         [Test]
@@ -28,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
             _fixture.VerifyPost();
         }
 
-        private class ChangeOfPartyControllerTestsFixture
+        private class CreateTestsFixture
         {
             private readonly Mock<IMediator> _mediator;
             private readonly Mock<IModelMapper> _mapper;
@@ -38,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
             private readonly long _apprenticeshipId;
             private readonly CreateChangeOfPartyRequestRequest _postRequest;
 
-            public ChangeOfPartyControllerTestsFixture()
+            public CreateTestsFixture()
             {
                 _mediator = new Mock<IMediator>();
                 _mapper = new Mock<IModelMapper>();
