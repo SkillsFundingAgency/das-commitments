@@ -92,7 +92,8 @@
         "supportAppServiceName": "[concat(variables('resourceNamePrefix'), '-supp-as')]",
         "workerV1AppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-v1-as')]",
         "workerV2AppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
-        "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]"
+        "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
+        "serviceBusName": "[concat(variables('resourceNamePrefix'), '-ns')]"
     },
     "resources": [
         {
@@ -683,6 +684,23 @@
                 "name": "role-assignments",
                 "count": 3
             }
+        },
+        {
+            "name": "service-bus",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'service-bus.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "serviceBusNamespaceName": {
+                        "value": "[variables('serviceBusName')]"
+                    }
+                }
+            }
         }
     ],
     "outputs": {
@@ -705,6 +723,10 @@
         "SupportAppServiceName": {
             "type": "string",
             "value": "[variables('supportAppServiceName')]"
+        },
+        "ServiceBusName": {
+            "type": "string",
+            "value": "[variables('serviceBusName')]"
         }
     }
 }
