@@ -167,21 +167,5 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             Assert.IsNotNull(result);
         }
-
-        [Test, MoqAutoData]
-        public async Task PostChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request)
-        {
-            await _controller.CreateChangeOfPartyRequest(apprenticeshipId, request);
-
-            //Assert
-            _mediator.Verify(
-                m => m.Send(
-                    It.Is<ChangeOfPartyRequestCommand>(p =>
-                        p.ApprenticeshipId == apprenticeshipId &&
-                        p.ChangeOfPartyRequestType == request.ChangeOfPartyRequestType &&
-                        p.NewPartyId == request.NewPartyId && p.NewStartDate == request.NewStartDate &&
-                        p.NewPrice == request.NewPrice && p.UserInfo == request.UserInfo),
-                    It.IsAny<CancellationToken>()), Times.Once);
-        }
     }
 }
