@@ -223,7 +223,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
         private IQueryable<Apprenticeship> GetApprenticeshipsWithFiltersQuery(ApprenticeshipSearchParameters searchParameters, bool withAlerts)
         { 
             return GetApprenticeshipsQuery(searchParameters)
-                .WithAlerts(withAlerts)
+                .WithAlertsProviderOrEmployer(withAlerts, searchParameters)
                 .Filter(searchParameters.Filters);
         }
     }

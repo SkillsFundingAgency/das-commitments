@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -105,7 +106,14 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             return apprenticeships;
         }
 
-        public static IQueryable<Apprenticeship> WithAlerts(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
+        public static IQueryable<Apprenticeship> WithAlertsProviderOrEmployer(
+            this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts,
+            IEmployerProviderIdentifier identifier)
+        {
+            return identifier.ProviderId.HasValue ? WithAlertsProvider(apprenticeships, hasAlerts) : WithAlertsEmployer(apprenticeships, hasAlerts);
+        }
+
+        public static IQueryable<Apprenticeship> WithAlertsProvider(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
         {
             if (hasAlerts)
             {
@@ -121,6 +129,29 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed) &&
                 (apprenticeship.ApprenticeshipUpdate == null ||
                 apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
+        }
+        public static IQueryable<Apprenticeship> WithAlertsEmployer(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
+        {
+            if (hasAlerts)
+            {
+                return apprenticeships.Where(apprenticeship => apprenticeship.DataLockStatus.Any(c => !c.IsResolved
+                                                                                                      && c.Status == Status.Fail
+                                                                                                      && c.TriageStatus != TriageStatus.Unknown
+                                                                                                      && c.EventStatus != EventStatus.Removed) ||
+                                                               apprenticeship.ApprenticeshipUpdate != null &&
+                                                               apprenticeship.ApprenticeshipUpdate.Any(
+                                                                   c => c.Status == ApprenticeshipUpdateStatus.Pending
+                                                                        && (c.Originator == Originator.Employer
+                                                                            || c.Originator == Originator.Provider)));
+            }
+            var apprenticesWithAlerts = apprenticeships.Where(apprenticeship =>
+                !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed && c.TriageStatus != TriageStatus.Unknown)
+                &&
+                (apprenticeship.ApprenticeshipUpdate == null ||
+                 apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
+            return apprenticesWithAlerts.Where
+                (x => !AlertsExtensions.HasCourseDataLock(x)
+                 && !AlertsExtensions.HasPriceDataLock(x));
         }
 
         public static IQueryable<Apprenticeship> WithProviderOrEmployerId(

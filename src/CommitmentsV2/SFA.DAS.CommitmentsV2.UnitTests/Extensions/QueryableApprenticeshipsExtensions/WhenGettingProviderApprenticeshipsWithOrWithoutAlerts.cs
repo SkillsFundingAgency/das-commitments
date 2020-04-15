@@ -1,15 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExtensions
 {
-    public class WhenGettingApprenticeshipsWithOrWithoutAlerts
+    public class WhenGettingProviderApprenticeshipsWithOrWithoutAlerts
     {
         private IQueryable<Apprenticeship> _apprenticeships;
+        private readonly ApprenticeshipSearchParameters _parameters = new ApprenticeshipSearchParameters { ProviderId = 1 };
 
         [SetUp]
         public void Arrange()
@@ -21,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         public void ThenWillReturnApprenticeshipsWithAlerts()
         {
             //Act
-            var result = _apprenticeships.WithAlerts(true).ToList();
+            var result = _apprenticeships.WithAlertsProviderOrEmployer(true, _parameters).ToList();
 
             //Assert
             Assert.AreEqual(2, result.Count);
@@ -33,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         public void ThenWillReturnApprenticeshipsWithoutAlerts()
         {
             //Act
-            var result = _apprenticeships.WithAlerts(false).ToList();
+            var result = _apprenticeships.WithAlertsProviderOrEmployer(false, _parameters).ToList();
 
             //Assert
             Assert.AreEqual(5, result.Count);
