@@ -88,9 +88,10 @@
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
         "workerStorageAccountName": "[toLower(concat('das', parameters('resourceEnvironmentName'), parameters('serviceName'), 'wkrstr'))]",
         "apiV1AppServiceName": "[concat(variables('resourceNamePrefix'), 'api-v1-as')]",
-        "apiV2AppServiceName": "[concat(variables('resourceNamePrefix'), 'api-v2-as')]",
+        "apiV2AppServiceName": "[concat(variables('resourceNamePrefix'), 'api-as')]",
         "supportAppServiceName": "[concat(variables('resourceNamePrefix'), '-supp-as')]",
-        "workerAppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
+        "workerV1AppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-v1-as')]",
+        "workerV2AppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]"
     },
     "resources": [
@@ -107,26 +108,6 @@
                 "parameters": {
                     "storageAccountName": {
                         "value": "[variables('workerStorageAccountName')]"
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-08-01",
-            "name": "worker-app-insights",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appInsightsName": {
-                        "value": "[variables('workerAppServiceName')]"
-                    },
-                    "attachedService": {
-                        "value": "[variables('workerAppServiceName')]"
                     }
                 }
             }
@@ -158,8 +139,28 @@
             }
         },
         {
+            "apiVersion": "2017-08-01",
+            "name": "worker-v1-app-insights",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appInsightsName": {
+                        "value": "[variables('workerV1AppServiceName')]"
+                    },
+                    "attachedService": {
+                        "value": "[variables('workerV1AppServiceName')]"
+                    }
+                }
+            }
+        },
+        {
             "apiVersion": "2017-05-10",
-            "name": "worker-app-service",
+            "name": "worker-v1-app-service",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
@@ -169,7 +170,7 @@
                 },
                 "parameters": {
                     "appServiceName": {
-                        "value": "[variables('workerAppServiceName')]"
+                        "value": "[variables('workerV1AppServiceName')]"
                     },
                     "appServicePlanName": {
                         "value": "[variables('workerAppServicePlanName')]"
@@ -200,17 +201,105 @@
                             },
                             {
                                 "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference('worker-app-insights').outputs.InstrumentationKey.value]"
+                                "value": "[reference('worker-v1-app-insights').outputs.InstrumentationKey.value]"
+                            },
+                            {
+                                "name": "FUNCTIONS_WORKER_RUNTIME",
+                                "value": "dotnet"
                             }
                         ]
                     },
                     "appServiceConnectionStrings": {
                         "value": [
                             {
-                                "name": "AzureWebJobsDashboard",
+                                "name": "AzureWebJobsStorage",
                                 "connectionString": "[reference('storage-account').outputs.storageConnectionString.value]",
                                 "type": "Custom"
+                            }
+                        ]
+                    },
+                    "ipSecurityRestrictions": {
+                        "value": "[parameters('appServiceAllowedIPs')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "worker-app-service-plan"
+            ]
+        },
+        {
+            "apiVersion": "2017-08-01",
+            "name": "worker-v2-app-insights",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appInsightsName": {
+                        "value": "[variables('workerV2AppServiceName')]"
+                    },
+                    "attachedService": {
+                        "value": "[variables('workerV2AppServiceName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "worker-v2-app-service",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServiceName": {
+                        "value": "[variables('workerV2AppServiceName')]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[variables('workerAppServicePlanName')]"
+                    },
+                    "appServicePlanResourceGroup": {
+                        "value": "[resourceGroup().name]"
+                    },
+                    "deployStagingSlot": {
+                        "value": false
+                    },
+                    "appServiceAppSettings": {
+                        "value": [
+                            {
+                                "name": "ConfigurationStorageConnectionString",
+                                "value": "[parameters('configurationStorageConnectionString')]"
                             },
+                            {
+                                "name": "EnvironmentName",
+                                "value": "[parameters('environmentName')]"
+                            },
+                            {
+                                "name": "LoggingRedisConnectionString",
+                                "value": "[parameters('loggingRedisConnectionString')]"
+                            },
+                            {
+                                "name": "LoggingRedisKey",
+                                "value": "[parameters('loggingRedisKey')]"
+                            },
+                            {
+                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                                "value": "[reference('worker-v2-app-insights').outputs.InstrumentationKey.value]"
+                            },
+                            {
+                                "name": "FUNCTIONS_WORKER_RUNTIME",
+                                "value": "dotnet"
+                            }                    
+                        ]
+                    },
+                    "appServiceConnectionStrings": {
+                        "value": [
                             {
                                 "name": "AzureWebJobsStorage",
                                 "connectionString": "[reference('storage-account').outputs.storageConnectionString.value]",
@@ -580,7 +669,7 @@
                 },
                 "parameters": {
                     "principalId": {
-                        "value": "[createArray(reference('api-v2-app-service').outputs.managedServiceIdentityId.value, reference('api-v2-app-service').outputs.stagingManagedServiceIdentityId.value, reference('worker-app-service').outputs.managedServiceIdentityId.value)[copyIndex()]]"
+                        "value": "[createArray(reference('api-v2-app-service').outputs.managedServiceIdentityId.value, reference('api-v2-app-service').outputs.stagingManagedServiceIdentityId.value, reference('worker-v2-app-service').outputs.managedServiceIdentityId.value)[copyIndex()]]"
                     },
                     "assignmentType": {
                         "value": "ServiceBusOwner"
@@ -605,9 +694,13 @@
             "type": "string",
             "value": "[variables('apiV2AppServiceName')]"
         },
-        "WorkerAppServiceName": {
+        "WorkerV1AppServiceName": {
             "type": "string",
-            "value": "[variables('workerAppServiceName')]"
+            "value": "[variables('workerV1AppServiceName')]"
+        },
+        "WorkerV2AppServiceName": {
+            "type": "string",
+            "value": "[variables('workerV2AppServiceName')]"
         },
         "SupportAppServiceName": {
             "type": "string",
