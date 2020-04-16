@@ -76,10 +76,10 @@
             "defaultValue": [
             ]
         },
-        "keyVaultName": {
+        "sharedKeyVaultName": {
             "type": "string"
         },
-        "keyVaultResourceGroup": {
+        "sharedManagementResourceGroup": {
             "type": "string"
         }
     },
@@ -354,10 +354,10 @@
                         "value": "[parameters('apiV1CertificateName')]"
                     },
                     "keyVaultName": {
-                        "value": "[parameters('keyVaultName')]"
+                        "value": "[parameters('sharedKeyVaultName')]"
                     },
                     "keyVaultResourceGroup": {
-                        "value": "[parameters('keyVaultResourceGroup')]"
+                        "value": "[parameters('sharedManagementResourceGroup')]"
                     }
                 }
             }
@@ -478,10 +478,10 @@
                         "value": "[parameters('apiV2CertificateName')]"
                     },
                     "keyVaultName": {
-                        "value": "[parameters('keyVaultName')]"
+                        "value": "[parameters('sharedKeyVaultName')]"
                     },
                     "keyVaultResourceGroup": {
-                        "value": "[parameters('keyVaultResourceGroup')]"
+                        "value": "[parameters('sharedManagementResourceGroup')]"
                     }
                 }
             }
@@ -590,10 +590,10 @@
                         "value": "[parameters('supportCertificateName')]"
                     },
                     "keyVaultName": {
-                        "value": "[parameters('keyVaultName')]"
+                        "value": "[parameters('sharedKeyVaultName')]"
                     },
                     "keyVaultResourceGroup": {
-                        "value": "[parameters('keyVaultResourceGroup')]"
+                        "value": "[parameters('sharedManagementResourceGroup')]"
                     }
                 }
             }
