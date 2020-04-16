@@ -24,6 +24,7 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? PauseDate { get; set; }
+        public DateTime? CompletionDate { get; set; }
         public DateTime? StopDate { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public AgreementStatus AgreementStatus { get; set; }
