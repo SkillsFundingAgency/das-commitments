@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -61,6 +62,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
                     typeof(ApprenticeshipBase),
                     typeof(Apprenticeship)));
             var apprenticeship = autoFixture.Create<Apprenticeship>();
+            apprenticeship.PriceHistory = new List<PriceHistory>{new PriceHistory
+            {
+                Cost = 3,
+                ApprenticeshipId = apprenticeship.Id
+            }};
             return apprenticeship;
         }
     }
