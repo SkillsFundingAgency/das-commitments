@@ -20,7 +20,7 @@
         "sharedResourceGroupName": {
             "type": "string"
         },
-        "sharedBackEndAppServicePlan": {
+        "sharedBackEndAppServicePlanName": {
             "type": "string"
         },
         "aspSize": {
@@ -377,7 +377,7 @@
                         "value": "[variables('apiV1AppServiceName')]"
                     },
                     "appServicePlanName": {
-                        "value": "[parameters('sharedBackEndAppServicePlan')]"
+                        "value": "[parameters('sharedBackEndAppServicePlanName')]"
                     },
                     "appServicePlanResourceGroup": {
                         "value": "[parameters('sharedResourceGroupName')]"
@@ -501,7 +501,7 @@
                         "value": "[variables('apiV2AppServiceName')]"
                     },
                     "appServicePlanName": {
-                        "value": "[parameters('sharedBackEndAppServicePlan')]"
+                        "value": "[parameters('sharedBackEndAppServicePlanName')]"
                     },
                     "appServicePlanResourceGroup": {
                         "value": "[parameters('sharedResourceGroupName')]"
@@ -613,7 +613,7 @@
                         "value": "[variables('supportAppServiceName')]"
                     },
                     "appServicePlanName": {
-                        "value": "[parameters('sharedBackEndAppServicePlan')]"
+                        "value": "[parameters('sharedBackEndAppServicePlanName')]"
                     },
                     "appServicePlanResourceGroup": {
                         "value": "[parameters('sharedResourceGroupName')]"
