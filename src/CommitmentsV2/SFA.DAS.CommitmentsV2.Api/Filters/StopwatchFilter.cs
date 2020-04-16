@@ -21,14 +21,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Filters
             _stopWatch.Start();
         }
 
-        public override void OnResultExecuted(ResultExecutedContext filterContext)
+        public override void OnActionExecuted(ActionExecutedContext context)
         {
             _stopWatch.Stop();
 
             if (_stopWatch.ElapsedMilliseconds <= WarningThreshold) return;
 
-            var controllerName = filterContext.RouteData.Values["controller"];
-            var actionName = filterContext.RouteData.Values["action"];
+            var controllerName = context.RouteData.Values["controller"];
+            var actionName = context.RouteData.Values["action"];
             _logger.LogWarning($"Controller action took {_stopWatch.ElapsedMilliseconds} to complete: {controllerName}.{actionName}");
         }
     }
