@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
         {
-            await _mediator.Send(new ChangeOfPartyRequestCommand
+            await _mediator.Send(new CreateChangeOfPartyRequestCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 ChangeOfPartyRequestType = request.ChangeOfPartyRequestType,

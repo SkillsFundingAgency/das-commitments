@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
@@ -32,9 +32,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AssertValidationResult(r => r.UserInfo, isSet ? new UserInfo() : null, isValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<ChangeOfPartyRequestCommand, T>> property, T value, bool isValid)
+        private void AssertValidationResult<T>(Expression<Func<CreateChangeOfPartyRequestCommand, T>> property, T value, bool isValid)
         {
-            var validator = new ChangeOfPartyRequestValidator();
+            var validator = new CreateChangeOfPartyRequestValidator();
             
             if (isValid)
             {

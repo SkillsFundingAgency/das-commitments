@@ -6,7 +6,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControllerTests
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
             {
                 _mediator.Verify(
                     m => m.Send(
-                        It.Is<ChangeOfPartyRequestCommand>(p =>
+                        It.Is<CreateChangeOfPartyRequestCommand>(p =>
                             p.ApprenticeshipId == _apprenticeshipId &&
                             p.ChangeOfPartyRequestType == _postRequest.ChangeOfPartyRequestType &&
                             p.NewPartyId == _postRequest.NewPartyId && p.NewStartDate == _postRequest.NewStartDate &&
