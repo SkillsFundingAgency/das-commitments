@@ -42,7 +42,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 PaymentStatus = source.PaymentStatus,
                 ApprenticeshipStatus = source.ApprenticeshipStatus,
                 Alerts = source.Alerts,
-                TotalAgreedPrice = source.TotalAgreedPrice
+                TotalAgreedPrice = source.TotalAgreedPrice,
+                AccountLegalEntityId = source.AccountLegalEntityId
             };
         }
     }

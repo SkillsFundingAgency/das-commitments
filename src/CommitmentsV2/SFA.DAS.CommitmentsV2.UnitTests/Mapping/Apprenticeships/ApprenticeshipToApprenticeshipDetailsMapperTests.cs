@@ -43,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             result.EmployerRef.Should().Be(source.EmployerRef);
             result.TotalAgreedPrice.Should().Be(cost);
             result.CohortReference.Should().Be(source.Cohort.Reference);
+            result.AccountLegalEntityId.Should().Be(source.Cohort.AccountLegalEntityId);
         }
 
     }
