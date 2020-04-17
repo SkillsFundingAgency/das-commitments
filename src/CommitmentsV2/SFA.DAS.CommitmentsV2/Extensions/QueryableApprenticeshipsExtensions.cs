@@ -144,12 +144,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                                                         && (c.Originator == Originator.Employer
                                                                             || c.Originator == Originator.Provider)));
             }
-            var apprenticesWithAlerts = apprenticeships.Where(apprenticeship =>
+            return apprenticeships.Where(apprenticeship =>
                 !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed) && 
                    apprenticeship.DataLockStatus.All(c=>c.TriageStatus == TriageStatus.Unknown) &&
                 (apprenticeship.ApprenticeshipUpdate == null ||
                  apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
-                return apprenticesWithAlerts.Where(x => !AlertsExtensions.EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(x));
         }
 
         public static IQueryable<Apprenticeship> WithProviderOrEmployerId(
