@@ -21,13 +21,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
         {
             return new GetChangeOfPartyRequestsQueryResult
             {
-                ChangeOfPartyRequests = await _dbContext.Value.ChangeOfPartyRequests.Where(x => x.ApprenticeshipId == request.ApprenticeshipId)
+                ChangeOfPartyRequests = await _dbContext.Value
+                    .ChangeOfPartyRequests.Where(x => x.ApprenticeshipId == request.ApprenticeshipId)
+                    .Include(a => a.Apprenticeship.Cohort.AccountLegalEntity)
                     .Select(r => new GetChangeOfPartyRequestsQueryResult.ChangeOfPartyRequest
                     {
                         Id = r.Id,
                         OriginatingParty = r.OriginatingParty,
                         ChangeOfPartyType = r.ChangeOfPartyType,
-                        Status = r.Status
+                        Status = r.Status,
+                        StartDate = r.StartDate,
+                        Price = r.Price,
+                        EmployerName = r.AccountLegalEntity.Name
                     }).ToListAsync(cancellationToken)
             };
         }

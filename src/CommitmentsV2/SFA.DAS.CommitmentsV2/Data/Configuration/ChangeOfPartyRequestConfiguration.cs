@@ -16,6 +16,11 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithMany(p => p.ChangeOfPartyRequests)
                 .HasForeignKey(d => d.ApprenticeshipId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+
+            builder.HasOne(d => d.AccountLegalEntity)
+                .WithMany(p => p.ChangeOfPartyRequests)
+                .HasForeignKey(d => d.AccountLegalEntityId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

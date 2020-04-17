@@ -18,7 +18,10 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                         Id = r.Id,
                         ChangeOfPartyType = r.ChangeOfPartyType,
                         OriginatingParty = r.OriginatingParty,
-                        Status = r.Status
+                        Status = r.Status,
+                        EmployerName = r.EmployerName,
+                        StarDate = r.StartDate,
+                        Price = r.Price
                     }).ToList()
             });
         }

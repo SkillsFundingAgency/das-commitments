@@ -1,11 +1,16 @@
-﻿namespace SFA.DAS.CommitmentsV2.TestHelpers
+﻿using System;
+using System.Linq.Expressions;
+
+namespace SFA.DAS.CommitmentsV2.TestHelpers
 {
     public static class ObjectExtensions
     {
-        public static void SetValue(this object o, string propertyName, object value)
+        public static void SetValue<T, TProp>(this T o, Expression<Func<T,TProp>> propertySelector, object value)
         {
             var t = o.GetType();
-            t.GetProperty(propertyName).SetValue(o, value, null);
+            var body = (MemberExpression)propertySelector.Body;
+            t.GetProperty(body.Member.Name).SetValue(o, value, null);
         }
+
     }
 }
