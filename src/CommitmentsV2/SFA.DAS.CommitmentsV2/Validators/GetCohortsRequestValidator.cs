@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
     {
         public GetCohortsRequestValidator()
         {
-            RuleFor(r => r.AccountId).NotNull();
+            RuleFor(request => request).Must(r => r.ProviderId != null || r.AccountId != null).WithMessage("The Account Id or Provider Id must be supplied");
         }
     }
 }
