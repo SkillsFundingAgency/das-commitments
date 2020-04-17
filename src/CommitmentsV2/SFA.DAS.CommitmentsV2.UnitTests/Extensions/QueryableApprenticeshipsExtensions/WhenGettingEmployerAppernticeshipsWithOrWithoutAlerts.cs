@@ -40,12 +40,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             //Assert
             Assert.AreEqual(6, result.Count);
 
-            Assert.AreEqual(1, result[0].Id);
-            Assert.AreEqual(2, result[1].Id);
-            Assert.AreEqual(4, result[2].Id);
-            Assert.AreEqual(5, result[3].Id);
-            Assert.AreEqual(6, result[4].Id);
-            Assert.AreEqual(7, result[5].Id);
+            Assert.AreEqual(2, result[0].Id);
+            Assert.AreEqual(4, result[1].Id);
+            Assert.AreEqual(5, result[2].Id);
+            Assert.AreEqual(6, result[3].Id);
+            Assert.AreEqual(7, result[4].Id);
+            Assert.AreEqual(9, result[5].Id);
         }
 
         private static IQueryable<Apprenticeship> GetTestData()
