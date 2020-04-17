@@ -43,7 +43,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                         .UseStructureMapBuilder(container)
                         .UseUnitOfWork();
 
-                    endpointConfiguration.Conventions().DefiningEventsAs(t => t == typeof(RecordedAct1CompletionPayment));
+                    endpointConfiguration.Conventions().DefiningEventsAs(t =>
+                        t.Name.EndsWith("Event") 
+                        || t == typeof(RecordedAct1CompletionPayment));
 
                     if (isDevelopment)
                     {
