@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return result;
         }
 
-        public static bool HasCourseDataLock(Apprenticeship source)
+        private static bool HasCourseDataLock(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 !x.IsResolved);
         }
 
-        public static bool HasPriceDataLock(Apprenticeship source)
+        private static bool HasPriceDataLock(Apprenticeship source)
         {
             return source.DataLockStatus.Any(x =>
                 x.IsPriceOnly() &&
@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         }
 
 
-        private static bool EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(Apprenticeship source)
+        public static bool EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(Apprenticeship source)
         {
             return !source.IsProviderSearch && source.DataLockStatus.Any(x =>
                 x.Status == Status.Fail &&

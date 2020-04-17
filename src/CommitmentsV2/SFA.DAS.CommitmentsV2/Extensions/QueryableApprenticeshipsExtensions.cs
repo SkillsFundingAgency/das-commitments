@@ -150,8 +150,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 (apprenticeship.ApprenticeshipUpdate == null ||
                  apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
             return apprenticesWithAlerts.Where
-                (x => !AlertsExtensions.HasCourseDataLock(x)
-                 && !AlertsExtensions.HasPriceDataLock(x));
+                (x => !AlertsExtensions.EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(x));
         }
 
         public static IQueryable<Apprenticeship> WithProviderOrEmployerId(
