@@ -32,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public string EmployerRef { get; set; }
             public string ProviderRef { get; set; }
             public string CohortReference { get; set; }
+            public long AccountLegalEntityId { get; set; }
         }
     }
 }

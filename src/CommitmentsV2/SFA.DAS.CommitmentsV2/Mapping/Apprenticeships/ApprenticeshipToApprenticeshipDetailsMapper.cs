@@ -42,7 +42,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 ApprenticeshipStatus = source.MapApprenticeshipStatus(_currentDateTime),
                 TotalAgreedPrice = source.PriceHistory.GetPrice(_currentDateTime.UtcNow),
                 Uln = source.Uln,
-                Alerts = source.MapAlerts()
+                Alerts = source.MapAlerts(),
+                AccountLegalEntityId = source.Cohort.AccountLegalEntityId
             });
         }
 
