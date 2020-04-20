@@ -136,8 +136,8 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             {
                 return apprenticeships.Where(apprenticeship => apprenticeship.DataLockStatus.Any(c => !c.IsResolved
                                                                                                       && c.Status == Status.Fail
-                                                                                                      && c.EventStatus != EventStatus.Removed ) &&
-                                                               apprenticeship.DataLockStatus.All(c=>c.TriageStatus!= TriageStatus.Unknown) ||
+                                                                                                      && c.EventStatus != EventStatus.Removed
+                                                                                                      || (!c.IsResolved && c.TriageStatus != TriageStatus.Unknown)) ||
                                                                apprenticeship.ApprenticeshipUpdate != null &&
                                                                apprenticeship.ApprenticeshipUpdate.Any(
                                                                    c => c.Status == ApprenticeshipUpdateStatus.Pending
@@ -145,8 +145,9 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                                                             || c.Originator == Originator.Provider)));
             }
             return apprenticeships.Where(apprenticeship =>
-                !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed) && 
-                   apprenticeship.DataLockStatus.All(c=>c.TriageStatus == TriageStatus.Unknown) &&
+                !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed
+                                                        || (!c.IsResolved && c.TriageStatus != TriageStatus.Unknown)) &&
+
                 (apprenticeship.ApprenticeshipUpdate == null ||
                  apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
         }
