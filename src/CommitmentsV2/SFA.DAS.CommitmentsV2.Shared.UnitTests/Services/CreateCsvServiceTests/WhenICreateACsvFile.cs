@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
     public class WhenICreateACsvFile
     {
         [Test, MoqAutoData]
-        public void Then_The_First_Line_Of_The_File_Is_The_Headers(
+        public void Then_The_First_Line_Is_A_Comment_Showing_The_Download_Message(
             List<SomethingToCsv> listToWriteToCsv,
             CreateCsvService createCsvService)
         {
@@ -22,7 +22,23 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             Assert.IsAssignableFrom<MemoryStream>(actual);
             var actualByteArray = actual.ToArray();
             var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
-            var headerLine = fileString.Split(Environment.NewLine)[0];
+            var commentLine = fileString.Split(Environment.NewLine)[0];
+
+            Assert.AreEqual("#Data only includes apprentices with an apprenticeship end date within the last 12 months", commentLine);
+        }
+
+        [Test, MoqAutoData]
+        public void Then_The_Second_Line_Of_The_File_Is_The_Headers(
+            List<SomethingToCsv> listToWriteToCsv,
+            CreateCsvService createCsvService)
+        {
+            var actual = createCsvService.GenerateCsvContent(listToWriteToCsv, true);
+
+            Assert.IsNotNull(actual);
+            Assert.IsAssignableFrom<MemoryStream>(actual);
+            var actualByteArray = actual.ToArray();
+            var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
+            var headerLine = fileString.Split(Environment.NewLine)[1];
 
             Assert.That(headerLine.Contains(nameof(SomethingToCsv.Id)));
             Assert.That(!headerLine.Contains(nameof(SomethingToCsv.InternalStuff)));
@@ -40,8 +56,8 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             var actualByteArray = actual.ToArray();
             var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
             var lines = fileString.Split(Environment.NewLine);
-            Assert.AreEqual(listToWriteToCsv.Count + 2, lines.Length);
-            Assert.AreEqual(listToWriteToCsv[0].Description, lines[1].Split(',')[1]);
+            Assert.AreEqual(listToWriteToCsv.Count + 3, lines.Length);
+            Assert.AreEqual(listToWriteToCsv[0].Description, lines[2].Split(',')[1]);
         }
 
         [Test, MoqAutoData]
