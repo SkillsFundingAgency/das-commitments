@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class ChangeOfPartyRequestValidatorTests
+    public class CreateChangeOfPartyRequestValidatorTests
     {
         [TestCase(0, false)]
         [TestCase(1, true)]

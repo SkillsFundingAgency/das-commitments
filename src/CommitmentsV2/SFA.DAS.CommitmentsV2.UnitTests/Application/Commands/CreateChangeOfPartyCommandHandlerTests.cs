@@ -11,12 +11,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class ChangeOfPartyCommandHandlerTests
+    public class CreateChangeOfPartyCommandHandlerTests
     {
         [Test]
         public async Task Handle_WhenHandlingCommand_ThenShouldCallDomainServiceCorrectly()
         {
-            var f = new ChangeOfPartyCommandHandlerTestsFixture();
+            var f = new CreateChangeOfPartyCommandHandlerTestsFixture();
             
             await f.Handle();
 
@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class ChangeOfPartyCommandHandlerTestsFixture
+    public class CreateChangeOfPartyCommandHandlerTestsFixture
     {
         public Fixture AutoFixture { get; set; }
         public Mock<IChangeOfPartyRequestDomainService> ChangeOfPartyDomainService { get; set; }
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public CreateChangeOfPartyRequestCommand Command { get; set; }
         public CancellationToken CancellationToken { get; set; }
 
-        public ChangeOfPartyCommandHandlerTestsFixture()
+        public CreateChangeOfPartyCommandHandlerTestsFixture()
         {
             AutoFixture = new Fixture();
             ChangeOfPartyDomainService = new Mock<IChangeOfPartyRequestDomainService>();
