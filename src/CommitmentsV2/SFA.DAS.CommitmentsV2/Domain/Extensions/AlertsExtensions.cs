@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
 
         private static bool HasCourseDataLockPendingChanges(Apprenticeship source)
         {
-            return source.IsProviderSearch && source.DataLockStatus.Any(x =>
+            return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
                 x.TriageStatus == TriageStatus.Change &&
                 !x.IsResolved);
