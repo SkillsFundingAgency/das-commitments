@@ -438,6 +438,10 @@
                                 "value": ""
                             },
                             {
+                                "name": "InstrumentationKey",
+                                "value": "[reference('api-v1-app-insights').outputs.InstrumentationKey.value]"
+                            },
+                            {
                                 "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
                                 "value": "[reference('api-v1-app-insights').outputs.InstrumentationKey.value]"
                             }
