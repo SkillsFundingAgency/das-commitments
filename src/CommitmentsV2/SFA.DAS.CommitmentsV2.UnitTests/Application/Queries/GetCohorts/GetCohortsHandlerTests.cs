@@ -120,7 +120,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         }
 
         [Test]
-        public async Task Handle_WithProviderId_ShouldReturnDraftUnapprovedCohortsForThatEmployer()
+        public async Task Handle_WithProviderId_ShouldReturnDraftUnapprovedCohortsForThatProvider()
         {
             var f = new GetCohortsHandlerTestFixtures();
             f.AddEmptyDraftCohortWithEmployer(f.AccountId);
@@ -181,8 +181,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             Assert.AreEqual("ProviderLast", response.Cohorts[1].LatestMessageFromProvider.Text);
             Assert.AreEqual(2, response.Cohorts[1].NumberOfDraftApprentices);
         }
-
-
     }
 
     public class GetCohortsHandlerTestFixtures
