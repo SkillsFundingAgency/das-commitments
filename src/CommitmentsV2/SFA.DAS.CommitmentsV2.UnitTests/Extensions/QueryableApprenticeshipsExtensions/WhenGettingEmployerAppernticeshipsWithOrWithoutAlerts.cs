@@ -27,8 +27,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var result = _apprenticeships.WithAlertsProviderOrEmployer(true, _parameters).ToList();
 
             //Assert
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(3, result[0].Id);
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result[0].Id);
+            Assert.AreEqual(3, result[1].Id);
         }
 
         [Test]
