@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -9,12 +10,12 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class ChangeOfPartyRequest : Aggregate, ITrackableEntity
     {
-        public long Id { get; private set; }
-        public long ApprenticeshipId { get; private set; }
-        public ChangeOfPartyRequestType ChangeOfPartyType { get; private set; }
+        public virtual long Id { get; private set; }
+        public virtual long ApprenticeshipId { get; private set; }
+        public virtual ChangeOfPartyRequestType ChangeOfPartyType { get; private set; }
         public Party OriginatingParty { get; private set; }
-        public long? AccountLegalEntityId { get; private set; }
-        public long? ProviderId { get; private set; }
+        public virtual long? AccountLegalEntityId { get; private set; }
+        public virtual long? ProviderId { get; private set; }
         public int Price { get; private set; }
         public DateTime StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
@@ -102,6 +103,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 throw new DomainException(nameof(Price), $"Change of Party for  Apprenticeship {ApprenticeshipId} requires Price between 1 and {Constants.MaximumApprenticeshipCost}; {price} is not valid");
             }
+        }
+
+        public virtual void CreateCohort(Apprenticeship apprenticeship, object reservationId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
