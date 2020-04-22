@@ -34,9 +34,16 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 CourseName = source.CourseName,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
+                PauseDate = source.PauseDate,
+                DateOfBirth = source.DateOfBirth,
+                EmployerRef = source.EmployerRef,
+                ProviderRef = source.ProviderRef,
+                CohortReference = source.CohortReference,
                 PaymentStatus = source.PaymentStatus,
                 ApprenticeshipStatus = source.ApprenticeshipStatus,
-                Alerts = source.Alerts
+                Alerts = source.Alerts,
+                TotalAgreedPrice = source.TotalAgreedPrice,
+                AccountLegalEntityId = source.AccountLegalEntityId
             };
         }
     }

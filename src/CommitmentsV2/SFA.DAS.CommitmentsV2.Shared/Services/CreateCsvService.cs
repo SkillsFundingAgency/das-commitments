@@ -20,7 +20,8 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             {
                 HasHeaderRecord = hasHeader
             });
-
+            _csvWriter.WriteComment("Data only includes apprentices with an apprenticeship end date within the last 12 months");
+            _csvWriter.NextRecord();
             _csvWriter.WriteRecords(results);
             _streamWriter.Flush();
             _memoryStream.Position = 0;
