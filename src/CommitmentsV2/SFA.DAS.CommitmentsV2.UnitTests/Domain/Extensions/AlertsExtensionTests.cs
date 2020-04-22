@@ -192,7 +192,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PendingUpdateOriginator = null;
             source.ApprenticeshipUpdate = null;
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
-            
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeEmpty();
