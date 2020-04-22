@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             List<Apprenticeship> apprenticeships,
             [Frozen]GetApprenticeshipsQuery query,
             [Frozen] Mock<IApprenticeshipSearch> mockSearch,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {
@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             
             [Frozen]GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IApprenticeshipSearch> mockSearch,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
            
             [Frozen]GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IApprenticeshipSearch> mockSearch,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
@@ -132,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen]GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
             [Frozen]GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IApprenticeshipSearch> search,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
@@ -171,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
             [Frozen]GetApprenticeshipsQuery query,
             [Frozen] Mock<IApprenticeshipSearch> search,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler) 
         {
@@ -210,7 +210,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen]GetApprenticeshipsQuery query,
             List<Apprenticeship> apprenticeships,
             ApprenticeshipSearchResult searchResult,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IApprenticeshipSearch> search,
             GetApprenticeshipsQueryHandler handler)
         {
@@ -239,7 +239,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             GetApprenticeshipsQueryResult.ApprenticeshipDetails apprenticeshipDetails,
             [Frozen]GetApprenticeshipsQuery query,
             [Frozen] Mock<IApprenticeshipSearch> search,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsQueryHandler handler)
         {

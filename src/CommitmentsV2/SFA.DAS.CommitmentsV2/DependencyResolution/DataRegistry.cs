@@ -21,8 +21,8 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         public ReadOnlyDataRegistry()
         {
             For<IDbReadOnlyContextFactory>().Use<DbReadOnlyContextFactory>();
-            For<CommitmentsReadOnlyDbContext>().Use(c => c.GetInstance<IDbReadOnlyContextFactory>().CreateDbContext());
-            For<ICommitmentsReadOnlyDbContext>().Use(c => c.GetInstance<IDbReadOnlyContextFactory>().CreateDbContext());
+            For<ProviderCommitmentsDbContext>().Use(c => c.GetInstance<IDbReadOnlyContextFactory>().CreateDbContext());
+            For<IProviderCommitmentsDbContext>().Use(c => c.GetInstance<IDbReadOnlyContextFactory>().CreateDbContext());
         }
     }
 }
