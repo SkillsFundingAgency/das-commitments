@@ -4,7 +4,7 @@ AS
 SELECT 
 	TR.Id AS TransferRequestId
 	,C.EmployerAccountId AS ReceivingEmployerAccountId
-	,C.LegalEntityName as ReceivingLegalEntityName
+	,ale.[Name] as ReceivingLegalEntityName
 	,C.Reference as CohortReference
 	,TR.[CommitmentId]
 	,C.TransferSenderId AS SendingEmployerAccountId
@@ -17,3 +17,4 @@ SELECT
 	,TR.CreatedOn
 FROM [dbo].[TransferRequest] TR
 JOIN [dbo].[Commitment] C ON TR.CommitmentId = C.Id
+INNER JOIN [AccountLegalEntities] ale on ale.Id = c.AccountLegalEntityId

@@ -12,8 +12,12 @@ SELECT
 	END as AgreementStatus,
 	a.PaymentStatus,a.DateOfBirth,a.NINumber,a.EmployerRef,
 	a.ProviderRef,a.CreatedOn,a.AgreedOn,a.PaymentOrder,a.StopDate, a.PauseDate, a.HasHadDataLockSuccess,
-	c.EmployerAccountId, c.TransferSenderId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName,
-	c.LegalEntityId, c.AccountLegalEntityPublicHashedId, PendingUpdateOriginator AS UpdateOriginator,
+	c.EmployerAccountId, c.TransferSenderId, c.ProviderId, c.Reference,
+	p.[Name] as 'ProviderName',
+	ale.[Name] as 'LegalEntityName',
+	ale.[LegalEntityId] as 'LegalEntityId',
+	ale.[PublicHashedId] as 'AccountLegalEntityPublicHashedId',
+	PendingUpdateOriginator AS UpdateOriginator,
 	CASE WHEN dlPrice.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockPrice',
 	CASE WHEN dlPriceTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockPriceTriaged',
 	CASE WHEN dlCourse.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourse',
@@ -57,6 +61,8 @@ SELECT
 		Commitment c
 	ON 
 		c.Id = a.CommitmentId
+	INNER JOIN [Providers] p on p.Ukprn = c.ProviderId
+	INNER JOIN [AccountLegalEntities] ale on ale.Id = c.AccountLegalEntityId
 	LEFT JOIN
 		AssessmentOrganisation ao
 	ON

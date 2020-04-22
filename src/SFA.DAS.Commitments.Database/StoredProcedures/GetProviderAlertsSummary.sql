@@ -20,7 +20,7 @@ SELECT
 		) a
 	INNER JOIN (
 		SELECT ProviderId, ProviderName FROM 
-			(SELECT ProviderId, ProviderName, ROW_NUMBER() OVER (PARTITION BY ProviderId ORDER BY CreatedOn DESC) AS rn FROM Commitment) c
+			(SELECT ProviderId, p.[Name] as 'ProviderName', ROW_NUMBER() OVER (PARTITION BY ProviderId ORDER BY CreatedOn DESC) AS rn FROM Commitment INNER JOIN [Providers] p on p.Ukprn = Commitment.ProviderId) c
 		WHERE rn = 1
 	) p
 	ON a.ProviderId = p.ProviderId

@@ -7,10 +7,11 @@ AS
 (
 	SELECT 
 		ProviderId,
-		ProviderName,
+		p.[Name] as 'ProviderName',
 		ROW_NUMBER() OVER (PARTITION BY ProviderId ORDER BY CreatedOn DESC) AS RowNumber
 	FROM 
 		Commitment c
+		INNER JOIN [Providers] p on p.Ukprn = c.ProviderId
 	WHERE
 		c.EmployerAccountId = @EmployerAccountId
 )

@@ -12,13 +12,15 @@ a.*,
 c.EmployerAccountId,
 c.TransferSenderId,
 c.ProviderId,
-c.ProviderName,
-c.LegalEntityName,
+p.ProviderName,
+ale.[Name] as 'LegalEntityName',
 c.Id AS 'CommitmentId',
 a.PaymentStatus
 FROM @ULNs u
 INNER JOIN [dbo].[Apprenticeship] a ON u.ULN = a.ULN
 INNER JOIN [dbo].[Commitment] c ON c.Id = a.CommitmentId
+INNER JOIN [Providers] p on p.Ukprn = c.ProviderId
+INNER JOIN [AccountLegalEntities] ale on ale.Id = c.AccountLegalEntityId
 WHERE
 c.Approvals in (3,7)
 END

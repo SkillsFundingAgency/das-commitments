@@ -30,7 +30,18 @@ AS (SELECT Id, CommitmentId, AgreementStatus,
 	FROM 
 		Apprenticeship a
 )
-SELECT c.*, 
+SELECT
+	c.Id, c.Reference, c.EmployerAccountId,
+	ale.LegalEntityId as 'LegalEntityId', ale.[Name] as 'LegalEntityName', c.ProviderId, p.[Name] as 'ProviderName',
+	c.CommitmentStatus, c.EditStatus, c.CreatedOn, c.LastAction, 
+	c.LastUpdatedByEmployerEmail, c.LastUpdatedByProviderEmail, c.LastUpdatedByEmployerName, c.LastUpdatedByProviderName,
+	ale.[Address] as 'LegalEntityAddress',
+	ale.[OrganisationType] as 'LegalEntityOrganisationType',
+	c.TransferSenderId,
+	ts.[Name] as 'TransferSenderName',
+	c.TransferApprovalStatus, c.TransferApprovalActionedByEmployerEmail,
+	c.TransferApprovalActionedByEmployerName, c.TransferApprovalActionedOn, ale.PublicHashedId as 'AccountLegalEntityPublicHashedId', c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
+	c.IsFullApprovalProcessed, c.IsDeleted, c.AccountLegalEntityId, c.IsDraft, c.WithParty, c.RowVersion, c.LastUpdatedOn, c.Approvals, c.EmployerAndProviderApprovedOn,
 	COUNT(a.Id) AS ApprenticeshipCount,
 
 	COALESCE((SELECT TOP 1 AgreementStatus FROM ApprenticeshipApprovalStatus_CTE WHERE CommitmentId = c.Id), 0) AS AgreementStatus, -- because should all be same value
@@ -47,16 +58,23 @@ SELECT c.*,
 		ELSE 0 
 	END AS ProviderCanApproveCommitment
 
-FROM 
-	Commitment c
-LEFT JOIN 
-	Apprenticeship a ON a.CommitmentId = c.Id
+FROM Commitment c
+LEFT JOIN  Apprenticeship a ON a.CommitmentId = c.Id
+INNER JOIN [Providers] p on p.Ukprn = c.ProviderId
+INNER JOIN [AccountLegalEntities] ale on ale.Id = c.AccountLegalEntityId
+LEFT JOIN [Accounts] ts on ts.Id = c.TransferSenderId
 WHERE
-	c.IsDeleted = 0
-
+c.IsDeleted = 0
 GROUP BY 
-	c.Id, c.Reference, c.EmployerAccountId, c.LegalEntityId, c.LegalEntityName, c.ProviderId, c.ProviderName, c.CommitmentStatus, c.EditStatus, c.CreatedOn, c.LastAction, 
-	c.LastUpdatedByEmployerEmail, c.LastUpdatedByProviderEmail, c.LastUpdatedByEmployerName, c.LastUpdatedByProviderName, c.LegalEntityAddress, 
-	c.LegalEntityOrganisationType, c.TransferSenderId, c.TransferSenderName, c.TransferApprovalStatus, c.TransferApprovalActionedByEmployerEmail,
-	c.TransferApprovalActionedByEmployerName, c.TransferApprovalActionedOn, c.AccountLegalEntityPublicHashedId, c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
+	c.Id, c.Reference, c.EmployerAccountId,
+	ale.LegalEntityId, ale.[Name],
+	c.ProviderId, p.[Name],
+	c.CommitmentStatus, c.EditStatus, c.CreatedOn, c.LastAction, 
+	c.LastUpdatedByEmployerEmail, c.LastUpdatedByProviderEmail, c.LastUpdatedByEmployerName, c.LastUpdatedByProviderName,
+	ale.[Address],
+	ale.[OrganisationType],
+	c.TransferSenderId,
+	ts.[Name],
+	c.TransferApprovalStatus, c.TransferApprovalActionedByEmployerEmail,
+	c.TransferApprovalActionedByEmployerName, c.TransferApprovalActionedOn, ale.PublicHashedId, c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
 	c.IsFullApprovalProcessed, c.IsDeleted, c.AccountLegalEntityId, c.IsDraft, c.WithParty, c.RowVersion, c.LastUpdatedOn, c.Approvals, c.EmployerAndProviderApprovedOn
