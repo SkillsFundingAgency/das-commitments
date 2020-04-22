@@ -29,9 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             Assert.IsNotNull(response);
             Assert.AreEqual(response.Cohorts.Length, f.SeedCohorts.Count);
             Assert.AreEqual(response.Cohorts[0].AccountId, f.AccountId);
-            Assert.AreEqual(response.Cohorts[0].LegalEntityName, f.SeedCohorts[0].LegalEntityName);
             Assert.AreEqual(response.Cohorts[0].ProviderId, f.SeedCohorts[0].ProviderId);
-            Assert.AreEqual(response.Cohorts[0].ProviderName, f.SeedCohorts[0].ProviderName);
             Assert.AreEqual(response.Cohorts[0].CohortId, f.SeedCohorts[0].Id);
             Assert.AreEqual(response.Cohorts[0].CreatedOn, f.SeedCohorts[0].CreatedOn);
         }

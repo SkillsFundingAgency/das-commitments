@@ -82,6 +82,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
                     CreatingParty,
                     Message,
                     UserInfo);
+
+                Cohort.TransferSender = TransferSender;
             }
             catch (ArgumentException ex)
             {
@@ -134,13 +136,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
         public void VerifyCohortHasTransferInformation()
         {
             Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);
-            Assert.AreEqual(TransferSenderName, Cohort.TransferSenderName);
+            Assert.AreEqual(TransferSenderName, Cohort.TransferSender.Name);
         }
 
         public void VerifyCohortHasNoTransferInformation()
         {
             Assert.IsNull(Cohort.TransferSenderId);
-            Assert.IsNull(Cohort.TransferSenderName);
+            Assert.IsNull(Cohort.TransferSender);
         }
 
         public void VerifyCohortTracking()

@@ -83,18 +83,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             {
                 _cohort = new Cohort
                 {
-                    LegalEntityId = _autoFixture.Create<string>(),
-                    LegalEntityName = _autoFixture.Create<string>(),
-                    LegalEntityAddress = _autoFixture.Create<string>(),
-                    LegalEntityOrganisationType = _autoFixture.Create<OrganisationType>(),
+                    //LegalEntityId = _autoFixture.Create<string>(),
+                    //LegalEntityName = _autoFixture.Create<string>(),
+                    //LegalEntityAddress = _autoFixture.Create<string>(),
+                    //LegalEntityOrganisationType = _autoFixture.Create<OrganisationType>(),
                     CommitmentStatus = CommitmentStatus.New,
                     EditStatus = EditStatus.EmployerOnly,
                     LastAction = LastAction.None,
                     Originator = Originator.Unknown,
-                    ProviderName = _autoFixture.Create<string>(),
+                    //ProviderName = _autoFixture.Create<string>(),
                     Id = _cohortId,
                     Reference = string.Empty,
-                    AccountLegalEntityPublicHashedId = _autoFixture.Create<string>()
+                    //AccountLegalEntityPublicHashedId = _autoFixture.Create<string>()
                 };
 
                 for (var i = 0; i < 10; i++)

@@ -321,7 +321,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             async Task<long> GetMaLegalEntityId()
             {
-                var accountLegalEntityId = _encodingService.Decode(cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId);
+                var accountLegalEntityId = cohort.AccountLegalEntityId;
                 var accountLegalEntity = await _dbContext.Value.AccountLegalEntities.Where(x => x.Id == accountLegalEntityId).SingleAsync(cancellationToken);
                 return accountLegalEntity.MaLegalEntityId;
             }

@@ -3,12 +3,7 @@
 	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, -- This may be a problem, I believe each time we deploy, the PK index is rebuilt (if the table changes)
     [Reference] NVARCHAR(100) NOT NULL, 
     [EmployerAccountId] BIGINT NOT NULL, 
-    [LegalEntityId] NVARCHAR(50) NOT NULL, 
-    [LegalEntityName] NVARCHAR(100) NOT NULL, 
-	[LegalEntityAddress] NVARCHAR(256) NOT NULL,
-	[LegalEntityOrganisationType] TINYINT NOT NULL,
     [ProviderId] BIGINT NULL,
-    [ProviderName] NVARCHAR(100) NULL,
     [CommitmentStatus] SMALLINT NOT NULL DEFAULT 0, 
     [EditStatus] SMALLINT NOT NULL DEFAULT 0,
     [CreatedOn] DATETIME NULL, 
@@ -18,12 +13,10 @@
     [LastUpdatedByProviderName] NVARCHAR(255) NULL, 
     [LastUpdatedByProviderEmail] NVARCHAR(255) NULL,
     [TransferSenderId] BIGINT SPARSE,
-    [TransferSenderName] NVARCHAR(100) SPARSE,
 	[TransferApprovalStatus] TINYINT SPARSE,
 	[TransferApprovalActionedByEmployerName] NVARCHAR(255),
 	[TransferApprovalActionedByEmployerEmail] NVARCHAR(255),
 	[TransferApprovalActionedOn] DATETIME2,
-	[AccountLegalEntityPublicHashedId] CHAR(6) NULL,
 	[Originator] TINYINT NOT NULL DEFAULT 0,
 	[ApprenticeshipEmployerTypeOnApproval] TINYINT NULL,
 	[IsFullApprovalProcessed] BIT NOT NULL DEFAULT 0,
@@ -40,7 +33,7 @@ GO
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_CommitmentStatus] 
 ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus]) 
-INCLUDE ([AccountLegalEntityPublicHashedId], [ApprenticeshipEmployerTypeOnApproval], [CreatedOn], [EditStatus], [EmployerAccountId], [IsFullApprovalProcessed], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [LegalEntityAddress], [LegalEntityId], [LegalEntityName], [LegalEntityOrganisationType], [Originator], [ProviderName], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId], [TransferSenderName]) WITH (ONLINE = ON)
+INCLUDE ([ApprenticeshipEmployerTypeOnApproval], [CreatedOn], [EditStatus], [EmployerAccountId], [IsFullApprovalProcessed], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [Originator], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId]) WITH (ONLINE = ON)
 
 GO
 
@@ -58,11 +51,6 @@ GO
 CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderIsDeleted] on [dbo].[Commitment] ([ProviderId], [IsDeleted]) INCLUDE(
     [Reference],
     [EmployerAccountId] , 
-    [LegalEntityId] ,
-    [LegalEntityName] , 
-	[LegalEntityAddress] ,
-	[LegalEntityOrganisationType] ,
-    [ProviderName] ,
     [CommitmentStatus] , 
     [EditStatus],
     [CreatedOn] , 
@@ -72,30 +60,20 @@ CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderIsDeleted] on [dbo].[Commitment
     [LastUpdatedByProviderName] , 
     [LastUpdatedByProviderEmail] ,
     [TransferSenderId] ,
-    [TransferSenderName] ,
 	[TransferApprovalStatus] ,
 	[TransferApprovalActionedByEmployerName] ,
 	[TransferApprovalActionedByEmployerEmail] ,
 	[TransferApprovalActionedOn] ,
-	[AccountLegalEntityPublicHashedId] ,
 	[Originator] ,
 	[ApprenticeshipEmployerTypeOnApproval] ,
 	[IsFullApprovalProcessed] ,
     [AccountLegalEntityId] ) WITH (ONLINE = ON)
 	GO
-
-CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderDeletedLegalEntityName_Filter] ON [dbo].[Commitment] ([ProviderId],[IsDeleted]) INCLUDE ([LegalEntityName]) WITH (ONLINE=ON)
-GO
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountIsDeleted] on [dbo].[Commitment] ([EmployerAccountId], [IsDeleted]) INCLUDE(
     [Reference],
     
-    [LegalEntityId] ,
-    [LegalEntityName] , 
-	[LegalEntityAddress] ,
-	[LegalEntityOrganisationType] ,
     [ProviderId] , 
-    [ProviderName] ,
     [CommitmentStatus] , 
     [EditStatus],
     [CreatedOn] , 
@@ -105,17 +83,15 @@ CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountIsDeleted] on [dbo].[Com
     [LastUpdatedByProviderName] , 
     [LastUpdatedByProviderEmail] ,
     [TransferSenderId] ,
-    [TransferSenderName] ,
 	[TransferApprovalStatus] ,
 	[TransferApprovalActionedByEmployerName] ,
 	[TransferApprovalActionedByEmployerEmail] ,
 	[TransferApprovalActionedOn] ,
-	[AccountLegalEntityPublicHashedId] ,
 	[Originator] ,
 	[ApprenticeshipEmployerTypeOnApproval] ,
 	[IsFullApprovalProcessed] ,
     [AccountLegalEntityId] ) WITH (ONLINE = ON)
 	GO
 
-CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountDeletedProviderName_Filter] ON [dbo].[Commitment] ([EmployerAccountId],[IsDeleted]) INCLUDE ([ProviderName]) WITH (ONLINE=ON)
+CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountDeletedProviderName_Filter] ON [dbo].[Commitment] ([EmployerAccountId],[IsDeleted]) WITH (ONLINE=ON)
 GO

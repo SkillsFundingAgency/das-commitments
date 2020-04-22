@@ -29,7 +29,7 @@ AS
 	a.PendingUpdateOriginator as 'UpdateOriginator',
 	a.ReservationId,
 	p.[Name] as 'ProviderName',
-	c.LegalEntityId,
+	ale.LegalEntityId,
 	ale.[Name] as 'LegalEntityName',
 	ale.PublicHashedId as 'AccountLegalEntityPublicHashedId',
 	a.HasHadDataLockSuccess,

@@ -148,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.CreatedOn.Date == DateTime.UtcNow.Date &&
                           apprenticeshipCreatedEvent.AgreedOn == apprenticeship.Cohort.EmployerAndProviderApprovedOn &&
                           apprenticeshipCreatedEvent.AccountId == apprenticeship.Cohort.EmployerAccountId &&
-                          apprenticeshipCreatedEvent.AccountLegalEntityPublicHashedId == apprenticeship.Cohort.AccountLegalEntityPublicHashedId &&
+                          apprenticeshipCreatedEvent.AccountLegalEntityPublicHashedId == apprenticeship.Cohort.AccountLegalEntity.PublicHashedId &&
                           apprenticeshipCreatedEvent.LegalEntityName == apprenticeship.Cohort.AccountLegalEntity.Name &&
                           apprenticeshipCreatedEvent.ProviderId == apprenticeship.Cohort.Provider.UkPrn &&
                           apprenticeshipCreatedEvent.TransferSenderId == apprenticeship.Cohort.TransferSenderId &&

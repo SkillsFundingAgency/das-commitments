@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     CreatedOn = creationDate,
                     AgreedOn = a.Cohort.EmployerAndProviderApprovedOn.Value,
                     AccountId = a.Cohort.EmployerAccountId,
-                    AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntityPublicHashedId,
+                    AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntity.PublicHashedId,
                     AccountLegalEntityId = a.Cohort.AccountLegalEntity.Id,
                     LegalEntityName = a.Cohort.AccountLegalEntity.Name,
                     ProviderId = a.Cohort.ProviderId,

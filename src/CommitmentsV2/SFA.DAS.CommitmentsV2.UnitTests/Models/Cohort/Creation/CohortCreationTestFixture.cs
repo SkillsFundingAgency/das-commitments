@@ -89,6 +89,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                     DraftApprenticeshipDetails,
                     CreatingParty,
                     UserInfo);
+
+                Cohort.TransferSender = TransferSender;
             }
             catch (ArgumentException ex)
             {
@@ -143,11 +145,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             Assert.IsTrue(Cohort.IsDraft);
         }
 
-        public void VerifyCohortBelongsToLegalEntity()
-        {
-            Assert.AreEqual(AccountLegalEntity.LegalEntityId, Cohort.LegalEntityId);
-        }
-
         public void VerifyCohortBelongsToAccount()
         {
             Assert.AreEqual(AccountLegalEntity.AccountId, Cohort.EmployerAccountId);
@@ -161,13 +158,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public void VerifyCohortHasTransferInformation()
         {
             Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);
-            Assert.AreEqual(TransferSenderName, Cohort.TransferSenderName);
+            Assert.AreEqual(TransferSenderName, Cohort.TransferSender.Name);
         }
 
         public void VerifyCohortHasNoTransferInformation()
         {
             Assert.IsNull(Cohort.TransferSenderId);
-            Assert.IsNull(Cohort.TransferSenderName);
+            Assert.IsNull(Cohort.TransferSender);
         }
 
         public void VerifyCohortBelongsToProvider()

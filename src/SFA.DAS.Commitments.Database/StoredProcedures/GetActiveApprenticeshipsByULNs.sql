@@ -12,7 +12,7 @@ a.*,
 c.EmployerAccountId,
 c.TransferSenderId,
 c.ProviderId,
-p.ProviderName,
+p.[Name] as 'ProviderName',
 ale.[Name] as 'LegalEntityName',
 c.Id AS 'CommitmentId',
 a.PaymentStatus

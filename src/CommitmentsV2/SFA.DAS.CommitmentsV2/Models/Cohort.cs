@@ -36,13 +36,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             IsDraft = true;
 
             //Setting of these fields is here for backwards-compatibility only
-            ProviderName = provider.Name;
-            TransferSenderName = transferSender?.Name;
-            LegalEntityId = accountLegalEntity.LegalEntityId;
-            LegalEntityName = accountLegalEntity.Name;
-            LegalEntityAddress = accountLegalEntity.Address;
-            LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
-            AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
+            //ProviderName = provider.Name;
+            //TransferSenderName = transferSender?.Name;
+            //LegalEntityId = accountLegalEntity.LegalEntityId;
+            //LegalEntityName = accountLegalEntity.Name;
+            //LegalEntityAddress = accountLegalEntity.Address;
+            //LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
+            //AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
 
             // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
             Reference = "";
@@ -140,12 +140,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string Reference { get; set; }
         public long EmployerAccountId { get; set; }
         public long AccountLegalEntityId { get; set; }
-        public string LegalEntityId { get; set; }
-        public string LegalEntityName { get; set; }
-        public string LegalEntityAddress { get; set; }
-        public OrganisationType LegalEntityOrganisationType { get; set; }
         public long ProviderId { get; set; }
-        public string ProviderName { get; set; }
         public CommitmentStatus CommitmentStatus { get; set; }
         public EditStatus EditStatus { get; set; }
         public DateTime? CreatedOn { get; set; }
@@ -155,12 +150,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string LastUpdatedByProviderName { get; set; }
         public string LastUpdatedByProviderEmail { get; set; }
         public long? TransferSenderId { get; set; }
-        public string TransferSenderName { get; set; }
         public TransferApprovalStatus? TransferApprovalStatus { get; set; }
         public string TransferApprovalActionedByEmployerName { get; set; }
         public string TransferApprovalActionedByEmployerEmail { get; set; }
         public DateTime? TransferApprovalActionedOn { get; set; }
-        public string AccountLegalEntityPublicHashedId { get; set; }
         public Originator Originator { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsDraft { get; set; }
