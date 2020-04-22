@@ -106,14 +106,14 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             return apprenticeships;
         }
 
-        public static IQueryable<Apprenticeship> WithAlertsProviderOrEmployer(
+        public static IQueryable<Apprenticeship> WithAlerts(
             this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts,
             IEmployerProviderIdentifier identifier)
         {
             return identifier.ProviderId.HasValue ? WithAlertsProvider(apprenticeships, hasAlerts) : WithAlertsEmployer(apprenticeships, hasAlerts);
         }
 
-        public static IQueryable<Apprenticeship> WithAlertsProvider(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
+        private static IQueryable<Apprenticeship> WithAlertsProvider(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
         {
             if (hasAlerts)
             {
@@ -130,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 (apprenticeship.ApprenticeshipUpdate == null ||
                 apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
         }
-        public static IQueryable<Apprenticeship> WithAlertsEmployer(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
+        private static IQueryable<Apprenticeship> WithAlertsEmployer(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
         {
             if (hasAlerts)
             {

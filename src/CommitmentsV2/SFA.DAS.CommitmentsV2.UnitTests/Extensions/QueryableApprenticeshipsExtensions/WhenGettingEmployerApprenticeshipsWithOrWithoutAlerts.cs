@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         public void ThenWillReturnApprenticeshipsWithAlerts()
         {
             //Act
-            var result = _apprenticeships.WithAlertsProviderOrEmployer(true, _parameters).ToList();
+            var result = _apprenticeships.WithAlerts(true, _parameters).ToList();
 
             //Assert
             Assert.AreEqual(2, result.Count);
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         public void ThenWillReturnApprenticeshipsWithoutAlerts()
         {
             //Act
-            var result = _apprenticeships.WithAlertsProviderOrEmployer(false, _parameters).ToList();
+            var result = _apprenticeships.WithAlerts(false, _parameters).ToList();
 
             //Assert
             Assert.AreEqual(6, result.Count);
