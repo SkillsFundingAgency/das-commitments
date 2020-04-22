@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var expectedApprenticeships =
                 apprenticeships.Where(app => app.Cohort.ProviderId == searchParameters.ProviderId);
 
-            var result = apprenticeships.AsQueryable().WithId(searchParameters);
+            var result = apprenticeships.AsQueryable().WithProviderOrEmployerId(searchParameters);
 
             result.Count()
                 .Should().Be(apprenticeships
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var expectedApprenticeships =
                 apprenticeships.Where(app => app.Cohort.EmployerAccountId == searchParameters.EmployerAccountId);
 
-            var result = apprenticeships.AsQueryable().WithId(searchParameters);
+            var result = apprenticeships.AsQueryable().WithProviderOrEmployerId(searchParameters);
 
             result.Count()
                 .Should().Be(apprenticeships
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             searchParameters.ProviderId = null;
             searchParameters.EmployerAccountId = null;
 
-            var result = apprenticeships.AsQueryable().WithId(searchParameters);
+            var result = apprenticeships.AsQueryable().WithProviderOrEmployerId(searchParameters);
 
             result.Should().BeEquivalentTo(apprenticeships);
         }

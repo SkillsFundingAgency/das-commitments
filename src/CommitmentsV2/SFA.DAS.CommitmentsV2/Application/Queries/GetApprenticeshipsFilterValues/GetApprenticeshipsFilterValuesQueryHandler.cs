@@ -101,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         private Task<List<string>> GetDistinctEmployerNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return _dbContext.Apprenticeships
-                .WithId(request)
+                .WithProviderOrEmployerId(request)
 				.OrderBy(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
                 .Select(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
                 .Distinct()
@@ -111,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         private Task<List<string>> GetDistinctProviderNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return _dbContext.Apprenticeships
-                .WithId(request)
+                .WithProviderOrEmployerId(request)
 				.OrderBy(apprenticeship => apprenticeship.Cohort.Provider.Name)
                 .Select(apprenticeship => apprenticeship.Cohort.Provider.Name)
                 .Distinct()
@@ -121,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         private Task<List<string>> GetDistinctCourseNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return _dbContext.Apprenticeships
-                .WithId(request)
+                .WithProviderOrEmployerId(request)
                 .OrderBy(apprenticeship => apprenticeship.CourseName)
                 .Select(apprenticeship => apprenticeship.CourseName)
                 .Distinct()
@@ -131,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         private Task<List<DateTime>> GetDistinctStartDates(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return _dbContext.Apprenticeships
-                .WithId(request)
+                .WithProviderOrEmployerId(request)
                 .Where(apprenticeship => apprenticeship.StartDate.HasValue)
                 .OrderBy(apprenticeship => apprenticeship.StartDate)
                 .Select(apprenticeship => apprenticeship.StartDate.Value)
@@ -142,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         private Task<List<DateTime>> GetDistinctEndDates(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return _dbContext.Apprenticeships
-                .WithId(request)
+                .WithProviderOrEmployerId(request)
                 .Where(apprenticeship => apprenticeship.EndDate.HasValue)
                 .OrderBy(apprenticeship => apprenticeship.EndDate)
                 .Select(apprenticeship => apprenticeship.EndDate.Value)
