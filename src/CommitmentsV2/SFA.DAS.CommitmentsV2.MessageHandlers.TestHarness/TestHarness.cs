@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Types.Models;
+using SFA.DAS.Payments.ProviderPayments.Messages;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
 {
@@ -46,13 +47,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("K - CohortApprovedByEmployer");
                 Console.WriteLine("L - SendEmailToEmployerCommand");
                 Console.WriteLine("M - RunHealthCheckCommand");
+                Console.WriteLine("N - RecordedAct1CompletionPayment Event");
                 Console.WriteLine("O - CohortDeletedEvent");
                 Console.WriteLine("P - ApproveTransferRequestCommand");
                 Console.WriteLine("Q - RejectTransferRequestCommand");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
-
 
                 try
                 {
@@ -126,6 +127,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(RunHealthCheckCommand)}");
                             break;
+                        case ConsoleKey.N:
+                            await _publisher.Publish(new RecordedAct1CompletionPayment { ApprenticeshipId = 1, EventTime = DateTimeOffset.UtcNow });
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(RecordedAct1CompletionPayment)}");
+                            break;
                         case ConsoleKey.O:
                             await _publisher.Publish(new CohortDeletedEvent(cohortId, 22222, 33333, Party.None, DateTime.Now));
                             Console.WriteLine();
@@ -152,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 if (key == ConsoleKey.X) break;
 
                 Console.WriteLine();
-                Console.WriteLine("Press anykey to return to menu");
+                Console.WriteLine("Press any key to return to menu");
                 Console.ReadKey();
             }
         }
