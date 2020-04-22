@@ -105,9 +105,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public virtual void CreateCohort(Apprenticeship apprenticeship, object reservationId)
+        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid reservationId)
         {
-            throw new NotImplementedException();
+            return new Cohort(this, apprenticeship, reservationId);
         }
     }
 }

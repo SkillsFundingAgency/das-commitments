@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MoreLinq.Extensions;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -126,6 +124,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartTrackingSession(UserAction.CreateCohort, originatingParty, accountLegalEntity.AccountId, provider.UkPrn, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        /// <summary>
+        /// Creates a Cohort from a Change of Party Request
+        /// Cohort will contain a single Draft Apprenticeship based upon the original, be With the Other Party,
+        /// and be pre-approved by the request's Originating Party
+        /// </summary>
+        public Cohort(ChangeOfPartyRequest changeOfPartyRequest, Apprenticeship apprenticeship, Guid reservationId)
+        {
+            
         }
 
         public virtual long Id { get; set; }
