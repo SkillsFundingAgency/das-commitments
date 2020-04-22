@@ -33,6 +33,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 PauseDate = source.PauseDate,
+                CompletionDate = source.CompletionDate,
                 StopDate = source.StopDate,
                 PaymentStatus = (Api.Types.Apprenticeship.Types.PaymentStatus)source.PaymentStatus,
                 AgreementStatus = (Api.Types.AgreementStatus)source.AgreementStatus,

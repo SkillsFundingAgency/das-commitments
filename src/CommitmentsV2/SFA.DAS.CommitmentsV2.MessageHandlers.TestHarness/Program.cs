@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NServiceBus;
+using NServiceBus.Routing.Legacy;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -12,6 +14,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using SFA.DAS.Payments.ProviderPayments.Messages;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
 {
@@ -38,6 +41,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 .UseInstallers()
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer();
+
+            endpointConfiguration.Conventions().DefiningEventsAs(t => t == typeof(RecordedAct1CompletionPayment));
 
             if (isDevelopment)
             {

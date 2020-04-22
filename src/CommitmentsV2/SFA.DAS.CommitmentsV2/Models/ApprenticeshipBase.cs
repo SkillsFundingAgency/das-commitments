@@ -4,12 +4,12 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public abstract class ApprenticeshipBase
+    public abstract class ApprenticeshipBase : Aggregate
     {
         public bool IsApproved { get; set; }
 
         public virtual long Id { get; set; }
-        public long CommitmentId { get; set; }
+        public virtual long CommitmentId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Uln { get; set; }

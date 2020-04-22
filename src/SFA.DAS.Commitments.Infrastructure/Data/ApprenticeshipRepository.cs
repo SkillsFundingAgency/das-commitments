@@ -58,7 +58,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var returnCode = await conn.ExecuteAsync(
                     sql:
                     "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, StopDate = @stopDate " +
-                    "WHERE Id = @id;",
+                    "WHERE PaymentStatus != 4 AND Id = @id;",
                     transaction: tran,
                     param: parameters,
                     commandType: CommandType.Text);
@@ -80,7 +80,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     sql:
                     "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, " + 
                     "PauseDate = null " +
-                    "WHERE Id = @id;",
+                    "WHERE PaymentStatus != 4 AND Id = @id;",
                     transaction: tran,
                     param: parameters,
                     commandType: CommandType.Text);
@@ -103,7 +103,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     sql:
                     "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, " +
                     "PauseDate = @pauseDate " +
-                    "WHERE Id = @id;",
+                    "WHERE PaymentStatus != 4 AND Id = @id;",
                     transaction: tran,
                     param: parameters,
                     commandType: CommandType.Text);
@@ -144,7 +144,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var returnCode = await connection.ExecuteAsync(
                     sql:
                     "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus " +
-                    "WHERE Id = @id;",
+                    "WHERE PaymentStatus != 4 AND Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
 
@@ -164,7 +164,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                return await connection.ExecuteAsync(
                     "UPDATE [dbo].[Apprenticeship] SET StopDate = @stopDate " +
-                    "WHERE Id = @id;",
+                    "WHERE PaymentStatus != 4 AND Id = @id;",
                     parameters,
                     commandType: CommandType.Text);
             });

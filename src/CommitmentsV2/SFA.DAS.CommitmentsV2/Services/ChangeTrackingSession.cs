@@ -72,8 +72,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                         UpdatedState = updated == null ? null : JsonConvert.SerializeObject(updated),
                         UpdatedOn = DateTime.UtcNow,
                         UpdatingParty = _party,
-                        UpdatingUserId = _userInfo.UserId,
-                        UpdatingUserName = _userInfo.UserDisplayName
+                        UpdatingUserId = _userInfo?.UserId ?? "Unknown",
+                        UpdatingUserName = _userInfo?.UserDisplayName ?? "Unknown"
                     };
 
                     return result;
