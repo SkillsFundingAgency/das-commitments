@@ -62,7 +62,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                         {
                             IsResolved = false,
                             Status = Status.Fail,
-                            EventStatus = EventStatus.New
+                            EventStatus = EventStatus.New,
+                            TriageStatus = TriageStatus.Change
                         }
                     }
                 },
