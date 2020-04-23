@@ -11,6 +11,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
@@ -74,6 +75,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             // ReSharper disable once ObjectCreationAsStatement
             new UnitOfWorkContext();
 
+            var autoFixture = new Fixture();
+
             var draftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 Reference = reference,
@@ -83,8 +86,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             };
 
             var commitment = new Cohort(
-                new Provider(),
-                new AccountLegalEntity(),
+                autoFixture.Create<long>(),
+                autoFixture.Create<long>(),
+                autoFixture.Create<long>(),
                 null,
                 draftApprenticeshipDetails,
                 creatingParty,

@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Reservations.Api.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
     public class ChangeOfPartyRequestCreatedEventHandler : IHandleMessages<ChangeOfPartyRequestCreatedEvent>
     {

@@ -22,27 +22,19 @@ namespace SFA.DAS.CommitmentsV2.Models
             LastUpdatedOn = DateTime.UtcNow;
         }
 
-        private Cohort(Provider provider,
-            AccountLegalEntity accountLegalEntity,
-            Account transferSender,
+        private Cohort(long providerId,
+            long accountId,
+            long accountLegalEntityId,
+            long? transferSenderId,
             Party originatingParty, UserInfo userInfo) : this()
         {
             CheckIsEmployerOrProvider(originatingParty);
 
-            EmployerAccountId = accountLegalEntity.AccountId;
-            AccountLegalEntityId = accountLegalEntity.Id;
-            ProviderId = provider.UkPrn;
-            TransferSenderId = transferSender?.Id;
+            EmployerAccountId = accountId;
+            AccountLegalEntityId = accountLegalEntityId;
+            ProviderId = providerId;
+            TransferSenderId = transferSenderId;
             IsDraft = true;
-
-            //Setting of these fields is here for backwards-compatibility only
-            //ProviderName = provider.Name;
-            //TransferSenderName = transferSender?.Name;
-            //LegalEntityId = accountLegalEntity.LegalEntityId;
-            //LegalEntityName = accountLegalEntity.Name;
-            //LegalEntityAddress = accountLegalEntity.Address;
-            //LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
-            //AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
 
             // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
             Reference = "";
@@ -57,16 +49,17 @@ namespace SFA.DAS.CommitmentsV2.Models
         /// <summary>
         /// Creates an empty cohort without draft apprenticeship
         /// </summary>
-        internal Cohort(Provider provider,
-            AccountLegalEntity accountLegalEntity,
+        internal Cohort(long providerId,
+            long accountId,
+            long accountLegalEntityId,
             Party originatingParty,
-            UserInfo userInfo) : this(provider, accountLegalEntity, null, originatingParty, userInfo)
+            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, null, originatingParty, userInfo)
         {
             WithParty = originatingParty;
             EditStatus = originatingParty.ToEditStatus();
             IsDraft = true;
 
-            StartTrackingSession(UserAction.CreateCohort, originatingParty, accountLegalEntity.AccountId, provider.UkPrn, userInfo);
+            StartTrackingSession(UserAction.CreateCohort, originatingParty, accountId, providerId, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
         }
@@ -74,12 +67,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         /// <summary>
         /// Creates a cohort with a draft apprenticeship
         /// </summary>
-        internal Cohort(Provider provider,
-            AccountLegalEntity accountLegalEntity,
-            Account transferSender,
+        internal Cohort(long providerId,
+            long accountId,
+            long accountLegalEntityId,
+            long? transferSenderId,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             Party originatingParty,
-            UserInfo userInfo) : this(provider, accountLegalEntity, transferSender, originatingParty, userInfo)
+            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, transferSenderId, originatingParty, userInfo)
         {
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
@@ -92,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
 
-            StartTrackingSession(UserAction.CreateCohort, originatingParty, accountLegalEntity.AccountId, provider.UkPrn, userInfo);
+            StartTrackingSession(UserAction.CreateCohort, originatingParty, accountId, providerId, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.TrackInsert(draftApprenticeship);
             ChangeTrackingSession.CompleteTrackingSession();
@@ -101,12 +95,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         /// <summary>
         /// Creates an empty cohort with other party
         /// </summary>
-        internal Cohort(Provider provider,
-            AccountLegalEntity accountLegalEntity,
-            Account transferSender,
+        internal Cohort(long providerId,
+            long accountId,
+            long accountLegalEntityId,
+            long? transferSenderId,
             Party originatingParty,
             string message,
-            UserInfo userInfo) : this(provider, accountLegalEntity, transferSender, originatingParty, userInfo)
+            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, transferSenderId, originatingParty, userInfo)
         {
             CheckIsEmployer(originatingParty);
             IsDraft = false;
@@ -121,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
 
-            StartTrackingSession(UserAction.CreateCohort, originatingParty, accountLegalEntity.AccountId, provider.UkPrn, userInfo);
+            StartTrackingSession(UserAction.CreateCohort, originatingParty, accountId, providerId, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
         }
@@ -131,9 +126,20 @@ namespace SFA.DAS.CommitmentsV2.Models
         /// Cohort will contain a single Draft Apprenticeship based upon the original, be With the Other Party,
         /// and be pre-approved by the request's Originating Party
         /// </summary>
-        public Cohort(ChangeOfPartyRequest changeOfPartyRequest, Apprenticeship apprenticeship, Guid reservationId)
+        internal Cohort(long providerId,
+            long accountId,
+            long accountLegalEntityId,
+            Apprenticeship apprenticeship,
+            Guid reservationId,
+            Party originatingParty)
+            : this(providerId,
+            accountId,
+            accountLegalEntityId,
+            null,
+            originatingParty,
+            null)
         {
-            
+           
         }
 
         public virtual long Id { get; set; }

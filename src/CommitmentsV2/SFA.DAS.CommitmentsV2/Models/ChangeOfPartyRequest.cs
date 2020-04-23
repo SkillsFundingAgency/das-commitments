@@ -107,7 +107,13 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid reservationId)
         {
-            return new Cohort(this, apprenticeship, reservationId);
+            //determine the providerId (that on the cohort, or in the copr)
+            //ditto account and account legal entity
+
+            var accountId = 1;
+            var accountLegalEntityId = 1;
+
+            return new Cohort(apprenticeship.Cohort.ProviderId, accountId, accountLegalEntityId, apprenticeship, reservationId, OriginatingParty);
         }
     }
 }

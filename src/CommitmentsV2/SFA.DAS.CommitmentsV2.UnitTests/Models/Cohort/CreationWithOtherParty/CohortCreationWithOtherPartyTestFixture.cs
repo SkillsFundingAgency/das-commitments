@@ -76,9 +76,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 
             try
             {
-                Cohort = new CommitmentsV2.Models.Cohort(Provider,
-                    AccountLegalEntity,
-                    TransferSender,
+                Cohort = new CommitmentsV2.Models.Cohort(Provider.UkPrn,
+                    AccountLegalEntity.AccountId,
+                    AccountLegalEntity.Id,
+                    TransferSender?.Id,
                     CreatingParty,
                     Message,
                     UserInfo);

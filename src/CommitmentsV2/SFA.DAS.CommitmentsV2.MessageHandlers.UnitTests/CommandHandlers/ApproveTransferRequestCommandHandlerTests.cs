@@ -110,8 +110,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             Sut = new ApproveTransferRequestCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger);
 
             Cohort = new Cohort(
-                new Provider(),
-                new AccountLegalEntity(),
+                Fixture.Create<long>(),
+                Fixture.Create<long>(),
+                Fixture.Create<long>(),
                 null,
                 Party.Employer,
                 "",

@@ -7,13 +7,13 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         //Ideally, this method would have only the Id of the other party instead of Provider and AccountLegalEntity, but we need the extra properties that these
         //provide to be backwards-compatible with the de-normalised v1.
-        Cohort CreateCohort(Provider provider,
+        Cohort CreateCohort(long providerId,
             AccountLegalEntity accountLegalEntity,
             Account transferSender,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             UserInfo userInfo);
 
-        Cohort CreateCohort(Provider provider,
+        Cohort CreateCohort(long providerId,
            AccountLegalEntity accountLegalEntity,
            UserInfo userInfo);
     }

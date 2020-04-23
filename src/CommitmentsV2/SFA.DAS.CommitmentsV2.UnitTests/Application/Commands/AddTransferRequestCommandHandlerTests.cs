@@ -107,8 +107,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public AddTransferRequestCommandHandlerTestFixture SetupCohort()
         {
             var cohort = new Cohort(
-                new Provider(),
-                new AccountLegalEntity(),
+                Fixture.Create<long>(),
+                Fixture.Create<long>(),
+                Fixture.Create<long>(),
                 null,
                 Party.Employer,
                 "",

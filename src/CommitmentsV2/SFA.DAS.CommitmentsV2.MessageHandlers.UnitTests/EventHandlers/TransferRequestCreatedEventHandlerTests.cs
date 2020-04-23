@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -47,6 +48,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public TransferRequestCreatedEventHandlerTestsFixture()
         {
+            var fixture = new Fixture();
+
             UnitOfWorkContext = new UnitOfWorkContext();
             MessageHandlerContext = new Mock<IMessageHandlerContext>();
             LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
@@ -59,8 +62,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             Sut = new TransferRequestCreatedEventHandler(LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<TransferRequestCreatedEvent>>(), new Lazy<ProviderCommitmentsDbContext>(() => Db));
 
             Cohort = new Cohort(
-                new Provider(),
-                new AccountLegalEntity(),
+                fixture.Create<long>(),
+                fixture.Create<long>(),
+                fixture.Create<long>(),
                 null,
                 Party.Employer,
                 "",

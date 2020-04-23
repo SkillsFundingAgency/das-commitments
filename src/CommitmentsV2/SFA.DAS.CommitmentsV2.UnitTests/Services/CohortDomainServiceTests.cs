@@ -464,7 +464,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 NewCohort = new Cohort {Apprenticeships = new List<ApprenticeshipBase> {new DraftApprenticeship()}};
 
                 Provider = new Mock<Provider>(()=> new Provider(ProviderId, "Test Provider", DateTime.UtcNow, DateTime.UtcNow));
-                Provider.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(), It.IsAny<UserInfo>()))
+                Provider.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<AccountLegalEntity>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
                 Db.Providers.Add(Provider.Object);
 
@@ -472,10 +472,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Db.Accounts.Add(EmployerAccount);
                 AccountLegalEntity = new Mock<AccountLegalEntity>(()=>
                     new AccountLegalEntity(EmployerAccount,AccountLegalEntityId,MaLegalEntityId,"test","ABC","Test",OrganisationType.CompaniesHouse,"test",DateTime.UtcNow));
-                AccountLegalEntity.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(), null,
+                AccountLegalEntity.Setup(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), null,
                         It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
-                AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(), null, 
+                AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(ProviderId, It.IsAny<AccountLegalEntity>(), null, 
                         It.IsAny<string>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
 
@@ -894,13 +894,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p=>p == AccountLegalEntity.Object), null,
+                    Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p=>p == AccountLegalEntity.Object), null,
                         DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null,
+                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null,
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
@@ -909,7 +909,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), UserInfo));
+                    Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), UserInfo));
                 }
             }
 
@@ -917,12 +917,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), UserInfo));
+                    Provider.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
+                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
@@ -931,25 +931,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null),
+                    Provider.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null),
                         DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null),
+                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null),
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
 
             public void VerifyCohortCreationWithOtherParty_WithoutTransferSender()
             {
-                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), It.Is<Account>(t => t == null), Message, UserInfo));
+                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), It.Is<Account>(t => t == null), Message, UserInfo));
             }
 
             public void VerifyCohortCreationWithOtherParty_WithTransferSender()
             {
-                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(Provider.Object,
+                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(ProviderId,
                     It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object),
                     It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
                     Message,
