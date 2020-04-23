@@ -23,7 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
             {
                 ChangeOfPartyRequests = await _dbContext.Value
                     .ChangeOfPartyRequests.Where(x => x.ApprenticeshipId == request.ApprenticeshipId)
-                    .Include(a => a.Apprenticeship.Cohort.AccountLegalEntity)
                     .Select(r => new GetChangeOfPartyRequestsQueryResult.ChangeOfPartyRequest
                     {
                         Id = r.Id,

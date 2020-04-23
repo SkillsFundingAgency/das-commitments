@@ -123,8 +123,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         /// <summary>
         /// Creates a Cohort from a Change of Party Request
-        /// Cohort will contain a single Draft Apprenticeship based upon the original, be With the Other Party,
-        /// and be pre-approved by the request's Originating Party
         /// </summary>
         internal Cohort(long providerId,
             long accountId,
