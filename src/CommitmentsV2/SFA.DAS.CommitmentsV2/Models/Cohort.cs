@@ -137,7 +137,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             originatingParty,
             null)
         {
-           
+
+            
+
+
+            Approvals = originatingParty;
+            WithParty = originatingParty.GetOtherParty();
+
         }
 
         public virtual long Id { get; set; }

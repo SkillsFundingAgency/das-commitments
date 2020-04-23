@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using AutoFixture;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
@@ -47,46 +49,60 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyAccountLegalEntityId();
         }
 
-        [Test]
-        public void Then_The_Originator_Is_Correct()
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void Then_The_Originator_Is_Correct(ChangeOfPartyRequestType requestType)
         {
-            //originator is the one on the copr
-            Assert.Fail();
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.CreateCohort();
+            _fixture.VerifyOriginator();
         }
 
-        [Test]
-        public void Then_The_DraftApprenticeshipDetails_Are_Correct()
+
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void Then_The_DraftApprenticeshipDetails_Are_Correct(ChangeOfPartyRequestType requestType)
         {
-            //Based on the original apprentice
-            //And passed in res
-            //Only 1
-            Assert.Fail();
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.CreateCohort();
+            _fixture.VerifyDraftApprenticeshipDetails();
         }
 
-        [Test]
-        public void Then_WithParty_Is_Correct()
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void Then_WithParty_Is_Correct(ChangeOfPartyRequestType requestType)
         {
-            //with the originator of the request
-            Assert.Fail();
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.CreateCohort();
+            _fixture.VerifyWithOtherParty();
         }
 
-        [Test]
-        public void Then_Originator_Approval_Is_Given()
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void Then_Originator_Approval_Is_Given(ChangeOfPartyRequestType requestType)
         {
-            //the approval of the originator is automatically set
-            Assert.Fail();
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.CreateCohort();
+            _fixture.VerifyOriginatorApproval();
         }
-
 
         [Test]
         public void Then_ChangeOfPartyRequestId_Is_Correct()
         {
             //the Id of the COPR is stored in the Cohort
+            //todo: new field!
             Assert.Fail();
         }
 
         [Test]
         public void Then_ChangeOfPartyCohortCreatedEvent_Is_Emitted()
+        {
+            //event pumped out
+            Assert.Fail();
+        }
+
+        [Test]
+        public void Then_Cohort_Creation_Is_Subject_To_StateTracking()
         {
             //event pumped out
             Assert.Fail();
@@ -103,6 +119,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             
             public WhenCohortIsCreatedTestFixture()
             {
+                ReservationId = _autoFixture.Create<Guid>();
+
                 var cohort = new CommitmentsV2.Models.Cohort();
                 cohort.SetValue(x => x.ProviderId, _autoFixture.Create<long>());
 
@@ -110,6 +128,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 OriginalApprenticeship.SetValue(x => x.Id, _autoFixture.Create<long>());
                 OriginalApprenticeship.SetValue(x => x.Cohort, cohort);
                 OriginalApprenticeship.SetValue(x => x.CommitmentId, cohort.Id);
+                OriginalApprenticeship.SetValue(x => x.FirstName, _autoFixture.Create<string>());
+                OriginalApprenticeship.SetValue(x => x.LastName, _autoFixture.Create<string>());
+                OriginalApprenticeship.SetValue(x => x.DateOfBirth, _autoFixture.Create<DateTime>());
+                OriginalApprenticeship.SetValue(x => x.Uln, _autoFixture.Create<string>());
+                OriginalApprenticeship.SetValue(x => x.StartDate, _autoFixture.Create<DateTime>());
+                OriginalApprenticeship.SetValue(x => x.EndDate, _autoFixture.Create<DateTime>());
+                OriginalApprenticeship.SetValue(x => x.StartDate, _autoFixture.Create<DateTime>());
+                OriginalApprenticeship.SetValue(x => x.CourseCode, _autoFixture.Create<string>());
+                OriginalApprenticeship.SetValue(x => x.CourseName, _autoFixture.Create<string>());
+                OriginalApprenticeship.SetValue(x => x.ProgrammeType, _autoFixture.Create<ProgrammeType>());
+                OriginalApprenticeship.SetValue(x => x.EmployerRef, _autoFixture.Create<string>());
+                OriginalApprenticeship.SetValue(x => x.ProviderRef, _autoFixture.Create<string>());
 
                 Request = new CommitmentsV2.Models.ChangeOfPartyRequest();
                 Request.SetValue(x => x.Apprenticeship, OriginalApprenticeship);
@@ -164,7 +194,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                         Result.ProviderId);
             }
 
-
             public void VerifyAccountId()
             {
                 //Account could be the one on the apprenticeship, or the one on the COPR itself, depending on the request type
@@ -175,7 +204,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                     Result.EmployerAccountId);
             }
 
-
             public void VerifyAccountLegalEntityId()
             {
                 //Ale could be the one on the apprenticeship, or the one on the COPR itself, depending on the request type
@@ -184,6 +212,55 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                         ? Request.AccountLegalEntityId.Value
                         : OriginalApprenticeship.Cohort.AccountLegalEntityId,
                     Result.AccountLegalEntityId);
+            }
+
+            public void VerifyOriginator()
+            {
+                //Ale could be the one on the apprenticeship, or the one on the COPR itself, depending on the request type
+                Assert.AreEqual(
+                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
+                        ? Party.Provider
+                        : Party.Employer,
+                    Result.Originator.ToParty());
+            }
+
+            public void VerifyWithOtherParty()
+            {
+                Assert.AreEqual(
+                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
+                        ? Party.Employer
+                        : Party.Provider,
+                    Result.WithParty);
+            }
+
+            public void VerifyOriginatorApproval()
+            {
+                Assert.AreEqual(
+                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
+                        ? Party.Provider
+                        : Party.Employer,
+                    Result.Approvals);
+            }
+
+            public void VerifyDraftApprenticeshipDetails()
+            {
+                Assert.AreEqual(1, Result.DraftApprenticeships.Count());
+                var draftApprenticeship = Result.DraftApprenticeships.Single();
+                Assert.AreEqual(OriginalApprenticeship.FirstName, draftApprenticeship.FirstName);
+                Assert.AreEqual(OriginalApprenticeship.LastName, draftApprenticeship.LastName);
+                Assert.AreEqual(OriginalApprenticeship.DateOfBirth, draftApprenticeship.DateOfBirth);
+                Assert.AreEqual(OriginalApprenticeship.Uln, draftApprenticeship.Uln);
+                Assert.AreEqual(Request.StartDate, draftApprenticeship.StartDate);
+                Assert.AreEqual(Request.EndDate ?? OriginalApprenticeship.EndDate, draftApprenticeship.EndDate);
+                Assert.AreEqual(OriginalApprenticeship.CourseCode, draftApprenticeship.CourseCode);
+                Assert.AreEqual(OriginalApprenticeship.CourseName, draftApprenticeship.CourseName);
+                Assert.AreEqual(OriginalApprenticeship.ProgrammeType, draftApprenticeship.ProgrammeType);
+                Assert.AreEqual(Request.Price, draftApprenticeship.Cost);
+                Assert.AreEqual(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? string.Empty : OriginalApprenticeship.EmployerRef, draftApprenticeship.EmployerRef);
+                Assert.AreEqual(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider ? string.Empty : OriginalApprenticeship.ProviderRef, draftApprenticeship.ProviderRef);
+                Assert.AreEqual(ReservationId, draftApprenticeship.ReservationId);
+                //todo: new field - original start date
+                //and others!
             }
         }
     }
