@@ -147,11 +147,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 ApprenticeshipChangeOfPartyRequestResult = Fixture.Create<ChangeOfPartyRequest>();
                 Cohort = new Cohort
                 {
+                    Id = 1000,
                     ProviderId = Fixture.Create<long>(),
                     AccountLegalEntityId = Fixture.Create<long>()
                 };
                 Apprenticeship = new Mock<Apprenticeship>();
                 Apprenticeship.Setup(x => x.Id).Returns(ApprenticeshipId);
+                Apprenticeship.Setup(x => x.CommitmentId).Returns(1000);
                 Apprenticeship.Setup(x => x.Cohort).Returns(Cohort);
                 Apprenticeship.Setup(x => x.CreateChangeOfPartyRequest(It.IsAny<ChangeOfPartyRequestType>(),
                         It.IsAny<Party>(), It.IsAny<long>(), It.IsAny<int>(), It.IsAny<DateTime>(),
@@ -159,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .Returns(ApprenticeshipChangeOfPartyRequestResult);
 
                 Db.Apprenticeships.Add(Apprenticeship.Object);
-
+                Db.Cohorts.Add(Cohort);
                 Db.SaveChanges();
             }
 

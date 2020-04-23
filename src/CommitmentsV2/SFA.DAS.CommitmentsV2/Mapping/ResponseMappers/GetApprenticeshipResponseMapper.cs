@@ -30,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 Status = source.Status,
                 StopDate = source.StopDate,
                 PauseDate = source.PauseDate,
+                CompletionDate = source.CompletionDate,
                 EndpointAssessorName = source.EndpointAssessorName,
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess
             });
