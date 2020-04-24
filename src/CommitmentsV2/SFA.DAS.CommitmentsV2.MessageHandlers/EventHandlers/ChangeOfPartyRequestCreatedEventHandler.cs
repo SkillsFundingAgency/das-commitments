@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -15,12 +16,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IReservationsApiClient _reservationsApiClient;
         private readonly ILogger<ChangeOfPartyRequestCreatedEventHandler> _logger;
+        private readonly IEncodingService _encodingService;
 
-        public ChangeOfPartyRequestCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IReservationsApiClient reservationsApiClient, ILogger<ChangeOfPartyRequestCreatedEventHandler> logger)
+        public ChangeOfPartyRequestCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+            IReservationsApiClient reservationsApiClient,
+            ILogger<ChangeOfPartyRequestCreatedEventHandler> logger,
+            IEncodingService encodingService)
         {
             _dbContext = dbContext;
             _reservationsApiClient = reservationsApiClient;
             _logger = logger;
+            _encodingService = encodingService;
         }
 
         public async Task Handle(ChangeOfPartyRequestCreatedEvent message, IMessageHandlerContext context)
@@ -50,6 +56,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             //persist
             _dbContext.Value.Cohorts.Add(cohort);
+            await _dbContext.Value.SaveChangesAsync();
+
+            //this encoding and re-save could be removed and put elsewhere
+            cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
+            await _dbContext.Value.SaveChangesAsync();
         }
     }
 }

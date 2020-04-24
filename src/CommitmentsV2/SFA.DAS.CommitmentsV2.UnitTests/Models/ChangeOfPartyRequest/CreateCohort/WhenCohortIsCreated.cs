@@ -117,6 +117,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             Assert.Fail();
         }
 
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer, false)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider, true)]
+        public void Then_TransferSenderId_Is_Correct(ChangeOfPartyRequestType requestType, bool expectTransferSenderId)
+        {
+            //copy the transfer sender for change of provider - but not change of employer
+            Assert.Fail();
+        }
+
         private class WhenCohortIsCreatedTestFixture
         {
             private Fixture _autoFixture = new Fixture();
