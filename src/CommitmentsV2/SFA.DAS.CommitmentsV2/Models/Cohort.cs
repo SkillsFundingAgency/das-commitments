@@ -117,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
 
-            StartTrackingSession(UserAction.CreateCohort, originatingParty, accountId, providerId, userInfo);
+            StartTrackingSession(UserAction.CreateCohortWithOtherParty, originatingParty, accountId, providerId, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
         }
@@ -153,10 +153,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             //Retained for backwards-compatibility:
             EditStatus = WithParty.ToEditStatus();
             LastAction = LastAction.Amend;
+            CommitmentStatus = CommitmentStatus.Active;
 
             Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, DateTime.UtcNow));
 
-            StartTrackingSession(UserAction.CreateCohort, changeOfPartyRequest.OriginatingParty, accountId, providerId, null);
+            StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, null);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
         }
