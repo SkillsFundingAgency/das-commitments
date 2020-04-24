@@ -86,6 +86,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyOriginatorApproval();
         }
 
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void Then_It_Is_Not_A_Draft(ChangeOfPartyRequestType requestType)
+        {
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.CreateCohort();
+            _fixture.VerifyCohortIsNotDraft();
+        }
+
         [Test]
         public void Then_ChangeOfPartyRequestId_Is_Correct()
         {
@@ -240,6 +249,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                         ? Party.Provider
                         : Party.Employer,
                     Result.Approvals);
+            }
+
+            public void VerifyCohortIsNotDraft()
+            {
+                Assert.IsFalse(Result.IsDraft);
             }
 
             public void VerifyDraftApprenticeshipDetails()

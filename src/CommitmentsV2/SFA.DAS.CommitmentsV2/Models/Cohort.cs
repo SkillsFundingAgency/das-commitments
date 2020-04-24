@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
+using SFA.DAS.CommitmentsV2.Types.Dtos;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -129,21 +130,24 @@ namespace SFA.DAS.CommitmentsV2.Models
             long accountLegalEntityId,
             Apprenticeship apprenticeship,
             Guid reservationId,
-            Party originatingParty)
+            ChangeOfPartyRequest changeOfPartyRequest)
             : this(providerId,
             accountId,
             accountLegalEntityId,
             null,
-            originatingParty,
+            changeOfPartyRequest.OriginatingParty,
             null)
         {
+            Approvals = changeOfPartyRequest.OriginatingParty;
+            WithParty = changeOfPartyRequest.OriginatingParty.GetOtherParty();
+            IsDraft = false;
 
-            
+            var draftApprenticeship = apprenticeship.CreateCopyForChangeOfParty(changeOfPartyRequest, reservationId);
+            Apprenticeships.Add(draftApprenticeship);
 
-
-            Approvals = originatingParty;
-            WithParty = originatingParty.GetOtherParty();
-
+            //Retained for backwards-compatibility:
+            EditStatus = WithParty.ToEditStatus();
+            LastAction = LastAction.Amend;
         }
 
         public virtual long Id { get; set; }

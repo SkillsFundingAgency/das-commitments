@@ -1,10 +1,12 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -123,8 +125,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 accountId = apprenticeship.Cohort.EmployerAccountId;
                 accountLegalEntityId = apprenticeship.Cohort.AccountLegalEntityId;
             }
-           
-            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, OriginatingParty);
+
+            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this);
         }
     }
 }

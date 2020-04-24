@@ -118,5 +118,27 @@ namespace SFA.DAS.CommitmentsV2.Models
                     return ApprenticeshipStatus.Unknown;
             }
         }
+
+        public DraftApprenticeship CreateCopyForChangeOfParty(ChangeOfPartyRequest changeOfPartyRequest, Guid reservationId)
+        {
+            var result = new DraftApprenticeship
+            {
+                FirstName = this.FirstName,
+                LastName = this.LastName,
+                DateOfBirth = this.DateOfBirth,
+                Cost = changeOfPartyRequest.Price,
+                StartDate = changeOfPartyRequest.StartDate,
+                EndDate = EndDate ?? changeOfPartyRequest.EndDate,
+                Uln = this.Uln,
+                CourseCode = this.CourseCode,
+                CourseName = this.CourseName,
+                ProgrammeType = this.ProgrammeType,
+                EmployerRef = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? string.Empty : this.EmployerRef,
+                ProviderRef = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider ? string.Empty : this.ProviderRef,
+                ReservationId = reservationId
+            };
+
+            return result;
+        }
     }
 }
