@@ -27,7 +27,8 @@
 	[RowVersion] ROWVERSION NOT NULL,
 	[LastUpdatedOn] DATETIME2 DEFAULT GETDATE() NOT NULL,
 	[Approvals] SMALLINT NOT NULL DEFAULT 0,
-	[EmployerAndProviderApprovedOn] DATETIME2 NULL
+	[EmployerAndProviderApprovedOn] DATETIME2 NULL,
+	[ChangeOfPartyRequestId] BIGINT NULL
 )
 GO
 

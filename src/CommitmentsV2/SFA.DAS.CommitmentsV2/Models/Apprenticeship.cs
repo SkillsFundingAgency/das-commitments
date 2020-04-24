@@ -135,7 +135,9 @@ namespace SFA.DAS.CommitmentsV2.Models
                 ProgrammeType = this.ProgrammeType,
                 EmployerRef = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? string.Empty : this.EmployerRef,
                 ProviderRef = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider ? string.Empty : this.ProviderRef,
-                ReservationId = reservationId
+                ReservationId = reservationId,
+                ContinuationOfId = Id,
+                OriginalStartDate = OriginalStartDate ?? StartDate
             };
 
             return result;

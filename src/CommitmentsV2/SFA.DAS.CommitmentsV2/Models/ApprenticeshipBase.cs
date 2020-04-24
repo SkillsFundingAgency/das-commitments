@@ -30,6 +30,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public long? CloneOf { get; set; }
         public bool IsProviderSearch { get; set; }
         public Guid? ReservationId { get; set; }
+        public long? ContinuationOfId { get; set; }
+        public DateTime? OriginalStartDate { get; set; }
 
         public virtual Cohort Cohort { get; set; }
         public virtual AssessmentOrganisation EpaOrg { get; set; }

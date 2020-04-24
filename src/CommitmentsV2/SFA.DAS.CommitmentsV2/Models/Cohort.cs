@@ -8,7 +8,6 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
-using SFA.DAS.CommitmentsV2.Types.Dtos;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -139,6 +138,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             null)
         {
 
+            ChangeOfPartyRequestId = changeOfPartyRequest.Id;
             Approvals = changeOfPartyRequest.OriginatingParty;
             WithParty = changeOfPartyRequest.OriginatingParty.GetOtherParty();
             IsDraft = false;
@@ -148,7 +148,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TransferSenderId = apprenticeship.Cohort.TransferSenderId;
             }
 
-            Apprenticeships.Add(apprenticeship.CreateCopyForChangeOfParty(changeOfPartyRequest, reservationId));
+            var draftApprenticeship = apprenticeship.CreateCopyForChangeOfParty(changeOfPartyRequest, reservationId);
+            Apprenticeships.Add(draftApprenticeship);
 
             //Retained for backwards-compatibility:
             EditStatus = WithParty.ToEditStatus();
@@ -159,6 +160,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, null);
             ChangeTrackingSession.TrackInsert(this);
+            ChangeTrackingSession.TrackInsert(draftApprenticeship);
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
@@ -204,6 +206,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual Party WithParty { get; set; }
         public virtual Party Approvals { get; set; }
         public DateTime? EmployerAndProviderApprovedOn { get; set; }
+        public long? ChangeOfPartyRequestId { get; set; }
 
         public virtual bool IsApprovedByAllParties => WithParty == Party.None; //todo: use new Approvals flag
 
@@ -505,7 +508,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-
         private IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
             if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
@@ -519,7 +521,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
             }
         }
-
 
         private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
