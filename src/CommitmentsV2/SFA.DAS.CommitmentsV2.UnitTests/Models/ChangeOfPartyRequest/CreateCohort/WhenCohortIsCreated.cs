@@ -3,10 +3,11 @@ using System.Linq;
 using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Testing.Builders;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCohort
 {
@@ -58,7 +59,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyOriginator();
         }
 
-
         [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
         [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
         public void Then_The_DraftApprenticeshipDetails_Are_Correct(ChangeOfPartyRequestType requestType)
@@ -95,33 +95,40 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyCohortIsNotDraft();
         }
 
-        [Test]
-        public void Then_ChangeOfPartyRequestId_Is_Correct()
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void Then_ChangeOfPartyCohortCreatedEvent_Is_Emitted(ChangeOfPartyRequestType requestType)
         {
-            //the Id of the COPR is stored in the Cohort
-            //todo: new field!
-            Assert.Fail();
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.CreateCohort();
+            _fixture.VerifyCohortWithChangeOfPartyCreatedEvent();
         }
 
-        [Test]
-        public void Then_ChangeOfPartyCohortCreatedEvent_Is_Emitted()
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void Then_Cohort_Creation_Is_Subject_To_StateTracking(ChangeOfPartyRequestType requestType)
         {
-            //event pumped out
-            Assert.Fail();
-        }
-
-        [Test]
-        public void Then_Cohort_Creation_Is_Subject_To_StateTracking()
-        {
-            //event pumped out
-            Assert.Fail();
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.CreateCohort();
+            _fixture.VerifyTracking();
         }
 
         [TestCase(ChangeOfPartyRequestType.ChangeEmployer, false)]
         [TestCase(ChangeOfPartyRequestType.ChangeProvider, true)]
         public void Then_TransferSenderId_Is_Correct(ChangeOfPartyRequestType requestType, bool expectTransferSenderId)
         {
-            //copy the transfer sender for change of provider - but not change of employer
+            _fixture
+                .WithChangeOfPartyType(requestType)
+                .WithTransferSender();
+            _fixture.CreateCohort();
+            _fixture.VerifyTransferSender();
+        }
+
+        [Test]
+        public void Then_ChangeOfPartyRequestId_Is_Correct()
+        {
+            //the Id of the COPR is stored in the Cohort
+            //todo: new field!
             Assert.Fail();
         }
 
@@ -133,9 +140,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             public Guid ReservationId { get; set; }
             public CommitmentsV2.Models.Cohort Result { get; private set; }
             public Exception Exception { get; private set; }
-            
+            public UnitOfWorkContext UnitOfWorkContext { get; private set; }
+
             public WhenCohortIsCreatedTestFixture()
             {
+                UnitOfWorkContext = new UnitOfWorkContext();
+
                 ReservationId = _autoFixture.Create<Guid>();
 
                 var cohort = new CommitmentsV2.Models.Cohort();
@@ -186,6 +196,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                     OriginalApprenticeship.Cohort.SetValue(x => x.EmployerAccountId, _autoFixture.Create<long>());
                 }
 
+                return this;
+            }
+
+            public WhenCohortIsCreatedTestFixture WithTransferSender()
+            {
+                Request.Apprenticeship.Cohort.TransferSenderId = _autoFixture.Create<long>();
                 return this;
             }
 
@@ -283,6 +299,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Assert.AreEqual(ReservationId, draftApprenticeship.ReservationId);
                 //todo: new field - original start date
                 //and others!
+            }
+
+            public void VerifyTracking()
+            {
+                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                                                                                    && @event.EntityType ==
+                                                                                    nameof(Cohort)));
+            }
+
+            public void VerifyCohortWithChangeOfPartyCreatedEvent()
+            {
+                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyCreatedEvent @event
+                                                                                    && @event.ChangeOfPartyRequestId == Request.Id
+                                                                                    && @event.CohortId == Result.Id
+                                                                                    ));
+            }
+
+            public void VerifyTransferSender()
+            {
+                if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+                {
+                    Assert.IsNull(Result.TransferSenderId);
+                }
+                else
+                {
+                    Assert.AreEqual(OriginalApprenticeship.Cohort.TransferSenderId, Result.TransferSenderId);
+                }
             }
         }
     }

@@ -138,16 +138,27 @@ namespace SFA.DAS.CommitmentsV2.Models
             changeOfPartyRequest.OriginatingParty,
             null)
         {
+
             Approvals = changeOfPartyRequest.OriginatingParty;
             WithParty = changeOfPartyRequest.OriginatingParty.GetOtherParty();
             IsDraft = false;
 
-            var draftApprenticeship = apprenticeship.CreateCopyForChangeOfParty(changeOfPartyRequest, reservationId);
-            Apprenticeships.Add(draftApprenticeship);
+            if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+            {
+                TransferSenderId = apprenticeship.Cohort.TransferSenderId;
+            }
+
+            Apprenticeships.Add(apprenticeship.CreateCopyForChangeOfParty(changeOfPartyRequest, reservationId));
 
             //Retained for backwards-compatibility:
             EditStatus = WithParty.ToEditStatus();
             LastAction = LastAction.Amend;
+
+            Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, DateTime.UtcNow));
+
+            StartTrackingSession(UserAction.CreateCohort, changeOfPartyRequest.OriginatingParty, accountId, providerId, null);
+            ChangeTrackingSession.TrackInsert(this);
+            ChangeTrackingSession.CompleteTrackingSession();
         }
 
         public virtual long Id { get; set; }
