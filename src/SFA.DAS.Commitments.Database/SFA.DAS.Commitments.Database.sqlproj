@@ -135,6 +135,7 @@
     <Build Include="StoredProcedures\GetApprovedApprenticeshipsForProvider.sql" />
     <Build Include="StoredProcedures\GetApprovedApprenticeshipsForEmployer.sql" />
     <Build Include="Tables\ChangeOfPartyRequest.sql" />
+    <None Include="AdhocScripts\Manual\CV-730_MissingALEsAndProviders.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
