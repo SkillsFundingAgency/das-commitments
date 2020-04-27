@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
 
         private static bool HasPriceDataLock(Apprenticeship source)
         {
-            return source.DataLockStatus.Any(x =>
+            return source.IsProviderSearch && source.DataLockStatus.Any(x =>
                 x.IsPriceOnly() &&
                 x.TriageStatus == TriageStatus.Unknown &&
                 !x.IsResolved);

@@ -4,19 +4,19 @@ using AutoFixture;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class ChangeOfPartyCommandHandlerTests
+    public class CreateChangeOfPartyCommandHandlerTests
     {
         [Test]
         public async Task Handle_WhenHandlingCommand_ThenShouldCallDomainServiceCorrectly()
         {
-            var f = new ChangeOfPartyCommandHandlerTestsFixture();
+            var f = new CreateChangeOfPartyCommandHandlerTestsFixture();
             
             await f.Handle();
 
@@ -26,20 +26,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class ChangeOfPartyCommandHandlerTestsFixture
+    public class CreateChangeOfPartyCommandHandlerTestsFixture
     {
         public Fixture AutoFixture { get; set; }
         public Mock<IChangeOfPartyRequestDomainService> ChangeOfPartyDomainService { get; set; }
-        public IRequestHandler<ChangeOfPartyRequestCommand> Handler { get; set; }
-        public ChangeOfPartyRequestCommand Command { get; set; }
+        public IRequestHandler<CreateChangeOfPartyRequestCommand> Handler { get; set; }
+        public CreateChangeOfPartyRequestCommand Command { get; set; }
         public CancellationToken CancellationToken { get; set; }
 
-        public ChangeOfPartyCommandHandlerTestsFixture()
+        public CreateChangeOfPartyCommandHandlerTestsFixture()
         {
             AutoFixture = new Fixture();
             ChangeOfPartyDomainService = new Mock<IChangeOfPartyRequestDomainService>();
-            Handler = new ChangeOfPartyRequestCommandHandler(ChangeOfPartyDomainService.Object);
-            Command = AutoFixture.Create<ChangeOfPartyRequestCommand>();
+            Handler = new CreateChangeOfPartyRequestCommandHandler(ChangeOfPartyDomainService.Object);
+            Command = AutoFixture.Create<CreateChangeOfPartyRequestCommand>();
             CancellationToken = new CancellationToken();
         }
 

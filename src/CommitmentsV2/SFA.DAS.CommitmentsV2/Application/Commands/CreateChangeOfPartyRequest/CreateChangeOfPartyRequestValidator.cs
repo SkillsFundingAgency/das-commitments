@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest
+namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
 {
-    public class ChangeOfPartyRequestValidator : AbstractValidator<ChangeOfPartyRequestCommand>
+    public class CreateChangeOfPartyRequestValidator : AbstractValidator<CreateChangeOfPartyRequestCommand>
     {
-        public ChangeOfPartyRequestValidator()
+        public CreateChangeOfPartyRequestValidator()
         {
             RuleFor(model => model.UserInfo).NotNull().WithMessage("The UserInfo cannot be empty");
             RuleFor(model => model.NewPartyId).Must(id => id > 0).WithMessage("The NewPartyId must be positive");
