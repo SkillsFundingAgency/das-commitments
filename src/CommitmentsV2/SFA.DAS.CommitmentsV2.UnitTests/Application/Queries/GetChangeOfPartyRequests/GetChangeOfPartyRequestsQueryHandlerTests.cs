@@ -42,11 +42,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
             private readonly Fixture _autoFixture;
             private List<ChangeOfPartyRequest> _changeOfPartyRequests;
             private readonly long _apprenticeshipId;
+            private readonly string _employerName;
 
             public ChangeOfPartyRequestsQueryHandlersTestsFixture()
             {
                 _autoFixture = new Fixture();
 
+                _employerName = _autoFixture.Create<string>();
                 _apprenticeshipId = _autoFixture.Create<long>();
                 _request = new GetChangeOfPartyRequestsQuery(_apprenticeshipId);
 
@@ -54,7 +56,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
                 SeedData();
                 _handler = new GetChangeOfPartyRequestsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
-
 
             public async Task<GetChangeOfPartyRequestsQueryResult> Handle()
             {
@@ -64,19 +65,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
 
             private void SeedData()
             {
+                var employer = new AccountLegalEntity();
+                employer.SetValue(x => x.Name, _employerName);
+
                 _changeOfPartyRequests = new List<ChangeOfPartyRequest>();
 
                 for (var i = 1; i <= 10; i++)
                 {
                     var request = new ChangeOfPartyRequest();
-                    request.SetValue("Id", i);
-                    request.SetValue("ApprenticeshipId", _apprenticeshipId);
-                    request.SetValue("ChangeOfPartyType", _autoFixture.Create<ChangeOfPartyRequestType>());
-                    request.SetValue("OriginatingParty", _autoFixture.Create<Party>());
-                    request.SetValue("Status", _autoFixture.Create<ChangeOfPartyRequestStatus>());
+                    request.SetValue(x => x.Id, i);
+                    request.SetValue(x => x.ApprenticeshipId, _apprenticeshipId);
+                    request.SetValue(x => x.ChangeOfPartyType, _autoFixture.Create<ChangeOfPartyRequestType>());
+                    request.SetValue(x => x.OriginatingParty, _autoFixture.Create<Party>());
+                    request.SetValue(x => x.Status, _autoFixture.Create<ChangeOfPartyRequestStatus>());
+                    request.SetValue(x => x.AccountLegalEntity, employer);
                     _changeOfPartyRequests.Add(request);
                 }
 
+                _db.AccountLegalEntities.Add(employer);
                 _db.ChangeOfPartyRequests.AddRange(_changeOfPartyRequests);
                 _db.SaveChanges();
             }
@@ -87,7 +93,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
 
                 foreach (var sourceItem in _changeOfPartyRequests)
                 {
-                    AssertEquality(sourceItem, _result.ChangeOfPartyRequests.Single(x => x.Id == sourceItem.Id));
+                    var resultItem = _result.ChangeOfPartyRequests.Single(x => x.Id == sourceItem.Id);
+                    AssertEquality(sourceItem, resultItem);
+                    Assert.AreEqual(_employerName, resultItem.EmployerName);
                 }
             }
         }
@@ -98,6 +106,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
             Assert.AreEqual(source.ChangeOfPartyType, result.ChangeOfPartyType);
             Assert.AreEqual(source.OriginatingParty, result.OriginatingParty);
             Assert.AreEqual(source.Status, result.Status);
+            Assert.AreEqual(source.StartDate, result.StartDate);
+            Assert.AreEqual(source.Price, result.Price);
         }
     }
 }

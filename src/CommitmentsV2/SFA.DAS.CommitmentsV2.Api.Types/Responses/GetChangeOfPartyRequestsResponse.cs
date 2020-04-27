@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
@@ -13,6 +14,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public ChangeOfPartyRequestType ChangeOfPartyType { get; set; }
             public Party OriginatingParty { get; set; }
             public ChangeOfPartyRequestStatus Status { get; set; }
+            public string EmployerName { get; set; }
+            public DateTime StarDate { get; set; }
+            public int Price { get; set; }
         }
     }
 }
