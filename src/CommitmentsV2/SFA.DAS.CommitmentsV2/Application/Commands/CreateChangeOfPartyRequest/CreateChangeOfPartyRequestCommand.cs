@@ -2,9 +2,9 @@ using System;
 using MediatR;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest
+namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
 {
-    public class ChangeOfPartyRequestCommand : IRequest
+    public class CreateChangeOfPartyRequestCommand : IRequest
     {
         public long ApprenticeshipId { get; set; }
         public ChangeOfPartyRequestType ChangeOfPartyRequestType { get; set; }

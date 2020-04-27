@@ -456,6 +456,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeshipUpdates(1, request);
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipUpdatesResponse>($"api/apprenticeships/{1}/updates", null, CancellationToken.None));
         }
+
+        [Test]
+        public async Task GetChangeOfPartyRequests_VerifyUrlAndData()
+        {
+            await _fixture.CommitmentsApiClient.GetChangeOfPartyRequests(123);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetChangeOfPartyRequestsResponse>("api/apprenticeships/123/change-of-party-requests", null, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture

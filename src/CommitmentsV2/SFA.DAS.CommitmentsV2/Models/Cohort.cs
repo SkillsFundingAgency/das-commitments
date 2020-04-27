@@ -374,7 +374,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             StartTrackingSession(UserAction.DeleteDraftApprenticeship, modifyingParty, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
-            ChangeTrackingSession.TrackDelete(draftApprenticeship);
 
             RemoveDraftApprenticeship(draftApprenticeship);
 

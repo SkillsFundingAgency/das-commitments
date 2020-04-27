@@ -8,7 +8,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Application.Commands.ChangeOfPartyRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
@@ -166,22 +165,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             Assert.IsNotNull(result);
-        }
-
-        [Test, MoqAutoData]
-        public async Task PostChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request)
-        {
-            await _controller.CreateChangeOfPartyRequest(apprenticeshipId, request);
-
-            //Assert
-            _mediator.Verify(
-                m => m.Send(
-                    It.Is<ChangeOfPartyRequestCommand>(p =>
-                        p.ApprenticeshipId == apprenticeshipId &&
-                        p.ChangeOfPartyRequestType == request.ChangeOfPartyRequestType &&
-                        p.NewPartyId == request.NewPartyId && p.NewStartDate == request.NewStartDate &&
-                        p.NewPrice == request.NewPrice && p.UserInfo == request.UserInfo),
-                    It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

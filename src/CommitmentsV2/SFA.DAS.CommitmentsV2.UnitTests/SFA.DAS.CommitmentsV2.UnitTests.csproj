@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj" />
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj" />
     <ProjectReference Include="..\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />
   </ItemGroup>

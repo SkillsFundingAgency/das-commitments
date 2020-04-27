@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime LastUpdatedOn { get; private set; }
 
         public virtual Apprenticeship Apprenticeship { get; private set; }
+        public virtual AccountLegalEntity AccountLegalEntity { get; private set; }
 
         public ChangeOfPartyRequest()
         {
