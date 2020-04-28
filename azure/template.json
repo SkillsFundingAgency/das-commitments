@@ -94,6 +94,12 @@
         },
         "logAnalyticsWorkspaceName": {
             "type": "string"
+        },
+        "serviceBusTopics": {
+            "type": "array"
+        },
+        "serviceBusSubscriptions": {
+            "type": "array"
         }
     },
     "variables": {
@@ -750,6 +756,12 @@
                 "parameters": {
                     "serviceBusNamespaceName": {
                         "value": "[variables('serviceBusName')]"
+                    },
+                    "serviceBusTopics": {
+                        "value": "[parameters('serviceBusTopics')]"
+                    },
+                    "serviceBusSubscriptions": {
+                        "value": "[parameters('serviceBusSubscriptions')]"
                     }
                 }
             }
