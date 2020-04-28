@@ -1,51 +1,51 @@
 [
   {
     "topicName": "apprenticeship_update_created",
-    "subscription": [ "Task_ApprenticeUpdateCreated" ]
+    "subscription": "Task_ApprenticeUpdateCreated"
   },
   {
     "topicName": "apprenticeship_update_accepted",
-    "subscription": [ "Task_ApprenticeshipUpdateAccepted" ]
+    "subscription": "Task_ApprenticeshipUpdateAccepted"
   },
   {
     "topicName": "apprenticeship_update_cancelled",
-    "subscription": [ "Task_ApprenticeshipUpdateCancelled" ]
+    "subscription": "Task_ApprenticeshipUpdateCancelled"
   },
   {
     "topicName": "apprenticeship_update_rejected",
-    "subscription": [ "Task_ApprenticeshipUpdateRejected" ]
+    "subscription": "Task_ApprenticeshipUpdateRejected"
   },
   {
     "topicName": "cohort_approval_requested_by_provider",
-    "subscription": [ "Task_CohortApprovalRequested" ]
+    "subscription": "Task_CohortApprovalRequested"
   },
   {
     "topicName": "cohort_approved_by_employer",
-    "subscription": [ "Task_CohortApproved" ]
+    "subscription": "Task_CohortApproved"
   },
   {
     "topicName": "cohort_approval_by_transfer_sender_requested",
-    "subscription": [ "Task_CohortApprovalByTransferSenderRequested" ]
+    "subscription": "Task_CohortApprovalByTransferSenderRequested"
   },
   {
     "topicName": "cohort_approved_by_transfer_sender",
-    "subscription": [ "Task_CohortApprovedByTransferSender" ]
+    "subscription": "Task_CohortApprovedByTransferSender"
   },
   {
     "topicName": "cohort_rejected_by_transfer_sender",
-    "subscription": [ "Task_CohortRejectedByTransferSender" ]
+    "subscription": "Task_CohortRejectedByTransferSender"
   },
   {
     "topicName": "cohort_created",
-    "subscription": [ "Task_CohortCreated" ]
+    "subscription": "Task_CohortCreated"
   },
   {
     "topicName": "approved_cohort_returned_to_provider",
-    "subscription": [ "Task_ApprovedCohortReturnedToProvider" ]
+    "subscription": "Task_ApprovedCohortReturnedToProvider"
   },
   {
     "topicName": "provider_cohort_approval_undone_by_employer",
-    "subscription": [ "Task_ProviderCohortApprovalUndoneByEmployer" ]
+    "subscription": "Task_ProviderCohortApprovalUndoneByEmployer"
   }
 ]
 
