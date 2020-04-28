@@ -77,6 +77,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
             dataLockStatus.TriageStatus = TriageStatus.Unknown;
             dataLockStatus.IsResolved = false;
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
             source.PendingUpdateOriginator = null;
             
