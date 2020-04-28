@@ -110,17 +110,20 @@ namespace SFA.DAS.CommitmentsV2.Models
             long accountId;
             long accountLegalEntityId;
 
-            if (ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+            switch (ChangeOfPartyType)
             {
-                providerId = apprenticeship.Cohort.ProviderId;
-                accountId = AccountLegalEntity.AccountId;
-                accountLegalEntityId = AccountLegalEntityId.Value;
-            }
-            else
-            {
-                providerId = ProviderId.Value;
-                accountId = apprenticeship.Cohort.EmployerAccountId;
-                accountLegalEntityId = apprenticeship.Cohort.AccountLegalEntityId;
+                case ChangeOfPartyRequestType.ChangeEmployer:
+                    providerId = apprenticeship.Cohort.ProviderId;
+                    accountId = AccountLegalEntity.AccountId;
+                    accountLegalEntityId = AccountLegalEntityId.Value;
+                    break;
+                case ChangeOfPartyRequestType.ChangeProvider:
+                    providerId = ProviderId.Value;
+                    accountId = apprenticeship.Cohort.EmployerAccountId;
+                    accountLegalEntityId = apprenticeship.Cohort.AccountLegalEntityId;
+                    break;
+                default:
+                    throw new Exception("Invalid ChangeOfPartyType");
             }
 
             return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this);

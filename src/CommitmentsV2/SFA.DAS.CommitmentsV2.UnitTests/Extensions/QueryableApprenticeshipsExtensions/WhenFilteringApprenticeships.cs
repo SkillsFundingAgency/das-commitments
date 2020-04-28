@@ -515,24 +515,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             {
                 new Apprenticeship
                 {
-                    Cohort = new Cohort
-                    {
-                        //LegalEntityName = "Test Corp"
-                    }
+                    Cohort = new Cohort()
                 },
                 new Apprenticeship
                 {
-                    Cohort = new Cohort
-                    {
-                        //LegalEntityName = "Test Corp"
-                    }
+                    Cohort = new Cohort()
                 },
                 new Apprenticeship
                 {
-                    Cohort = new Cohort
-                    {
-                        //LegalEntityName = "ACME Supplies"
-                    }
+                    Cohort = new Cohort()
                 }
             }.AsQueryable();
 

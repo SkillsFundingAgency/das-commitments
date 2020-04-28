@@ -646,7 +646,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     Provider = Provider.Object,
                     ProviderId = ProviderId,
                     EmployerAccountId = AccountId,
-                    //AccountLegalEntityPublicHashedId = AccountLegalEntityPublicHashedId,
                     AccountLegalEntityId = AccountLegalEntityId,
                     AccountLegalEntity = AccountLegalEntity.Object,
                     TransferSenderId = null,
