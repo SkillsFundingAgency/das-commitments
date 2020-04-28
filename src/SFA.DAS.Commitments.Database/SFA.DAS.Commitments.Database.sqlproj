@@ -149,6 +149,7 @@
     <None Include="AdhocScripts\Manual\CV-656-Insert-AccountLegalEntities.sql" />
     <None Include="AdhocScripts\Support\BulkApprenticeshipPause.sql" />
     <None Include="AdhocScripts\Support\BulkApprenticeshipResume.sql" />
+    <None Include="AdhocScripts\Manual\CV-679-Completion-Backfill.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
