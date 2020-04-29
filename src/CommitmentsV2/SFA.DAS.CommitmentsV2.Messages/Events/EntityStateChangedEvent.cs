@@ -34,6 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         RejectTransferRequest,
         CreateChangeOfPartyRequest,
         Complete,
-        UpdateCompletionDate
+        UpdateCompletionDate,
+        SetCohortId
     }
 }

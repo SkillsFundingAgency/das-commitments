@@ -196,6 +196,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual AccountLegalEntity AccountLegalEntity { get; set; }
 
         public virtual Account TransferSender { get; set; }
+        public virtual ChangeOfPartyRequest ChangeOfPartyRequest { get; set; }
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
