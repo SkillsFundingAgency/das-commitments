@@ -327,12 +327,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             UpdatedBy(modifyingParty, userInfo);
             LastUpdatedOn = DateTime.UtcNow;
 
-            switch (EditStatus)
+            switch (WithParty)
             {
-                case EditStatus.EmployerOnly:
+                case Party.Employer:
                     Publish(() => new CohortAssignedToEmployerEvent(Id, now, modifyingParty));
                     break;
-                case EditStatus.ProviderOnly:
+                case Party.Provider:
                     Publish(() => new CohortAssignedToProviderEvent(Id, now));
                     break;
                 default:
