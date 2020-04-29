@@ -137,6 +137,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyChangeOfPartyRequestId();
         }
 
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void Then_AssignedToOtherPartyEvent_Is_Emitted(ChangeOfPartyRequestType requestType)
+        {
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.CreateCohort();
+            _fixture.VerifyAssignedToOtherPartyEventIsEmitted();
+        }
+
         private class WhenCohortIsCreatedTestFixture
         {
             private Fixture _autoFixture = new Fixture();
@@ -341,6 +350,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             public void VerifyChangeOfPartyRequestId()
             {
                 Assert.AreEqual(Request.Id, Result.ChangeOfPartyRequestId);
+            }
+
+            public void VerifyAssignedToOtherPartyEventIsEmitted()
+            {
+                if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+                {
+                    Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
+                        x is CohortAssignedToEmployerEvent @event
+                        && @event.AssignedBy == Party.Provider
+                        && @event.CohortId == Result.Id));
+                }
+                else
+                {
+                    Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
+                        x is CohortAssignedToProviderEvent @event
+                        && @event.CohortId == Result.Id));
+                }
             }
         }
     }
