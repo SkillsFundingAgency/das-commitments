@@ -4,15 +4,11 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Client;
-using SFA.DAS.Apprenticeships.Api.Types;
-using SFA.DAS.Authorization;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping;
-using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 

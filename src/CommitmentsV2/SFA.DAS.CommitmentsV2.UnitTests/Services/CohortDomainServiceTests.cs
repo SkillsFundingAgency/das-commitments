@@ -652,7 +652,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     TransferSenderId = null,
                 };
 
-                //ultracool navigation stuff
+
                 var cohorts = new List<Cohort> {Cohort};
                 
                 Provider.Setup(x => x.Cohorts).Returns(cohorts);

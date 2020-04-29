@@ -8,9 +8,17 @@ namespace SFA.DAS.CommitmentsV2.Shared.Extensions
         {
             return $"{value:d MMM yyyy}";
         }
+        public static string ToGdsFormatLongMonth(this DateTime value)
+        {
+            return $"{value:d MMMM yyyy}";
+        }
         public static string ToGdsFormatWithoutDay(this DateTime value)
         {
             return $"{value:MMM yyyy}";
+        }
+        public static string ToGdsFormatLongMonthWithoutDay(this DateTime value)
+        {
+            return $"{value:MMMM yyyy}";
         }
     }
 }

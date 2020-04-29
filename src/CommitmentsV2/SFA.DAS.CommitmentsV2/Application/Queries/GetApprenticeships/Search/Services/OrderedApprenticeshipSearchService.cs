@@ -27,15 +27,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 
             apprenticeshipsQuery = apprenticeshipsQuery.Filter(searchParameters.Filters);
 
-            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.WithAlerts(true).CountAsync(searchParameters.CancellationToken);
+            var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.WithAlerts(true, searchParameters).CountAsync(searchParameters.CancellationToken);
 
             apprenticeshipsQuery = apprenticeshipsQuery
                 .OrderBy(GetOrderByField(searchParameters.FieldName))
                 .ThenBy(GetSecondarySortByField(searchParameters.FieldName))
                 .Include(apprenticeship => apprenticeship.ApprenticeshipUpdate)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
+                .Include(apprenticeship => apprenticeship.PriceHistory)
                 .Include(apprenticeship => apprenticeship.Cohort)
-                    .ThenInclude(cohort => cohort.AccountLegalEntity); 
+                    .ThenInclude(cohort => cohort.AccountLegalEntity)
+                .Include(apprenticeship => apprenticeship.Cohort)
+                    .ThenInclude(cohort => cohort.Provider); 
 
             var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
 

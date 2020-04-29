@@ -24,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public ApprenticeshipStatus Status { get; set; }
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
+        public DateTime? CompletionDate { get; set; }
         public string EndpointAssessorName { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
     }

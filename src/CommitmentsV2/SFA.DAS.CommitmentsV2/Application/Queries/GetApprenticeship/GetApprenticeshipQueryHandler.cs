@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
@@ -26,7 +22,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
             _authenticationService = authenticationService;
             _encodingService = encodingService;
         }
-
 
         public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
         {
@@ -54,10 +49,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         EndDate = apprenticeship.EndDate.Value,
                         EndpointAssessorName = apprenticeship.EpaOrg.Name,
                         Reference = requestingParty == Party.Provider ? apprenticeship.ProviderRef : apprenticeship.EmployerRef,
-                        Status = apprenticeship.Status,
+                        Status = apprenticeship.GetApprenticeshipStatus(null),
                         StopDate = apprenticeship.StopDate,
                         PauseDate = apprenticeship.PauseDate,
-                        HasHadDataLockSuccess = apprenticeship.HasHadDataLockSuccess
+                        HasHadDataLockSuccess = apprenticeship.HasHadDataLockSuccess,
+                        CompletionDate = apprenticeship.CompletionDate
                     },
                     cancellationToken);
 
@@ -65,3 +61,5 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         }
     }
 }
+
+

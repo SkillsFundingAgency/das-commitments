@@ -136,7 +136,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.DataLockStatus)
                     .Include(apprenticeship => apprenticeship.Cohort)
                     .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
-                    .Include(apprenticeship => apprenticeship.Cohort.Provider); 
+                    .Include(apprenticeship => apprenticeship.Cohort.Provider)
+                    .Include(apprenticeship => apprenticeship.PriceHistory);
             }
             else
             {
@@ -149,7 +150,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.DataLockStatus)
                     .Include(apprenticeship => apprenticeship.Cohort)
                     .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
-                    .Include(apprenticeship => apprenticeship.Cohort.Provider);
+                    .Include(apprenticeship => apprenticeship.Cohort.Provider)
+                    .Include(apprenticeship => apprenticeship.PriceHistory);
             }
 
             if (skipCount > 0)
@@ -181,7 +183,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.DataLockStatus)
                     .Include(apprenticeship => apprenticeship.Cohort)
                     .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
-                    .Include(apprenticeship => apprenticeship.Cohort.Provider);
+                    .Include(apprenticeship => apprenticeship.Cohort.Provider)
+                    .Include(apprenticeship => apprenticeship.PriceHistory);
+                    
             }
             else
             {
@@ -194,7 +198,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.DataLockStatus)
                     .Include(apprenticeship => apprenticeship.Cohort)
                     .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
-                    .Include(apprenticeship => apprenticeship.Cohort.Provider);
+                    .Include(apprenticeship => apprenticeship.Cohort.Provider)
+                    .Include(apprenticeship => apprenticeship.PriceHistory);
 
             }
                     
@@ -223,7 +228,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
         private IQueryable<Apprenticeship> GetApprenticeshipsWithFiltersQuery(ApprenticeshipSearchParameters searchParameters, bool withAlerts)
         { 
             return GetApprenticeshipsQuery(searchParameters)
-                .WithAlerts(withAlerts)
+                .WithAlerts(withAlerts, searchParameters)
                 .Filter(searchParameters.Filters);
         }
     }

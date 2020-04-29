@@ -1,5 +1,6 @@
-﻿using SFA.DAS.Authorization;
-using SFA.DAS.Authorization.Features;
+﻿using SFA.DAS.Authorization.DependencyResolution.StructureMap;
+using SFA.DAS.Authorization.Features.DependencyResolution.StructureMap;
+using SFA.DAS.Authorization.ProviderPermissions.DependencyResolution.StructureMap;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
@@ -38,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<StateServiceRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
             registry.IncludeRegistry<CachingRegistry>();
-
+            registry.IncludeRegistry<ProviderPermissionsAuthorizationRegistry>();
         }
     }
 }

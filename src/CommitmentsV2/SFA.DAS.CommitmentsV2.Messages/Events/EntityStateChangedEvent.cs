@@ -30,6 +30,9 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         DeleteDraftApprenticeship,
 		DeleteCohort,
         ApproveTransferRequest,
-        RejectTransferRequest
+        RejectTransferRequest,
+        CreateChangeOfPartyRequest,
+        Complete,
+        UpdateCompletionDate
     }
 }

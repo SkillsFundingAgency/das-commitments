@@ -297,5 +297,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<GetDataLocksResponse>($"api/apprenticeships/{apprenticeshipId}/datalocks", null, cancellationToken);
         }
+
+        public Task CreateChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/change-of-party-requests", request, cancellationToken);
+        }
+
+        public Task<GetChangeOfPartyRequestsResponse> GetChangeOfPartyRequests(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetChangeOfPartyRequestsResponse>($"api/apprenticeships/{apprenticeshipId}/change-of-party-requests", null, cancellationToken);
+        }
     }
 }

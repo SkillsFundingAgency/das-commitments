@@ -11,6 +11,7 @@ using SFA.DAS.NServiceBus.Configuration.NLog;
 using SFA.DAS.NServiceBus.Configuration.StructureMap;
 using SFA.DAS.NServiceBus.Hosting;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
+using SFA.DAS.Payments.ProviderPayments.Messages;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using StructureMap;
 
@@ -41,6 +42,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                         .UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
                         .UseStructureMapBuilder(container)
                         .UseUnitOfWork();
+
+                    endpointConfiguration.Conventions().DefiningEventsAs(t =>
+                        t.Name.EndsWith("Event") 
+                        || t == typeof(RecordedAct1CompletionPayment));
 
                     if (isDevelopment)
                     {

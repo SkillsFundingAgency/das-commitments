@@ -23,13 +23,14 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.57" />
     <PackageReference Include="SFA.DAS.Testing" Version="3.0.169" />
-    <PackageReference Include="SFA.DAS.Testing.AutoFixture" Version="3.0.161" />
-    <PackageReference Include="SFA.DAS.Testing.EntityFrameworkCore" Version="3.0.165" />
+    <PackageReference Include="SFA.DAS.Testing.AutoFixture" Version="3.0.169" />
+    <PackageReference Include="SFA.DAS.Testing.EntityFrameworkCore" Version="3.0.169" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.109.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj" />
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj" />
     <ProjectReference Include="..\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />
   </ItemGroup>

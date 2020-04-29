@@ -51,6 +51,8 @@ namespace SFA.DAS.CommitmentsV2.Data
         public DbSet<Provider> Providers { get; set; }
         public DbSet<PriceHistory> PriceHistory { get; set; }
         public DbSet<TransferRequest> TransferRequests { get; set; }
+        public virtual DbSet<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
+
         public Task ExecuteSqlCommandAsync(string sql, params object[] parameters)
         {
             return Database.ExecuteSqlCommandAsync(sql, parameters);
@@ -75,6 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Data
             modelBuilder.ApplyConfiguration(new PriceHistoryConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderConfiguration());
             modelBuilder.ApplyConfiguration(new TransferRequestConfiguration());
+            modelBuilder.ApplyConfiguration(new ChangeOfPartyRequestConfiguration());
         }
     }
 }
