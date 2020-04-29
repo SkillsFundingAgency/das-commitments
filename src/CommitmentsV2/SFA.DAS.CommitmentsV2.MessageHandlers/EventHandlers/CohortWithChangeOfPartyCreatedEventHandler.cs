@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
     public class CohortWithChangeOfPartyCreatedEventHandler : IHandleMessages<CohortWithChangeOfPartyCreatedEvent>
     {
-        private Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
         public CohortWithChangeOfPartyCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
@@ -21,7 +21,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             var changeOfPartyRequest = await
                 _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
 
-            changeOfPartyRequest.SetCohortId(message.CohortId);
+            var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
+
+            changeOfPartyRequest.SetCohort(cohort);
 
             _dbContext.Value.SaveChanges();
         }

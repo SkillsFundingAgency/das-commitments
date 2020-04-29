@@ -10,6 +10,8 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -28,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public async Task Handle_WhenHandlingEvent_ChangeOfParty_CohortId_Is_Set()
         {
             await _fixture.Handle();
-            _fixture.VerifyCohortIdIsSet();
+            _fixture.VerifyCohortIsSet();
         }
 
         private class CohortWithChangeOfPartyCreatedEventHandlerTestsFixture
@@ -36,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private readonly CohortWithChangeOfPartyCreatedEventHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;
             private readonly CohortWithChangeOfPartyCreatedEvent _event;
+            private readonly Cohort _cohort;
             private readonly Mock<IMessageHandlerContext> _messageHandlerContext;
             private readonly Mock<ChangeOfPartyRequest> _changeOfPartyRequest;
 
@@ -45,15 +48,21 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 _event = autoFixture.Create<CohortWithChangeOfPartyCreatedEvent>();
 
+                _cohort = new Cohort();
+                _cohort.SetValue(x => x.Id, _event.CohortId);
+                _cohort.SetValue(x => x.Approvals, Party.None);
+                _cohort.SetValue(x => x.WithParty, Party.Employer);
+
                 _changeOfPartyRequest = new Mock<ChangeOfPartyRequest>();
                 _changeOfPartyRequest.Setup(x => x.Id).Returns(_event.ChangeOfPartyRequestId);
-                _changeOfPartyRequest.Setup(x => x.SetCohortId(_event.CohortId));
+                _changeOfPartyRequest.Setup(x => x.SetCohort(_cohort));
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                     .Options);
 
+                _db.Cohorts.Add(_cohort);
                 _db.ChangeOfPartyRequests.Add(_changeOfPartyRequest.Object);
                 _db.SaveChanges();
 
@@ -68,9 +77,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _db.SaveChanges();
             }
 
-            public void VerifyCohortIdIsSet()
+            public void VerifyCohortIsSet()
             {
-                _changeOfPartyRequest.Verify(x => x.SetCohortId(_event.CohortId), Times.Once);
+                _changeOfPartyRequest.Verify(x => x.SetCohort(_cohort), Times.Once);
             }
         }
     }
