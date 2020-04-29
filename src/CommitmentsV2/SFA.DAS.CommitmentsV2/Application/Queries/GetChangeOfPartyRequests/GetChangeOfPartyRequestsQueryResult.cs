@@ -17,6 +17,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
             public string EmployerName { get; set; }
             public int Price { get; set; }
             public DateTime StartDate { get; set; }
+            public long? CohortId { get; set; }
+            public Party? WithParty { get; set; }
         }
     }
 }

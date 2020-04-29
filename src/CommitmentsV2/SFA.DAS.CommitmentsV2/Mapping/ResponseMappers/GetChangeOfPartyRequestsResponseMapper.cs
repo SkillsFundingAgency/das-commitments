@@ -21,7 +21,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                         Status = r.Status,
                         EmployerName = r.EmployerName,
                         StarDate = r.StartDate,
-                        Price = r.Price
+                        Price = r.Price,
+                        CohortId = r.CohortId,
+                        WithParty =  r.WithParty
                     }).ToList()
             });
         }

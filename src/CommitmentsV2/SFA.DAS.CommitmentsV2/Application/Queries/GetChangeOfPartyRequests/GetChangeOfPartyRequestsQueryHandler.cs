@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
 {
@@ -31,7 +32,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
                         Status = r.Status,
                         StartDate = r.StartDate,
                         Price = r.Price,
-                        EmployerName = r.AccountLegalEntity.Name
+                        EmployerName = r.AccountLegalEntity.Name,
+                        CohortId = r.CohortId,
+                        WithParty = r.CohortId.HasValue ? r.Cohort.WithParty : default(Party?)
                     }).ToListAsync(cancellationToken)
             };
         }
