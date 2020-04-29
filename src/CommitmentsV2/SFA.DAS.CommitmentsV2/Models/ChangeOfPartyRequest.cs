@@ -128,5 +128,10 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this);
         }
+
+        public virtual void SetCohortId(long cohortId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
