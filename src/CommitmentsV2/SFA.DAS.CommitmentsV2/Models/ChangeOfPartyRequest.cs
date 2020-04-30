@@ -20,11 +20,12 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? EndDate { get; private set; }
         public DateTime CreatedOn { get; private set; }
         public ChangeOfPartyRequestStatus Status { get; private set; }
+        public virtual long? CohortId { get; private set; }
+        public DateTime? ActionedOn { get; private set; }
 
         public byte[] RowVersion { get; private set; }
         public DateTime LastUpdatedOn { get; private set; }
-
-        public virtual long? CohortId { get; private set; }
+        
         public virtual Apprenticeship Apprenticeship { get; private set; }
         public virtual AccountLegalEntity AccountLegalEntity { get; private set; }
         public virtual Cohort Cohort { get; private set; }
@@ -147,7 +148,54 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (CohortId.HasValue)
             {
-                throw new DomainException(nameof(CohortId), $"ChangeOfPartyRequest already has CohortId value of {CohortId.Value} set; cannot set to {newValue}");
+                throw new InvalidOperationException($"ChangeOfPartyRequest already has CohortId value of {CohortId.Value} set; cannot set to {newValue}");
+            }
+        }
+
+        public virtual void Approve(UserInfo userInfo)
+        {
+            CheckStatusIsPending();
+
+            StartTrackingSession(UserAction.ApproveChangeOfPartyRequest, OriginatingParty, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+
+            Status = ChangeOfPartyRequestStatus.Approved;
+            ActionedOn = DateTime.UtcNow;
+
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        public virtual void Withdraw(UserInfo userInfo)
+        {
+            CheckStatusIsPending();
+
+            StartTrackingSession(UserAction.WithdrawChangeOfPartyRequest, OriginatingParty, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+
+            Status = ChangeOfPartyRequestStatus.Withdrawn;
+            ActionedOn = DateTime.UtcNow;
+
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        public virtual void Reject(UserInfo userInfo)
+        {
+            CheckStatusIsPending();
+
+            StartTrackingSession(UserAction.RejectChangeOfPartyRequest, OriginatingParty, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+
+            Status = ChangeOfPartyRequestStatus.Rejected;
+            ActionedOn = DateTime.UtcNow;
+
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        private void CheckStatusIsPending()
+        {
+            if (Status != ChangeOfPartyRequestStatus.Pending)
+            {
+                throw new InvalidOperationException($"ChangeOfPartyRequest has status of {Status} and cannot be modified");
             }
         }
     }

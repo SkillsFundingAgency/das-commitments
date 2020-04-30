@@ -35,6 +35,9 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         CreateChangeOfPartyRequest,
         Complete,
         UpdateCompletionDate,
-        SetCohortId
+        SetCohortId,
+        ApproveChangeOfPartyRequest,
+        RejectChangeOfPartyRequest,
+        WithdrawChangeOfPartyRequest
     }
 }
