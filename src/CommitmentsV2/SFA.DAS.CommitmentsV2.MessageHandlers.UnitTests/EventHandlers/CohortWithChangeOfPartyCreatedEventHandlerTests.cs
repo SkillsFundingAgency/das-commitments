@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
@@ -31,6 +32,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             await _fixture.Handle();
             _fixture.VerifyCohortIsSet();
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingEvent_If_CohortId_Already_Set_Then_It_Is_Not_Updated()
+        {
+            _fixture.WithCohortIdAlreadySet();
+            await _fixture.Handle();
+            _fixture.VerifyCohortIdIsNotUpdated();
         }
 
         private class CohortWithChangeOfPartyCreatedEventHandlerTestsFixture
@@ -68,7 +77,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
-                _handler = new CohortWithChangeOfPartyCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
+                _handler = new CohortWithChangeOfPartyCreatedEventHandler(
+                    new Lazy<ProviderCommitmentsDbContext>(() => _db), Mock.Of<ILogger<CohortWithChangeOfPartyCreatedEventHandler>>());
+            }
+
+            public CohortWithChangeOfPartyCreatedEventHandlerTestsFixture WithCohortIdAlreadySet()
+            {
+                _changeOfPartyRequest.Setup(x => x.CohortId).Returns(123);
+                return this;
             }
 
             public async Task Handle()
@@ -80,6 +96,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public void VerifyCohortIsSet()
             {
                 _changeOfPartyRequest.Verify(x => x.SetCohort(_cohort, _event.UserInfo), Times.Once);
+            }
+
+            public void VerifyCohortIdIsNotUpdated()
+            {
+                _changeOfPartyRequest.Verify(x => x.SetCohort(_cohort, _event.UserInfo), Times.Never);
             }
         }
     }

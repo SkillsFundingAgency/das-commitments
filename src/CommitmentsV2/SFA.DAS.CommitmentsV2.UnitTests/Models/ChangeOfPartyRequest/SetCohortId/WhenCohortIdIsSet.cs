@@ -35,18 +35,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohortI
         }
 
         [Test]
-        public void Then_If_CohortId_Already_Set_Then_Ignored()
+        public void Then_If_CohortId_Already_Set_Then_Throw()
         {
             _fixture.WithCohortIdAlreadySet();
-            _fixture.SetCohort();
-            _fixture.VerifyCohortIdIsNotUpdated();
-            _fixture.VerifyNoException();
-        }
-
-        [Test]
-        public void Then_If_CohortId_Already_Set_Differently_Then_Throw()
-        {
-            _fixture.WithCohortIdAlreadySetDifferently();
             _fixture.SetCohort();
             _fixture.VerifyException();
         }
@@ -89,17 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohortI
                 _changeOfPartyRequest.SetValue(x => x.CohortId, _cohort.Id);
             }
 
-            public void WithCohortIdAlreadySetDifferently()
-            {
-                _changeOfPartyRequest.SetValue(x => x.CohortId, _cohort.Id + 1);
-            }
-
             public void VerifyCohortIdIsUpdated()
-            {
-                Assert.AreEqual(_cohort.Id, _changeOfPartyRequest.CohortId);
-            }
-
-            public void VerifyCohortIdIsNotUpdated()
             {
                 Assert.AreEqual(_cohort.Id, _changeOfPartyRequest.CohortId);
             }

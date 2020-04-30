@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public byte[] RowVersion { get; private set; }
         public DateTime LastUpdatedOn { get; private set; }
 
-        public long? CohortId { get; private set; }
+        public virtual long? CohortId { get; private set; }
         public virtual Apprenticeship Apprenticeship { get; private set; }
         public virtual AccountLegalEntity AccountLegalEntity { get; private set; }
         public virtual Cohort Cohort { get; private set; }
@@ -133,15 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual void SetCohort(Cohort cohort, UserInfo userInfo)
         {
-            if (CohortId == cohort.Id)
-            {
-                return;
-            }
-
-            if (CohortId.HasValue && CohortId.Value != cohort.Id)
-            {
-                throw new DomainException(nameof(CohortId), $"ChangeOfPartyRequest already has CohortId value of {CohortId.Value} set; cannot set to {cohort.Id}");
-            }
+            CheckCohortIdNotSet(cohort.Id);
 
             StartTrackingSession(UserAction.SetCohortId, OriginatingParty, cohort.EmployerAccountId, cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
@@ -149,6 +141,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             CohortId = cohort.Id;
 
             ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        private void CheckCohortIdNotSet(long newValue)
+        {
+            if (CohortId.HasValue)
+            {
+                throw new DomainException(nameof(CohortId), $"ChangeOfPartyRequest already has CohortId value of {CohortId.Value} set; cannot set to {newValue}");
+            }
         }
     }
 }
