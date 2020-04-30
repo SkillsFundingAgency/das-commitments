@@ -399,7 +399,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(this);
             LastUpdatedOn = DateTime.UtcNow;
 
-            MarkAsDeletedAndEmitCohortDeletedEvent();
+            MarkAsDeletedAndEmitCohortDeletedEvent(modifyingParty, userInfo);
 
             foreach (var draftApprenticeship in DraftApprenticeships.ToArray())
             {
@@ -425,7 +425,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (!DraftApprenticeships.Any())
             {
-                MarkAsDeletedAndEmitCohortDeletedEvent();
+                MarkAsDeletedAndEmitCohortDeletedEvent(modifyingParty, userInfo);
             }
             
             ChangeTrackingSession.CompleteTrackingSession();
@@ -446,11 +446,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             });
         }
 		
-		private void MarkAsDeletedAndEmitCohortDeletedEvent()
+		private void MarkAsDeletedAndEmitCohortDeletedEvent(Party deletedBy, UserInfo userInfo)
         {
             var approvalStatusPriorToDeletion = Approvals;
             IsDeleted = true;
             Publish(() => new CohortDeletedEvent(Id, EmployerAccountId, ProviderId, approvalStatusPriorToDeletion, DateTime.UtcNow));
+
+            if (ChangeOfPartyRequestId.HasValue)
+            {
+                Publish(() => new CohortWithChangeOfPartyDeletedEvent(Id, ChangeOfPartyRequestId.Value, DateTime.UtcNow, deletedBy, userInfo));
+            }
         }
 
         private void ResetTransferSenderRejection()
