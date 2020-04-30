@@ -110,6 +110,15 @@ steps:
       configuration: '$(buildConfiguration)'
       clean: true
 
+  - task: VSTest@2
+    displayName: 'VS test'
+    inputs:
+      testAssemblyVer2: |
+        **/bin/**/*Tests.dll
+        !**/CommitmentsV2/**
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
+
   - task: DotNetCoreCLI@2
     displayName: 'dotnet test'
     inputs:
