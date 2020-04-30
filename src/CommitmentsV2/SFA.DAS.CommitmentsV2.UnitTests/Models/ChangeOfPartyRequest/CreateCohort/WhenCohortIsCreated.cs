@@ -152,6 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             public CommitmentsV2.Models.Apprenticeship ContinuedApprenticeship { get; private set; }
             public CommitmentsV2.Models.ChangeOfPartyRequest Request { get; private set; }
             public Guid ReservationId { get; set; }
+            public UserInfo UserInfo { get; set; }
             public CommitmentsV2.Models.Cohort Result { get; private set; }
             public Exception Exception { get; private set; }
             public UnitOfWorkContext UnitOfWorkContext { get; private set; }
@@ -161,6 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 UnitOfWorkContext = new UnitOfWorkContext();
 
                 ReservationId = _autoFixture.Create<Guid>();
+                UserInfo = _autoFixture.Create<UserInfo>();
 
                 var cohort = new CommitmentsV2.Models.Cohort();
                 cohort.SetValue(x => x.ProviderId, _autoFixture.Create<long>());
@@ -232,7 +234,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             {
                 try
                 {
-                    Result = Request.CreateCohort(ContinuedApprenticeship, ReservationId);
+                    Result = Request.CreateCohort(ContinuedApprenticeship, ReservationId, UserInfo);
                 }
                 catch (Exception e)
                 {

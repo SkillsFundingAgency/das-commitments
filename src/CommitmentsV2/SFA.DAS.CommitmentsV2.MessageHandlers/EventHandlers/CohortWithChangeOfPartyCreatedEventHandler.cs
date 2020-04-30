@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
 
-            changeOfPartyRequest.SetCohort(cohort);
+            changeOfPartyRequest.SetCohort(cohort, message.UserInfo);
 
             _dbContext.Value.SaveChanges();
         }

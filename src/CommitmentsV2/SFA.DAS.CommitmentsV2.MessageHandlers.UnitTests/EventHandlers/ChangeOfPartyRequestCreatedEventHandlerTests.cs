@@ -97,7 +97,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 ChangeOfPartyRequest.Setup(x => x.ApprenticeshipId).Returns(apprenticeshipId);
                 ChangeOfPartyRequest.Setup(x => x.AccountLegalEntityId).Returns(autoFixture.Create<long>());
                 ChangeOfPartyRequest.Setup(x => x.ProviderId).Returns(autoFixture.Create<long>());
-                ChangeOfPartyRequest.Setup(x => x.CreateCohort(It.IsAny<Apprenticeship>(), It.IsAny<Guid>())).Returns(Cohort);
+                ChangeOfPartyRequest.Setup(x => x.CreateCohort(It.IsAny<Apprenticeship>(), It.IsAny<Guid>(), It.IsAny<UserInfo>())).Returns(Cohort);
 
                 Apprenticeship = new Apprenticeship
                 {
@@ -137,14 +137,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public void VerifyReservation()
             {
                 ChangeOfPartyRequest.Verify(x => x.CreateCohort(It.IsAny<Apprenticeship>(),
-                        It.Is<Guid>(r => r == ChangeOfPartyReservationId)),
+                        It.Is<Guid>(r => r == ChangeOfPartyReservationId), It.IsAny<UserInfo>()),
                     Times.Once);
             }
 
             public void VerifyApprenticeship()
             {
                 ChangeOfPartyRequest.Verify(x => x.CreateCohort(It.Is<Apprenticeship>(a => a == Apprenticeship),
-                    It.IsAny<Guid>()), Times.Once);
+                    It.IsAny<Guid>(), It.IsAny<UserInfo>()), Times.Once);
             }
 
             public void VerifyCohortCreated()

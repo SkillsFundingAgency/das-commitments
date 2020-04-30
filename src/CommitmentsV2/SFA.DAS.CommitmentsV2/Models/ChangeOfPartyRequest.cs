@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
 
-            Publish(() => new ChangeOfPartyRequestCreatedEvent { ChangeOfPartyRequestId = Id });
+            Publish(() => new ChangeOfPartyRequestCreatedEvent (Id, userInfo));
         }
 
         private void CheckOriginatingParty(Party originatingParty)
@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid reservationId)
+        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid reservationId, UserInfo userInfo)
         {
             long providerId;
             long accountId;
@@ -128,10 +128,10 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new Exception("Invalid ChangeOfPartyType");
             }
 
-            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this);
+            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this, userInfo);
         }
 
-        public virtual void SetCohort(Cohort cohort)
+        public virtual void SetCohort(Cohort cohort, UserInfo userInfo)
         {
             if (CohortId == cohort.Id)
             {
@@ -143,7 +143,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(CohortId), $"ChangeOfPartyRequest already has CohortId value of {CohortId.Value} set; cannot set to {cohort.Id}");
             }
 
-            StartTrackingSession(UserAction.SetCohortId, OriginatingParty, cohort.EmployerAccountId, cohort.ProviderId, null);
+            StartTrackingSession(UserAction.SetCohortId, OriginatingParty, cohort.EmployerAccountId, cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
             CohortId = cohort.Id;

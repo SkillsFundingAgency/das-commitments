@@ -129,13 +129,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             long accountLegalEntityId,
             Apprenticeship apprenticeship,
             Guid reservationId,
-            ChangeOfPartyRequest changeOfPartyRequest)
+            ChangeOfPartyRequest changeOfPartyRequest,
+            UserInfo userInfo)
             : this(providerId,
             accountId,
             accountLegalEntityId,
             null,
             changeOfPartyRequest.OriginatingParty,
-            null)
+            userInfo)
         {
 
             ChangeOfPartyRequestId = changeOfPartyRequest.Id;
@@ -156,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
 
-            Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, DateTime.UtcNow));
+            Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, DateTime.UtcNow, userInfo));
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
             {
@@ -167,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
             }
 
-            StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, null);
+            StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.TrackInsert(draftApprenticeship);
             ChangeTrackingSession.CompleteTrackingSession();

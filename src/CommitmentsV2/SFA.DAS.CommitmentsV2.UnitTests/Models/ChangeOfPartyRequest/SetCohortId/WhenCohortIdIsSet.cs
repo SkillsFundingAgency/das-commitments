@@ -4,6 +4,7 @@ using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohortId
@@ -75,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohortI
             {
                 try
                 {
-                    _changeOfPartyRequest.SetCohort(_cohort);
+                    _changeOfPartyRequest.SetCohort(_cohort, new UserInfo());
                 }
                 catch (Exception ex)
                 {

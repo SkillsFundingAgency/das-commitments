@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 _changeOfPartyRequest = new Mock<ChangeOfPartyRequest>();
                 _changeOfPartyRequest.Setup(x => x.Id).Returns(_event.ChangeOfPartyRequestId);
-                _changeOfPartyRequest.Setup(x => x.SetCohort(_cohort));
+                _changeOfPartyRequest.Setup(x => x.SetCohort(_cohort, _event.UserInfo));
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -79,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyCohortIsSet()
             {
-                _changeOfPartyRequest.Verify(x => x.SetCohort(_cohort), Times.Once);
+                _changeOfPartyRequest.Verify(x => x.SetCohort(_cohort, _event.UserInfo), Times.Once);
             }
         }
     }

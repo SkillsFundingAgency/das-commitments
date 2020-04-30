@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 await _reservationsApiClient.CreateChangeOfPartyReservation(apprenticeship.ReservationId.Value, createChangeOfPartyReservationRequest, default);
 
             //tell the copr to create a cohort
-            var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationResult.ReservationId);
+            var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationResult.ReservationId, message.UserInfo);
 
             //persist
             _dbContext.Value.Cohorts.Add(cohort);
