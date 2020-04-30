@@ -116,6 +116,7 @@ steps:
       testAssemblyVer2: |
         **/bin/**/*Tests.dll
         !**/CommitmentsV2/**
+        !**/*Reservations.Api*/**
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
