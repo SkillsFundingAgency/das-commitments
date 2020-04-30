@@ -114,7 +114,7 @@ steps:
     displayName: 'VS test'
     inputs:
       testAssemblyVer2: |
-        **/bin/**/*Tests.dll
+        **/SFA.DAS.CommitmentPayments.WebJob.UnitTests/bin/**/*Tests.dll
         !**/CommitmentsV2/**
         !**/*Reservations.Api*/**
       platform: '$(buildPlatform)'
