@@ -21,13 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AEF29222
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Infrastructure.UnitTests", "SFA.DAS.Commitments.Infrastructure.UnitTests\SFA.DAS.Commitments.Infrastructure.UnitTests.csproj", "{6669C64D-7DAE-47C2-A469-7636C89C0974}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC8DEBD-332E-42CB-95AF-4230E1385B75}"
-	ProjectSection(SolutionItems) = preProject
-		Build.fsx = Build.fsx
-		GenCert.ps1 = GenCert.ps1
-		RunBuild.bat = RunBuild.bat
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.WebJob", "SFA.DAS.CommitmentPayments.WebJob\SFA.DAS.CommitmentPayments.WebJob.csproj", "{42C9280D-CDAA-45B8-9A02-EB629288798D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Host.WebJob", "SFA.DAS.Commitments.Host.WebJob\SFA.DAS.Commitments.Host.WebJob.csproj", "{00F79506-1368-4A99-A8F7-D922AE0B231C}"
