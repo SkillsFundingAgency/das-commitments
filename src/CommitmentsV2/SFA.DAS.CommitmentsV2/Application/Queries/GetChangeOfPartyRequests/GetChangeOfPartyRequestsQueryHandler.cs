@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
 
         public async Task<GetChangeOfPartyRequestsQueryResult> Handle(GetChangeOfPartyRequestsQuery request, CancellationToken cancellationToken)
         {
+            //todo: need this to honour the cohort deletion flag and suppress cohort Id and WithParty fields if deleted!
             return new GetChangeOfPartyRequestsQueryResult
             {
                 ChangeOfPartyRequests = await _dbContext.Value
@@ -33,8 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
                         StartDate = r.StartDate,
                         Price = r.Price,
                         EmployerName = r.AccountLegalEntity.Name,
-                        CohortId = r.CohortId,
-                        WithParty = r.CohortId.HasValue ? r.Cohort.WithParty : default(Party?)
+                        CohortId = r.Cohort.Id,
+                        WithParty = r.Cohort.WithParty
                     }).ToListAsync(cancellationToken)
             };
         }

@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             changeOfPartyRequest.SetCohort(cohort, message.UserInfo);
 
-            _dbContext.Value.SaveChanges();
+            await _dbContext.Value.SaveChangesAsync();
         }
     }
 }

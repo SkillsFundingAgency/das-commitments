@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long Id { get; private set; }
         public virtual long ApprenticeshipId { get; private set; }
         public virtual ChangeOfPartyRequestType ChangeOfPartyType { get; private set; }
-        public Party OriginatingParty { get; private set; }
+        public virtual Party OriginatingParty { get; private set; }
         public virtual long? AccountLegalEntityId { get; private set; }
         public virtual long? ProviderId { get; private set; }
         public int Price { get; private set; }
