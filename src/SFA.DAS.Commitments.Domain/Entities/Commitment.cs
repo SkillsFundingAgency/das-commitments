@@ -36,6 +36,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public bool ProviderCanApproveCommitment { get; set; }
         public Originator Originator { get; set; }
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
+        public long? ChangeOfPartyRequestId { get; set; }
 
         public string LastUpdatedByEmployerName { get; set; }
         public string LastUpdatedByEmployerEmail { get; set; }

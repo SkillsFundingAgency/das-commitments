@@ -105,7 +105,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
                     Messages = MapMessagesFrom(commitment.Messages),
                     TransferSender = MapTransferSenderInfo(commitment),
-                    ApprenticeshipEmployerTypeOnApproval = (ApprenticeshipEmployerTypeOnApproval?) commitment.ApprenticeshipEmployerTypeOnApproval
+                    ApprenticeshipEmployerTypeOnApproval = (ApprenticeshipEmployerTypeOnApproval?) commitment.ApprenticeshipEmployerTypeOnApproval,
+                    ChangeOfPartyRequestId = commitment.ChangeOfPartyRequestId
                 };
         }
 

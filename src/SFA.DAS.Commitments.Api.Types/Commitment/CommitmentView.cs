@@ -32,5 +32,7 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment
         public List<MessageView> Messages { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
+        public long? ChangeOfPartyRequestId { get; set; }
+        public bool IsLinkedToChangeOfPartyRequest => ChangeOfPartyRequestId.HasValue;
     }
 }

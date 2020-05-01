@@ -42,6 +42,7 @@ SELECT
 	c.TransferApprovalStatus, c.TransferApprovalActionedByEmployerEmail,
 	c.TransferApprovalActionedByEmployerName, c.TransferApprovalActionedOn, ale.PublicHashedId as 'AccountLegalEntityPublicHashedId', c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
 	c.IsFullApprovalProcessed, c.IsDeleted, c.AccountLegalEntityId, c.IsDraft, c.WithParty, c.RowVersion, c.LastUpdatedOn, c.Approvals, c.EmployerAndProviderApprovedOn,
+	c.ChangeOfPartyRequestId,
 	COUNT(a.Id) AS ApprenticeshipCount,
 
 	COALESCE((SELECT TOP 1 AgreementStatus FROM ApprenticeshipApprovalStatus_CTE WHERE CommitmentId = c.Id), 0) AS AgreementStatus, -- because should all be same value
@@ -77,4 +78,5 @@ GROUP BY
 	ts.[Name],
 	c.TransferApprovalStatus, c.TransferApprovalActionedByEmployerEmail,
 	c.TransferApprovalActionedByEmployerName, c.TransferApprovalActionedOn, ale.PublicHashedId, c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
-	c.IsFullApprovalProcessed, c.IsDeleted, c.AccountLegalEntityId, c.IsDraft, c.WithParty, c.RowVersion, c.LastUpdatedOn, c.Approvals, c.EmployerAndProviderApprovedOn
+	c.IsFullApprovalProcessed, c.IsDeleted, c.AccountLegalEntityId, c.IsDraft, c.WithParty, c.RowVersion, c.LastUpdatedOn, c.Approvals, c.EmployerAndProviderApprovedOn,
+	c.ChangeOfPartyRequestId
