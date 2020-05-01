@@ -74,8 +74,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _changeOfPartyRequest = new Mock<ChangeOfPartyRequest>();
                 _changeOfPartyRequest.Setup(x => x.Id).Returns(_event.ChangeOfPartyRequestId);
                 _changeOfPartyRequest.Setup(x => x.SetCohort(_cohort, _event.UserInfo));
-                _changeOfPartyRequest.Setup(x => x.Withdraw(It.IsAny<UserInfo>()));
-                _changeOfPartyRequest.Setup(x => x.Reject(It.IsAny<UserInfo>()));
+                _changeOfPartyRequest.Setup(x => x.Withdraw(It.IsAny<Party>(), It.IsAny<UserInfo>()));
+                _changeOfPartyRequest.Setup(x => x.Reject(It.IsAny<Party>(), It.IsAny<UserInfo>()));
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -111,12 +111,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyWithdrawn()
             {
-                _changeOfPartyRequest.Verify(x => x.Withdraw(_event.UserInfo), Times.Once);
+                _changeOfPartyRequest.Verify(x => x.Withdraw(_event.DeletedBy,_event.UserInfo), Times.Once);
             }
 
             public void VerifyRejected()
             {
-                _changeOfPartyRequest.Verify(x => x.Reject(_event.UserInfo), Times.Once);
+                _changeOfPartyRequest.Verify(x => x.Reject(_event.DeletedBy, _event.UserInfo), Times.Once);
             }
         }
     }

@@ -63,6 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Withdrawal
                 var autoFixture = new Fixture();
                 _unitOfWorkContext = new UnitOfWorkContext();
                 _changeOfPartyRequest = autoFixture.Create<CommitmentsV2.Models.ChangeOfPartyRequest>();
+                _changeOfPartyRequest.SetValue(x => x.OriginatingParty, Party.Provider);
                 _changeOfPartyRequest.SetValue(x => x.Status, ChangeOfPartyRequestStatus.Pending);
                 _changeOfPartyRequest.SetValue(x => x.Cohort, new CommitmentsV2.Models.Cohort());
                 _userInfo = autoFixture.Create<UserInfo>();
@@ -78,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Withdrawal
             {
                 try
                 {
-                    _changeOfPartyRequest.Withdraw(_userInfo);
+                    _changeOfPartyRequest.Withdraw(_changeOfPartyRequest.OriginatingParty, _userInfo);
                 }
                 catch (Exception ex)
                 {

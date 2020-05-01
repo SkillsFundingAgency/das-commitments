@@ -2,6 +2,7 @@
 using System.Linq;
 using AutoFixture;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
@@ -63,6 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Rejection
                 var autoFixture = new Fixture();
                 _unitOfWorkContext = new UnitOfWorkContext();
                 _changeOfPartyRequest = autoFixture.Create<CommitmentsV2.Models.ChangeOfPartyRequest>();
+                _changeOfPartyRequest.SetValue(x => x.OriginatingParty, Party.Provider);
                 _changeOfPartyRequest.SetValue(x => x.Status, ChangeOfPartyRequestStatus.Pending);
                 _changeOfPartyRequest.SetValue(x => x.Cohort, new CommitmentsV2.Models.Cohort());
                 _userInfo = autoFixture.Create<UserInfo>();
@@ -78,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Rejection
             {
                 try
                 {
-                    _changeOfPartyRequest.Reject(_userInfo);
+                    _changeOfPartyRequest.Reject(_changeOfPartyRequest.OriginatingParty.GetOtherParty(),_userInfo);
                 }
                 catch (Exception ex)
                 {

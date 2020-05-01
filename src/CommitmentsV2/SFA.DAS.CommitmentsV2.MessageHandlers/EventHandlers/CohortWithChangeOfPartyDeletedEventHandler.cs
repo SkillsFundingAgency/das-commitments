@@ -22,28 +22,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(CohortWithChangeOfPartyDeletedEvent message, IMessageHandlerContext context)
         {
-            //go get the copr
-            //get's it, but the Cohort part will be null because it's been deleted!!! :-O
             var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
 
-            //if not in appropriate status, log error and quit happy
             if (changeOfPartyRequest.Status != ChangeOfPartyRequestStatus.Pending)
             {
                 _logger.LogWarning($"Unable to modify ChangeOfPartyRequest {message.ChangeOfPartyRequestId} - status is already {changeOfPartyRequest.Status}");
                 return;
             }
 
-            //call either Withdraw() or Reject() based on status
             if(message.DeletedBy == changeOfPartyRequest.OriginatingParty)
             {
-                changeOfPartyRequest.Withdraw(message.UserInfo);
+                changeOfPartyRequest.Withdraw(message.DeletedBy, message.UserInfo);
             }
             else
             {
-                changeOfPartyRequest.Reject(message.UserInfo);
+                changeOfPartyRequest.Reject(message.DeletedBy, message.UserInfo);
             }
-
-            await _dbContext.Value.SaveChangesAsync();
         }
     }
 }

@@ -165,11 +165,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public virtual void Withdraw(UserInfo userInfo)
+        public virtual void Withdraw(Party modifyingParty, UserInfo userInfo)
         {
             CheckStatusIsPending();
 
-            StartTrackingSession(UserAction.WithdrawChangeOfPartyRequest, OriginatingParty, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            StartTrackingSession(UserAction.WithdrawChangeOfPartyRequest, modifyingParty, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
             Status = ChangeOfPartyRequestStatus.Withdrawn;
@@ -178,11 +178,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public virtual void Reject(UserInfo userInfo)
+        public virtual void Reject(Party modifyingParty, UserInfo userInfo)
         {
             CheckStatusIsPending();
 
-            StartTrackingSession(UserAction.RejectChangeOfPartyRequest, OriginatingParty, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            StartTrackingSession(UserAction.RejectChangeOfPartyRequest, modifyingParty, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
             Status = ChangeOfPartyRequestStatus.Rejected;

@@ -63,6 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Approval
                 var autoFixture = new Fixture();
                 _unitOfWorkContext = new UnitOfWorkContext();
                 _changeOfPartyRequest = autoFixture.Create<CommitmentsV2.Models.ChangeOfPartyRequest>();
+                _changeOfPartyRequest.SetValue(x => x.OriginatingParty, Party.Provider);
                 _changeOfPartyRequest.SetValue(x => x.Status, ChangeOfPartyRequestStatus.Pending);
                 _changeOfPartyRequest.SetValue(x => x.Cohort, new CommitmentsV2.Models.Cohort());
                 _userInfo = autoFixture.Create<UserInfo>();
