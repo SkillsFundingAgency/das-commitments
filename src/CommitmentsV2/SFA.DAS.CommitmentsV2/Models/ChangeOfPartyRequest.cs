@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
         public DateTime CreatedOn { get; private set; }
-        public ChangeOfPartyRequestStatus Status { get; private set; }
+        public virtual ChangeOfPartyRequestStatus Status { get; private set; }
         public virtual long? CohortId { get; private set; }
         public DateTime? ActionedOn { get; private set; }
 
@@ -152,11 +152,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public virtual void Approve(UserInfo userInfo)
+        public virtual void Approve(Party modifyingParty, UserInfo userInfo)
         {
             CheckStatusIsPending();
 
-            StartTrackingSession(UserAction.ApproveChangeOfPartyRequest, OriginatingParty, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            StartTrackingSession(UserAction.ApproveChangeOfPartyRequest, modifyingParty, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
             Status = ChangeOfPartyRequestStatus.Approved;

@@ -305,6 +305,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (IsApprovedByAllParties)
             {
                 Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId, now, modifyingParty));
+
+                if (ChangeOfPartyRequestId.HasValue)
+                {
+                    Publish(() => new CohortWithChangeOfPartyFullyApprovedEvent(Id, ChangeOfPartyRequestId.Value, now, modifyingParty, userInfo));
+                }
             }
 
             ChangeTrackingSession.CompleteTrackingSession();

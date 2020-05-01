@@ -2,6 +2,7 @@
 using System.Linq;
 using AutoFixture;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
@@ -79,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Approval
             {
                 try
                 {
-                    _changeOfPartyRequest.Approve(_userInfo);
+                    _changeOfPartyRequest.Approve(_changeOfPartyRequest.OriginatingParty.GetOtherParty(), _userInfo);
                 }
                 catch (Exception ex)
                 {
