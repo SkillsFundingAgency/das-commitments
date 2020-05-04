@@ -63,8 +63,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
                         It.Is<CreateChangeOfPartyRequestCommand>(p =>
                             p.ApprenticeshipId == _apprenticeshipId &&
                             p.ChangeOfPartyRequestType == _postRequest.ChangeOfPartyRequestType &&
-                            p.NewPartyId == _postRequest.NewPartyId && p.NewStartDate == _postRequest.NewStartDate &&
-                            p.NewPrice == _postRequest.NewPrice && p.UserInfo == _postRequest.UserInfo),
+                            p.NewPartyId == _postRequest.NewPartyId &&
+                            p.NewStartDate == _postRequest.NewStartDate &&
+                            p.NewPrice == _postRequest.NewPrice &&
+                            p.UserInfo == _postRequest.UserInfo &&
+                            p.NewEndDate == _postRequest.EndDate),
                         It.IsAny<CancellationToken>()), Times.Once);
             }
         }
