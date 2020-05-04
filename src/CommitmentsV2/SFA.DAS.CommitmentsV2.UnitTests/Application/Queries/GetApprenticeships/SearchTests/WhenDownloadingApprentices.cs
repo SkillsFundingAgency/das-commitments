@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Downloads_Are_Restricted_To_Twelve_Months_for_Default_Search(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 0;
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Downloads_Are_Restricted_To_Twelve_Months_Normal_Sort(
             OrderedApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.FieldName = nameof(Apprenticeship.FirstName);
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Downloads_Are_Restricted_To_Twelve_Months_For_Reverse_Sort(
             ReverseOrderedApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.FieldName = nameof(Apprenticeship.FirstName);
