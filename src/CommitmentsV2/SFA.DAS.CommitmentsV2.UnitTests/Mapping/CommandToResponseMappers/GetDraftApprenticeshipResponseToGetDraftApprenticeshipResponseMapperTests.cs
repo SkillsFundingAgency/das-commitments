@@ -70,5 +70,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             Guid reservationId = Guid.NewGuid();
             return AssertPropertySet(input => input.ReservationId, (Guid?) Guid.NewGuid());
         }
+
+
+        [Test]
+        public Task Map_IsContinuation_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.IsContinuation, true);
+        }
+
+
+        [Test]
+        public Task Map_OriginalStartDate_ShouldBeSet()
+        {
+            DateTime? originalStartDate = new DateTime(2020, 10, 1);
+            return AssertPropertySet(input => input.OriginalStartDate, originalStartDate);
+        }
     }
 }
