@@ -148,8 +148,6 @@ steps:
         azure/**
         nuget-publish/*.nupkg
         src/**/*.dacpac
-        src/ServiceBusTopicConfiguration.json
-        src/ServiceBusSubscriptionConfiguration.json
       targetFolder: "$(build.artifactstagingdirectory)/publish"
 
   - task: PublishBuildArtifacts@1
