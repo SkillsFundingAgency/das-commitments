@@ -10,10 +10,12 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public long ProviderId { get; }
         public DateTime UpdatedOn { get; }
         public Party LastApprovedBy { get; }
+        public long? ChangeOfPartyRequestId { get; }
 
-        public CohortFullyApprovedEvent(long cohortId, long accountId, long providerId, DateTime updatedOn, Party lastApprovedBy)
+        public CohortFullyApprovedEvent(long cohortId, long accountId, long providerId, DateTime updatedOn, Party lastApprovedBy, long? changeOfPartyRequestId)
         {
             LastApprovedBy = lastApprovedBy;
+            ChangeOfPartyRequestId = changeOfPartyRequestId;
             CohortId = cohortId;
             AccountId = accountId;
             ProviderId = providerId;
