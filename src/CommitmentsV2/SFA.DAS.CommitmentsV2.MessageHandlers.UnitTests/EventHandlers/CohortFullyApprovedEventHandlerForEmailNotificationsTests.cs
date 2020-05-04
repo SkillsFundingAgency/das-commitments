@@ -77,7 +77,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     _autoFixture.Create<long>(),
                     _autoFixture.Create<long>(),
                     _autoFixture.Create<DateTime>(),
-                    _autoFixture.Create<Party>()
+                    _autoFixture.Create<Party>(),
+                    _autoFixture.Create<long?>(),
+                    _autoFixture.Create<UserInfo>()
                     );
             }
 
@@ -88,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         _autoFixture.Create<long>(),
                         _autoFixture.Create<long>(),
                         _autoFixture.Create<DateTime>(),
-                        lastApprovalParty);
+                        lastApprovalParty, _autoFixture.Create<long?>(), _autoFixture.Create<UserInfo>());
 
                 return this;
             }

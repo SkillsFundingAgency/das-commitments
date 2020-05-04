@@ -86,14 +86,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
 
             if (request.ChangeOfPartyRequestId.HasValue)
             { 
-                await Task.WhenAll(EmitChangeOfPartyEvents(request.ChangeOfPartyRequestId.Value, events));
+                await Task.WhenAll(EmitChangeOfPartyEvents(request, events));
             }
         }
 
-        private IEnumerable<Task> EmitChangeOfPartyEvents(long changeOfPartyRequestId, List<ApprenticeshipCreatedEvent> events)
+        private IEnumerable<Task> EmitChangeOfPartyEvents(ProcessFullyApprovedCohortCommand request, List<ApprenticeshipCreatedEvent> events)
         {
             var changeOfPartyEvents = events.Select(e => 
-                new ApprenticeshipWithChangeOfPartyCreatedEvent(e.ApprenticeshipId, changeOfPartyRequestId, e.CreatedOn));
+                new ApprenticeshipWithChangeOfPartyCreatedEvent(e.ApprenticeshipId, request.ChangeOfPartyRequestId.Value, e.CreatedOn, request.UserInfo, request.LastApprovedBy));
 
             return changeOfPartyEvents.Select(e =>
             {

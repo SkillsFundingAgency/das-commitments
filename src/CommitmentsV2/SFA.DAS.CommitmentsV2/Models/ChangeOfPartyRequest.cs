@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public byte[] RowVersion { get; private set; }
         public DateTime LastUpdatedOn { get; private set; }
-        public long? NewApprenticeshipId { get; private set; }
+        public virtual long? NewApprenticeshipId { get; private set; }
 
         public virtual Apprenticeship Apprenticeship { get; private set; }
         public virtual AccountLegalEntity AccountLegalEntity { get; private set; }
@@ -145,11 +145,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public virtual void SetNewApprenticeship(Apprenticeship apprenticeship, UserInfo userInfo)
+        public virtual void SetNewApprenticeship(Apprenticeship apprenticeship, UserInfo userInfo, Party modifyingParty)
         {
             CheckNewApprenticeshipIdNotSet(apprenticeship.Id);
 
-            StartTrackingSession(UserAction.SetNewApprenticeshipId, OriginatingParty, apprenticeship.Cohort.EmployerAccountId, apprenticeship.Cohort.ProviderId, userInfo);
+            StartTrackingSession(UserAction.SetNewApprenticeshipId, modifyingParty, apprenticeship.Cohort.EmployerAccountId, apprenticeship.Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
             NewApprenticeshipId = apprenticeship.Id;
