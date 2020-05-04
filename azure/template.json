@@ -758,20 +758,20 @@
             }
         },
         {
-            "name": "service-bus-topics",
+            "name": "[concat('service-bus-topic-', copyIndex())]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'service-bus.json')]",
+                    "uri": "[concat(variables('deploymentUrlBase'), 'service-bus-topic.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "serviceBusNamespaceName": {
                         "value": "[variables('serviceBusName')]"
                     },
-                    "serviceBusTopics": {
+                    "serviceBusTopicName": {
                         "value": "[parameters('serviceBusTopicsArray')[copyIndex()].topicName]"
                     },
                     "serviceBusSubscriptions": {
