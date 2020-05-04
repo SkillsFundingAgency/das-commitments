@@ -16,13 +16,4 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IProviderCommitmentsDbContext>().Use(c => c.GetInstance<IDbContextFactory>().CreateDbContext());
         }
     }
-    public class ReadOnlyDataRegistry : Registry
-    {
-        public ReadOnlyDataRegistry()
-        {
-            For<IDbReadOnlyContextFactory>().Use<DbReadOnlyContextFactory>();
-            For<CommitmentsReadOnlyDbContext>().Use(c => c.GetInstance<IDbReadOnlyContextFactory>().CreateDbContext());
-            For<ICommitmentsReadOnlyDbContext>().Use(c => c.GetInstance<IDbReadOnlyContextFactory>().CreateDbContext());
-        }
-    }
 }

@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.Expressions;
-using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
 {
@@ -21,19 +19,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
         public async Task<GetAccountSummaryQueryResult> Handle(GetAccountSummaryQuery query,
             CancellationToken cancellationToken)
         {
-            var accountQuery = PredicateBuilder.True<Cohort>().And(c => c.EmployerAccountId == query.AccountId);
-
-            var hasCohorts = await _dbContext.Value.Cohorts
-                .AnyAsync(accountQuery.And(CohortQueries.IsNotFullyApproved()), cancellationToken: cancellationToken);
-
-            var hasApprenticeships = await _dbContext.Value.Apprenticeships
-                .AnyAsync(a => a.Cohort.EmployerAccountId == query.AccountId, cancellationToken: cancellationToken);
+            var account = await _dbContext.Value.Accounts
+               .SingleAsync(a => a.Id == query.AccountId, cancellationToken: cancellationToken);
 
             return new GetAccountSummaryQueryResult
             {
                 AccountId = query.AccountId,
-                HasCohorts = hasCohorts,
-                HasApprenticeships = hasApprenticeships
+                LevyStatus = account.LevyStatus
             };
         }
     }

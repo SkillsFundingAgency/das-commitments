@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Provider_Apprenticeships(
             ApprenticeshipSearchParameters searchParameters,
             List<Apprenticeship> apprenticeships,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             ApprenticeshipSearchService service)
         {
             searchParameters.PageNumber = 1;
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Employer_Apprenticeships(
             ApprenticeshipSearchParameters searchParameters,
             List<Apprenticeship> apprenticeships,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             ApprenticeshipSearchService service)
         {
             searchParameters.PageNumber = 1;
@@ -84,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Apprenticeships_Total_Found(
             ApprenticeshipSearchParameters searchParameters,
             List<Apprenticeship> apprenticeships,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             ApprenticeshipSearchService service)
         {
             searchParameters.PageNumber = 1;
@@ -107,7 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_Then_Apprentices_Are_Default_Sorted(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
            
@@ -217,7 +217,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Return_Per_Page(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 2;
@@ -245,7 +245,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Total_Found_Are_Return_With_Page_Data(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 2;
@@ -270,7 +270,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Total_Apprentices_Available_Will_Be_Return_For_Provider_When_Getting_Paged_Results(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 2;
@@ -298,7 +298,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Total_Apprentices_Available_Will_Be_Return_For_Employer_When_Getting_Paged_Results(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 2;
@@ -326,7 +326,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Total_Apprentices_Available_Will_Be_Return_For_Provider_When_Getting_All_Results(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 0;
@@ -354,7 +354,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Total_Apprentices_Available_Will_Be_Return_For_Employer_When_Getting_All_Results(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 0;
@@ -383,7 +383,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Apprentices_With_Alerts_Total_Found_Are_Return_With_Page_Data(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 2;
@@ -409,7 +409,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_And_Is_And_There_Are_ApprenticeshipUpdates_These_Appear_First(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 0;
@@ -492,7 +492,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Will_Return_The_Last_Page_Number_If_Page_Number_Exceeds_Limit(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.PageNumber = 10;
@@ -521,7 +521,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Will_Return_Page_Number_If_All_Apprenticeships_Are_With_Alerts(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext)
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
             searchParameters.ReverseSort = false;

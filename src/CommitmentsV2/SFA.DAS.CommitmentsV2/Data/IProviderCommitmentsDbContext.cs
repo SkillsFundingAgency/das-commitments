@@ -4,11 +4,6 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data
 {
-    public interface ICommitmentsReadOnlyDbContext : IProviderCommitmentsDbContext
-    {
-
-    }
-
     public interface IProviderCommitmentsDbContext : ICommitmentsDbContext
     {
 

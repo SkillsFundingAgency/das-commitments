@@ -6,5 +6,6 @@
     [Name] NVARCHAR(100) NOT NULL,
     [Created] DATETIME2 NOT NULL,
     [Updated] DATETIME2 NULL,
+    [LevyStatus] tinyint NOT NULL DEFAULT 0,
     CONSTRAINT [PK_Accounts] PRIMARY KEY CLUSTERED ([Id] ASC)
 )

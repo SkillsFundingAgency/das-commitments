@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Will_Not_Search_For_Apprenticeships_That_Will_Not_Be_Used_On_Current_Page(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             ApprenticeshipSearchService service)
         {
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Will_Not_Search_For_Apprenticeships_That_Will_Be_Skipped(
             ApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<ICommitmentsReadOnlyDbContext> mockContext,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             [Frozen] Mock<IMapper<Apprenticeship, GetApprenticeshipsQueryResult.ApprenticeshipDetails>> mockMapper,
             ApprenticeshipSearchService service)
         {
