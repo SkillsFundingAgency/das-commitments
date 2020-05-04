@@ -7,17 +7,17 @@ using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohortId
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohort
 {
     [TestFixture]
-    public class WhenCohortIdIsSet
+    public class WhenCohortIsSet
     {
-        private WhenCohortIdIsSetFixture _fixture;
+        private WhenCohortIsSetFixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _fixture = new WhenCohortIdIsSetFixture();
+            _fixture = new WhenCohortIsSetFixture();
         }
 
         [Test]
@@ -42,14 +42,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohortI
             _fixture.VerifyException();
         }
 
-        private class WhenCohortIdIsSetFixture
+        private class WhenCohortIsSetFixture
         {
             private readonly CommitmentsV2.Models.ChangeOfPartyRequest _changeOfPartyRequest;
             private readonly CommitmentsV2.Models.Cohort _cohort;
             private Exception _exception;
             public UnitOfWorkContext UnitOfWorkContext { get; private set; }
 
-            public WhenCohortIdIsSetFixture()
+            public WhenCohortIsSetFixture()
             {
                 var autoFixture = new Fixture();
 
