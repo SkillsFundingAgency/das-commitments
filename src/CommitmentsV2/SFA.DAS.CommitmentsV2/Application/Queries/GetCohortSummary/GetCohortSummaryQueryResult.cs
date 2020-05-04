@@ -32,5 +32,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public bool IsApprovedByEmployer { get; set; }
         public bool IsCompleteForEmployer { get; set; }
         public Party Approvals { get; set; }
+        public ApprenticeshipEmployerType LevyStatus { get; set; }
     }
 }

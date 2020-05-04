@@ -26,7 +26,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity
                         AccountId = ale.AccountId,
                         MaLegalEntityId = ale.MaLegalEntityId,
                         AccountName = ale.Account.Name,
-                        LegalEntityName = ale.Name
+                        LegalEntityName = ale.Name,
+                        LevyStatus = ale.Account.LevyStatus
                     },
                     cancellationToken);
         }
