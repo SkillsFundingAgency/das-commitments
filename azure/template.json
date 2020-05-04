@@ -95,15 +95,12 @@
         "logAnalyticsWorkspaceName": {
             "type": "string"
         },
-        "serviceBusTopics": {
-            "type": "array"
-        },
-        "serviceBusSubscriptions": {
+        "serviceBusTopicsArray": {
             "type": "array"
         }
     },
     "variables": {
-        "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
+        "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/service-bus-subscriptions/templates/",
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
         "supportResourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-s', parameters('serviceName')))]",
         "workerStorageAccountName": "[toLower(concat('das', parameters('resourceEnvironmentName'), parameters('serviceName'), 'wkrstr'))]",
@@ -756,15 +753,37 @@
                 "parameters": {
                     "serviceBusNamespaceName": {
                         "value": "[variables('serviceBusName')]"
-                    },
-                    "serviceBusTopics": {
-                        "value": "[parameters('serviceBusTopics')]"
-                    },
-                    "serviceBusSubscriptions": {
-                        "value": "[parameters('serviceBusSubscriptions')]"
                     }
                 }
             }
+        },
+        {
+            "name": "service-bus-topics",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'service-bus.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "serviceBusNamespaceName": {
+                        "value": "[variables('serviceBusName')]"
+                    },
+                    "serviceBusTopics": {
+                        "value": "[parameters('serviceBusTopicsArray')[copyIndex()].topicName]"
+                    },
+                    "serviceBusSubscriptions": {
+                        "value": "[parameters('serviceBusTopicsArray')[copyIndex()].subscriptions]"
+                    }
+                }
+            },
+            "copy": {
+                "name": "service-bus-topics-subscriptions",
+                "count": "[length(parameters('serviceBusTopicsArray'))]"
+            },
+            "dependsOn": ["service-bus"]
         }
     ],
     "outputs": {
