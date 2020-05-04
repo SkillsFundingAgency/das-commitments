@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.Expressions;
-using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
 {
@@ -22,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
             CancellationToken cancellationToken)
         {
             var account = await _dbContext.Value.Accounts
-               .FirstAsync(a => a.Id == query.AccountId, cancellationToken: cancellationToken);
+               .SingleAsync(a => a.Id == query.AccountId, cancellationToken: cancellationToken);
 
             return new GetAccountSummaryQueryResult
             {
