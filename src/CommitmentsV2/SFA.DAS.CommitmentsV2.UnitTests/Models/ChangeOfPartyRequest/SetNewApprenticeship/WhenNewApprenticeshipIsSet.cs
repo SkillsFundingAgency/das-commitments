@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetNewAppr
             {
                 try
                 {
-                    _changeOfPartyRequest.SetNewApprenticeship(_apprenticeship, new UserInfo());
+                    _changeOfPartyRequest.SetNewApprenticeship(_apprenticeship, new UserInfo(), Party.Employer);
                 }
                 catch (Exception ex)
                 {

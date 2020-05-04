@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 
                 _changeOfPartyRequest = new Mock<ChangeOfPartyRequest>();
                 _changeOfPartyRequest.Setup(x => x.Id).Returns(_event.ChangeOfPartyRequestId);
-                _changeOfPartyRequest.Setup(x => x.SetNewApprenticeship(_apprenticeship, _event.UserInfo));
+                _changeOfPartyRequest.Setup(x => x.SetNewApprenticeship(_apprenticeship, _event.UserInfo, Party.Employer));
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -94,12 +94,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyNewApprenticeshipIsSet()
             {
-                _changeOfPartyRequest.Verify(x => x.SetNewApprenticeship(_apprenticeship, _event.UserInfo), Times.Once);
+                _changeOfPartyRequest.Verify(x => x.SetNewApprenticeship(_apprenticeship, _event.UserInfo, _event.LastApprovedBy), Times.Once);
             }
 
             public void VerifyNewApprenticeshipIsNotUpdated()
             {
-                _changeOfPartyRequest.Verify(x => x.SetNewApprenticeship(It.IsAny<Apprenticeship>(), It.IsAny<UserInfo>()), Times.Never);
+                _changeOfPartyRequest.Verify(x => x.SetNewApprenticeship(It.IsAny<Apprenticeship>(), It.IsAny<UserInfo>(), It.IsAny<Party>()), Times.Never);
             }
         }
     }
