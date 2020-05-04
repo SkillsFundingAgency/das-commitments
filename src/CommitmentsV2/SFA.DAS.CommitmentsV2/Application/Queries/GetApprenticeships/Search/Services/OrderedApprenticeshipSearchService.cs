@@ -9,9 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 {
     public class OrderedApprenticeshipSearchService : OrderedApprenticeshipSearchBaseService, IApprenticeshipSearchService<OrderedApprenticeshipSearchParameters>
     {
-        private readonly ICommitmentsReadOnlyDbContext _dbContext;
+        private readonly IProviderCommitmentsDbContext _dbContext;
 
-        public OrderedApprenticeshipSearchService(ICommitmentsReadOnlyDbContext dbContext)
+        public OrderedApprenticeshipSearchService(IProviderCommitmentsDbContext dbContext)
         {
             _dbContext = dbContext;
         }
