@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Types.Models;
+using SFA.DAS.EmployerFinance.Messages.Events;
 using SFA.DAS.Payments.ProviderPayments.Messages;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
@@ -51,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("O - CohortDeletedEvent");
                 Console.WriteLine("P - ApproveTransferRequestCommand");
                 Console.WriteLine("Q - RejectTransferRequestCommand");
+                Console.WriteLine("S - LevyAddedToAccount");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -146,6 +148,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Send(new RejectTransferRequestCommand(10004, DateTime.UtcNow, userInfo), new SendOptions());
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(RejectTransferRequestCommand)}");
+                            break;
+                        case ConsoleKey.S:
+                            await _publisher.Publish(new LevyAddedToAccount { AccountId = accountId, Amount = 10, Created = DateTime.UtcNow });
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(LevyAddedToAccount)}");
                             break;
                     }
                 }

@@ -8,6 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -41,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             // arrange
             var fixtures = new AccountLegalEntityControllerTestFixtures()
-                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityQueryResult { AccountId = 1, MaLegalEntityId = 234, AccountName = "AccountName", LegalEntityName = "ABC" });
+                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityQueryResult { AccountId = 1, MaLegalEntityId = 234, AccountName = "AccountName", LegalEntityName = "ABC", LevyStatus = ApprenticeshipEmployerType.Levy });
 
             // act
             var response = await fixtures.CallControllerMethod(accountLegalEntityId);
@@ -55,6 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             Assert.AreEqual(234, model.MaLegalEntityId);
             Assert.AreEqual("AccountName", model.AccountName);
             Assert.AreEqual("ABC", model.LegalEntityName);
+            Assert.AreEqual(ApprenticeshipEmployerType.Levy, model.LevyStatus);
         }
 
         [Test]

@@ -40,7 +40,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                         v.LatestMessageCreatedByEmployer == f.GetCohortResult.LatestMessageCreatedByEmployer &&
                         v.LatestMessageCreatedByProvider == f.GetCohortResult.LatestMessageCreatedByProvider &&
                         v.IsApprovedByEmployer == f.GetCohortResult.IsApprovedByEmployer &&
-                        v.IsApprovedByProvider == f.GetCohortResult.IsApprovedByProvider));
+                        v.IsApprovedByProvider == f.GetCohortResult.IsApprovedByProvider &&
+                        v.LevyStatus == f.GetCohortResult.LevyStatus));
         }
 
         [Test]

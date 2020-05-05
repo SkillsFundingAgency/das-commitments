@@ -15,31 +15,30 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEntity
 {
     [TestFixture]
     public class GetAccountLegalEntityHandlerTests
     {
-        [Test]
-        public async Task Handle_WithSpecifiedId_ShouldSetIsValidCorrectly()
+        [TestCase(123,456,987, ApprenticeshipEmployerType.Levy)]
+        [TestCase(1234, 4567, 9870, ApprenticeshipEmployerType.NonLevy)]
+        public async Task Handle_WithSpecifiedId_ShouldSetIsValidCorrectly(long accountId, long accountLegalEntityId, long maLegalEntityId, ApprenticeshipEmployerType levyStatus)
         {
-            const long accountId = 123;
-            const long accountLegalEntityId = 456;
-            const long maLegalEntityId = 987;
-
             // arrange
             var fixtures = new GetEmployerHandlerTestFixtures()
-                .AddAccountWithLegalEntities(accountId, "Account123", accountLegalEntityId, maLegalEntityId, "LegalEntity456");
+                .AddAccountWithLegalEntities(accountId, "Account123", accountLegalEntityId, maLegalEntityId, "LegalEntity456", levyStatus);
 
             // act
             var response = await fixtures.GetResponse(new GetAccountLegalEntityQuery {AccountLegalEntityId = accountLegalEntityId });
 
             // Assert
             Assert.IsNotNull(response);
-            Assert.AreEqual(response.AccountId, accountId);
-            Assert.AreEqual(response.MaLegalEntityId, maLegalEntityId);
-            Assert.AreEqual(response.AccountName, "Account123");
+            Assert.AreEqual(accountId, response.AccountId);
+            Assert.AreEqual(maLegalEntityId, response.MaLegalEntityId);
+            Assert.AreEqual("Account123", response.AccountName);
+            Assert.AreEqual(levyStatus, response.LevyStatus);
         }
     }
 
@@ -62,9 +61,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
         public List<Account> SeedAccounts { get; }
 
         public GetEmployerHandlerTestFixtures AddAccountWithLegalEntities(long accountId, string accountName,
-            long accountLegalEntityId, long maLegalEntityId, string name)
+            long accountLegalEntityId, long maLegalEntityId, string name, ApprenticeshipEmployerType levyStatus)
         {
-            var account = new Account(accountId, "PRI123", "PUB123", accountName, DateTime.Now);
+            var account = new Account(accountId, "PRI123", "PUB123", accountName, DateTime.Now) { LevyStatus = levyStatus };
 
             account.AddAccountLegalEntity(accountLegalEntityId, maLegalEntityId, "ABC456", "PUB456", 
                 name, OrganisationType.Charities, "My address", DateTime.Now);
