@@ -366,6 +366,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new InvalidOperationException($"There is not a draft apprenticeship with id {draftApprenticeshipDetails.Id} in cohort {Id}");
             }
 
+            if (ChangeOfPartyRequestId.HasValue)
+            {
+                existingDraftApprenticeship.ValidateUpdateForChangeOfParty(draftApprenticeshipDetails);
+            }
+
             StartTrackingSession(UserAction.UpdateDraftApprenticeship, modifyingParty, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
             ChangeTrackingSession.TrackUpdate(existingDraftApprenticeship);

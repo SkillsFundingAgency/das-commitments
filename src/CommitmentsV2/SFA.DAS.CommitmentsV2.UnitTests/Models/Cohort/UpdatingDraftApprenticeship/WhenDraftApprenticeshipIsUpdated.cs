@@ -71,6 +71,61 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             fixture.VerifyCohortTracking();
         }
 
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_With_ChangeOfParty_FirstName_Throws(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithChangeOfPartyCohort()
+                .UpdateDraftApprenticeshipFirstName();
+
+            Assert.IsNotNull(fixture.Exception);
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_With_ChangeOfParty_LastName_Throws(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithChangeOfPartyCohort()
+                .UpdateDraftApprenticeshipLastName();
+
+            Assert.IsNotNull(fixture.Exception);
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_With_ChangeOfParty_DateOfBirth_Throws(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithChangeOfPartyCohort()
+                .UpdateDraftApprenticeshipDateOfBirth();
+
+            Assert.IsNotNull(fixture.Exception);
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_With_ChangeOfParty_CourseCode_Throws(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithChangeOfPartyCohort()
+                .UpdateDraftApprenticeshipCourseCode();
+
+            Assert.IsNotNull(fixture.Exception);
+        }
 
         private class UpdatingDraftApprenticeshipTestFixture
         {
@@ -121,6 +176,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 return this;
             }
 
+            public UpdatingDraftApprenticeshipTestFixture WithChangeOfPartyCohort()
+            {
+                Cohort.ChangeOfPartyRequestId = _autoFixture.Create<long>();
+                return this;
+            }
+
             public UpdatingDraftApprenticeshipTestFixture WithPriorApprovalOfOtherParty()
             {
                 Cohort.Approvals = ModifyingParty.GetOtherParty();
@@ -132,6 +193,46 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.Cost = details.Cost + 1 ?? 1;
                 Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipFirstName()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.FirstName += "_modified";
+                TryUpdate(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipLastName()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.LastName += "_modified";
+                TryUpdate(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipDateOfBirth()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.DateOfBirth = details.DateOfBirth?.AddDays(1) ?? _autoFixture.Create<DateTime>();
+                TryUpdate(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipCourseCode()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
+                TryUpdate(details, ModifyingParty, UserInfo);
+            }
+
+            private void TryUpdate(DraftApprenticeshipDetails details, Party modifyingParty, UserInfo userInfo)
+            {
+                try
+                {
+                    Cohort.UpdateDraftApprenticeship(details, modifyingParty, userInfo);
+                }
+                catch (Exception ex)
+                {
+                    Exception = ex;
+                }
             }
 
             public void UpdateDraftApprenticeshipReference()
