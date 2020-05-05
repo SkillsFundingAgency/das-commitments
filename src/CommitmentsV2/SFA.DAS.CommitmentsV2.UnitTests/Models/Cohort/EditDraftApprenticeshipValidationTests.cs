@@ -38,6 +38,65 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 nameof(_fixture.DraftApprenticeshipDetails.Uln),
                 passes);
         }
+
+
+        [TestCase(null, true)]
+        [TestCase("2017-04-30", false)]
+        [TestCase("2017-05-01", true)]
+        public void StartDate_CheckNotBeforeMay2017_Validation(DateTime? startDate, bool passes)
+        {
+            var utcStartDate = startDate.HasValue
+                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                : default(DateTime?);
+
+            _fixture
+                .AssertValidationForProperty(
+                () =>
+                    _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
+                            .WithApprenticeship(1, "AAA").WithId(1).WithStartDate(utcStartDate),
+                nameof(_fixture.DraftApprenticeshipDetails.StartDate),
+                passes);
+        }
+
+        [TestCase("2017-04-30", false)]
+        [TestCase("2017-05-01", true)]
+        public void StartDate_ChangeOfParty_CheckNotBeforeMay2017_Validation(DateTime? startDate, bool passes)
+        {
+            var utcStartDate = startDate.HasValue
+                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                : default(DateTime?);
+
+            _fixture
+                .AssertValidationForProperty(
+                    () =>
+                        _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
+                            .WithApprenticeship(1, "AAA")
+                            .WithChangeOfParty()
+                            .WithId(1).WithStartDate(utcStartDate)
+                            .WithTrainingProgrammeEffectiveBetween(DateTime.MinValue, DateTime.MaxValue),
+                    nameof(_fixture.DraftApprenticeshipDetails.StartDate),
+                    passes);
+        }
+
+        [Test]
+        public void StartDate_ChangeOfParty_Do_Not_Check_Course_Validity()
+        {
+            var startDate = new DateTime(2020, 06, 01);
+            var courseStartDate = new DateTime(2018, 01, 01);
+            var courseEndDate = new DateTime(2019, 01, 01);
+
+            _fixture
+                .AssertValidationForProperty(
+                    () =>
+                        _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
+                            .WithApprenticeship(1, "AAA")
+                            .WithChangeOfParty()
+                            .WithId(1)
+                            .WithStartDate(startDate)
+                            .WithTrainingProgrammeEffectiveBetween(courseStartDate, courseEndDate),
+                    nameof(_fixture.DraftApprenticeshipDetails.StartDate),
+                    true);
+        }
     }
 
     public class UpdateDraftApprenticeshipValidationTestsFixture
@@ -73,6 +132,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public UpdateDraftApprenticeshipValidationTestsFixture WithEmployerCohort()
         {
             Cohort = new CommitmentsV2.Models.Cohort {WithParty = Party.Employer, ProviderId = 1 };
+            return this;
+        }
+
+        public UpdateDraftApprenticeshipValidationTestsFixture WithChangeOfParty()
+        {
+            Cohort.ChangeOfPartyRequestId = 123;
+            DraftApprenticeshipDetails.FirstName = Cohort.Apprenticeships.First().FirstName;
+            DraftApprenticeshipDetails.LastName = Cohort.Apprenticeships.First().LastName;
+            DraftApprenticeshipDetails.DateOfBirth = Cohort.Apprenticeships.First().DateOfBirth;
+            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme(
+                "TEST", "", ProgrammeType.Framework, DateTime.MinValue,
+                DateTime.MaxValue);
             return this;
         }
 
@@ -126,6 +197,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public UpdateDraftApprenticeshipValidationTestsFixture WithApprenticeship(long id, string uln)
         {
             var draftApprenticeshipDetails = new DraftApprenticeshipDetails().Set(d => d.Uln, uln);
+            draftApprenticeshipDetails.Set(x => x.FirstName, "TEST");
+            draftApprenticeshipDetails.Set(x => x.LastName, "TEST");
+            draftApprenticeshipDetails.Set(x => x.TrainingProgramme,
+                new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue));
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Party.Provider).Set(d => d.Id, id);
             
             Cohort.Apprenticeships.Add(draftApprenticeship);
