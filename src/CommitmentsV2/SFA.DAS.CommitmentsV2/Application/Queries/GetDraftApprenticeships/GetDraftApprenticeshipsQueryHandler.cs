@@ -37,7 +37,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     DateOfBirth =  a.DateOfBirth,
                     StartDate = a.StartDate,
                     EndDate = a.EndDate,
-                    Uln = a.Uln
+                    Uln = a.Uln,
+                    OriginalStartDate = a.OriginalStartDate
                 }).ToList()
             });
         }

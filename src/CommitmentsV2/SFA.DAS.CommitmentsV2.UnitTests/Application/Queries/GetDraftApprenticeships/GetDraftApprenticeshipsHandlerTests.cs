@@ -105,7 +105,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                         EndDate = _autoFixture.Create<DateTime?>(),
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
-                        Uln = _autoFixture.Create<string>()
+                        Uln = _autoFixture.Create<string>(),
+                        OriginalStartDate = _autoFixture.Create<DateTime?>()
                     };
                     _cohort.Apprenticeships.Add(apprenticeship);
                 }
@@ -142,6 +143,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.Uln, result.Uln);
             Assert.AreEqual(source.CourseCode, result.CourseCode);
             Assert.AreEqual(source.CourseName, result.CourseName);
+            Assert.AreEqual(source.OriginalStartDate, result.OriginalStartDate);
         }
     }
 }
