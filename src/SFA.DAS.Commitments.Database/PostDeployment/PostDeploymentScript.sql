@@ -12,7 +12,3 @@ Post-Deployment Script Template
 
 EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
 
-
--- CV-684: set all accounts to levy initially, so that a manual script can set nonlevy back again
--- This must be removed immediately after release
-update [Accounts] set [LevyStatus]=1
