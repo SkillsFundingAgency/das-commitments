@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -30,9 +29,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                 var cohortFiltered = await (from c in _db.Value.Cohorts
                                             join a in _db.Value.Accounts on c.TransferSenderId equals a.Id into account
                                             from transferSender in account.DefaultIfEmpty()
-                                            where c.EmployerAccountId == command.AccountId &&
-                                      (c.EditStatus != EditStatus.Both ||
-                                       (c.TransferSenderId != null && c.TransferApprovalStatus != TransferApprovalStatus.Approved))
+                                            where c.EmployerAccountId == (command.AccountId ?? c.EmployerAccountId) && c.ProviderId == (command.ProviderId ?? c.ProviderId) &&
+                                                (c.EditStatus != EditStatus.Both ||
+                                                (c.TransferSenderId != null && c.TransferApprovalStatus != TransferApprovalStatus.Approved))
                                             select new CohortSummary
                                             {
                                                 AccountId = c.EmployerAccountId,

@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
     {
         public GetCohortsQueryValidator()
         {
-            RuleFor(model => model.AccountId).NotNull().WithMessage("The Account Id must be supplied");
+            RuleFor(model => model).Must(m=>m.ProviderId != null || m.AccountId != null).WithMessage("The Account Id or Provider Id must be supplied");
         }
     }
 }

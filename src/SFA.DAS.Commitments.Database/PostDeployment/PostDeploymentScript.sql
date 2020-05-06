@@ -10,6 +10,4 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
-EXEC sp_refreshview [dbo.ApprenticeshipSummary]
-EXEC sp_refreshview [dbo.CommitmentSummary]
 EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
