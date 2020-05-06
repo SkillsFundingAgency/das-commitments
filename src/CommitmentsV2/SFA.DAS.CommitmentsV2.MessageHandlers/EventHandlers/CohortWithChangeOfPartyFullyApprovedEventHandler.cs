@@ -22,16 +22,27 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(CohortWithChangeOfPartyFullyApprovedEvent message, IMessageHandlerContext context)
         {
-            var changeOfPartyRequest = await
-                _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+            _logger.LogInformation($"CohortWithChangeOfPartyFullyApprovedEvent received for Cohort {message.CohortId}, ChangeOfPartyRequest {message.ChangeOfPartyRequestId}");
 
-            if (changeOfPartyRequest.Status != ChangeOfPartyRequestStatus.Pending)
+            try
             {
-                _logger.LogWarning($"Unable to Approve ChangeOfPartyRequest {message.ChangeOfPartyRequestId} - status is already {changeOfPartyRequest.Status}");
-                return;
-            }
+                var changeOfPartyRequest = await
+                    _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
 
-            changeOfPartyRequest.Approve(message.ApprovedBy, message.UserInfo);
+                if (changeOfPartyRequest.Status != ChangeOfPartyRequestStatus.Pending)
+                {
+                    _logger.LogWarning(
+                        $"Unable to Approve ChangeOfPartyRequest {message.ChangeOfPartyRequestId} - status is already {changeOfPartyRequest.Status}");
+                    return;
+                }
+
+                changeOfPartyRequest.Approve(message.ApprovedBy, message.UserInfo);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error processing CohortWithChangeOfPartyFullyApprovedEvent", e);
+                throw;
+            }
         }
     }
 }

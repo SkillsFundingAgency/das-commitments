@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 ChangeOfPartyRequestType = request.ChangeOfPartyRequestType,
                 NewPartyId = request.NewPartyId,
                 NewStartDate = request.NewStartDate,
-                NewEndDate = request.EndDate,
+                NewEndDate = request.NewEndDate,
                 NewPrice = request.NewPrice,
                 UserInfo = request.UserInfo
             }, cancellationToken);

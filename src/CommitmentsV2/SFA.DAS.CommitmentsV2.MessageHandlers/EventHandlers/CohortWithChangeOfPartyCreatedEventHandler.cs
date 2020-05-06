@@ -22,21 +22,33 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(CohortWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context)
         {
-            var changeOfPartyRequestTask = _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
-            var cohortTask = _dbContext.Value.GetCohortAggregate(message.CohortId, default);
+            _logger.LogInformation($"CohortWithChangeOfPartyCreatedEvent received for Cohort {message.CohortId}, ChangeOfPartyRequest {message.ChangeOfPartyRequestId}");
 
-            await Task.WhenAll(changeOfPartyRequestTask, cohortTask);
-
-            var changeOfPartyRequest = await changeOfPartyRequestTask;
-            var cohort = await cohortTask;
-
-            if (changeOfPartyRequest.CohortId.HasValue)
+            try
             {
-                _logger.LogWarning($"ChangeOfPartyRequest {changeOfPartyRequest.Id} already has CohortId {changeOfPartyRequest.CohortId} - {nameof(CohortWithChangeOfPartyCreatedEvent)} with CohortId {message.CohortId} will be ignored");
-                return;
-            }
+                var changeOfPartyRequestTask =
+                    _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+                var cohortTask = _dbContext.Value.GetCohortAggregate(message.CohortId, default);
 
-            changeOfPartyRequest.SetCohort(cohort, message.UserInfo);
+                await Task.WhenAll(changeOfPartyRequestTask, cohortTask);
+
+                var changeOfPartyRequest = await changeOfPartyRequestTask;
+                var cohort = await cohortTask;
+
+                if (changeOfPartyRequest.CohortId.HasValue)
+                {
+                    _logger.LogWarning(
+                        $"ChangeOfPartyRequest {changeOfPartyRequest.Id} already has CohortId {changeOfPartyRequest.CohortId} - {nameof(CohortWithChangeOfPartyCreatedEvent)} with CohortId {message.CohortId} will be ignored");
+                    return;
+                }
+
+                changeOfPartyRequest.SetCohort(cohort, message.UserInfo);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error processing CohortWithChangeOfPartyCreatedEvent", e);
+                throw;
+            }
         }
     }
 }

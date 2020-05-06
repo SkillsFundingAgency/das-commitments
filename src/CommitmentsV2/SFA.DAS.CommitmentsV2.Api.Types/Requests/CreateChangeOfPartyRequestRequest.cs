@@ -9,6 +9,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public long NewPartyId { get; set; }
         public int NewPrice { get; set; }
         public DateTime NewStartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DateTime? NewEndDate { get; set; }
     }
 }

@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCohorts([FromQuery] GetCohortsRequest request)
         {
-            var query = new GetCohortsQuery(request.AccountId);
+            var query = new GetCohortsQuery(request.AccountId, request.ProviderId);
             var result = await _mediator.Send(query);
 
             return Ok(new GetCohortsResponse(result.Cohorts));

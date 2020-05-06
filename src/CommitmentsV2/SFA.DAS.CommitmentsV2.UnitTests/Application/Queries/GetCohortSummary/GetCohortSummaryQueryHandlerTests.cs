@@ -229,7 +229,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             assert(response);
         }
 
-
         private DraftApprenticeshipDetails SetApprenticeDetails(int nullProperty)
         {
             var apprenticeDetails = new DraftApprenticeshipDetails

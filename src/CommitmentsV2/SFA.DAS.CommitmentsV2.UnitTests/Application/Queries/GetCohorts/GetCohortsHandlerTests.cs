@@ -22,25 +22,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         public async Task Handle_WithAccountId_ShouldReturnDraftUnapprovedCohortsForThatEmployer()
         {
             var f = new GetCohortsHandlerTestFixtures();
-            f.AddEmptyDraftCohortForEmployer(f.AccountId);
+            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId));
+            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(response.Cohorts.Length, f.SeedCohorts.Count);
-            Assert.AreEqual(response.Cohorts[0].AccountId, f.AccountId);
-            Assert.AreEqual(response.Cohorts[0].ProviderId, f.SeedCohorts[0].ProviderId);
-            Assert.AreEqual(response.Cohorts[0].CohortId, f.SeedCohorts[0].Id);
-            Assert.AreEqual(response.Cohorts[0].CreatedOn, f.SeedCohorts[0].CreatedOn);
+            Assert.AreEqual(f.SeedCohorts.Count, response.Cohorts.Length);
+            Assert.AreEqual(f.AccountId, response.Cohorts[0].AccountId);
+            Assert.AreEqual(f.SeedCohorts[0].ProviderId, response.Cohorts[0].ProviderId);
+            Assert.AreEqual(f.SeedCohorts[0].Id, response.Cohorts[0].CohortId);
+            Assert.AreEqual(f.SeedCohorts[0].CreatedOn, response.Cohorts[0].CreatedOn);
         }
 
         [Test]
         public async Task Handle_WithAccountId_ShouldReturnEmptyMessagesAsNothingSent()
         {
             var f = new GetCohortsHandlerTestFixtures();
-            f.AddEmptyDraftCohortForEmployer(f.AccountId);
+            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId));
+            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
 
             Assert.IsNull(response.Cohorts[0].LatestMessageFromEmployer);
             Assert.IsNull(response.Cohorts[0].LatestMessageFromProvider);
@@ -50,12 +50,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         public async Task Handle_WithAccountIdWithNoCohorts_ShouldReturnEmptyList()
         {
             var f = new GetCohortsHandlerTestFixtures();
-            f.AddEmptyDraftCohortForEmployer(f.AccountId);
+            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.NonMatchingAccountId));
+            var response = await f.GetResponse(new GetCohortsQuery(f.NonMatchingId, null));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(response.Cohorts.Length, 0);
+            Assert.AreEqual(0, response.Cohorts.Length);
         }
 
         [Test]
@@ -64,10 +64,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var f = new GetCohortsHandlerTestFixtures();
             f.AddCohortForEmployerApprovedByBoth(f.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId));
+            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(response.Cohorts.Length, 0);
+            Assert.AreEqual(0, response.Cohorts.Length);
         }
 
         [Test]
@@ -76,10 +76,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var f = new GetCohortsHandlerTestFixtures();
             f.AddTransferCohortForEmployerAndApprovedByAll(f.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId));
+            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(response.Cohorts.Length, 0);
+            Assert.AreEqual(0, response.Cohorts.Length);
         }
 
         [Test]
@@ -88,12 +88,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var f = new GetCohortsHandlerTestFixtures();
             f.AddCohortWithTransferSender(f.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId));
+            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(response.Cohorts.Length, 1);
-            Assert.AreEqual(response.Cohorts[0].TransferSenderId, f.TransferSenderId);
-            Assert.AreEqual(response.Cohorts[0].TransferSenderName, "TransferSender");
+            Assert.AreEqual(1, response.Cohorts.Length);
+            Assert.AreEqual(f.TransferSenderId, response.Cohorts[0].TransferSenderId);
+            Assert.AreEqual("TransferSender", response.Cohorts[0].TransferSenderName);
         }
 
         [Test]
@@ -102,19 +102,80 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var f = new GetCohortsHandlerTestFixtures();
             f.AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.AccountId)
                 .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.AccountId)
-                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.NonMatchingAccountId)
+                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.NonMatchingId)
                 .AddCohortForEmployerApprovedByBoth(f.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId));
+            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(response.Cohorts.Length, 2);
-            Assert.AreEqual(response.Cohorts[0].LatestMessageFromEmployer.Text, "EmployerLast");
-            Assert.AreEqual(response.Cohorts[0].LatestMessageFromProvider.Text, "ProviderLast");
-            Assert.AreEqual(response.Cohorts[0].NumberOfDraftApprentices, 2);
-            Assert.AreEqual(response.Cohorts[1].LatestMessageFromEmployer.Text, "EmployerLast");
-            Assert.AreEqual(response.Cohorts[1].LatestMessageFromProvider.Text, "ProviderLast");
-            Assert.AreEqual(response.Cohorts[1].NumberOfDraftApprentices, 2);
+            Assert.AreEqual(2, response.Cohorts.Length);
+            Assert.AreEqual("EmployerLast", response.Cohorts[0].LatestMessageFromEmployer.Text);
+            Assert.AreEqual("ProviderLast", response.Cohorts[0].LatestMessageFromProvider.Text);
+            Assert.AreEqual(2, response.Cohorts[0].NumberOfDraftApprentices);
+            Assert.AreEqual("EmployerLast", response.Cohorts[1].LatestMessageFromEmployer.Text);
+            Assert.AreEqual("ProviderLast", response.Cohorts[1].LatestMessageFromProvider.Text);
+            Assert.AreEqual(2, response.Cohorts[1].NumberOfDraftApprentices);
+        }
+
+        [Test]
+        public async Task Handle_WithProviderId_ShouldReturnDraftUnapprovedCohortsForThatProvider()
+        {
+            var f = new GetCohortsHandlerTestFixtures();
+            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
+
+            var response = await f.GetResponse(new GetCohortsQuery(null, f.ProviderId));
+
+            Assert.IsNotNull(response);
+            Assert.AreEqual(f.SeedCohorts.Count, response.Cohorts.Length);
+            Assert.AreEqual(f.AccountId, response.Cohorts[0].AccountId);
+            Assert.AreEqual(f.SeedCohorts[0].ProviderId, response.Cohorts[0].ProviderId);
+            Assert.AreEqual(f.SeedCohorts[0].Id, response.Cohorts[0].CohortId);
+            Assert.AreEqual(f.SeedCohorts[0].CreatedOn, response.Cohorts[0].CreatedOn);
+        }
+
+        [Test]
+        public async Task Handle_WithProviderIdWithNoCohorts_ShouldReturnEmptyList()
+        {
+            var f = new GetCohortsHandlerTestFixtures();
+            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
+
+            var response = await f.GetResponse(new GetCohortsQuery(null, f.NonMatchingId));
+
+            Assert.IsNotNull(response);
+            Assert.AreEqual(0, response.Cohorts.Length);
+        }
+
+        [Test]
+        public async Task Handle_WithProviderIdWithApprovedCohort_ShouldReturnEmptyList()
+        {
+            var f = new GetCohortsHandlerTestFixtures();
+            f.AddCohortForEmployerApprovedByBoth(f.AccountId);
+
+            var response = await f.GetResponse(new GetCohortsQuery(null, f.ProviderId));
+
+            Assert.IsNotNull(response);
+            Assert.AreEqual(0, response.Cohorts.Length);
+        }
+
+        [Test]
+        public async Task Handle_WithProviderIdWithMixedCohorts_ShouldReturn3CohortsForProviderIdAndExcludeApprovedCohorts()
+        {
+            var f = new GetCohortsHandlerTestFixtures();
+            f.AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.AccountId)
+                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.AccountId)
+                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.NonMatchingId)
+                .AddCohortForEmployerApprovedByBoth(f.AccountId);
+
+            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+
+            Assert.IsNotNull(response);
+            Assert.AreEqual(2, response.Cohorts.Length);
+            Assert.AreEqual("EmployerLast", response.Cohorts[0].LatestMessageFromEmployer.Text);
+            Assert.AreEqual("ProviderLast", response.Cohorts[0].LatestMessageFromProvider.Text);
+            Assert.AreEqual(2, response.Cohorts[0].NumberOfDraftApprentices);
+            Assert.AreEqual("EmployerLast", response.Cohorts[1].LatestMessageFromEmployer.Text);
+            Assert.AreEqual("ProviderLast", response.Cohorts[1].LatestMessageFromProvider.Text);
+            Assert.AreEqual(2, response.Cohorts[1].NumberOfDraftApprentices);
         }
     }
 
@@ -128,17 +189,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             SeedAccounts = new List<Account>();
             _autoFixture = new Fixture();
             AccountId = _autoFixture.Create<long>();
+            ProviderId = _autoFixture.Create<long>();
             TransferSenderId = AccountId + 1;
 
             TransferSender = new Account(TransferSenderId, "", "", "TransferSender", DateTime.UtcNow);
             Account = new Account(AccountId,"","","TEST", DateTime.UtcNow);
             AccountLegalEntity = new AccountLegalEntity(Account, 1,1, "", "","TEST", OrganisationType.Charities, "", DateTime.UtcNow);
-            Provider = new Provider(1, "TEST PROVIDER", DateTime.UtcNow, DateTime.UtcNow);
+            Provider = new Provider(ProviderId, "TEST PROVIDER", DateTime.UtcNow, DateTime.UtcNow);
         }
 
         public long AccountId { get; }
+        public long ProviderId { get; }
         public long TransferSenderId { get; set; }
-        public long NonMatchingAccountId => AccountId + 100;
+        public long NonMatchingId => AccountId + 100;
         public List<Cohort> SeedCohorts { get; }
         public List<Account> SeedAccounts { get; }
         public Account Account { get; }
@@ -158,7 +221,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             });
         }
 
-        public GetCohortsHandlerTestFixtures AddEmptyDraftCohortForEmployer(long accountId)
+        public GetCohortsHandlerTestFixtures AddEmptyDraftCohortWithEmployer(long? accountId)
         {
             var cohort = _autoFixture.Build<Cohort>().With(o=>o.EmployerAccountId, accountId)
                 .With(o => o.EditStatus, EditStatus.Neither)
@@ -169,8 +232,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.TransferSender)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages)
-                .Without(o => o.AccountLegalEntity)
-                .Without(o => o.Provider)
                 .Create();
 
             SeedCohorts.Add(cohort);
@@ -191,8 +252,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages)
-                .Without(o => o.AccountLegalEntity)
-                .Without(o => o.Provider)
                 .Create();
 
             SeedCohorts.Add(cohort);
@@ -212,8 +271,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages)
-                .Without(o => o.AccountLegalEntity)
-                .Without(o => o.Provider)
                 .Create();
 
             SeedCohorts.Add(cohort);
@@ -253,8 +310,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.TransferRequests)
                 .Without(o => o.TransferSender)
                 .Without(o => o.Messages)
-                .Without(o => o.AccountLegalEntity)
-                .Without(o => o.Provider)
                 .Create();
 
             cohort.Apprenticeships.Add(new DraftApprenticeship());
