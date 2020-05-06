@@ -358,12 +358,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckIsWithParty(modifyingParty);
 
-            var existingDraftApprenticeship = DraftApprenticeships.SingleOrDefault(a => a.Id == draftApprenticeshipDetails.Id);
-
-            if (existingDraftApprenticeship == null)
-            {
-                throw new InvalidOperationException($"There is not a draft apprenticeship with id {draftApprenticeshipDetails.Id} in cohort {Id}");
-            }
+            var existingDraftApprenticeship = GetDraftApprenticeship(draftApprenticeshipDetails.Id);
 
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ChangeOfPartyRequestId.HasValue);
 
@@ -579,7 +574,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             var trainingProgrammeStatus = details.TrainingProgramme?.GetStatusOn(details.StartDate.Value);
             
-            if((details.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
+            if((details.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas || isContinuation))
             {
                 yield return new DomainError(nameof(details.StartDate), "The start date must not be earlier than May 2017");
                 yield break;
@@ -698,6 +693,18 @@ namespace SFA.DAS.CommitmentsV2.Models
             WithParty = Party.Employer;
             LastUpdatedOn = DateTime.UtcNow;
             ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        internal DraftApprenticeship GetDraftApprenticeship(long draftApprenticeshipId)
+        {
+            var existingDraftApprenticeship = DraftApprenticeships.SingleOrDefault(a => a.Id == draftApprenticeshipId);
+
+            if (existingDraftApprenticeship == null)
+            {
+                throw new InvalidOperationException($"There is not a draft apprenticeship with id {draftApprenticeshipId} in cohort {Id}");
+            }
+
+            return existingDraftApprenticeship;
         }
     }
 }

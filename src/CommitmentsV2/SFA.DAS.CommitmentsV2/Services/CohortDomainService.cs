@@ -154,6 +154,11 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
+            if (cohort.ChangeOfPartyRequestId.HasValue)
+            {
+                await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
+            }
+
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
             return cohort;
@@ -243,6 +248,27 @@ namespace SFA.DAS.CommitmentsV2.Services
             var provider = await db.Providers.SingleOrDefaultAsync(p => p.UkPrn == providerId, cancellationToken);
             if (provider == null) throw new BadRequestException($"Provider {providerId} was not found");
             return provider;
+        }
+
+        private async Task ValidateStartDateForContinuation(Cohort cohort, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (!draftApprenticeshipDetails.StartDate.HasValue) return;
+
+            var existingDraftApprenticeship = cohort.GetDraftApprenticeship(draftApprenticeshipDetails.Id);
+
+            if (!existingDraftApprenticeship.ContinuationOfId.HasValue)
+            {
+                throw new InvalidOperationException(
+                    $"Cohort {cohort.Id} is linked to Change Of Party Request {cohort.ChangeOfPartyRequestId} but DraftApprenticeship {existingDraftApprenticeship.Id} has no ContinuationOfId");
+            }
+
+            var previousApprenticeship = await
+                _dbContext.Value.GetApprenticeshipAggregate(existingDraftApprenticeship.ContinuationOfId.Value, default);
+
+            if (draftApprenticeshipDetails.StartDate.Value < previousApprenticeship.StopDate)
+            {
+                throw new DomainException(nameof(draftApprenticeshipDetails.StartDate), "The date overlaps with existing dates for the same apprentice.");
+            }
         }
 
         private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)

@@ -21,10 +21,12 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
+using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -397,6 +399,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             f.VerifyDraftApprenticeshipDeleted();
         }
 
+        [TestCase(true, true)]
+        [TestCase(false, false)]
+        public async Task UpdateDraftApprenticeship_WhenContinuation_StartDateMustBeAfterPreviousStopDate(bool overlap, bool expectThrow)
+        {
+            var f = new CohortDomainServiceTestFixture();
+            f.WithParty(Party.Employer)
+                .WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
+                .WithExistingDraftApprenticeship()
+                .WithContinuation(overlap);
+            await f.UpdateDraftApprenticeship();
+
+            if(expectThrow)
+            {
+                f.VerifyException<DomainException>();
+            }
+            else
+            {
+                f.VerifyNoException();
+            }
+        }
+
+
         public class CohortDomainServiceTestFixture
         {
             public DateTime Now { get; set; }
@@ -411,6 +435,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public string AccountLegalEntityPublicHashedId { get; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
             public DraftApprenticeship ExistingDraftApprenticeship { get; }
+            public Apprenticeship PreviousApprenticeship { get; }
             public long DraftApprenticeshipId { get; }
 
             public Account EmployerAccount { get; set; }
@@ -509,9 +534,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         StartDate = DateTime.UtcNow,
                         EndDate = DateTime.UtcNow.AddYears(1),
                         CourseCode = fixture.Create<string>(),
-                        Cost = fixture.Create<int>(),
-                        DateOfBirth = fixture.Create<DateTime>()
+                        Cost = fixture.Create<int>()
                 };
+                ExistingDraftApprenticeship.SetValue(x => x.DateOfBirth, ExistingDraftApprenticeship.StartDate.Value.AddYears(-16));
+
+                PreviousApprenticeship = new Apprenticeship();
+                PreviousApprenticeship.SetValue(x => x.Id, fixture.Create<long>());
+                PreviousApprenticeship.SetValue(x => x.Cohort, new Cohort());
+                Db.Apprenticeships.Add(PreviousApprenticeship);
 
                 AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
                 AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2020, 7, 31));
@@ -703,6 +733,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithContinuation(bool overlap)
+            {
+                long? changeOfPartyRequestId = 234;
+                ExistingDraftApprenticeship.SetValue(x => x.ContinuationOfId, PreviousApprenticeship.Id);
+                Cohort.SetValue(x => x.ChangeOfPartyRequestId, changeOfPartyRequestId);
+                DraftApprenticeshipDetails.FirstName = ExistingDraftApprenticeship.FirstName;
+                DraftApprenticeshipDetails.LastName = ExistingDraftApprenticeship.LastName;
+                DraftApprenticeshipDetails.DateOfBirth = ExistingDraftApprenticeship.DateOfBirth;
+                DraftApprenticeshipDetails.Uln = ExistingDraftApprenticeship.Uln;
+                DraftApprenticeshipDetails.StartDate = ExistingDraftApprenticeship.StartDate;
+                DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme(ExistingDraftApprenticeship.CourseCode, "", ProgrammeType.Framework, Now,Now);
+
+                if (overlap)
+                {
+                    PreviousApprenticeship.SetValue(x => x.StopDate, ExistingDraftApprenticeship.StartDate.Value.AddMonths(1));
+                }
+                else
+                {
+                    PreviousApprenticeship.SetValue(x => x.StopDate, ExistingDraftApprenticeship.StartDate.Value.AddMonths(-1));
+                }
+
+                return this;
+            }
+
             public CohortDomainServiceTestFixture WithParty(Party party)
             {
                 Party = party;
@@ -869,6 +923,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
                 catch (DomainException ex)
                 {
+                    Exception = ex;
                     DomainErrors.AddRange(ex.DomainErrors);
                 }
             }
