@@ -71,13 +71,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             return AssertPropertySet(input => input.ReservationId, (Guid?) Guid.NewGuid());
         }
 
-
         [Test]
         public Task Map_IsContinuation_ShouldBeSet()
         {
             return AssertPropertySet(input => input.IsContinuation, true);
         }
-
 
         [Test]
         public Task Map_OriginalStartDate_ShouldBeSet()

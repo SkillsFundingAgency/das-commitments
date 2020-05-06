@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
                             p.NewStartDate == _postRequest.NewStartDate &&
                             p.NewPrice == _postRequest.NewPrice &&
                             p.UserInfo == _postRequest.UserInfo &&
-                            p.NewEndDate == _postRequest.EndDate),
+                            p.NewEndDate == _postRequest.NewEndDate),
                         It.IsAny<CancellationToken>()), Times.Once);
             }
         }
