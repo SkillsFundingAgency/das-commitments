@@ -76,7 +76,6 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
-
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
@@ -362,7 +361,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (!isSigned)
             {
-                throw new InvalidOperationException($"Employer {cohort.EmployerAccountId} cannot approve any cohort because the agreement is not signed");
+                throw new DomainException(nameof(cohort.EmployerAccountId), $"Employer {cohort.EmployerAccountId} cannot approve any cohort because the agreement is not signed");
             }
         }
     }
