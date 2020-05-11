@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid reservationId, UserInfo userInfo)
+        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid? reservationId, UserInfo userInfo)
         {
             long providerId;
             long accountId;

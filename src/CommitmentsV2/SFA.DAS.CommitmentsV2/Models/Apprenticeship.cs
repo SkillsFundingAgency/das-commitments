@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public DraftApprenticeship CreateCopyForChangeOfParty(ChangeOfPartyRequest changeOfPartyRequest, Guid reservationId)
+        public DraftApprenticeship CreateCopyForChangeOfParty(ChangeOfPartyRequest changeOfPartyRequest, Guid? reservationId)
         {
             var result = new DraftApprenticeship
             {

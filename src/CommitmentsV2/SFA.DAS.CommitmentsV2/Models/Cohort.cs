@@ -128,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             long accountId,
             long accountLegalEntityId,
             Apprenticeship apprenticeship,
-            Guid reservationId,
+            Guid? reservationId,
             ChangeOfPartyRequest changeOfPartyRequest,
             UserInfo userInfo)
             : this(providerId,
