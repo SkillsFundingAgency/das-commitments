@@ -218,6 +218,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual Party Approvals { get; set; }
         public DateTime? EmployerAndProviderApprovedOn { get; set; }
         public long? ChangeOfPartyRequestId { get; set; }
+        public bool IsLinkedToChangeOfPartyRequest => ChangeOfPartyRequestId.HasValue;
 
         public virtual bool IsApprovedByAllParties => WithParty == Party.None; //todo: use new Approvals flag
 
@@ -490,13 +491,16 @@ namespace SFA.DAS.CommitmentsV2.Models
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, bool isContinuation)
         {
             var errors = new List<DomainError>();
-            errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails, isContinuation));
-            errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
+            if (!isContinuation)
+            {
+                errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
+            }
             errors.ThrowIfAny();
         }
 
@@ -564,7 +568,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private IEnumerable<DomainError> BuildStartDateValidationFailures(DraftApprenticeshipDetails details, bool isContinuation)
+        private IEnumerable<DomainError> BuildStartDateValidationFailures(DraftApprenticeshipDetails details)
         {
             if (!details.StartDate.HasValue) yield break;
 
@@ -574,13 +578,11 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             var trainingProgrammeStatus = details.TrainingProgramme?.GetStatusOn(details.StartDate.Value);
             
-            if((details.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas || isContinuation))
+            if((details.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
             {
                 yield return new DomainError(nameof(details.StartDate), "The start date must not be earlier than May 2017");
                 yield break;
             }
-
-            if (isContinuation) {yield break;}
 
             if (trainingProgrammeStatus.HasValue && trainingProgrammeStatus.Value != TrainingProgrammeStatus.Active)
             {

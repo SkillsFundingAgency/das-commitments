@@ -153,7 +153,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
-            if (cohort.ChangeOfPartyRequestId.HasValue)
+            if (cohort.IsLinkedToChangeOfPartyRequest)
             {
                 await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
             }
@@ -255,10 +255,10 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var existingDraftApprenticeship = cohort.GetDraftApprenticeship(draftApprenticeshipDetails.Id);
 
-            if (!existingDraftApprenticeship.ContinuationOfId.HasValue)
+            if (!existingDraftApprenticeship.IsContinuation)
             {
                 throw new InvalidOperationException(
-                    $"Cohort {cohort.Id} is linked to Change Of Party Request {cohort.ChangeOfPartyRequestId} but DraftApprenticeship {existingDraftApprenticeship.Id} has no ContinuationOfId");
+                    $"Cohort {cohort.Id} is linked to Change Of Party Request {cohort.ChangeOfPartyRequestId} but DraftApprenticeship {existingDraftApprenticeship.Id} is not a Continuation");
             }
 
             var previousApprenticeship = await
