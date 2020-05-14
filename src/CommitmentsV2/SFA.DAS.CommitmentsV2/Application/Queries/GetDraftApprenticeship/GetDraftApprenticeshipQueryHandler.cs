@@ -40,7 +40,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                         LastName = draft.LastName,
                         Reference = requestingParty == Party.Provider ? draft.ProviderRef : draft.EmployerRef,
                         ReservationId = draft.ReservationId,
-                        Uln = draft.Uln
+                        Uln = draft.Uln,
+                        IsContinuation = draft.ContinuationOfId.HasValue,
+                        OriginalStartDate = draft.OriginalStartDate
                     },
                     cancellationToken);
 

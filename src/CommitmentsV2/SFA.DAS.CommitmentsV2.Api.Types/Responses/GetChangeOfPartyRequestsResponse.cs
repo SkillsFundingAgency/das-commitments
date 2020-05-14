@@ -17,6 +17,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public string EmployerName { get; set; }
             public DateTime StarDate { get; set; }
             public int Price { get; set; }
+            public long? CohortId { get; set; }
+            public Party? WithParty { get; set; }
         }
     }
 }

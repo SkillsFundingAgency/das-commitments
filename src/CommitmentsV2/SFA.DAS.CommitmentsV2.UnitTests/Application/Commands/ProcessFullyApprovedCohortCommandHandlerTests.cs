@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
@@ -59,6 +60,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         e => f.IsValid(apprenticeshipEmployerType, a, e))),
                     Times.Once));
         }
+
+
+        [Test]
+        public void Handle_WhenHandlingCommand_WithChangeOfParty_ThenShouldPublishApprenticeshipWithChangeOfPartyCreatedEvents()
+        {
+            var f = new ProcessFullyApprovedCohortCommandFixture();
+            f.SetChangeOfPartyRequest(true)
+                .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.NonLevy)
+                .SetApprovedApprenticeships(false)
+                .Handle();
+
+            f.Apprenticeships.ForEach(
+                a => f.EventPublisher.Verify(
+                    p => p.Publish(It.Is<ApprenticeshipWithChangeOfPartyCreatedEvent>(
+                        e => f.IsValidChangeOfPartyEvent(a, e))),
+                    Times.Once));
+        }
     }
 
     public class ProcessFullyApprovedCohortCommandFixture
@@ -75,6 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             AutoFixture = new Fixture();
             Command = AutoFixture.Create<ProcessFullyApprovedCohortCommand>();
+            Command.SetValue(x => x.ChangeOfPartyRequestId, default(long?));
             AccountApiClient = new Mock<IAccountApiClient>();
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
             EventPublisher = new Mock<IEventPublisher>();
@@ -99,6 +118,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     ApprenticeshipEmployerType = apprenticeshipEmployerType.ToString()
                 });
             
+            return this;
+        }
+
+        public ProcessFullyApprovedCohortCommandFixture SetChangeOfPartyRequest(bool isChangeOfParty)
+        {
+            Command.SetValue(x => x.ChangeOfPartyRequestId, isChangeOfParty ? 123 : default(long?));
             return this;
         }
 
@@ -148,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.CreatedOn.Date == DateTime.UtcNow.Date &&
                           apprenticeshipCreatedEvent.AgreedOn == apprenticeship.Cohort.EmployerAndProviderApprovedOn &&
                           apprenticeshipCreatedEvent.AccountId == apprenticeship.Cohort.EmployerAccountId &&
-                          apprenticeshipCreatedEvent.AccountLegalEntityPublicHashedId == apprenticeship.Cohort.AccountLegalEntityPublicHashedId &&
+                          apprenticeshipCreatedEvent.AccountLegalEntityPublicHashedId == apprenticeship.Cohort.AccountLegalEntity.PublicHashedId &&
                           apprenticeshipCreatedEvent.LegalEntityName == apprenticeship.Cohort.AccountLegalEntity.Name &&
                           apprenticeshipCreatedEvent.ProviderId == apprenticeship.Cohort.Provider.UkPrn &&
                           apprenticeshipCreatedEvent.TransferSenderId == apprenticeship.Cohort.TransferSenderId &&
@@ -172,6 +197,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
             
             return isValid;
+        }
+
+        public bool IsValidChangeOfPartyEvent(Apprenticeship apprenticeship, ApprenticeshipWithChangeOfPartyCreatedEvent changeOfPartyCreatedEvent)
+        {
+            return apprenticeship.Id == changeOfPartyCreatedEvent.ApprenticeshipId
+            && Command.ChangeOfPartyRequestId == changeOfPartyCreatedEvent.ChangeOfPartyRequestId;
         }
     }
 }

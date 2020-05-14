@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public Task Handle(CohortFullyApprovedEvent message, IMessageHandlerContext context)
         {
-            return _mediator.Send(new ProcessFullyApprovedCohortCommand(message.CohortId, message.AccountId));
+            return _mediator.Send(new ProcessFullyApprovedCohortCommand(message.CohortId, message.AccountId, message.ChangeOfPartyRequestId, message.UserInfo, message.LastApprovedBy));
         }
     }
 }

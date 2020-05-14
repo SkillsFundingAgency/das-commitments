@@ -35,9 +35,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                                             select new CohortSummary
                                             {
                                                 AccountId = c.EmployerAccountId,
-                                                LegalEntityName = c.LegalEntityName,
+                                                LegalEntityName = c.AccountLegalEntity.Name,
                                                 ProviderId = c.ProviderId,
-                                                ProviderName = c.ProviderName,
+                                                ProviderName = c.Provider.Name,
                                                 CohortId = c.Id,
                                                 IsDraft = c.IsDraft,
                                                 WithParty = c.WithParty,

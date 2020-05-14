@@ -99,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
-            return originator.CreateCohort(provider, accountLegalEntity, transferSender, draftApprenticeshipDetails, userInfo);
+            return originator.CreateCohort(providerId, accountLegalEntity, transferSender, draftApprenticeshipDetails, userInfo);
         }
 
         public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -116,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
             var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
-            return accountLegalEntity.CreateCohortWithOtherParty(provider, accountLegalEntity, transferSender, message, userInfo);
+            return accountLegalEntity.CreateCohortWithOtherParty(provider.UkPrn, accountLegalEntity, transferSender, message, userInfo);
         }
 
         public async Task<Cohort> CreateEmptyCohort(long providerId, long accountId, long accountLegalEntityId, UserInfo userInfo, CancellationToken cancellationToken)
@@ -134,7 +134,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
-            return originator.CreateCohort(provider, accountLegalEntity, userInfo);
+            return originator.CreateCohort(providerId, accountLegalEntity, userInfo);
         }
 
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -321,7 +321,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             async Task<long> GetMaLegalEntityId()
             {
-                var accountLegalEntityId = _encodingService.Decode(cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId);
+                var accountLegalEntityId = cohort.AccountLegalEntityId;
                 var accountLegalEntity = await _dbContext.Value.AccountLegalEntities.Where(x => x.Id == accountLegalEntityId).SingleAsync(cancellationToken);
                 return accountLegalEntity.MaLegalEntityId;
             }

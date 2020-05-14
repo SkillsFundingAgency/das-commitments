@@ -629,6 +629,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.PageItemCount = 0;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
 
+            var provider1 = new Provider(searchParameters.ProviderId.Value, "Should_Be_First", DateTime.UtcNow, DateTime.UtcNow);
+            var provider2 = new Provider(searchParameters.ProviderId.Value, "Should_Be_Second", DateTime.UtcNow, DateTime.UtcNow);
+            var provider3 = new Provider(searchParameters.ProviderId.Value, "Should_Be_Third", DateTime.UtcNow, DateTime.UtcNow);
+
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -639,7 +643,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(2),
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer", ProviderName = "Should_Be_Second"},
+                    Cohort = new Cohort{Provider = provider2, ProviderId = provider2.UkPrn},
                     DataLockStatus = new List<DataLockStatus>(),
                     PaymentStatus = PaymentStatus.Paused
                 },
@@ -651,7 +655,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(3),
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer", ProviderName = "Should_Be_Third"},
+                    Cohort = new Cohort{Provider = provider3, ProviderId = provider3.UkPrn},
                     DataLockStatus = new List<DataLockStatus>(),
                     PaymentStatus = PaymentStatus.Completed
                 },
@@ -663,13 +667,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(-1),
                     ProviderRef = searchParameters.ProviderId.ToString(),
-                    Cohort = new Cohort{LegalEntityName = "Employer", ProviderName = "Should_Be_First"},
+                    Cohort = new Cohort{Provider = provider1, ProviderId = provider1.UkPrn},
                     DataLockStatus = new List<DataLockStatus>(),
                     PaymentStatus = PaymentStatus.Active
                 }
             };
-
-            AssignProviderToApprenticeships(searchParameters.ProviderId, apprenticeships);
 
             mockContext
                 .Setup(context => context.Apprenticeships)
@@ -684,9 +686,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).Cohort.ProviderName);
-            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(1).Cohort.ProviderName);
-            Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(2).Cohort.ProviderName);
+            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).Cohort.Provider.Name);
+            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(1).Cohort.Provider.Name);
+            Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(2).Cohort.Provider.Name);
         }
 
         [Test, MoqAutoData]

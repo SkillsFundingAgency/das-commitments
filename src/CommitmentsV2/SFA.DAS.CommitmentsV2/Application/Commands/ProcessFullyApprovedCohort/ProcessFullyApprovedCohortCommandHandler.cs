@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     CreatedOn = creationDate,
                     AgreedOn = a.Cohort.EmployerAndProviderApprovedOn.Value,
                     AccountId = a.Cohort.EmployerAccountId,
-                    AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntityPublicHashedId,
+                    AccountLegalEntityPublicHashedId = a.Cohort.AccountLegalEntity.PublicHashedId,
                     AccountLegalEntityId = a.Cohort.AccountLegalEntity.Id,
                     LegalEntityName = a.Cohort.AccountLegalEntity.Name,
                     ProviderId = a.Cohort.ProviderId,
@@ -82,6 +83,23 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
             });
 
             await Task.WhenAll(tasks);
+
+            if (request.ChangeOfPartyRequestId.HasValue)
+            { 
+                await Task.WhenAll(EmitChangeOfPartyEvents(request, events));
+            }
+        }
+
+        private IEnumerable<Task> EmitChangeOfPartyEvents(ProcessFullyApprovedCohortCommand request, List<ApprenticeshipCreatedEvent> events)
+        {
+            var changeOfPartyEvents = events.Select(e => 
+                new ApprenticeshipWithChangeOfPartyCreatedEvent(e.ApprenticeshipId, request.ChangeOfPartyRequestId.Value, e.CreatedOn, request.UserInfo, request.LastApprovedBy));
+
+            return changeOfPartyEvents.Select(e =>
+            {
+                _logger.LogInformation($"Emitting ApprenticeshipWithChangeOfPartyCreatedEvent for Apprenticeship {e.ApprenticeshipId}");
+                return _eventPublisher.Publish(e);
+            });
         }
     }
 }

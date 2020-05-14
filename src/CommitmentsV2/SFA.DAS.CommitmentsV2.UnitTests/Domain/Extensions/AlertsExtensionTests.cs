@@ -74,6 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             PriceHistory priceHistory,
             ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
             dataLockStatus.TriageStatus = TriageStatus.Unknown;
             dataLockStatus.IsResolved = false;

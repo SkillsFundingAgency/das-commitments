@@ -91,15 +91,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             var cohort = new Cohort
             {
-                LegalEntityId = "LEId",
-                LegalEntityName = "LEName",
-                LegalEntityAddress = "An Address",
-                LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
                 CommitmentStatus = CommitmentStatus.New,
                 EditStatus = EditStatus.ProviderOnly,
                 LastAction = LastAction.None,
                 Originator = Originator.Unknown,
-                ProviderName = "providerName",
                 Id = cohortId,
                 ProviderId = providerId,
                 Reference = string.Empty

@@ -78,18 +78,18 @@ namespace SFA.DAS.CommitmentsV2.Models
             return name != Name;
         }
 
-        public virtual Cohort CreateCohort(Provider provider, AccountLegalEntity accountLegalEntity, Account transferSender,
+        public virtual Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender,
             DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo)
         {
-            return new Cohort(provider, accountLegalEntity, transferSender, draftApprenticeshipDetails, Party.Employer,userInfo);
+            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, draftApprenticeshipDetails, Party.Employer,userInfo);
        }
 
-        public virtual Cohort CreateCohortWithOtherParty(Provider provider, AccountLegalEntity accountLegalEntity, Account transferSender, string message, UserInfo userInfo)
+        public virtual Cohort CreateCohortWithOtherParty(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender, string message, UserInfo userInfo)
         {
-            return new Cohort(provider, accountLegalEntity, transferSender, Party.Employer, message, userInfo);
+            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, Party.Employer, message, userInfo);
         }
 
-        public Cohort CreateCohort(Provider provider, AccountLegalEntity accountLegalEntity, UserInfo userInfo)
+        public Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, UserInfo userInfo)
         {
             throw new NotImplementedException();
         }

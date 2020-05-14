@@ -33,5 +33,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public bool IsCompleteForEmployer { get; set; }
         public Party Approvals { get; set; }
         public ApprenticeshipEmployerType LevyStatus { get; set; }
+        public long? ChangeOfPartyRequestId { get; set; }
     }
 }

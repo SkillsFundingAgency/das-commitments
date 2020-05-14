@@ -138,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 TransferRequests = { _transferRequest },
                 EmployerAccountId = 8787,
                 AccountLegalEntityId = 234,
-                AccountLegalEntityPublicHashedId = "sfs1",
+                //AccountLegalEntityPublicHashedId = "sfs1",
                 ProviderId = 234234,
                 TransferSenderId = 8999
 

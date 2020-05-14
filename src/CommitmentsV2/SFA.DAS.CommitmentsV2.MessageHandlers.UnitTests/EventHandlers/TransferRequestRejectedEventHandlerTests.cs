@@ -96,8 +96,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             Handler = new TransferRequestRejectedEventHandler(new Lazy<ProviderCommitmentsDbContext>(()=>Db), LegacyTopicMessagePublisher.Object, Logger);
 
             Cohort = new Cohort(
-                    new Provider(),
-                    new AccountLegalEntity(),
+                    _fixture.Create<long>(),
+                    _fixture.Create<long>(),
+                    _fixture.Create<long>(),
                     null,
                     Party.Employer,
                     "",

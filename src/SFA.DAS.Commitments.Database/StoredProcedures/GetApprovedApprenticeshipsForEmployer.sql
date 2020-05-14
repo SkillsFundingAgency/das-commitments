@@ -28,10 +28,10 @@ AS
 	a.ProviderRef,
 	a.PendingUpdateOriginator as 'UpdateOriginator',
 	a.ReservationId,
-	c.ProviderName,
-	c.LegalEntityId,
-	c.LegalEntityName,
-	c.AccountLegalEntityPublicHashedId,
+	p.[Name] as 'ProviderName',
+	ale.LegalEntityId,
+	ale.[Name] as 'LegalEntityName',
+	ale.PublicHashedId as 'AccountLegalEntityPublicHashedId',
 	a.HasHadDataLockSuccess,
 	dl.DataLockEventId,
 	dl.ErrorCode,
@@ -39,6 +39,8 @@ AS
 	from
 	Apprenticeship a
 	JOIN Commitment c on c.Id = a.CommitmentId
+	INNER JOIN [AccountLegalEntities] ale on ale.Id = c.AccountLegalEntityId
+	INNER JOIN [Providers] p on p.Ukprn = c.ProviderId
 	LEFT JOIN DataLockStatus dl on dl.ApprenticeshipId = a.Id and dl.[IsResolved] = 0 AND dl.[EventStatus] <> 3 AND dl.[IsExpired] = 0 -- Not expired, resolved, or deleted
 	where
 	c.EmployerAccountId = @id

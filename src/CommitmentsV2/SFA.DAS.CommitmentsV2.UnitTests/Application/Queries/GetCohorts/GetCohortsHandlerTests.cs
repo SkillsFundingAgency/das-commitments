@@ -29,9 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             Assert.IsNotNull(response);
             Assert.AreEqual(f.SeedCohorts.Count, response.Cohorts.Length);
             Assert.AreEqual(f.AccountId, response.Cohorts[0].AccountId);
-            Assert.AreEqual(f.SeedCohorts[0].LegalEntityName, response.Cohorts[0].LegalEntityName);
             Assert.AreEqual(f.SeedCohorts[0].ProviderId, response.Cohorts[0].ProviderId);
-            Assert.AreEqual(f.SeedCohorts[0].ProviderName, response.Cohorts[0].ProviderName);
             Assert.AreEqual(f.SeedCohorts[0].Id, response.Cohorts[0].CohortId);
             Assert.AreEqual(f.SeedCohorts[0].CreatedOn, response.Cohorts[0].CreatedOn);
         }
@@ -130,9 +128,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             Assert.IsNotNull(response);
             Assert.AreEqual(f.SeedCohorts.Count, response.Cohorts.Length);
             Assert.AreEqual(f.AccountId, response.Cohorts[0].AccountId);
-            Assert.AreEqual(f.SeedCohorts[0].LegalEntityName, response.Cohorts[0].LegalEntityName);
             Assert.AreEqual(f.SeedCohorts[0].ProviderId, response.Cohorts[0].ProviderId);
-            Assert.AreEqual(f.SeedCohorts[0].ProviderName, response.Cohorts[0].ProviderName);
             Assert.AreEqual(f.SeedCohorts[0].Id, response.Cohorts[0].CohortId);
             Assert.AreEqual(f.SeedCohorts[0].CreatedOn, response.Cohorts[0].CreatedOn);
         }

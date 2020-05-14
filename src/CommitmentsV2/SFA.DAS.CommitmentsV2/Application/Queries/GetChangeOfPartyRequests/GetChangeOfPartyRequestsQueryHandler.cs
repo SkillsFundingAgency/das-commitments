@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
 {
@@ -19,11 +20,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
 
         public async Task<GetChangeOfPartyRequestsQueryResult> Handle(GetChangeOfPartyRequestsQuery request, CancellationToken cancellationToken)
         {
+            //todo: need this to honour the cohort deletion flag and suppress cohort Id and WithParty fields if deleted!
             return new GetChangeOfPartyRequestsQueryResult
             {
                 ChangeOfPartyRequests = await _dbContext.Value
                     .ChangeOfPartyRequests.Where(x => x.ApprenticeshipId == request.ApprenticeshipId)
-                    .Include(a => a.Apprenticeship.Cohort.AccountLegalEntity)
                     .Select(r => new GetChangeOfPartyRequestsQueryResult.ChangeOfPartyRequest
                     {
                         Id = r.Id,
@@ -32,7 +33,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
                         Status = r.Status,
                         StartDate = r.StartDate,
                         Price = r.Price,
-                        EmployerName = r.AccountLegalEntity.Name
+                        EmployerName = r.AccountLegalEntity.Name,
+                        CohortId = r.Cohort.Id,
+                        WithParty = r.Cohort.WithParty
                     }).ToListAsync(cancellationToken)
             };
         }

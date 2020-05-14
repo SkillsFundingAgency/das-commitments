@@ -27,12 +27,18 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         UpdateDraftApprenticeship,
         CreateCohort,
         CreateCohortWithOtherParty,
+        CreateCohortWithChangeOfParty,
         DeleteDraftApprenticeship,
 		DeleteCohort,
         ApproveTransferRequest,
         RejectTransferRequest,
         CreateChangeOfPartyRequest,
         Complete,
-        UpdateCompletionDate
+        UpdateCompletionDate,
+        SetCohortId,
+        ApproveChangeOfPartyRequest,
+        RejectChangeOfPartyRequest,
+        WithdrawChangeOfPartyRequest,
+        SetNewApprenticeshipId
     }
 }

@@ -10,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
 {
@@ -46,7 +45,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             private readonly GetApprenticeshipQueryHandler _handler;
             private readonly GetApprenticeshipQuery _query;
             private GetApprenticeshipQueryResult _result;
-            private readonly Mock<IEncodingService> EncodingService;
             private readonly Mock<IAuthenticationService> AuthenticationService;
 
             public GetApprenticeshipHandlerTestsFixture()
@@ -54,10 +52,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 _autoFixture = new Fixture();
 
                 AccountLegalEntityId = _autoFixture.Create<long>();
-
-                EncodingService = new Mock<IEncodingService>();
-                EncodingService.Setup(x => x.Decode(It.IsAny<string>(),
-                    It.Is<EncodingType>(e => e == EncodingType.PublicAccountLegalEntityId))).Returns(AccountLegalEntityId);
 
                 AuthenticationService = new Mock<IAuthenticationService>();
                 AuthenticationService.Setup(x => x.GetUserParty()).Returns(Party.Employer);
@@ -68,8 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 _query = new GetApprenticeshipQuery(ApprenticeshipId);
 
                 _handler = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db),
-                    AuthenticationService.Object,
-                    EncodingService.Object);
+                    AuthenticationService.Object);
             }
 
             private void SeedData()
@@ -89,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     AccountLegalEntityId,
                     0,
                     "",
-                    "",
+                    publicHashedId: _autoFixture.Create<string>(),
                     _autoFixture.Create<string>(),
                     OrganisationType.PublicBodies,
                     "",
@@ -98,11 +91,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Cohort = new Cohort
                 {
                     Id = _autoFixture.Create<long>(),
-                    AccountLegalEntityPublicHashedId = _autoFixture.Create<string>(),
-                    LegalEntityName = AccountLegalEntity.Name,
+                    AccountLegalEntity = AccountLegalEntity,
                     EmployerAccountId = _autoFixture.Create<long>(),
                     ProviderId = Provider.UkPrn,
-                    ProviderName = Provider.Name,
+                    Provider = Provider
                 };
 
                 EndpointAssessmentOrganisation = new AssessmentOrganisation
@@ -173,8 +165,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(AccountLegalEntityId, _result.AccountLegalEntityId);
                 Assert.AreEqual(Apprenticeship.EmployerRef, _result.Reference);
                 Assert.AreEqual(Apprenticeship.Cohort.ProviderId, _result.ProviderId);
-                Assert.AreEqual(Apprenticeship.Cohort.ProviderName, _result.ProviderName);
-                Assert.AreEqual(Apprenticeship.Cohort.LegalEntityName, _result.EmployerName);
+                Assert.AreEqual(Apprenticeship.Cohort.Provider.Name, _result.ProviderName);
+                Assert.AreEqual(Apprenticeship.Cohort.AccountLegalEntity.Name, _result.EmployerName);
                 Assert.AreEqual(Apprenticeship.Cohort.EmployerAccountId, _result.EmployerAccountId);
             }
         }

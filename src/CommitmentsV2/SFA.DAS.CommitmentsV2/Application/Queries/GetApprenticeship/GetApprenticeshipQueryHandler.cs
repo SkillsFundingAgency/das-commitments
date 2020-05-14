@@ -14,13 +14,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
-        private readonly IEncodingService _encodingService;
 
-        public GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, IEncodingService encodingService)
+        public GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
         {
             _dbContext = dbContext;
             _authenticationService = authenticationService;
-            _encodingService = encodingService;
         }
 
         public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
@@ -37,10 +35,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         CourseCode = apprenticeship.CourseCode,
                         CourseName = apprenticeship.CourseName,
                         EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
-                        AccountLegalEntityId = _encodingService.Decode(apprenticeship.Cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
-                        EmployerName = apprenticeship.Cohort.LegalEntityName,
+                        AccountLegalEntityId = apprenticeship.Cohort.AccountLegalEntityId,
+                        EmployerName = apprenticeship.Cohort.AccountLegalEntity.Name,
                         ProviderId = apprenticeship.Cohort.ProviderId,
-                        ProviderName = apprenticeship.Cohort.ProviderName,
+                        ProviderName = apprenticeship.Cohort.Provider.Name,
                         DateOfBirth = apprenticeship.DateOfBirth.Value,
                         FirstName = apprenticeship.FirstName,
                         LastName = apprenticeship.LastName,

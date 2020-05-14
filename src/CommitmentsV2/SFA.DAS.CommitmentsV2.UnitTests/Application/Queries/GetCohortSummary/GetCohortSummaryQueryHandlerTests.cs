@@ -34,6 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public bool CohortIsDeleted;
         public Party Approvals;
         public ApprenticeshipEmployerType LevyStatus = ApprenticeshipEmployerType.NonLevy;
+        public long? ChangeOfPartyRequestId;
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnValue()
@@ -99,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedAccountLegalEntityPublicHashedId()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(Cohort.AccountLegalEntityPublicHashedId, response.AccountLegalEntityPublicHashedId, "Did not return expected account legal entity public hashed ID"));
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.AccountLegalEntity.PublicHashedId, response.AccountLegalEntityPublicHashedId, "Did not return expected account legal entity public hashed ID"));
         }
 
         [Test]
@@ -180,8 +181,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         {
             LevyStatus = levyStatus;
             await CheckQueryResponse(response => Assert.AreEqual(LevyStatus, response.LevyStatus, "Did not return expected LevyStatus"));
-        }
+		}
 
+        [TestCase(null)]
+        [TestCase(123)]
+        public async Task Handle_CohortWithChangeOfParty_ShouldReturnChangeOfPartyRequestId(long? value)
+        {
+            ChangeOfPartyRequestId = value;
+            await CheckQueryResponse(response => Assert.AreEqual(value, response.ChangeOfPartyRequestId));
+        }
+		
         private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert, DraftApprenticeshipDetails apprenticeshipDetails = null)
         {
             var autoFixture = new Fixture();
@@ -211,7 +220,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
-                .AddCommitment(CohortId, Cohort, WithParty, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider, Approvals);
+                .AddCommitment(CohortId, Cohort, WithParty, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider, Approvals, ChangeOfPartyRequestId);
 
             // act
             var response = await fixtures.GetResult(new GetCohortSummaryQuery(CohortId));
@@ -219,7 +228,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             // Assert
             assert(response);
         }
-
 
         private DraftApprenticeshipDetails SetApprenticeDetails(int nullProperty)
         {
@@ -282,7 +290,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
         public List<Cohort> SeedCohorts { get; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, Party withParty, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, Party approvals)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, Party withParty, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, Party approvals, long? changeOfPartyRequestId)
         {
             cohort.Id =  cohortId;
             cohort.WithParty = withParty;
@@ -316,9 +324,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             });
 
             cohort.Approvals = approvals;
+            cohort.ChangeOfPartyRequestId = changeOfPartyRequestId;
 
             SeedCohorts.Add(cohort);
-            
+
             return this;
         }
 

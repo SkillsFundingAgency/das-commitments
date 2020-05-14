@@ -20,7 +20,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 Reference = source.Reference,
-                ReservationId = source.ReservationId
+                ReservationId = source.ReservationId,
+                IsContinuation = source.IsContinuation,
+                OriginalStartDate = source.OriginalStartDate
             });
         }
     }

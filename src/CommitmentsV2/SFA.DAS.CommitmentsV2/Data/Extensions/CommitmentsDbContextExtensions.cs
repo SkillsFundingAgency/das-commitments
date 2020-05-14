@@ -44,5 +44,16 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
 
             return apprenticeship;
         }
+
+        public static async Task<ChangeOfPartyRequest> GetChangeOfPartyRequestAggregate(this ProviderCommitmentsDbContext db, long changeOfPartyId, CancellationToken cancellationToken)
+        {
+            var result = await db.ChangeOfPartyRequests
+                .Include(r => r.AccountLegalEntity)
+                .Include(r => r.Cohort)
+                .IgnoreQueryFilters()
+                .SingleOrDefaultAsync(c => c.Id == changeOfPartyId, cancellationToken);
+            if (result == null) throw new BadRequestException($"ChangeOfPartyRequest {changeOfPartyId} was not found");
+            return result;
+        }
     }
 }

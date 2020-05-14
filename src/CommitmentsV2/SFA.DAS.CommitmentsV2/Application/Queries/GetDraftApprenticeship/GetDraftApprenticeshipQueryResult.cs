@@ -15,5 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         public DateTime? DateOfBirth { get; set; }
         public string Reference { get; set; }
         public Guid? ReservationId { get; set; }
+        public DateTime? OriginalStartDate { get; set; }
+        public bool IsContinuation { get; set; }
     }
 }

@@ -334,6 +334,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.VerifyEmployerAndProviderApprovedOnDate(expectApprovedOnDate);
         }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        [TestCase(Party.TransferSender, Description = "Technically at time of writing, a Transfer Cohort cannot be linked to a COPR, but in principal this is still valid")]
+        public void ThenIfTheCohortIsLinkedToAChangeOfPartyRequestThenAnEventIsEmitted(Party modifyingParty)
+        {
+            _fixture
+                .SetChangeOfPartyRequestId()
+                .SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetApprovals(modifyingParty == Party.TransferSender? (Party.Employer | Party.Provider) : modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship()
+                .Approve();
+
+            _fixture.VerifyCohortWithChangeOfPartyRequestFullyApprovedEventIsEmitted(modifyingParty);
+        }
     }
 
     public class WhenApprovingCohortFixture
@@ -424,6 +440,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             return this;
         }
 
+        public WhenApprovingCohortFixture SetChangeOfPartyRequestId()
+        {
+            Cohort.Set(c => c.ChangeOfPartyRequestId, 123);
+            return this;
+        }
+
         public WhenApprovingCohortFixture SetApprovals(Party approvals)
         {
             Cohort.Set(c => c.Approvals, approvals);
@@ -451,6 +473,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType ==
                                                                                 nameof(Cohort)));
+        }
+
+        public void VerifyCohortWithChangeOfPartyRequestFullyApprovedEventIsEmitted(Party modifyingParty)
+        {
+            var emittedEvent = (CohortWithChangeOfPartyFullyApprovedEvent) UnitOfWorkContext.GetEvents()
+                .Single(x => x is CohortWithChangeOfPartyFullyApprovedEvent);
+
+            Assert.AreEqual(Cohort.Id, emittedEvent.CohortId);
+            Assert.AreEqual(Cohort.ChangeOfPartyRequestId, emittedEvent.ChangeOfPartyRequestId);
+            Assert.AreEqual(UserInfo, emittedEvent.UserInfo);
+            Assert.AreEqual(modifyingParty, emittedEvent.ApprovedBy);
         }
 
         public void VerifyEmployerAndProviderApprovedOnDate(bool expectValue)
