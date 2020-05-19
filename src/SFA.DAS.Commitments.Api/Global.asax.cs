@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Api
             Logger.Info("Starting Commitments Api Application");
             FilterConfig.RegisterGlobalFilters(GlobalConfiguration.Configuration.Filters);
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            TelemetryConfiguration.Active.InstrumentationKey = ConfigurationManager.AppSettings["InstrumentationKey"];
+            TelemetryConfiguration.Active.InstrumentationKey = ConfigurationManager.AppSettings["APPINSIGHTS_INSTRUMENTATIONKEY"];
         }
 
         protected void Application_End()
