@@ -24,7 +24,7 @@
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Client" Version="0.11.233" />
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Types" Version="0.11.233" />
     <PackageReference Include="SFA.DAS.Authorization.Features" Version="6.0.59" />
-    <PackageReference Include="SFA.DAS.Encoding" Version="1.1.57" />
+    <PackageReference Include="SFA.DAS.Encoding" Version="1.1.61" />
     <PackageReference Include="SFA.DAS.Learners" Version="1.1.181" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.2" />

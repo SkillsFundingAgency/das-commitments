@@ -5,6 +5,7 @@ using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Reservations.Api.Types;
@@ -31,13 +32,28 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(ChangeOfPartyRequestCreatedEvent message, IMessageHandlerContext context)
         {
-            //get the copr
             var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
-
-            //get the details of the original apprenticeship to which it pertains
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(changeOfPartyRequest.ApprenticeshipId, default);
 
-            //obtain a reservation
+            var reservationId = await GetReservationId(changeOfPartyRequest, apprenticeship);
+            
+            var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationId, message.UserInfo);
+
+            _dbContext.Value.Cohorts.Add(cohort);
+            await _dbContext.Value.SaveChangesAsync();
+
+            //this encoding and re-save could be removed and put elsewhere
+            cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
+            await _dbContext.Value.SaveChangesAsync();
+        }
+
+        private async Task<Guid?> GetReservationId(ChangeOfPartyRequest changeOfPartyRequest, Apprenticeship apprenticeship)
+        {
+            if (!apprenticeship.ReservationId.HasValue)
+            {
+                return null;
+            }
+
             var createChangeOfPartyReservationRequest = new CreateChangeOfPartyReservationRequest
             {
                 AccountLegalEntityId = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
@@ -48,19 +64,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     : null
             };
 
-            var reservationResult =
-                await _reservationsApiClient.CreateChangeOfPartyReservation(apprenticeship.ReservationId.Value, createChangeOfPartyReservationRequest, default);
-
-            //tell the copr to create a cohort
-            var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationResult.ReservationId, message.UserInfo);
-
-            //persist
-            _dbContext.Value.Cohorts.Add(cohort);
-            await _dbContext.Value.SaveChangesAsync();
-
-            //this encoding and re-save could be removed and put elsewhere
-            cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
-            await _dbContext.Value.SaveChangesAsync();
+            var result = await _reservationsApiClient.CreateChangeOfPartyReservation(apprenticeship.ReservationId.Value, createChangeOfPartyReservationRequest, default);
+            return result.ReservationId;
         }
     }
 }

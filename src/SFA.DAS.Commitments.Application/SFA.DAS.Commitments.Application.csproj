@@ -153,7 +153,7 @@
       <HintPath>..\packages\SFA.DAS.Account.Api.Types.1.6.1586\lib\net462\SFA.DAS.EAS.Account.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Encoding, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Encoding.1.1.57\lib\netstandard2.0\SFA.DAS.Encoding.dll</HintPath>
+      <HintPath>..\packages\SFA.DAS.Encoding.1.1.61\lib\netstandard2.0\SFA.DAS.Encoding.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Types, Version=2.1.31.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Types.2.1.31\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
