@@ -32,6 +32,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     switch (status)
                     {
                         case ApprenticeshipStatus.Live:
+                        case ApprenticeshipStatus.Paused:
+                        case ApprenticeshipStatus.Stopped:
                             apprentice.Complete(message.EventTime.UtcDateTime);
                             _logger.LogInformation($"PaymentCompletion - Completed method called for ApprenticeshipId '{message.ApprenticeshipId}'");
                             break;

@@ -71,9 +71,10 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual void Complete(DateTime completionDate)
         {
-            if (this.GetApprenticeshipStatus(completionDate) != ApprenticeshipStatus.Live)
+            var status = GetApprenticeshipStatus(completionDate);
+            if (status != ApprenticeshipStatus.Live && status != ApprenticeshipStatus.Paused && status != ApprenticeshipStatus.Stopped)
             {
-                throw new InvalidOperationException("Apprenticeship has to be live to be completed");
+                throw new InvalidOperationException("Apprenticeship has to be Live, Paused, or Stopped in order to be completed");
             }
 
             StartTrackingSession(UserAction.Complete, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
