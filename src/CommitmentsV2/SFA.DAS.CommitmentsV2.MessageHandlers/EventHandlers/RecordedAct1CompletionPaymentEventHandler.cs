@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                         case ApprenticeshipStatus.Paused:
                         case ApprenticeshipStatus.Stopped:
                             apprentice.Complete(message.EventTime.UtcDateTime);
-                            _logger.LogInformation($"PaymentCompletion - Completed method called for ApprenticeshipId '{message.ApprenticeshipId}'");
+                            _logger.LogInformation($"PaymentCompletion - Completed method called for ApprenticeshipId '{message.ApprenticeshipId}' - status prior to completion was {status}");
                             break;
                         case ApprenticeshipStatus.Completed:
                             apprentice.UpdateCompletionDate(message.EventTime.UtcDateTime);
