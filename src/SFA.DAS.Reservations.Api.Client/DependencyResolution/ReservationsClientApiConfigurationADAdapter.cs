@@ -16,13 +16,10 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
         {
             _config = config;
         }
-
-        public string ApiBaseUrl { get; }
         public string Tenant => _config.Tenant;
         public string ClientId => _config.ClientId;
         public string ClientSecret => _config.ClientSecret;
         public string IdentifierUri => _config.IdentifierUri;
-
         public string ApiBaseUrl => _config.ApiBaseUrl;
     }
 }
