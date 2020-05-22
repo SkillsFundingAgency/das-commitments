@@ -49,5 +49,6 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
 
         public string EndpointAssessorName { get; set; }
         public Guid? ReservationId { get; set; }
+        public DateTime? OriginalStartDate { get; set; }
     }
 }
