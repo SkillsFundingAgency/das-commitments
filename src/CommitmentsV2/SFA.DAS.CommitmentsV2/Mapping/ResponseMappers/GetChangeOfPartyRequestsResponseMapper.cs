@@ -20,7 +20,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                         OriginatingParty = r.OriginatingParty,
                         Status = r.Status,
                         EmployerName = r.EmployerName,
-                        StarDate = r.StartDate,
+                        StartDate = r.StartDate,
+                        EndDate = r.EndDate,
                         Price = r.Price,
                         CohortId = r.CohortId,
                         WithParty =  r.WithParty
