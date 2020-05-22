@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Microsoft.Azure;
 using SFA.DAS.AssessmentOrgs.Api.Client;
 using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration;
@@ -12,6 +11,7 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
+using SFA.DAS.Provider.Events.Api.Client.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolution
