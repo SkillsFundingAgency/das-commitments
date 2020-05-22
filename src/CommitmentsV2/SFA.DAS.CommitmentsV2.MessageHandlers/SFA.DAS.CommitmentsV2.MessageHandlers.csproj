@@ -36,7 +36,6 @@
     <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
     <PackageReference Include="SFA.DAS.Payments.ProviderPayments.Messages" Version="0.0.69" />
-    <!--<PackageReference Include="SFA.DAS.Notifications.Api.Client" Version="2.2.1" />-->
     <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.8" />
     <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.10" />
     <PackageReference Include="SFA.DAS.PAS.Account.Api.ClientV2" Version="1.1.1043" />

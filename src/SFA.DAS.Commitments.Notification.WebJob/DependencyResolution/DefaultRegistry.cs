@@ -14,7 +14,6 @@ using System.Net.Http;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Commitments.Notification.WebJob.EmailServices;
-using SFA.DAS.Commitments.Notification.WebJob.Services;
 using SFA.DAS.Http.TokenGenerators;
 using SFA.DAS.NLog.Logger.Web.MessageHandlers;
 using SFA.DAS.Notifications.Api.Client;
