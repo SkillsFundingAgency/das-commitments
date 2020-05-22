@@ -17,19 +17,16 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICommitmentsLogger _logger;
-        private readonly IProviderEmailServiceWrapper   _emailService;
-        private readonly IAccountApiClient _providerAccountClient;
+        private readonly IPasAccountApiClient _providerAccountClient;
         private RetryPolicy _retryPolicy;
 
         public ProviderAlertSummaryEmailService(
             IApprenticeshipRepository apprenticeshipRepository,
             ICommitmentsLogger logger,
-            IProviderEmailServiceWrapper emailService,
-            IAccountApiClient providerAccountClient)
+            IPasAccountApiClient providerAccountClient)
         {
             _apprenticeshipRepository = apprenticeshipRepository;
             _logger = logger;
-            _emailService = emailService;
             _providerAccountClient = providerAccountClient;
             _retryPolicy = GetRetryPolicy();
         }
@@ -46,25 +43,24 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
                 .Distinct()
                 .ToList();
 
-            var providerTasks =
+            var getProviderUsersTasks =
                 distinctProviderIds
-                .Select(GetProvider)
+                    .Select(GetNormalUsersForProvider)
                 .ToList();
 
-            await Task.WhenAll(providerTasks);
-            var providers = providerTasks.Select(x => x.Result).ToList();
+            await Task.WhenAll(getProviderUsersTasks);
+            var providers = getProviderUsersTasks.Select(x => x.Result).ToList();
 
             var emails = providers
                 .SelectMany(p => p
-                     .Where(m => m.ReceiveNotifications)
                      .Select(m => MapToEmail(m, alertSummaries)));
 
             return emails;
         }
 
-        private Email MapToEmail(ProviderUser user, IList<ProviderAlertSummary> alertSummaries)
+        private Email MapToEmail(ProviderUserInfo user, IList<ProviderAlertSummary> alertSummaries)
         {
-            var alert = alertSummaries.Single(m => m.ProviderId == user.Ukprn);
+            var alert = alertSummaries.Single(m => m.ProviderId == user.ProviderId);
             return new Email
             {
                 RecipientsAddress = user.Email,
@@ -75,7 +71,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
                 Tokens =
                     new Dictionary<string, string>
                         {
-                            { "name", user.GivenName },
+                            { "name", user.Name },
                             { "total_count_text", alert.TotalCount == 1
                                 ? "is 1 apprentice"
                                 : $"are {alert.TotalCount} apprentices" },
@@ -83,7 +79,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
                             { "need_needs", alert.TotalCount > 1 ? "need" :"needs" },
                             { "changes_for_review", ChangesForReviewText(alert.ChangesForReview) },
                             { "mismatch_changes", GetMismatchText(alert.DataMismatchCount) },
-                            { "link_to_mange_apprenticeships", $"{user.Ukprn}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested" }
+                            { "link_to_mange_apprenticeships", $"{user.ProviderId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested" }
                         }
             };
         }
@@ -110,29 +106,24 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
             return $"* {changesForReview} apprentices with changes for review";
         }
 
-        private async Task<IEnumerable<ProviderUser>> GetProvider(long ukprn)
+        private async Task<IEnumerable<ProviderUserInfo>> GetNormalUsersForProvider(long ukprn)
         {
-            var users = await _emailService.GetUsersAsync(ukprn);
-            if (users == null)
-            {
-                _logger.Warn($"Can't find and user for provider {ukprn}.");
-                return new List<ProviderUser>();
-            }
-
             var accountUserResult = (await _retryPolicy.ExecuteAndCaptureAsync(() => _providerAccountClient.GetAccountUsers(ukprn)));
-            var accountUser = accountUserResult.Result?.ToArray();
+            var accountUsers = accountUserResult.Result?.Where(u=>!u.IsSuperUser && u.ReceiveNotifications).ToArray();
 
-            foreach (var user in users)
+            return accountUsers.Select(u=> new ProviderUserInfo { Email = u.EmailAddress, Name = GetFirstName(u.DisplayName), ProviderId = ukprn});
+        }
+
+        private string GetFirstName(string displayName)
+        {
+            if (string.IsNullOrWhiteSpace(displayName))
             {
-                var u = accountUser
-                    ?.FirstOrDefault(m => user.Email.Trim().ToLower() == m.EmailAddress.Trim()
-                    ?.ToLower());
-
-                user.ReceiveNotifications = u == null || u.ReceiveNotifications;
-                user.Ukprn = ukprn;
+                return "";
             }
 
-            return users;
+            var names = displayName.Split(' ');
+
+            return names[0];
         }
 
         private RetryPolicy GetRetryPolicy()
@@ -146,5 +137,12 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
                         }
                     );
         }
+    }
+
+    class ProviderUserInfo
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public long ProviderId { get; set; }
     }
 }

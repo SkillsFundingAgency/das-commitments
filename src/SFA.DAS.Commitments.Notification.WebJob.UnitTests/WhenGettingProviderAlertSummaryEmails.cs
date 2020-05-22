@@ -1,20 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Notification.WebJob.EmailServices;
+using SFA.DAS.PAS.Account.Api.Client;
 using SFA.DAS.PAS.Account.Api.Types;
-
-using IAccountApiClient = SFA.DAS.PAS.Account.Api.Client.IAccountApiClient;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 {
@@ -23,17 +18,14 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
     {
         private Mock<IApprenticeshipRepository> _apprenticeshipRepostory;
 
-        private Mock<IProviderEmailServiceWrapper> _providerUserService;
-
         private ProviderAlertSummaryEmailService _sut;
 
-        private Mock<IAccountApiClient> _accountService;
+        private Mock<IPasAccountApiClient> _pasAccountService;
 
         [SetUp]
         public void SetUp()
         {
             _apprenticeshipRepostory = new Mock<IApprenticeshipRepository>();
-            _providerUserService = new Mock<IProviderEmailServiceWrapper>();
             _apprenticeshipRepostory.Setup(m => m.GetProviderApprenticeshipAlertSummary())
                 .ReturnsAsync(new List<ProviderAlertSummary>
                                   {
@@ -47,27 +39,25 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                           }
                                   });
 
-            _providerUserService.Setup(m => m.GetUsersAsync(12345))
-                .ReturnsAsync(
-                    new List<ProviderUser>
-                        {
-                            new ProviderUser
-                                {
-                                    Email = "email@email.com",
-                                    FamilyName = "Testerson",
-                                    GivenName = "Tester",
-                                    Title = "Mr",
-                                    Ukprn = 12345
-                                }
-                        });
+            _pasAccountService = new Mock<IPasAccountApiClient>();
 
-            _accountService = new Mock<PAS.Account.Api.Client.IAccountApiClient>();
+            _pasAccountService.Setup(m => m.GetAccountUsers(12345))
+                .ReturnsAsync(
+                    new List<User>
+                    {
+                        new User
+                        {
+                            EmailAddress = "email@email.com",
+                            DisplayName = "Tester son",
+                            IsSuperUser = false,
+                            ReceiveNotifications = true
+                        }
+                    });
 
             _sut = new ProviderAlertSummaryEmailService(
                 _apprenticeshipRepostory.Object,
                 Mock.Of<ICommitmentsLogger>(),
-                _providerUserService.Object,
-                _accountService.Object
+                _pasAccountService.Object
                 );
         }
 
@@ -178,36 +168,22 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                           }
                                   });
 
-            _providerUserService.Setup(m => m.GetUsersAsync(12345))
-                .ReturnsAsync(
-                    new List<ProviderUser>
-                        {
-                            new ProviderUser
-                                {
-                                    Email = "notfound@email.com",
-                                    FamilyName = "Testerson",
-                                    GivenName = "NotFound",
-                                    Title = "Mr",
-                                    Ukprn = 12345
-                                },
-                            new ProviderUser
-                                {
-                                    Email = "found@email.com",
-                                    FamilyName = "Testerson",
-                                    GivenName = "Found",
-                                    Title = "Mr",
-                                    Ukprn = 12345
-                                }
-                        });
-
-            _accountService.Setup(m => m.GetAccountUsers(12345)).ReturnsAsync(
+            _pasAccountService.Setup(m => m.GetAccountUsers(12345)).ReturnsAsync(
                 new List<User>
                 {
                     new User
+                    {
+                        EmailAddress = "first@email.COM",
+                        DisplayName = "First Name",
+                        ReceiveNotifications = true,
+                        UserRef = "user1"
+                    },
+                    new User
                         {
-                            EmailAddress = "found@email.COM",
+                            EmailAddress = "second@email.COM",
+                            DisplayName = "Second Name",
                             ReceiveNotifications = true,
-                            UserRef = "user1"
+                            UserRef = "user2"
                         }
                 });
 
@@ -217,7 +193,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             var first = emails[0];
             var second = emails[1];
 
-            first.Tokens["name"].Should().Be("NotFound");
+            first.Tokens["name"].Should().Be("First");
             first.Tokens["total_count_text"].Should().Be("is 1 apprentice");
             first.Tokens["provider_name"].Should().Be("Test Provider 1");
             first.Tokens["need_needs"].Should().Be("needs");
@@ -227,11 +203,11 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 
             first.Tokens["link_to_mange_apprenticeships"].Should().Be("12345/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested");
 
-            second.Tokens["name"].Should().Be("Found");
+            second.Tokens["name"].Should().Be("Second");
         }
 
         [Test]
-        public async Task WhenUserNotFoundInAccountsApi()
+        public async Task ShouldIgnoreSuperUsersEvenWithNotificationsOn()
         {
             _apprenticeshipRepostory.Setup(m => m.GetProviderApprenticeshipAlertSummary())
                 .ReturnsAsync(new List<ProviderAlertSummary>
@@ -245,29 +221,19 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                               TotalCount = 1
                                           }
                                   });
-
-            _providerUserService.Setup(m => m.GetUsersAsync(12345))
-                .ReturnsAsync(
-                    new List<ProviderUser>
-                        {
-                            new ProviderUser
-                                {
-                                    Email = "notfound@email.com",
-                                    FamilyName = "Testerson",
-                                    GivenName = "NotFound",
-                                    Title = "Mr",
-                                    Ukprn = 12345
-                                }
-                        });
-
-            _accountService.Setup(m => m.GetAccountUsers(12345)).Throws<HttpRequestException>();
+            _pasAccountService.Setup(m => m.GetAccountUsers(12345)).ReturnsAsync(
+                new List<User>
+                {
+                    new User { EmailAddress = "super@email.COM", DisplayName = "super user", ReceiveNotifications = true, IsSuperUser = true, UserRef = "user1" },
+                    new User { EmailAddress = "normal@ail.COM", DisplayName = "normal user", ReceiveNotifications = true, IsSuperUser = false, UserRef = "user2" }
+                });
 
             var emails = (await _sut.GetEmails()).ToArray();
 
             emails.Length.Should().Be(1);
             var first = emails[0];
 
-            first.Tokens["name"].Should().Be("NotFound");
+            first.Tokens["name"].Should().Be("normal");
             first.Tokens["total_count_text"].Should().Be("is 1 apprentice");
             first.Tokens["provider_name"].Should().Be("Test Provider 1");
             first.Tokens["need_needs"].Should().Be("needs");
@@ -275,10 +241,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             first.Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
             first.Tokens["mismatch_changes"].Should().Be("* 1 apprentice with an ILR data mismatch");
 
-            first.Tokens["link_to_mange_apprenticeships"]
-                .Should().Be("12345/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested");            
+            first.Tokens["link_to_mange_apprenticeships"].Should().Be("12345/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested");
         }
-
 
         [Test]
         public async Task WhenUserFromAccountsAPIHaveTurnedOffNotification()
@@ -295,34 +259,11 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                               TotalCount = 1
                                           }
                                   });
-
-            _providerUserService.Setup(m => m.GetUsersAsync(12345))
-                .ReturnsAsync(
-                    new List<ProviderUser>
-                        {
-                            new ProviderUser
-                                {
-                                    Email = "found-on@email.com",
-                                    FamilyName = "Testerson",
-                                    GivenName = "Found-ON",
-                                    Title = "Mr",
-                                    Ukprn = 12345
-                                },
-                            new ProviderUser
-                                {
-                                    Email = "found-off@email.com",
-                                    FamilyName = "Testerson",
-                                    GivenName = "Found-OFF",
-                                    Title = "Mr",
-                                    Ukprn = 12345
-                                }
-                        });
-
-            _accountService.Setup(m => m.GetAccountUsers(12345)).ReturnsAsync(
+            _pasAccountService.Setup(m => m.GetAccountUsers(12345)).ReturnsAsync(
                 new List<User>
                 {
-                    new User { EmailAddress = "found-on@email.COM", ReceiveNotifications = true, UserRef = "user1" },
-                    new User { EmailAddress = "found-off@email.COM", ReceiveNotifications = false, UserRef = "user2" }
+                    new User { EmailAddress = "found-on@email.COM", DisplayName = "found-on", ReceiveNotifications = true, UserRef = "user1" },
+                    new User { EmailAddress = "found-off@email.COM", DisplayName = "found-off", ReceiveNotifications = false, UserRef = "user2" }
                 });
 
             var emails = (await _sut.GetEmails()).ToArray();
@@ -330,7 +271,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails.Length.Should().Be(1);
             var first = emails[0];
 
-            first.Tokens["name"].Should().Be("Found-ON");
+            first.Tokens["name"].Should().Be("found-on");
             first.Tokens["total_count_text"].Should().Be("is 1 apprentice");
             first.Tokens["provider_name"].Should().Be("Test Provider 1");
             first.Tokens["need_needs"].Should().Be("needs");
