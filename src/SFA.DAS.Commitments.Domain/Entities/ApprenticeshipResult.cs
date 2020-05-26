@@ -29,6 +29,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string EmployerRef { get; set; }
         public string ProviderRef { get; set; }
         public DateTime? StopDate { get; set; }
+        public DateTime? CompletionDate { get; set; }
         public ValidationFailReason ValidationFailReason { get; set; }
         public long? RequestApprenticeshipId { get; set; }
     }
