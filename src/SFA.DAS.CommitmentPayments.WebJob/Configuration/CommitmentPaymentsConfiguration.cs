@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Configuration
         public string DatabaseConnectionString { get; set; }
         public string ServiceBusConnectionString { get; set; }
 
-        public PaymentEventsApi PaymentEventsApi { get; set; }
+        public PaymentsEventsApi PaymentsEventsApi { get; set; }
 
         public bool UseDocumentRepository { get; set; }
 
@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Configuration
         public bool IgnoreDataLockStatusConstraintErrors { get; set; }
     }
 
-    public class PaymentEventsApi : IPaymentsEventsApiConfiguration
+    public class PaymentsEventsApi : IPaymentsEventsApiConfiguration
     {
         public string ApiBaseUrl { get; set; }
         public string Tenant { get; }

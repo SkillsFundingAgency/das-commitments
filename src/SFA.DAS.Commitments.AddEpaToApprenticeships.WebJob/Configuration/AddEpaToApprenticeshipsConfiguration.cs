@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
 
         public string AssessmentOrgsApiBaseUri { get; set; }
 
-        public PaymentEventsApi PaymentEventsApi { get; set; }
+        public PaymentsEventsApi PaymentsEventsApi { get; set; }
 
         public bool UsePaymentEventsDocumentRepository { get; set; }
 
@@ -19,7 +19,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
         public string StorageConnectionString { get; set; }
     }
 
-    public class PaymentEventsApi : IPaymentsEventsApiConfiguration
+    public class PaymentsEventsApi : IPaymentsEventsApiConfiguration
     {
         public string ApiBaseUrl { get; set; }
         public string Tenant { get; }

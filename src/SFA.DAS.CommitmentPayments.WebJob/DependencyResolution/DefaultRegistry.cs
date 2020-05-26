@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
             var config = GetConfiguration("SFA.DAS.CommitmentPayments");
 
             For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
-                .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
+                .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentsEventsApi);
 
             For<IConfiguration>().Use(config);
             For<CommitmentPaymentsConfiguration>().Use(config);
