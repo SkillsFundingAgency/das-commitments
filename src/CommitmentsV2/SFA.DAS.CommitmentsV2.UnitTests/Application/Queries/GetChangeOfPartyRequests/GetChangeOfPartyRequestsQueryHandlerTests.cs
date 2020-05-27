@@ -111,6 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
             Assert.AreEqual(source.StartDate, result.StartDate);
             Assert.AreEqual(source.EndDate, result.EndDate);
             Assert.AreEqual(source.Price, result.Price);
+            Assert.AreEqual(source.NewApprenticeshipId, result.NewApprenticeshipId);
         }
     }
 }
