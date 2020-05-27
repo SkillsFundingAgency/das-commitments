@@ -27,7 +27,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public DateTime? CompletionDate { get; set; }
         public string EndpointAssessorName { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
-        public bool IsContinuation { get; set; }
+        public long? ContinuationOfId { get; set; }
         public DateTime? OriginalStartDate { get; set; }
+        public bool IsContinuation => ContinuationOfId.HasValue;
     }
 }
