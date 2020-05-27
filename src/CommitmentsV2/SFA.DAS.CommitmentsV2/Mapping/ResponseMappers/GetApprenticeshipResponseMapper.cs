@@ -34,7 +34,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 EndpointAssessorName = source.EndpointAssessorName,
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 ContinuationOfId = source.ContinuationOfId,
-                OriginalStartDate = source.OriginalStartDate
+                OriginalStartDate = source.OriginalStartDate,
+                PreviousProviderId = source.PreviousProviderId,
+                PreviousEmployerAccountId = source.PreviousEmployerAccountId
             });
         }
     }

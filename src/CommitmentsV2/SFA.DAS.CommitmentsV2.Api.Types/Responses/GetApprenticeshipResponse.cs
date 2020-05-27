@@ -30,5 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public long? ContinuationOfId { get; set; }
         public DateTime? OriginalStartDate { get; set; }
         public bool IsContinuation => ContinuationOfId.HasValue;
+        public long? PreviousProviderId { get; set; }
+        public long? PreviousEmployerAccountId { get; set; }
     }
 }

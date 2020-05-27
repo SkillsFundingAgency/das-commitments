@@ -29,5 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public bool HasHadDataLockSuccess { get; set; }
         public long? ContinuationOfId { get; set; }
         public DateTime? OriginalStartDate { get; set; }
+        public long? PreviousEmployerAccountId { get; set; }
+        public long? PreviousProviderId { get; set; }
     }
 }

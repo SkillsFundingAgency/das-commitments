@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool HasHadDataLockSuccess { get; set; }
         public Originator? PendingUpdateOriginator { get; set; }
         public DateTime? CompletionDate { get; set; }
+        public ApprenticeshipBase Continuation { get; set; }
 
         public Apprenticeship()
         {
