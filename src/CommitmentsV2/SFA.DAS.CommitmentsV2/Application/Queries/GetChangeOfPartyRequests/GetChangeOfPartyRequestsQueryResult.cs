@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
             public DateTime EndDate { get; set; }
             public long? CohortId { get; set; }
             public Party? WithParty { get; set; }
+            public long? NewApprenticeshipId { get; set; }
         }
     }
 }
