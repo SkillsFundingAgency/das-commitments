@@ -13,13 +13,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
         public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
+        public virtual ApprenticeshipBase Continuation { get; set; }
 
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public Originator? PendingUpdateOriginator { get; set; }
         public DateTime? CompletionDate { get; set; }
-        public ApprenticeshipBase Continuation { get; set; }
 
         public Apprenticeship()
         {
