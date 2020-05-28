@@ -1,87 +1,82 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Polly;
-using Polly.Retry;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Infrastructure.Data;
-using SFA.DAS.Notifications.Api.Types;
+using SFA.DAS.NLog.Logger;
 using SFA.DAS.PAS.Account.Api.Client;
+using SFA.DAS.PAS.Account.Api.Types;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 {
     public class ProviderAlertSummaryEmailService : IProviderAlertSummaryEmailService
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
-        private readonly ICommitmentsLogger _logger;
+        private readonly ILog _logger;
         private readonly IPasAccountApiClient _providerAccountClient;
-        private RetryPolicy _retryPolicy;
 
         public ProviderAlertSummaryEmailService(
             IApprenticeshipRepository apprenticeshipRepository,
-            ICommitmentsLogger logger,
-            IPasAccountApiClient providerAccountClient)
+            IPasAccountApiClient providerAccountClient,
+            ILog logger)
         {
             _apprenticeshipRepository = apprenticeshipRepository;
             _logger = logger;
             _providerAccountClient = providerAccountClient;
-            _retryPolicy = GetRetryPolicy();
         }
 
-        public async Task<IEnumerable<Email>> GetEmails()
+        public async Task SendAlertSummaryEmails(string jobId)
         {
             var alertSummaries = await _apprenticeshipRepository.GetProviderApprenticeshipAlertSummary();
 
             _logger.Info($"Found {alertSummaries.Count} provider summary records.");
 
-            var distinctProviderIds =
-                alertSummaries
-                .Select(m => m.ProviderId)
-                .Distinct()
-                .ToList();
+            if (alertSummaries.Count == 0)
+            {
+                return;
+            }
 
-            var getProviderUsersTasks =
-                distinctProviderIds
-                    .Select(GetNormalUsersForProvider)
-                .ToList();
+            var distinctProviderIds = alertSummaries
+                    .Select(m => m.ProviderId)
+                    .Distinct()
+                    .ToList();
 
-            await Task.WhenAll(getProviderUsersTasks);
-            var providers = getProviderUsersTasks.Select(x => x.Result).ToList();
+            var stopwatch = Stopwatch.StartNew();
+            _logger.Debug($"About to send emails to {distinctProviderIds.Count} providers, JobId: {jobId}");
 
-            var emails = providers
-                .SelectMany(p => p
-                     .Select(m => MapToEmail(m, alertSummaries)));
+            await Task.WhenAll(distinctProviderIds.Select(x=>SendEmails(x, alertSummaries)).ToList());
 
-            return emails;
+            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {distinctProviderIds.Count} emails, JobId; {jobId}",
+                new Dictionary<string, object>
+                {
+                    { "providerCount", distinctProviderIds.Count },
+                    { "duration", stopwatch.ElapsedMilliseconds },
+                    { "JobId", jobId }
+                });
         }
 
-        private Email MapToEmail(ProviderUserInfo user, IList<ProviderAlertSummary> alertSummaries)
+        private Task SendEmails(long providerId, IList<ProviderAlertSummary> alertSummaries)
         {
-            var alert = alertSummaries.Single(m => m.ProviderId == user.ProviderId);
-            return new Email
+            var alert = alertSummaries.First(m => m.ProviderId == providerId);
+
+            var email = new ProviderEmailRequest
             {
-                RecipientsAddress = user.Email,
-                TemplateId = "ProviderAlertSummaryNotification",
-                ReplyToAddress = "digital.apprenticeship.service@notifications.service.gov.uk",
-                Subject = "Items for your attention: apprenticeship service",
-                SystemId = "x",
+                TemplateId = "ProviderAlertSummaryNotification2",
                 Tokens =
                     new Dictionary<string, string>
+                    {
+                        {"total_count_text", alert.TotalCount.ToString()},
+                        {"need_needs", alert.TotalCount > 1 ? "need" : "needs"},
+                        {"changes_for_review", ChangesForReviewText(alert.ChangesForReview)},
+                        {"mismatch_changes", GetMismatchText(alert.DataMismatchCount)},
                         {
-                            { "name", user.Name },
-                            { "total_count_text", alert.TotalCount == 1
-                                ? "is 1 apprentice"
-                                : $"are {alert.TotalCount} apprentices" },
-                            { "provider_name", alert.ProviderName },
-                            { "need_needs", alert.TotalCount > 1 ? "need" :"needs" },
-                            { "changes_for_review", ChangesForReviewText(alert.ChangesForReview) },
-                            { "mismatch_changes", GetMismatchText(alert.DataMismatchCount) },
-                            { "link_to_mange_apprenticeships", $"{user.ProviderId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested" }
+                            "link_to_mange_apprenticeships",
+                            $"{providerId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested"
                         }
+                    }
             };
+            return _providerAccountClient.SendEmailToAllProviderRecipients(providerId, email);
         }
 
         private string GetMismatchText(int dataLockCount)
@@ -105,44 +100,5 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 
             return $"* {changesForReview} apprentices with changes for review";
         }
-
-        private async Task<IEnumerable<ProviderUserInfo>> GetNormalUsersForProvider(long ukprn)
-        {
-            var accountUserResult = (await _retryPolicy.ExecuteAndCaptureAsync(() => _providerAccountClient.GetAccountUsers(ukprn)));
-            var accountUsers = accountUserResult.Result?.Where(u=>!u.IsSuperUser && u.ReceiveNotifications).ToArray();
-
-            return accountUsers.Select(u=> new ProviderUserInfo { Email = u.EmailAddress, Name = GetFirstName(u.DisplayName), ProviderId = ukprn});
-        }
-
-        private string GetFirstName(string displayName)
-        {
-            if (string.IsNullOrWhiteSpace(displayName))
-            {
-                return "";
-            }
-
-            var names = displayName.Split(' ');
-
-            return names[0];
-        }
-
-        private RetryPolicy GetRetryPolicy()
-        {
-            return Policy
-                    .Handle<Exception>()
-                    .RetryAsync(3,
-                        (exception, retryCount) =>
-                        {
-                            _logger.Warn($"Error connecting to PAS Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
-                        }
-                    );
-        }
-    }
-
-    class ProviderUserInfo
-    {
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public long ProviderId { get; set; }
     }
 }
