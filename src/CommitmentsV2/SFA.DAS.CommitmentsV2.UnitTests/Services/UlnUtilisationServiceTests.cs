@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
-    [Parallelizable]
+    [Parallelizable(ParallelScope.None)]
     [TestFixture]
     public class UlnUtilisationServiceTests
     {
