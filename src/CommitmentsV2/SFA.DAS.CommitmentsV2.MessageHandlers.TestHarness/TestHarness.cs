@@ -53,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("P - ApproveTransferRequestCommand");
                 Console.WriteLine("Q - RejectTransferRequestCommand");
                 Console.WriteLine("S - LevyAddedToAccount");
+                Console.WriteLine("T - ChangeOfPartyRequestCohortCreated Event");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -153,6 +154,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new LevyAddedToAccount { AccountId = accountId, Amount = 10, Created = DateTime.UtcNow });
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(LevyAddedToAccount)}");
+                            break;
+                        case ConsoleKey.T:
+                            await _publisher.Publish(new ChangeOfPartyRequestCohortCreatedEvent (10006));
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(ChangeOfPartyRequestCohortCreatedEvent)}");
                             break;
                     }
                 }

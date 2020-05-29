@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NServiceBus;
+using NServiceBus.Testing;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public async Task Handle_WhenHandlingEvent_CohortIsCreatedWithCorrectReference()
         {
             await _fixture.Handle();
-            _fixture.VerifyCohortReference();
+            _fixture.ChangeOfPartyRequestCohortEventIsEmitted();
         }
 
         [Test]
@@ -69,11 +69,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyNullReservation();
         }
 
+        [Test]
+        public async Task Handle_WhenHandlingEvent_ChangeOfPartyRequestCohortEventIsEmitted()
+        {
+            await _fixture.Handle();
+            _fixture.ChangeOfPartyRequestCohortEventIsEmitted();
+        }
+
         private class ChangeOfPartyRequestCreatedEventHandlerTestsFixture
         {
             public ChangeOfPartyRequestCreatedEventHandler Handler { get; private set; }
             public ChangeOfPartyRequestCreatedEvent Event { get; private set; }
-            public Mock<IMessageHandlerContext> MessageHandlerContext { get; private set; }
+            public TestableMessageHandlerContext TestableMessageHandlerContext { get; private set; }
             public Mock<IReservationsApiClient> ReservationsApiClient { get; private set; }
             public Mock<IEncodingService> EncodingService { get; }
             public ProviderCommitmentsDbContext Db { get; set; }
@@ -120,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Db.Apprenticeships.Add(Apprenticeship);
                 Db.SaveChanges();
 
-                MessageHandlerContext = new Mock<IMessageHandlerContext>();
+                TestableMessageHandlerContext = new TestableMessageHandlerContext();
                 ReservationsApiClient = new Mock<IReservationsApiClient>();
                 EncodingService = new Mock<IEncodingService>();
 
@@ -144,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public async Task Handle()
             {
-                await Handler.Handle(Event, MessageHandlerContext.Object);
+                await Handler.Handle(Event, TestableMessageHandlerContext);
                 Db.SaveChanges();
             }
 
@@ -173,9 +180,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Assert.Contains(Cohort, Db.Cohorts.ToList());
             }
 
-            public void VerifyCohortReference()
+            public void ChangeOfPartyRequestCohortEventIsEmitted()
             {
-                Assert.AreEqual(CohortReference, Cohort.Reference);
+                var changeOfPartyRequestCohortCreatedEvent = TestableMessageHandlerContext.PublishedMessages.Where(x => x.Message is ChangeOfPartyRequestCohortCreatedEvent);
+                Assert.IsNotNull(changeOfPartyRequestCohortCreatedEvent);
+                Assert.AreEqual(1, changeOfPartyRequestCohortCreatedEvent.Count());
+                Assert.AreEqual(Cohort.Id, (changeOfPartyRequestCohortCreatedEvent.First().Message as ChangeOfPartyRequestCohortCreatedEvent).CohortId);
             }
         }
     }
