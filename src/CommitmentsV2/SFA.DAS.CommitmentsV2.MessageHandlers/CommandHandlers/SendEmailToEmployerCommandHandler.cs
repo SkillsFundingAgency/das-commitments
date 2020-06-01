@@ -37,7 +37,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
             {
                 var emails = new List<string>();
                 var users = await _accountApiClient.GetAccountUsers(message.AccountId);
-                users.Add(new EAS.Account.Api.Types.TeamMemberViewModel { Email = "m_amirkhan@hotmail.com", Role = Transactor, CanReceiveNotifications = true });
 
                 if (string.IsNullOrWhiteSpace(message.EmailAddress))
                 {
