@@ -151,6 +151,7 @@
     <None Include="AdhocScripts\Support\BulkApprenticeshipResume.sql" />
     <None Include="AdhocScripts\Manual\CV-679-Completion-Backfill.sql" />
     <None Include="AdhocScripts\Manual\CV-684-Update-Account-LevyStatus.sql" />
+    <None Include="AdhocScripts\Support\UpdateAccountLevyStatus.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
