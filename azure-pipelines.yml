@@ -67,6 +67,7 @@ steps:
     displayName: 'NuGet restore'
     inputs:
       restoreSolution: 'src/SFA.DAS.CommitmentPayments.WebJob.UnitTests/packages.config'
+      PackagesDirectory: '../packages'
 
   - task: VSTest@2	  
     displayName: 'VS test'	    
