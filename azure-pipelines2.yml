@@ -79,7 +79,7 @@ stages:
           **/bin/**/*UnitTests.dll	 
           !**/bin/**/SFA.DAS.CommitmentPayments.WebJob.UnitTests.dll     
           !**/CommitmentsV2/**	      
-        !**/*Reservations.Api*/**	     
+          !**/*Reservations.Api*/**	     
       platform: '$(buildPlatform)'
       vsTestVersion: "15.0"    
     
