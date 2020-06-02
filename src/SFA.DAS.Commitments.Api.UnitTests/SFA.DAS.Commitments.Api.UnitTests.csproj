@@ -36,8 +36,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <LangVersion>false</LangVersion>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <LangVersion>True</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoFixture, Version=4.11.0.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
