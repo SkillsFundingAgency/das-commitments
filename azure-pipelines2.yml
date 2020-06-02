@@ -9,7 +9,13 @@ pr: none
 workspace:
   clean: all
 
-variables:
+
+    
+stages:
+- stage: Buildv1
+  displayName: 'Build and Test'
+
+  variables:
   - group: 'Prod Management Resources'
   - name: buildConfiguration
     value: 'release'
@@ -23,10 +29,7 @@ resources:
     name: SkillsFundingAgency/das-platform-building-blocks
     ref: refs/heads/master
     endpoint: "GitHub (SFA)"
-    
-stages:
-- stage: Buildv1
-  displayName: 'Build and Test'
+
   jobs:
   - job: 'BuildAndTestV1'
     pool:
@@ -159,6 +162,21 @@ stages:
     demands: 
     - msbuild
     - visualstudio
+  variables:
+  - group: 'Prod Management Resources'
+  - name: buildConfiguration
+    value: 'release'
+  - name: buildPlatform
+    value: 'any cpu'  
+
+resources:
+  repositories:
+  - repository: das-platform-building-blocks
+    type: github
+    name: SkillsFundingAgency/das-platform-building-blocks
+    ref: refs/heads/master
+    endpoint: "GitHub (SFA)"
+    
   steps:
     - task: DotNetCoreCLI@2
       displayName: Restore
