@@ -70,7 +70,7 @@ steps:
         **/SFA.DAS.CommitmentPayments.WebJob.UnitTests/bin/**/*Tests.dll	      
         !**/CommitmentsV2/**	      
         !**/*Reservations.Api*/**	     
-      platform: '$(buildPlatform)
+      platform: '$(buildPlatform)'
 
   - task: DotNetCoreCLI@2
     displayName: 'Publish v2 API'
