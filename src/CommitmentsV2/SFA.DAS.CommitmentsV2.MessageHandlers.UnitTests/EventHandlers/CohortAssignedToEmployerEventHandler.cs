@@ -28,16 +28,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task When_HandlingEvent_IfAssignedByProvider_SendEmailToEmployer()
+        public async Task When_HandlingEvent_IfAssignedByProvider_AndNotChangeOfParty_SendEmailToEmployer()
         {
-            await _fixture.WithAssignmentByParty(Party.Provider).Handle();
+            await _fixture.WithAssignmentByParty(Party.Provider).SetChangeOfPartyRequestId(null).Handle();
             _fixture.VerifyEmailSent();
         }
 
         [Test]
-        public async Task When_HandlingEvent_IfAssignedByTransferSender_EmailIsNotSent()
+        public async Task When_HandlingEvent_IfAssignedByProvider_AndIsChangeOfParty_EmailIsNotSent()
         {
-            await _fixture.WithAssignmentByParty(Party.TransferSender).Handle();
+            await _fixture.WithAssignmentByParty(Party.Provider).SetChangeOfPartyRequestId(1).Handle();
+            _fixture.VerifyEmailNotSent();
+        }
+
+        [Test]
+        public async Task When_HandlingEvent_IfAssignedByTransferSender_AndNotChangeOfParty_EmailIsNotSent()
+        {
+            await _fixture.WithAssignmentByParty(Party.TransferSender).SetChangeOfPartyRequestId(null).Handle();
             _fixture.VerifyEmailNotSent();
         }
 
@@ -62,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _cohortSummary = _autoFixture.Create<GetCohortSummaryQueryResult>();
                 _mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(),
                         It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(_cohortSummary);
+                    .ReturnsAsync(() => _cohortSummary);
 
                 _cohortReference = _autoFixture.Create<string>();
                 _employerEncodedAccountId = _autoFixture.Create<string>();
@@ -85,6 +92,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _event = new CohortAssignedToEmployerEvent(_autoFixture.Create<long>(),
                     _autoFixture.Create<DateTime>(),
                     assigningParty);
+                return this;
+            }
+
+            public CohortAssignedToEmployerEventHandlerTestsFixture SetChangeOfPartyRequestId(long? changeOfPartyRequestId)
+            {
+                _cohortSummary.ChangeOfPartyRequestId = changeOfPartyRequestId;
                 return this;
             }
 

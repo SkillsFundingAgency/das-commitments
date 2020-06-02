@@ -42,7 +42,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _dbContext.Value.Cohorts.Add(cohort);
             await _dbContext.Value.SaveChangesAsync();
 
-            await context.Publish(new ChangeOfPartyRequestCohortCreatedEvent(cohort.Id));
             //this encoding and re-save could be removed and put elsewhere
             cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
             await _dbContext.Value.SaveChangesAsync();

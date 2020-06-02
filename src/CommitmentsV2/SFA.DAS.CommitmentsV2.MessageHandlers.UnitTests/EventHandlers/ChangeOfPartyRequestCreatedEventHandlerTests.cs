@@ -69,13 +69,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyNullReservation();
         }
 
-        [Test]
-        public async Task Handle_WhenHandlingEvent_ChangeOfPartyRequestCohortEventIsEmitted()
-        {
-            await _fixture.Handle();
-            _fixture.ChangeOfPartyRequestCohortEventIsEmitted();
-        }
-
         private class ChangeOfPartyRequestCreatedEventHandlerTestsFixture
         {
             public ChangeOfPartyRequestCreatedEventHandler Handler { get; private set; }
@@ -183,14 +176,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public void VerifyCohortReference()
             {
                 Assert.AreEqual(CohortReference, Cohort.Reference);
-            }
-
-            public void ChangeOfPartyRequestCohortEventIsEmitted()
-            {
-                var changeOfPartyRequestCohortCreatedEvent = TestableMessageHandlerContext.PublishedMessages.Where(x => x.Message is ChangeOfPartyRequestCohortCreatedEvent);
-                Assert.IsNotNull(changeOfPartyRequestCohortCreatedEvent);
-                Assert.AreEqual(1, changeOfPartyRequestCohortCreatedEvent.Count());
-                Assert.AreEqual(Cohort.Id, (changeOfPartyRequestCohortCreatedEvent.First().Message as ChangeOfPartyRequestCohortCreatedEvent).CohortId);
             }
         }
     }

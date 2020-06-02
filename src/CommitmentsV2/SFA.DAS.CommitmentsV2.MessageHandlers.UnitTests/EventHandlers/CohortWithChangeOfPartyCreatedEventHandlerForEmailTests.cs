@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -17,40 +16,40 @@ using SFA.DAS.CommitmentsV2.Types;
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
     [TestFixture]
-    public class ChangeOfPartyRequestCohortCreatedEventHandlerTests
+    public class CohortWithChangeOfPartyCreatedEventHandlerForEmailTests
     {
-        public ChangeOfPartyRequestCohortCreatedEventHandlerTestsFixture _fixture;
+        public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new ChangeOfPartyRequestCohortCreatedEventHandlerTestsFixture();
+            _fixture = new CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture();
         }
 
         [Test]
         public async Task When_HandlingEvent_IfLevyAccount_SendApproveNewEmployerDetails_Levy()
         {
             await _fixture.WithLevyStatus(ApprenticeshipEmployerType.Levy).Handle();
-            _fixture.VerifyEmailSent(ChangeOfPartyRequestCohortCreatedEventHandler.ApproveNewEmployerDetailsLevy);
+            _fixture.VerifyEmailSent(CohortWithChangeOfPartyCreatedEventHandlerForEmail.TemplateApproveNewEmployerDetailsLevy);
         }
 
         [Test]
         public async Task When_HandlingEvent_IfLevyAccount_SendApproveNewEmployerDetails_NonLevy()
         {
             await _fixture.WithLevyStatus(ApprenticeshipEmployerType.NonLevy).Handle();
-            _fixture.VerifyEmailSent(ChangeOfPartyRequestCohortCreatedEventHandler.ApproveNewEmployerDetailsNonLevy);
+            _fixture.VerifyEmailSent(CohortWithChangeOfPartyCreatedEventHandlerForEmail.TemplateApproveNewEmployerDetailsNonLevy);
         }
 
-        public class ChangeOfPartyRequestCohortCreatedEventHandlerTestsFixture
+        public class CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture
         {
-            private readonly ChangeOfPartyRequestCohortCreatedEventHandler _handler;
-            private readonly ChangeOfPartyRequestCohortCreatedEvent _event;
+            private readonly CohortWithChangeOfPartyCreatedEventHandlerForEmail _handler;
+            private readonly CohortWithChangeOfPartyCreatedEvent _event;
             private readonly Mock<IMediator> _mediator;
             private readonly TestableMessageHandlerContext _messageHandlerContext;
             private readonly GetCohortSummaryQueryResult _cohortSummary;
             private Fixture _autoFixture;
 
-            public ChangeOfPartyRequestCohortCreatedEventHandlerTestsFixture()
+            public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture()
             {
                 _autoFixture = new Fixture();
                 _mediator = new Mock<IMediator>();
@@ -60,11 +59,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => _cohortSummary);
 
-               _handler = new ChangeOfPartyRequestCohortCreatedEventHandler(_mediator.Object, 
-                    Mock.Of<ILogger<ChangeOfPartyRequestCohortCreatedEventHandler>>());
+               _handler = new CohortWithChangeOfPartyCreatedEventHandlerForEmail(_mediator.Object, 
+                    Mock.Of<ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail>>());
 
                 _messageHandlerContext = new TestableMessageHandlerContext();
-                _event = _autoFixture.Create<ChangeOfPartyRequestCohortCreatedEvent>();
+                _event = _autoFixture.Create<CohortWithChangeOfPartyCreatedEvent>();
             }
 
             public async Task Handle()
@@ -72,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 await _handler.Handle(_event, _messageHandlerContext);
             }
 
-            public ChangeOfPartyRequestCohortCreatedEventHandlerTestsFixture WithLevyStatus(ApprenticeshipEmployerType levyStatus)
+            public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture WithLevyStatus(ApprenticeshipEmployerType levyStatus)
             {
                 _cohortSummary.LevyStatus = levyStatus;
                 return this;
