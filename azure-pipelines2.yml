@@ -26,6 +26,7 @@ resources:
     name: SkillsFundingAgency/das-platform-building-blocks
     ref: refs/heads/master
     endpoint: "GitHub (SFA)"
+    
 stages:
 - stage: Buildv1
   displayName: 'Build and Test'
