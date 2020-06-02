@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public async Task Handle_WhenHandlingEvent_CohortIsCreatedWithCorrectReference()
         {
             await _fixture.Handle();
-            _fixture.ChangeOfPartyRequestCohortEventIsEmitted();
+            _fixture.VerifyCohortReference();
         }
 
         [Test]
@@ -178,6 +178,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public void VerifyCohortCreated()
             {
                 Assert.Contains(Cohort, Db.Cohorts.ToList());
+            }
+
+            public void VerifyCohortReference()
+            {
+                Assert.AreEqual(CohortReference, Cohort.Reference);
             }
 
             public void ChangeOfPartyRequestCohortEventIsEmitted()

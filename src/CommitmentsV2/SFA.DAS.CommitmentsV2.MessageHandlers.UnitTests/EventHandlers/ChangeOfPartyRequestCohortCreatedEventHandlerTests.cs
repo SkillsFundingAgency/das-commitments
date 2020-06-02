@@ -67,7 +67,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _event = _autoFixture.Create<ChangeOfPartyRequestCohortCreatedEvent>();
             }
 
-
             public async Task Handle()
             {
                 await _handler.Handle(_event, _messageHandlerContext);
@@ -85,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                       .Select(y => y.Message as SendEmailToEmployerCommand);
                 var emailToEmployerCommand = emailToEmployerCommands.First();
 
-                Assert.AreEqual(1, emailToEmployerCommands.Count());
+                Assert.AreEqual(1, _messageHandlerContext.SentMessages.Count());
                 Assert.AreEqual(_cohortSummary.AccountId, emailToEmployerCommand.AccountId);
                 Assert.AreEqual(templateName, emailToEmployerCommand.Template);
                 Assert.AreEqual(1, emailToEmployerCommand.Tokens.Count());
