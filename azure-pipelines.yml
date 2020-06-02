@@ -73,7 +73,7 @@ steps:
     displayName: 'VS test'
     inputs:
       testAssemblyVer2: |	      
-        '**/bin/**/*UnitTests.dll'	      
+        **/bin/**/*UnitTests.dll	      
         !**/CommitmentsV2/**	      
         !**/*Reservations.Api*/**	     
       platform: '$(buildPlatform)'
