@@ -69,15 +69,15 @@ steps:
       restoreSolution: 'src/SFA.DAS.CommitmentPayments.WebJob.UnitTests/packages.config'
       PackagesDirectory: '../packages'
 
-  - task: VSTest@2	  
-    displayName: 'VS test'	    
-    inputs:	   
+  - task: VSTest@2
+    displayName: 'VS test'
+    inputs:
       testAssemblyVer2: |	      
-        **/SFA.DAS.CommitmentPayments.WebJob.UnitTests/bin/**/*Tests.dll	      
+        '**/bin/**/*UnitTests.dll'	      
         !**/CommitmentsV2/**	      
         !**/*Reservations.Api*/**	     
       platform: '$(buildPlatform)'
-      vsTestVersion: 15.0
+      vsTestVersion: "15.0"
 
   - task: DotNetCoreCLI@2
     displayName: 'Publish v2 API'
