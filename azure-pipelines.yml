@@ -63,6 +63,15 @@ steps:
       configuration: '$(buildConfiguration)'
       clean: true
 
+  - task: VSTest@2	  
+    displayName: 'VS test'	    
+    inputs:	   
+      testAssemblyVer2: |	      
+        **/SFA.DAS.CommitmentPayments.WebJob.UnitTests/bin/**/*Tests.dll	      
+        !**/CommitmentsV2/**	      
+        !**/*Reservations.Api*/**	     
+      platform: '$(buildPlatform)
+
   - task: DotNetCoreCLI@2
     displayName: 'Publish v2 API'
     inputs:
