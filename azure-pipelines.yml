@@ -68,7 +68,17 @@ steps:
     inputs:
       restoreSolution: 'src/SFA.DAS.CommitmentPayments.WebJob.UnitTests/packages.config'
       PackagesDirectory: '../packages'
-
+ 
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet test'
+    inputs:
+      command: test
+      projects: |	      
+        **/bin/**/*UnitTests.dll	 
+        !**/bin/**/SFA.DAS.CommitmentPayments.WebJob.UnitTests.dll     
+        !**/CommitmentsV2/**	      
+        !**/*Reservations.Api*/**
+        
   - task: VSTest@2
     displayName: 'VS test'
     inputs:
