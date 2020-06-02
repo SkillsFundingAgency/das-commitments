@@ -63,6 +63,11 @@ steps:
       configuration: '$(buildConfiguration)'
       clean: true
 
+  - task: NuGetCommand@2
+    displayName: 'NuGet restore'
+    inputs:
+      restoreSolution: 'src/SFA.DAS.CommitmentPayments.WebJob.UnitTests/packages.config'
+
   - task: VSTest@2	  
     displayName: 'VS test'	    
     inputs:	   

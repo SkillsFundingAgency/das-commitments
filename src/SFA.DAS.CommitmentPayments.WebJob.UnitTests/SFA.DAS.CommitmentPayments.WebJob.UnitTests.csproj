@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SFA.DAS.CommitmentPayments.WebJob.UnitTests</RootNamespace>
     <AssemblyName>SFA.DAS.CommitmentPayments.WebJob.UnitTests</AssemblyName>
-    <TargetFrameworks>net462,net452</TargetFrameworks>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
