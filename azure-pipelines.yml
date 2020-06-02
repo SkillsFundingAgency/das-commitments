@@ -58,7 +58,6 @@ steps:
     displayName: 'Build solution'
     inputs:
       solution: 'src/SFA.DAS.Commitments.sln'
-      vsVersion: 15.0
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
       clean: true
