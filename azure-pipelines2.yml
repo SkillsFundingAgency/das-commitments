@@ -144,10 +144,11 @@ stages:
           src/**/*.dacpac
           targetFolder: "$(build.artifactstagingdirectory)/publish"
 
-  - stage: Buildv2
-    displayName: "Build Version 2 Commitments"
-    jobs:
-    - job: 'BuildAndTestV2'
+- stage: Buildv2
+  displayName: "Build Version 2 Commitments"
+  jobs:
+  - job: 'BuildAndTestV2'
+    pool:
       name: 'Continuous Integration 02 - SSD - 160ACU'
       demands: 
       - msbuild
@@ -181,9 +182,9 @@ stages:
       displayName: 'publish v2 WebJob'
       inputs:
         command: custom
-        projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Host/SFA.DAS.CommitmentsV2.Host.csproj'
-        custom: msbuild
-        arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+          projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Host/SFA.DAS.CommitmentsV2.Host.csproj'
+          custom: msbuild
+          arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
     
     - task: DotNetCoreCLI@2
       displayName: 'dotnet test'
