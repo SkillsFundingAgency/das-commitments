@@ -19,7 +19,13 @@ variables:
 stages:
 - stage: Buildv1
   displayName: 'Build and Test'
-
+  jobs:
+  - job: 'BuildAndTestV1'
+    pool:
+      name: 'Continuous Integration 02 - SSD - 160ACU'
+      demands: 
+      - msbuild
+      - visualstudio
   resources:
   repositories:
   - repository: das-platform-building-blocks
@@ -27,14 +33,7 @@ stages:
     name: SkillsFundingAgency/das-platform-building-blocks
     ref: refs/heads/master
     endpoint: "GitHub (SFA)"
-
-  jobs:
-  - job: 'BuildAndTestV1'
-    pool:
-      name: 'Continuous Integration 02 - SSD - 160ACU'
-      demands: 
-      - msbuild
-      - visualstudio 
+     
   steps:
     - task: gittools.gitversion.gitversion-task.GitVersion@5
       displayName: GitVersion
@@ -144,7 +143,6 @@ stages:
           nuget-publish/*.nupkg
           src/**/*.dacpac
         targetFolder: "$(build.artifactstagingdirectory)/publish"
-
 
 - stage: Buildv2
   displayName: "Build Version 2 Commitments"
