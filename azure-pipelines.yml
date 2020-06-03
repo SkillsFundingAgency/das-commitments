@@ -62,39 +62,6 @@ steps:
       configuration: '$(buildConfiguration)'
       clean: true
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  - task: NuGetCommand@2
-    displayName: 'NuGet restore'
-    inputs:
-      restoreSolution: 'src/SFA.DAS.CommitmentPayments.WebJob.UnitTests/packages.config'
-      PackagesDirectory: '../packages'
- 
-  - task: DotNetCoreCLI@2
-    displayName: 'dotnet test'
-    inputs:
-      command: test
-      projects: |	      
-        **/bin/**/*UnitTests.dll	 
-        !**/bin/**/SFA.DAS.CommitmentPayments.WebJob.UnitTests.dll     
-        !**/CommitmentsV2/**	      
-        !**/*Reservations.Api*/**
-        
-  - task: VSTest@2
-    displayName: 'VS test'
-    inputs:
-      testAssemblyVer2: |	      
-        **/bin/**/*UnitTests.dll	 
-        !**/bin/**/SFA.DAS.CommitmentPayments.WebJob.UnitTests.dll     
-        !**/CommitmentsV2/**	      
-        !**/*Reservations.Api*/**	     
-      platform: '$(buildPlatform)'
-      vsTestVersion: "15.0"
-
-=======
->>>>>>> parent of 7fc8b7a5... Fixes to get tests working
-=======
->>>>>>> parent of 7fc8b7a5... Fixes to get tests working
   - task: DotNetCoreCLI@2
     displayName: 'Publish v2 API'
     inputs:
