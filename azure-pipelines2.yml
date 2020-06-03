@@ -1,0 +1,107 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - "*"
+  paths:
+    include:
+      - azure/*
+      - src/*
+      - azure-pipelines.yml
+
+pr: none
+
+variables:
+  - group: 'Prod Management Resources'
+  - name: buildConfiguration
+    value: 'release'
+  - name: buildPlatform
+    value: 'any cpu'  
+
+resources:
+  repositories:
+  - repository: das-platform-building-blocks
+    type: github
+    name: SkillsFundingAgency/das-platform-building-blocks
+    ref: refs/heads/master
+    endpoint: "GitHub (SFA)"
+
+stages:
+- stage: buildv1
+  displayName: Build Commitments v1
+  jobs:
+  - job: build_image
+    displayName: Build Image
+    pool:
+      name: 'Continuous Integration 02 - SSD - 160ACU'
+    steps:
+      - task: gittools.gitversion.gitversion-task.GitVersion@5
+        displayName: GitVersion
+        inputs:
+          updateAssemblyInfo: true
+
+      - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
+
+      - task: NuGetToolInstaller@0
+        displayName: 'Use NuGet 4.3.0'
+        inputs:
+          versionSpec: 4.x
+
+      - task: NuGetCommand@2
+        displayName: 'NuGet restore'
+        inputs:
+          restoreSolution: | 
+            src/**/*.csproj"
+            !**/CommitmentsV2/**
+
+      - task: VSBuild@1
+        displayName: 'Build solution'
+        inputs:
+          solution: 'src/SFA.DAS.Commitments.sln'
+          vsVersion: 15.0
+          platform: '$(buildPlatform)'
+          configuration: '$(buildConfiguration)'
+          clean: true
+
+      - task: VSBuild@1
+        displayName: 'Publish v1 API'
+        inputs:
+          solution: 'src/SFA.DAS.Commitments.Api/SFA.DAS.Commitments.Api.csproj'
+          vsVersion: 15.0
+          msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+          platform: 'anycpu'
+          configuration: '$(buildConfiguration)'
+          clean: true 
+      
+      - task: VSBuild@1
+        displayName: 'Publish Support Site'
+        inputs:
+          solution: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
+          vsVersion: 15.0
+          msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+          platform: 'anycpu'
+          configuration: '$(buildConfiguration)'
+          clean: true
+
+      - task: VSBuild@1
+        displayName: 'Publish v1 WebJob'
+        inputs:
+          solution: 'src/SFA.DAS.Commitments.Host.WebJob/SFA.DAS.Commitments.Host.WebJob.csproj'
+          vsVersion: 15.0
+          msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+          platform: 'anycpu'
+          configuration: '$(buildConfiguration)'
+          clean: true
+
+- stage: buildv2
+  displayName: Build Commitments v2
+  jobs:
+  - job: build_image
+    displayName: Build Image
+    pool:
+      name: 'Continuous Integration 02 - SSD - 160ACU'
+    steps:
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact'
+        inputs:
+          pathtoPublish: '$(build.artifactstagingdirectory)/publish'
