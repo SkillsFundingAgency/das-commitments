@@ -52,6 +52,12 @@ stages:
         inputs:
           restoreSolution: 'src/SFA.DAS.Commitments.sln'
 
+      - task: DotNetCoreCLI@2
+        displayName: Restore
+        inputs:
+          command: restore
+          projects: "src/**/*.csproj"  
+
       - task: VSBuild@1
         displayName: 'Build solution'
         inputs:
