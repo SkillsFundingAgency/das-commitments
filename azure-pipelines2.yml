@@ -20,7 +20,7 @@ stages:
   - name: buildPlatform
     value: 'any cpu'  
 
-resources:
+  resources:
   repositories:
   - repository: das-platform-building-blocks
     type: github
@@ -145,8 +145,73 @@ resources:
           src/**/*.dacpac
         targetFolder: "$(build.artifactstagingdirectory)/publish"
 
+
+- stage: Buildv2
+  displayName: "Build Version 2 Commitments"
+
+  jobs:
+  - job: 'BuildAndTestV2'
+    name: 'Continuous Integration 02 - SSD - 160ACU'
+    demands: 
+    - msbuild
+    - visualstudio
+
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: Restore
+      inputs:
+        command: restore
+        projects: "src/**/*.csproj"   
+
+    - task: VSBuild@1
+      displayName: 'Build solution'
+      inputs:
+        solution: |
+          src/CommitmentsV2/**/*.csproj
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+        vsVersion: 15.0
+        clean: true
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish v2 API'
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/SFA.DAS.CommitmentsV2.Api.csproj'
+        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'  
+    
+    - task: DotNetCoreCLI@2
+      displayName: 'publish v2 WebJob'
+      inputs:
+        command: custom
+        projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Host/SFA.DAS.CommitmentsV2.Host.csproj'
+        custom: msbuild
+        arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+    
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet test'
+      inputs:
+        command: test
+        projects: 'src/CommitmentsV2/**/*.UnitTests.csproj'   
+    
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet pack'
+      inputs:
+        command: pack
+        packagesToPack: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Client/SFA.DAS.ReservationsV2.Api.Client.csproj;src/SFA.DAS.Reservations.API.Types/SFA.DAS.Reservations.Api.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
+        packDirectory: 'nuget-publish'
+      versioningScheme: byBuildNumber
+      buildProperties: 'Version="$(Build.BuildNumber)"'
+  
+    - task: CopyFiles@2
+      displayName: "Copy Files to: $(build.artifactstagingdirectory)"
+      inputs:
+        contents: |
+          nuget-publish/*.nupkg
+        targetFolder: "$(build.artifactstagingdirectory)/publish"
+
     - task: PublishBuildArtifacts@1
       displayName: "Publish Artifact"
       inputs:
-        pathtoPublish: '$(build.artifactstagingdirectory)/publish'
-
+        pathtoPublish: "$(build.artifactstagingdirectory)/publish"
