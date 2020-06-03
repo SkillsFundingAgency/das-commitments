@@ -9,16 +9,17 @@ pr: none
 workspace:
   clean: all
 
+variables:
+- group: 'Prod Management Resources'
+- name: buildConfiguration
+  value: 'release'
+- name: buildPlatform
+  value: 'any cpu'  
+
+
 stages:
 - stage: Buildv1
   displayName: 'Build and Test'
-
-  variables:
-  - group: 'Prod Management Resources'
-  - name: buildConfiguration
-    value: 'release'
-  - name: buildPlatform
-    value: 'any cpu'  
 
   resources:
   repositories:
