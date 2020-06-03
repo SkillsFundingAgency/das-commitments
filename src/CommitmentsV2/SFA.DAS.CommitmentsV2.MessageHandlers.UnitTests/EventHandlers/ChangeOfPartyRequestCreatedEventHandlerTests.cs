@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NServiceBus.Testing;
+using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             public ChangeOfPartyRequestCreatedEventHandler Handler { get; private set; }
             public ChangeOfPartyRequestCreatedEvent Event { get; private set; }
-            public TestableMessageHandlerContext TestableMessageHandlerContext { get; private set; }
+            public Mock<IMessageHandlerContext> MessageHandlerContext { get; private set; }
             public Mock<IReservationsApiClient> ReservationsApiClient { get; private set; }
             public Mock<IEncodingService> EncodingService { get; }
             public ProviderCommitmentsDbContext Db { get; set; }
@@ -120,7 +120,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Db.Apprenticeships.Add(Apprenticeship);
                 Db.SaveChanges();
 
-                TestableMessageHandlerContext = new TestableMessageHandlerContext();
+                MessageHandlerContext = new Mock<IMessageHandlerContext>();
                 ReservationsApiClient = new Mock<IReservationsApiClient>();
                 EncodingService = new Mock<IEncodingService>();
 
@@ -144,7 +144,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public async Task Handle()
             {
-                await Handler.Handle(Event, TestableMessageHandlerContext);
+                await Handler.Handle(Event, MessageHandlerContext.Object);
                 Db.SaveChanges();
             }
 
