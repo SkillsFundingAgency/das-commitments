@@ -50,13 +50,14 @@ stages:
       - task: NuGetCommand@2
         displayName: 'NuGet restore'
         inputs:
-          restoreSolution: | 
-            src/**/*.csproj"
+          restoreSolution: src/SFA.DAS.Commitments.sln'
 
       - task: VSBuild@1
         displayName: 'Build solution'
         inputs:
-          solution: 'src/SFA.DAS.Commitments.sln'
+          solution: : |
+            src/**/*.csproj
+            !src/CommitmentsV2/**
           vsVersion: 15.0
           platform: '$(buildPlatform)'
           configuration: '$(buildConfiguration)'
