@@ -52,15 +52,12 @@ stages:
         inputs:
           restoreSolution: src/SFA.DAS.Commitments.sln'
 
-      - task: VSBuild@1
-        displayName: 'Build solution'
+      - task: MSBuild@1
         inputs:
-          solution:  |
-            src/**/*.csproj
-            !**/CommitmentsV2/**
-          vsVersion: 15.0
+          solution: 'src/**/*.csproj;!**/CommitmentsV2/**'
+          msbuildVersion: '15.0'
           platform: '$(buildPlatform)'
-          configuration: '$(buildConfiguration)'
+          configuration: '$(buildPlatform)'
           clean: true
 
       - task: VSBuild@1
