@@ -30,8 +30,8 @@ stages:
 - stage: v1TestBuild
   displayName: Build process to allow Commitments v1 tests 
   jobs:
-  - job: build_image
-    displayName: Build Image
+  - job: build_test_v1
+    displayName: Build and Test commitments v1 only
     pool:
       name: 'Continuous Integration 02 - SSD - 160ACU'
     steps:
@@ -77,11 +77,11 @@ stages:
           platform: '$(buildPlatform)'
           configuration: '$(buildConfiguration)'
 
-- stage: buildv
+- stage: build
   displayName: Build Commitments 
   jobs:
-  - job: build_image
-    displayName: Build Image
+  - job: build_commitments
+    displayName: Build Commitments 
     pool:
       name: 'Continuous Integration 02 - SSD - 160ACU'
     steps:
