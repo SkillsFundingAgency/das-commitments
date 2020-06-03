@@ -55,7 +55,7 @@ stages:
       - task: VSBuild@1
         displayName: 'Build solution'
         inputs:
-          solution: : |
+          solution:  |
             src/**/*.csproj
             !src/CommitmentsV2/**
           vsVersion: 15.0
