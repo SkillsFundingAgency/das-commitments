@@ -63,6 +63,7 @@ steps:
       clean: true
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   - task: NuGetCommand@2
     displayName: 'NuGet restore'
     inputs:
@@ -90,6 +91,8 @@ steps:
       platform: '$(buildPlatform)'
       vsTestVersion: "15.0"
 
+=======
+>>>>>>> parent of 7fc8b7a5... Fixes to get tests working
 =======
 >>>>>>> parent of 7fc8b7a5... Fixes to get tests working
   - task: DotNetCoreCLI@2
