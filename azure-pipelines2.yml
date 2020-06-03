@@ -16,7 +16,6 @@ variables:
 - name: buildPlatform
   value: 'any cpu'  
 
-
 stages:
 - stage: Buildv1
   displayName: 'Build and Test'
