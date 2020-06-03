@@ -27,8 +27,8 @@ resources:
     endpoint: "GitHub (SFA)"
 
 stages:
-- stage: buildv1
-  displayName: Build Commitments v1
+- stage: v1TestBuild
+  displayName: Build process to allow Commitments v1 tests 
   jobs:
   - job: build_image
     displayName: Build Image
@@ -77,8 +77,8 @@ stages:
           platform: '$(buildPlatform)'
           configuration: '$(buildConfiguration)'
 
-- stage: buildv2
-  displayName: Build Commitments v2
+- stage: buildv
+  displayName: Build Commitments 
   jobs:
   - job: build_image
     displayName: Build Image
