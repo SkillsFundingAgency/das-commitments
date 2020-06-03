@@ -67,6 +67,16 @@ stages:
           configuration: '$(buildConfiguration)'
           clean: true
 
+      - task: VSTest@2
+        displayName: 'VS test'
+        inputs:
+          testAssemblyVer2: |
+            **/SFA.DAS.CommitmentPayments.WebJob.UnitTests/bin/**/*Tests.dll
+            !**/CommitmentsV2/**
+            !**/*Reservations.Api*/**
+          platform: '$(buildPlatform)'
+          configuration: '$(buildConfiguration)'
+
       - task: VSBuild@1
         displayName: 'Publish v1 API'
         inputs:
