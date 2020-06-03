@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task When_HandlingEvent_IfOriginatingPartyIsNotParty_NoEmailIsSent()
+        public async Task When_HandlingEvent_IfOriginatingPartyIsNotProvider_NoEmailIsSent()
         {
             await _fixture.WithOriginatingParty(Party.Employer).Handle();
             _fixture.VerifyEmailNotSent();
