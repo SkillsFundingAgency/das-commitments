@@ -22,8 +22,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
         [TestCase(ApprenticeshipStatus.Live, false)]
         [TestCase(ApprenticeshipStatus.Completed, true)]
-        [TestCase(ApprenticeshipStatus.Paused, true)]
-        [TestCase(ApprenticeshipStatus.Stopped, true)]
+        [TestCase(ApprenticeshipStatus.Paused, false)]
+        [TestCase(ApprenticeshipStatus.Stopped, false)]
         [TestCase(ApprenticeshipStatus.WaitingToStart, true)]
         [TestCase(ApprenticeshipStatus.Unknown, true)]
         public void ThenThrowsExceptionBasedOnApprenticeshipStatus(ApprenticeshipStatus status, bool isExceptionExpected)
