@@ -4,6 +4,7 @@ using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.Encoding;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,15 +15,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         public const string TemplateApproveNewEmployerDetailsLevy = "ApproveNewEmployerDetails_Levy";
         public const string TemplateApproveNewEmployerDetailsNonLevy = "ApproveNewEmployerDetails_NonLevy";
         private readonly IMediator _mediator;
+        private readonly IEncodingService _encodingService;
         private readonly ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail> _logger;
 
         public CohortWithChangeOfPartyCreatedEventHandlerForEmail(
             IMediator mediator,
+            IEncodingService encodingService,
             ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail> logger)
         {
             _logger = logger;
             _mediator = mediator;
-
+            _encodingService = encodingService;
         }
 
         public async Task Handle(CohortWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context)
@@ -39,7 +42,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var tokens = new Dictionary<string, string>
             {
-                {"provider_name", cohortSummary.ProviderName }
+                {"provider_name", cohortSummary.ProviderName },
+                {"employer_hashed_account", _encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId) },
+                {"cohort_reference", _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
             };
 
             var templateName = cohortSummary.LevyStatus == Types.ApprenticeshipEmployerType.Levy 

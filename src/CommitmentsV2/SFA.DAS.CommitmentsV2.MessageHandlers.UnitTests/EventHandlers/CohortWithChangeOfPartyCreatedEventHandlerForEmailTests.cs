@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -12,6 +13,7 @@ using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -40,13 +42,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyEmailSent(CohortWithChangeOfPartyCreatedEventHandlerForEmail.TemplateApproveNewEmployerDetailsNonLevy);
         }
 
+        [Test]
+        public async Task When_HandlingEvent_IfOriginatingPartyIsNotParty_NoEmailIsSent()
+        {
+            await _fixture.WithOriginatingParty(Party.Employer).Handle();
+            _fixture.VerifyEmailNotSent();
+        }
+
         public class CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture
         {
             private readonly CohortWithChangeOfPartyCreatedEventHandlerForEmail _handler;
             private readonly CohortWithChangeOfPartyCreatedEvent _event;
             private readonly Mock<IMediator> _mediator;
             private readonly TestableMessageHandlerContext _messageHandlerContext;
+            private readonly Mock<IEncodingService> _encodingService;
             private readonly GetCohortSummaryQueryResult _cohortSummary;
+            private readonly string _cohortReference;
+            private readonly string _employerEncodedAccountId;
             private Fixture _autoFixture;
 
             public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture()
@@ -59,11 +71,21 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => _cohortSummary);
 
-               _handler = new CohortWithChangeOfPartyCreatedEventHandlerForEmail(_mediator.Object, 
+                _cohortReference = _autoFixture.Create<string>();
+                _employerEncodedAccountId = _autoFixture.Create<string>();
+                _encodingService = new Mock<IEncodingService>();
+                _encodingService.Setup(x => x.Encode(It.Is<long>(id => id == _cohortSummary.CohortId),
+                        EncodingType.CohortReference)).Returns(_cohortReference);
+                _encodingService.Setup(x => x.Encode(It.Is<long>(id => id == _cohortSummary.AccountId),
+                    EncodingType.AccountId)).Returns(_employerEncodedAccountId);
+
+                _handler = new CohortWithChangeOfPartyCreatedEventHandlerForEmail(_mediator.Object,
+                    _encodingService.Object,
                     Mock.Of<ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail>>());
 
                 _messageHandlerContext = new TestableMessageHandlerContext();
                 _event = _autoFixture.Create<CohortWithChangeOfPartyCreatedEvent>();
+                _event.OriginatingParty = Party.Provider;
             }
 
             public async Task Handle()
@@ -86,9 +108,21 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Assert.AreEqual(1, _messageHandlerContext.SentMessages.Count());
                 Assert.AreEqual(_cohortSummary.AccountId, emailToEmployerCommand.AccountId);
                 Assert.AreEqual(templateName, emailToEmployerCommand.Template);
-                Assert.AreEqual(1, emailToEmployerCommand.Tokens.Count());
-                Assert.AreEqual("provider_name", emailToEmployerCommand.Tokens.First().Key);
-                Assert.AreEqual(_cohortSummary.ProviderName, emailToEmployerCommand.Tokens.First().Value);
+                Assert.AreEqual(3, emailToEmployerCommand.Tokens.Count());
+                Assert.AreEqual(_cohortSummary.ProviderName, emailToEmployerCommand.Tokens["provider_name"]);
+                Assert.AreEqual(_employerEncodedAccountId, emailToEmployerCommand.Tokens["employer_hashed_account"]);
+                Assert.AreEqual(_cohortReference, emailToEmployerCommand.Tokens["cohort_reference"]);
+            }
+
+            internal CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture WithOriginatingParty(Party originatingParty)
+            {
+                _event.OriginatingParty = originatingParty;
+                return this;
+            }
+
+            internal void VerifyEmailNotSent()
+            {
+                Assert.AreEqual(0, _messageHandlerContext.SentMessages.Count());
             }
         }
     }
