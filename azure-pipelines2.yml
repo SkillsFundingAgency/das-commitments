@@ -57,7 +57,7 @@ stages:
         inputs:
           solution:  |
             src/**/*.csproj
-            !src/CommitmentsV2/**
+            !**/CommitmentsV2/**
           vsVersion: 15.0
           platform: '$(buildPlatform)'
           configuration: '$(buildConfiguration)'
