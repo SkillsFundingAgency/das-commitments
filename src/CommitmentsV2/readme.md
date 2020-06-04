@@ -23,7 +23,7 @@ Clone this repo, which includes both v1 and v2 API implementations: https://gith
 
 ### Getting started
 
-1. In Visual Studio, publish the SFA.DAS.Commitments.Database solution to your local (.) SQL Server instance.
+1. In Visual Studio, publish the SFA.DAS.Commitments.Database project to your local (.) SQL Server instance.
 2. Seed your new local db with the below script
 3. Run the Azure Storage Emulator
 4. Run the Commitments v2 Api Project
