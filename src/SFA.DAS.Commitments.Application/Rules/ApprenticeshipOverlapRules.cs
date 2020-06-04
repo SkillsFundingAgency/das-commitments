@@ -21,9 +21,7 @@ namespace SFA.DAS.Commitments.Application.Rules
 
             //Get the appropriate dates for the apprenticeship
             var apprenticeshipStartDate = apprenticeship.StartDate;
-            var apprenticeshipEndDate = apprenticeship.PaymentStatus == PaymentStatus.Withdrawn
-                ? apprenticeship.StopDate.Value
-                : apprenticeship.EndDate;
+            var apprenticeshipEndDate = CalculateOverlapApprenticeshipEndDate(apprenticeship);
 
             //Stopped before or on start date (effectively deleted) should be ignored
             if (apprenticeship.PaymentStatus == PaymentStatus.Withdrawn &&
@@ -137,6 +135,28 @@ namespace SFA.DAS.Commitments.Application.Rules
         private static bool IsSameMonthAndYear(DateTime date1, DateTime date2)
         {
             return date1.Month == date2.Month && date1.Year == date2.Year;
+        }
+
+        /// <summary>
+        /// Calculates what date should be used as the overlap end date for an apprenticeship when validating start date / end date overlaps.
+        /// </summary>
+        private DateTime CalculateOverlapApprenticeshipEndDate(ApprenticeshipResult apprenticeship)
+        {
+            switch (apprenticeship.PaymentStatus)
+            {
+                case PaymentStatus.Withdrawn:
+                    return apprenticeship.StopDate.Value;
+
+                case PaymentStatus.Completed:
+                    if (apprenticeship.CompletionDate.Value <= apprenticeship.EndDate)
+                    {
+                        return apprenticeship.CompletionDate.Value;
+                    }
+                    return apprenticeship.EndDate;
+
+                default:
+                    return apprenticeship.EndDate;
+            }
         }
     }
 }

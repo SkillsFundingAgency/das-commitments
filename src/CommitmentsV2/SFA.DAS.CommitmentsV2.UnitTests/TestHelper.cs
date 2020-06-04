@@ -1,4 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage;
+using Newtonsoft.Json;
+using SFA.DAS.CommitmentsV2.Data;
+using System;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests
 {
@@ -14,5 +19,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests
             var serialized = JsonConvert.SerializeObject(source, settings);
             return JsonConvert.DeserializeObject<T>(serialized, settings);
         }
+
+        public static ProviderCommitmentsDbContext GetInMemoryDatabase() => new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString(), new InMemoryDatabaseRoot())
+            .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
+            .EnableSensitiveDataLogging()
+            .Options);
     }
 }
