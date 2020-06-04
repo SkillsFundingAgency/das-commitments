@@ -3,11 +3,6 @@ trigger:
   branches:
     include:
       - "*"
-  paths:
-    include:
-      - azure/*
-      - src/*
-      - azure-pipelines.yml
 
 pr: none
 
@@ -40,8 +35,6 @@ stages:
         inputs:
           updateAssemblyInfo: true
 
-      - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
-
       - task: NuGetToolInstaller@0
         displayName: 'Use NuGet 4.3.0'
         inputs:
@@ -51,12 +44,6 @@ stages:
         displayName: 'NuGet restore'
         inputs:
           restoreSolution: 'src/SFA.DAS.CommitmentsTestSolution.sln'
-
-      - task: DotNetCoreCLI@2
-        displayName: Restore
-        inputs:
-          command: restore
-          projects: "src/**/*.csproj"  
 
       - task: VSBuild@1
         displayName: 'Build solution'
@@ -118,6 +105,12 @@ stages:
           clean: true
 
       - task: DotNetCoreCLI@2
+        displayName: 'dotnet test'
+        inputs:
+          command: test
+          projects: 'src/CommitmentsV2/**/*.UnitTests.csproj'   
+
+      - task: DotNetCoreCLI@2
         displayName: 'Publish v2 API'
         inputs:
           command: publish
@@ -163,12 +156,6 @@ stages:
           platform: 'anycpu'
           configuration: '$(buildConfiguration)'
           clean: true
-
-      - task: DotNetCoreCLI@2
-        displayName: 'dotnet test'
-        inputs:
-          command: test
-          projects: 'src/CommitmentsV2/**/*.UnitTests.csproj'   
 
       - task: NuGetCommand@2
         displayName: 'NuGet pack'
