@@ -2,47 +2,7 @@
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api", "SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj", "{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Domain", "SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj", "{C4C803AF-747E-4747-A23B-DA43219009A4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Application", "SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj", "{880CDAF6-D9EE-481B-B4D8-7DE9C215A770}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Infrastructure", "SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj", "{7C2C2688-ABF9-4A08-9FC3-BA169A5888C4}"
-EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.Commitments.Database", "SFA.DAS.Commitments.Database\SFA.DAS.Commitments.Database.sqlproj", "{0DF27E29-35FD-4CE1-90CA-01C2A55361CD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.UnitTests", "SFA.DAS.Commitments.Api.UnitTests\SFA.DAS.Commitments.Api.UnitTests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Application.UnitTests", "SFA.DAS.Commitments.Application.UnitTests\SFA.DAS.Commitments.Application.UnitTests.csproj", "{C0C88789-3229-4B47-8081-16D1B5D85D9A}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AEF29222-4B94-48CB-9438-78E5A6333438}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Infrastructure.UnitTests", "SFA.DAS.Commitments.Infrastructure.UnitTests\SFA.DAS.Commitments.Infrastructure.UnitTests.csproj", "{6669C64D-7DAE-47C2-A469-7636C89C0974}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.WebJob", "SFA.DAS.CommitmentPayments.WebJob\SFA.DAS.CommitmentPayments.WebJob.csproj", "{42C9280D-CDAA-45B8-9A02-EB629288798D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Host.WebJob", "SFA.DAS.Commitments.Host.WebJob\SFA.DAS.Commitments.Host.WebJob.csproj", "{00F79506-1368-4A99-A8F7-D922AE0B231C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.WebJob.UnitTests", "SFA.DAS.CommitmentPayments.WebJob.UnitTests\SFA.DAS.CommitmentPayments.WebJob.UnitTests.csproj", "{F682E16D-2919-4A26-8DF8-12C608F54E39}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Notification.WebJob", "SFA.DAS.Commitments.Notification.WebJob\SFA.DAS.Commitments.Notification.WebJob.csproj", "{59B9F340-4489-4942-8EA2-0DF38C4DB3B9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Notification.WebJob.UnitTests", "SFA.DAS.Commitments.Notification.WebJob.UnitTests\SFA.DAS.Commitments.Notification.WebJob.UnitTests.csproj", "{824DD7A7-4E55-4056-846F-DE81D5AF8B9C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Client.UnitTests", "SFA.DAS.Commitments.Api.Client.UnitTests\SFA.DAS.Commitments.Api.Client.UnitTests.csproj", "{FA6C1C13-8BAB-462A-9292-6D2824BA9244}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Types.UnitTests", "SFA.DAS.Commitments.Api.Types.UnitTests\SFA.DAS.Commitments.Api.Types.UnitTests.csproj", "{A4797542-57A6-465F-919B-8E613EFD7A00}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Commitments.Api.Types", "SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj", "{AA3B3870-F97A-443B-8429-663DE064A8AD}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Commitments.Api.Client", "SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj", "{DEA2C098-EC17-4485-961D-A7F48720D37D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests", "SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests\SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests.csproj", "{29173485-58C9-4310-BC16-D485E67D09AF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob", "SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob\SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.csproj", "{72DEEA89-6555-4AAB-B48B-63C050E16B95}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Events", "SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj", "{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureConfiguration", "AzureConfiguration", "{7B1AC6BD-B43A-4BE0-9BA9-14E234C46593}"
 	ProjectSection(SolutionItems) = preProject
@@ -51,17 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureConfiguration", "Azure
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support.Portal", "Support.Portal", "{D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Support.SubSite", "SFA.DAS.Commitments.Support.SubSite\SFA.DAS.Commitments.Support.SubSite.csproj", "{9173AFD2-EE6B-40A8-825F-35FD6735A61A}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8DEFE127-06E5-4CEE-9A89-5D5490A4C370}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Support.SubSite.UnitTests", "SFA.DAS.Commitments.Support.SubSite.UnitTests\SFA.DAS.Commitments.Support.SubSite.UnitTests.csproj", "{D7D3924E-48DE-495D-803D-DD0288242E16}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.IntegrationTests", "SFA.DAS.Commitments.Api.IntegrationTests\SFA.DAS.Commitments.Api.IntegrationTests.csproj", "{30D5D7DA-8613-45CE-8521-B4FF7F2B6100}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob", "SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob\SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.csproj", "{4ED42C47-4671-4C63-B0AF-B7CEEC2F15D8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests", "SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests\SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests.csproj", "{44EA50F0-1EBD-469F-BF64-502D236617A2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebJobs", "WebJobs", "{2843BBDC-578C-4D53-B466-675AABC7520F}"
 EndProject
@@ -115,12 +65,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.Client.UnitTests", "CommitmentsV2\SFA.DAS.ReservationsV2.Api.Client.UnitTests\SFA.DAS.ReservationsV2.Api.Client.UnitTests.csproj", "{CE74291A-975F-470E-BBFC-884D5215DEB2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.TestHelpers", "CommitmentsV2\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj", "{CC5137EC-ACF3-4460-85E9-C280EB8EC4F5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Types", "SFA.DAS.Reservations.API.Types\SFA.DAS.Reservations.Api.Types.csproj", "{515D7191-32EC-4CE7-BEBC-444689F27591}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Client", "SFA.DAS.Reservations.API.Client\SFA.DAS.Reservations.Api.Client.csproj", "{BFA13EE6-7663-4682-97CC-9F37090CB516}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Types.UnitTests", "SFA.DAS.Reservations.Api.Types.UnitTests\SFA.DAS.Reservations.Api.Types.UnitTests.csproj", "{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notification Templates", "Notification Templates", "{46E55DE2-FF6C-4D97-8651-A62F62820290}"
 EndProject
