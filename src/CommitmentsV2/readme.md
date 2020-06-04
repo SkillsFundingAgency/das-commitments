@@ -7,9 +7,9 @@ Commitments Api V2 is one of a number of commitments products. You will probably
 
 * ProviderCommitments
 * EmployerCommitments
+* EmployerCommitmentv2
 * Commitments API (v1)
 * Provider Apprenticeship Service
-* Events API
 
 
 #### Configuration Requirements
