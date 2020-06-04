@@ -78,8 +78,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                                 DataLockErrorCode.Dlock05 |
                                 DataLockErrorCode.Dlock06 |
                                 DataLockErrorCode.Dlock07
-                },
-
+                }
             };
 
 

@@ -8,6 +8,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
         {
             return new Container(c =>
             {
+                c.AddRegistry<NotificationsRegistry>();
                 c.AddRegistry<DefaultRegistry>();
             });
         }

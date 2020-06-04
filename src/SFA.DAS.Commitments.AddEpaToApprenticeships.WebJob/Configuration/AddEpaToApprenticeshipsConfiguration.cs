@@ -1,5 +1,5 @@
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Provider.Events.Api.Client;
+using SFA.DAS.Provider.Events.Api.Client.Configuration;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
 {
@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
 
         public string AssessmentOrgsApiBaseUri { get; set; }
 
-        public PaymentEventsApi PaymentEventsApi { get; set; }
+        public PaymentsEventsApi PaymentsEventsApi { get; set; }
 
         public bool UsePaymentEventsDocumentRepository { get; set; }
 
@@ -19,10 +19,13 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
         public string StorageConnectionString { get; set; }
     }
 
-    public class PaymentEventsApi : IPaymentsEventsApiConfiguration
+    public class PaymentsEventsApi : IPaymentsEventsApiConfiguration
     {
         public string ApiBaseUrl { get; set; }
-
+        public string Tenant { get; }
+        public string ClientId { get; }
+        public string ClientSecret { get; }
+        public string IdentifierUri { get; }
         public string ClientToken { get; set; }
     }
 }

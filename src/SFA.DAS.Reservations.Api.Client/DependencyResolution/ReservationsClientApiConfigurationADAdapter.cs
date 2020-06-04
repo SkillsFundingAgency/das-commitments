@@ -1,5 +1,4 @@
-﻿using SFA.DAS.Http;
-using SFA.DAS.Http.Configuration;
+﻿using SFA.DAS.Http.Configuration;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 
 namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
@@ -17,12 +16,10 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
         {
             _config = config;
         }
-
         public string Tenant => _config.Tenant;
         public string ClientId => _config.ClientId;
         public string ClientSecret => _config.ClientSecret;
         public string IdentifierUri => _config.IdentifierUri;
-
         public string ApiBaseUrl => _config.ApiBaseUrl;
     }
 }

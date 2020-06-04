@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Microsoft.Azure;
-
 using SFA.DAS.CommitmentPayments.WebJob.Configuration;
 using SFA.DAS.CommitmentPayments.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;
@@ -13,7 +12,7 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
-
+using SFA.DAS.Provider.Events.Api.Client.Configuration;
 using StructureMap;
 using IConfiguration = SFA.DAS.Commitments.Domain.Interfaces.IConfiguration;
 
@@ -33,7 +32,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
             var config = GetConfiguration("SFA.DAS.CommitmentPayments");
 
             For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
-                .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
+                .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentsEventsApi);
 
             For<IConfiguration>().Use(config);
             For<CommitmentPaymentsConfiguration>().Use(config);

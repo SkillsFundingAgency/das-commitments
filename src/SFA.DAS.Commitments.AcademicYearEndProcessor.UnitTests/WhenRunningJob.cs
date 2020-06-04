@@ -1,8 +1,6 @@
 ﻿using System;
-
 using Moq;
 using NUnit.Framework;
-
 using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob;
 using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -17,7 +15,6 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         private Mock<ICurrentDateTime> _currentDateTime;
         private Mock<IAcademicYearDateProvider> _academicYearProvider;
         private Mock<ILog> _logger;
-
         private Job _sut;
 
         [SetUp]
