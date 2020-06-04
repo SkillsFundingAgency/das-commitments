@@ -28,7 +28,7 @@ stages:
   - job: build_test_v1
     displayName: Build and Test commitments v1 only
     pool:
-      name: 'Continuous Integration 02 - SSD - 160ACU'
+      name: 'DAS - Continuous Integration'
     steps:
       - task: gittools.gitversion.gitversion-task.GitVersion@5
         displayName: GitVersion
@@ -64,7 +64,7 @@ stages:
         displayName: 'VS test'
         inputs:
           testAssemblyVer2: |
-            **/SFA.DAS.CommitmentPayments.WebJob.UnitTests/bin/**/*Tests.dll
+            **/*UnitTests.dll
             !**/CommitmentsV2/**
             !**/*Reservations.Api*/**
           platform: '$(buildPlatform)'
@@ -76,7 +76,8 @@ stages:
   - job: build_commitments
     displayName: Build Commitments 
     pool:
-      name: 'Continuous Integration 02 - SSD - 160ACU'
+      name: 'DAS - Continuous Integration'
+      demands: Agent.OS -equals Windows_NT
     steps:
       - task: gittools.gitversion.gitversion-task.GitVersion@5
         displayName: GitVersion
