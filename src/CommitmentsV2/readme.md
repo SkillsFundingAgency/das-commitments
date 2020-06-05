@@ -21,9 +21,10 @@ Commitments Api V2 is one of a number of commitments products. You will probably
    * SFA.DAS.Encoding
    * SFA.DAS.Reservations.Api.Client
 5. Start Microsoft Azure Storage Emulator
-6. Run the Commitments v2 Api Project
-7. Run the Commitments v2 Message Handlers project
+6. Run the SFA.DAS.CommitmentsV2.Api project
+7. Run the SFA.DAS.CommitmentsV2.MessageHandlers project
 
+The API exposes swagger documentation when accessed on: https://localhost:5011/
 
 #### Seeded data
 
