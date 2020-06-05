@@ -19,6 +19,7 @@ Commitments Api V2 is one of a number of commitments products. You will probably
 4. Obtain cloud config for:
    * SFA.DAS.CommitmentsV2
    * SFA.DAS.Encoding
+   * SFA.DAS.Reservations.Api.Client
 5. Start Microsoft Azure Storage Emulator
 6. Run the Commitments v2 Api Project
 7. Run the Commitments v2 Message Handlers project
