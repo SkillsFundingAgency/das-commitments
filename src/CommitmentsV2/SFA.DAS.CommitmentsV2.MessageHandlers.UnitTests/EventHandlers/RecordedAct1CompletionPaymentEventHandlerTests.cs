@@ -25,10 +25,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture = new RecordedAct1CompletionPaymentEventHandlerTestsFixture();
         }
 
-        [Test]
-        public async Task When_HandlingCompletionEventWithLiveApprenticeStatus_CompletionIsCalled()
+        [TestCase(ApprenticeshipStatus.Live)]
+        [TestCase(ApprenticeshipStatus.Paused)]
+        [TestCase(ApprenticeshipStatus.Stopped)]
+        public async Task When_HandlingCompletionEvent_CompletionIsCalled(ApprenticeshipStatus status)
         {
-            _fixture.WithApprenticeshipStatus(ApprenticeshipStatus.Live);
+            _fixture.WithApprenticeshipStatus(status);
             await _fixture.Handle();
             _fixture.VerifyApprenticeCompleteWasCalled();
             _fixture.VerifyHasInfo();
@@ -43,8 +45,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyHasInfo();
         }
 
-        [TestCase(ApprenticeshipStatus.Paused)]
-        [TestCase(ApprenticeshipStatus.Stopped)]
         [TestCase(ApprenticeshipStatus.Unknown)]
         [TestCase(ApprenticeshipStatus.WaitingToStart)]
         public async Task When_HandlingCompletionEventWithIncorrectStatus_WarningMessageIsLogged(ApprenticeshipStatus status)

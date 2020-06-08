@@ -15,7 +15,8 @@ c.ProviderId,
 p.[Name] as 'ProviderName',
 ale.[Name] as 'LegalEntityName',
 c.Id AS 'CommitmentId',
-a.PaymentStatus
+a.PaymentStatus,
+a.CompletionDate
 FROM @ULNs u
 INNER JOIN [dbo].[Apprenticeship] a ON u.ULN = a.ULN
 INNER JOIN [dbo].[Commitment] c ON c.Id = a.CommitmentId
