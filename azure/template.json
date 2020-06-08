@@ -33,7 +33,7 @@
         },
         "aspSku": {
             "type": "string",
-            "defaultValue": "Basic"
+            "defaultValue": "Standard"
         },
         "loggingRedisConnectionString": {
             "type": "securestring"
@@ -88,6 +88,12 @@
         "elasticPoolName": {
             "type": "string"
         },
+        "databaseSkuName": {
+            "type": "string"
+        },
+        "databaseTier": {
+            "type": "string"
+        },
         "logAnalyticsSubscriptionId": {
             "type": "string",
             "defaultValue": "[subscription().subscriptionId]"
@@ -100,7 +106,7 @@
         }
     },
     "variables": {
-        "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/service-bus-subscriptions/templates/",
+        "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
         "supportResourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-s', parameters('serviceName')))]",
         "workerStorageAccountName": "[toLower(concat('das', parameters('resourceEnvironmentName'), parameters('serviceName'), 'wkrstr'))]",
@@ -723,6 +729,12 @@
                     },
                     "elasticPoolName": {
                         "value": "[parameters('elasticPoolName')]"
+                    },
+                    "databaseSkuName": {
+                        "value": "[parameters('databaseSkuName')]"
+                    },
+                    "databaseTier": {
+                        "value": "[parameters('databaseTier')]"
                     },
                     "logAnalyticsSubscriptionId": {
                         "value": "[parameters('logAnalyticsSubscriptionId')]"
