@@ -45,8 +45,12 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
         public async Task RunProviderAlertSummaryNotification(string jobId)
         {
-            var emails = await GetProviderEmails(jobId);
-            await SendEmails(emails, jobId);
+            if (!_config.SendEmail)
+            {
+                _logger.Info($"Sending emails is turned off, JobId {jobId}");
+                return;
+            }
+            await _providerAlertsEmailService.SendAlertSummaryEmails(jobId);
         }
 
         public async Task RunSendingEmployerTransferRequestNotification(string jobId)
@@ -79,18 +83,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             return emails;
         }
 
-        private async Task<IEnumerable<Email>> GetProviderEmails(string jobId)
-        {
-            var stopwatch = Stopwatch.StartNew();
-
-            var emails = await _providerAlertsEmailService.GetEmails();
-
-            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine provider emails to send, JobId: {jobId}", 
-                new Dictionary<string, object> { { "duration", stopwatch.ElapsedMilliseconds } });
-
-            return emails;
-        }
-
         private async Task SendEmails(IEnumerable<Email> emails, string jobId)
         {
             var emailsToSendCount = emails?.Count();
@@ -110,12 +102,10 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             var stopwatch = Stopwatch.StartNew();
             
             _logger.Debug($"About to send {emailsToSendCount} emails, JobId: {jobId}");
-
             
             var tasks = emails.Select(email => _notificationsApi.SendEmail(email));
             
             await Task.WhenAll(tasks);
-            
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {emailsToSendCount} emails, JobId; {jobId}", 
                 new Dictionary<string, object>

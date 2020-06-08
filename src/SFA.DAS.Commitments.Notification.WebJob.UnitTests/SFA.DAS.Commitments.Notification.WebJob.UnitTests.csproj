@@ -106,13 +106,11 @@
       <HintPath>..\packages\SFA.DAS.Notifications.Api.Types.2.0.0.35919\lib\net45\SFA.DAS.Notifications.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.PAS.Account.Api.Client, Version=1.0.0.40430, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.PAS.Account.Api.Client.1.0.0.40430\lib\net45\SFA.DAS.PAS.Account.Api.Client.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SFA.DAS.PAS.Account.Api.Client, Version=1.1.1043.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.PAS.Account.Api.Client.1.1.1043\lib\net45\SFA.DAS.PAS.Account.Api.Client.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.PAS.Account.Api.Types, Version=1.0.0.40430, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.PAS.Account.Api.Types.1.0.0.40430\lib\net45\SFA.DAS.PAS.Account.Api.Types.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SFA.DAS.PAS.Account.Api.Types, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.PAS.Account.Api.Types.1.1.1043\lib\netstandard2.0\SFA.DAS.PAS.Account.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -157,7 +155,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WhenGettingEmployerAlertSummaryEmails.cs" />
-    <Compile Include="WhenGettingProviderAlertSummaryEmails.cs" />
+    <Compile Include="WhenSendingProviderAlertSummaryEmails.cs" />
     <Compile Include="WhenGettingSendingEmployerTransferRequestEmails.cs" />
     <Compile Include="WhenRunningNotificationJob.cs" />
   </ItemGroup>

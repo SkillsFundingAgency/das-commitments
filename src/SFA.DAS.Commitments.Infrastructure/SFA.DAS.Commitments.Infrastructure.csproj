@@ -231,8 +231,6 @@
     <Compile Include="Data\AssessmentOrganisationRepository.cs" />
     <Compile Include="Data\BulkUploadRepository.cs" />
     <Compile Include="Data\DataLockRepository.cs" />
-    <Compile Include="Data\IdamsEmailServiceWrapper.cs" />
-    <Compile Include="Data\IProviderEmailServiceWrapper.cs" />
     <Compile Include="Data\JobProgressRepository.cs" />
     <Compile Include="Data\ProviderPaymentRepository.cs" />
     <Compile Include="Data\StatisticsRepository.cs" />
