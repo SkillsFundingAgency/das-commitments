@@ -189,6 +189,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Request.SetValue(x => x.ApprenticeshipId, ContinuedApprenticeship.Id);
                 Request.SetValue(x => x.StartDate, _autoFixture.Create<DateTime>());
                 Request.SetValue(x => x.Price, _autoFixture.Create<int>());
+                Request.SetValue(x => x.OriginatingParty, _autoFixture.Create<Party>());
             }
 
             public WhenCohortIsCreatedTestFixture WithChangeOfPartyType(ChangeOfPartyRequestType value)
@@ -334,6 +335,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyCreatedEvent @event
                                                                                     && @event.ChangeOfPartyRequestId == Request.Id
                                                                                     && @event.CohortId == Result.Id
+                                                                                    && @event.OriginatingParty == Request.OriginatingParty
                                                                                     ));
             }
 
