@@ -57,6 +57,11 @@ namespace SFA.DAS.Commitments.Application.Rules
                 return ValidationFailReason.DateEmbrace;
             }
 
+            if (apprenticeship.ContinuationOfId.HasValue && apprenticeship.StartDate < apprenticeship.PreviousApprenticeshipStopDate)
+            {
+                return ValidationFailReason.OverlappingStartDate;
+            }
+
             return ValidationFailReason.None;
         }
 
