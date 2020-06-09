@@ -31,7 +31,7 @@
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.2" />
     <PackageReference Include="SFA.DAS.Providers.Api.Client" Version="0.11.233" />
     <PackageReference Include="SFA.DAS.UnitOfWork" Version="9.0.8" />
-    <PackageReference Include="SFA.DAS.PAS.Account.Api.ClientV2" Version="1.1.851" />
+    <PackageReference Include="SFA.DAS.PAS.Account.Api.ClientV2" Version="1.1.1043" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.77" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
     <PackageReference Include="StructureMap.Microsoft.DependencyInjection" Version="2.0.0" />

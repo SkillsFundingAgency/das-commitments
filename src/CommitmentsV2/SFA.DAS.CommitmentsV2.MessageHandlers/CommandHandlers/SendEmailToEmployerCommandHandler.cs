@@ -35,11 +35,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 
             try
             {
+                _logger.LogInformation($"Getting AccountUsers for {message.AccountId}");
+
                 var emails = new List<string>();
                 var users = await _accountApiClient.GetAccountUsers(message.AccountId);
 
                 if (string.IsNullOrWhiteSpace(message.EmailAddress))
                 {
+                    _logger.LogInformation("Sending emails to all AccountUsers who can recieve emails");
                     emails.AddRange(users.Where(x =>
                             x.CanReceiveNotifications && !string.IsNullOrWhiteSpace(x.Email) &&
                             IsOwnerOrTransactor(x.Role))
@@ -47,12 +50,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                 }
                 else if (users.Any(x => message.EmailAddress.Equals(x.Email, StringComparison.InvariantCultureIgnoreCase) &&
                     x.CanReceiveNotifications))
-                { 
+                {
+                    _logger.LogInformation("Sending email to the explicit user in message");
                     emails.Add(message.EmailAddress);
                 }
 
                 if (emails.Any())
                 {
+                    _logger.LogInformation($"Calling SendEmailCommand for {emails.Count()} emails");
                     await Task.WhenAll(emails.Select(email =>
                         context.Send(new SendEmailCommand(message.Template,  email, message.Tokens))));
                 }
