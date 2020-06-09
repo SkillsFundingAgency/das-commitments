@@ -54,8 +54,8 @@ SELECT
 			0
 	END AS 'ProviderCanApproveApprenticeship',
 	ao.Name AS 'EndpointAssessorName',
-	a.ReservationId,
-	PreviousApprenticeship.StopDate as PreviousApprenticeshipStopDate
+	a.ReservationId
+
 	FROM 
 		Apprenticeship a
 	INNER JOIN 
@@ -124,4 +124,3 @@ SELECT
 		AND [EventStatus] <> 3
 		AND [IsExpired] = 0
 	)
-	LEFT JOIN Apprenticeship PreviousApprenticeship on a.ContinuationOfId = PreviousApprenticeship.Id

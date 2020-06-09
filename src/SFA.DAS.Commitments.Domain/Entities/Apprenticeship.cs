@@ -58,7 +58,6 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public Guid? ReservationId { get; set; }
         public long? ContinuationOfId { get; set; }
         public List<DataLockStatusSummary> DataLocks { get; set; }
-        public DateTime? PreviousApprenticeshipStopDate { get; set; }
 
         public Apprenticeship Clone()
         {

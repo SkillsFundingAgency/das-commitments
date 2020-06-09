@@ -50,6 +50,5 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public string EndpointAssessorName { get; set; }
         public Guid? ReservationId { get; set; }
         public long? ContinuationOfId { get; set; }
-        public DateTime? PreviousApprenticeshipStopDate { get; set; }
     }
 }
