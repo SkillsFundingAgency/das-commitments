@@ -34,12 +34,12 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             var t1 = notificationJob.RunEmployerAlertSummaryNotification($"{notificationJobId}.Employer")
                 .ContinueWith(t => WhenDone(t, logger, "Employer"));
-            //var t2 = notificationJob.RunProviderAlertSummaryNotification($"{notificationJobId}.Provider")
-                //.ContinueWith(t => WhenDone(t, logger, "Provider"));
+            var t2 = notificationJob.RunProviderAlertSummaryNotification($"{notificationJobId}.Provider")
+                .ContinueWith(t => WhenDone(t, logger, "Provider"));
             var t3 = notificationJob.RunSendingEmployerTransferRequestNotification($"{notificationJobId}.SendingEmployer")
                 .ContinueWith(t => WhenDone(t, logger, "SendingEmployer"));
 
-            Task.WaitAll(t1, t3);
+            Task.WaitAll(t1, t2, t3);
         }
 
         private static void WhenDone(Task task, ILog logger, string identifier)
