@@ -16,6 +16,11 @@ namespace SFA.DAS.Commitments.Application.Rules
 
             if (request.ApprenticeshipId.HasValue && request.ApprenticeshipId.Value == apprenticeship.Id)
             {
+                if (apprenticeship.ContinuationOfId.HasValue && apprenticeship.StartDate < apprenticeship.PreviousApprenticeshipStopDate)
+                {
+                    return ValidationFailReason.OverlappingStartDate;
+                }
+                
                 return ValidationFailReason.None;
             }
 
@@ -55,11 +60,6 @@ namespace SFA.DAS.Commitments.Application.Rules
             if (IsApprenticeshipDateStraddle(request.StartDate, request.EndDate, apprenticeshipStartDate, apprenticeshipEndDate))
             {
                 return ValidationFailReason.DateEmbrace;
-            }
-
-            if (apprenticeship.ContinuationOfId.HasValue && apprenticeship.StartDate < apprenticeship.PreviousApprenticeshipStopDate)
-            {
-                return ValidationFailReason.OverlappingStartDate;
             }
 
             return ValidationFailReason.None;
