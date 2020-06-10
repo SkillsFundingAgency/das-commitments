@@ -30,10 +30,11 @@ stages:
     pool:
       name: 'DAS - Continuous Integration'
     steps:
-      - task: gittools.gitversion.gitversion-task.GitVersion@5
+      - task: UseGitVersion@5
         displayName: GitVersion
         inputs:
-          updateAssemblyInfo: true
+          versionSpec: 5.x
+          mode: Mainline
 
       - task: NuGetToolInstaller@0
         displayName: 'Use NuGet 4.3.0'
@@ -64,7 +65,7 @@ stages:
         displayName: 'VS test'
         inputs:
           testAssemblyVer2: |
-            **/*UnitTests.dll
+            **/bin/Release/*UnitTests.dll
             !**/CommitmentsV2/**
             !**/*Reservations.Api*/**
           platform: '$(buildPlatform)'
@@ -79,10 +80,11 @@ stages:
       name: 'DAS - Continuous Integration'
       demands: Agent.OS -equals Windows_NT
     steps:
-      - task: gittools.gitversion.gitversion-task.GitVersion@5
+      - task: UseGitVersion@5
         displayName: GitVersion
         inputs:
-          updateAssemblyInfo: true
+          versionSpec: 5.x
+          mode: Mainline
 
       - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
 
