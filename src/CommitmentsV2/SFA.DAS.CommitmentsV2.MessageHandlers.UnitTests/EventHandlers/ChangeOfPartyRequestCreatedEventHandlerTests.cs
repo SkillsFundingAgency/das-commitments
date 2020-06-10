@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task Handle_WhenHandlingEvent_CohortIsCreatedWithOriginalApprenticeDetails()
+        public async Task Handle_WhenHandlingEvent_CohortIsCreatedWithPreviousApprenticeDetails()
         {
             await _fixture.Handle();
             _fixture.VerifyApprenticeship();
@@ -59,6 +59,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             await _fixture.Handle();
             _fixture.VerifyCohortReference();
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingEvent_NullReservationIdPropagatesToNewRecord()
+        {
+            _fixture.WithNoReservationId();
+            await _fixture.Handle();
+            _fixture.VerifyNullReservation();
         }
 
         private class ChangeOfPartyRequestCreatedEventHandlerTestsFixture
@@ -97,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 ChangeOfPartyRequest.Setup(x => x.ApprenticeshipId).Returns(apprenticeshipId);
                 ChangeOfPartyRequest.Setup(x => x.AccountLegalEntityId).Returns(autoFixture.Create<long>());
                 ChangeOfPartyRequest.Setup(x => x.ProviderId).Returns(autoFixture.Create<long>());
-                ChangeOfPartyRequest.Setup(x => x.CreateCohort(It.IsAny<Apprenticeship>(), It.IsAny<Guid>(), It.IsAny<UserInfo>())).Returns(Cohort);
+                ChangeOfPartyRequest.Setup(x => x.CreateCohort(It.IsAny<Apprenticeship>(), It.IsAny<Guid?>(), It.IsAny<UserInfo>())).Returns(Cohort);
 
                 Apprenticeship = new Apprenticeship
                 {
@@ -128,6 +136,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Handler = new ChangeOfPartyRequestCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), ReservationsApiClient.Object, Mock.Of<ILogger<ChangeOfPartyRequestCreatedEventHandler>>(), EncodingService.Object);
             }
 
+            public ChangeOfPartyRequestCreatedEventHandlerTestsFixture WithNoReservationId()
+            {
+                Apprenticeship.SetValue(x => x.ReservationId, null);
+                return this;
+            }
+
             public async Task Handle()
             {
                 await Handler.Handle(Event, MessageHandlerContext.Object);
@@ -139,6 +153,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 ChangeOfPartyRequest.Verify(x => x.CreateCohort(It.IsAny<Apprenticeship>(),
                         It.Is<Guid>(r => r == ChangeOfPartyReservationId), It.IsAny<UserInfo>()),
                     Times.Once);
+            }
+
+            public void VerifyNullReservation()
+            {
+                ChangeOfPartyRequest.Verify(x => x.CreateCohort(It.IsAny<Apprenticeship>(),
+                    It.Is<Guid?>(r => r == null),
+                    It.IsAny<UserInfo>()));
             }
 
             public void VerifyApprenticeship()

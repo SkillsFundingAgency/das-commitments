@@ -50,15 +50,27 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
         }
 
         [Test]
-        public async Task ShouldCallProviderNotificationForEachEmail()
+        public async Task ShouldCallProviderAlertEmailServiceToSendEmails()
         {
-            var fixture = new Fixture();
-            var emails = fixture.CreateMany<Email>(3);
-            _providerEmailService.Setup(m => m.GetEmails()).ReturnsAsync(emails);
             await _sur.RunProviderAlertSummaryNotification("JobId");
 
-            _providerEmailService.Verify(m => m.GetEmails(), Times.Once);
-            _mockNotificationApi.Verify(m => m.SendEmail(It.IsAny<Email>()), Times.Exactly(3));
+            _providerEmailService.Verify(m => m.SendAlertSummaryEmails("JobId"), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldNotCallProviderAlertEmailServiceToSendEmailsWhenConfigSendEmailIsFalse()
+        {
+            _sur = new NotificationJob(
+                _mockEmailService.Object,
+                _providerEmailService.Object,
+                _sendingEmployerTransferRequestEmailService.Object,
+                _mockNotificationApi.Object,
+                Mock.Of<ILog>(),
+                new CommitmentNotificationConfiguration { SendEmail = false });
+
+            await _sur.RunProviderAlertSummaryNotification("JobId");
+
+            _providerEmailService.Verify(m => m.SendAlertSummaryEmails(It.IsAny<string>()), Times.Never);
         }
 
         [Test]

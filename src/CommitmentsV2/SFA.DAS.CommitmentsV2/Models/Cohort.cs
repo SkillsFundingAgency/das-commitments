@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, transferSenderId, originatingParty, userInfo)
         {
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
-            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, false);
             WithParty = originatingParty;
             EditStatus = originatingParty.ToEditStatus();
             IsDraft = true;
@@ -128,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             long accountId,
             long accountLegalEntityId,
             Apprenticeship apprenticeship,
-            Guid reservationId,
+            Guid? reservationId,
             ChangeOfPartyRequest changeOfPartyRequest,
             UserInfo userInfo)
             : this(providerId,
@@ -218,13 +218,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual Party Approvals { get; set; }
         public DateTime? EmployerAndProviderApprovedOn { get; set; }
         public long? ChangeOfPartyRequestId { get; set; }
+        public bool IsLinkedToChangeOfPartyRequest => ChangeOfPartyRequestId.HasValue;
 
         public virtual bool IsApprovedByAllParties => WithParty == Party.None; //todo: use new Approvals flag
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
             CheckIsWithParty(creator);
-            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, false);
 
             StartTrackingSession(UserAction.AddDraftApprenticeship, creator, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
@@ -357,13 +358,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty, UserInfo userInfo)
         {
             CheckIsWithParty(modifyingParty);
-            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
 
-            var existingDraftApprenticeship = DraftApprenticeships.SingleOrDefault(a => a.Id == draftApprenticeshipDetails.Id);
+            var existingDraftApprenticeship = GetDraftApprenticeship(draftApprenticeshipDetails.Id);
 
-            if (existingDraftApprenticeship == null)
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ChangeOfPartyRequestId.HasValue);
+
+            if (ChangeOfPartyRequestId.HasValue)
             {
-                throw new InvalidOperationException($"There is not a draft apprenticeship with id {draftApprenticeshipDetails.Id} in cohort {Id}");
+                existingDraftApprenticeship.ValidateUpdateForChangeOfParty(draftApprenticeshipDetails);
             }
 
             StartTrackingSession(UserAction.UpdateDraftApprenticeship, modifyingParty, EmployerAccountId, ProviderId, userInfo);
@@ -486,16 +488,19 @@ namespace SFA.DAS.CommitmentsV2.Models
             Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text ?? ""));
         }
 
-        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, bool isContinuation)
         {
             var errors = new List<DomainError>();
-            errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
+            if (!isContinuation)
+            {
+                errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
+            }
             errors.ThrowIfAny();
         }
 
@@ -690,6 +695,18 @@ namespace SFA.DAS.CommitmentsV2.Models
             WithParty = Party.Employer;
             LastUpdatedOn = DateTime.UtcNow;
             ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        internal DraftApprenticeship GetDraftApprenticeship(long draftApprenticeshipId)
+        {
+            var existingDraftApprenticeship = DraftApprenticeships.SingleOrDefault(a => a.Id == draftApprenticeshipId);
+
+            if (existingDraftApprenticeship == null)
+            {
+                throw new InvalidOperationException($"There is not a draft apprenticeship with id {draftApprenticeshipId} in cohort {Id}");
+            }
+
+            return existingDraftApprenticeship;
         }
     }
 }

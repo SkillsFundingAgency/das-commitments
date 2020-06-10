@@ -102,5 +102,28 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             return false;
         }
+
+        public void ValidateUpdateForChangeOfParty(DraftApprenticeshipDetails update)
+        {
+            if (update.FirstName != FirstName)
+            {
+                throw new DomainException(nameof(FirstName), "FirstName for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
+            }
+
+            if (update.LastName != LastName)
+            {
+                throw new DomainException(nameof(LastName), "LastName for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
+            }
+
+            if (update.DateOfBirth != DateOfBirth)
+            {
+                throw new DomainException(nameof(LastName), "DateOfBirth for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
+            }
+
+            if (update.TrainingProgramme?.CourseCode != CourseCode)
+            {
+                throw new DomainException(nameof(LastName), "CourseCode for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
+            }
+        }
     }
 }

@@ -38,6 +38,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 nameof(_fixture.DraftApprenticeshipDetails.Uln),
                 passes);
         }
+
+
+        [TestCase(null, true)]
+        [TestCase("2017-04-30", false)]
+        [TestCase("2017-05-01", true)]
+        public void StartDate_CheckNotBeforeMay2017_Validation(DateTime? startDate, bool passes)
+        {
+            var utcStartDate = startDate.HasValue
+                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                : default(DateTime?);
+
+            _fixture
+                .AssertValidationForProperty(
+                () =>
+                    _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
+                            .WithApprenticeship(1, "AAA").WithId(1).WithStartDate(utcStartDate),
+                nameof(_fixture.DraftApprenticeshipDetails.StartDate),
+                passes);
+        }
     }
 
     public class UpdateDraftApprenticeshipValidationTestsFixture
@@ -126,6 +145,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public UpdateDraftApprenticeshipValidationTestsFixture WithApprenticeship(long id, string uln)
         {
             var draftApprenticeshipDetails = new DraftApprenticeshipDetails().Set(d => d.Uln, uln);
+            draftApprenticeshipDetails.Set(x => x.FirstName, "TEST");
+            draftApprenticeshipDetails.Set(x => x.LastName, "TEST");
+            draftApprenticeshipDetails.Set(x => x.TrainingProgramme,
+                new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue));
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Party.Provider).Set(d => d.Id, id);
             
             Cohort.Apprenticeships.Add(draftApprenticeship);

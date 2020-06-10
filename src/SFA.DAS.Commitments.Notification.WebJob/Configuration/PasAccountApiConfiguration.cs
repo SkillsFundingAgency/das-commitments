@@ -1,6 +1,8 @@
+using SFA.DAS.PAS.Account.Api.Client;
+
 namespace SFA.DAS.Commitments.Notification.WebJob.Configuration
 {
-    public class PasAccountApiConfiguration : PAS.Account.Api.Client.IAccountApiConfiguration
+    public class PasAccountApiConfiguration : IPasAccountApiConfiguration
     {
         public string ApiBaseUrl { get; set; }
 

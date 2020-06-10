@@ -76,7 +76,6 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
-
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
@@ -153,6 +152,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
 
             cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
+
+            if (cohort.IsLinkedToChangeOfPartyRequest)
+            {
+                await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
+            }
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
@@ -243,6 +247,27 @@ namespace SFA.DAS.CommitmentsV2.Services
             var provider = await db.Providers.SingleOrDefaultAsync(p => p.UkPrn == providerId, cancellationToken);
             if (provider == null) throw new BadRequestException($"Provider {providerId} was not found");
             return provider;
+        }
+
+        private async Task ValidateStartDateForContinuation(Cohort cohort, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (!draftApprenticeshipDetails.StartDate.HasValue) return;
+
+            var existingDraftApprenticeship = cohort.GetDraftApprenticeship(draftApprenticeshipDetails.Id);
+
+            if (!existingDraftApprenticeship.IsContinuation)
+            {
+                throw new InvalidOperationException(
+                    $"Cohort {cohort.Id} is linked to Change Of Party Request {cohort.ChangeOfPartyRequestId} but DraftApprenticeship {existingDraftApprenticeship.Id} is not a Continuation");
+            }
+
+            var previousApprenticeship = await
+                _dbContext.Value.GetApprenticeshipAggregate(existingDraftApprenticeship.ContinuationOfId.Value, default);
+
+            if (draftApprenticeshipDetails.StartDate.Value < previousApprenticeship.StopDate)
+            {
+                throw new DomainException(nameof(draftApprenticeshipDetails.StartDate), "The date overlaps with existing dates for the same apprentice.");
+            }
         }
 
         private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
@@ -336,7 +361,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (!isSigned)
             {
-                throw new InvalidOperationException($"Employer {cohort.EmployerAccountId} cannot approve any cohort because the agreement is not signed");
+                throw new DomainException(nameof(cohort.EmployerAccountId), $"Employer {cohort.EmployerAccountId} cannot approve any cohort because the agreement is not signed");
             }
         }
     }

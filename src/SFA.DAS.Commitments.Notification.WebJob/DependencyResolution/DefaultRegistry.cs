@@ -13,11 +13,11 @@ using System.Net.Http;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Commitments.Notification.WebJob.EmailServices;
-using SFA.DAS.Commitments.Notification.WebJob.Services;
 using SFA.DAS.Http.TokenGenerators;
 using SFA.DAS.NLog.Logger.Web.MessageHandlers;
 using SFA.DAS.Notifications.Api.Client;
 using System.Configuration;
+using SFA.DAS.PAS.Account.Api.Client;
 using IConfiguration = SFA.DAS.Commitments.Domain.Interfaces.IConfiguration;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
@@ -35,7 +35,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 
             var config = GetConfiguration("SFA.DAS.CommitmentNotification");
             For<CommitmentNotificationConfiguration>().Use(config);
-            ConfigureEmailWrapper(config);
 
             For<IAccountApiClient>().Use<AccountApiClient>()
                 .Ctor<IAccountApiConfiguration>().Is(config.AccountApi);
@@ -50,8 +49,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             For<ISendingEmployerTransferRequestEmailService>().Use<SendingEmployerTransferRequestEmailService>();
             For<INotificationJob>().Use<NotificationJob>();
 
-            For<PAS.Account.Api.Client.IAccountApiClient>().Use<PAS.Account.Api.Client.AccountApiClient>()
-                .Ctor<PAS.Account.Api.Client.IAccountApiConfiguration>().Is(config.ProviderAccountUserApi);
+            For<IPasAccountApiClient>().Use<PasAccountApiClient>()
+                .Ctor<IPasAccountApiConfiguration>().Is(config.ProviderAccountUserApi);
 
             ConfigureNotificationsApi(config);
 
@@ -81,14 +80,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             For<INotificationsApi>().Use<NotificationsApi>().Ctor<HttpClient>().Is(httpClient);
 
             For<INotificationsApiClientConfiguration>().Use(config.NotificationApi);
-        }
-
-        private void ConfigureEmailWrapper(CommitmentNotificationConfiguration config)
-        {
-            if (config.UseIdamsService)
-                For<IProviderEmailServiceWrapper>().Use<IdamsEmailServiceWrapper>();
-            else
-                For<IProviderEmailServiceWrapper>().Use<FakeProviderEmailServiceWrapper>();
         }
 
         private CommitmentNotificationConfiguration GetConfiguration(string serviceName)
