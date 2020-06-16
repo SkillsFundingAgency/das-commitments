@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Application.Rules
 
             if (request.ApprenticeshipId.HasValue && request.ApprenticeshipId.Value == apprenticeship.Id)
             {
-                if (apprenticeship.ContinuationOfId.HasValue && apprenticeship.StartDate < apprenticeship.PreviousApprenticeshipStopDate)
+                if (apprenticeship.ContinuationOfId.HasValue && request.StartDate < apprenticeship.PreviousApprenticeshipStopDate)
                 {
                     return ValidationFailReason.OverlappingStartDate;
                 }
