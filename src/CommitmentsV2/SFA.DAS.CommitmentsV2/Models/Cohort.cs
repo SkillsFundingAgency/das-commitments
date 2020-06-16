@@ -157,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
 
-            Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, DateTime.UtcNow, userInfo));
+            Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, changeOfPartyRequest.OriginatingParty,  DateTime.UtcNow, userInfo));
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
             {

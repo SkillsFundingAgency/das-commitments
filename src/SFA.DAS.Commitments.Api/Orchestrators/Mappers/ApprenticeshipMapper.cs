@@ -56,7 +56,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 DataLockPriceTriaged = source.DataLockPriceTriaged,
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 EndpointAssessorName = source.EndpointAssessorName,
-                ReservationId = source.ReservationId
+                ReservationId = source.ReservationId,
+                ContinuationOfId = source.ContinuationOfId
             };
         }
 

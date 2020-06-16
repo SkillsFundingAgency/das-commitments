@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -148,6 +150,17 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             var result = _mapper.MapFrom(from, callerType);
 
             result.Apprenticeships[0].CanBeApproved.Should().BeTrue();
+        }
+
+        [Test]
+        public void ThenApprenticeOriginalStartDateIsMapped()
+        {
+            var fixture = new Fixture();
+            var originalStartDate = fixture.Create<DateTime?>();
+            var commitment = new Commitment { Apprenticeships = new List<Domain.Entities.Apprenticeship> { new Domain.Entities.Apprenticeship { OriginalStartDate = originalStartDate } } };
+            var result = _mapper.MapFrom(commitment, CallerType.Provider);
+
+            Assert.AreEqual(originalStartDate, result.Apprenticeships[0].OriginalStartDate);
         }
     }
 }

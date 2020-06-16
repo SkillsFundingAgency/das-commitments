@@ -35,6 +35,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
+        public async Task When_HandlingEvent_IsChangeOfParty_EmailIsNotSent()
+        {
+            await _fixture.WithAssignmentByParty(Party.Provider).SetChangeOfPartyRequestId(1).Handle();
+            _fixture.VerifyEmailNotSent();
+        }
+
+        [Test]
         public async Task When_HandlingEvent_IfAssignedByTransferSender_EmailIsNotSent()
         {
             await _fixture.WithAssignmentByParty(Party.TransferSender).Handle();
@@ -60,9 +67,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _mediator = new Mock<IMediator>();
 
                 _cohortSummary = _autoFixture.Create<GetCohortSummaryQueryResult>();
+                _cohortSummary.ChangeOfPartyRequestId = null;
                 _mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(),
                         It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(_cohortSummary);
+                    .ReturnsAsync(() => _cohortSummary);
 
                 _cohortReference = _autoFixture.Create<string>();
                 _employerEncodedAccountId = _autoFixture.Create<string>();
@@ -85,6 +93,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _event = new CohortAssignedToEmployerEvent(_autoFixture.Create<long>(),
                     _autoFixture.Create<DateTime>(),
                     assigningParty);
+                return this;
+            }
+
+            public CohortAssignedToEmployerEventHandlerTestsFixture SetChangeOfPartyRequestId(long? changeOfPartyRequestId)
+            {
+                _cohortSummary.ChangeOfPartyRequestId = changeOfPartyRequestId;
                 return this;
             }
 
