@@ -40,7 +40,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             public Cohort Cohort { get; private set; }
             public Provider Provider { get; private set; }
             public AccountLegalEntity AccountLegalEntity { get; private set; }
+            public AccountLegalEntity PreviousAccountLegalEntity { get; private set; }
             public AssessmentOrganisation EndpointAssessmentOrganisation { get; private set; }
+            public Apprenticeship PreviousApprenticeship { get; private set; }
             private readonly ProviderCommitmentsDbContext _db;
             private readonly GetApprenticeshipQueryHandler _handler;
             private readonly GetApprenticeshipQuery _query;
@@ -104,6 +106,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     Name = _autoFixture.Create<string>()
                 };
 
+                var previousAccount = new Account();
+                PreviousAccountLegalEntity = new AccountLegalEntity(previousAccount,
+                    _autoFixture.Create<long>(),
+                    0,
+                    "",
+                    publicHashedId: _autoFixture.Create<string>(),
+                    _autoFixture.Create<string>(),
+                    OrganisationType.PublicBodies,
+                    "",
+                    DateTime.UtcNow);
+
+                var previousCohort = new Cohort
+                {
+                    ProviderId = Provider.UkPrn,
+                    Provider = Provider,
+                    EmployerAccountId = previousAccount.Id,
+                    AccountLegalEntityId = PreviousAccountLegalEntity.Id,
+                    AccountLegalEntity = PreviousAccountLegalEntity,
+                };
+
+                PreviousApprenticeship = new Apprenticeship
+                {
+                    Id = _autoFixture.Create<long>(),
+                    Cohort = previousCohort
+                };
+
                 Apprenticeship = new Apprenticeship
                 {
                     Id = ApprenticeshipId,
@@ -120,7 +148,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     Uln = _autoFixture.Create<string>(),
                     PaymentStatus = _autoFixture.Create<PaymentStatus>(),
                     EpaOrg = EndpointAssessmentOrganisation,
-                    EmployerRef = _autoFixture.Create<string>()
+                    EmployerRef = _autoFixture.Create<string>(),
+                    ContinuationOfId = PreviousApprenticeship.Id,
+                    PreviousApprenticeship = PreviousApprenticeship,
+                    OriginalStartDate = PreviousApprenticeship.StartDate
                 };
 
                 switch (Apprenticeship.PaymentStatus)
@@ -168,6 +199,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.Cohort.Provider.Name, _result.ProviderName);
                 Assert.AreEqual(Apprenticeship.Cohort.AccountLegalEntity.Name, _result.EmployerName);
                 Assert.AreEqual(Apprenticeship.Cohort.EmployerAccountId, _result.EmployerAccountId);
+                Assert.AreEqual(PreviousApprenticeship.Id, _result.ContinuationOfId);
+                Assert.AreEqual(PreviousApprenticeship.Cohort.ProviderId, _result.PreviousProviderId);
             }
         }
     }
