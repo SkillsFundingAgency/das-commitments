@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -45,7 +46,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
             var stopwatch = Stopwatch.StartNew();
             _logger.Debug($"About to send emails to {distinctProviderIds.Count} providers, JobId: {jobId}");
 
-            await Task.WhenAll(distinctProviderIds.Select(x=>SendEmails(x, alertSummaries)).ToList());
+            await SendAllEmails(distinctProviderIds, alertSummaries);
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {distinctProviderIds.Count} emails, JobId; {jobId}",
                 new Dictionary<string, object>
@@ -54,6 +55,21 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
                     { "duration", stopwatch.ElapsedMilliseconds },
                     { "JobId", jobId }
                 });
+        }
+
+        private async Task SendAllEmails(List<long> distinctProviderIds, IList<ProviderAlertSummary> alertSummaries)
+        {
+            foreach (var providerId in distinctProviderIds)
+            {
+                try
+                {
+                    await SendEmails(providerId, alertSummaries);
+                }
+                catch (HttpRequestException e)
+                {
+                    _logger.Error(e, $"Error Sending email to provider {providerId}");
+                }
+            }
         }
 
         private Task SendEmails(long providerId, IList<ProviderAlertSummary> alertSummaries)
