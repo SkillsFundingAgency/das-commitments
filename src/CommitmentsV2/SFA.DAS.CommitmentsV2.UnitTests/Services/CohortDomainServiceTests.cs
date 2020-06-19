@@ -281,18 +281,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyReservationValidationNotPerformed();
         }
 
-        [Test]
-        public async Task OverlapOnStartDate_Validation()
+        [TestCase(Party.Provider, "employer")]
+        [TestCase(Party.Employer, "provider")]
+        public async Task OverlapOnStartDate_Validation(Party party, string otherPartyInMessage)
         {
-            await _fixture.WithParty(Party.Provider).WithUlnOverlapOnStartDate().CreateCohort();
-            _fixture.VerifyOverlapExceptionOnStartDate();
+            await _fixture.WithParty(party).WithUlnOverlapOnStartDate().CreateCohort();
+            _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
         }
 
-        [Test]
-        public async Task OverlapOnEndDate_Validation()
+        [TestCase(Party.Provider, "employer")]
+        [TestCase(Party.Employer, "provider")]
+        public async Task OverlapOnEndDate_Validation(Party party, string otherPartyInMessage)
         {
-            await _fixture.WithParty(Party.Provider).WithUlnOverlapOnEndDate().CreateCohort();
-            _fixture.VerifyOverlapExceptionOnEndDate();
+            await _fixture.WithParty(party).WithUlnOverlapOnEndDate().CreateCohort();
+            _fixture.VerifyOverlapExceptionOnEndDate(otherPartyInMessage);
         }
 
         [TestCase(Party.Provider)]
@@ -1079,14 +1081,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     Times.Never);
             }
 
-            public void VerifyOverlapExceptionOnStartDate()
+            public void VerifyOverlapExceptionOnStartDate(string otherParty)
             {
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate"));
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate" && x.ErrorMessage.Contains($"contact the {otherParty}")));
             }
 
-            public void VerifyOverlapExceptionOnEndDate()
+            public void VerifyOverlapExceptionOnEndDate(string otherParty)
             {
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate"));
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate" && x.ErrorMessage.Contains($"contact the {otherParty}")));
             }
 
             public void VerifyException<T>()
