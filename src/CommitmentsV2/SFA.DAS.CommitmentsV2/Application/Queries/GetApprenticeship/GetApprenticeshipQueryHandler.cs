@@ -51,7 +51,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         StopDate = apprenticeship.StopDate,
                         PauseDate = apprenticeship.PauseDate,
                         HasHadDataLockSuccess = apprenticeship.HasHadDataLockSuccess,
-                        CompletionDate = apprenticeship.CompletionDate
+                        CompletionDate = apprenticeship.CompletionDate,
+                        ContinuationOfId = apprenticeship.ContinuationOfId,
+                        PreviousProviderId = apprenticeship.IsContinuation
+                            ? apprenticeship.PreviousApprenticeship.Cohort.ProviderId
+                            : default(long?),
+                        PreviousEmployerAccountId = apprenticeship.IsContinuation
+                            ? apprenticeship.PreviousApprenticeship.Cohort.EmployerAccountId
+                            : default(long?),
+                        OriginalStartDate = apprenticeship.OriginalStartDate
                     },
                     cancellationToken);
 

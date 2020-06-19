@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         {
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory>{priceHistory};
-            source.PendingUpdateOriginator = null;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
 
             var result = await mapper.Map(source);
 
@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.TriageStatus = TriageStatus.Unknown;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
-            source.PendingUpdateOriginator = null;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             
             var result = await mapper.Map(source);
 
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
-            source.PendingUpdateOriginator = null;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             
             var result = await mapper.Map(source);
 
@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
-            source.PendingUpdateOriginator = null;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             
             var result = await mapper.Map(source);
 
@@ -99,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
-            source.PendingUpdateOriginator = null;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             
             var result = await mapper.Map(source);
 
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
-            source.PendingUpdateOriginator = null;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             
             var result = await mapper.Map(source);
 
@@ -138,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
-            source.PendingUpdateOriginator = null;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             
             var result = await mapper.Map(source);
 
@@ -152,6 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             PriceHistory priceHistory,
             ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             apprenticeshipUpdate.Originator = Originator.Provider;
             apprenticeshipUpdate.Status = (byte) ApprenticeshipUpdateStatus.Pending;
             source.ApprenticeshipUpdate.Add(apprenticeshipUpdate);
@@ -191,7 +192,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             PriceHistory priceHistory,
             ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
-            source.PendingUpdateOriginator = null;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprenticeshipUpdate = null;
             source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
             source.PriceHistory = new List<PriceHistory> { priceHistory };
@@ -213,6 +214,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.IsResolved = true;
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
 
             var result = await mapper.Map(source);
 
@@ -233,6 +235,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.IsProviderSearch = false;
             source.PriceHistory = new List<PriceHistory>{ priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
 
             //Act
             var result = await mapper.Map(source);
@@ -260,6 +263,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.IsProviderSearch = false;
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus, dataLockStatus2 };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
 
             //Act
             var result = await mapper.Map(source);
@@ -283,6 +287,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.IsProviderSearch = true;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
 
             //Act
             var result = await mapper.Map(source);

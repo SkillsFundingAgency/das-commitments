@@ -41,5 +41,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<ApprenticeshipUpdate> ApprenticeshipUpdate { get; set; }
 
         public bool IsContinuation => ContinuationOfId.HasValue;
+        public virtual Apprenticeship PreviousApprenticeship { get; set; }
     }
 }

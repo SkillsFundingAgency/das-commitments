@@ -42,7 +42,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer();
 
-            endpointConfiguration.Conventions().DefiningEventsAs(t => t == typeof(RecordedAct1CompletionPayment));
+            endpointConfiguration.Conventions().DefiningEventsAs(t =>
+                t.Name.EndsWith("Event")
+                || t == typeof(RecordedAct1CompletionPayment));
 
             if (isDevelopment)
             {

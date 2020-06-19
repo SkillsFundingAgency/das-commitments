@@ -12,6 +12,7 @@ SELECT
 	END as AgreementStatus,
 	a.PaymentStatus,a.DateOfBirth,a.NINumber,a.EmployerRef,
 	a.ProviderRef,a.CreatedOn,a.AgreedOn,a.PaymentOrder,a.StopDate, a.PauseDate, a.CompletionDate, a.HasHadDataLockSuccess,
+	a.ContinuationOfId,
 	c.EmployerAccountId, c.TransferSenderId, c.ProviderId, c.Reference,
 	p.[Name] as 'ProviderName',
 	ale.[Name] as 'LegalEntityName',
@@ -53,8 +54,8 @@ SELECT
 			0
 	END AS 'ProviderCanApproveApprenticeship',
 	ao.Name AS 'EndpointAssessorName',
-	a.ReservationId
-
+	a.ReservationId,
+	a.OriginalStartDate
 	FROM 
 		Apprenticeship a
 	INNER JOIN 
