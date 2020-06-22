@@ -7,16 +7,24 @@ Commitments Api V2 is one of a number of commitments products. You will probably
 
 * ProviderCommitments
 * EmployerCommitments
+* EmployerCommitmentv2
 * Commitments API (v1)
 * Provider Apprenticeship Service
-* Events API
 
+### Getting started
 
-#### Configuration Requirements
+1. Clone this repo, which includes both v1 and v2 API implementations: https://github.com/SkillsFundingAgency/das-commitments
+2. In Visual Studio, publish the SFA.DAS.Commitments.Database project to your local (.) SQL Server instance.
+3. Seed your new local db with the below script
+4. Obtain cloud config for:
+   * SFA.DAS.CommitmentsV2
+   * SFA.DAS.Encoding
+   * SFA.DAS.Reservations.Api.Client
+5. Start Microsoft Azure Storage Emulator
+6. Run the SFA.DAS.CommitmentsV2.Api project
+7. Run the SFA.DAS.CommitmentsV2.MessageHandlers project
 
-* SFA.DAS.CommitmentsV2_1.0
-* SFA.DAS.Encoding_1.0
-
+The API exposes swagger documentation when accessed on: https://localhost:5011/
 
 #### Seeded data
 
