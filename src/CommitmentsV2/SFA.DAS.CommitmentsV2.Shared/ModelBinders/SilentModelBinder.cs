@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace SFA.DAS.CommitmentsV2.Shared.ModelBinders
 {
-    public class ErrorSuppressModelBinder : IModelBinder
+    public class SilentModelBinder : IModelBinder
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {

@@ -8,14 +8,14 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
 {
 
     [TestFixture]
-    public class ErrorSuppressModelBinderTests
+    public class SilentModelBinderTests
     {
-        private ErrorSuppressModelBinderTestsFixture _fixture;
+        private SilentModelBinderTestsFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new ErrorSuppressModelBinderTestsFixture();
+            _fixture = new SilentModelBinderTestsFixture();
         }
 
         [TestCase(-1)]
@@ -47,18 +47,18 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
             _fixture.VerifyNoErrorsInModelState();
         }
 
-        private class ErrorSuppressModelBinderTestsFixture
+        private class SilentModelBinderTestsFixture
         {
-            private readonly ErrorSuppressModelBinder _binder;
+            private readonly SilentModelBinder _binder;
             private ModelBindingResult _result;
             private readonly ModelStateDictionary _modelStateDictionary;
             private readonly Mock<DefaultModelBindingContext> _context;
             private readonly Mock<IValueProvider> _valueProvider;
             private string _inputValue = "123";
 
-            public ErrorSuppressModelBinderTestsFixture()
+            public SilentModelBinderTestsFixture()
             {
-                _binder = new ErrorSuppressModelBinder();
+                _binder = new SilentModelBinder();
                 _context = new Mock<DefaultModelBindingContext>();
                 _valueProvider = new Mock<IValueProvider>();
                 _modelStateDictionary = new ModelStateDictionary();
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
                 _context.SetupSet(p => p.Result = It.IsAny<ModelBindingResult>()).Callback<ModelBindingResult>(r => _result = r);
             }
 
-            public ErrorSuppressModelBinderTestsFixture WithInputValue(int inputValue)
+            public SilentModelBinderTestsFixture WithInputValue(int inputValue)
             {
                 _inputValue = inputValue.ToString();
                 var valueProviderResult = new ValueProviderResult(_inputValue);
@@ -84,14 +84,13 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
                 return this;
             }
 
-            public ErrorSuppressModelBinderTestsFixture WithInputValue(string inputValue)
+            public SilentModelBinderTestsFixture WithInputValue(string inputValue)
             {
                 _inputValue = inputValue;
                 var valueProviderResult = new ValueProviderResult(_inputValue);
                 _valueProvider.Setup(x => x.GetValue("Test")).Returns(valueProviderResult);
                 return this;
             }
-
 
             public async Task Bind()
             {
