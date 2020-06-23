@@ -18,9 +18,15 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
             _fixture = new ErrorSuppressModelBinderTestsFixture();
         }
 
-        [Test]
-        public async Task Valid_Value_Binds_Correctly()
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(int.MaxValue)]
+        [TestCase(int.MinValue)]
+
+        public async Task Valid_Value_Binds_Correctly(int inputValue)
         {
+            _fixture.WithInputValue(inputValue);
             await _fixture.Bind();
             _fixture.VerifyBindingSuccess();
         }
@@ -28,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
         [Test]
         public async Task Invalid_Value_Does_Not_Bind()
         {
-            _fixture.WithInvalidInput();
+            _fixture.WithInputValue("XXX");
             await _fixture.Bind();
             _fixture.VerifyBindingFailure();
         }
@@ -36,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
         [Test]
         public async Task Invalid_Value_Does_Not_Add_Error_To_ModelState()
         {
-            _fixture.WithInvalidInput();
+            _fixture.WithInputValue("XXX");
             await _fixture.Bind();
             _fixture.VerifyNoErrorsInModelState();
         }
@@ -48,9 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
             private readonly ModelStateDictionary _modelStateDictionary;
             private readonly Mock<DefaultModelBindingContext> _context;
             private readonly Mock<IValueProvider> _valueProvider;
-
-            private const string InvalidInput = "XXX";
-            private const string ValidInput = "123";
+            private string _inputValue = "123";
 
             public ErrorSuppressModelBinderTestsFixture()
             {
@@ -63,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
                 _context.Setup(x => x.ModelType).Returns(typeof(int?));
                 _context.Setup(x => x.Model).Returns(new BindingTestClass());
 
-                var valueProviderResult = new ValueProviderResult(ValidInput);
+                var valueProviderResult = new ValueProviderResult(_inputValue);
                 _valueProvider.Setup(x => x.GetValue("Test")).Returns(valueProviderResult);
                 _context.Setup(x => x.ValueProvider).Returns(_valueProvider.Object);
                 _context.Setup(x => x.ModelState).Returns(_modelStateDictionary);
@@ -72,12 +76,22 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
                 _context.SetupSet(p => p.Result = It.IsAny<ModelBindingResult>()).Callback<ModelBindingResult>(r => _result = r);
             }
 
-            public ErrorSuppressModelBinderTestsFixture WithInvalidInput()
+            public ErrorSuppressModelBinderTestsFixture WithInputValue(int inputValue)
             {
-                var valueProviderResult = new ValueProviderResult(InvalidInput);
+                _inputValue = inputValue.ToString();
+                var valueProviderResult = new ValueProviderResult(_inputValue);
                 _valueProvider.Setup(x => x.GetValue("Test")).Returns(valueProviderResult);
                 return this;
             }
+
+            public ErrorSuppressModelBinderTestsFixture WithInputValue(string inputValue)
+            {
+                _inputValue = inputValue;
+                var valueProviderResult = new ValueProviderResult(_inputValue);
+                _valueProvider.Setup(x => x.GetValue("Test")).Returns(valueProviderResult);
+                return this;
+            }
+
 
             public async Task Bind()
             {
@@ -97,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinders
 
             public void VerifyBindingSuccess()
             {
-                var expectedResult = ModelBindingResult.Success(int.Parse(ValidInput));
+                var expectedResult = ModelBindingResult.Success(int.Parse(_inputValue));
                 Assert.AreEqual(expectedResult, _result);
             }
         }

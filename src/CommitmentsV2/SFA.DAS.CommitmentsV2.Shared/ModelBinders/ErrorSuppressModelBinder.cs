@@ -19,10 +19,12 @@ namespace SFA.DAS.CommitmentsV2.Shared.ModelBinders
             {
                 var result = converter.ConvertFrom(valueResult.FirstValue);
                 bindingContext.Result = ModelBindingResult.Success(result);
+                bindingContext.ModelState.SetModelValue(bindingContext.ModelName, valueResult);
             }
             catch (Exception)
             {
                 bindingContext.Result = ModelBindingResult.Failed();
+                bindingContext.ModelState.SetModelValue(bindingContext.ModelName, null, valueResult.FirstValue);
             }
 
             return Task.CompletedTask;
