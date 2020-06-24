@@ -13,7 +13,7 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
-
+using SFA.DAS.Provider.Events.Api.Client.Configuration;
 using StructureMap;
 using IConfiguration = SFA.DAS.Commitments.Domain.Interfaces.IConfiguration;
 
