@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -45,6 +46,14 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             var f = new WhenSendingProviderAlertSummaryEmailsFixture().WithMultipleSummaryAlerts();
             await f.Sut.SendAlertSummaryEmails(f.JobId);
             f.VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlertForEachProvider();
+        }
+
+        [Test]
+        public async Task AndOneSummaryFoundAndFirstAndSecondCallToApiFails_ThenShouldCallSendEmailToAllProviderRecipientsUsingRetryPolicy()
+        {
+            var f = new WhenSendingProviderAlertSummaryEmailsFixture().WithOneSummaryAlert().WithFirstAndSecondApiCallsFailure();
+            await f.Sut.SendAlertSummaryEmails(f.JobId);
+            f.VerifySendEmailToAllProviderRecipientsIsCalledNTimeWithSummaryAlert(f.FirstAlertSummary, 3);
         }
     }
 
@@ -114,7 +123,21 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             });
             return this;
         }
-        
+
+        internal WhenSendingProviderAlertSummaryEmailsFixture WithFirstAndSecondApiCallsFailure()
+        {
+            int count = 0;
+            PasAccountApiClient.Setup(x =>x.SendEmailToAllProviderRecipients(It.IsAny<long>(), It.IsAny<ProviderEmailRequest>()))
+                .Callback( () =>
+                    {
+                        count++;
+                        if(count <= 2)
+                            throw new HttpRequestException();
+                    });
+            return this;
+        }
+
+
         internal void VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlertForEachProvider()
         {
             VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlert(FirstAlertSummary);
@@ -125,8 +148,13 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 
         internal void VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlert(ProviderAlertSummary alertSummary)
         {
-            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(alertSummary.ProviderId, 
-                It.Is<ProviderEmailRequest>(p => p.TemplateId == "ProviderAlertSummaryNotification2" && ValidateTokens(p.Tokens, alertSummary))), Times.Once);
+            VerifySendEmailToAllProviderRecipientsIsCalledNTimeWithSummaryAlert(alertSummary, 1);
+        }
+
+        internal void VerifySendEmailToAllProviderRecipientsIsCalledNTimeWithSummaryAlert(ProviderAlertSummary alertSummary, int n)
+        {
+            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(alertSummary.ProviderId,
+                It.Is<ProviderEmailRequest>(p => p.TemplateId == "ProviderAlertSummaryNotification2" && ValidateTokens(p.Tokens, alertSummary))), Times.Exactly(n));
         }
 
         private bool ValidateTokens(Dictionary<string, string> tokens, ProviderAlertSummary alertSummary)
@@ -140,5 +168,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                             string.IsNullOrWhiteSpace(tokens["mismatch_changes"]) :
                             tokens["mismatch_changes"].StartsWith("* " + alertSummary.DataMismatchCount);
         }
+
     }
 }

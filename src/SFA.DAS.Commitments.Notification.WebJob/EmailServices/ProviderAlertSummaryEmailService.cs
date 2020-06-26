@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Polly;
+using Polly.Retry;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.NLog.Logger;
@@ -15,6 +19,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ILog _logger;
         private readonly IPasAccountApiClient _providerAccountClient;
+        private readonly Policy _retryPolicy;
 
         public ProviderAlertSummaryEmailService(
             IApprenticeshipRepository apprenticeshipRepository,
@@ -24,6 +29,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
             _apprenticeshipRepository = apprenticeshipRepository;
             _logger = logger;
             _providerAccountClient = providerAccountClient;
+            _retryPolicy = GetRetryPolicy();
         }
 
         public async Task SendAlertSummaryEmails(string jobId)
@@ -45,7 +51,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
             var stopwatch = Stopwatch.StartNew();
             _logger.Debug($"About to send emails to {distinctProviderIds.Count} providers, JobId: {jobId}");
 
-            await Task.WhenAll(distinctProviderIds.Select(x=>SendEmails(x, alertSummaries)).ToList());
+            await Task.WhenAll(distinctProviderIds.Select(x =>
+                _retryPolicy.ExecuteAndCaptureAsync(() => SendEmails(x, alertSummaries))));
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {distinctProviderIds.Count} emails, JobId; {jobId}",
                 new Dictionary<string, object>
@@ -99,6 +106,18 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
                 return "* 1 apprentice with changes for review";
 
             return $"* {changesForReview} apprentices with changes for review";
+        }
+
+        private RetryPolicy GetRetryPolicy()
+        {
+            return Policy
+                .Handle<HttpRequestException>()
+                .WaitAndRetryAsync(3, retryAttempt =>
+                    {
+                        _logger.Warn($"Error connecting to PAS Account Api: Retrying...attempt {retryAttempt})");
+                        return TimeSpan.FromSeconds(Math.Pow(2, retryAttempt));
+                    }
+                );
         }
     }
 }
