@@ -325,7 +325,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var errorMessage = "The date overlaps with existing dates for the same apprentice."
                                + Environment.NewLine +
-                               "Please check the date - contact the employer for help";
+                               "Please check the date - contact the " + (_authenticationService.GetUserParty() == Party.Employer ? "provider" : "employer") + " for help";
 
             var errors = new List<DomainError>();
 
