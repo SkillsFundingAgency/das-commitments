@@ -101,6 +101,7 @@ $@"SELECT Reference,
 ale.[Name] as 'LegalEntityName', ale.[PublicHashedId] as 'AccountLegalEntityPublicHashedId'
 FROM [dbo].[Commitment]
 JOIN [dbo].[AccountLegalEntities] ale on ale.Id = Commitment.AccountLegalEntityId
+WHERE ProviderId = @id
 AND IsDeleted = 0
 AND EditStatus = {(int) EditStatus.Both}
 AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferApprovalStatus.TransferApproved});",
