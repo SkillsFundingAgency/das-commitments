@@ -59,6 +59,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public DateTime? OriginalStartDate { get; set; }
         public long? ContinuationOfId { get; set; }
         public List<DataLockStatusSummary> DataLocks { get; set; }
+        public bool? MadeRedundant { get; set; }
 
         public Apprenticeship Clone()
         {
