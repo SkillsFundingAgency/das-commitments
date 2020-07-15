@@ -10,6 +10,6 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public DateTime DateOfChange { get; set; }
         public string UserId { get; set; }
         public LastUpdateInfo LastUpdatedByInfo { get; set; }
-        public bool MadeRedundant { get; set; }
+        public bool? MadeRedundant { get; set; }
     }
 }
