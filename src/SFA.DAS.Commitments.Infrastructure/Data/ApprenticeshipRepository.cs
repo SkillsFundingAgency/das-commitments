@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange)
+        public async Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange, bool? madeRedundant)
         {
             _logger.Debug($"Stopping apprenticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
@@ -54,10 +54,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
                 parameters.Add("@paymentStatus", PaymentStatus.Withdrawn, DbType.Int16);
                 parameters.Add("@stopDate", dateOfChange, DbType.Date);
+                parameters.Add("@madeRedundant", madeRedundant, DbType.Byte);
 
                 var returnCode = await conn.ExecuteAsync(
                     sql:
-                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, StopDate = @stopDate " +
+                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, " +
+                    "StopDate = @stopDate, " +
+                    "MadeRedundant = @madeRedundant " +
                     "WHERE PaymentStatus != 4 AND Id = @id;",
                     transaction: tran,
                     param: parameters,

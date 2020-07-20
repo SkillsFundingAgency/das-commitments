@@ -98,7 +98,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             apprenticeship.StopDate = command.DateOfChange;
             apprenticeship.MadeRedundant = command.MadeRedundant;
 
-            await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
+            await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange, command.MadeRedundant);
 
             if (command.DateOfChange == apprenticeship.StartDate)
             {
@@ -108,7 +108,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             {
                 await ResolveAnyTriagedCourseDataLocks(command.ApprenticeshipId);
             }
-           
+
             await historyService.Save();
         }
 
@@ -146,7 +146,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
         {
             if (apprenticeship == null) throw new ArgumentException(nameof(apprenticeship));
-          
+
             if (apprenticeship.IsWaitingToStart(_currentDate))
             {
                 if (dateOfChange.Date != apprenticeship.StartDate.Value.Date)
@@ -157,8 +157,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 if (dateOfChange.Date > _currentDate.Now.Date)
                     throw new ValidationException("Invalid Date of Change. Date cannot be in the future.");
 
-                if ( dateOfChange.Date < apprenticeship.StartDate.Value.Date)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");                
+                if (dateOfChange.Date < apprenticeship.StartDate.Value.Date)
+                    throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
             }
         }
 
