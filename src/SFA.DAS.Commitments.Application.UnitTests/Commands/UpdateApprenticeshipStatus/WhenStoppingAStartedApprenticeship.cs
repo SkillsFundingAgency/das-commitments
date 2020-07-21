@@ -11,7 +11,6 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 
@@ -225,7 +224,21 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockApprenticeshipRespository.Verify(x => x.StopApprenticeship(
                 It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
-                It.Is<DateTime>(a => a == ExampleValidRequest.DateOfChange)));
+                It.Is<DateTime>(a => a == ExampleValidRequest.DateOfChange),null));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task ThenShouldCallTheRepositoryToUpdateTheStatus_WithRedundancyStatus(bool madeRedundant)
+        {
+            ExampleValidRequest.MadeRedundant = madeRedundant;
+
+            await Handler.Handle(ExampleValidRequest);
+
+            MockApprenticeshipRespository.Verify(x => x.StopApprenticeship(
+                It.Is<long>(a => a == 123L),
+                It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
+                It.Is<DateTime>(a => a == ExampleValidRequest.DateOfChange), madeRedundant));
         }
 
         [Test]
