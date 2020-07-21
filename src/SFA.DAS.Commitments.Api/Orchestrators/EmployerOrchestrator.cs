@@ -366,6 +366,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchApprenticeship(long accountId, long apprenticeshipId, Apprenticeship.ApprenticeshipSubmission apprenticeshipSubmission)
         {
+
             _logger.Trace($"Updating payment status to {apprenticeshipSubmission.PaymentStatus} for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
             switch (apprenticeshipSubmission.PaymentStatus)
@@ -394,7 +395,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 ApprenticeshipId = apprenticeshipId,
                 DateOfChange = apprenticeshipSubmission.DateOfChange,
                 UserId = apprenticeshipSubmission.UserId,
-                UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name
+                UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name,
+                MadeRedundant = apprenticeshipSubmission.MadeRedundant
             });
         }
 

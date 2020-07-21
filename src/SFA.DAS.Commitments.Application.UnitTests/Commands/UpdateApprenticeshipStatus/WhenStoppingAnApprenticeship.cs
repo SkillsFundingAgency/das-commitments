@@ -45,7 +45,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 MockCommitmentsLogger.Object,
                 MockHistoryRepository.Object,
                 MockDataLockRepository.Object,
-                MockAcademicYearValidator.Object,
                 MockV2EventsPublisher.Object);
         }
     }
