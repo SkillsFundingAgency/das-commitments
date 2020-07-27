@@ -167,7 +167,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockApprenticeshipRespository.Verify(x => x.StopApprenticeship(
                 It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
-                It.Is<DateTime>(a => a == ExampleValidRequest.DateOfChange),It.IsAny<bool?>()));
+                It.Is<DateTime>(a => a == ExampleValidRequest.DateOfChange),
+                It.IsAny<bool?>()));
         }
 
         [Test]
