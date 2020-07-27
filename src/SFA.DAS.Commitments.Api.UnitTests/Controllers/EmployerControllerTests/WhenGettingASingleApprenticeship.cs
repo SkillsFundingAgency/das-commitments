@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         }
 
         [Test, AutoData]
-        public async Task ThenMadRedundantIsMapped(GetApprenticeshipResponse mediatorResponse)
+        public async Task ThenMadeRedundantIsMapped(GetApprenticeshipResponse mediatorResponse)
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(mediatorResponse);
 
