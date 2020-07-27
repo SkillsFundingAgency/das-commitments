@@ -101,6 +101,23 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             Assert.AreEqual(accountLegalEntityPublicHashedId, result.Content.AccountLegalEntityPublicHashedId);
         }
 
+        [Test, AutoData]
+        public async Task ThenMadRedundantIsMapped(GetApprenticeshipResponse mediatorResponse)
+        {
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(mediatorResponse);
+
+            // for this unit test we want a controller where the employerOrchestrator contains a real ApprenticeshipMapper
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(Mock.Of<ICurrentDateTime>()), new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
+                new ApprenticeshipMapper(), _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
+
+            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipsOrchestrator);
+
+            var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId) as OkNegotiatedContentResult<Apprenticeship.Apprenticeship>;
+
+            result.Content.Should().NotBeNull();
+            Assert.AreEqual(mediatorResponse.Data.MadeRedundant, result.Content.MadeRedundant);
+        }
+
         [Test]
         public async Task ThenTheMediatorIsCalledWithTheCommitmentIdApprenticeshipIdProviderId()
         {
