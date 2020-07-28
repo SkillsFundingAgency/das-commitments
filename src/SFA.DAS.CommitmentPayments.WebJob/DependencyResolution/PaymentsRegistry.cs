@@ -29,6 +29,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
                     .WithDefaultHeaders()
                     .Build();
 
+            httpClient.DefaultRequestHeaders.Add("api-version", "2");
 
             return httpClient;
         }
