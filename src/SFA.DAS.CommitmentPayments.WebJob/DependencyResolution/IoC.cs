@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
             return new Container(c =>
             {
                 c.AddRegistry<DefaultRegistry>();
+                c.AddRegistry<PaymentsRegistry>();
             });
         }
     }
