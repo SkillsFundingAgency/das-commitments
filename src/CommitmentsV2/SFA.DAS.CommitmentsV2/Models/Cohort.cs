@@ -613,7 +613,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 var errorMessage = $"Apprentices funded through a transfer can't start earlier than May 2018";
 
                 yield return new DomainError(nameof(details.StartDate), errorMessage);
-                yield break;
             }
         }
 
