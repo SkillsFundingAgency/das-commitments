@@ -419,6 +419,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyStartDateException(pass);
         }
 
+        [TestCase(ProgrammeType.Framework, false)]
+        [TestCase(ProgrammeType.Standard, true)]
+        public async Task AddDraftApprenticeship_Verify_For_TransferSender_Framework_Course_Are_Not_Available(ProgrammeType programmeType, bool passes)
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort()
+                .WithTrainingProgramme(programmeType);
+
+            await _fixture.AddDraftApprenticeship();
+
+            _fixture.VerifyCourseException(passes);
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public DateTime Now { get; set; }
@@ -606,11 +618,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-            public CohortDomainServiceTestFixture WithTrainingProgramme()
+            public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType  programmeType = ProgrammeType.Standard)
             {
                 DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
                   "TEST",
-                  ProgrammeType.Standard,
+                  programmeType,
                   new DateTime(2016, 1, 1),
                   null);
                 return this;
@@ -1094,6 +1106,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "TEST"));
+            }
+
+            public void VerifyCourseException(bool passes)
+            {
+                if (passes)
+                {
+                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    return;
+                }
+
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "CourseCode"));
             }
 
             public void VerifyReservationValidationNotPerformed()
