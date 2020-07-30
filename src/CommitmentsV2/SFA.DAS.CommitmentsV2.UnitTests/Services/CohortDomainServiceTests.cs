@@ -224,7 +224,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _fixture.AddDraftApprenticeship();
             _fixture.VerifyProviderDraftApprenticeshipAdded();
         }
-        
+
         [Test]
         public void AddDraftApprenticeship_CohortNotFound_ShouldThrowException()
         {
@@ -406,6 +406,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             }
         }
 
+        [TestCase("2018-04-30", false)]
+        [TestCase("2018-05-01", true)]
+        public async Task AddDraftApprenticeship_Verify_StartDate_ForTransferSender_Is_After_May_2018(DateTime startDate, bool pass)
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort()
+                .WithStartDate(startDate)
+                .WithTrainingProgramme();
+
+            await _fixture.AddDraftApprenticeship();
+
+            _fixture.VerifyStartDateException(pass);
+        }
 
         public class CohortDomainServiceTestFixture
         {
@@ -591,6 +603,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public CohortDomainServiceTestFixture WithNoMessage()
             {
                 Message = null;
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithTrainingProgramme()
+            {
+                DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
+                  "TEST",
+                  ProgrammeType.Standard,
+                  new DateTime(2016, 1, 1),
+                  null);
                 return this;
             }
 
