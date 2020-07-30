@@ -31,5 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public DateTime? OriginalStartDate { get; set; }
         public long? PreviousEmployerAccountId { get; set; }
         public long? PreviousProviderId { get; set; }
+        public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
     }
 }
