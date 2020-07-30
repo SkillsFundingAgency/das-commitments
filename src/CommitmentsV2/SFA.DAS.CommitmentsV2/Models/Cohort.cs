@@ -576,7 +576,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (details.TrainingProgramme?.ProgrammeType == ProgrammeType.Framework && TransferSenderId.HasValue)
             {
                 yield return new DomainError(nameof(details.TrainingProgramme.CourseCode), "Entered course is not valid.");
-                yield break;
             }
         }
 
