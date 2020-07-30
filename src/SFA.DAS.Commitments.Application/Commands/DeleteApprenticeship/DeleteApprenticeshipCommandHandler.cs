@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             await _apprenticeshipRepository.DeleteApprenticeship(command.ApprenticeshipId);
 
             await Task.WhenAll(
-                ResetCommitmentTransferRejectionIfRequired(commitment),
+                ResetCommitmentProperties(commitment),
                 _apprenticeshipEvents.PublishDeletionEvent(commitment, apprenticeship, "APPRENTICESHIP-DELETED"),
                 PublishApprenticeshipUpdateEvents(commitment, apprenticeship, transferRejected),
                 _v2EventsPublisher.PublishApprenticeshipDeleted(commitment, apprenticeship),
@@ -111,14 +111,15 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
                 throw new InvalidOperationException($"Apprenticeship {message.ApprenticeshipId} in commitment {commitment.Id} cannot be updated because status is {commitment.CommitmentStatus}");
         }
 
-        private async Task ResetCommitmentTransferRejectionIfRequired(Commitment commitment)
+        private async Task ResetCommitmentProperties(Commitment commitment)
         {
-            if (commitment.TransferApprovalStatus != TransferApprovalStatus.TransferRejected)
-                return;
+            if (commitment.TransferApprovalStatus == TransferApprovalStatus.TransferRejected)
+            {
+                commitment.TransferApprovalStatus = null;
+                commitment.TransferApprovalActionedOn = null;
+                commitment.LastAction = LastAction.AmendAfterRejected;
+            }
 
-            commitment.TransferApprovalStatus = null;
-            commitment.TransferApprovalActionedOn = null;
-            commitment.LastAction = LastAction.AmendAfterRejected;
             await _commitmentRepository.UpdateCommitment(commitment);
         }
 
