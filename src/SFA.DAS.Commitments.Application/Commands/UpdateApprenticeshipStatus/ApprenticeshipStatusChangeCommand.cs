@@ -8,7 +8,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
     {
         public long AccountId { get; set; }
         public long ApprenticeshipId { get; set; }
-
         public Caller Caller { get; set; }
         public DateTime DateOfChange { get; set; }
         public string UserId { get; set; }

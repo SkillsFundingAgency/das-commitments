@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.Api.Authentication
@@ -22,10 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
                 auth.Authority = $"https://login.microsoftonline.com/{azureActiveDirectoryConfiguration.Tenant}";
                 auth.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
-                    ValidAudiences = new List<string>
-                    {
-                        azureActiveDirectoryConfiguration.Identifier
-                    }
+                    ValidAudiences = azureActiveDirectoryConfiguration.Identifier.Split(",")
                 };
             });
 
