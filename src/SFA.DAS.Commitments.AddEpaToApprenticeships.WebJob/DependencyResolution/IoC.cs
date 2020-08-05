@@ -10,6 +10,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
             var container = new Container(c =>
             {
                 c.AddRegistry<DefaultRegistry>();
+                c.AddRegistry<PaymentsRegistry>();
             });
 
             //Debug.WriteLine(container.WhatDidIScan());

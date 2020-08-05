@@ -55,7 +55,8 @@ SELECT
 	END AS 'ProviderCanApproveApprenticeship',
 	ao.Name AS 'EndpointAssessorName',
 	a.ReservationId,
-	a.OriginalStartDate
+	a.OriginalStartDate,
+	a.MadeRedundant
 	FROM 
 		Apprenticeship a
 	INNER JOIN 

@@ -494,7 +494,8 @@ Target "Build Projects" (fun _ ->
 
     trace "Building Projects"
 
-    !! (@".\**\*.csproj")
+    !! @".\**\*.csproj"
+    -- @"**\CommitmentsV2\**\*.csproj"
       |> myBuildConfig "" "Rebuild"
       |> Log "AppBuild-Output: "
 

@@ -2,5 +2,6 @@
 {
     public sealed class StopApprenticeshipCommand : ApprenticeshipStatusChangeCommand
     {
+        public bool? MadeRedundant { get; set; }
     }
 }

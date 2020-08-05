@@ -394,7 +394,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 ApprenticeshipId = apprenticeshipId,
                 DateOfChange = apprenticeshipSubmission.DateOfChange,
                 UserId = apprenticeshipSubmission.UserId,
-                UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name
+                UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name,
+                MadeRedundant = apprenticeshipSubmission.MadeRedundant
             });
         }
 

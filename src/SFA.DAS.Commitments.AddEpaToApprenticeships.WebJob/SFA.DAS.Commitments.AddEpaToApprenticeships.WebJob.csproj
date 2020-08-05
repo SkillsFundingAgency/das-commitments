@@ -268,6 +268,7 @@
     <Compile Include="Configuration\AddEpaToApprenticeshipsConfiguration.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
+    <Compile Include="DependencyResolution\PaymentsRegistry.cs" />
     <Compile Include="IAddEpaToApprenticeships.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

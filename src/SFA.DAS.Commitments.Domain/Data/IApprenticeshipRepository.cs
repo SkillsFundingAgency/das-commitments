@@ -9,7 +9,7 @@ namespace SFA.DAS.Commitments.Domain.Data
     {
         Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller);
 
-        Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange);
+        Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange, bool? madeRedundant);
 
         Task ResumeApprenticeship(long commitmentId, long apprenticeshipId);
 
