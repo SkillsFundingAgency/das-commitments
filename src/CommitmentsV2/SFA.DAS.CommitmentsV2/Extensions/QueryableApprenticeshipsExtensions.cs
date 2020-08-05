@@ -103,6 +103,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     filters.EndDate.Value.Year.Equals(app.EndDate.Value.Year));
             }
 
+            if (filters.AccountLegalEntityId.HasValue)
+            {
+                apprenticeships = apprenticeships.Where(x => x.Cohort != null && x.Cohort.AccountLegalEntityId == filters.AccountLegalEntityId.Value);
+            }
+
             return apprenticeships;
         }
 
