@@ -96,7 +96,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     AccountLegalEntity = AccountLegalEntity,
                     EmployerAccountId = _autoFixture.Create<long>(),
                     ProviderId = Provider.UkPrn,
-                    Provider = Provider
+                    Provider = Provider,
+                    ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy
                 };
 
                 EndpointAssessmentOrganisation = new AssessmentOrganisation
@@ -199,6 +200,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.Cohort.Provider.Name, _result.ProviderName);
                 Assert.AreEqual(Apprenticeship.Cohort.AccountLegalEntity.Name, _result.EmployerName);
                 Assert.AreEqual(Apprenticeship.Cohort.EmployerAccountId, _result.EmployerAccountId);
+                Assert.AreEqual(Apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval, _result.ApprenticeshipEmployerTypeOnApproval);
                 Assert.AreEqual(PreviousApprenticeship.Id, _result.ContinuationOfId);
                 Assert.AreEqual(PreviousApprenticeship.Cohort.ProviderId, _result.PreviousProviderId);
             }
