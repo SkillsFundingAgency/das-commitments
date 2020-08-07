@@ -227,6 +227,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 filterQuery += $"&endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}";
             }
 
+            if (request.AccountLegalEntityId.HasValue)
+            {
+                filterQuery += $"&accountLegalEntityId={request.AccountLegalEntityId.Value}";
+            }
+
             return filterQuery;
         }
 

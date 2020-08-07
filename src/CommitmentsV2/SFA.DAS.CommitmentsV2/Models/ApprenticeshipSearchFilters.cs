@@ -12,5 +12,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public ApprenticeshipStatus? Status { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public int? AccountLegalEntityId { get; set; }
     }
 }
