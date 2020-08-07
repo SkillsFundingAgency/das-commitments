@@ -97,8 +97,7 @@ namespace SFA.DAS.Commitments.Application.Commands
         private void ValidateEndDate()
         {
             RuleFor(r => r.EndDate)
-                                .Must(BeGreaterThenStartDate)
-                                .Must(m => m > _currentDateTime.Now).Unless(m => m.EndDate == null);
+                                .Must(BeGreaterThenStartDate);
         }
 
         private void ValidateCost()
