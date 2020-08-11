@@ -91,7 +91,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                    r.SearchFilters.CourseName.Equals(request.CourseName) &&
                    r.SearchFilters.Status.Equals(request.Status) &&
                    r.SearchFilters.StartDate.Equals(request.StartDate) &&
-                   r.SearchFilters.EndDate.Equals(request.EndDate)), 
+                   r.SearchFilters.EndDate.Equals(request.EndDate) &&
+                   r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -131,7 +132,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     r.SearchFilters.CourseName.Equals(request.CourseName) &&
                     r.SearchFilters.Status.Equals(request.Status) &&
                     r.SearchFilters.StartDate.Equals(request.StartDate) &&
-                    r.SearchFilters.EndDate.Equals(request.EndDate)), 
+                    r.SearchFilters.EndDate.Equals(request.EndDate) &&
+                    r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId)), 
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 

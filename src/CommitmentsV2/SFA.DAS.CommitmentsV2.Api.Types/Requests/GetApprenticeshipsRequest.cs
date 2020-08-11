@@ -20,5 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public ApprenticeshipStatus? Status { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public int? AccountLegalEntityId { get; set; }
     }
 }

@@ -32,5 +32,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool IsContinuation => ContinuationOfId.HasValue;
         public long? PreviousProviderId { get; set; }
         public long? PreviousEmployerAccountId { get; set; }
+        public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
     }
 }
