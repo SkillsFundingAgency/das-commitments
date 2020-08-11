@@ -21,6 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool HasHadDataLockSuccess { get; set; }
         public Originator? PendingUpdateOriginator { get; set; }
         public DateTime? CompletionDate { get; set; }
+        public bool? MadeRedundant { get; set; }
+
 
         public Apprenticeship()
         {
@@ -193,6 +195,23 @@ namespace SFA.DAS.CommitmentsV2.Models
                     ToDate = x.ToDate,
                     Cost = x.Cost
                 }).ToArray();
+        }
+        
+        public bool IsWaitingToStart(ICurrentDateTime currentDateTime)
+        {
+            return StartDate.Value > new DateTime(currentDateTime.UtcNow.Year, currentDateTime.UtcNow.Month, 1);
+        }
+
+        internal void StopApprenticeship(DateTime stopDate, bool madeRedundant, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.StopApprenticeship, Party.Employer, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            
+            ChangeTrackingSession.TrackUpdate(this);
+            PaymentStatus = PaymentStatus.Withdrawn;
+            StopDate = stopDate;
+            MadeRedundant = madeRedundant;
+
+            ChangeTrackingSession.CompleteTrackingSession();
         }
     }
 }
