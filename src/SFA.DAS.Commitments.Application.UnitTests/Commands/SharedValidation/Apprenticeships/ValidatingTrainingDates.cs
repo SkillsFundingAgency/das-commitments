@@ -40,16 +40,5 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
 
             result.IsValid.Should().BeFalse();
         }
-
-        [Test]
-        public void ShouldBeInvalidIfEndDateIsInThePast()
-        {
-            ExampleValidApprenticeship.StartDate = new DateTime(2017, 5, 10);
-            ExampleValidApprenticeship.EndDate = new DateTime(2017, 5, 22);
-
-            var result = Validator.Validate(ExampleValidApprenticeship);
-
-            result.IsValid.Should().BeFalse();
-        }
     }
 }
