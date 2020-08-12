@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -21,17 +22,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ICurrentDateTime _currentDate;
         private readonly ILogger<StopApprenticeshipCommandHandler> _logger;
+        private readonly IAuthenticationService _authenticationService;
         private readonly IEventPublisher _eventPublisher;
 
         public StopApprenticeshipCommandHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             ICurrentDateTime currentDate,
             IEventPublisher eventPublisher,
+            IAuthenticationService authenticationService,
             ILogger<StopApprenticeshipCommandHandler> logger)
         {
             _dbContext = dbContext;
             _currentDate = currentDate;
             _eventPublisher = eventPublisher;
+            _authenticationService = authenticationService;
             _logger = logger;
         }
 
@@ -48,7 +52,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
 
                 apprenticeship.ValidateApprenticeshipForStop(command.StopDate, command.AccountId, _currentDate);
 
-                apprenticeship.StopApprenticeship(command.StopDate, command.MadeRedundant, command.UserInfo);
+                var party = _authenticationService.GetUserParty();
+                apprenticeship.StopApprenticeship(command.StopDate, command.MadeRedundant, command.UserInfo, party);
 
                 await _eventPublisher.Publish(new ApprenticeshipStoppedEvent
                 {

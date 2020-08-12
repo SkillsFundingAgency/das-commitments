@@ -232,9 +232,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
         private bool IsCourseChangeError(DataLockErrorCode errorCode) => (errorCode & CourseChangeErrors) > 0;
 
-        internal void StopApprenticeship(DateTime stopDate, bool madeRedundant, UserInfo userInfo)
+        internal void StopApprenticeship(DateTime stopDate, bool madeRedundant, UserInfo userInfo, Party party)
         {
-            StartTrackingSession(UserAction.StopApprenticeship, Party.Employer, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            StartTrackingSession(UserAction.StopApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             
             ChangeTrackingSession.TrackUpdate(this);
 

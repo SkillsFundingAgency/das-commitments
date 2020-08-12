@@ -129,14 +129,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{apprenticeshipId}/stop-apprenticeship")]
         public async Task<IActionResult> Stop(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
         {
-            await _mediator.Send(new StopApprenticeshipCommand(
-                request.AccountId,
-                apprenticeshipId,
-                request.StopDate,
-                request.MadeRedundant,
-                request.UserInfo));
+            try
+            {
+                await _mediator.Send(new StopApprenticeshipCommand(
+                    request.AccountId,
+                    apprenticeshipId,
+                    request.StopDate,
+                    request.MadeRedundant,
+                    request.UserInfo));
 
-            return Ok();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return BadRequest(e.Message);
+            }
         }
     }
 }
