@@ -1,9 +1,14 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.NServiceBus.Services;
 using System;
 using System.Linq;
 using System.Threading;
@@ -14,61 +19,50 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
     public class StopApprenticeshipCommandHandler : AsyncRequestHandler<StopApprenticeshipCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IApprenticeshipDomainService _apprenticeshipService;
         private readonly ICurrentDateTime _currentDate;
+        private readonly ILogger<StopApprenticeshipCommandHandler> _logger;
+        private readonly IEventPublisher _eventPublisher;
 
         public StopApprenticeshipCommandHandler(
-            IApprenticeshipDomainService apprenticeshipService,
             Lazy<ProviderCommitmentsDbContext> dbContext,
-            ICurrentDateTime currentDate)
+            ICurrentDateTime currentDate,
+            IEventPublisher eventPublisher,
+            ILogger<StopApprenticeshipCommandHandler> logger)
         {
-            _apprenticeshipService = apprenticeshipService;
             _dbContext = dbContext;
             _currentDate = currentDate;
+            _eventPublisher = eventPublisher;
+            _logger = logger;
         }
 
-        protected async override Task Handle(StopApprenticeshipCommand request, CancellationToken cancellationToken)
+        protected async override Task Handle(StopApprenticeshipCommand command, CancellationToken cancellationToken)
         {
-            // check validation occurs on the validator 
-            // does it throw with empty requests
-
-            var apprenticeship = await _apprenticeshipService.GetApprenticeshipById(request.ApprenticeshipId);
-
-            if (apprenticeship.PaymentStatus == Types.PaymentStatus.Completed)
+            try
             {
-                throw new DomainException(nameof(apprenticeship.PaymentStatus), "Apprenticeship Payment status already set to completed. Unable to stop apprenticeship");
+                _logger.LogInformation($"Begin stopping apprenticeShip. Apprenticeship-Id:{command.ApprenticeshipId}");
+
+                var apprenticeship = await _dbContext.Value.Apprenticeships
+                    .Include(s => s.Cohort)
+                    .Include(t => t.DataLockStatus)
+                    .SingleOrDefaultAsync(x => x.Id == command.ApprenticeshipId);
+
+                apprenticeship.ValidateApprenticeshipForStop(command.StopDate, command.AccountId, _currentDate);
+
+                apprenticeship.StopApprenticeship(command.StopDate, command.MadeRedundant, command.UserInfo);
+
+                await _eventPublisher.Publish(new ApprenticeshipStoppedEvent
+                {
+                    AppliedOn = _currentDate.UtcNow,
+                    ApprenticeshipId = command.ApprenticeshipId,
+                    StopDate = command.StopDate
+                });
+
+                _logger.LogInformation($"Stopped apprenticeShip. Apprenticeship-Id:{command.ApprenticeshipId}");
             }
-            
-            if (apprenticeship.Cohort.EmployerAccountId != request.AccountId)
+            catch (Exception e)
             {
-                throw new DomainException(nameof(request.AccountId), $"Employer {request.AccountId} not authorised to access commitment {apprenticeship.Cohort.Id}, expected employer {apprenticeship.Cohort.EmployerAccountId}");
-            }
-
-            ValidateChangeDateForStop(request.StopDate, apprenticeship);
-
-            apprenticeship.StopApprenticeship(request.StopDate, request.MadeRedundant, request.UserInfo);
-
-            // Resolve Data Locks as per previous command handler
-
-            // publish events?
-        }
-
-        private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
-        {
-            if (apprenticeship == null) throw new ArgumentException(nameof(apprenticeship));
-
-            if (apprenticeship.IsWaitingToStart(_currentDate))
-            {
-                if (dateOfChange.Date != apprenticeship.StartDate.Value.Date)
-                    throw new DomainException(nameof(dateOfChange), "Invalid Date of Change. Date should be value of start date if training has not started.");
-            }
-            else
-            {
-                if (dateOfChange.Date > _currentDate.UtcNow.Date)
-                    throw new DomainException(nameof(dateOfChange), "Invalid Date of Change. Date cannot be in the future.");
-
-                if (dateOfChange.Date < apprenticeship.StartDate.Value.Date)
-                    throw new DomainException(nameof(dateOfChange), "Invalid Date of Change. Date cannot be before the training start date.");
+                _logger.LogError($"Error Stopping Apprenticeship with id {command.ApprenticeshipId}", e);
+                throw;
             }
         }
     }

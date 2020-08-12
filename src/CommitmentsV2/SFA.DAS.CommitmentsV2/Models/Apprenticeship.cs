@@ -197,19 +197,68 @@ namespace SFA.DAS.CommitmentsV2.Models
                 }).ToArray();
         }
         
-        public bool IsWaitingToStart(ICurrentDateTime currentDateTime)
+        private bool IsWaitingToStart(ICurrentDateTime currentDateTime)
         {
             return StartDate.Value > new DateTime(currentDateTime.UtcNow.Year, currentDateTime.UtcNow.Month, 1);
         }
+
+        internal void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
+        {
+            if (PaymentStatus == PaymentStatus.Completed)
+            {
+                throw new DomainException(nameof(PaymentStatus), "Apprenticeship Payment status already set to completed. Unable to stop apprenticeship");
+            }
+
+            if (Cohort.EmployerAccountId != accountId)
+            {
+                throw new DomainException(nameof(accountId), $"Employer {accountId} not authorised to access commitment {Cohort.Id}, expected employer {Cohort.EmployerAccountId}");
+            }
+
+            if (IsWaitingToStart(currentDate))
+            {
+                if (stopDate.Date != StartDate.Value.Date)
+                    throw new DomainException(nameof(stopDate), "Invalid Date of Change. Date should be value of start date if training has not started.");
+            }
+            else
+            {
+                if (stopDate.Date > currentDate.UtcNow.Date)
+                    throw new DomainException(nameof(stopDate), "Invalid Date of Change. Date cannot be in the future.");
+
+                if (stopDate.Date < StartDate.Value.Date)
+                    throw new DomainException(nameof(stopDate), "Invalid Date of Change. Date cannot be before the training start date.");
+            }
+        }
+
+        private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
+        private bool IsCourseChangeError(DataLockErrorCode errorCode) => (errorCode & CourseChangeErrors) > 0;
 
         internal void StopApprenticeship(DateTime stopDate, bool madeRedundant, UserInfo userInfo)
         {
             StartTrackingSession(UserAction.StopApprenticeship, Party.Employer, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             
             ChangeTrackingSession.TrackUpdate(this);
+
             PaymentStatus = PaymentStatus.Withdrawn;
             StopDate = stopDate;
             MadeRedundant = madeRedundant;
+
+            IEnumerable<DataLockStatus> dataLocks;
+            if (stopDate == StartDate)
+            {
+                dataLocks = DataLockStatus.Where(x => x.EventStatus != EventStatus.Removed && !x.IsExpired);
+            }
+            else
+            {
+                dataLocks = DataLockStatus.Where(x => x.EventStatus != EventStatus.Removed &&
+                    !x.IsExpired && !x.IsResolved &&
+                    x.TriageStatus == TriageStatus.Restart
+                    && IsCourseChangeError(x.ErrorCode)).ToList();
+            }
+
+            if (dataLocks.Any())
+            {
+                dataLocks.ToList().ForEach(s => s.IsResolved = true);
+            }
 
             ChangeTrackingSession.CompleteTrackingSession();
         }
