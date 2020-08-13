@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
                 {
                         {"EMPLOYER", employerName},
                         {"APPRENTICE", apprenticeName },
-                        {"DATE", stopDate.ToString("dd/MM/yyyy") }
+                        {"DATE", stopDate.ToString("dd/MM/yyyy") },
                         {"URL", $"{providerId}/apprentices/manage/{_encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId)}/details" }
                 });
 
