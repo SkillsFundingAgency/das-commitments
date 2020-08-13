@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -22,6 +23,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public Originator? PendingUpdateOriginator { get; set; }
         public DateTime? CompletionDate { get; set; }
         public bool? MadeRedundant { get; set; }
+
+        [NotMapped]
+        public string ApprenticeName => string.Concat(FirstName, " ", LastName);
 
 
         public Apprenticeship()
@@ -87,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CompletionDate = completionDate;
             ChangeTrackingSession.CompleteTrackingSession();
 
-            Publish(() => new ApprenticeshipCompletedEvent{ ApprenticeshipId = Id, CompletionDate = completionDate});
+            Publish(() => new ApprenticeshipCompletedEvent { ApprenticeshipId = Id, CompletionDate = completionDate });
         }
 
         public virtual void UpdateCompletionDate(DateTime completionDate)
@@ -97,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException("CompletionDate", "The completion date can only be updated if Apprenticeship Status is Completed");
             }
 
-            StartTrackingSession(UserAction.UpdateCompletionDate, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId,null);
+            StartTrackingSession(UserAction.UpdateCompletionDate, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
             ChangeTrackingSession.TrackUpdate(this);
             CompletionDate = completionDate;
             ChangeTrackingSession.CompleteTrackingSession();
@@ -204,9 +208,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         internal void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
         {
-            if (PaymentStatus == PaymentStatus.Completed)
+            if (PaymentStatus == PaymentStatus.Completed || PaymentStatus == PaymentStatus.Withdrawn)
             {
-                throw new DomainException(nameof(PaymentStatus), "Apprenticeship Payment status already set to completed. Unable to stop apprenticeship");
+                throw new DomainException(nameof(PaymentStatus), "Apprenticeship must be Active or Paused. Unable to stop apprenticeship");
             }
 
             if (Cohort.EmployerAccountId != accountId)
@@ -221,11 +225,17 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             else
             {
-                if (stopDate.Date > currentDate.UtcNow.Date)
-                    throw new DomainException(nameof(stopDate), "Invalid Date of Change. Date cannot be in the future.");
+                /// When asking for a stop date, only a month and year are provded by the UI, The day is not supplied.
+                /// As a result, when constructing comparisons, it is clear the dates must also be of the same format.
+                if (stopDate.Date > new DateTime(currentDate.UtcNow.Year, currentDate.UtcNow.Month, 1))
+                {
+                    throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date cannot be in the future.");
+                }
 
-                if (stopDate.Date < StartDate.Value.Date)
-                    throw new DomainException(nameof(stopDate), "Invalid Date of Change. Date cannot be before the training start date.");
+                if (stopDate.Date < new DateTime(StartDate.Value.Year, StartDate.Value.Month, 1))
+                {
+                    throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date cannot be before the apprenticeship has started.");
+                }
             }
         }
 
@@ -235,7 +245,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         internal void StopApprenticeship(DateTime stopDate, bool madeRedundant, UserInfo userInfo, Party party)
         {
             StartTrackingSession(UserAction.StopApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
-            
+
             ChangeTrackingSession.TrackUpdate(this);
 
             PaymentStatus = PaymentStatus.Withdrawn;
