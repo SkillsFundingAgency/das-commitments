@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         
         [HttpPost]
         [Route("{apprenticeshipId}/stop-apprenticeship")]
-        public async Task<IActionResult> Stop(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
+        public async Task<IActionResult> StopApprenticeship(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
         {
             try
             {
