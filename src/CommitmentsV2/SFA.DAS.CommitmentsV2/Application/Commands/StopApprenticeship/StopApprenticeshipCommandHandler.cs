@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
         private readonly IAuthenticationService _authenticationService;
         private readonly IEventPublisher _eventPublisher;
         private readonly IMessageHandlerContext _nserviceBusContext;
+        private readonly IEncodingService _encodingService;
         private readonly ILogger<StopApprenticeshipCommandHandler> _logger;
         private const string StopNotificationEmailTemplate = "ProviderApprenticeshipStopNotification";
 
@@ -33,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             IEventPublisher eventPublisher,
             IAuthenticationService authenticationService,
             IMessageHandlerContext nserviceBusContext,
-
+            IEncodingService encodingService,
             ILogger<StopApprenticeshipCommandHandler> logger)
         {
             _dbContext = dbContext;
@@ -41,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             _eventPublisher = eventPublisher;
             _authenticationService = authenticationService;
             _nserviceBusContext = nserviceBusContext;
+            _encodingService = encodingService;
             _logger = logger;
         }
 
@@ -90,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
                         {"EMPLOYER", employerName},
                         {"APPRENTICE", apprenticeName },
                         {"DATE", stopDate.ToString("dd/MM/yyyy") }
-                        //{"URL", $"{providerId}/apprentices/manage/{HashingService.HashValue(apprenticeshipId)}/details" }
+                        {"URL", $"{providerId}/apprentices/manage/{_encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId)}/details" }
                 });
 
             await _nserviceBusContext.Send(sendEmailToProviderCommand);
