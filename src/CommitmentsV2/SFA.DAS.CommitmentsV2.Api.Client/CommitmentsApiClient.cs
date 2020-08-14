@@ -99,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         }
         public Task<GetDraftApprenticeshipsResponse> GetDraftApprenticeships(long cohortId, CancellationToken cancellationToken = default)
         {
-            return _client.Get<GetDraftApprenticeshipsResponse> ($"api/cohorts/{cohortId}/draft-apprenticeships", null, cancellationToken);
+            return _client.Get<GetDraftApprenticeshipsResponse>($"api/cohorts/{cohortId}/draft-apprenticeships", null, cancellationToken);
         }
 
         public Task<AccountLegalEntityResponse> GetAccountLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default)
@@ -149,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 }
             }
 
-            return _client.Get<bool>($"api/employer-agreements/{request.AccountLegalEntityId}/signed{queryString}", null, 
+            return _client.Get<bool>($"api/employer-agreements/{request.AccountLegalEntityId}/signed{queryString}", null,
                 cancellationToken);
         }
 
@@ -185,7 +185,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<string> SecureProviderCheck()
         {
-            return _client.Get("api/test/provider");  
+            return _client.Get("api/test/provider");
+        }
+
+        public Task StopApprenticeship(long apprenticeshipId, StopApprenticeshipRequest request, CancellationToken cancellationToken)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/stop-apprenticeship", request, cancellationToken);
         }
 
         private static string CreateFilterQuery(GetApprenticeshipsRequest request)

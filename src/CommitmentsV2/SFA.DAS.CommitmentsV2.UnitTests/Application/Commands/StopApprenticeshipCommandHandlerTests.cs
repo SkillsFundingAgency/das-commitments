@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -326,7 +327,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _dbContext.SaveChangesAsync();
 
             // Assert
-            // Assert History Event
+            var historyEvent = _unitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().First(e => e.EntityId == apprenticeship.Id);
+            historyEvent.EntityType.Should().Be("Apprenticeship");
+            historyEvent.StateChangeType.Should().Be(UserAction.StopApprenticeship);
+            var definition = new { StopDate = DateTime.MinValue, MadeRedundant = true, PaymentStatus = PaymentStatus.Active };
+            var historyState = JsonConvert.DeserializeAnonymousType(historyEvent.UpdatedState, definition);
+
+            historyState.StopDate.Should().Be(stopDate);
+            historyState.MadeRedundant.Should().Be(false);
+            historyState.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
         }
 
         private bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
@@ -334,9 +343,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             actualTokens.Should().BeEquivalentTo(expectedTokens);
             return true;
         }
-        
-        // Need to update commitments v2 client. Unit test?
-        
+                
         private async Task<Apprenticeship> SetupApprenticeship(Party party = Party.Employer, PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
         {
             var today = DateTime.UtcNow;
