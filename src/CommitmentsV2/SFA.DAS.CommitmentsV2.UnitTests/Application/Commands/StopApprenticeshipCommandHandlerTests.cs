@@ -18,12 +18,15 @@ using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.Testing.AutoFixture;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -38,15 +41,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         private Mock<IMessageHandlerContext> _nserviceBusContext;
         private Mock<IEncodingService> _encodingService;
         ProviderCommitmentsDbContext _dbContext;
+        ProviderCommitmentsDbContext _confirmationDbContext;
+        private UnitOfWorkContext _unitOfWorkContext { get; set; }
         private IRequestHandler<StopApprenticeshipCommand> _handler;
 
         [SetUp]
         public void Init()
         {
+            var databaseGuid = Guid.NewGuid().ToString();
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                        .UseInMemoryDatabase(databaseGuid)
                                         .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                                         .Options);
+
+            _confirmationDbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                            .UseInMemoryDatabase(databaseGuid)
+                            .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
+                            .Options);
 
             _currentDateTime = new Mock<ICurrentDateTime>();
             _eventPublisher = new Mock<IEventPublisher>();
@@ -54,6 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _nserviceBusContext = new Mock<IMessageHandlerContext>();
             _encodingService = new Mock<IEncodingService>();
             _logger = new Mock<ILogger<StopApprenticeshipCommandHandler>>();
+            _unitOfWorkContext = new UnitOfWorkContext();
 
             _handler = new StopApprenticeshipCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
                 _currentDateTime.Object,
@@ -162,8 +174,95 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "stopDate", ErrorMessage = $"Invalid Stop Date. Stop date cannot be before the apprenticeship has started." });
         }
 
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_ThenShouldUpdateDatabaseRecord()
+        {
+            // Arrange
+            var apprenticeship = await SetupDefaultToPassValidation();
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
-        // Need to make sure we test data locks correctly in StopApprenticeship
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+
+            // Act
+            await _handler.Handle(command, new CancellationToken());
+            // Simulate Unit of Work contex transaction ending in http request.
+            await _dbContext.SaveChangesAsync();
+
+            // Assert
+            var apprenticeshipAssertion = await _confirmationDbContext.Apprenticeships.FirstAsync(a => a.Id == apprenticeship.Id);
+            apprenticeshipAssertion.StopDate.Should().Be(stopDate);
+            apprenticeshipAssertion.MadeRedundant.Should().Be(false);
+            apprenticeshipAssertion.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
+        }
+
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_ThenShouldPublishApprenticeshipStoppedEvent()
+        {
+            // Arrange
+            var apprenticeship = await SetupDefaultToPassValidation();
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+
+            // Act
+            await _handler.Handle(command, new CancellationToken());
+
+            // Assert
+            _eventPublisher.Verify(s => s.Publish(It.Is<ApprenticeshipStoppedEvent>(x =>
+                x.AppliedOn == _currentDateTime.Object.UtcNow &&
+                x.ApprenticeshipId == apprenticeship.Id &&
+                x.StopDate == stopDate)));
+        }
+
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_ThenShouldSendProviderEmail(string hashedAppId)
+        {
+            // Arrange
+            var apprenticeship = await SetupDefaultToPassValidation();
+            var fixture = new Fixture();
+            apprenticeship.Cohort.ProviderId = fixture.Create<long>();
+            _encodingService.Setup(a => a.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)).Returns(hashedAppId);
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var templateName = "ProviderApprenticeshipStopNotification";
+            var tokenUrl = $"{apprenticeship.Cohort.ProviderId}/apprentices/manage/{hashedAppId}/details";
+            var tokens = new Dictionary<string, string>
+            {
+                {"EMPLOYER",apprenticeship.Cohort.AccountLegalEntity.Name },
+                {"APPRENTICE", apprenticeship.ApprenticeName },
+                {"DATE",stopDate.ToString("dd/MM/yyyy") },
+                {"URL",tokenUrl },
+            };
+
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+
+            // Act
+            await _handler.Handle(command, new CancellationToken());
+
+            // Assert
+            _nserviceBusContext.Verify(s => s.Send(It.Is<SendEmailToProviderCommand>(x =>
+                x.ProviderId == apprenticeship.Cohort.ProviderId &&
+                x.Template == templateName &&
+                VerifyTokens(x.Tokens, tokens)), It.IsAny<SendOptions>()));
+        }
+
+        private bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
+        {
+            actualTokens.Should().BeEquivalentTo(expectedTokens);
+            return true;
+        }
+
+
+        // Need to make sure we test datalocks correctly in StopApprenticeship
+        // Rule validation on mediator call
+        // Stop = Start date apprenticeship on locks and successful in general
+
+        private async Task<Apprenticeship> SetupDefaultToPassValidation()
+        {
+            var today = DateTime.UtcNow;
+            _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
+            _currentDateTime.Setup(a => a.UtcNow).Returns(today);
+            return await AddApprenticeship();
+        }
 
         private async Task<Apprenticeship> AddApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, bool futureStartDate = false)
         {
