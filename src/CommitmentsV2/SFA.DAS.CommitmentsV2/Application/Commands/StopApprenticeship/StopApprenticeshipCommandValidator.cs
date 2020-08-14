@@ -2,7 +2,7 @@
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using System;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
+namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
 {
     public class StopApprenticeshipCommandValidator : AbstractValidator<StopApprenticeshipCommand>
     {

@@ -11,7 +11,7 @@
     <PackageReference Include="AutoFixture.NUnit3" Version="4.11.0" />
     <PackageReference Include="CompareNETObjects" Version="4.59.0" />
     <PackageReference Include="EfCore.TestSupport" Version="1.6.1" />
-    <PackageReference Include="FluentAssertions" Version="5.6.0" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.2" />
