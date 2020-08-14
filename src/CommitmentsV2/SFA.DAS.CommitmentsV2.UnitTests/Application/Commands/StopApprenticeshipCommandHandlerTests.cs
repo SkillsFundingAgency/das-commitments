@@ -111,12 +111,61 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "accountId", ErrorMessage = $"Employer {command.AccountId} not authorised to access commitment {apprenticeship.Cohort.Id}, expected employer {apprenticeship.Cohort.EmployerAccountId}" });
         }
 
-        // Up to Vaidate Apprenticeship For Stop - Account Id
-        // next is the waiting to start
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_WithApprenticeshipWaitingToStart_WithStopDateNotEqualStartDate_ThenShouldThrowDomainException()
+        {
+            // Arrange
+            _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
+            var apprenticeship = await AddApprenticeship(futureStartDate: true);
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, false, new UserInfo());
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "stopDate", ErrorMessage = $"Invalid stop date. Date should be value of start date if training has not started." });
+        }
+
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateInFuture_ThenShouldThrowDomainException()
+        {
+            // Arrange
+            var today = DateTime.UtcNow;
+            var stopDate = DateTime.UtcNow.AddMonths(1);
+            _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
+            _currentDateTime.Setup(a => a.UtcNow).Returns(today);
+            var apprenticeship = await AddApprenticeship();
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "stopDate", ErrorMessage = $"Invalid Stop Date. Stop date cannot be in the future." });
+        }
+
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateInPast_ThenShouldThrowDomainException()
+        {
+            // Arrange
+            var today = DateTime.UtcNow;
+            var stopDate = DateTime.UtcNow.AddMonths(-3);
+            _authenticationService.Setup(a => a.GetUserParty()).Returns(Party.Employer);
+            _currentDateTime.Setup(a => a.UtcNow).Returns(today);
+            var apprenticeship = await AddApprenticeship();
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "stopDate", ErrorMessage = $"Invalid Stop Date. Stop date cannot be before the apprenticeship has started." });
+        }
+
 
         // Need to make sure we test data locks correctly in StopApprenticeship
 
-        private async Task<Apprenticeship> AddApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active)
+        private async Task<Apprenticeship> AddApprenticeship(PaymentStatus paymentStatus = PaymentStatus.Active, bool futureStartDate = false)
         {
             var fixture = new Fixture();
             var apprenticeship = new Apprenticeship
@@ -128,7 +177,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     AccountLegalEntity = new AccountLegalEntity()
                 },
                 DataLockStatus = new List<DataLockStatus>(),
-                PaymentStatus = paymentStatus
+                PaymentStatus = paymentStatus,
+                StartDate = futureStartDate ? DateTime.UtcNow.AddMonths(2) : DateTime.UtcNow.AddMonths(-2)
             };
 
             _dbContext.Apprenticeships.Add(apprenticeship);

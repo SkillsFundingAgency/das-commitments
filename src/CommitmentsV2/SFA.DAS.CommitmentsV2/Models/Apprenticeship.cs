@@ -221,7 +221,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (IsWaitingToStart(currentDate))
             {
                 if (stopDate.Date != StartDate.Value.Date)
-                    throw new DomainException(nameof(stopDate), "Invalid Date of Change. Date should be value of start date if training has not started.");
+                    throw new DomainException(nameof(stopDate), "Invalid stop date. Date should be value of start date if training has not started.");
             }
             else
             {
