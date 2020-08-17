@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
         private readonly ICurrentDateTime _currentDate;
         private readonly IAuthenticationService _authenticationService;
         private readonly IEventPublisher _eventPublisher;
-        private readonly IMessageHandlerContext _nserviceBusContext;
+        private readonly IMessageSession _nserviceBusContext;
         private readonly IEncodingService _encodingService;
         private readonly ILogger<StopApprenticeshipCommandHandler> _logger;
         private const string StopNotificationEmailTemplate = "ProviderApprenticeshipStopNotification";
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             ICurrentDateTime currentDate,
             IEventPublisher eventPublisher,
             IAuthenticationService authenticationService,
-            IMessageHandlerContext nserviceBusContext,
+            IMessageSession nserviceBusContext,
             IEncodingService encodingService,
             ILogger<StopApprenticeshipCommandHandler> logger)
         {
@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             }
         }
 
-        private async Task NotifyProvider(IMessageHandlerContext nserviceBusContext, long providerId, long apprenticeshipId, string employerName, string apprenticeName, DateTime stopDate)
+        private async Task NotifyProvider(IMessageSession nserviceBusContext, long providerId, long apprenticeshipId, string employerName, string apprenticeName, DateTime stopDate)
         {
             var sendEmailToProviderCommand = new SendEmailToProviderCommand(providerId, StopNotificationEmailTemplate,
                 new Dictionary<string, string>

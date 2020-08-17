@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         private Mock<ILogger<StopApprenticeshipCommandHandler>> _logger;
         private Mock<IEventPublisher> _eventPublisher;
         private Mock<IAuthenticationService> _authenticationService;
-        private Mock<IMessageHandlerContext> _nserviceBusContext;
+        private Mock<IMessageSession> _nserviceBusContext;
         private Mock<IEncodingService> _encodingService;
         ProviderCommitmentsDbContext _dbContext;
         ProviderCommitmentsDbContext _confirmationDbContext;
@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _currentDateTime = new Mock<ICurrentDateTime>();
             _eventPublisher = new Mock<IEventPublisher>();
             _authenticationService = new Mock<IAuthenticationService>();
-            _nserviceBusContext = new Mock<IMessageHandlerContext>();
+            _nserviceBusContext = new Mock<IMessageSession>();
             _encodingService = new Mock<IEncodingService>();
             _logger = new Mock<ILogger<StopApprenticeshipCommandHandler>>();
             _unitOfWorkContext = new UnitOfWorkContext();
