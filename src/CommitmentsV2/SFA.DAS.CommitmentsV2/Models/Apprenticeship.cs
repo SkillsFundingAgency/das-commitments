@@ -7,6 +7,7 @@ using System.Linq;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
+using SFA.DAS.CommitmentsV2.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -206,7 +207,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return StartDate.Value > new DateTime(currentDateTime.UtcNow.Year, currentDateTime.UtcNow.Month, 1);
         }
 
-        internal void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
+        private void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
         {
             if (PaymentStatus == PaymentStatus.Completed || PaymentStatus == PaymentStatus.Withdrawn)
             {
@@ -218,7 +219,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(accountId), $"Employer {accountId} not authorised to access commitment {Cohort.Id}, expected employer {Cohort.EmployerAccountId}");
             }
 
-            if (IsWaitingToStart(currentDate))
+            if (this.IsWaitingToStart(currentDate))
             {
                 if (stopDate.Date != StartDate.Value.Date)
                     throw new DomainException(nameof(stopDate), "Invalid stop date. Date should be value of start date if training has not started.");
@@ -229,7 +230,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 /// As a result, when constructing comparisons, it is clear the dates must also be of the same format.
                 if (stopDate.Date > new DateTime(currentDate.UtcNow.Year, currentDate.UtcNow.Month, 1))
                 {
-                    throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date cannot be in the future.");
+                    throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date cannot be in the future and must be the 1st of the month.");
                 }
 
                 if (stopDate.Date < new DateTime(StartDate.Value.Year, StartDate.Value.Month, 1))
@@ -242,8 +243,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
         private bool IsCourseChangeError(DataLockErrorCode errorCode) => (errorCode & CourseChangeErrors) > 0;
 
-        internal void StopApprenticeship(DateTime stopDate, bool madeRedundant, UserInfo userInfo, Party party)
+        public void StopApprenticeship(DateTime stopDate, long accountId, bool madeRedundant, UserInfo userInfo, ICurrentDateTime currentDate, Party party)
         {
+            ValidateApprenticeshipForStop(stopDate, accountId, currentDate);
+
             StartTrackingSession(UserAction.StopApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
             ChangeTrackingSession.TrackUpdate(this);
@@ -252,6 +255,20 @@ namespace SFA.DAS.CommitmentsV2.Models
             StopDate = stopDate;
             MadeRedundant = madeRedundant;
 
+            ResolveDatalocks(stopDate);
+
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() => new ApprenticeshipStoppedEvent
+            {
+                AppliedOn = currentDate.UtcNow,
+                ApprenticeshipId = Id,
+                StopDate = stopDate
+            });
+        }
+
+        private void ResolveDatalocks(DateTime stopDate)
+        {
             IEnumerable<DataLockStatus> dataLocks;
             if (stopDate == StartDate)
             {
@@ -269,8 +286,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 dataLocks.ToList().ForEach(s => s.IsResolved = true);
             }
-
-            ChangeTrackingSession.CompleteTrackingSession();
         }
     }
 }

@@ -190,7 +190,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task StopApprenticeship(long apprenticeshipId, StopApprenticeshipRequest request, CancellationToken cancellationToken)
         {
-            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/stop-apprenticeship", request, cancellationToken);
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/stop", request, cancellationToken);
         }
 
         private static string CreateFilterQuery(GetApprenticeshipsRequest request)

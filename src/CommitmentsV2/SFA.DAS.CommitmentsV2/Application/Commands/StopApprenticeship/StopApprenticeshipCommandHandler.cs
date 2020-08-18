@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -23,7 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ICurrentDateTime _currentDate;
         private readonly IAuthenticationService _authenticationService;
-        private readonly IEventPublisher _eventPublisher;
         private readonly IMessageSession _nserviceBusContext;
         private readonly IEncodingService _encodingService;
         private readonly ILogger<StopApprenticeshipCommandHandler> _logger;
@@ -32,7 +32,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
         public StopApprenticeshipCommandHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             ICurrentDateTime currentDate,
-            IEventPublisher eventPublisher,
             IAuthenticationService authenticationService,
             IMessageSession nserviceBusContext,
             IEncodingService encodingService,
@@ -40,47 +39,34 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
         {
             _dbContext = dbContext;
             _currentDate = currentDate;
-            _eventPublisher = eventPublisher;
             _authenticationService = authenticationService;
             _nserviceBusContext = nserviceBusContext;
             _encodingService = encodingService;
             _logger = logger;
         }
 
-        protected async override Task Handle(StopApprenticeshipCommand command, CancellationToken cancellationToken)
+        protected override async Task Handle(StopApprenticeshipCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                _logger.LogInformation($"Begin stopping apprenticeShip. Apprenticeship-Id:{command.ApprenticeshipId}");
+                _logger.LogInformation($"Begin stopping apprenticeShip. Apprenticeship-Id:{request.ApprenticeshipId}");
 
                 var party = _authenticationService.GetUserParty();
                 CheckPartyIsValid(party);
 
-                var apprenticeship = await _dbContext.Value.Apprenticeships
-                    .Include(t => t.DataLockStatus)
-                    .Include(s => s.Cohort).ThenInclude(c => c.AccountLegalEntity)
-                    .SingleOrDefaultAsync(x => x.Id == command.ApprenticeshipId);
+                var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
-                apprenticeship.ValidateApprenticeshipForStop(command.StopDate, command.AccountId, _currentDate);
+                apprenticeship.StopApprenticeship(request.StopDate, request.AccountId, request.MadeRedundant, request.UserInfo, _currentDate, party);
 
-                apprenticeship.StopApprenticeship(command.StopDate, command.MadeRedundant, command.UserInfo, party);
-
-                _logger.LogInformation($"Stopped apprenticeShip. Apprenticeship-Id:{command.ApprenticeshipId}");
-
-                await _eventPublisher.Publish(new ApprenticeshipStoppedEvent
-                {
-                    AppliedOn = _currentDate.UtcNow,
-                    ApprenticeshipId = command.ApprenticeshipId,
-                    StopDate = command.StopDate
-                });
-
+                _logger.LogInformation($"Stopped apprenticeship. Apprenticeship-Id:{request.ApprenticeshipId}");
+                                
                 _logger.LogInformation($"Sending email to Provider {apprenticeship.Cohort.ProviderId}, template {StopNotificationEmailTemplate}");
 
-                await NotifyProvider(_nserviceBusContext, apprenticeship.Cohort.ProviderId, apprenticeship.Id, apprenticeship.Cohort.AccountLegalEntity.Name, apprenticeship.ApprenticeName, command.StopDate);
+                await NotifyProvider(_nserviceBusContext, apprenticeship.Cohort.ProviderId, apprenticeship.Id, apprenticeship.Cohort.AccountLegalEntity.Name, apprenticeship.ApprenticeName, request.StopDate);
             }
             catch (Exception e)
             {
-                _logger.LogError($"Error Stopping Apprenticeship with id {command.ApprenticeshipId}", e);
+                _logger.LogError($"Error Stopping Apprenticeship with id {request.ApprenticeshipId}", e);
                 throw;
             }
         }

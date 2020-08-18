@@ -36,7 +36,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     {
         private Mock<ICurrentDateTime> _currentDateTime;
         private Mock<ILogger<StopApprenticeshipCommandHandler>> _logger;
-        private Mock<IEventPublisher> _eventPublisher;
         private Mock<IAuthenticationService> _authenticationService;
         private Mock<IMessageSession> _nserviceBusContext;
         private Mock<IEncodingService> _encodingService;
@@ -60,7 +59,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                             .Options);
 
             _currentDateTime = new Mock<ICurrentDateTime>();
-            _eventPublisher = new Mock<IEventPublisher>();
             _authenticationService = new Mock<IAuthenticationService>();
             _nserviceBusContext = new Mock<IMessageSession>();
             _encodingService = new Mock<IEncodingService>();
@@ -69,7 +67,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             _handler = new StopApprenticeshipCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
                 _currentDateTime.Object,
-                _eventPublisher.Object,
                 _authenticationService.Object,
                 _nserviceBusContext.Object,
                 _encodingService.Object,
@@ -181,7 +178,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "stopDate", ErrorMessage = $"Invalid Stop Date. Stop date cannot be in the future." });
+            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "stopDate", ErrorMessage = $"Invalid Stop Date. Stop date cannot be in the future and must be the 1st of the month." });
         }
 
         [Test, MoqAutoData]
@@ -233,10 +230,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _handler.Handle(command, new CancellationToken());
 
             // Assert
-            _eventPublisher.Verify(s => s.Publish(It.Is<ApprenticeshipStoppedEvent>(x =>
-                x.AppliedOn == _currentDateTime.Object.UtcNow &&
-                x.ApprenticeshipId == apprenticeship.Id &&
-                x.StopDate == stopDate)));
+            var stoppedEvent = _unitOfWorkContext.GetEvents().OfType<ApprenticeshipStoppedEvent>().First();
+
+            stoppedEvent.Should().BeEquivalentTo(new ApprenticeshipStoppedEvent
+            {
+                AppliedOn = _currentDateTime.Object.UtcNow,
+                ApprenticeshipId = apprenticeship.Id,
+                StopDate = stopDate
+            });
         }
 
         [Test, MoqAutoData]
@@ -296,9 +297,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             // Arrange
             var futureDate = DateTime.UtcNow.AddMonths(4);
             var startAndStopDate = new DateTime(futureDate.Year, futureDate.Month, 1);
-                      
+
             var apprenticeship = await SetupApprenticeship(startDate: startAndStopDate);
-            
+
             var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, startAndStopDate, false, new UserInfo());
 
             // Act
@@ -343,7 +344,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             actualTokens.Should().BeEquivalentTo(expectedTokens);
             return true;
         }
-                
+
         private async Task<Apprenticeship> SetupApprenticeship(Party party = Party.Employer, PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
         {
             var today = DateTime.UtcNow;

@@ -487,7 +487,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.StopApprenticeship(apprenticeshipId, request, CancellationToken.None);
 
             //Assert
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/{apprenticeshipId}/stop-apprenticeship", request, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/{apprenticeshipId}/stop", request, CancellationToken.None));
         }
     }
 
