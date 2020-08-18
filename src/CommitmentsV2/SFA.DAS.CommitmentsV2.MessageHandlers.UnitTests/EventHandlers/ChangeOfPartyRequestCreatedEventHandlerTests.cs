@@ -110,7 +110,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Apprenticeship = new Apprenticeship
                 {
                     Id = apprenticeshipId,
-                    Cohort = new Cohort(),
+                    Cohort = new Cohort
+                    {
+                        AccountLegalEntity = new AccountLegalEntity()
+                    },
                     ChangeOfPartyRequests = new List<ChangeOfPartyRequest> {ChangeOfPartyRequest.Object},
                     ReservationId = autoFixture.Create<Guid>()
                 };
