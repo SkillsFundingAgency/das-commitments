@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
                                 
                 _logger.LogInformation($"Sending email to Provider {apprenticeship.Cohort.ProviderId}, template {StopNotificationEmailTemplate}");
 
-                await NotifyProvider(_nserviceBusContext, apprenticeship.Cohort.ProviderId, apprenticeship.Id, apprenticeship.Cohort.AccountLegalEntity.Name, apprenticeship.ApprenticeName, request.StopDate);
+                await NotifyProvider(apprenticeship.Cohort.ProviderId, apprenticeship.Id, apprenticeship.Cohort.AccountLegalEntity.Name, apprenticeship.ApprenticeName, request.StopDate);
             }
             catch (Exception e)
             {
@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             }
         }
 
-        private async Task NotifyProvider(IMessageSession nserviceBusContext, long providerId, long apprenticeshipId, string employerName, string apprenticeName, DateTime stopDate)
+        private async Task NotifyProvider(long providerId, long apprenticeshipId, string employerName, string apprenticeName, DateTime stopDate)
         {
             var sendEmailToProviderCommand = new SendEmailToProviderCommand(providerId, StopNotificationEmailTemplate,
                 new Dictionary<string, string>

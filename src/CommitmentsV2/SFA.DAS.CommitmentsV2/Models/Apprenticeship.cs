@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -240,9 +241,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
-        private bool IsCourseChangeError(DataLockErrorCode errorCode) => (errorCode & CourseChangeErrors) > 0;
-
         public void StopApprenticeship(DateTime stopDate, long accountId, bool madeRedundant, UserInfo userInfo, ICurrentDateTime currentDate, Party party)
         {
             ValidateApprenticeshipForStop(stopDate, accountId, currentDate);
@@ -266,7 +264,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StopDate = stopDate
             });
         }
-
+        
         private void ResolveDatalocks(DateTime stopDate)
         {
             IEnumerable<DataLockStatus> dataLocks;
@@ -279,7 +277,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 dataLocks = DataLockStatus.Where(x => x.EventStatus != EventStatus.Removed &&
                     !x.IsExpired && !x.IsResolved &&
                     x.TriageStatus == TriageStatus.Restart
-                    && IsCourseChangeError(x.ErrorCode)).ToList();
+                    && x.WithCourseError()).ToList();
             }
 
             if (dataLocks.Any())
