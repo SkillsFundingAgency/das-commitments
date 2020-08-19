@@ -280,9 +280,10 @@ namespace SFA.DAS.CommitmentsV2.Models
                     && x.WithCourseError()).ToList();
             }
 
-            if (dataLocks.Any())
+            foreach(var dataLock in dataLocks)
             {
-                dataLocks.ToList().ForEach(s => s.IsResolved = true);
+                ChangeTrackingSession.TrackUpdate(dataLock);
+                dataLock.Resolve();
             }
         }
     }
