@@ -511,13 +511,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 new Apprenticeship
                 {
                     Cohort = new Cohort(),
-                    StartDate = DateTime.Now.AddDays(-10)
+                    StartDate = DateTime.Now.AddDays(-10).Date
                 },
                 new Apprenticeship(),
                 new Apprenticeship
                 {
                     Cohort = new Cohort(),
-                    StartDate = DateTime.Now.AddDays(-11)
+                    StartDate = DateTime.Now.AddDays(-11).Date
                 }
             }.AsQueryable();
 
@@ -542,13 +542,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 new Apprenticeship
                 {
                     Cohort = new Cohort(),
-                    StartDate = DateTime.Now.AddDays(10)
+                    StartDate = DateTime.Now.AddDays(10).Date
                 },
                 new Apprenticeship(),
                 new Apprenticeship
                 {
                     Cohort = new Cohort(),
-                    StartDate = DateTime.Now.AddDays(11)
+                    StartDate = DateTime.Now.AddDays(11).Date
                 }
             }.AsQueryable();
 
