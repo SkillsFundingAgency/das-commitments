@@ -21,5 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int? AccountLegalEntityId { get; set; }
+        public DateTime? StartDateRangeFrom { get; set; }
+        public DateTime? StartDateRangeTo { get; set; }
     }
 }
