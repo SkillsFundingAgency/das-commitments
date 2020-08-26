@@ -108,6 +108,19 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 apprenticeships = apprenticeships.Where(x => x.Cohort != null && x.Cohort.AccountLegalEntityId == filters.AccountLegalEntityId.Value);
             }
 
+            if (filters.StartDateRange != null)
+            {
+                if (filters.StartDateRange.From.HasValue)
+                {
+                    apprenticeships = apprenticeships.Where(x => x.StartDate.HasValue && x.StartDate.Value.Date >= filters.StartDateRange.From);
+                }
+
+                if (filters.StartDateRange.To.HasValue)
+                {
+                    apprenticeships = apprenticeships.Where(x => x.StartDate.HasValue && x.StartDate.Value.Date <= filters.StartDateRange.To);
+                }
+            }
+
             return apprenticeships;
         }
 
