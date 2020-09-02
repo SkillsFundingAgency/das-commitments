@@ -30,6 +30,7 @@ using SFA.DAS.Encoding;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 using TestSupport.EfHelpers;
+using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {

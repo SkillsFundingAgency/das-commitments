@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
@@ -92,7 +91,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                    r.SearchFilters.Status.Equals(request.Status) &&
                    r.SearchFilters.StartDate.Equals(request.StartDate) &&
                    r.SearchFilters.EndDate.Equals(request.EndDate) &&
-                   r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId)),
+                   r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId) &&
+                   r.SearchFilters.StartDateRange.From.Equals(request.StartDateRangeFrom) &&
+                   r.SearchFilters.StartDateRange.To.Equals(request.StartDateRangeTo)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -133,7 +134,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     r.SearchFilters.Status.Equals(request.Status) &&
                     r.SearchFilters.StartDate.Equals(request.StartDate) &&
                     r.SearchFilters.EndDate.Equals(request.EndDate) &&
-                    r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId)), 
+                    r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId) &&
+                    r.SearchFilters.StartDateRange.From.Equals(request.StartDateRangeFrom) &&
+                    r.SearchFilters.StartDateRange.To.Equals(request.StartDateRangeTo)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
