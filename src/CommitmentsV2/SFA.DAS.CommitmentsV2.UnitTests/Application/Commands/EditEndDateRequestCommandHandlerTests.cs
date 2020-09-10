@@ -1,6 +1,4 @@
-﻿using AutoFixture;
-using MediatR;
-
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -15,22 +13,20 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
-    public class UpdateEndDateOfCompletedRecordRequestCommandHandlerTests
+    public class EditEndDateRequestCommandHandlerTests
     {
         [TestCase(Party.Provider)]
         [TestCase(Party.None)]
         [TestCase(Party.TransferSender)]
         public void WhenHandlingCommand_IfPartyIsNotEmployer_Then_ThrowDomainException(Party party)
         {
-            var f = new UpdateEndDateOfCompletedRecordCommandHandlerTestsFixture();
+            var f = new EditEndDateRequestCommandHandlerTestsFixture();
             f.SetParty(party);
 
             Assert.ThrowsAsync<DomainException>(async () => await f.Handle()); 
@@ -45,15 +41,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         //}
     }
 
-    public class UpdateEndDateOfCompletedRecordCommandHandlerTestsFixture
+    public class EditEndDateRequestCommandHandlerTestsFixture
     {
-        public UpdateEndDateOfCompletedRecordRequestCommand Command { get; set; }
-        public IRequestHandler<UpdateEndDateOfCompletedRecordRequestCommand> Handler { get; set; }
+        public EditEndDateRequestCommand Command { get; set; }
+        public IRequestHandler<EditEndDateRequestCommand> Handler { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
 
         public Party Party { get; set; }
 
-        public UpdateEndDateOfCompletedRecordCommandHandlerTestsFixture()
+        public EditEndDateRequestCommandHandlerTestsFixture()
         {
             Party = Party.Employer;
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
@@ -82,17 +78,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var newEndDate = Apprenticeship.EndDate.Value.AddDays(1);
 
-            Command = new UpdateEndDateOfCompletedRecordRequestCommand
+            Command = new EditEndDateRequestCommand
             {
                 ApprenticeshipId = Apprenticeship.Id,
                 EndDate = newEndDate,
                 UserInfo = new UserInfo()
             };
 
-            Handler = new UpdateEndDateOfCompletedRecordRequestCommandHandler(lazyProviderDbContext,
+            Handler = new EditEndDateRequestCommandHandler(lazyProviderDbContext,
                 Mock.Of<ICurrentDateTime>(),
                 authenticationService.Object,
-                Mock.Of<ILogger<UpdateEndDateOfCompletedRecordRequestCommandHandler>>());
+                Mock.Of<ILogger<EditEndDateRequestCommandHandler>>());
         }
 
         public async Task Handle()

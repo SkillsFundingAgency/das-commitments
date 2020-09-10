@@ -54,14 +54,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test, MoqAutoData]
-        public async Task UpdateEndDateOfCompletedRecord([Frozen] UpdateEndDateOfCompletedRecordRequest request)
+        public async Task UpdateEndDateOfCompletedRecord([Frozen] EditEndDateRequest request)
         {
             //Act
-            await _controller.UpdateEndDateOfCompletedRecord(request);
+            await _controller.EditEndDate(request);
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<UpdateEndDateOfCompletedRecordRequestCommand>(r =>
+                It.Is<EditEndDateRequestCommand>(r =>
                     r.ApprenticeshipId.Equals(request.ApprenticeshipId)
                     && r.EndDate == request.EndDate
                     && r.UserInfo == request.UserInfo),

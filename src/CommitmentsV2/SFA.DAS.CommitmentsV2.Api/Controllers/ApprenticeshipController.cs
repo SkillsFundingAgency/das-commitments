@@ -106,10 +106,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
 
         [HttpPost]
-        [Route("completed/enddate")]
-        public async Task<IActionResult> UpdateEndDateOfCompletedRecord([FromBody]UpdateEndDateOfCompletedRecordRequest request)
+        [Route("details/editenddate")]
+        public async Task<IActionResult> EditEndDate([FromBody]EditEndDateRequest request)
         {
-            var response = await _mediator.Send(new UpdateEndDateOfCompletedRecordRequestCommand
+            var response = await _mediator.Send(new EditEndDateRequestCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
                 EndDate = request.EndDate,

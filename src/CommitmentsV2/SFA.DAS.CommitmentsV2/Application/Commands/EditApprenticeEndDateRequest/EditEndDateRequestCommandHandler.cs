@@ -12,17 +12,17 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest
 {
-    public class UpdateEndDateOfCompletedRecordRequestCommandHandler : AsyncRequestHandler<UpdateEndDateOfCompletedRecordRequestCommand>
+    public class EditEndDateRequestCommandHandler : AsyncRequestHandler<EditEndDateRequestCommand>
     {
 
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ICurrentDateTime _currentDate;
         private readonly IAuthenticationService _authenticationService;
-        private readonly ILogger<UpdateEndDateOfCompletedRecordRequestCommandHandler> _logger;
-        public UpdateEndDateOfCompletedRecordRequestCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+        private readonly ILogger<EditEndDateRequestCommandHandler> _logger;
+        public EditEndDateRequestCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
             ICurrentDateTime currentDate,
             IAuthenticationService authenticationService,
-            ILogger<UpdateEndDateOfCompletedRecordRequestCommandHandler> logger)
+            ILogger<EditEndDateRequestCommandHandler> logger)
         {
             _dbContext = dbContext;
             _currentDate = currentDate;
@@ -30,14 +30,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateReques
             _logger = logger;
         }
 
-        protected override async Task Handle(UpdateEndDateOfCompletedRecordRequestCommand command, CancellationToken cancellationToken)
+        protected override async Task Handle(EditEndDateRequestCommand command, CancellationToken cancellationToken)
         {
             var party = _authenticationService.GetUserParty();
             CheckPartyIsValid(party);
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
             apprenticeship.EditEndDateOfCompletedRecord(command.EndDate.Value, _currentDate, party, command.UserInfo);
-
         }
 
         private void CheckPartyIsValid(Party party)

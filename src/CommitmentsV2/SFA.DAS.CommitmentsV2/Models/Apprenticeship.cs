@@ -150,17 +150,17 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (PaymentStatus != PaymentStatus.Completed)
             {
-                throw new DomainException(nameof(EndDate), "End date can only be changed on completed records.");
+                throw new DomainException(nameof(EndDate), "Only completed record end date can be changed");
             }
 
             if (endDate > CompletionDate)
             {
-                throw new DomainException(nameof(EndDate), "End date can't be after completion date.");
+                throw new DomainException(nameof(EndDate), "Planned training end date must be the same as or before the completion payment month");
             }
 
             if (endDate < StartDate)
             {
-                throw new DomainException(nameof(EndDate), "End date can't be before start date.");
+                throw new DomainException(nameof(EndDate), "Planned training end date must be after the planned training start date");
             }
 
             StartTrackingSession(UserAction.EditEndDateOfCompletedApprentice, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
