@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void WhenHandlingCommand_IfPartyIsNotEmployer_Then_ThrowDomainException(Party party)
         {
             var f = new EditEndDateRequestCommandHandlerTestsFixture();
-            f.SetParty(party);
+            f.Party = party;
 
             Assert.ThrowsAsync<DomainException>(async () => await f.Handle()); 
         }
@@ -113,11 +113,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             await Handler.Handle(Command, CancellationToken.None);
             await Db.SaveChangesAsync();
-        }
-
-        internal void SetParty(Party party)
-        {
-            Party = party;
         }
 
         internal void VerifyEndDateUpdated()
