@@ -13,14 +13,14 @@ using AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 {
-    public class WhenUpdatingEndDateOfCompletedRecord
+    public class WhenEditingEndDate
     {
-        private WhenUpdatingEndDateOfCompletedRecordFixture _fixture;
+        private WhenEditingEndDateFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new WhenUpdatingEndDateOfCompletedRecordFixture();
+            _fixture = new WhenEditingEndDateFixture();
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         }
     }
 
-    public class WhenUpdatingEndDateOfCompletedRecordFixture
+    public class WhenEditingEndDateFixture
     {
         public DateTime EndDate { get; set; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         public DateTime StartDate { get; set; }
         public DateTime Now { get; set; }
 
-        public WhenUpdatingEndDateOfCompletedRecordFixture()
+        public WhenEditingEndDateFixture()
         {
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -130,13 +130,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 .Create();
         }
 
-        public WhenUpdatingEndDateOfCompletedRecordFixture SetPaymentStatus(PaymentStatus status)
+        public WhenEditingEndDateFixture SetPaymentStatus(PaymentStatus status)
         {
             Apprenticeship.PaymentStatus = status;
             return this;
         }
 
-        public WhenUpdatingEndDateOfCompletedRecordFixture SetCompletionDate(DateTime completionDate)
+        public WhenEditingEndDateFixture SetCompletionDate(DateTime completionDate)
         {
             Apprenticeship.CompletionDate = completionDate;
             return this;

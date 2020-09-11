@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using AutoFixture;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
+using SFA.DAS.UnitOfWork.Context;
 using System;
 using System.Linq;
 using System.Threading;
@@ -32,13 +34,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.ThrowsAsync<DomainException>(async () => await f.Handle()); 
         }
 
-        //[Test]
-        //public async Task WhenHandlingCommand_ShouldUpdateTheEndDate()
-        //{
-        //    var f = new UpdateEndDateOfCompletedRecordCommandHandlerTestsFixture();
-        //    await f.Handle();
-        //    f.VerifyEndDateUpdated();
-        //}
+        [Test]
+        public async Task WhenHandlingCommand_ShouldUpdateTheEndDate()
+        {
+            var f = new EditEndDateRequestCommandHandlerTestsFixture();
+            await f.Handle();
+            f.VerifyEndDateUpdated();
+        }
     }
 
     public class EditEndDateRequestCommandHandlerTestsFixture
@@ -47,29 +49,45 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public IRequestHandler<EditEndDateRequestCommand> Handler { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
 
+        public UnitOfWorkContext UnitOfWorkContext { get; set; }
+
         public Party Party { get; set; }
+
+        public long ApprenticeshipId { get; set; }
 
         public EditEndDateRequestCommandHandlerTestsFixture()
         {
             Party = Party.Employer;
+            UnitOfWorkContext = new UnitOfWorkContext();
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                                  .UseInMemoryDatabase(Guid.NewGuid().ToString())
                                                  .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                                                  .Options);
-            var Apprenticeship = ObjectActivator.CreateInstance<Apprenticeship>()
-                .Set(a => a.Id, 11)
-                .Set(a => a.EndDate, DateTime.UtcNow)
-                .Set(a => a.StartDate, DateTime.UtcNow.AddDays(-10))
-                .Set(a => a.CompletionDate, DateTime.UtcNow.AddDays(10))
-                .Set(a => a.PaymentStatus, PaymentStatus.Completed);
+            var fixture = new Fixture();
+            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-            //Apprenticeship.StartDate = Apprenticeship.EndDate.Value.AddDays(-10);
-            //Apprenticeship.CompletionDate = Apprenticeship.EndDate.Value.AddDays(10);
-            //Apprenticeship.PaymentStatus = PaymentStatus.Completed;
+            var Cohort = new CommitmentsV2.Models.Cohort()
+               .Set(c => c.Id, 111)
+               .Set(c => c.EmployerAccountId, 222)
+               .Set(c => c.ProviderId, 333);
+            var Apprenticeship = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
+             .With(s => s.Cohort, Cohort)
+             .With(s => s.PaymentStatus, PaymentStatus.Completed)
+             .With(s => s.EndDate, DateTime.UtcNow)
+             .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
+             .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+             .Without(s => s.DataLockStatus)
+             .Without(s => s.EpaOrg)
+             .Without(s => s.ApprenticeshipUpdate)
+             .Without(s => s.Continuation)
+             .Without(s => s.PreviousApprenticeship)
+             .Create();
 
             Db.Apprenticeships.Add(Apprenticeship);
 
             Db.SaveChanges();
+
+            ApprenticeshipId = Apprenticeship.Id;
 
             var authenticationService = new Mock<IAuthenticationService>();
             authenticationService.Setup(x => x.GetUserParty()).Returns(() => Party);
@@ -104,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         internal void VerifyEndDateUpdated()
         {
-            Assert.AreEqual(Command.EndDate, Db.Apprenticeships.First(x => x.Id == 11).EndDate);
+            Assert.AreEqual(Command.EndDate, Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).EndDate);
         }
     }
 }
