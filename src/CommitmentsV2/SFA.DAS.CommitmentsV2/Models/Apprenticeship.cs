@@ -158,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(EndDate), "Planned training end date must be the same as or before the completion payment month");
             }
 
-            if (endDate < StartDate)
+            if (endDate <= StartDate)
             {
                 throw new DomainException(nameof(EndDate), "Planned training end date must be after the planned training start date");
             }
