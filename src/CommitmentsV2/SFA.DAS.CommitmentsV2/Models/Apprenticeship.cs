@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -143,6 +144,55 @@ namespace SFA.DAS.CommitmentsV2.Models
             };
 
             return result;
+        }
+
+        public void EditEndDateOfCompletedRecord(DateTime endDate, ICurrentDateTime currentDate, Party party, UserInfo userInfo)
+        {
+            if (PaymentStatus != PaymentStatus.Completed)
+            {
+                throw new DomainException(nameof(EndDate), "Only completed record end date can be changed");
+            }
+
+            if (endDate > CompletionDate)
+            {
+                throw new DomainException(nameof(EndDate), "Planned training end date must be the same as or before the completion payment month");
+            }
+
+            if (endDate <= StartDate)
+            {
+                throw new DomainException(nameof(EndDate), "Planned training end date must be after the planned training start date");
+            }
+
+            StartTrackingSession(UserAction.EditEndDateOfCompletedApprentice, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+
+            ChangeTrackingSession.TrackUpdate(this);
+
+            EndDate = endDate;
+
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() => new ApprenticeshipUpdatedApprovedEvent
+            {
+                ApprenticeshipId = Id,
+                ApprovedOn = currentDate.UtcNow,
+                StartDate = StartDate.Value,
+                EndDate = EndDate.Value,
+                PriceEpisodes = GetPriceEpisodes(),
+                TrainingType = ProgrammeType.Value,
+                TrainingCode = CourseCode,
+                Uln = Uln
+            }); 
+        }
+
+        private PriceEpisode[] GetPriceEpisodes()
+        {
+            return PriceHistory
+                .Select(x => new PriceEpisode
+                {
+                    FromDate = x.FromDate,
+                    ToDate = x.ToDate,
+                    Cost = x.Cost
+                }).ToArray();
         }
     }
 }

@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Models;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -94,6 +95,26 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery]GetApprenticeshipFiltersRequest request)
         {
             var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = request.ProviderId, EmployerAccountId = request.EmployerAccountId});
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
+        }
+
+
+        [HttpPost]
+        [Route("details/editenddate")]
+        public async Task<IActionResult> EditEndDate([FromBody]EditEndDateRequest request)
+        {
+            var response = await _mediator.Send(new EditEndDateRequestCommand
+            {
+                ApprenticeshipId = request.ApprenticeshipId,
+                EndDate = request.EndDate,
+                UserInfo = request.UserInfo
+            });
 
             if (response == null)
             {

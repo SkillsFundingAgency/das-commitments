@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
@@ -48,6 +50,21 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Verify(m => m.Send(
                 It.Is<GetApprenticeshipsQuery>(r => 
                     r.ProviderId.Equals(request.ProviderId)), 
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task UpdateEndDateOfCompletedRecord([Frozen] EditEndDateRequest request)
+        {
+            //Act
+            await _controller.EditEndDate(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<EditEndDateRequestCommand>(r =>
+                    r.ApprenticeshipId.Equals(request.ApprenticeshipId)
+                    && r.EndDate == request.EndDate
+                    && r.UserInfo == request.UserInfo),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
