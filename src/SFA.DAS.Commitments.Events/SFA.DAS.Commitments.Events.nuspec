@@ -5,7 +5,7 @@
         <version>1.0.0</version>
         <authors>DAS</authors>
         <owners>DAS</owners>
-        <licenseUrl>https://github.com/SkillsFundingAgency/das-commitments/blob/master/LICENSE</licenseUrl>
+        <license>https://github.com/SkillsFundingAgency/das-commitments/blob/master/LICENSE</license>
         <projectUrl>https://github.com/SkillsFundingAgency/das-commitments</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Provides message types published from SFA.DAS.Commitments</description>

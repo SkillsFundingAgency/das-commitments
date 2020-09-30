@@ -7,7 +7,7 @@
 
     <Authors>DAS</Authors>
     <Description>SFA.DAS.CommitmentsV2.Messages library</Description>
-    <PackageLicenseUrl>https://github.com/SkillsFundingAgency/das-commitments/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicense>https://github.com/SkillsFundingAgency/das-commitments/blob/master/LICENSE</PackageLicense>
     <PackageProjectUrl>https://github.com/SkillsFundingAgency/das-commitments</PackageProjectUrl>
 
     <EmbedUntrackedSources>false</EmbedUntrackedSources>
