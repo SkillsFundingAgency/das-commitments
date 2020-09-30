@@ -1,5 +1,5 @@
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Provider.Events.Api.Client;
+using SFA.DAS.Provider.Events.Api.Client.Configuration;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
 {
@@ -22,6 +22,10 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
     public class PaymentEventsApi : IPaymentsEventsApiConfiguration
     {
         public string ApiBaseUrl { get; set; }
+        public string Tenant { get; set; }
+        public string ClientId { get; set; }
+        public string ClientSecret { get; set; }
+        public string IdentifierUri { get; set; }
 
         public string ClientToken { get; set; }
     }

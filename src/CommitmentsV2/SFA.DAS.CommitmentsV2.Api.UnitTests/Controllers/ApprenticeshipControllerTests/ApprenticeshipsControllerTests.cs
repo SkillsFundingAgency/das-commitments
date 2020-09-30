@@ -8,6 +8,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
@@ -52,6 +53,21 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
+        [Test, MoqAutoData]
+        public async Task UpdateEndDateOfCompletedRecord([Frozen] EditEndDateRequest request)
+        {
+            //Act
+            await _controller.EditEndDate(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<EditEndDateRequestCommand>(r =>
+                    r.ApprenticeshipId.Equals(request.ApprenticeshipId)
+                    && r.EndDate == request.EndDate
+                    && r.UserInfo == request.UserInfo),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
         [Test]
         public async Task GetEmployerApprentices()
         {
@@ -91,7 +107,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                    r.SearchFilters.CourseName.Equals(request.CourseName) &&
                    r.SearchFilters.Status.Equals(request.Status) &&
                    r.SearchFilters.StartDate.Equals(request.StartDate) &&
-                   r.SearchFilters.EndDate.Equals(request.EndDate)), 
+                   r.SearchFilters.EndDate.Equals(request.EndDate) &&
+                   r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId) &&
+                   r.SearchFilters.StartDateRange.From.Equals(request.StartDateRangeFrom) &&
+                   r.SearchFilters.StartDateRange.To.Equals(request.StartDateRangeTo)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -131,7 +150,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     r.SearchFilters.CourseName.Equals(request.CourseName) &&
                     r.SearchFilters.Status.Equals(request.Status) &&
                     r.SearchFilters.StartDate.Equals(request.StartDate) &&
-                    r.SearchFilters.EndDate.Equals(request.EndDate)), 
+                    r.SearchFilters.EndDate.Equals(request.EndDate) &&
+                    r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId) &&
+                    r.SearchFilters.StartDateRange.From.Equals(request.StartDateRangeFrom) &&
+                    r.SearchFilters.StartDateRange.To.Equals(request.StartDateRangeTo)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 

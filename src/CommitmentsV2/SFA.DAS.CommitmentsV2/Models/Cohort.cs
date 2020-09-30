@@ -157,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
 
-            Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, DateTime.UtcNow, userInfo));
+            Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, changeOfPartyRequest.OriginatingParty,  DateTime.UtcNow, userInfo));
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
             {
@@ -207,6 +207,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual Account TransferSender { get; set; }
         public virtual ChangeOfPartyRequest ChangeOfPartyRequest { get; set; }
+        public virtual ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
@@ -500,6 +501,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildTrainingProgramValidationFailures(draftApprenticeshipDetails));
             }
             errors.ThrowIfAny();
         }
@@ -568,6 +570,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
+        private IEnumerable<DomainError> BuildTrainingProgramValidationFailures(DraftApprenticeshipDetails details)
+        {
+            if (details.TrainingProgramme == null) yield break;
+
+            if (details.TrainingProgramme?.ProgrammeType == ProgrammeType.Framework && TransferSenderId.HasValue)
+            {
+                yield return new DomainError(nameof(details.TrainingProgramme.CourseCode), "Entered course is not valid.");
+            }
+        }
+
         private IEnumerable<DomainError> BuildStartDateValidationFailures(DraftApprenticeshipDetails details)
         {
             if (!details.StartDate.HasValue) yield break;
@@ -594,6 +606,14 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                 yield return new DomainError(nameof(details.StartDate), errorMessage);
                 yield break;
+            }
+
+            if (trainingProgrammeStatus.HasValue && TransferSenderId.HasValue
+                && details.StartDate.Value < Constants.TransferFeatureStartDate)
+            {
+                var errorMessage = $"Apprentices funded through a transfer can't start earlier than May 2018";
+
+                yield return new DomainError(nameof(details.StartDate), errorMessage);
             }
         }
 

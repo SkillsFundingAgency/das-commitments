@@ -12,8 +12,6 @@ using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
-using SFA.DAS.Provider.Events.Api.Client;
-
 using StructureMap;
 using IConfiguration = SFA.DAS.Commitments.Domain.Interfaces.IConfiguration;
 
@@ -31,9 +29,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
                 });
 
             var config = GetConfiguration("SFA.DAS.CommitmentPayments");
-
-            For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
-                .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
 
             For<IConfiguration>().Use(config);
             For<CommitmentPaymentsConfiguration>().Use(config);

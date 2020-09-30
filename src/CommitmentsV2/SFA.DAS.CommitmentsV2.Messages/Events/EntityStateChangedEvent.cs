@@ -39,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         ApproveChangeOfPartyRequest,
         RejectChangeOfPartyRequest,
         WithdrawChangeOfPartyRequest,
-        SetNewApprenticeshipId
+        SetNewApprenticeshipId,
+        EditEndDateOfCompletedApprentice
     }
 }

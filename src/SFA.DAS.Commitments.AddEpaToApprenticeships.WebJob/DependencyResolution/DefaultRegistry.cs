@@ -13,6 +13,7 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
+using SFA.DAS.Provider.Events.Api.Client.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolution
@@ -36,9 +37,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
 
             // ms fake would be preferable
             For<ICurrentDateTime>().Use(x => new CurrentDateTime());
-
-            For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
-                .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
 
             For<IAssessmentOrgsApiClient>().Use<AssessmentOrgsApiClient>()
                 .Ctor<string>().Is(config.AssessmentOrgsApiBaseUri);

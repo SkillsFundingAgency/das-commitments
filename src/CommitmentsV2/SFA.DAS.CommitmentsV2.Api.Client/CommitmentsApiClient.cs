@@ -227,6 +227,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 filterQuery += $"&endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}";
             }
 
+            if (request.AccountLegalEntityId.HasValue)
+            {
+                filterQuery += $"&accountLegalEntityId={request.AccountLegalEntityId.Value}";
+            }
+
+            if (request.StartDateRangeFrom.HasValue)
+            {
+                filterQuery += $"&startDateRangeFrom={WebUtility.UrlEncode(request.StartDateRangeFrom.Value.ToString("u"))}";
+            }
+
+            if (request.StartDateRangeTo.HasValue)
+            {
+                filterQuery += $"&startDateRangeTo={WebUtility.UrlEncode(request.StartDateRangeTo.Value.ToString("u"))}";
+            }
+
             return filterQuery;
         }
 
@@ -306,6 +321,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<GetChangeOfPartyRequestsResponse> GetChangeOfPartyRequests(long apprenticeshipId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetChangeOfPartyRequestsResponse>($"api/apprenticeships/{apprenticeshipId}/change-of-party-requests", null, cancellationToken);
+        }
+
+        public Task UpdateEndDateOfCompletedRecord(EditEndDateRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/details/editenddate", request, cancellationToken);
         }
     }
 }

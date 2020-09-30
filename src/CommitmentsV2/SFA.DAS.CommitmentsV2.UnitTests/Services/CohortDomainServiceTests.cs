@@ -30,6 +30,7 @@ using SFA.DAS.Encoding;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 using TestSupport.EfHelpers;
+using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -224,7 +225,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _fixture.AddDraftApprenticeship();
             _fixture.VerifyProviderDraftApprenticeshipAdded();
         }
-        
+
         [Test]
         public void AddDraftApprenticeship_CohortNotFound_ShouldThrowException()
         {
@@ -281,18 +282,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyReservationValidationNotPerformed();
         }
 
-        [Test]
-        public async Task OverlapOnStartDate_Validation()
+        [TestCase(Party.Provider, "employer")]
+        [TestCase(Party.Employer, "provider")]
+        public async Task OverlapOnStartDate_Validation(Party party, string otherPartyInMessage)
         {
-            await _fixture.WithParty(Party.Provider).WithUlnOverlapOnStartDate().CreateCohort();
-            _fixture.VerifyOverlapExceptionOnStartDate();
+            await _fixture.WithParty(party).WithUlnOverlapOnStartDate().CreateCohort();
+            _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
         }
 
-        [Test]
-        public async Task OverlapOnEndDate_Validation()
+        [TestCase(Party.Provider, "employer")]
+        [TestCase(Party.Employer, "provider")]
+        public async Task OverlapOnEndDate_Validation(Party party, string otherPartyInMessage)
         {
-            await _fixture.WithParty(Party.Provider).WithUlnOverlapOnEndDate().CreateCohort();
-            _fixture.VerifyOverlapExceptionOnEndDate();
+            await _fixture.WithParty(party).WithUlnOverlapOnEndDate().CreateCohort();
+            _fixture.VerifyOverlapExceptionOnEndDate(otherPartyInMessage);
         }
 
         [TestCase(Party.Provider)]
@@ -404,6 +407,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             }
         }
 
+        [TestCase("2018-04-30", false)]
+        [TestCase("2018-05-01", true)]
+        public async Task AddDraftApprenticeship_Verify_StartDate_ForTransferSender_Is_After_May_2018(DateTime startDate, bool pass)
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort()
+                .WithStartDate(startDate)
+                .WithTrainingProgramme();
+
+            await _fixture.AddDraftApprenticeship();
+
+            _fixture.VerifyStartDateException(pass);
+        }
+
+        [TestCase(ProgrammeType.Framework, false)]
+        [TestCase(ProgrammeType.Standard, true)]
+        public async Task AddDraftApprenticeship_Verify_For_TransferSender_Framework_Course_Are_Not_Available(ProgrammeType programmeType, bool passes)
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort()
+                .WithTrainingProgramme(programmeType);
+
+            await _fixture.AddDraftApprenticeship();
+
+            _fixture.VerifyCourseException(passes);
+        }
 
         public class CohortDomainServiceTestFixture
         {
@@ -589,6 +616,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public CohortDomainServiceTestFixture WithNoMessage()
             {
                 Message = null;
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType  programmeType = ProgrammeType.Standard)
+            {
+                DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
+                  "TEST",
+                  programmeType,
+                  new DateTime(2016, 1, 1),
+                  null);
                 return this;
             }
 
@@ -1072,6 +1109,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "TEST"));
             }
 
+            public void VerifyCourseException(bool passes)
+            {
+                if (passes)
+                {
+                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    return;
+                }
+
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "CourseCode"));
+            }
+
             public void VerifyReservationValidationNotPerformed()
             {
                 ReservationValidationService.Verify(x => x.Validate(It.IsAny<ReservationValidationRequest>(),
@@ -1079,14 +1127,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     Times.Never);
             }
 
-            public void VerifyOverlapExceptionOnStartDate()
+            public void VerifyOverlapExceptionOnStartDate(string otherParty)
             {
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate"));
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate" && x.ErrorMessage.Contains($"contact the {otherParty}")));
             }
 
-            public void VerifyOverlapExceptionOnEndDate()
+            public void VerifyOverlapExceptionOnEndDate(string otherParty)
             {
-                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate"));
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate" && x.ErrorMessage.Contains($"contact the {otherParty}")));
             }
 
             public void VerifyException<T>()

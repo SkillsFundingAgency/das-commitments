@@ -21,7 +21,8 @@ BEGIN
 			LastUpdatedByEmployerEmail = @lastUpdatedByEmployerEmail,
 			LastUpdatedByProviderName = @lastUpdatedByProviderName,
 			LastUpdatedByProviderEmail = @lastUpdatedByProviderEmail,
-			ApprenticeshipEmployerTypeOnApproval = @apprenticeshipEmployerTypeOnApproval
+			ApprenticeshipEmployerTypeOnApproval = @apprenticeshipEmployerTypeOnApproval,
+			Approvals = 0
 	WHERE Id = @id
 	AND EditStatus <> 0;
 

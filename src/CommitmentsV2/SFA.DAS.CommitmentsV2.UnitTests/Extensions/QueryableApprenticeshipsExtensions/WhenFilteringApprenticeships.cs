@@ -472,6 +472,97 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         }
 
         [Test]
+        public void ThenShouldFilterAccountLegalEntities()
+        {
+            //Arrange
+            var filterValue = 123;
+
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Cohort = new Cohort()
+                },
+                new Apprenticeship(),
+                new Apprenticeship
+                {
+                    Cohort = new Cohort { AccountLegalEntityId = filterValue }
+                }
+            }.AsQueryable();
+
+            var filterValues = new ApprenticeshipSearchFilters { AccountLegalEntityId = filterValue };
+
+            //Act
+            var result = apprenticeships.Filter(filterValues).ToList();
+
+            //Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.All(a => a.Cohort.AccountLegalEntityId == filterValue));
+        }
+
+        [Test]
+        public void ThenShouldFilterStartDateFrom()
+        {
+            //Arrange
+            var filterValue = DateTime.Now.AddDays(-10).Date;
+
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Cohort = new Cohort(),
+                    StartDate = DateTime.Now.AddDays(-10).Date
+                },
+                new Apprenticeship(),
+                new Apprenticeship
+                {
+                    Cohort = new Cohort(),
+                    StartDate = DateTime.Now.AddDays(-11).Date
+                }
+            }.AsQueryable();
+
+            var filterValues = new ApprenticeshipSearchFilters { StartDateRange = new DateRange { From = filterValue } };
+
+            //Act
+            var result = apprenticeships.Filter(filterValues).ToList();
+
+            //Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.All(a => a.StartDate.Value.Date >= filterValue));
+        }
+
+        [Test]
+        public void ThenShouldFilterStartDateTo()
+        {
+            //Arrange
+            var filterValue = DateTime.Now.AddDays(10).Date;
+
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Cohort = new Cohort(),
+                    StartDate = DateTime.Now.AddDays(10).Date
+                },
+                new Apprenticeship(),
+                new Apprenticeship
+                {
+                    Cohort = new Cohort(),
+                    StartDate = DateTime.Now.AddDays(11).Date
+                }
+            }.AsQueryable();
+
+            var filterValues = new ApprenticeshipSearchFilters { StartDateRange = new DateRange { To = filterValue } };
+
+            //Act
+            var result = apprenticeships.Filter(filterValues).ToList();
+
+            //Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.All(a => a.StartDate.Value.Date <= filterValue));
+        }
+
+        [Test]
         public void ThenShouldNotFilterIfNoFilterValuesGiven()
         {
             //Arrange

@@ -191,7 +191,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 NINumber = x.NINumber,
                 EmployerRef = x.EmployerRef,
                 ProviderRef = x.ProviderRef,
-                CanBeApproved = ApprenticeshipCanBeApproved(callerType, x)
+                CanBeApproved = ApprenticeshipCanBeApproved(callerType, x),
+                OriginalStartDate = x.OriginalStartDate
             }).ToList();
         }
 

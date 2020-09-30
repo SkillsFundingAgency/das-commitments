@@ -357,7 +357,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 CourseName = "Test course",
                 Status = ApprenticeshipStatus.Completed,
                 StartDate = DateTime.Now.AddDays(2),
-                EndDate = DateTime.Now.AddDays(4)
+                EndDate = DateTime.Now.AddDays(4),
+                AccountLegalEntityId = 123,
+                StartDateRangeFrom = DateTime.Now.AddDays(-1),
+                StartDateRangeTo = DateTime.Now.AddDays(1)
             };
 
             //Act
@@ -374,7 +377,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 $"courseName={WebUtility.UrlEncode(request.CourseName)}&" +
                 $"status={WebUtility.UrlEncode(request.Status.Value.ToString())}&" +
                 $"startDate={WebUtility.UrlEncode(request.StartDate.Value.ToString("u"))}&" +
-                $"endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}", null, CancellationToken.None));
+                $"endDate={WebUtility.UrlEncode(request.EndDate.Value.ToString("u"))}&" +
+                $"accountLegalEntityId={request.AccountLegalEntityId.Value}&" +
+                $"startDateRangeFrom={WebUtility.UrlEncode(request.StartDateRangeFrom.Value.ToString("u"))}&" +
+                $"startDateRangeTo={WebUtility.UrlEncode(request.StartDateRangeTo.Value.ToString("u"))}", null, CancellationToken.None));
         }
 
         [Test]
