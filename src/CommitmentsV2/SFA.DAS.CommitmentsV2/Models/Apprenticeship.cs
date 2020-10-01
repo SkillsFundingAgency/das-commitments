@@ -202,11 +202,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     Cost = x.Cost
                 }).ToArray();
         }
-        
-        private bool IsWaitingToStart(ICurrentDateTime currentDateTime)
-        {
-            return StartDate.Value > new DateTime(currentDateTime.UtcNow.Year, currentDateTime.UtcNow.Month, 1);
-        }
+                
 
         private void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
         {
