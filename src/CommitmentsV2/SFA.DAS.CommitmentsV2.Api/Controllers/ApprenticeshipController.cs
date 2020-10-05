@@ -14,7 +14,7 @@ using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.Get
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
-
+using SFA.DAS.CommitmentsV2.Api.Authorization;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -127,6 +127,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         
         [HttpPost]
         [Route("{apprenticeshipId}/stop")]
+        [FeatureToggle(Feature = "StopApprenticeship")]
         public async Task<IActionResult> StopApprenticeship(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
         {
             await _mediator.Send(new StopApprenticeshipCommand(
