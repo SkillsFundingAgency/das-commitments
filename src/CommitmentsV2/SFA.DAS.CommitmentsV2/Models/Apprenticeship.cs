@@ -184,6 +184,30 @@ namespace SFA.DAS.CommitmentsV2.Models
             }); 
         }
 
+        public void PauseApprenticeship(ICurrentDateTime currentDateTime, Party party, UserInfo userInfo)
+        {
+            var pausedDate = currentDateTime.UtcNow;
+            if (PaymentStatus != PaymentStatus.Active)
+            {
+                throw new DomainException(nameof(EndDate), "Only Active record can be paused");
+            }
+
+            StartTrackingSession(UserAction.EditEndDateOfCompletedApprentice, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+
+            ChangeTrackingSession.TrackUpdate(this);
+
+            PaymentStatus = PaymentStatus.Paused;
+            PauseDate = pausedDate;
+
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() => new ApprenticeshipPausedEvent
+            {
+                ApprenticeshipId = Id,
+                PausedOn = pausedDate
+            });
+        }
+
         private PriceEpisode[] GetPriceEpisodes()
         {
             return PriceHistory
