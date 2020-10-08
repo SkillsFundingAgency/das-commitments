@@ -1,9 +1,10 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public partial class DataLockStatus
+    public partial class DataLockStatus : ITrackableEntity
     {
         public long Id { get; set; }
         public long DataLockEventId { get; set; }
@@ -26,5 +27,10 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual Apprenticeship Apprenticeship { get; set; }
         public virtual ApprenticeshipUpdate ApprenticeshipUpdate { get; set; }
+
+        public void Resolve()
+        {
+            IsResolved = true;
+        }
     }
 }
