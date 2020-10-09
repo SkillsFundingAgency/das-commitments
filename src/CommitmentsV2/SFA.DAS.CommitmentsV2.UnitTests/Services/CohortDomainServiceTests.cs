@@ -551,7 +551,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 PreviousApprenticeship = new Apprenticeship();
                 PreviousApprenticeship.SetValue(x => x.Id, fixture.Create<long>());
-                PreviousApprenticeship.SetValue(x => x.Cohort, new Cohort());
+                PreviousApprenticeship.SetValue(x => x.Cohort, new Cohort
+                {
+                    AccountLegalEntity = new AccountLegalEntity()
+                });
                 Db.Apprenticeships.Add(PreviousApprenticeship);
 
                 AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();

@@ -59,8 +59,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 _apprenticeship = new Apprenticeship();
                 _apprenticeship.SetValue(x => x.Id, _event.ApprenticeshipId);
-                _apprenticeship.SetValue(x => x.Cohort, new Cohort());
-                
+                _apprenticeship.SetValue(x => x.Cohort, new Cohort
+                {
+                    AccountLegalEntity = new AccountLegalEntity()
+                });
+
                 _changeOfPartyRequest = new Mock<ChangeOfPartyRequest>();
                 _changeOfPartyRequest.Setup(x => x.Id).Returns(_event.ChangeOfPartyRequestId);
                 _changeOfPartyRequest.Setup(x => x.SetNewApprenticeship(_apprenticeship, _event.UserInfo, Party.Employer));
