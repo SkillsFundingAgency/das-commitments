@@ -9,10 +9,12 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 using GetApprenticeshipsRequest = SFA.DAS.CommitmentsV2.Api.Types.Requests.GetApprenticeshipsRequest;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
@@ -206,7 +208,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     c.AccountId == request.AccountId &&
                     c.ApprenticeshipId == apprenticeshipId &&
                     c.StopDate == request.StopDate &&
-                    c.MadeRedundant == request.MadeRedundant &&
+                    c.MadeRedundant == request.MadeRedundant && 
                     c.UserInfo == request.UserInfo),                   
                 It.IsAny<CancellationToken>()), Times.Once);
         }

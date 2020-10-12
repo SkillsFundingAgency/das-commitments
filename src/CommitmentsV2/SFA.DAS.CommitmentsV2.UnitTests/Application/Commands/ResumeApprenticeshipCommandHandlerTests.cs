@@ -1,0 +1,183 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoFixture;
+using FluentAssertions;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Testing;
+using SFA.DAS.Testing.AutoFixture;
+using SFA.DAS.Testing.Builders;
+using SFA.DAS.UnitOfWork.Context;
+
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
+{
+    [TestFixture]
+    [Parallelizable]
+    public class ResumeApprenticeshipCommandHandlerTests 
+    {
+        public ResumeApprenticeshipCommand Command { get; set; }
+        public CancellationToken CancellationToken { get; set; }
+        public ProviderCommitmentsDbContext _dbContext;
+        public Mock<IAuthenticationService> _authenticationService;
+        public Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
+        public Mock<ICurrentDateTime> _currentDateTime;
+        public IRequestHandler<ResumeApprenticeshipCommand> _handler;
+        public UserInfo UserInfo { get; }
+        private UnitOfWorkContext _unitOfWorkContext { get; set; }
+
+        [SetUp]
+        public void Init()
+        {
+            _authenticationService = new Mock<IAuthenticationService>();
+            _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
+                .Options);
+
+            _currentDateTime = new Mock<ICurrentDateTime>();
+
+            _unitOfWorkContext = new UnitOfWorkContext();
+
+            _handler = new ResumeApprenticeshipCommandHandler(
+                new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
+                _currentDateTime.Object,
+                _authenticationService.Object,
+                Mock.Of<ILogger<ResumeApprenticeshipCommandHandler>>());
+        }
+
+        private ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
+        {
+            var activeDataLock4 = new DataLockStatus
+            {
+                ApprenticeshipId = apprenticeshipId,
+                EventStatus = EventStatus.New,
+                IsExpired = false,
+                TriageStatus = TriageStatus.Restart,
+                ErrorCode = DataLockErrorCode.Dlock04
+            };
+
+            var activeDataLock5 = new DataLockStatus
+            {
+                ApprenticeshipId = apprenticeshipId,
+                EventStatus = EventStatus.New,
+                IsExpired = false,
+                TriageStatus = TriageStatus.Restart,
+                ErrorCode = DataLockErrorCode.Dlock05
+            };
+
+            var inactiveDataLock6 = new DataLockStatus
+            {
+                ApprenticeshipId = apprenticeshipId,
+                EventStatus = EventStatus.Removed,
+                IsExpired = false,
+                TriageStatus = TriageStatus.Restart,
+                ErrorCode = DataLockErrorCode.Dlock04
+            };
+
+            var dataLockForApprenticeshipBeforeStart = new DataLockStatus
+            {
+                ApprenticeshipId = apprenticeshipId,
+                EventStatus = EventStatus.New,
+                IsExpired = false,
+                TriageStatus = TriageStatus.Change,
+                ErrorCode = DataLockErrorCode.Dlock04
+            };
+
+            return new List<DataLockStatus> { activeDataLock4, activeDataLock5, inactiveDataLock6, dataLockForApprenticeshipBeforeStart };
+        }
+
+        private async Task<Apprenticeship> SetupApprenticeship(Party party = Party.Employer, PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
+        {
+            var today = DateTime.UtcNow;
+            _authenticationService.Setup(a => a.GetUserParty()).Returns(party);
+            _currentDateTime.Setup(a => a.UtcNow).Returns(today);
+
+            var fixture = new Fixture();
+            var apprenticeshipId = fixture.Create<long>();
+            var apprenticeship = new Apprenticeship
+            {
+                Id = apprenticeshipId,
+                Cohort = new Cohort
+                {
+                    EmployerAccountId = fixture.Create<long>(),
+                    AccountLegalEntity = new AccountLegalEntity()
+                },
+                DataLockStatus = SetupDataLocks(apprenticeshipId),
+                PaymentStatus = paymentStatus,
+                StartDate = startDate != null ? startDate.Value : DateTime.UtcNow.AddMonths(-2)
+            };
+
+            _dbContext.Apprenticeships.Add(apprenticeship);
+            await _dbContext.SaveChangesAsync();
+
+            return apprenticeship;
+        }
+
+        [Test, MoqAutoData]
+        public async Task Handle_WhenHandlingCommand_ResumeApprenticeship_CreatesAddHistoyEvent()
+        {
+            // Arrange
+            var apprenticeship = await SetupApprenticeship();
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+
+            var command = new ResumeApprenticeshipCommand{ApprenticeshipId = apprenticeship.Id, 
+                UserInfo = new UserInfo()
+            };
+
+            // Act
+            await _handler.Handle(command, new CancellationToken());
+            // Simulate Unit of Work contex transaction ending in http request.
+            await _dbContext.SaveChangesAsync();
+
+            // Assert
+            var historyEvent = _unitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>()
+                .First(e => e.EntityId == apprenticeship.Id);
+            historyEvent.EntityType.Should().Be("Apprenticeship");
+            historyEvent.StateChangeType.Should().Be(UserAction.StopApprenticeship);
+            var definition = new { StopDate = DateTime.MinValue, MadeRedundant = true, PaymentStatus = PaymentStatus.Active };
+            var historyState = JsonConvert.DeserializeAnonymousType(historyEvent.UpdatedState, definition);
+
+            historyState.StopDate.Should().Be(stopDate);
+            historyState.MadeRedundant.Should().Be(false);
+            historyState.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
+        }
+        //[Test]
+        //public Task Handle_WhenCommandIsHandled_ThenShouldAddDraftApprenticeship()
+        //{
+        //    return TestAsync(
+        //        f => f.ResumeApprenticeship(),
+        //        f => f.ResumeApprenticeship().Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId,
+        //            f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.CancellationToken)));
+        //}
+
+        //[Test]
+        //public Task Handle_WhenCommandIsHandled_ThenShouldReturnAddDraftApprenticeshipResult()
+        //{
+        //    return TestAsync(
+        //        f => f.ResumeApprenticeship(),
+        //        (f, r) => r.Should().NotBeNull().And.Subject.Should().Match<AddDraftApprenticeshipResult>(r2 => r2.Id == f.DraftApprenticeship.Id));
+        //}
+    }
+
+}

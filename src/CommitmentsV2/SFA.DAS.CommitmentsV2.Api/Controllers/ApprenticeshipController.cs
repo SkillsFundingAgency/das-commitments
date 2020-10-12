@@ -184,7 +184,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 ApprenticeshipId = request.ApprenticeshipId,
                 UserInfo = request.UserInfo
             });
-
             return Ok(response);
         }
     }

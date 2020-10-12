@@ -491,6 +491,24 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task ResumeApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var apprenticeshipId = 11;
+            var request = new ResumeApprenticeshipRequest
+            {
+                ApprenticeshipId = apprenticeshipId,
+                UserInfo = new UserInfo()
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.ResumeApprenticeship(request, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/details/resume", request, CancellationToken.None));
+        }
+
+        [Test]
         public async Task PauseApprenticeship_VerifyUrlAndData()
         {
             var request = new PauseApprenticeshipRequest
