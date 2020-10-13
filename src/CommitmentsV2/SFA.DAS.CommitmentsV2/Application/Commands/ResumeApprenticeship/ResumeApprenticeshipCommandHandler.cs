@@ -32,11 +32,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship
 
         protected override async Task Handle(ResumeApprenticeshipCommand command, CancellationToken cancellationToken)
         {
-            var party = _authenticationService.GetUserParty();
-            CheckPartyIsValid(party);
+            try
+            {
+                var party = _authenticationService.GetUserParty();
+                CheckPartyIsValid(party);
 
-            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
-            apprenticeship.ResumeApprenticeship(_currentDate, party, command.UserInfo);
+                var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+                apprenticeship.ResumeApprenticeship(_currentDate, party, command.UserInfo);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error Resuming Apprenticeship with id {command.ApprenticeshipId}", e);
+                throw;
+            }
         }
 
         private void CheckPartyIsValid(Party party)
