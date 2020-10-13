@@ -221,10 +221,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             var resumedDate = currentDateTime.UtcNow;
             if (PaymentStatus != PaymentStatus.Paused)
             {
-                throw new DomainException(nameof(StartDate), "Only paused record can be activated");
+                throw new DomainException(nameof(PaymentStatus), "Only paused record can be activated");
             }
 
-            StartTrackingSession(UserAction.ResumeApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            StartTrackingSession(UserAction.EditEndDateOfCompletedApprentice, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
             ChangeTrackingSession.TrackUpdate(this);
             PaymentStatus = PaymentStatus.Active;

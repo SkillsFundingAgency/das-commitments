@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -12,35 +13,24 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Testing;
-using SFA.DAS.Testing.AutoFixture;
-using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class ResumeApprenticeshipCommandHandlerTests 
+    public class ResumeApprenticeshipCommandHandlerTests
     {
-        public ResumeApprenticeshipCommand Command { get; set; }
-        public CancellationToken CancellationToken { get; set; }
         public ProviderCommitmentsDbContext _dbContext;
         public Mock<IAuthenticationService> _authenticationService;
-        public Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
         public Mock<ICurrentDateTime> _currentDateTime;
         public IRequestHandler<ResumeApprenticeshipCommand> _handler;
         public UserInfo UserInfo { get; }
@@ -56,14 +46,63 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Options);
 
             _currentDateTime = new Mock<ICurrentDateTime>();
-
             _unitOfWorkContext = new UnitOfWorkContext();
-
             _handler = new ResumeApprenticeshipCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
                 _currentDateTime.Object,
                 _authenticationService.Object,
                 Mock.Of<ILogger<ResumeApprenticeshipCommandHandler>>());
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingCommand_ResumeApprenticeship_CreatesAddHistoryEvent()
+        {
+            // Arrange
+            var apprenticeship = await SetupApprenticeship();
+
+            var command = new ResumeApprenticeshipCommand
+            {
+                ApprenticeshipId = apprenticeship.Id,
+                UserInfo = new UserInfo()
+            };
+
+            // Act
+            await _handler.Handle(command, new CancellationToken());
+
+            // Simulate Unit of Work contex transaction ending in http request.
+            await _dbContext.SaveChangesAsync();
+
+            // Assert
+            var historyEvent = _unitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>()
+                .First(e => e.EntityId == apprenticeship.Id);
+            historyEvent.EntityType.Should().Be("Apprenticeship");
+
+            //historyEvent.StateChangeType.Should().Be(UserAction.StopApprenticeship);
+            var definition = new { PaymentStatus = PaymentStatus.Paused };
+            var historyState = JsonConvert.DeserializeAnonymousType(historyEvent.UpdatedState, definition);
+            historyState.PaymentStatus.Should().Be(PaymentStatus.Active);
+        }
+
+        [Test]
+        [InlineAutoData(PaymentStatus.Completed)]
+        [InlineAutoData(PaymentStatus.Withdrawn)]
+        [InlineAutoData(PaymentStatus.Active)]
+        public async Task Handle_WhenHandlingCommand_ThrowErrorForNonPausedApprenticeshipStatus(PaymentStatus paymentStatus)
+        {
+            // Arrange
+            var apprenticeship = await SetupApprenticeship(Party.Employer, paymentStatus);
+
+            var command = new ResumeApprenticeshipCommand
+            {
+                ApprenticeshipId = apprenticeship.Id,
+                UserInfo = new UserInfo()
+            };
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().BeEquivalentTo(new { ErrorMessage = "Only paused record can be activated" });
         }
 
         private ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
@@ -107,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return new List<DataLockStatus> { activeDataLock4, activeDataLock5, inactiveDataLock6, dataLockForApprenticeshipBeforeStart };
         }
 
-        private async Task<Apprenticeship> SetupApprenticeship(Party party = Party.Employer, PaymentStatus paymentStatus = PaymentStatus.Active, DateTime? startDate = null)
+        private async Task<Apprenticeship> SetupApprenticeship(Party party = Party.Employer, PaymentStatus paymentStatus = PaymentStatus.Paused, DateTime? startDate = null)
         {
             var today = DateTime.UtcNow;
             _authenticationService.Setup(a => a.GetUserParty()).Returns(party);
@@ -133,51 +172,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             return apprenticeship;
         }
-
-        [Test, MoqAutoData]
-        public async Task Handle_WhenHandlingCommand_ResumeApprenticeship_CreatesAddHistoyEvent()
-        {
-            // Arrange
-            var apprenticeship = await SetupApprenticeship();
-            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
-
-            var command = new ResumeApprenticeshipCommand{ApprenticeshipId = apprenticeship.Id, 
-                UserInfo = new UserInfo()
-            };
-
-            // Act
-            await _handler.Handle(command, new CancellationToken());
-            // Simulate Unit of Work contex transaction ending in http request.
-            await _dbContext.SaveChangesAsync();
-
-            // Assert
-            var historyEvent = _unitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>()
-                .First(e => e.EntityId == apprenticeship.Id);
-            historyEvent.EntityType.Should().Be("Apprenticeship");
-            historyEvent.StateChangeType.Should().Be(UserAction.StopApprenticeship);
-            var definition = new { StopDate = DateTime.MinValue, MadeRedundant = true, PaymentStatus = PaymentStatus.Active };
-            var historyState = JsonConvert.DeserializeAnonymousType(historyEvent.UpdatedState, definition);
-
-            historyState.StopDate.Should().Be(stopDate);
-            historyState.MadeRedundant.Should().Be(false);
-            historyState.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
-        }
-        //[Test]
-        //public Task Handle_WhenCommandIsHandled_ThenShouldAddDraftApprenticeship()
-        //{
-        //    return TestAsync(
-        //        f => f.ResumeApprenticeship(),
-        //        f => f.ResumeApprenticeship().Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId,
-        //            f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.CancellationToken)));
-        //}
-
-        //[Test]
-        //public Task Handle_WhenCommandIsHandled_ThenShouldReturnAddDraftApprenticeshipResult()
-        //{
-        //    return TestAsync(
-        //        f => f.ResumeApprenticeship(),
-        //        (f, r) => r.Should().NotBeNull().And.Subject.Should().Match<AddDraftApprenticeshipResult>(r2 => r2.Id == f.DraftApprenticeship.Id));
-        //}
     }
 
 }
