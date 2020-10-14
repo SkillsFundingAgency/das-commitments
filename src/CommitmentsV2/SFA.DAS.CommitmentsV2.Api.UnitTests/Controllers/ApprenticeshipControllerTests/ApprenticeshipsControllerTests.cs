@@ -190,14 +190,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             Assert.IsNotNull(result);
         }
 
-        [Test]
-        public async Task WhenPostingPauseApprenticeship_ThenPauseCommandIsSent()
+        [Test, MoqAutoData]
+        public async Task WhenPostingPauseApprenticeship_ThenPauseCommandIsSent(PauseApprenticeshipRequest request)
         {
             _mediator.Setup(p => p.Send(It.IsAny<PauseApprenticeshipCommand>(), It.IsAny<CancellationToken>()));
 
-            await _controller.Pause(new PauseApprenticeshipRequest { });
+            await _controller.Pause(request);
 
-            _mediator.Verify(p => p.Send(It.IsAny<PauseApprenticeshipCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mediator.Verify(p => p.Send(It.Is<PauseApprenticeshipCommand>(c => c.ApprenticeshipId == request.ApprenticeshipId), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
