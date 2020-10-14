@@ -6,6 +6,9 @@ using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -21,6 +24,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool HasHadDataLockSuccess { get; set; }
         public Originator? PendingUpdateOriginator { get; set; }
         public DateTime? CompletionDate { get; set; }
+        public bool? MadeRedundant { get; set; }
+
+        [NotMapped]
+        public string ApprenticeName => string.Concat(FirstName, " ", LastName);
+
 
         public Apprenticeship()
         {
@@ -85,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CompletionDate = completionDate;
             ChangeTrackingSession.CompleteTrackingSession();
 
-            Publish(() => new ApprenticeshipCompletedEvent{ ApprenticeshipId = Id, CompletionDate = completionDate});
+            Publish(() => new ApprenticeshipCompletedEvent { ApprenticeshipId = Id, CompletionDate = completionDate });
         }
 
         public virtual void UpdateCompletionDate(DateTime completionDate)
@@ -95,7 +103,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException("CompletionDate", "The completion date can only be updated if Apprenticeship Status is Completed");
             }
 
-            StartTrackingSession(UserAction.UpdateCompletionDate, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId,null);
+            StartTrackingSession(UserAction.UpdateCompletionDate, Party.None, Cohort.EmployerAccountId, Cohort.ProviderId, null);
             ChangeTrackingSession.TrackUpdate(this);
             CompletionDate = completionDate;
             ChangeTrackingSession.CompleteTrackingSession();
@@ -217,6 +225,86 @@ namespace SFA.DAS.CommitmentsV2.Models
                     ToDate = x.ToDate,
                     Cost = x.Cost
                 }).ToArray();
+        }
+                
+
+        private void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
+        {
+            if (PaymentStatus == PaymentStatus.Completed || PaymentStatus == PaymentStatus.Withdrawn)
+            {
+                throw new DomainException(nameof(PaymentStatus), "Apprenticeship must be Active or Paused. Unable to stop apprenticeship");
+            }
+
+            if (Cohort.EmployerAccountId != accountId)
+            {
+                throw new DomainException(nameof(accountId), $"Employer {accountId} not authorised to access commitment {Cohort.Id}, expected employer {Cohort.EmployerAccountId}");
+            }
+
+            if (this.IsWaitingToStart(currentDate))
+            {
+                if (stopDate.Date != StartDate.Value.Date)
+                    throw new DomainException(nameof(stopDate), "Invalid stop date. Date should be value of start date if training has not started.");
+            }
+            else
+            {
+                /// When asking for a stop date, only a month and year are provded by the UI, The day is not supplied.
+                /// As a result, when constructing comparisons, it is clear the dates must also be of the same format.
+                if (stopDate.Date > new DateTime(currentDate.UtcNow.Year, currentDate.UtcNow.Month, 1))
+                {
+                    throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date cannot be in the future and must be the 1st of the month.");
+                }
+
+                if (stopDate.Date < new DateTime(StartDate.Value.Year, StartDate.Value.Month, 1))
+                {
+                    throw new DomainException(nameof(stopDate), "Invalid Stop Date. Stop date cannot be before the apprenticeship has started.");
+                }
+            }
+        }
+
+        public void StopApprenticeship(DateTime stopDate, long accountId, bool madeRedundant, UserInfo userInfo, ICurrentDateTime currentDate, Party party)
+        {
+            ValidateApprenticeshipForStop(stopDate, accountId, currentDate);
+
+            StartTrackingSession(UserAction.StopApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+
+            ChangeTrackingSession.TrackUpdate(this);
+
+            PaymentStatus = PaymentStatus.Withdrawn;
+            StopDate = stopDate;
+            MadeRedundant = madeRedundant;
+
+            ResolveDatalocks(stopDate);
+
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() => new ApprenticeshipStoppedEvent
+            {
+                AppliedOn = currentDate.UtcNow,
+                ApprenticeshipId = Id,
+                StopDate = stopDate
+            });
+        }
+        
+        private void ResolveDatalocks(DateTime stopDate)
+        {
+            IEnumerable<DataLockStatus> dataLocks;
+            if (stopDate == StartDate)
+            {
+                dataLocks = DataLockStatus.Where(x => x.EventStatus != EventStatus.Removed && !x.IsExpired);
+            }
+            else
+            {
+                dataLocks = DataLockStatus.Where(x => x.EventStatus != EventStatus.Removed &&
+                    !x.IsExpired && !x.IsResolved &&
+                    x.TriageStatus == TriageStatus.Restart
+                    && x.WithCourseError()).ToList();
+            }
+
+            foreach(var dataLock in dataLocks)
+            {
+                ChangeTrackingSession.TrackUpdate(dataLock);
+                dataLock.Resolve();
+            }
         }
     }
 }

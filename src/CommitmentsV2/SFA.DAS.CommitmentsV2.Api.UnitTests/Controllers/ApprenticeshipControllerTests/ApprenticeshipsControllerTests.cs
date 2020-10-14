@@ -9,6 +9,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -188,6 +189,26 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             Assert.IsNotNull(result);
+        }
+
+
+        [Test, MoqAutoData]
+        public async Task StopApprenticeship(StopApprenticeshipRequest request, long apprenticeshipId)
+        {
+            //Arrange
+
+            //Act
+            await _controller.StopApprenticeship(apprenticeshipId, request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<StopApprenticeshipCommand>(c =>
+                    c.AccountId == request.AccountId &&
+                    c.ApprenticeshipId == apprenticeshipId &&
+                    c.StopDate == request.StopDate &&
+                    c.MadeRedundant == request.MadeRedundant &&
+                    c.UserInfo == request.UserInfo),                   
+                It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test, MoqAutoData]
