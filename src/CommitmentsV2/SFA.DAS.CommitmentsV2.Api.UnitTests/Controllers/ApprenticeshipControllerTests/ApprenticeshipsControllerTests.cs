@@ -9,6 +9,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
@@ -187,6 +188,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             Assert.IsNotNull(result);
+        }
+
+        [Test]
+        public async Task WhenPostingPauseApprenticeship_ThenPauseCommandIsSent()
+        {
+            _mediator.Setup(p => p.Send(It.IsAny<PauseApprenticeshipCommand>(), It.IsAny<CancellationToken>()));
+
+            await _controller.Pause(new PauseApprenticeshipRequest { });
+
+            _mediator.Verify(p => p.Send(It.IsAny<PauseApprenticeshipCommand>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

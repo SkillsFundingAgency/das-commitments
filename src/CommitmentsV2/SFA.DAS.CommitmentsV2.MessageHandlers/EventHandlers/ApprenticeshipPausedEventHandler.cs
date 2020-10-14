@@ -14,19 +14,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     public class ApprenticeshipPausedEventHandler : IHandleMessages<ApprenticeshipPausedEvent>
     {
         private readonly IMediator _mediator;
-        private readonly IPasAccountApiClient _pasAccountApiClient;
         private readonly ILogger<ApprenticeshipPausedEventHandler> _logger;
 
-        public ApprenticeshipPausedEventHandler(IMediator mediator, IPasAccountApiClient pasAccountApiClient, ILogger<ApprenticeshipPausedEventHandler> logger)
+        public ApprenticeshipPausedEventHandler(IMediator mediator, ILogger<ApprenticeshipPausedEventHandler> logger)
         {
             _mediator = mediator;
-            _pasAccountApiClient = pasAccountApiClient;
             _logger = logger;
         }
 
         public async Task Handle(ApprenticeshipPausedEvent message, IMessageHandlerContext context)
         {
             _logger.LogInformation($"Received {nameof(ApprenticeshipPausedEventHandler)} for apprentice {message?.ApprenticeshipId}");
+           
             var apprenticeshipQueryResult = await _mediator.Send(new GetApprenticeshipQuery(message.ApprenticeshipId));
 
             var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeshipQueryResult);
