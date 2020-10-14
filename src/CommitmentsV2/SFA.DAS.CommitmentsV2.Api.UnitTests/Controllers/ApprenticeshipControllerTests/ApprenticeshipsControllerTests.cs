@@ -222,5 +222,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             _mediator.Verify(p => p.Send(It.Is<PauseApprenticeshipCommand>(c => c.ApprenticeshipId == request.ApprenticeshipId && c.UserInfo == request.UserInfo), It.IsAny<CancellationToken>()), Times.Once);
         }
+
+        [Test, MoqAutoData]
+        public async Task ResumeApprenticeship(ResumeApprenticeshipRequest request)
+        {
+            //Act
+            await _controller.Resume(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<ResumeApprenticeshipCommand>(c =>
+                    c.ApprenticeshipId == request.ApprenticeshipId &&
+                    c.UserInfo == request.UserInfo),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
     }
 }
