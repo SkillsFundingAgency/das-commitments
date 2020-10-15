@@ -200,7 +200,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(EndDate), "Only Active record can be paused");
             }
 
-            StartTrackingSession(UserAction.EditEndDateOfCompletedApprentice, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            StartTrackingSession(UserAction.PauseApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
             ChangeTrackingSession.TrackUpdate(this);
 
