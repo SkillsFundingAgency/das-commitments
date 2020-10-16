@@ -16,7 +16,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -161,20 +160,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(response);
         }
         
-        [HttpPost]
-        [Route("{apprenticeshipId}/stop")]
-        public async Task<IActionResult> StopApprenticeship(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
-        {
-            await _mediator.Send(new StopApprenticeshipCommand(
-                request.AccountId,
-                apprenticeshipId,
-                request.StopDate,
-                request.MadeRedundant,
-                request.UserInfo));
-
-            return Ok();
-        }
-
         [HttpPost]
         [Route("details/resume")]
         public async Task<IActionResult> Resume([FromBody] ResumeApprenticeshipRequest request)
