@@ -77,7 +77,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .First(e => e.EntityId == apprenticeship.Id);
             historyEvent.EntityType.Should().Be("Apprenticeship");
 
-            //historyEvent.StateChangeType.Should().Be(UserAction.StopApprenticeship);
             var definition = new { PaymentStatus = PaymentStatus.Paused };
             var historyState = JsonConvert.DeserializeAnonymousType(historyEvent.UpdatedState, definition);
             historyState.PaymentStatus.Should().Be(PaymentStatus.Active);
@@ -105,45 +104,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             exception.DomainErrors.Should().BeEquivalentTo(new { ErrorMessage = "Only paused record can be activated" });
         }
 
-        private ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
+        [Test]
+        [InlineAutoData(Party.Provider)]
+        [InlineAutoData(Party.TransferSender)]
+        [InlineAutoData(Party.None)]
+        public async Task Handle_WhenHandlingCommand_ThrowDomainExceptionIfPartyIsNotEmployer(Party party)
         {
-            var activeDataLock4 = new DataLockStatus
+            // Arrange
+            var apprenticeship = await SetupApprenticeship(party);
+
+            var command = new ResumeApprenticeshipCommand
             {
-                ApprenticeshipId = apprenticeshipId,
-                EventStatus = EventStatus.New,
-                IsExpired = false,
-                TriageStatus = TriageStatus.Restart,
-                ErrorCode = DataLockErrorCode.Dlock04
+                ApprenticeshipId = apprenticeship.Id,
+                UserInfo = new UserInfo()
             };
 
-            var activeDataLock5 = new DataLockStatus
-            {
-                ApprenticeshipId = apprenticeshipId,
-                EventStatus = EventStatus.New,
-                IsExpired = false,
-                TriageStatus = TriageStatus.Restart,
-                ErrorCode = DataLockErrorCode.Dlock05
-            };
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
-            var inactiveDataLock6 = new DataLockStatus
-            {
-                ApprenticeshipId = apprenticeshipId,
-                EventStatus = EventStatus.Removed,
-                IsExpired = false,
-                TriageStatus = TriageStatus.Restart,
-                ErrorCode = DataLockErrorCode.Dlock04
-            };
-
-            var dataLockForApprenticeshipBeforeStart = new DataLockStatus
-            {
-                ApprenticeshipId = apprenticeshipId,
-                EventStatus = EventStatus.New,
-                IsExpired = false,
-                TriageStatus = TriageStatus.Change,
-                ErrorCode = DataLockErrorCode.Dlock04
-            };
-
-            return new List<DataLockStatus> { activeDataLock4, activeDataLock5, inactiveDataLock6, dataLockForApprenticeshipBeforeStart };
+            // Assert
+            exception.DomainErrors.Should().BeEquivalentTo(new { ErrorMessage = $"Only employers are allowed to edit the end of completed records - {party} is invalid" });
         }
 
         private async Task<Apprenticeship> SetupApprenticeship(Party party = Party.Employer, PaymentStatus paymentStatus = PaymentStatus.Paused, DateTime? startDate = null)
@@ -162,7 +142,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     EmployerAccountId = fixture.Create<long>(),
                     AccountLegalEntity = new AccountLegalEntity()
                 },
-                DataLockStatus = SetupDataLocks(apprenticeshipId),
                 PaymentStatus = paymentStatus,
                 StartDate = startDate != null ? startDate.Value : DateTime.UtcNow.AddMonths(-2)
             };
