@@ -238,16 +238,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test, MoqAutoData]
-        public async Task ResumeApprenticeship(ResumeApprenticeshipRequest request)
+        public async Task WhenPostingResumeApprenticeship_ThenResumeCommandIsSent(ResumeApprenticeshipRequest request)
         {
-            //Act
+            _mediator.Setup(p => p.Send(It.IsAny<ResumeApprenticeshipCommand>(), It.IsAny<CancellationToken>()));
+
             await _controller.Resume(request);
 
-            //Assert
-            _mediator.Verify(m => m.Send(
-                It.Is<ResumeApprenticeshipCommand>(c =>
-                    c.ApprenticeshipId == request.ApprenticeshipId &&
-                    c.UserInfo == request.UserInfo),
+            _mediator.Verify(p => p.Send(It.Is<ResumeApprenticeshipCommand>(c =>
+                    c.ApprenticeshipId == request.ApprenticeshipId && c.UserInfo == request.UserInfo),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
     }
