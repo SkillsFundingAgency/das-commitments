@@ -218,7 +218,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             await _controller.Pause(request);
 
-            _mediator.Verify(p => p.Send(It.Is<PauseApprenticeshipCommand>(c => c.ApprenticeshipId == request.ApprenticeshipId), It.IsAny<CancellationToken>()), Times.Once);
+            _mediator.Verify(p => p.Send(It.Is<PauseApprenticeshipCommand>(c => c.ApprenticeshipId == request.ApprenticeshipId && c.UserInfo == request.UserInfo), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
