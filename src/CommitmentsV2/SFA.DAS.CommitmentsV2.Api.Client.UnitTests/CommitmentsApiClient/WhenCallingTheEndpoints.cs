@@ -489,6 +489,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/{apprenticeshipId}/stop", request, CancellationToken.None));
         }
+
+        [Test]
+        public async Task PauseApprenticeship_VerifyUrlAndData()
+        {
+            var request = new PauseApprenticeshipRequest
+            {
+                ApprenticeshipId = 11
+            };
+
+            await _fixture.CommitmentsApiClient.PauseApprenticeship(request, CancellationToken.None);
+
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/details/pause", request, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture

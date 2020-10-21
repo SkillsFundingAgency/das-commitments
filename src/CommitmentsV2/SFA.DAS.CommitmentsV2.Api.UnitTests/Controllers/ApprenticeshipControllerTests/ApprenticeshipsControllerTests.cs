@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
@@ -208,6 +209,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     c.MadeRedundant == request.MadeRedundant &&
                     c.UserInfo == request.UserInfo),                   
                 It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task WhenPostingPauseApprenticeship_ThenPauseCommandIsSent(PauseApprenticeshipRequest request)
+        {
+            _mediator.Setup(p => p.Send(It.IsAny<PauseApprenticeshipCommand>(), It.IsAny<CancellationToken>()));
+
+            await _controller.Pause(request);
+
+            _mediator.Verify(p => p.Send(It.Is<PauseApprenticeshipCommand>(c => c.ApprenticeshipId == request.ApprenticeshipId && c.UserInfo == request.UserInfo), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

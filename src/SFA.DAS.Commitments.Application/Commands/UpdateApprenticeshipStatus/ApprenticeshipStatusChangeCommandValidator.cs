@@ -4,7 +4,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
     
 
-    public sealed class ApprenticeshipStatusChangeCommandValidator : AbstractValidator<ApprenticeshipStatusChangeCommand>
+    public class ApprenticeshipStatusChangeCommandValidator : AbstractValidator<ApprenticeshipStatusChangeCommand>
     {
         public ApprenticeshipStatusChangeCommandValidator()
         {

@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         [Test]
         public void ThenEndDateShouldBeUpdated()
         {
-            var newEndDate = _fixture.EndDate.AddDays(1); ;
+            var newEndDate = _fixture.EndDate.AddDays(1); 
             _fixture.UpdateEndDate(newEndDate);
             _fixture.Apprenticeship.EndDate.Should().Be(newEndDate);
         }
@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         public void ThenVerifyTracking()
         {
             _fixture.UpdateEndDate(_fixture.EndDate);
-            _fixture.VerifyApprenticeshipTracking(); ;
+            _fixture.VerifyApprenticeshipTracking(); 
         }
     }
 

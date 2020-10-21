@@ -233,6 +233,7 @@
     <Compile Include="Commands\DeleteCommitment\WhenValidatingCommand.cs" />
     <Compile Include="Commands\ApproveTransferRequest\WhenApprovingATransferRequest.cs" />
     <Compile Include="Commands\ApproveTransferRequest\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\PauseApprenticeship\WhenPausingAnApprenticeship.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\WhenRejectingApprenticeshipChange.cs" />
     <Compile Include="Commands\RejectTransferRequest\WhenRejectingATransferRequest.cs" />
     <Compile Include="Commands\RejectTransferRequest\WhenValidatingCommand.cs" />
