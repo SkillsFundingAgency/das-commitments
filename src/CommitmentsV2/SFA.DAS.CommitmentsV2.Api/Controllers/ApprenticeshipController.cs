@@ -13,6 +13,9 @@ using SFA.DAS.CommitmentsV2.Models;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
+
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -39,14 +42,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var query = new GetApprenticeshipQuery(apprenticeshipId);
             var result = await _mediator.Send(query);
 
-            if (result == null)  {  return NotFound(); }
+            if (result == null) { return NotFound(); }
 
             var response = await _modelMapper.Map<GetApprenticeshipResponse>(result);
             return Ok(response);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetApprenticeships([FromQuery]GetApprenticeshipsRequest request)
+        public async Task<IActionResult> GetApprenticeships([FromQuery] GetApprenticeshipsRequest request)
         {
             try
             {
@@ -89,12 +92,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 throw;
             }
         }
-        
+
         [HttpGet]
         [Route("filters")]
-        public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery]GetApprenticeshipFiltersRequest request)
+        public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery] GetApprenticeshipFiltersRequest request)
         {
-            var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = request.ProviderId, EmployerAccountId = request.EmployerAccountId});
+            var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = request.ProviderId, EmployerAccountId = request.EmployerAccountId });
 
             if (response == null)
             {
@@ -104,7 +107,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(response);
         }
 
-
         [HttpPost]
         [Route("details/editenddate")]
         public async Task<IActionResult> EditEndDate([FromBody]EditEndDateRequest request)
@@ -113,6 +115,39 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 ApprenticeshipId = request.ApprenticeshipId,
                 EndDate = request.EndDate,
+                UserInfo = request.UserInfo
+            });
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
+        }
+        
+        [HttpPost]
+        [Route("{apprenticeshipId}/stop")]
+        public async Task<IActionResult> StopApprenticeship(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
+        {
+            await _mediator.Send(new StopApprenticeshipCommand(
+                request.AccountId,
+                apprenticeshipId,
+                request.StopDate,
+                request.MadeRedundant,
+                request.UserInfo));
+
+            return Ok();
+
+        }
+
+        [HttpPost]
+        [Route("details/pause")]
+        public async Task<IActionResult> Pause([FromBody]PauseApprenticeshipRequest request)
+        {
+            var response = await _mediator.Send(new PauseApprenticeshipCommand
+            {
+                ApprenticeshipId = request.ApprenticeshipId,
                 UserInfo = request.UserInfo
             });
 

@@ -149,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     Id = 1000,
                     ProviderId = Fixture.Create<long>(),
-                    AccountLegalEntityId = Fixture.Create<long>()
+                    AccountLegalEntity = new AccountLegalEntity()
                 };
                 Apprenticeship = new Mock<Apprenticeship>();
                 Apprenticeship.Setup(x => x.Id).Returns(ApprenticeshipId);

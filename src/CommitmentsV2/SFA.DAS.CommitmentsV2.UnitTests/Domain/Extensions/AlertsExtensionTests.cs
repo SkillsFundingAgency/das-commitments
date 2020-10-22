@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.DataLockStatus = new List<DataLockStatus>();
-            source.PriceHistory = new List<PriceHistory>{priceHistory};
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
 
             var result = await mapper.Map(source);
@@ -40,9 +40,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.ErrorCode = DataLockErrorCode.None;
             dataLockStatus.TriageStatus = TriageStatus.Unknown;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
-            source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
-            
+
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeEmpty();
@@ -59,12 +59,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.TriageStatus = TriageStatus.Unknown;
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
-            source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
-            
+
             var result = await mapper.Map(source);
 
-            result.Alerts.Should().BeEquivalentTo(new List<Alerts> {Alerts.IlrDataMismatch});
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.IlrDataMismatch });
         }
 
         [Test, RecursiveMoqAutoData]
@@ -75,13 +75,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.IsProviderSearch = true;
             dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
             dataLockStatus.TriageStatus = TriageStatus.Unknown;
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
-            source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
-            
+
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.IlrDataMismatch });
@@ -98,9 +99,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.TriageStatus = TriageStatus.Change;
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
-            source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
-            
+
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesPending });
@@ -118,9 +119,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.TriageStatus = TriageStatus.Change;
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
-            source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
-            
+
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesPending });
@@ -137,9 +138,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.TriageStatus = TriageStatus.Restart;
             dataLockStatus.IsResolved = false;
             source.PriceHistory = new List<PriceHistory> { priceHistory };
-            source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
-            
+
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesRequested });
@@ -154,7 +155,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         {
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             apprenticeshipUpdate.Originator = Originator.Provider;
-            apprenticeshipUpdate.Status = (byte) ApprenticeshipUpdateStatus.Pending;
+            apprenticeshipUpdate.Status = (byte)ApprenticeshipUpdateStatus.Pending;
             source.ApprenticeshipUpdate.Add(apprenticeshipUpdate);
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
@@ -173,13 +174,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         {
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             apprenticeshipUpdate.Originator = Originator.Employer;
-            apprenticeshipUpdate.Status = (byte) ApprenticeshipUpdateStatus.Pending;
+            apprenticeshipUpdate.Status = (byte)ApprenticeshipUpdateStatus.Pending;
             source.ApprenticeshipUpdate.Add(new ApprenticeshipUpdate
             {
                 Originator = (byte)Originator.Employer
             });
             source.DataLockStatus = new List<DataLockStatus>();
-            
+
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesForReview });
@@ -194,7 +195,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         {
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             source.ApprenticeshipUpdate = null;
-            source.DataLockStatus = new List<DataLockStatus>{dataLockStatus};
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
 
             var result = await mapper.Map(source);
@@ -233,7 +234,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             dataLockStatus.TriageStatus = TriageStatus.Restart;
             dataLockStatus.IsResolved = false;
             source.IsProviderSearch = false;
-            source.PriceHistory = new List<PriceHistory>{ priceHistory };
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
 

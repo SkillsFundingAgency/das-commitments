@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Moq;
 using NServiceBus;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests
 {

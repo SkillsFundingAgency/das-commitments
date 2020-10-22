@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
         public static async Task<Apprenticeship> GetApprenticeshipAggregate(this ProviderCommitmentsDbContext db, long apprenticeshipId, CancellationToken cancellationToken)
         {
             var apprenticeship = await db.Apprenticeships
-                .Include(a => a.Cohort)
+                .Include(a => a.Cohort).ThenInclude(c => c.AccountLegalEntity)
                 .Include(a => a.DataLockStatus)
                 .Include(a => a.PriceHistory)
                 .Include(a => a.ApprenticeshipUpdate)
