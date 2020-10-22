@@ -4,7 +4,7 @@ using System.Web.Mvc;
 using NLog.Targets;
 using SFA.DAS.NLog.Logger;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.Azure;
+using System.Configuration;
 
 namespace SFA.DAS.Commitments.Api
 {
@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Api
             Logger.Info("Starting Commitments Api Application");
             FilterConfig.RegisterGlobalFilters(GlobalConfiguration.Configuration.Filters);
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            TelemetryConfiguration.Active.InstrumentationKey = CloudConfigurationManager.GetSetting("InstrumentationKey");
+            TelemetryConfiguration.Active.InstrumentationKey = ConfigurationManager.AppSettings["APPINSIGHTS_INSTRUMENTATIONKEY"];
         }
 
         protected void Application_End()

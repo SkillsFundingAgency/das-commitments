@@ -9,7 +9,7 @@
     <Authors>Esfa</Authors>
     <Title>Provides types for the SFA.DAS.Commitments client service</Title>
     <Description>Provides types for the SFA.DAS.Commitments client service</Description>
-    <PackageLicenseUrl>https://github.com/SkillsFundingAgency/das-commitments/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicense>https://github.com/SkillsFundingAgency/das-commitments/blob/master/LICENSE</PackageLicense>
     <PackageProjectUrl>https://github.com/SkillsFundingAgency/das-commitments/tree/master/src/SFA.DAS.Apprenticeships.Api.Client</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SkillsFundingAgency/das-commitments</RepositoryUrl>
     <PackageTags>Esfa;Das;</PackageTags>
@@ -37,4 +37,3 @@
 
 
 </Project>
-

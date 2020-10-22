@@ -1,5 +1,5 @@
 ﻿using System;
-using Microsoft.Azure;
+using System.Configuration;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
                 Log.Info($"Initialising config for environment {EnvironmentName}");
 
                 var repo = new AzureTableStorageConfigurationRepository(
-                    CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
+                    ConfigurationManager.AppSettings["ConfigurationStorageConnectionString"]);
                 var options = new ConfigurationOptions(ServiceName, EnvironmentName, Version);
                 var service = new ConfigurationService(repo, options);
 
@@ -63,7 +63,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
 
         private static string GetEnvironmentName()
         {
-            return CloudConfigurationManager.GetSetting("EnvironmentName");
+            return ConfigurationManager.AppSettings["EnvironmentName"];
         }
     }
 }

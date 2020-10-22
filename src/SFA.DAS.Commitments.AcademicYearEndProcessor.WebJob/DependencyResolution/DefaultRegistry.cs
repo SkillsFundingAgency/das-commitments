@@ -1,5 +1,5 @@
 ﻿using System;
-using Microsoft.Azure;
+using System.Configuration;
 using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -48,7 +48,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResoluti
 
         private CommitmentsAcademicYearEndProcessorConfiguration GetConfiguration(string serviceName)
         {
-            var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+            var environment = ConfigurationManager.AppSettings["EnvironmentName"];
             
             var configurationRepository = GetConfigurationRepository();
             var configurationService = new ConfigurationService(configurationRepository,
@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResoluti
 
         private static IConfigurationRepository GetConfigurationRepository()
         {
-            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
+            return new AzureTableStorageConfigurationRepository(ConfigurationManager.AppSettings["ConfigurationStorageConnectionString"]);
         }
     }
 }
