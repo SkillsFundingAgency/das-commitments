@@ -1,5 +1,5 @@
 ﻿using System;
-using Microsoft.Azure;
+using System.Configuration;
 using SFA.DAS.Configuration;
 using SFA.DAS.Encoding;
 using StructureMap;
@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             var environment = Environment.GetEnvironmentVariable("DASENV");
             if (string.IsNullOrEmpty(environment))
             {
-                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+                environment = ConfigurationManager.AppSettings["EnvironmentName"];
             }
 
             return environment;
