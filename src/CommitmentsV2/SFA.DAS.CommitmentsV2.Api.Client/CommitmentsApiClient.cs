@@ -337,5 +337,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson($"api/apprenticeships/details/pause", request, cancellationToken);
         }
+
+        public Task<GetAllProvidersResponse> GetAllProviders(CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetAllProvidersResponse>($"api/providers");
+        }
     }
 }
