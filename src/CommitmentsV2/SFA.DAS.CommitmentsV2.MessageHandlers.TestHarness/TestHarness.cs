@@ -54,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("Q - RejectTransferRequestCommand");
                 Console.WriteLine("S - LevyAddedToAccount");
                 Console.WriteLine("T - CohortWithChangeOfPartyCreatedEvent Event");
+                Console.WriteLine("U - ApprenticeshipPausedEvent Event");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -159,6 +160,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new CohortWithChangeOfPartyCreatedEvent (10006, 1, Party.Provider, DateTime.UtcNow, new UserInfo()));
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(CohortWithChangeOfPartyCreatedEvent)}");
+                            break;
+                        case ConsoleKey.U:
+                            await _publisher.Publish(new ApprenticeshipPausedEvent() { ApprenticeshipId = 80024, PausedOn = DateTime.Now });
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(ApprenticeshipPausedEvent)}");
                             break;
                     }
                 }
