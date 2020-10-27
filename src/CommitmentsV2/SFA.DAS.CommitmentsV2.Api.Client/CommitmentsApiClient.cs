@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -336,6 +335,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task PauseApprenticeship(PauseApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/details/pause", request, cancellationToken);
+        }
+
+        public Task ResumeApprenticeship(ResumeApprenticeshipRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/details/resume", request, cancellationToken);
         }
     }
 }

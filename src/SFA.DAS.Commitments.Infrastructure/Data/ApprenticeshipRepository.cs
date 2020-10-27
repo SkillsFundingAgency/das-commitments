@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         public async Task ResumeApprenticeship(long commitmentId, long apprenticeshipId)
         {
            
-            _logger.Debug($"Updating apprenticeship status to {PaymentStatus.Active} for appreticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+            _logger.Debug($"Updating apprenticeship status to {PaymentStatus.Active} for apprenticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             await WithTransaction(async (conn, tran) =>
             {
@@ -93,7 +93,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         // note: commitmentId is not used
         public async Task PauseApprenticeship(long commitmentId, long apprenticeshipId, DateTime pauseDate)
         {
-            _logger.Debug($"Updating apprenticeship status to {PaymentStatus.Paused} for appreticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+            _logger.Debug($"Updating apprenticeship status to {PaymentStatus.Paused} for apprenticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             await WithTransaction(async (conn, tran) =>
             {

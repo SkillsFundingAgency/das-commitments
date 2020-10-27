@@ -13,8 +13,9 @@ using SFA.DAS.CommitmentsV2.Models;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
-using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -156,6 +157,18 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return NotFound();
             }
 
+            return Ok(response);
+        }
+        
+        [HttpPost]
+        [Route("details/resume")]
+        public async Task<IActionResult> Resume([FromBody] ResumeApprenticeshipRequest request)
+        {
+            var response = await _mediator.Send(new ResumeApprenticeshipCommand
+            {
+                ApprenticeshipId = request.ApprenticeshipId,
+                UserInfo = request.UserInfo
+            });
             return Ok(response);
         }
     }
