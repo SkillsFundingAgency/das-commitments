@@ -44,5 +44,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task UpdateEndDateOfCompletedRecord(EditEndDateRequest request, CancellationToken cancellationToken = default);
         Task StopApprenticeship(long apprenticeshipId, StopApprenticeshipRequest request, CancellationToken cancellationToken = default);
         Task PauseApprenticeship(PauseApprenticeshipRequest request, CancellationToken cancellationToken = default);
+        Task ResumeApprenticeship(ResumeApprenticeshipRequest request, CancellationToken cancellationToken = default);
     }
 }

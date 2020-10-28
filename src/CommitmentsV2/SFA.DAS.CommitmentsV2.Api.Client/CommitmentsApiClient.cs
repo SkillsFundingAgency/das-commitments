@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -293,6 +292,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<CreateEmptyCohortRequest, CreateCohortResponse>("api/cohorts/create-empty-cohort", request, cancellationToken);
         }
 
+        public Task<GetAllProvidersResponse> GetAllProviders(CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetAllProvidersResponse>($"api/providers");
+        }
+
         public Task<GetApprenticeshipResponse> GetApprenticeship(long apprenticeshipId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetApprenticeshipResponse>($"api/apprenticeships/{apprenticeshipId}", null, cancellationToken);
@@ -338,9 +342,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson($"api/apprenticeships/details/pause", request, cancellationToken);
         }
 
-        public Task<GetAllProvidersResponse> GetAllProviders(CancellationToken cancellationToken = default)
+        public Task ResumeApprenticeship(ResumeApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.Get<GetAllProvidersResponse>($"api/providers");
+            return _client.PostAsJson($"api/apprenticeships/details/resume", request, cancellationToken);
         }
+
     }
 }

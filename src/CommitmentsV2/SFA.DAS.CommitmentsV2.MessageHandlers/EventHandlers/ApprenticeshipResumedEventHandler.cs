@@ -1,50 +1,50 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
-using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
-using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.Encoding;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.Encoding;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
-    public class ApprenticeshipPausedEventHandler : IHandleMessages<ApprenticeshipPausedEvent>
+    public class ApprenticeshipResumedEventHandler : IHandleMessages<ApprenticeshipResumedEvent>
     {
-        private readonly ILogger<ApprenticeshipPausedEventHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IEncodingService _encodingService;
+        private readonly ILogger<ApprenticeshipResumedEventHandler> _logger;
 
-        public ApprenticeshipPausedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApprenticeshipPausedEventHandler> logger, IEncodingService encodingService)
+        public ApprenticeshipResumedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IEncodingService encodingService, ILogger<ApprenticeshipResumedEventHandler> logger)
         {
             _dbContext = dbContext;
             _logger = logger;
             _encodingService = encodingService;
         }
 
-        public async Task Handle(ApprenticeshipPausedEvent message, IMessageHandlerContext context)
+        public async Task Handle(ApprenticeshipResumedEvent message, IMessageHandlerContext context)
         {
-            _logger.LogInformation($"Received {nameof(ApprenticeshipPausedEventHandler)} for apprentice {message?.ApprenticeshipId}");
+            _logger.LogInformation($"Received {nameof(ApprenticeshipResumedEventHandler)} for apprentice {message?.ApprenticeshipId}");
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-            var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
+            var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship, message.ResumedOn);
 
             await context.Send(emailToProviderCommand, new SendOptions());
         }
 
-        private SendEmailToProviderCommand BuildEmailToProviderCommand(Apprenticeship apprenticeship)
+        private SendEmailToProviderCommand BuildEmailToProviderCommand(Apprenticeship apprenticeship, DateTime resumeDate)
         {
             var sendEmailToProviderCommand = new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId,
-                "ProviderApprenticeshipPauseNotification",
+                "ProviderApprenticeshipResumeNotification",
                       new Dictionary<string, string>
                       {
                                   {"EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name},
-                                  {"APPRENTICE", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
-                                  {"DATE", apprenticeship.PauseDate?.ToString("dd/MM/yyyy")},
+                                  {"APPRENTICE",  $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
+                                  {"DATE", resumeDate.ToString("dd/MM/yyyy")},
                                   {"URL", $"{apprenticeship.Cohort.ProviderId}/apprentices/manage/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
                       });
 
