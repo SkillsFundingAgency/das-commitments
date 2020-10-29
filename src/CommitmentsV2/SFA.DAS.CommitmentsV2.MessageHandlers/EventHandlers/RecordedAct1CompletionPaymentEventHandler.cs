@@ -23,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         public async Task Handle(RecordedAct1CompletionPayment message, IMessageHandlerContext context)
         {
             //Ignore event due to CON-2636
+            _logger.LogInformation($"RecordedAct1CompletionPaymentEvent ignored for ApprenticeshipId '{message.ApprenticeshipId}' due to CON-2636");
             await Task.CompletedTask;
 
             //try
