@@ -346,6 +346,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson($"api/apprenticeships/details/resume", request, cancellationToken);
         }
-
     }
 }
