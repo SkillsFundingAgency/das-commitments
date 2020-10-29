@@ -25,6 +25,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture = new RecordedAct1CompletionPaymentEventHandlerTestsFixture();
         }
 
+        [Test(Description = "Temporary test for CON-2636 changes")]
+        public async Task When_HandlingCompletionEvent_Ignore_It_Entirely()
+        {
+            _fixture.WithApprenticeshipStatus(ApprenticeshipStatus.Live);
+            await _fixture.Handle();
+            _fixture.VerifyApprenticeCompleteWasNotCalled();
+            _fixture.VerifyApprenticeUpdateCompletionDateWasNotCalled();
+        }
+
+        [Ignore("Ignored due to temporary CON-2636 change")]
         [TestCase(ApprenticeshipStatus.Live)]
         [TestCase(ApprenticeshipStatus.Paused)]
         [TestCase(ApprenticeshipStatus.Stopped)]
@@ -36,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyHasInfo();
         }
 
-        [Test]
+        [Ignore("Ignored due to temporary CON-2636 change")]
         public async Task When_HandlingCompletionEventWithCompletedStatus_UpdateCompletionDateIsCalled()
         {
             _fixture.WithApprenticeshipStatus(ApprenticeshipStatus.Completed);
@@ -45,6 +55,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyHasInfo();
         }
 
+        [Ignore("Ignored due to temporary CON-2636 change")]
         [TestCase(ApprenticeshipStatus.Unknown)]
         [TestCase(ApprenticeshipStatus.WaitingToStart)]
         public async Task When_HandlingCompletionEventWithIncorrectStatus_WarningMessageIsLogged(ApprenticeshipStatus status)
@@ -54,6 +65,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyHasWarning();
         }
 
+        [Ignore("Ignored due to temporary CON-2636 change")]
         [Test]
         public void Handle_WhenHandlingCompletionEventAndItFails_ThenItShouldThrowAnExceptionAndLogIt()
         {
@@ -61,6 +73,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyHasError();
         }
 
+        [Ignore("Ignored due to temporary CON-2636 change")]
         [Test]
         public async Task Handle_WhenHandlingCompletionEventAndItHasNoApprenticeshipId_ThenItLogAWarning()
         {
@@ -150,9 +163,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Assert.AreEqual(_apprenticeship.ValuePassedToComplete, _event.EventTime.UtcDateTime);
             }
 
+            public void VerifyApprenticeCompleteWasNotCalled()
+            {
+                Assert.AreEqual(default(DateTime), _apprenticeship.ValuePassedToComplete);
+            }
+
             public void VerifyApprenticeUpdateCompletionDateWasCalled()
             {
                 Assert.AreEqual(_apprenticeship.ValuePassedToUpdateCompletionDate, _event.EventTime.UtcDateTime);
+            }
+
+            public void VerifyApprenticeUpdateCompletionDateWasNotCalled()
+            {
+                Assert.AreEqual(default(DateTime), _apprenticeship.ValuePassedToUpdateCompletionDate);
             }
 
             public void VerifyHasError()

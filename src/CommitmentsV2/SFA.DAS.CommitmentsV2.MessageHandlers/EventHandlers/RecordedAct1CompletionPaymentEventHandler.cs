@@ -22,40 +22,43 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(RecordedAct1CompletionPayment message, IMessageHandlerContext context)
         {
-            try
-            {
-                if (message.ApprenticeshipId.HasValue)
-                {
-                    var apprentice = await _dbContext.Value.Apprenticeships.Include(x=>x.Cohort).SingleAsync(x => x.Id == message.ApprenticeshipId);
-                    var status = apprentice.GetApprenticeshipStatus(message.EventTime.UtcDateTime);
+            //Ignore event due to CON-2636
+            await Task.CompletedTask;
 
-                    switch (status)
-                    {
-                        case ApprenticeshipStatus.Live:
-                        case ApprenticeshipStatus.Paused:
-                        case ApprenticeshipStatus.Stopped:
-                            apprentice.Complete(message.EventTime.UtcDateTime);
-                            _logger.LogInformation($"PaymentCompletion - Completed method called for ApprenticeshipId '{message.ApprenticeshipId}' - status prior to completion was {status}");
-                            break;
-                        case ApprenticeshipStatus.Completed:
-                            apprentice.UpdateCompletionDate(message.EventTime.UtcDateTime);
-                            _logger.LogInformation($"PaymentCompletion - UpdateCompletionDate method called for ApprenticeshipId '{message.ApprenticeshipId}'");
-                            break;
-                        default:
-                            _logger.LogWarning($"Warning {nameof(RecordedAct1CompletionPaymentEventHandler)} - Cannot process CompletionEvent for apprenticeshipId {apprentice.Id} as status is {status}");
-                            break;
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning("Warning - No Apprenticeship Id found in RecordedAct1CompletionPaymentEvent");
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error processing RecordedAct1CompletionPaymentEvent", e);
-                throw;
-            }
+            //try
+            //{
+            //    if (message.ApprenticeshipId.HasValue)
+            //    {
+            //        var apprentice = await _dbContext.Value.Apprenticeships.Include(x=>x.Cohort).SingleAsync(x => x.Id == message.ApprenticeshipId);
+            //        var status = apprentice.GetApprenticeshipStatus(message.EventTime.UtcDateTime);
+
+            //        switch (status)
+            //        {
+            //            case ApprenticeshipStatus.Live:
+            //            case ApprenticeshipStatus.Paused:
+            //            case ApprenticeshipStatus.Stopped:
+            //                apprentice.Complete(message.EventTime.UtcDateTime);
+            //                _logger.LogInformation($"PaymentCompletion - Completed method called for ApprenticeshipId '{message.ApprenticeshipId}' - status prior to completion was {status}");
+            //                break;
+            //            case ApprenticeshipStatus.Completed:
+            //                apprentice.UpdateCompletionDate(message.EventTime.UtcDateTime);
+            //                _logger.LogInformation($"PaymentCompletion - UpdateCompletionDate method called for ApprenticeshipId '{message.ApprenticeshipId}'");
+            //                break;
+            //            default:
+            //                _logger.LogWarning($"Warning {nameof(RecordedAct1CompletionPaymentEventHandler)} - Cannot process CompletionEvent for apprenticeshipId {apprentice.Id} as status is {status}");
+            //                break;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        _logger.LogWarning("Warning - No Apprenticeship Id found in RecordedAct1CompletionPaymentEvent");
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    _logger.LogError(e, $"Error processing RecordedAct1CompletionPaymentEvent", e);
+            //    throw;
+            //}
         }
     }
 }
