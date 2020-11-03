@@ -40,8 +40,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ChangeOfPartyRequest CreateChangeOfPartyRequest(ChangeOfPartyRequestType changeOfPartyType,
             Party originatingParty,
             long newPartyId,
-            int price,
-            DateTime startDate,
+            int? price,
+            DateTime? startDate,
             DateTime? endDate,
             UserInfo userInfo,
             DateTime now)
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckStartDateForChangeOfParty(DateTime startDate)
+        private void CheckStartDateForChangeOfParty(DateTime? startDate)
         {
             if (StopDate > startDate)
             {

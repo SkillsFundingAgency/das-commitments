@@ -36,8 +36,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             long apprenticeshipId,
             ChangeOfPartyRequestType changeOfPartyRequestType,
             long newPartyId,
-            int price,
-            DateTime startDate,
+            int? price,
+            DateTime? startDate,
             DateTime? endDate,
             UserInfo userInfo,
             CancellationToken cancellationToken)

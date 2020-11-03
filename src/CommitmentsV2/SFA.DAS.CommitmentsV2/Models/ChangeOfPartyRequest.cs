@@ -15,8 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual Party OriginatingParty { get; private set; }
         public virtual long? AccountLegalEntityId { get; private set; }
         public virtual long? ProviderId { get; private set; }
-        public int Price { get; private set; }
-        public DateTime StartDate { get; private set; }
+        public int? Price { get; private set; }
+        public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
         public DateTime CreatedOn { get; private set; }
         public virtual ChangeOfPartyRequestStatus Status { get; private set; }
@@ -39,8 +39,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeOfPartyRequestType changeOfPartyType,
             Party originatingParty,
             long newPartyId,
-            int price,
-            DateTime startDate,
+            int? price,
+            DateTime? startDate,
             DateTime? endDate,
             UserInfo userInfo,
             DateTime now)
@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckPrice(int price)
+        private void CheckPrice(int? price)
         {
             if (price <= 0 || price > Constants.MaximumApprenticeshipCost)
             {
