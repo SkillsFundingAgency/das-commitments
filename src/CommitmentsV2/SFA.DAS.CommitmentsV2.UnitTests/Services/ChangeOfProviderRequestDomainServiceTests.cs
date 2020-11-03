@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -36,13 +37,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyResultAddedToDbContext();
         }
 
-        // TODO : is there any restrictions from employer side they cant change provider
-        //[Test]
-        //public async Task CreateChangeOfPartyRequest_Throws_If_Provider_Does_Not_Have_Permission()
-        //{
-        //    _fixture.WithNoProviderPermission();
-        //    await _fixture.CreateChangeOfPartyRequest();
-        //    _fixture.VerifyException<DomainException>();
-        //}
+        [Test(Description = "Temporary invariant disallowing Provider access to this feature")]
+        public async Task CreateChangeOfPartyRequest_Throws_If_Party_Is_Not_Employer()
+        {
+            _fixture.WithOriginatingParty(Party.Provider);
+            await _fixture.CreateChangeOfPartyRequest();
+            _fixture.VerifyException<DomainException>();
+        }
     }
 }

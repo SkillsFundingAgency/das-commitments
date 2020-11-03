@@ -17,13 +17,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         // TODO : Commenting this Test for the new feature Change of Provider
-        //[Test(Description = "Temporary invariant disallowing Employer access to this feature")]
-        //public async Task CreateChangeOfPartyRequest_Throws_If_Party_Is_Not_Provider()
-        //{
-        //    _fixture.WithOriginatingParty(Party.Employer);
-        //    await _fixture.CreateChangeOfPartyRequest();
-        //    _fixture.VerifyException<DomainException>();
-        //}
+        [Test(Description = "Temporary invariant disallowing Employer access to this feature")]
+        public async Task CreateChangeOfPartyRequest_Throws_If_Party_Is_Not_Provider()
+        {
+            _fixture.WithOriginatingParty(Party.Employer);
+            await _fixture.CreateChangeOfPartyRequest();
+            _fixture.VerifyException<DomainException>();
+        }
 
         [Test]
         public async Task CreateChangeOfPartyRequest_Invokes_Aggregate_State_Change()
