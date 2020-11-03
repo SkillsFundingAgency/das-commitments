@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void CheckStartDateForChangeOfParty(DateTime? startDate)
         {
-            if (StopDate > startDate)
+            if (startDate != null &&  StopDate > startDate)
             {
                 throw new DomainException(nameof(StopDate), $"Change of Party requires that Stop Date of Apprenticeship {Id} ({StopDate}) be before or same as new Start Date of {startDate}");
             }
