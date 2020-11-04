@@ -292,6 +292,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<CreateEmptyCohortRequest, CreateCohortResponse>("api/cohorts/create-empty-cohort", request, cancellationToken);
         }
 
+        public Task<GetAllProvidersResponse> GetAllProviders(CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetAllProvidersResponse>($"api/providers");
+        }
+
         public Task<GetApprenticeshipResponse> GetApprenticeship(long apprenticeshipId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetApprenticeshipResponse>($"api/apprenticeships/{apprenticeshipId}", null, cancellationToken);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -6,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAllProviders;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProvider;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
@@ -20,6 +22,20 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public void SetUp()
         {
             _fixture = new ProviderControllerTestsFixture();
+        }
+
+        [Test]
+        public async Task GetAllProviders_ThenShouldReturnListOfProviders()
+        {
+            var response = await _fixture.SetGetAllProvidersQueryResult().GetAllProviders();
+            var okObjectResult = response as OkObjectResult;
+            var getAllProvidersResponse = okObjectResult?.Value as GetAllProvidersResponse;
+
+            Assert.IsNotNull(response);
+            Assert.IsNotNull(okObjectResult);
+            Assert.IsNotNull(getAllProvidersResponse);
+
+            Assert.AreEqual(_fixture.GetAllProvidersQueryResult.Providers.Count, getAllProvidersResponse.Providers.Count);
         }
 
         [Test]
@@ -54,6 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public long ProviderId { get; set; }
         public string ProviderName { get; set; }
         public GetProviderQueryResult GetProviderQueryResult { get; set; }
+        public GetAllProvidersQueryResult GetAllProvidersQueryResult { get; set; }
 
         public ProviderControllerTestsFixture()
         {
@@ -62,6 +79,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             ProviderId = 1;
             ProviderName = "Foo";
             GetProviderQueryResult = new GetProviderQueryResult(ProviderId, ProviderName);
+            GetAllProvidersQueryResult = GetAllProvidersResult();
+        }
+        public Task<IActionResult> GetAllProviders()
+        {
+            return Controller.GetAllProviders();
         }
 
         public Task<IActionResult> GetProvider()
@@ -75,6 +97,25 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 .ReturnsAsync(GetProviderQueryResult);
             
             return this;
+        }
+
+        public ProviderControllerTestsFixture SetGetAllProvidersQueryResult()
+        {
+            Mediator.Setup(m => m.Send(It.IsAny<GetAllProvidersQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(GetAllProvidersQueryResult);
+
+            return this;
+        }
+
+        private GetAllProvidersQueryResult GetAllProvidersResult()
+        {
+            return new GetAllProvidersQueryResult(
+                new List<Provider>
+                {
+                    new Provider { Ukprn = 10000001, Name = "Provider 1" },
+                    new Provider { Ukprn = 10000002, Name = "Provider 2" },
+                    new Provider { Ukprn = 10000003, Name = "Provider 3" }
+                });
         }
     }
 }

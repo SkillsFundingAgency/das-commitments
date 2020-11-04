@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAllProviders;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProvider;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -15,6 +16,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public ProviderController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllProviders()
+        {
+            var result = await _mediator.Send(new GetAllProvidersQuery());
+
+            return Ok(new GetAllProvidersResponse
+            {
+                Providers = result.Providers
+            });
         }
 
         [HttpGet]
