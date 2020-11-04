@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             DateTime now)
         {
             CheckIsStoppedForChangeOfParty();
-            CheckStartDateForChangeOfParty(startDate);
+            CheckStartDateForChangeOfParty(startDate, changeOfPartyType, originatingParty);
             CheckNoPendingOrApprovedRequestsForChangeOfParty();
 
             return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, userInfo, now);
@@ -61,9 +61,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckStartDateForChangeOfParty(DateTime? startDate)
-        {
-            if (startDate != null &&  StopDate > startDate)
+        private void CheckStartDateForChangeOfParty(DateTime? startDate, ChangeOfPartyRequestType changeOfPartyType, Party originatingParty)
+        {            
+            if (changeOfPartyType == ChangeOfPartyRequestType.ChangeProvider && originatingParty == Party.Employer) return;
+            if (startDate == null ||  StopDate > startDate)
             {
                 throw new DomainException(nameof(StopDate), $"Change of Party requires that Stop Date of Apprenticeship {Id} ({StopDate}) be before or same as new Start Date of {startDate}");
             }

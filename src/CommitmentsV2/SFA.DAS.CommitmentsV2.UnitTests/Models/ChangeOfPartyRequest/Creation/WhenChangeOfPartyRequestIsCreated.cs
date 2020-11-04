@@ -155,7 +155,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         [TestCase(0, true)]
         [TestCase(100001, true)]
         [TestCase(100000, false)]
-        [TestCase(1, false)]        
+        [TestCase(1, false)]
         public void ThenPriceMustBeValid(int? price, bool expectThrow)
         {
             _fixture
