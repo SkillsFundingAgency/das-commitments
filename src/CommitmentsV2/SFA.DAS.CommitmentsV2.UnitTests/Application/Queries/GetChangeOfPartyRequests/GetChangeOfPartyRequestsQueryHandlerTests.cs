@@ -81,6 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
                     request.SetValue(x => x.AccountLegalEntity, employer);
                     request.SetValue(x => x.StartDate, _autoFixture.Create<DateTime>());
                     request.SetValue(x => x.EndDate, _autoFixture.Create<DateTime>());
+                    request.SetValue(x => x.ProviderId, _autoFixture.Create<long?>());
                     _changeOfPartyRequests.Add(request);
                 }
 
@@ -112,6 +113,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
             Assert.AreEqual(source.EndDate, result.EndDate);
             Assert.AreEqual(source.Price, result.Price);
             Assert.AreEqual(source.NewApprenticeshipId, result.NewApprenticeshipId);
+            Assert.AreEqual(source.ProviderId, result.ProviderId);
         }
     }
 }

@@ -21,6 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public long? CohortId { get; set; }
             public Party? WithParty { get; set; }
             public long? NewApprenticeshipId { get; set; }
+            public long? ProviderId { get; set; }
         }
     }
 }

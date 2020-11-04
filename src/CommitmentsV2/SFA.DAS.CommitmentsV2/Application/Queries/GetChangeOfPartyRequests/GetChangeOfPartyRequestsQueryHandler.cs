@@ -35,7 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
                         EmployerName = r.AccountLegalEntity.Name,
                         CohortId = r.Cohort.Id,
                         WithParty = r.Cohort.WithParty,
-                        NewApprenticeshipId = r.NewApprenticeshipId
+                        NewApprenticeshipId = r.NewApprenticeshipId,
+                        ProviderId = r.ProviderId
                     }).ToListAsync(cancellationToken)
             };
         }
