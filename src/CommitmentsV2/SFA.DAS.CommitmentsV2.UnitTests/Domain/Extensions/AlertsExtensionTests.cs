@@ -162,7 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
 
             var result = await mapper.Map(source);
 
-            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesPending });
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesForReview });
         }
 
         [Test, RecursiveMoqAutoData]
@@ -183,7 +183,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
 
             var result = await mapper.Map(source);
 
-            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesForReview });
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesPending });
         }
 
         [Test, RecursiveMoqAutoData]
