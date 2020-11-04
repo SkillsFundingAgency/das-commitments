@@ -11,8 +11,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
         Task<ChangeOfPartyRequest> CreateChangeOfPartyRequest(long apprenticeshipId,
             ChangeOfPartyRequestType changeOfPartyRequestType,
             long newPartyId,
-            int price,
-            DateTime startDate,
+            int? price,
+            DateTime? startDate,
             DateTime? endDate,
             UserInfo userInfo,
             CancellationToken cancellationToken);

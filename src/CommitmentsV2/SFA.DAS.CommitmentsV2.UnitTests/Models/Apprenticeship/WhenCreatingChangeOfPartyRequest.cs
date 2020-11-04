@@ -40,8 +40,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         [TestCase("2019-06-01", true, Description = "Before stop")]
         [TestCase("2020-02-29", true, Description = "Day before stop")]
         [TestCase("2020-03-01", false, Description = "Day of stop")]
-        [TestCase("2020-06-01", false, Description = "After stop")]
-        public void ThenStartDateMustBeOnOrAfterStopDate(DateTime startDate, bool expectThrow)
+        [TestCase("2020-06-01", false, Description = "After stop")]        
+        public void ThenStartDateMustBeOnOrAfterStopDate(DateTime? startDate, bool expectThrow)
         {
             _fixture
                 .WithStartDate(startDate)
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
             public CommitmentsV2.Models.Apprenticeship Apprenticeship { get; private set; }
             public PaymentStatus PaymentStatus { get; private set; }
             public DateTime? StopDate { get; private set; }
-            public DateTime StartDate { get; private set; }
+            public DateTime? StartDate { get; private set; }
             public List<CommitmentsV2.Models.ChangeOfPartyRequest> PreviousChangeOfPartyRequests { get; private set; }
             public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
             public UnitOfWorkContext UnitOfWorkContext { get; private set; }
@@ -111,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 return this;
             }
 
-            public WhenCreatingChangeOfPartyRequestFixture WithStartDate(DateTime startDate)
+            public WhenCreatingChangeOfPartyRequestFixture WithStartDate(DateTime? startDate)
             {
                 StartDate = startDate;
                 return this;
