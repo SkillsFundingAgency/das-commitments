@@ -151,7 +151,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             _fixture.VerifyEvent();
         }
 
-        [TestCase(null, false)]
         [TestCase(-100, true)]
         [TestCase(0, true)]
         [TestCase(100001, true)]
