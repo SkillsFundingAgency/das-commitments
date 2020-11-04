@@ -58,7 +58,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 EndpointAssessorName = source.EndpointAssessorName,
                 ReservationId = source.ReservationId,
                 ContinuationOfId = source.ContinuationOfId,
-                MadeRedundant = source.MadeRedundant
+                MadeRedundant = source.MadeRedundant,
+                ChangeOfPartyRequestId = source.ChangeOfPartyRequestId,
+                ChangeOfPartyOriginatingParty = (Types.Apprenticeship.Types.Party?) source.ChangeOfPartyOriginatingParty,
+                ChangeOfPartyStatus = (Types.Apprenticeship.Types.ChangeOfPartyRequestStatus?) source.ChangeOfPartyStatus,
+                ChangeOfPartyStartDate = source.ChangeOfPartyStartDate,
+                ChangeOfPartyEndDate = source.ChangeOfPartyEndDate,
+                ChangeOfPartyPrice = source.ChangeOfPartyPrice,
+                ChangeOfPartyNewApprenticeshipId = source.ChangeOfPartyNewApprenticeshipId
             };
         }
 

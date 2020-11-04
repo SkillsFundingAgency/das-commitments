@@ -56,7 +56,14 @@ SELECT
 	ao.Name AS 'EndpointAssessorName',
 	a.ReservationId,
 	a.OriginalStartDate,
-	a.MadeRedundant
+	a.MadeRedundant,
+	changeOfPartyRequest.Id as 'ChangeOfPartyRequestId',
+	changeOfPartyRequest.OriginatingParty as 'ChangeOfPartyOriginatingParty',
+	changeOfPartyRequest.Status as 'ChangeOfPartyStatus',
+	changeOfPartyRequest.StartDate as 'ChangeOfPartyStartDate',
+	changeOfPartyRequest.EndDate as 'ChangeOfPartyEndDate',
+	changeOfPartyRequest.Price as 'ChangeOfPartyPrice',
+	changeOfPartyRequest.NewApprenticeshipId as 'ChangeOfPartyNewApprenticeshipId'
 	FROM 
 		Apprenticeship a
 	INNER JOIN 
@@ -125,3 +132,4 @@ SELECT
 		AND [EventStatus] <> 3
 		AND [IsExpired] = 0
 	)
+	LEFT JOIN ChangeOfPartyRequest changeOfPartyRequest on changeOfPartyRequest.ApprenticeshipId = a.Id

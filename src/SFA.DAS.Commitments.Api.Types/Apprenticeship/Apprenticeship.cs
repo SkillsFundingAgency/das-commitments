@@ -52,5 +52,12 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public DateTime? OriginalStartDate { get; set; }
         public long? ContinuationOfId { get; set; }
         public bool? MadeRedundant { get; set; }
+        public long? ChangeOfPartyRequestId { get; set; }
+        public Party? ChangeOfPartyOriginatingParty { get; set; }
+        public ChangeOfPartyRequestStatus? ChangeOfPartyStatus { get; set; }
+        public DateTime? ChangeOfPartyStartDate { get; set; }
+        public DateTime? ChangeOfPartyEndDate { get; set; }
+        public int? ChangeOfPartyPrice { get; set; }
+        public long? ChangeOfPartyNewApprenticeshipId { get; set; }
     }
 }
