@@ -15,9 +15,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
             public Party OriginatingParty { get; set; }
             public ChangeOfPartyRequestStatus Status { get; set; }
             public string EmployerName { get; set; }
-            public int Price { get; set; }
-            public DateTime StartDate { get; set; }
-            public DateTime EndDate { get; set; } // TO DO : do we need to changes this to nullable for COP
+            public int? Price { get; set; }
+            public DateTime? StartDate { get; set; }
+            public DateTime? EndDate { get; set; }
             public long? CohortId { get; set; }
             public Party? WithParty { get; set; }
             public long? NewApprenticeshipId { get; set; }

@@ -40,14 +40,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ChangeOfPartyRequest CreateChangeOfPartyRequest(ChangeOfPartyRequestType changeOfPartyType,
             Party originatingParty,
             long newPartyId,
-            int price,
-            DateTime startDate,
+            int? price,
+            DateTime? startDate,
             DateTime? endDate,
             UserInfo userInfo,
             DateTime now)
         {
             CheckIsStoppedForChangeOfParty();
-            CheckStartDateForChangeOfParty(startDate);
+            CheckStartDateForChangeOfParty(startDate, changeOfPartyType, originatingParty);
             CheckNoPendingOrApprovedRequestsForChangeOfParty();
 
             return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, userInfo, now);
@@ -61,9 +61,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckStartDateForChangeOfParty(DateTime startDate)
-        {
-            if (StopDate > startDate)
+        private void CheckStartDateForChangeOfParty(DateTime? startDate, ChangeOfPartyRequestType changeOfPartyType, Party originatingParty)
+        {            
+            if (changeOfPartyType == ChangeOfPartyRequestType.ChangeProvider && originatingParty == Party.Employer) return;
+            if (startDate == null ||  StopDate > startDate)
             {
                 throw new DomainException(nameof(StopDate), $"Change of Party requires that Stop Date of Apprenticeship {Id} ({StopDate}) be before or same as new Start Date of {startDate}");
             }
