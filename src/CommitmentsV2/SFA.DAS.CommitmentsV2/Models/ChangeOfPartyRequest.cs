@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckPrice(Party originatingParty, int price)
+        private void CheckPrice(Party originatingParty, int? price)
         {
             if (originatingParty == Party.Employer) return;
             if (price <= 0 || price > Constants.MaximumApprenticeshipCost)
