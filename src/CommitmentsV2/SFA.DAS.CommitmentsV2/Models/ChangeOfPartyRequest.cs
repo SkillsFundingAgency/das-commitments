@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckOriginatingParty(originatingParty);
             CheckRequestType(originatingParty, changeOfPartyType);
-            CheckPrice(originatingParty, price);
+            CheckPrice(price);
 
             StartTrackingSession(UserAction.CreateChangeOfPartyRequest, originatingParty, apprenticeship.Cohort.AccountLegalEntityId, apprenticeship.Cohort.ProviderId, userInfo);
 
