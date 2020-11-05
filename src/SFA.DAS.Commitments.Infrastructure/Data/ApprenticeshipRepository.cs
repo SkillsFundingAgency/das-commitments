@@ -23,9 +23,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         private readonly ICurrentDateTime _currentDateTime;
 
         public ApprenticeshipRepository(
-            string connectionString, 
-            ICommitmentsLogger logger, 
-        	IApprenticeshipTransactions apprenticeshipTransactions,
+            string connectionString,
+            ICommitmentsLogger logger,
+            IApprenticeshipTransactions apprenticeshipTransactions,
             ICurrentDateTime currentDateTime) : base(connectionString, logger.BaseLogger)
         {
             _logger = logger;
@@ -41,14 +41,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 {
                     var returnCode = await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
                     return returnCode;
-            });
+                });
         }
 
         public async Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange, bool? madeRedundant)
         {
             _logger.Debug($"Stopping apprenticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
-            await WithTransaction(async (conn, tran) => 
+            await WithTransaction(async (conn, tran) =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task ResumeApprenticeship(long commitmentId, long apprenticeshipId)
         {
-           
+
             _logger.Debug($"Updating apprenticeship status to {PaymentStatus.Active} for apprenticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             await WithTransaction(async (conn, tran) =>
@@ -81,7 +81,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var returnCode = await conn.ExecuteAsync(
                     sql:
-                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, " + 
+                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, " +
                     "PauseDate = null " +
                     "WHERE PaymentStatus != 4 AND Id = @id;",
                     transaction: tran,
@@ -165,11 +165,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
                 parameters.Add("@stopDate", stopDate, DbType.DateTime);
 
-               return await connection.ExecuteAsync(
-                    "UPDATE [dbo].[Apprenticeship] SET StopDate = @stopDate " +
-                    "WHERE PaymentStatus != 4 AND Id = @id;",
-                    parameters,
-                    commandType: CommandType.Text);
+                return await connection.ExecuteAsync(
+                     "UPDATE [dbo].[Apprenticeship] SET StopDate = @stopDate " +
+                     "WHERE PaymentStatus != 4 AND Id = @id;",
+                     parameters,
+                     commandType: CommandType.Text);
             });
         }
 
@@ -181,7 +181,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             return results;
         }
-        
+
         public async Task DeleteApprenticeship(long apprenticeshipId)
         {
             _logger.Debug($"Deleting apprenticeship {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
@@ -283,6 +283,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         }
                     }
                 );
+        }
+
+        public async Task<IEnumerable<ChangeOfPartyRequest>> GetChangeOfPartyResponse(long apprenticeshipId)
+        {
+            var results = await WithConnection(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@apprenticeshipId", apprenticeshipId);
+
+                return await c.QueryAsync<ChangeOfPartyRequest>(
+                    sql: "SELECT * FROM [dbo].[ChangeOfPartyRequest] WHERE ApprenticeshipId = @apprenticeshipId;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+            });
+
+            return results;
         }
 
         public async Task<IEnumerable<PriceHistory>> GetPriceHistory(long apprenticeshipId)
@@ -524,43 +540,43 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return WithConnection(async c =>
                 {
                     var s = searchKeyword?.Trim() ?? string.Empty;
-                var parameters = new DynamicParameters();
-                parameters.Add("@now", _currentDateTime.Now);
-                parameters.Add(identifierName, identifierValue, DbType.Int64);
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@now", _currentDateTime.Now);
+                    parameters.Add(identifierName, identifierValue, DbType.Int64);
 
-                const string sql = "[GetApprenticeshipsWithPriceHistory]";
+                    const string sql = "[GetApprenticeshipsWithPriceHistory]";
 
-                var apprenticeships = new Dictionary<long, Apprenticeship>();
-                int count;
-                using (var multi = await c.QueryMultipleAsync(sql, parameters, commandType: CommandType.StoredProcedure))
-                {
-                    multi.Read<Apprenticeship, PriceHistory, Apprenticeship>(
-                        (apprenticeship, history) =>
-                            {
-                                Apprenticeship existing;
-                                if (!apprenticeships.TryGetValue(apprenticeship.Id, out existing))
+                    var apprenticeships = new Dictionary<long, Apprenticeship>();
+                    int count;
+                    using (var multi = await c.QueryMultipleAsync(sql, parameters, commandType: CommandType.StoredProcedure))
+                    {
+                        multi.Read<Apprenticeship, PriceHistory, Apprenticeship>(
+                            (apprenticeship, history) =>
                                 {
-                                    apprenticeships.Add(apprenticeship.Id, apprenticeship);
-                                    existing = apprenticeship;
-                                }
+                                    Apprenticeship existing;
+                                    if (!apprenticeships.TryGetValue(apprenticeship.Id, out existing))
+                                    {
+                                        apprenticeships.Add(apprenticeship.Id, apprenticeship);
+                                        existing = apprenticeship;
+                                    }
 
-                                if (history.ApprenticeshipId != 0)
-                                {
-                                    existing.PriceHistory.Add(history);
-                                }
+                                    if (history.ApprenticeshipId != 0)
+                                    {
+                                        existing.PriceHistory.Add(history);
+                                    }
 
-                                return existing;
-                            });
-                    count = multi.Read<int>().First();
-                }
+                                    return existing;
+                                });
+                        count = multi.Read<int>().First();
+                    }
 
-                return new ApprenticeshipsResult
-                {
-                    Apprenticeships = apprenticeships.Values.ToList(),
-                    TotalCount = count
-                };
+                    return new ApprenticeshipsResult
+                    {
+                        Apprenticeships = apprenticeships.Values.ToList(),
+                        TotalCount = count
+                    };
 
-            });
+                });
         }
 
         public async Task<IEnumerable<ApprenticeshipResult>> GetActiveApprenticeshipsByUlns(IEnumerable<string> ulns)
@@ -569,7 +585,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             return await WithConnection(async c => await c.QueryAsync<ApprenticeshipResult>(
                 "[dbo].[GetActiveApprenticeshipsByULNs]",
-                new {ULNs = ulnDataTable.AsTableValuedParameter("dbo.ULNTable")},
+                new { ULNs = ulnDataTable.AsTableValuedParameter("dbo.ULNTable") },
                 commandType: CommandType.StoredProcedure));
         }
 
@@ -585,7 +601,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     commandType: CommandType.StoredProcedure);
 
-                return  MapToApprenticeshipStatusSummaries(results);
+                return MapToApprenticeshipStatusSummaries(results);
             });
         }
 

@@ -132,4 +132,3 @@ SELECT
 		AND [EventStatus] <> 3
 		AND [IsExpired] = 0
 	)
-	LEFT JOIN ChangeOfPartyRequest changeOfPartyRequest on changeOfPartyRequest.ApprenticeshipId = a.Id

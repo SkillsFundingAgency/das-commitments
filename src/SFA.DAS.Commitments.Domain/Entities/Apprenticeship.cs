@@ -60,15 +60,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public long? ContinuationOfId { get; set; }
         public List<DataLockStatusSummary> DataLocks { get; set; }
         public bool? MadeRedundant { get; set; }
-
-        public long? ChangeOfPartyRequestId { get; set; }
-
-        public Party? ChangeOfPartyOriginatingParty { get; set; }
-        public ChangeOfPartyRequestStatus? ChangeOfPartyStatus { get; set; }
-        public DateTime? ChangeOfPartyStartDate { get; set; }
-        public DateTime? ChangeOfPartyEndDate { get; set; }
-        public int? ChangeOfPartyPrice { get; set; }
-        public long? ChangeOfPartyNewApprenticeshipId { get; set; }
+        public IEnumerable<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
 
         public Apprenticeship Clone()
         {

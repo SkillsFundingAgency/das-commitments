@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
@@ -59,13 +59,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 ReservationId = source.ReservationId,
                 ContinuationOfId = source.ContinuationOfId,
                 MadeRedundant = source.MadeRedundant,
-                ChangeOfPartyRequestId = source.ChangeOfPartyRequestId,
-                ChangeOfPartyOriginatingParty = (Types.Apprenticeship.Types.Party?) source.ChangeOfPartyOriginatingParty,
-                ChangeOfPartyStatus = (Types.Apprenticeship.Types.ChangeOfPartyRequestStatus?) source.ChangeOfPartyStatus,
-                ChangeOfPartyStartDate = source.ChangeOfPartyStartDate,
-                ChangeOfPartyEndDate = source.ChangeOfPartyEndDate,
-                ChangeOfPartyPrice = source.ChangeOfPartyPrice,
-                ChangeOfPartyNewApprenticeshipId = source.ChangeOfPartyNewApprenticeshipId
+                ChangeOfPartyRequests = MapChangeOfParty(source.ChangeOfPartyRequests)
             };
         }
 
@@ -193,9 +187,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             };
         }
 
-        public ApprenticeshipUpdate MapApprenticeshipUpdate(Types.Apprenticeship.ApprenticeshipUpdate update)
+        public Domain.Entities.ApprenticeshipUpdate MapApprenticeshipUpdate(Types.Apprenticeship.ApprenticeshipUpdate update)
         {
-            var result = new ApprenticeshipUpdate
+            var result = new Domain.Entities.ApprenticeshipUpdate
             {
                 Id = update.Id,
                 ApprenticeshipId = update.ApprenticeshipId,
@@ -226,7 +220,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             return result;
         }
 
-        public Types.Apprenticeship.ApprenticeshipUpdate MapApprenticeshipUpdate(ApprenticeshipUpdate data)
+        public Types.Apprenticeship.ApprenticeshipUpdate MapApprenticeshipUpdate(Domain.Entities.ApprenticeshipUpdate data)
         {
             if (data == null)
             {
@@ -249,6 +243,36 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 StartDate = data.StartDate,
                 EndDate = data.EndDate
             };
+        }
+
+        private IEnumerable<Types.Apprenticeship.ChangeOfPartyRequest> MapChangeOfParty(IEnumerable<Domain.ChangeOfPartyRequest> changeOfPartyRequests)
+        {
+            var apiChangeOfPartyRequests = new List<Types.Apprenticeship.ChangeOfPartyRequest>();
+
+            if (changeOfPartyRequests != null && changeOfPartyRequests.Count() > 0)
+            {
+                foreach (var cop in changeOfPartyRequests)
+                {
+                    var apiChangeOfPatyRequest = new Types.Apprenticeship.ChangeOfPartyRequest
+                    {
+                        Id = cop.Id,
+                        NewApprenticeshipId = cop.NewApprenticeshipId,
+                        CohortId = cop.CohortId,
+                        EndDate = cop.EndDate,
+                        StartDate = cop.StartDate,
+                        Price = cop.Price,
+                        ProviderId = cop.ProviderId,
+                        OriginatingParty = (Types.Apprenticeship.Types.Party)cop.OriginatingParty,
+                        WithParty = (Types.Apprenticeship.Types.Party?) cop.WithParty,
+                        ChangeOfPartyType = (Types.Apprenticeship.Types.ChangeOfPartyRequestType)cop.ChangeOfPartyType,
+                        Status = (Types.Apprenticeship.Types.ChangeOfPartyRequestStatus)cop.Status
+                    };
+
+                    apiChangeOfPartyRequests.Add(apiChangeOfPatyRequest);
+                }
+            }
+
+            return apiChangeOfPartyRequests;
         }
     }
 }
