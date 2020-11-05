@@ -56,14 +56,7 @@ SELECT
 	ao.Name AS 'EndpointAssessorName',
 	a.ReservationId,
 	a.OriginalStartDate,
-	a.MadeRedundant,
-	changeOfPartyRequest.Id as 'ChangeOfPartyRequestId',
-	changeOfPartyRequest.OriginatingParty as 'ChangeOfPartyOriginatingParty',
-	changeOfPartyRequest.Status as 'ChangeOfPartyStatus',
-	changeOfPartyRequest.StartDate as 'ChangeOfPartyStartDate',
-	changeOfPartyRequest.EndDate as 'ChangeOfPartyEndDate',
-	changeOfPartyRequest.Price as 'ChangeOfPartyPrice',
-	changeOfPartyRequest.NewApprenticeshipId as 'ChangeOfPartyNewApprenticeshipId'
+	a.MadeRedundant
 	FROM 
 		Apprenticeship a
 	INNER JOIN 

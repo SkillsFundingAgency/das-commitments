@@ -247,32 +247,32 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 
         private IEnumerable<Types.Apprenticeship.ChangeOfPartyRequest> MapChangeOfParty(IEnumerable<Domain.ChangeOfPartyRequest> changeOfPartyRequests)
         {
-            var apiChangeOfPartyRequests = new List<Types.Apprenticeship.ChangeOfPartyRequest>();
+            var apprenticeshipChangeOfPartyRequests = new List<Types.Apprenticeship.ChangeOfPartyRequest>();
 
             if (changeOfPartyRequests != null && changeOfPartyRequests.Count() > 0)
             {
-                foreach (var cop in changeOfPartyRequests)
+                foreach (var changeOfRequest in changeOfPartyRequests)
                 {
-                    var apiChangeOfPatyRequest = new Types.Apprenticeship.ChangeOfPartyRequest
+                    var apprenticeshipChangeOfPatyRequest = new Types.Apprenticeship.ChangeOfPartyRequest
                     {
-                        Id = cop.Id,
-                        NewApprenticeshipId = cop.NewApprenticeshipId,
-                        CohortId = cop.CohortId,
-                        EndDate = cop.EndDate,
-                        StartDate = cop.StartDate,
-                        Price = cop.Price,
-                        ProviderId = cop.ProviderId,
-                        OriginatingParty = (Types.Apprenticeship.Types.Party)cop.OriginatingParty,
-                        WithParty = (Types.Apprenticeship.Types.Party?) cop.WithParty,
-                        ChangeOfPartyType = (Types.Apprenticeship.Types.ChangeOfPartyRequestType)cop.ChangeOfPartyType,
-                        Status = (Types.Apprenticeship.Types.ChangeOfPartyRequestStatus)cop.Status
+                        Id = changeOfRequest.Id,
+                        NewApprenticeshipId = changeOfRequest.NewApprenticeshipId,
+                        CohortId = changeOfRequest.CohortId,
+                        EndDate = changeOfRequest.EndDate,
+                        StartDate = changeOfRequest.StartDate,
+                        Price = changeOfRequest.Price,
+                        ProviderId = changeOfRequest.ProviderId,
+                        OriginatingParty = (Types.Apprenticeship.Types.Party)changeOfRequest.OriginatingParty,
+                        WithParty = (Types.Apprenticeship.Types.Party?) changeOfRequest.WithParty,
+                        ChangeOfPartyType = (Types.Apprenticeship.Types.ChangeOfPartyRequestType)changeOfRequest.ChangeOfPartyType,
+                        Status = (Types.Apprenticeship.Types.ChangeOfPartyRequestStatus)changeOfRequest.Status
                     };
 
-                    apiChangeOfPartyRequests.Add(apiChangeOfPatyRequest);
+                    apprenticeshipChangeOfPartyRequests.Add(apprenticeshipChangeOfPatyRequest);
                 }
             }
 
-            return apiChangeOfPartyRequests;
+            return apprenticeshipChangeOfPartyRequests;
         }
     }
 }
