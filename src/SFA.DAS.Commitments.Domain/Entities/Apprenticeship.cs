@@ -11,6 +11,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         {
             PriceHistory = new List<PriceHistory>();
             DataLocks = new List<DataLockStatusSummary>();
+            ChangeOfPartyRequests = new List<ChangeOfPartyRequest>();
         }
 
         public long Id { get; set; }

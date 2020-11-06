@@ -1,8 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http.Results;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using FluentValidation;
+using KellermanSoftware.CompareNetObjects;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -151,6 +154,39 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId);
 
             result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Test, AutoData]
+        public async Task ThenChangeOfRequestChangeOfPartyTypeIsMapped(GetApprenticeshipResponse mediatorResponse)
+        {
+           var comparer = ChangeOfRequestArrange(mediatorResponse);
+
+            var response = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId) as OkNegotiatedContentResult<Apprenticeship.Apprenticeship>;
+           
+            Assert.IsTrue(response.Content.ChangeOfPartyRequests.Count() > 0);
+            Assert.AreEqual(response.Content.ChangeOfPartyRequests.Count(), mediatorResponse.Data.ChangeOfPartyRequests.Count());
+
+            foreach (var actaulChangeOfPartyRequest in response.Content.ChangeOfPartyRequests)
+            {
+                var expectedChangeOfPartyRequest = mediatorResponse.Data.ChangeOfPartyRequests.Where(x => x.Id == actaulChangeOfPartyRequest.Id).First();
+                var result = comparer.Compare(expectedChangeOfPartyRequest, actaulChangeOfPartyRequest);
+                Assert.IsTrue(result.AreEqual, result.DifferencesString);
+            }
+        }
+
+        private CompareLogic ChangeOfRequestArrange(GetApprenticeshipResponse mediatorResponse)
+        {
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(mediatorResponse);
+
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(Mock.Of<ICurrentDateTime>()), new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
+                new ApprenticeshipMapper(), _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
+
+            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipsOrchestrator);
+
+            CompareLogic comparer = new CompareLogic();
+            comparer.Config.IgnoreObjectTypes = true;
+
+            return comparer;
         }
     }
 }
