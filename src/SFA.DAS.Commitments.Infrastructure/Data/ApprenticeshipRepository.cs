@@ -293,7 +293,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@apprenticeshipId", apprenticeshipId);
 
                 return await c.QueryAsync<ChangeOfPartyRequest>(
-                    sql: "SELECT * FROM [dbo].[ChangeOfPartyRequest] WHERE ApprenticeshipId = @apprenticeshipId;",
+                    sql: @"SELECT  [changeOfPartyRequest].Id
+                          ,[ApprenticeshipId]
+                          ,[ChangeOfPartyType]
+                          ,[OriginatingParty]
+                          ,[changeOfPartyRequest].[ProviderId]
+                          ,[Price]
+                          ,[StartDate]
+                          ,[EndDate]
+                          ,[Status]
+                          ,[CohortId]
+                          ,[NewApprenticeshipId]
+                          , commitment.WithParty
+                          FROM[dbo].[ChangeOfPartyRequest] changeOfPartyRequest
+                          LEFT JOIN[dbo].[Commitment] commitment on commitment.Id = changeOfPartyRequest.CohortId 
+                          WHERE ApprenticeshipId = @apprenticeshipId;",
                     param: parameters,
                     commandType: CommandType.Text);
             });
