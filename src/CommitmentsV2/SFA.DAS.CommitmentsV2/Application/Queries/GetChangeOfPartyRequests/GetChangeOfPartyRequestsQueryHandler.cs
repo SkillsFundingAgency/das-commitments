@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests
                         ChangeOfPartyType = r.ChangeOfPartyType,
                         Status = r.Status,
                         StartDate = r.StartDate,
-                        EndDate = r.EndDate ?? (default),                        
+                        EndDate = r.EndDate,                        
                         Price = r.Price,
                         EmployerName = r.AccountLegalEntity.Name,
                         CohortId = r.Cohort.Id,

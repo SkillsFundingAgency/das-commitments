@@ -310,8 +310,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Assert.AreEqual(ContinuedApprenticeship.LastName, draftApprenticeship.LastName);
                 Assert.AreEqual(ContinuedApprenticeship.DateOfBirth, draftApprenticeship.DateOfBirth);
                 Assert.AreEqual(ContinuedApprenticeship.Uln, draftApprenticeship.Uln);
-                Assert.AreEqual(Request.StartDate, draftApprenticeship.StartDate);
-                Assert.AreEqual(Request.EndDate ?? ContinuedApprenticeship.EndDate, draftApprenticeship.EndDate);
+                Assert.AreEqual(Request.StartDate.GetValueOrDefault(), draftApprenticeship.StartDate);
+                Assert.AreEqual(Request.EndDate.GetValueOrDefault(), draftApprenticeship.EndDate);
                 Assert.AreEqual(ContinuedApprenticeship.CourseCode, draftApprenticeship.CourseCode);
                 Assert.AreEqual(ContinuedApprenticeship.CourseName, draftApprenticeship.CourseName);
                 Assert.AreEqual(ContinuedApprenticeship.ProgrammeType, draftApprenticeship.ProgrammeType);
