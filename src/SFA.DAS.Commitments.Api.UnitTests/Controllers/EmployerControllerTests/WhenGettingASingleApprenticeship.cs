@@ -157,7 +157,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         }
 
         [Test, AutoData]
-        public async Task ThenChangeOfRequestChangeOfPartyTypeIsMapped(GetApprenticeshipResponse mediatorResponse)
+        public async Task ThenChangeOfRequestPartyRequestIsMapped(GetApprenticeshipResponse mediatorResponse)
         {
            var comparer = ChangeOfRequestArrange(mediatorResponse);
 
