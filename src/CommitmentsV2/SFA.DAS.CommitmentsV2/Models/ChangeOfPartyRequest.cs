@@ -56,9 +56,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             OriginatingParty = originatingParty;
             AccountLegalEntityId = changeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? newPartyId : default(long?);
             ProviderId = changeOfPartyType == ChangeOfPartyRequestType.ChangeProvider ? newPartyId : default(long?);
-            Price = price.GetValueOrDefault();
-            StartDate = startDate.GetValueOrDefault();
-            EndDate = endDate.GetValueOrDefault();
+            Price = price;
+            StartDate = startDate;
+            EndDate = endDate;
             Status = ChangeOfPartyRequestStatus.Pending;
             CreatedOn = now;
             LastUpdatedOn = now;
