@@ -19,5 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 		public ApprenticeshipEmployerType LevyStatus { get; set; }
         public long? ChangeOfPartyRequestId { get; set; }
         public bool IsLinkedToChangeOfPartyRequest => ChangeOfPartyRequestId.HasValue;
+
     }
 }
