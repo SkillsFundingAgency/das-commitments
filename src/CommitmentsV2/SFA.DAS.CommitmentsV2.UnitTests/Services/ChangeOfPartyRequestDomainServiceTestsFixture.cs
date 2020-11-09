@@ -37,8 +37,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public Party OriginatingParty { get; private set; }
         public long ApprenticeshipId { get; private set; }
         public long NewPartyId { get; private set; }
-        public int Price { get; private set; }
-        public DateTime StartDate { get; private set; }
+        public int? Price { get; private set; }
+        public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
         public UserInfo UserInfo { get; private set; }
 
@@ -74,8 +74,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             OriginatingParty = party;
             ChangeOfPartyRequestType = changeOfPartyRequestType;            
             NewPartyId = Fixture.Create<long>();
-            Price = Fixture.Create<int>();
-            StartDate = Fixture.Create<DateTime>();
+            Price = Fixture.Create<int?>();
+            StartDate = Fixture.Create<DateTime?>();
             EndDate = Fixture.Create<DateTime?>();
             UserInfo = Fixture.Create<UserInfo>();
 
@@ -107,7 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Apprenticeship.Setup(x => x.CommitmentId).Returns(1000);
             Apprenticeship.Setup(x => x.Cohort).Returns(Cohort);
             Apprenticeship.Setup(x => x.CreateChangeOfPartyRequest(It.IsAny<ChangeOfPartyRequestType>(),
-                    It.IsAny<Party>(), It.IsAny<long>(), It.IsAny<int>(), It.IsAny<DateTime>(),
+                    It.IsAny<Party>(), It.IsAny<long>(), It.IsAny<int?>(), It.IsAny<DateTime?>(),
                     It.IsAny<DateTime?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
                 .Returns(ApprenticeshipChangeOfPartyRequestResult);
 
@@ -166,8 +166,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     It.Is<ChangeOfPartyRequestType>(t => t == ChangeOfPartyRequestType),
                     It.Is<Party>(p => p == OriginatingParty),
                     It.Is<long>(id => id == NewPartyId),
-                    It.Is<int>(p => p == Price),
-                    It.Is<DateTime>(s => s == StartDate),
+                    It.Is<int?>(p => p == Price),
+                    It.Is<DateTime?>(s => s == StartDate),
                     It.Is<DateTime?>(e => e == EndDate),
                     It.Is<UserInfo>(u => u == UserInfo),
                     It.Is<DateTime>(n => n == Now))

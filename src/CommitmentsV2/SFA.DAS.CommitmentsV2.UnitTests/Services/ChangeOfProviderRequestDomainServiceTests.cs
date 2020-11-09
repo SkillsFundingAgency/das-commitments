@@ -19,29 +19,42 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task CreateChangeOfPartyRequest_Invokes_Aggregate_State_Change()
         {
+            //Act
             await _fixture.CreateChangeOfPartyRequest();
+            
+            //Assert
             _fixture.VerifyAggregateMethodInvoked();
         }
 
         [Test]
         public async Task CreateChangeOfPartyRequest_Returns_Result_From_Aggregate()
         {
+            //Act
             await _fixture.CreateChangeOfPartyRequest();
+            
+            //Assert
             _fixture.VerifyResult();
         }
 
         [Test]
         public async Task CreateChangeOfPartyRequest_Saves_Request_To_DbContext()
         {
+            //Act
             await _fixture.CreateChangeOfPartyRequest();
+            
+            //Assert
             _fixture.VerifyResultAddedToDbContext();
         }
 
-        [Test(Description = "Temporary invariant disallowing Provider access to this feature")]
+        [Test]
         public async Task CreateChangeOfPartyRequest_Throws_If_Party_Is_Not_Employer()
         {
             _fixture.WithOriginatingParty(Party.Provider);
+            
+            //Act
             await _fixture.CreateChangeOfPartyRequest();
+            
+            //Assert
             _fixture.VerifyException<DomainException>();
         }
     }
