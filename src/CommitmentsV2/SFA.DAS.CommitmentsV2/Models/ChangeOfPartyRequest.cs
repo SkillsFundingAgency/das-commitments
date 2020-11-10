@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckOriginatingParty(originatingParty);
             CheckRequestType(originatingParty, changeOfPartyType);
-            CheckPrice(price);
+            CheckPrice(originatingParty, changeOfPartyType, price);
 
             StartTrackingSession(UserAction.CreateChangeOfPartyRequest, originatingParty, apprenticeship.Cohort.AccountLegalEntityId, apprenticeship.Cohort.ProviderId, userInfo);
 
@@ -100,9 +100,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckPrice(int? price)
+        private void CheckPrice(Party originatingParty, ChangeOfPartyRequestType requestType, int? price)
         {
-            if (ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider && OriginatingParty == Party.Employer) return;
+            if (requestType == ChangeOfPartyRequestType.ChangeProvider && originatingParty == Party.Employer) return;
             if (price == null || (price <= 0 || price > Constants.MaximumApprenticeshipCost))
             {
                 throw new DomainException(nameof(Price), $"Change of Party for  Apprenticeship {ApprenticeshipId} requires Price between 1 and {Constants.MaximumApprenticeshipCost}; {price} is not valid");

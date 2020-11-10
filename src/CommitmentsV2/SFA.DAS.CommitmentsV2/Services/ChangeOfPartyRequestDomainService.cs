@@ -44,7 +44,6 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var party = _authenticationService.GetUserParty();
 
-            //TODO :  We dont need this check , we are allowing employer to change the provider
             CheckPartyIsValid(party, changeOfPartyRequestType);
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, cancellationToken);
