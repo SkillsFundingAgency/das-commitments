@@ -139,8 +139,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             userInfo)
         {
 
-            ChangeOfPartyRequestId = changeOfPartyRequest.Id;
-            Approvals = changeOfPartyRequest.OriginatingParty;
+            ChangeOfPartyRequestId = changeOfPartyRequest.Id;            
+            if (changeOfPartyRequest.OriginatingParty == Party.Provider && changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+            {
+                Approvals = changeOfPartyRequest.OriginatingParty;
+            }
+
             WithParty = changeOfPartyRequest.OriginatingParty.GetOtherParty();
             IsDraft = false;
 

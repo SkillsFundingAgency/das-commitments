@@ -291,9 +291,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             public void VerifyOriginatorApproval()
             {
                 Assert.AreEqual(
-                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
+                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer 
                         ? Party.Provider
-                        : Party.Employer,
+                        : Party.None,
                     Result.Approvals);
             }
 
