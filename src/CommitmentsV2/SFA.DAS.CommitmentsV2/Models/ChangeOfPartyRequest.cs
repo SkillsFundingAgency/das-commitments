@@ -15,8 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual Party OriginatingParty { get; private set; }
         public virtual long? AccountLegalEntityId { get; private set; }
         public virtual long? ProviderId { get; private set; }
-        public int Price { get; private set; }
-        public DateTime StartDate { get; private set; }
+        public int? Price { get; private set; }
+        public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
         public DateTime CreatedOn { get; private set; }
         public virtual ChangeOfPartyRequestStatus Status { get; private set; }
@@ -39,15 +39,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeOfPartyRequestType changeOfPartyType,
             Party originatingParty,
             long newPartyId,
-            int price,
-            DateTime startDate,
+            int? price,
+            DateTime? startDate,
             DateTime? endDate,
             UserInfo userInfo,
             DateTime now)
         {
             CheckOriginatingParty(originatingParty);
             CheckRequestType(originatingParty, changeOfPartyType);
-            CheckPrice(price);
+            CheckPrice(originatingParty, changeOfPartyType, price);
 
             StartTrackingSession(UserAction.CreateChangeOfPartyRequest, originatingParty, apprenticeship.Cohort.AccountLegalEntityId, apprenticeship.Cohort.ProviderId, userInfo);
 
@@ -100,9 +100,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckPrice(int price)
+        private void CheckPrice(Party originatingParty, ChangeOfPartyRequestType requestType, int? price)
         {
-            if (price <= 0 || price > Constants.MaximumApprenticeshipCost)
+            if (requestType == ChangeOfPartyRequestType.ChangeProvider && originatingParty == Party.Employer) return;
+            if (price == null || (price <= 0 || price > Constants.MaximumApprenticeshipCost))
             {
                 throw new DomainException(nameof(Price), $"Change of Party for  Apprenticeship {ApprenticeshipId} requires Price between 1 and {Constants.MaximumApprenticeshipCost}; {price} is not valid");
             }

@@ -156,7 +156,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         [TestCase(100001, true)]
         [TestCase(100000, false)]
         [TestCase(1, false)]
-        public void ThenPriceMustBeValid(int price, bool expectThrow)
+        public void ThenPriceMustBeValid(int? price, bool expectThrow)
         {
             _fixture
                 .WithPrice(price)
@@ -172,8 +172,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public ChangeOfPartyRequestType RequestType { get; private set; }
         public Party OriginatingParty { get; private set; }
         public long NewPartyId { get; private set; }
-        public int Price { get; private set; }
-        public DateTime StartDate { get; private set; }
+        public int? Price { get; private set; }
+        public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
         public UserInfo UserInfo { get; private set; }
         public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
@@ -234,13 +234,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             return this;
         }
 
-        public ChangeOfPartyRequestCreationTestFixture WithPrice(int price)
+        public ChangeOfPartyRequestCreationTestFixture WithPrice(int? price)
         {
             Price = price;
             return this;
         }
 
-        public ChangeOfPartyRequestCreationTestFixture WithStartDate(DateTime startDate)
+        public ChangeOfPartyRequestCreationTestFixture WithStartDate(DateTime? startDate)
         {
             StartDate = startDate;
             return this;
