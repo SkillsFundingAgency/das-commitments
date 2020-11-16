@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 Uln = source.Uln,
                 Alerts = source.MapAlerts(),
                 AccountLegalEntityId = source.Cohort.AccountLegalEntityId,
-                Ukprn = source.Cohort.ProviderId
+                ProviderId = source.Cohort.ProviderId
             });
         }
 
