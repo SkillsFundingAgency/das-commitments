@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var party = _authenticationService.GetUserParty();
 
-            CheckPartyIsValid(party);
+            CheckPartyIsValid(party, changeOfPartyRequestType);
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, cancellationToken);
 
@@ -54,24 +54,29 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             var result = apprenticeship.CreateChangeOfPartyRequest(changeOfPartyRequestType,
-                party,
-                newPartyId,
-                price,
-                startDate,
-                endDate,
-                userInfo,
-                _currentDateTime.UtcNow);
+            party,
+            newPartyId,
+            price,
+            startDate,
+            endDate,
+            userInfo,
+            _currentDateTime.UtcNow);
 
             _dbContext.Value.ChangeOfPartyRequests.Add(result);
 
             return result;
         }
 
-        private void CheckPartyIsValid(Party party)
+        private void CheckPartyIsValid(Party party, ChangeOfPartyRequestType changeOfPartyRequestType)
         {
-            if (party != Party.Provider)
+            if (party == Party.Provider && changeOfPartyRequestType != ChangeOfPartyRequestType.ChangeEmployer)
             {
                 throw new DomainException(nameof(party), $"CreateChangeOfPartyRequest is restricted to Providers only - {party} is invalid");
+            }
+
+            if (party == Party.Employer && changeOfPartyRequestType != ChangeOfPartyRequestType.ChangeProvider)
+            {
+                throw new DomainException(nameof(party), $"CreateChangeOfPartyRequest is restricted to Employers only - {party} is invalid");
             }
         }
 

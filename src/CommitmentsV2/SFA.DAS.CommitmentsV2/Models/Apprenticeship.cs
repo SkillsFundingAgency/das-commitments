@@ -140,7 +140,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 DateOfBirth = this.DateOfBirth,
                 Cost = changeOfPartyRequest.Price,
                 StartDate = changeOfPartyRequest.StartDate,
-                EndDate = changeOfPartyRequest.EndDate ?? EndDate.Value,
+                EndDate = changeOfPartyRequest.EndDate,
                 Uln = this.Uln,
                 CourseCode = this.CourseCode,
                 CourseName = this.CourseName,

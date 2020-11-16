@@ -175,9 +175,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 ContinuedApprenticeship.SetValue(x => x.LastName, _autoFixture.Create<string>());
                 ContinuedApprenticeship.SetValue(x => x.DateOfBirth, _autoFixture.Create<DateTime>());
                 ContinuedApprenticeship.SetValue(x => x.Uln, _autoFixture.Create<string>());
-                ContinuedApprenticeship.SetValue(x => x.StartDate, _autoFixture.Create<DateTime>());
-                ContinuedApprenticeship.SetValue(x => x.EndDate, _autoFixture.Create<DateTime>());
-                ContinuedApprenticeship.SetValue(x => x.StartDate, _autoFixture.Create<DateTime>());
+                ContinuedApprenticeship.SetValue(x => x.StartDate, _autoFixture.Create<DateTime?>());
+                ContinuedApprenticeship.SetValue(x => x.EndDate, _autoFixture.Create<DateTime?>());
+                ContinuedApprenticeship.SetValue(x => x.StartDate, _autoFixture.Create<DateTime?>());
                 ContinuedApprenticeship.SetValue(x => x.CourseCode, _autoFixture.Create<string>());
                 ContinuedApprenticeship.SetValue(x => x.CourseName, _autoFixture.Create<string>());
                 ContinuedApprenticeship.SetValue(x => x.ProgrammeType, _autoFixture.Create<ProgrammeType>());
@@ -187,8 +187,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Request = new CommitmentsV2.Models.ChangeOfPartyRequest();
                 Request.SetValue(x => x.Apprenticeship, ContinuedApprenticeship);
                 Request.SetValue(x => x.ApprenticeshipId, ContinuedApprenticeship.Id);
-                Request.SetValue(x => x.StartDate, _autoFixture.Create<DateTime>());
-                Request.SetValue(x => x.Price, _autoFixture.Create<int>());
+                Request.SetValue(x => x.StartDate, _autoFixture.Create<DateTime?>());
+                Request.SetValue(x => x.Price, _autoFixture.Create<int?>());
                 Request.SetValue(x => x.OriginatingParty, _autoFixture.Create<Party>());
             }
 
@@ -291,9 +291,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             public void VerifyOriginatorApproval()
             {
                 Assert.AreEqual(
-                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
+                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer 
                         ? Party.Provider
-                        : Party.Employer,
+                        : Party.None,
                     Result.Approvals);
             }
 
@@ -311,7 +311,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Assert.AreEqual(ContinuedApprenticeship.DateOfBirth, draftApprenticeship.DateOfBirth);
                 Assert.AreEqual(ContinuedApprenticeship.Uln, draftApprenticeship.Uln);
                 Assert.AreEqual(Request.StartDate, draftApprenticeship.StartDate);
-                Assert.AreEqual(Request.EndDate ?? ContinuedApprenticeship.EndDate, draftApprenticeship.EndDate);
+                Assert.AreEqual(Request.EndDate, draftApprenticeship.EndDate);
                 Assert.AreEqual(ContinuedApprenticeship.CourseCode, draftApprenticeship.CourseCode);
                 Assert.AreEqual(ContinuedApprenticeship.CourseName, draftApprenticeship.CourseName);
                 Assert.AreEqual(ContinuedApprenticeship.ProgrammeType, draftApprenticeship.ProgrammeType);
