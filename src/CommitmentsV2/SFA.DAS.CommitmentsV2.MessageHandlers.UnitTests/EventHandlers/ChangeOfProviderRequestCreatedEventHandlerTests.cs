@@ -33,13 +33,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyGetProviderName();
         }
 
-        [Test]
-        public async Task WhenHandlingCommand_ThenRequestUrlIsGenerated()
-        {
-            await _fixture.ChangeOfProviderRequest().Handle();
+        //[Test]
+        //public async Task WhenHandlingCommand_ThenRequestUrlIsGenerated()
+        //{
+        //    await _fixture.ChangeOfProviderRequest().Handle();
 
-            _fixture.VerifyRequestUrlIsGenerated();
-        }
+        //    _fixture.VerifyRequestUrlIsGenerated();
+        //}
 
         [Test]
         public async Task WhenHandlingCommand_ThenEmailIsSentToProvider()
@@ -73,15 +73,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _mockMessageHandlerContext = new Mock<IMessageHandlerContext>();
                 _mockPipelineContext = _mockMessageHandlerContext.As<IPipelineContext>();
 
-                _mockLinkGenerator = new Mock<ILinkGenerator>();
-                _mockLinkGenerator.Setup(g => g.ProviderApprenticeshipServiceLink(It.IsAny<string>()))
-                    .Returns(_requestUrl);
+                //_mockLinkGenerator = new Mock<ILinkGenerator>();
+                //_mockLinkGenerator.Setup(g => g.ProviderApprenticeshipServiceLink(It.IsAny<string>()))
+                //    .Returns(_requestUrl);
 
                 _mediator = new Mock<IMediator>();
                 _mediator.Setup(m => m.Send(It.IsAny<GetProviderQuery>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(_getProviderResponse);
 
-                _handler = new ChangeOfProviderRequestCreatedEventHandler(_mediator.Object, _mockLinkGenerator.Object);
+                _handler = new ChangeOfProviderRequestCreatedEventHandler(_mediator.Object) //, _mockLinkGenerator.Object);
             }
 
             public ChangeOfProviderRequestCreatedEventHandlerTestsFixture ChangeOfProviderRequest()
@@ -100,10 +100,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _mediator.Verify(m => m.Send(It.Is<GetProviderQuery>(q => q.ProviderId == _event.ProviderId), It.IsAny<CancellationToken>()), Times.Once);
             }
 
-            public void VerifyRequestUrlIsGenerated()
-            {
-                _mockLinkGenerator.Verify(g => g.ProviderApprenticeshipServiceLink(It.IsAny<string>()), Times.Once);
-            }
+            //public void VerifyRequestUrlIsGenerated()
+            //{
+            //    _mockLinkGenerator.Verify(g => g.ProviderApprenticeshipServiceLink(It.IsAny<string>()), Times.Once);
+            //}
 
             public void VerifyEmailSentToProvider()
             {
