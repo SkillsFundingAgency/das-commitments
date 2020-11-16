@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public string Uln { get; set; }
             public string EmployerName { get; set; }
             public string ProviderName { get; set; }
+            public long ProviderId { get; set; }
             public string CourseName { get; set; }
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }

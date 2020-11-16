@@ -43,7 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 TotalAgreedPrice = source.PriceHistory.GetPrice(_currentDateTime.UtcNow),
                 Uln = source.Uln,
                 Alerts = source.MapAlerts(),
-                AccountLegalEntityId = source.Cohort.AccountLegalEntityId
+                AccountLegalEntityId = source.Cohort.AccountLegalEntityId,
+                ProviderId = source.Cohort.ProviderId
             });
         }
 
