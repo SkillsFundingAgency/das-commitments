@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -18,16 +19,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         private readonly IReservationsApiClient _reservationsApiClient;
         private readonly ILogger<ChangeOfPartyRequestCreatedEventHandler> _logger;
         private readonly IEncodingService _encodingService;
+        private readonly IEventPublisher _eventPublisher;
 
         public ChangeOfPartyRequestCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
             IReservationsApiClient reservationsApiClient,
             ILogger<ChangeOfPartyRequestCreatedEventHandler> logger,
-            IEncodingService encodingService)
+            IEncodingService encodingService,
+            IEventPublisher eventPublisher)
         {
             _dbContext = dbContext;
             _reservationsApiClient = reservationsApiClient;
             _logger = logger;
             _encodingService = encodingService;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task Handle(ChangeOfPartyRequestCreatedEvent message, IMessageHandlerContext context)
@@ -45,6 +49,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             //this encoding and re-save could be removed and put elsewhere
             cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
             await _dbContext.Value.SaveChangesAsync();
+
+            if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+            {
+                await _eventPublisher.Publish(new ChangeOfProviderRequestCreatedEvent(apprenticeship.ApprenticeName, cohort.AccountLegalEntity.Name, cohort.ProviderId, cohort.Reference));
+            }
         }
 
         private async Task<Guid?> GetReservationId(ChangeOfPartyRequest changeOfPartyRequest, Apprenticeship apprenticeship)

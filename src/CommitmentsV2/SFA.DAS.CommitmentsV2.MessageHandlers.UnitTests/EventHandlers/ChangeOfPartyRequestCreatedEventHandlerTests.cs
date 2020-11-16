@@ -17,6 +17,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
@@ -69,6 +70,21 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyNullReservation();
         }
 
+        [Test]
+        public async Task Handle_WhenHandlingEvent_ChangeOfProviderRequestCreatedEventIsPublished()
+        {
+            _fixture.SetChangeOfPartyType(ChangeOfPartyRequestType.ChangeProvider);
+            await _fixture.Handle();
+            _fixture.VerifyChangeOfProviderRequestCreatedEventIsPublished();
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingEvent_ChangeOfProviderRequestCreatedEventIsNotPublished()
+        {
+            _fixture.SetChangeOfPartyType(ChangeOfPartyRequestType.ChangeEmployer);
+            await _fixture.Handle();
+            _fixture.VerifyChangeOfProviderRequestCreatedEventIsNotPublished();
+        }
         private class ChangeOfPartyRequestCreatedEventHandlerTestsFixture
         {
             public ChangeOfPartyRequestCreatedEventHandler Handler { get; private set; }
@@ -82,6 +98,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public Mock<ChangeOfPartyRequest> ChangeOfPartyRequest { get; private set; }
             public Apprenticeship Apprenticeship { get; private set; }
             public Cohort Cohort { get; }
+            public Mock<IEventPublisher> EventPublisher { get; set; }
 
             public ChangeOfPartyRequestCreatedEventHandlerTestsFixture()
             {
@@ -136,13 +153,20 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 CohortReference = autoFixture.Create<string>();
                 EncodingService.Setup(x => x.Encode(Cohort.Id, EncodingType.CohortReference)).Returns(CohortReference);
 
-                Handler = new ChangeOfPartyRequestCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), ReservationsApiClient.Object, Mock.Of<ILogger<ChangeOfPartyRequestCreatedEventHandler>>(), EncodingService.Object);
+                EventPublisher = new Mock<IEventPublisher>();
+
+                Handler = new ChangeOfPartyRequestCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), ReservationsApiClient.Object, Mock.Of<ILogger<ChangeOfPartyRequestCreatedEventHandler>>(), EncodingService.Object, EventPublisher.Object);
             }
 
             public ChangeOfPartyRequestCreatedEventHandlerTestsFixture WithNoReservationId()
             {
                 Apprenticeship.SetValue(x => x.ReservationId, null);
                 return this;
+            }
+
+            public void SetChangeOfPartyType(ChangeOfPartyRequestType type)
+            {
+                ChangeOfPartyRequest.Setup(x => x.ChangeOfPartyType).Returns(type);
             }
 
             public async Task Handle()
@@ -179,6 +203,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public void VerifyCohortReference()
             {
                 Assert.AreEqual(CohortReference, Cohort.Reference);
+            }
+
+            public void VerifyChangeOfProviderRequestCreatedEventIsPublished()
+            {
+                EventPublisher.Verify(p => p.Publish(It.IsAny<ChangeOfProviderRequestCreatedEvent>()), Times.Once);
+            }
+
+            public void VerifyChangeOfProviderRequestCreatedEventIsNotPublished()
+            {
+                EventPublisher.Verify(p => p.Publish(It.IsAny<ChangeOfProviderRequestCreatedEvent>()), Times.Never);
             }
         }
     }
