@@ -10,6 +10,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
@@ -318,6 +319,56 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
             _mockV2EventsPublisher.Verify(ep => ep.PublishApprenticeshipDeleted(testCommitment, testCommitment.Apprenticeships[0]), Times.Once);
             _mockV2EventsPublisher.Verify(ep => ep.PublishApprenticeshipDeleted(testCommitment, testCommitment.Apprenticeships[1]), Times.Once);
             _mockV2EventsPublisher.Verify(ep => ep.PublishApprenticeshipDeleted(testCommitment, testCommitment.Apprenticeships[2]), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldPublishMessageIfChangeOfProviderCohortIsDeletedByProvider()
+        {
+            var testCommitment = new Commitment
+            {
+                Id = 2,
+                ProviderId = 123,
+                CommitmentStatus = CommitmentStatus.New,
+                EditStatus = EditStatus.ProviderOnly,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval, AgreementStatus = AgreementStatus.NotAgreed},
+                },
+                ChangeOfPartyRequestId = 100
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            await _handler.Handle(_validCommand);
+
+            _mockV2EventsPublisher.Verify(e => e.PublishProviderRejectedChangeOfProviderCohort(testCommitment), Times.Once );
+        }
+
+        [TestCase(100, CallerType.Employer)]
+        [TestCase(null, CallerType.Provider)]
+        public async Task ShouldNotPublishMessageChangeOfProviderCohortIsDeletedIfDeletedByEmployerOrIsNotCopRequest(long? changeOfProviderId, CallerType callerType)
+        {
+            var testCommitment = new Commitment
+            {
+                Id = 2,
+                ProviderId = 123,
+                EmployerAccountId = 123,
+                CommitmentStatus = CommitmentStatus.New,
+                EditStatus = EditStatus.Both,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval, AgreementStatus = AgreementStatus.NotAgreed},
+                },
+                ChangeOfPartyRequestId = changeOfProviderId
+            };
+
+            _validCommand.Caller.CallerType = callerType;
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            await _handler.Handle(_validCommand);
+
+            _mockV2EventsPublisher.Verify(e => e.PublishProviderRejectedChangeOfProviderCohort(testCommitment), Times.Never);
         }
     }
 }

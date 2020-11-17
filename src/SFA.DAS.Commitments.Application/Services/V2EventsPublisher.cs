@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NServiceBus;
+﻿using NServiceBus;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -10,8 +6,11 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
-using Message = SFA.DAS.Commitments.Domain.Entities.Message;
 
 namespace SFA.DAS.Commitments.Application.Services
 {
@@ -186,6 +185,19 @@ namespace SFA.DAS.Commitments.Application.Services
             };
 
             return PublishWithLog(@event, $"Provider: {providerId} CohortId: {cohortId} Number of apprentices: {numberOfApprentices}");
+        }
+
+        public Task PublishProviderRejectedChangeOfProviderCohort(Commitment commitment)
+        {
+            var providerRejectedEvent = new ProviderRejectedChangeOfProviderRequestEvent
+            {
+                EmployerAccountId = commitment.EmployerAccountId,
+                EmployerName = commitment.LegalEntityName,
+                TrainingProviderName = commitment.ProviderName,
+                ChangeOfPartyRequestId = commitment.ChangeOfPartyRequestId.Value
+            };
+
+            return PublishWithLog(providerRejectedEvent, "");
         }
 
         public async Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo)
