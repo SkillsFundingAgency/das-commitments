@@ -8,7 +8,6 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -19,19 +18,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         private readonly IReservationsApiClient _reservationsApiClient;
         private readonly ILogger<ChangeOfPartyRequestCreatedEventHandler> _logger;
         private readonly IEncodingService _encodingService;
-        private readonly IEventPublisher _eventPublisher;
 
         public ChangeOfPartyRequestCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
             IReservationsApiClient reservationsApiClient,
             ILogger<ChangeOfPartyRequestCreatedEventHandler> logger,
-            IEncodingService encodingService,
-            IEventPublisher eventPublisher)
+            IEncodingService encodingService)
         {
             _dbContext = dbContext;
             _reservationsApiClient = reservationsApiClient;
             _logger = logger;
             _encodingService = encodingService;
-            _eventPublisher = eventPublisher;
         }
 
         public async Task Handle(ChangeOfPartyRequestCreatedEvent message, IMessageHandlerContext context)
