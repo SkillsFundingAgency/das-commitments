@@ -145,17 +145,17 @@ namespace SFA.DAS.CommitmentsV2.Models
                 Approvals = changeOfPartyRequest.OriginatingParty;
             }
 
-            WithParty = changeOfPartyRequest.OriginatingParty.GetOtherParty();
-            if (changeOfPartyRequest.OriginatingParty == Party.Employer && changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
-            {
-                WithParty = Party.None;
-            }
+            WithParty = changeOfPartyRequest.OriginatingParty.GetOtherParty();           
             IsDraft = false;
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
             {
                 TransferSenderId = apprenticeship.Cohort.TransferSenderId;
-                if (TransferSenderId.HasValue) { Approvals |= Party.TransferSender; }
+                if (TransferSenderId.HasValue)
+                {
+                    WithParty = Party.Employer;
+                    Approvals |= Party.TransferSender;
+                }
             }
 
             var draftApprenticeship = apprenticeship.CreateCopyForChangeOfParty(changeOfPartyRequest, reservationId);
