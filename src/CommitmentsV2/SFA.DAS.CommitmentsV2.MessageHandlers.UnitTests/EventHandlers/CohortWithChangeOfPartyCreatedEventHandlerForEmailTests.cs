@@ -32,15 +32,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public async Task When_HandlingEvent_IfLevyAccount_SendApproveNewEmployerDetails_Levy()
         {
             await _fixture.WithLevyStatus(ApprenticeshipEmployerType.Levy).Handle();
-            _fixture.VerifyEmailSent(CohortWithChangeOfPartyCreatedEventHandlerForEmail.TemplateApproveNewEmployerDetailsLevy);
+            _fixture.VerifyEmployerEmailSent(CohortWithChangeOfPartyCreatedEventHandlerForEmail.TemplateApproveNewEmployerDetailsLevy);
         }
 
         [Test]
         public async Task When_HandlingEvent_IfLevyAccount_SendApproveNewEmployerDetails_NonLevy()
         {
             await _fixture.WithLevyStatus(ApprenticeshipEmployerType.NonLevy).Handle();
-            _fixture.VerifyEmailSent(CohortWithChangeOfPartyCreatedEventHandlerForEmail.TemplateApproveNewEmployerDetailsNonLevy);
+            _fixture.VerifyEmployerEmailSent(CohortWithChangeOfPartyCreatedEventHandlerForEmail.TemplateApproveNewEmployerDetailsNonLevy);
         }   
+
+        [Test]
+        public async Task When_HandlingEvent_Then_EmailSentToProvider()
+        {
+            await _fixture.ChangeProvider().Handle();
+            _fixture.VerifyProviderEmailSent();
+        }
 
         public class CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture
         {
@@ -88,11 +95,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture WithLevyStatus(ApprenticeshipEmployerType levyStatus)
             {
+                _event.ChangeOfPartyType = ChangeOfPartyRequestType.ChangeEmployer;
                 _cohortSummary.LevyStatus = levyStatus;
                 return this;
             }
 
-            public void VerifyEmailSent(string templateName)
+            public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture ChangeProvider()
+            {
+                _event.ChangeOfPartyType = ChangeOfPartyRequestType.ChangeProvider;
+                return this;
+            }
+
+            public void VerifyEmployerEmailSent(string templateName)
             {
                var emailToEmployerCommands =  _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToEmployerCommand)
                       .Select(y => y.Message as SendEmailToEmployerCommand);
@@ -107,6 +121,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Assert.AreEqual(_cohortReference, emailToEmployerCommand.Tokens["cohort_reference"]);
             }
 
+            public void VerifyProviderEmailSent()
+            {
+                var emailToProviderCommands = _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToProviderCommand)
+                      .Select(y => y.Message as SendEmailToProviderCommand);
+
+                var providerEmail = emailToProviderCommands.First();
+
+                Assert.AreEqual("ProviderApprenticeshipChangeOfProviderRequested", providerEmail.Template);
+                Assert.AreEqual(_cohortSummary.ProviderName, providerEmail.Tokens["TrainingProviderName"]);
+                Assert.AreEqual(_cohortSummary.LegalEntityName, providerEmail.Tokens["EmployerName"]);
+                Assert.AreEqual($"{_cohortSummary.ProviderId}/apprentices/{_cohortSummary.CohortReference}/details", providerEmail.Tokens["RequestUrl"]);
+            }
             internal CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture WithOriginatingParty(Party originatingParty)
             {
                 _event.OriginatingParty = originatingParty;

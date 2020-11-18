@@ -4,6 +4,7 @@ using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,23 +35,37 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
-            var tokens = new Dictionary<string, string>
+            if (message.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
             {
-                {"provider_name", cohortSummary.ProviderName },
-                {"employer_hashed_account", _encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId) },
-                {"cohort_reference", _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
-            };
+                var tokens = new Dictionary<string, string>
+                {
+                    {"provider_name", cohortSummary.ProviderName },
+                    {"employer_hashed_account", _encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId) },
+                    {"cohort_reference", _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
+                };
 
-            var templateName = cohortSummary.LevyStatus == Types.ApprenticeshipEmployerType.Levy 
-                ? TemplateApproveNewEmployerDetailsLevy
-                : TemplateApproveNewEmployerDetailsNonLevy;
+                var templateName = cohortSummary.LevyStatus == Types.ApprenticeshipEmployerType.Levy
+                    ? TemplateApproveNewEmployerDetailsLevy
+                    : TemplateApproveNewEmployerDetailsNonLevy;
 
-            await context.Send(new SendEmailToEmployerCommand(cohortSummary.AccountId,
-                templateName,
-                tokens));
+                await context.Send(new SendEmailToEmployerCommand(cohortSummary.AccountId,
+                    templateName,
+                    tokens));
 
-            _logger.LogInformation($"Sent SendEmailToEmployerCommand with template: {templateName}");
+                _logger.LogInformation($"Sent SendEmailToEmployerCommand with template: {templateName}");
+            }
+            else if (message.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+            {
+                var tokens = new Dictionary<string, string>
+                {
+                    { "TrainingProviderName" , cohortSummary.ProviderName},
+                    { "EmployerName" , cohortSummary.LegalEntityName},
+                    { "ApprenticeNamePossessive" , message.ApprenticeName.EndsWith("s") ? message.ApprenticeName + "'" : message.ApprenticeName + "'s" },
+                    { "RequestUrl", $"{cohortSummary.ProviderId}/apprentices/{cohortSummary.CohortReference}/details" }
+                };
 
+                await context.Send(new SendEmailToProviderCommand(cohortSummary.ProviderId.Value, "ProviderApprenticeshipChangeOfProviderRequested", tokens));
+            }
         }
     }
 }

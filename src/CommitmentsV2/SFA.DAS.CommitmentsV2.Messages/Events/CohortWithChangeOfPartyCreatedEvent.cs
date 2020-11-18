@@ -7,15 +7,19 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
     {
         public long CohortId { get; }
         public long ChangeOfPartyRequestId { get; }
+        public Party OriginatingParty { get; set; }
+        public ChangeOfPartyRequestType ChangeOfPartyType { get; set; }
+        public string ApprenticeName { get; set; }
         public DateTime CreatedOn { get; }
         public UserInfo UserInfo { get;  }
-        public Party OriginatingParty { get; set; }
-
-        public CohortWithChangeOfPartyCreatedEvent(long cohortId, long changeOfPartyRequestId, Party originatingParty, DateTime createdOn, UserInfo userInfo)
+        
+        public CohortWithChangeOfPartyCreatedEvent(long cohortId, long changeOfPartyRequestId, Party originatingParty, ChangeOfPartyRequestType changeOfPartyRequestType, string apprenticeFirstName, string apprenticeLastName, DateTime createdOn, UserInfo userInfo)
         {
             CohortId = cohortId;
             ChangeOfPartyRequestId = changeOfPartyRequestId;
             OriginatingParty = originatingParty;
+            ChangeOfPartyType = changeOfPartyRequestType;
+            ApprenticeName = $"{apprenticeFirstName} {apprenticeLastName}";
             CreatedOn = createdOn;
             UserInfo = userInfo;
         }

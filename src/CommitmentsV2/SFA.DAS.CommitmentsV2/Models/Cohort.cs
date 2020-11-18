@@ -161,15 +161,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
 
-            Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, changeOfPartyRequest.OriginatingParty,  DateTime.UtcNow, userInfo));
+            Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, changeOfPartyRequest.OriginatingParty, changeOfPartyRequest.ChangeOfPartyType, draftApprenticeship.FirstName, draftApprenticeship.LastName, DateTime.UtcNow, userInfo));
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
             {
                 Publish(() => new CohortAssignedToEmployerEvent(Id, DateTime.UtcNow, Party.Provider));
-            }
-            else
-            {
-                Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
             }
 
             StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, userInfo);

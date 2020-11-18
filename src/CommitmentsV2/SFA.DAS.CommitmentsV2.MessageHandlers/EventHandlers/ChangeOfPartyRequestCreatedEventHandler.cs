@@ -49,11 +49,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             //this encoding and re-save could be removed and put elsewhere
             cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
             await _dbContext.Value.SaveChangesAsync();
-
-            if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
-            {
-                await _eventPublisher.Publish(new ChangeOfProviderRequestCreatedEvent(apprenticeship.ApprenticeName, cohort.AccountLegalEntity.Name, cohort.ProviderId, cohort.Reference));
-            }
         }
 
         private async Task<Guid?> GetReservationId(ChangeOfPartyRequest changeOfPartyRequest, Apprenticeship apprenticeship)
