@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Root Type="DevExpress.CodeRush.Foundation.Navigation.QuickFileNav.SolutionFileInfosContainer">
+  <Options Language="Neutral">
+    <Items>
+      <Item Id="{99c975dc-b664-428d-b925-ef80f2d4a807}">
+        <Filename>CohortWithChangeOfPartyCreatedEventHandler.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\commitmentsv2\sfa.das.commitmentsv2.messagehandlers\eventhandlers\cohortwithchangeofpartycreatedeventhandler.cs</FilePath>
+        <Folders>
+          <Item>EventHandlers</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.CommitmentsV2.MessageHandlers</ProjectName>
+      </Item>
+      <Item Id="{9817fb3a-7e99-4905-8068-a45c4259b03e}">
+        <Filename>CohortTransferApprovalRequestedEventHandler.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\commitmentsv2\sfa.das.commitmentsv2.messagehandlers\eventhandlers\cohorttransferapprovalrequestedeventhandler.cs</FilePath>
+        <Folders>
+          <Item>EventHandlers</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.CommitmentsV2.MessageHandlers</ProjectName>
+      </Item>
+      <Item Id="{69054241-3109-44a3-88b4-19e17337b342}">
+        <Filename>ApproveCohortCommandHandler.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\commitmentsv2\sfa.das.commitmentsv2\application\commands\approvecohort\approvecohortcommandhandler.cs</FilePath>
+        <Folders>
+          <Item>Application</Item>
+          <Item>Commands</Item>
+          <Item>ApproveCohort</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\CommitmentsV2\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.CommitmentsV2</ProjectName>
+      </Item>
+      <Item Id="{45aa87da-0a00-4aba-8060-edb351db7e98}">
+        <Filename>AddTransferRequestCommand.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\commitmentsv2\sfa.das.commitmentsv2\application\commands\addtransferrequest\addtransferrequestcommand.cs</FilePath>
+        <Folders>
+          <Item>Application</Item>
+          <Item>Commands</Item>
+          <Item>AddTransferRequest</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\CommitmentsV2\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.CommitmentsV2</ProjectName>
+      </Item>
+      <Item Id="{94aeef2a-6a82-47f9-a2bc-999231316c32}">
+        <Filename>TransferRequestCreatedEventHandler.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\commitmentsv2\sfa.das.commitmentsv2.messagehandlers\eventhandlers\transferrequestcreatedeventhandler.cs</FilePath>
+        <Folders>
+          <Item>EventHandlers</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.CommitmentsV2.MessageHandlers</ProjectName>
+      </Item>
+      <Item Id="{12b19112-316a-4b10-82fc-72bc72caa4f8}">
+        <Filename>AddTransferRequestCommandHandler.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\commitmentsv2\sfa.das.commitmentsv2\application\commands\addtransferrequest\addtransferrequestcommandhandler.cs</FilePath>
+        <Folders>
+          <Item>Application</Item>
+          <Item>Commands</Item>
+          <Item>AddTransferRequest</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\CommitmentsV2\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.CommitmentsV2</ProjectName>
+      </Item>
+      <Item Id="{31154df5-24f6-4cd3-877e-075a18498e85}">
+        <Filename>TransferRequest.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\sfa.das.commitments.domain\entities\transferrequest.cs</FilePath>
+        <Folders>
+          <Item>Entities</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.Commitments.Domain</ProjectName>
+      </Item>
+      <Item Id="{cd47948a-fabe-4da9-a213-6f9f08754169}">
+        <Filename>CohortAssignedToProviderEventHandler.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\commitmentsv2\sfa.das.commitmentsv2.messagehandlers\eventhandlers\cohortassignedtoprovidereventhandler.cs</FilePath>
+        <Folders>
+          <Item>EventHandlers</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.CommitmentsV2.MessageHandlers</ProjectName>
+      </Item>
+      <Item Id="{b13dac8a-9082-41d4-a620-da8c80287908}">
+        <Filename>CreateChangeOfPartyRequestCommandHandler.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\commitmentsv2\sfa.das.commitmentsv2\application\commands\createchangeofpartyrequest\createchangeofpartyrequestcommandhandler.cs</FilePath>
+        <Folders>
+          <Item>Application</Item>
+          <Item>Commands</Item>
+          <Item>CreateChangeOfPartyRequest</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\CommitmentsV2\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.CommitmentsV2</ProjectName>
+      </Item>
+      <Item Id="{716447b6-36cb-45c9-8d73-63691baa4fdb}">
+        <Filename>GetApprenticeshipsQueryHandler.cs</Filename>
+        <FilePath>c:\esfa\das-commitments\src\sfa.das.commitments.application\queries\getapprenticeships\getapprenticeshipsqueryhandler.cs</FilePath>
+        <Folders>
+          <Item>Queries</Item>
+          <Item>GetApprenticeships</Item>
+        </Folders>
+        <ProjectFileName>C:\ESFA\das-commitments\src\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj</ProjectFileName>
+        <ProjectName>SFA.DAS.Commitments.Application</ProjectName>
+      </Item>
+    </Items>
+  </Options>
+</Root>
