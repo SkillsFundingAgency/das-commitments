@@ -118,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
         }
 
         [TestCase(ChangeOfPartyRequestType.ChangeEmployer, false)]
-        [TestCase(ChangeOfPartyRequestType.ChangeProvider, true)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider, false)]
         public void Then_TransferSenderId_Is_Correct(ChangeOfPartyRequestType requestType, bool expectTransferSenderId)
         {
             _fixture
