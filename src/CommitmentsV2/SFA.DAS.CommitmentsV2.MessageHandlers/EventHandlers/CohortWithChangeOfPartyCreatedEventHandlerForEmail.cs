@@ -58,6 +58,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             {
                 var tokens = new Dictionary<string, string>
                 {
+                    { "Subject", $"{cohortSummary.LegalEntityName} has requested that you add details on their behalf" },
                     { "TrainingProviderName" , cohortSummary.ProviderName},
                     { "EmployerName" , cohortSummary.LegalEntityName},
                     { "ApprenticeNamePossessive" , message.ApprenticeName.EndsWith("s") ? message.ApprenticeName + "'" : message.ApprenticeName + "'s" },
