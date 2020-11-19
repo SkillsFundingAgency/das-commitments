@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequest;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.Encoding;
@@ -21,9 +22,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(ProviderRejectedChangeOfProviderRequestEvent message, IMessageHandlerContext context)
         {
-            //get request then use request to get the current apprenticeship
-            //var changeOfProviderRequest = awaot
-            //var currentApprenticeship = await _mediator.Send(new GetApprenticeship());
+            var changeOfPartyRequest = await _mediator.Send(new GetChangeOfPartyRequestQuery(message.ChangeOfPartyRequestId));
 
             var sendEmailCommand = new SendEmailToEmployerCommand(message.EmployerAccountId, 
                 "TrainingProviderRejectedChangeOfProviderCohort",
@@ -31,8 +30,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 {
                     { "EmployerName", message.EmployerName },
                     { "TrainingProviderName", message.TrainingProviderName },
-                    { "ApprenticeNamePossessive", message.ApprenticeName },
-                    { "ApprenticeRecordUrl", $"{_encodingService.Encode(message.EmployerAccountId, EncodingType.AccountId)}/" }
+                    { "ApprenticeNamePossessive", message.ApprenticeName.EndsWith("s") ? message.ApprenticeName + "'" : message.ApprenticeName + "'s" },
+                    { "AccountHashedId", _encodingService.Encode(message.EmployerAccountId, EncodingType.AccountId) },
+                    { "ApprenticeshipHashedId", _encodingService.Encode(changeOfPartyRequest.ApprenticeshipId, EncodingType.ApprenticeshipId) }
                 }
                 );
 
