@@ -152,8 +152,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 TransferSenderId = apprenticeship.Cohort.TransferSenderId;
                 if (TransferSenderId.HasValue)
-                {
-                    WithParty = Party.Employer;
+                {                    
                     Approvals |= Party.TransferSender;
                 }
             }
