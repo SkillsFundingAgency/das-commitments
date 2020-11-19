@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     { "AccountHashedId", _encodingService.Encode(message.EmployerAccountId, EncodingType.AccountId) },
                     { "ApprenticeshipHashedId", _encodingService.Encode(changeOfPartyRequest.ApprenticeshipId, EncodingType.ApprenticeshipId) }
                 }
-                );
+            );
 
             await context.Send(sendEmailCommand, new SendOptions());
         }

@@ -197,7 +197,7 @@ namespace SFA.DAS.Commitments.Application.Services
                 ChangeOfPartyRequestId = commitment.ChangeOfPartyRequestId.Value
             };
 
-            return PublishWithLog(providerRejectedEvent, "");
+            return PublishWithLog(providerRejectedEvent, $"Commitment: {commitment.Id}, EmployerAccountId: {commitment.EmployerAccountId}, ChangeOfPartyRequest: {commitment.ChangeOfPartyRequestId.Value}");
         }
 
         public async Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo)

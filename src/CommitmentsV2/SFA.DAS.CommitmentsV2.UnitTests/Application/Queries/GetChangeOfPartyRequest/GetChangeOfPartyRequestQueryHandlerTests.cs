@@ -16,12 +16,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
     {
         private GetChangeOfPartyRequestQueryHandlerTestsFixture _fixture;
 
-        
-
         [SetUp]
         public void Arrange()
         {
-            _fixture = new GetChangeOfPartyRequestQueryHandlerTestsFixture();
+            _fixture = new GetChangeOfPartyRequestQueryHandlerTestsFixture(); 
         }
 
         [Test]
@@ -39,6 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
 
             public long ChangeOfPartyRequestId { get; set; }
             public long ApprenticeshipId{ get; set; }
+
             private GetChangeOfPartyRequestQuery _query;
             private GetChangeOfPartyRequestQueryHandler _handler;
             private GetChangeOfPartyRequestQueryResult _result;
@@ -70,13 +69,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
 
             private void SeedData()
             {
-                var apprenticeshipId = _autoFixture.Create<long>();
-
                 var request = new ChangeOfPartyRequest();
                 request.SetValue(x => x.Id, ChangeOfPartyRequestId);
-                request.SetValue(x => x.ApprenticeshipId, apprenticeshipId);
+                request.SetValue(x => x.ApprenticeshipId, ApprenticeshipId);
 
                 _db.ChangeOfPartyRequests.Add(request);
+                _db.SaveChanges();
             }
         }
     }
