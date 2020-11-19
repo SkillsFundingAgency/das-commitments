@@ -341,14 +341,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
             public void VerifyTransferSender()
             {
-                if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+                if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer || Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
                 {
                     Assert.IsNull(Result.TransferSenderId);
-                }
-                else
-                {
-                    Assert.AreEqual(ContinuedApprenticeship.Cohort.TransferSenderId, Result.TransferSenderId);
-                }
+                }               
             }
 
             public void VerifyChangeOfPartyRequestId()
