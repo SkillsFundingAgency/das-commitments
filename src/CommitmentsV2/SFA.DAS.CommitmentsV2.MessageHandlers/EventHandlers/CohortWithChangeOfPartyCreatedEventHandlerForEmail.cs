@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -37,36 +38,59 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             if (message.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
             {
-                var tokens = new Dictionary<string, string>
+                await SendEmployerEmail(context, cohortSummary);
+            }
+            else if (message.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+            {
+                await SendProviderEmail(message, context, cohortSummary);
+            }
+        }
+
+        private async Task SendEmployerEmail(IMessageHandlerContext context, GetCohortSummaryQueryResult cohortSummary)
+        {
+            var tokens = new Dictionary<string, string>
                 {
                     {"provider_name", cohortSummary.ProviderName },
                     {"employer_hashed_account", _encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId) },
                     {"cohort_reference", _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference)}
                 };
 
-                var templateName = cohortSummary.LevyStatus == Types.ApprenticeshipEmployerType.Levy
-                    ? TemplateApproveNewEmployerDetailsLevy
-                    : TemplateApproveNewEmployerDetailsNonLevy;
+            var templateName = cohortSummary.LevyStatus == Types.ApprenticeshipEmployerType.Levy
+                ? TemplateApproveNewEmployerDetailsLevy
+                : TemplateApproveNewEmployerDetailsNonLevy;
 
-                await context.Send(new SendEmailToEmployerCommand(cohortSummary.AccountId,
-                    templateName,
-                    tokens));
+            await context.Send(new SendEmailToEmployerCommand(cohortSummary.AccountId,
+                templateName,
+                tokens));
 
-                _logger.LogInformation($"Sent SendEmailToEmployerCommand with template: {templateName}");
-            }
-            else if (message.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
-            {
-                var tokens = new Dictionary<string, string>
+            _logger.LogInformation($"Sent SendEmailToEmployerCommand with template: {templateName}");
+        }
+
+        private async Task SendProviderEmail(CohortWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context, GetCohortSummaryQueryResult cohortSummary)
+        {
+            var apprenticeNamePossessive = await GetApprenticeNamePossessive(message.ApprenticeshipId);
+
+            var tokens = new Dictionary<string, string>
                 {
                     { "Subject", $"{cohortSummary.LegalEntityName} has requested that you add details on their behalf" },
                     { "TrainingProviderName" , cohortSummary.ProviderName},
                     { "EmployerName" , cohortSummary.LegalEntityName},
-                    { "ApprenticeNamePossessive" , message.ApprenticeName.EndsWith("s") ? message.ApprenticeName + "'" : message.ApprenticeName + "'s" },
+                    { "ApprenticeNamePossessive" , apprenticeNamePossessive },
                     { "RequestUrl", $"{cohortSummary.ProviderId}/apprentices/{cohortSummary.CohortReference}/details" }
                 };
 
-                await context.Send(new SendEmailToProviderCommand(cohortSummary.ProviderId.Value, "ProviderApprenticeshipChangeOfProviderRequested", tokens));
-            }
+            await context.Send(new SendEmailToProviderCommand(cohortSummary.ProviderId.Value, "ProviderApprenticeshipChangeOfProviderRequested", tokens));
+
+            _logger.LogInformation($"Sent SendEmailToProviderCommand with template: ProviderApprenticeshipChangeOfProviderRequested");
+        }
+
+        internal async Task<string> GetApprenticeNamePossessive(long apprenticeshipId)
+        {
+            var apprenticeship = await _mediator.Send(new GetApprenticeshipQuery(apprenticeshipId));
+
+            var name = $"{apprenticeship.FirstName} {apprenticeship.LastName}";
+
+            return name.EndsWith("s") ? name + "'" : name + "'s";
         }
     }
 }

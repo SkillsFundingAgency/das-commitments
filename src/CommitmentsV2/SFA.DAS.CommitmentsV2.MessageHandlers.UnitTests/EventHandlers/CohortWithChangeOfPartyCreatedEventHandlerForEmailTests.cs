@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus.Testing;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -49,6 +50,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyProviderEmailSent();
         }
 
+        [Test]
+        public async Task When_HandlingEvent_And_EmailIsForProvider_Then_VerifyGetApprenticeName()
+        {
+            await _fixture.ChangeProvider().Handle();
+
+            _fixture.VerifyGetApprenticeName();
+        }
+
         public class CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture
         {
             private readonly CohortWithChangeOfPartyCreatedEventHandlerForEmail _handler;
@@ -57,6 +66,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private readonly TestableMessageHandlerContext _messageHandlerContext;
             private readonly Mock<IEncodingService> _encodingService;
             private readonly GetCohortSummaryQueryResult _cohortSummary;
+            private readonly GetApprenticeshipQueryResult _apprenticeship;
+            private readonly string _expectedApprenticeName;
+            private readonly string _expectedSubject;
+            private readonly string _expectedRequestUrl;
+            private const string _expectedTemplate = "ProviderApprenticeshipChangeOfProviderRequested";
             private readonly string _cohortReference;
             private readonly string _employerEncodedAccountId;
             private Fixture _autoFixture;
@@ -70,6 +84,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => _cohortSummary);
+
+                _apprenticeship = _autoFixture.Create<GetApprenticeshipQueryResult>();
+                _mediator.Setup(m => m.Send(It.IsAny<GetApprenticeshipQuery>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(_apprenticeship);
+
+                _expectedApprenticeName = _apprenticeship.LastName.EndsWith("s") ? $"{_apprenticeship.FirstName} {_apprenticeship.LastName}'" : $"{_apprenticeship.FirstName} {_apprenticeship.LastName}'s";
+                _expectedSubject = $"{_cohortSummary.LegalEntityName} has requested that you add details on their behalf";
+                _expectedRequestUrl = $"{_cohortSummary.ProviderId}/apprentices/{_cohortSummary.CohortReference}/details";
 
                 _cohortReference = _autoFixture.Create<string>();
                 _employerEncodedAccountId = _autoFixture.Create<string>();
@@ -128,11 +150,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 var providerEmail = emailToProviderCommands.First();
 
-                Assert.AreEqual("ProviderApprenticeshipChangeOfProviderRequested", providerEmail.Template);
+                Assert.AreEqual(_expectedTemplate, providerEmail.Template);
                 Assert.AreEqual(_cohortSummary.ProviderName, providerEmail.Tokens["TrainingProviderName"]);
                 Assert.AreEqual(_cohortSummary.LegalEntityName, providerEmail.Tokens["EmployerName"]);
-                Assert.AreEqual($"{_cohortSummary.ProviderId}/apprentices/{_cohortSummary.CohortReference}/details", providerEmail.Tokens["RequestUrl"]);
+                Assert.AreEqual(_expectedRequestUrl, providerEmail.Tokens["RequestUrl"]);
+                Assert.AreEqual(_expectedApprenticeName, providerEmail.Tokens["ApprenticeNamePossessive"]);
+                Assert.AreEqual(_expectedSubject, providerEmail.Tokens["Subject"]);
             }
+
+            public void VerifyGetApprenticeName()
+            {
+                _mediator.Verify(m => m.Send(It.Is<GetApprenticeshipQuery>(q => q.ApprenticeshipId == _event.ApprenticeshipId), It.IsAny<CancellationToken>()), Times.Once);
+            }
+
             internal CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture WithOriginatingParty(Party originatingParty)
             {
                 _event.OriginatingParty = originatingParty;
