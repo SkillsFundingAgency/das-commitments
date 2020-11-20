@@ -118,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
         }
 
         [TestCase(ChangeOfPartyRequestType.ChangeEmployer, false)]
-        [TestCase(ChangeOfPartyRequestType.ChangeProvider, false)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider, true)]
         public void Then_TransferSenderId_Is_Correct(ChangeOfPartyRequestType requestType, bool expectTransferSenderId)
         {
             _fixture
@@ -341,10 +341,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
             public void VerifyTransferSender()
             {
-                if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer || Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+                if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
                 {
                     Assert.IsNull(Result.TransferSenderId);
-                }               
+                }
+                else
+                {
+                    Assert.AreEqual(ContinuedApprenticeship.Cohort.TransferSenderId, Result.TransferSenderId);
+                }
             }
 
             public void VerifyChangeOfPartyRequestId()
