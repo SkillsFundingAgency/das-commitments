@@ -265,39 +265,37 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 case Party.Employer:
                 case Party.Provider:
-                {
-                    var otherParty = modifyingParty.GetOtherParty();
-                    var isApprovedByOtherParty = Approvals.HasFlag(otherParty);
-
-                    IsDraft = false;
-                    EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
-                    WithParty =  GetWithParty(otherParty, isApprovedByOtherParty);
-                    if (isApprovedByOtherParty) EmployerAndProviderApprovedOn = DateTime.UtcNow;
-                    LastAction = LastAction.Approve;
-                    CommitmentStatus = CommitmentStatus.Active;                    
-                    TransferApprovalStatus = (isApprovedByOtherParty && TransferSenderId.HasValue && ChangeOfPartyRequestId.HasValue 
-                                              && Approvals.HasFlag(Party.TransferSender))
-                                              ? Types.TransferApprovalStatus.Approved : null;
-                    Approvals |= modifyingParty;
-                    AddMessage(message, modifyingParty, userInfo);
-                    UpdatedBy(modifyingParty, userInfo);
-                    LastUpdatedOn = DateTime.UtcNow;
-
-                    switch (WithParty)
                     {
-                        case Party.Employer:
-                            Publish(() => new CohortAssignedToEmployerEvent(Id, now, modifyingParty));
-                            break;
-                        case Party.Provider:
-                            Publish(() => new CohortAssignedToProviderEvent(Id, now));
-                            break;
-                        case Party.TransferSender:
-                            Publish(() => new CohortTransferApprovalRequestedEvent(Id, now, modifyingParty));
-                            break;
-                    }
+                        var otherParty = modifyingParty.GetOtherParty();
+                        var isApprovedByOtherParty = Approvals.HasFlag(otherParty);
 
-                    break;
-                }
+                        IsDraft = false;
+                        EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
+                        WithParty = GetWithParty(otherParty, isApprovedByOtherParty);
+                        if (isApprovedByOtherParty) EmployerAndProviderApprovedOn = DateTime.UtcNow;
+                        LastAction = LastAction.Approve;
+                        CommitmentStatus = CommitmentStatus.Active;                        
+                        GetTransferApprovalStatus(isApprovedByOtherParty);
+                        Approvals |= modifyingParty;
+                        AddMessage(message, modifyingParty, userInfo);
+                        UpdatedBy(modifyingParty, userInfo);
+                        LastUpdatedOn = DateTime.UtcNow;
+
+                        switch (WithParty)
+                        {
+                            case Party.Employer:
+                                Publish(() => new CohortAssignedToEmployerEvent(Id, now, modifyingParty));
+                                break;
+                            case Party.Provider:
+                                Publish(() => new CohortAssignedToProviderEvent(Id, now));
+                                break;
+                            case Party.TransferSender:
+                                Publish(() => new CohortTransferApprovalRequestedEvent(Id, now, modifyingParty));
+                                break;
+                        }
+
+                        break;
+                    }
                 case Party.TransferSender:
                     TransferApprovalStatus = Types.TransferApprovalStatus.Approved;
                     TransferApprovalActionedOn = now;
@@ -323,7 +321,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             ChangeTrackingSession.CompleteTrackingSession();
-        }
+        }        
 
         private Party GetWithParty(Party otherParty, bool isApprovedByOtherParty)
         {
@@ -335,6 +333,18 @@ namespace SFA.DAS.CommitmentsV2.Models
             return isApprovedByOtherParty
                 ? TransferSenderId.HasValue ? Party.TransferSender : Party.None
                 : otherParty;
+        }
+
+        private void GetTransferApprovalStatus(bool isApprovedByOtherParty)
+        {
+            if (isApprovedByOtherParty && TransferSenderId.HasValue && ChangeOfPartyRequestId.HasValue && Approvals.HasFlag(Party.TransferSender))
+            {
+                TransferApprovalStatus = Types.TransferApprovalStatus.Approved;
+            }
+            else
+            {
+                TransferApprovalStatus = null;
+            }
         }
 
         public virtual void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
