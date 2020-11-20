@@ -40,14 +40,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             await _fixture.WithLevyStatus(ApprenticeshipEmployerType.NonLevy).Handle();
             _fixture.VerifyEmailSent(CohortWithChangeOfPartyCreatedEventHandlerForEmail.TemplateApproveNewEmployerDetailsNonLevy);
-        }
-
-        [Test]
-        public async Task When_HandlingEvent_IfOriginatingPartyIsNotProvider_NoEmailIsSent()
-        {
-            await _fixture.WithOriginatingParty(Party.Employer).Handle();
-            _fixture.VerifyEmailNotSent();
-        }
+        }   
 
         public class CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture
         {
@@ -119,11 +112,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _event.OriginatingParty = originatingParty;
                 return this;
             }
-
-            internal void VerifyEmailNotSent()
-            {
-                Assert.AreEqual(0, _messageHandlerContext.SentMessages.Count());
-            }
+         
         }
     }
 }

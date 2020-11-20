@@ -32,12 +32,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             _logger.LogInformation($"Received CohortWithChangeOfPartyCreatedEvent for cohort Id: {message.CohortId}");
 
-            if (message.OriginatingParty != Types.Party.Provider)
-            {
-                _logger.LogWarning($"CohortWithChangeOfPartyCreatedEvent received with originating party {message.OriginatingParty}");
-                return;
-            }
-
             var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
             var tokens = new Dictionary<string, string>
