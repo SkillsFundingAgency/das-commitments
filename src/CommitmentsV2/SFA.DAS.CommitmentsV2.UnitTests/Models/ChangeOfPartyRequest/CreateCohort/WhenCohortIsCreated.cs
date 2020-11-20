@@ -137,20 +137,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyChangeOfPartyRequestId();
         }
 
-        [Test]
-        public void And_RequestTypeIsChangeOfEmployer_Then_AssignedToOtherPartyEvent_Is_Emitted()
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void And_RequestTypeIsChangeOfEmployer_Then_AssignedToOtherPartyEvent_Is_Emitted(ChangeOfPartyRequestType requestType)
         {
-            _fixture.WithChangeOfPartyType(ChangeOfPartyRequestType.ChangeEmployer);
+            _fixture.WithChangeOfPartyType(requestType);
             _fixture.CreateCohort();
-            _fixture.VerifyAssignedToOtherPartyEventIsEmittedForEmployer();
-        }
-
-        [Test]
-        public void And_RequestTypeIsChangeOfProvider_Then_AssignedToOtherPartyEvent_IsNotEmmitted()
-        {
-            _fixture.WithChangeOfPartyType(ChangeOfPartyRequestType.ChangeProvider);
-            _fixture.CreateCohort();
-            _fixture.VerifyAssignedToProviderIsNotEmitted(); 
+            _fixture.VerifyAssignedToOtherPartyEventIsEmitted();
         }
 
         private class WhenCohortIsCreatedTestFixture
@@ -363,19 +356,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Assert.AreEqual(Request.Id, Result.ChangeOfPartyRequestId);
             }
 
-            public void VerifyAssignedToOtherPartyEventIsEmittedForEmployer()
+            public void VerifyAssignedToOtherPartyEventIsEmitted()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
+                if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+                {
+                    Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
                     x is CohortAssignedToEmployerEvent @event
                     && @event.AssignedBy == Party.Provider
                     && @event.CohortId == Result.Id));
-            }
-
-            public void VerifyAssignedToProviderIsNotEmitted()
-            {
-                Assert.IsNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
+                }
+                else
+                {
+                    Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
                         x is CohortAssignedToProviderEvent @event
                         && @event.CohortId == Result.Id));
+                }
             }
         }
     }

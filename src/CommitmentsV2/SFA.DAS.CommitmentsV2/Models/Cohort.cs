@@ -167,6 +167,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 Publish(() => new CohortAssignedToEmployerEvent(Id, DateTime.UtcNow, Party.Provider));
             }
+            else
+            {
+                Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
+            }
 
             StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, userInfo);
             ChangeTrackingSession.TrackInsert(this);
