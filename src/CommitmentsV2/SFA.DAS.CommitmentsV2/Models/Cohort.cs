@@ -148,6 +148,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             WithParty = changeOfPartyRequest.OriginatingParty.GetOtherParty();
             IsDraft = false;
 
+            if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+            {                   
+                TransferSenderId = apprenticeship.Cohort.TransferSenderId;
+                if (TransferSenderId.HasValue)
+                {
+                    Approvals |= Party.TransferSender;
+                }
+            }
+
             var draftApprenticeship = apprenticeship.CreateCopyForChangeOfParty(changeOfPartyRequest, reservationId);
             Apprenticeships.Add(draftApprenticeship);
 
@@ -262,9 +271,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                     IsDraft = false;
                     EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
-                    WithParty = isApprovedByOtherParty
-                        ? TransferSenderId.HasValue ? Party.TransferSender : Party.None
-                        : otherParty;
+                    WithParty =  GetWithParty(otherParty, isApprovedByOtherParty);
                     if (isApprovedByOtherParty) EmployerAndProviderApprovedOn = DateTime.UtcNow;
                     LastAction = LastAction.Approve;
                     CommitmentStatus = CommitmentStatus.Active;
@@ -314,6 +321,18 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        private Party GetWithParty(Party otherParty, bool isApprovedByOtherParty)
+        {
+            if (isApprovedByOtherParty && TransferSenderId.HasValue && ChangeOfPartyRequestId.HasValue)
+            {
+                return Party.None;
+            }
+
+            return isApprovedByOtherParty
+                ? TransferSenderId.HasValue ? Party.TransferSender : Party.None
+                : otherParty;
         }
 
         public virtual void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
