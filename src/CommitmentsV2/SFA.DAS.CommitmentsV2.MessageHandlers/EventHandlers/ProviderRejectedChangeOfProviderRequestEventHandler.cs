@@ -1,9 +1,10 @@
-﻿using MediatR;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequest;
+﻿using NServiceBus;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.Encoding;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,19 +13,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     public class ProviderRejectedChangeOfProviderRequestEventHandler : IHandleMessages<ProviderRejectedChangeOfProviderRequestEvent>
     {
         private readonly IEncodingService _encodingService;
-        private readonly IMediator _mediator;
+        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public ProviderRejectedChangeOfProviderRequestEventHandler(IEncodingService encodingService, IMediator mediator)
+        public ProviderRejectedChangeOfProviderRequestEventHandler(IEncodingService encodingService, Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _encodingService = encodingService;
-            _mediator = mediator;
+            _dbContext = dbContext;
         }
 
         public async Task Handle(ProviderRejectedChangeOfProviderRequestEvent message, IMessageHandlerContext context)
         {
-            var changeOfPartyRequest = await _mediator.Send(new GetChangeOfPartyRequestQuery(message.ChangeOfPartyRequestId));
+            var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
 
-            var sendEmailCommand = new SendEmailToEmployerCommand(message.EmployerAccountId, 
+            var sendEmailCommand = new SendEmailToEmployerCommand(message.EmployerAccountId,
                 "TrainingProviderRejectedChangeOfProviderCohort",
                 new Dictionary<string, string>
                 {
