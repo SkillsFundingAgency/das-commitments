@@ -47,7 +47,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             CheckPartyIsValid(party, changeOfPartyRequestType);
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, cancellationToken);
-
+            
+            if (changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeProvider)
+            {
+                CheckEmployerHasntSelectedTheirCurrentProvider(apprenticeship.Cohort.ProviderId, newPartyId, apprenticeship.Id);
+            }
+            
             if (party == Party.Provider && changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeEmployer)
             {
                 await CheckProviderHasPermission(apprenticeship.Cohort.ProviderId, newPartyId);
@@ -94,6 +99,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (permissions.AccountProviderLegalEntities.All(x => x.AccountLegalEntityId != accountLegalEntityId))
             {
                 throw new DomainException(nameof(accountLegalEntityId), $"Provider {providerId} does not have {nameof(Operation.CreateCohort)} permission for AccountLegalEntity {accountLegalEntityId} in order to create a Change of Party request");
+            }
+        }
+
+        private void CheckEmployerHasntSelectedTheirCurrentProvider(long currentProviderId, long newProviderId, long apprenticeshipId)
+        {
+            if (newProviderId == currentProviderId)
+            {
+                throw new DomainException("Ukprn", $"Provider {newProviderId} is already the training provider Apprenticeship {apprenticeshipId}");
             }
         }
     }
