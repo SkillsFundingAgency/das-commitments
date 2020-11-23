@@ -113,8 +113,11 @@
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
     <Compile Include="Entities\AssessmentOrganisation.cs" />
     <Compile Include="Entities\BulkUpload\BulkUploadResult.cs" />
+    <Compile Include="Entities\ChangeOfPartyRequestStatus.cs" />
+    <Compile Include="Entities\ChangeOfPartyRequestType.cs" />
     <Compile Include="Entities\CommitmentAgreement.cs" />
     <Compile Include="Entities\DataLock\DataLockStatusSummary.cs" />
+    <Compile Include="Entities\Party.cs" />
     <Compile Include="Entities\Statistics.cs" />
     <Compile Include="Entities\TrainingProgramme\FundingPeriod.cs" />
     <Compile Include="Entities\TrainingProgramme\TrainingProgrammeStatus.cs" />
@@ -164,6 +167,7 @@
     <Compile Include="Extensions\DataLockExtensions.cs" />
     <Compile Include="Extensions\DataLockStatusSummaryExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
+    <Compile Include="GetChangeOfPartyResponse.cs" />
     <Compile Include="Interfaces\IApprenticeshipInfoServiceMapper.cs" />
     <Compile Include="Interfaces\IAssessmentOrgs.cs" />
     <Compile Include="Interfaces\ICache.cs" />

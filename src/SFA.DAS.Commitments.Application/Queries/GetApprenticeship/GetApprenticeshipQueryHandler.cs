@@ -35,6 +35,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 
             CheckAuthorization(message, apprenticeship);
 
+            apprenticeship.ChangeOfPartyRequests = await _apprenticeshipRepository.GetChangeOfPartyResponse(message.ApprenticeshipId);
+
             return new GetApprenticeshipResponse
             {
                 Data = apprenticeship
