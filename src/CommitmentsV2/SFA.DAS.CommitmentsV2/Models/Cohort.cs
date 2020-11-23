@@ -325,7 +325,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private Party GetWithParty(Party otherParty, bool isApprovedByOtherParty)
         {
-            if (isApprovedByOtherParty && TransferSenderId.HasValue && ChangeOfPartyRequestId.HasValue && Approvals.HasFlag(Party.TransferSender))
+            if (isApprovedByOtherParty && TransferSenderId.HasValue && ChangeOfPartyRequestId.HasValue)
             {
                 return Party.None;
             }
@@ -337,7 +337,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void GetTransferApprovalStatus(bool isApprovedByOtherParty)
         {
-            if (isApprovedByOtherParty && TransferSenderId.HasValue && ChangeOfPartyRequestId.HasValue && Approvals.HasFlag(Party.TransferSender))
+            if (isApprovedByOtherParty && TransferSenderId.HasValue && ChangeOfPartyRequestId.HasValue)
             {
                 TransferApprovalStatus = Types.TransferApprovalStatus.Approved;
             }
