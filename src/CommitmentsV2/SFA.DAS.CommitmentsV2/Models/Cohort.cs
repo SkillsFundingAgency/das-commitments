@@ -150,11 +150,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
             {                   
-                TransferSenderId = apprenticeship.Cohort.TransferSenderId;
-                if (TransferSenderId.HasValue)
-                {
-                    Approvals |= Party.TransferSender;
-                }
+                TransferSenderId = apprenticeship.Cohort.TransferSenderId;               
             }
 
             var draftApprenticeship = apprenticeship.CreateCopyForChangeOfParty(changeOfPartyRequest, reservationId);
@@ -274,8 +270,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                         WithParty = GetWithParty(otherParty, isApprovedByOtherParty);
                         if (isApprovedByOtherParty) EmployerAndProviderApprovedOn = DateTime.UtcNow;
                         LastAction = LastAction.Approve;
-                        CommitmentStatus = CommitmentStatus.Active;                        
-                        GetTransferApprovalStatus(isApprovedByOtherParty);
+                        CommitmentStatus = CommitmentStatus.Active; 
+                        TransferApprovalStatus = GetTransferApprovalStatus(isApprovedByOtherParty);
                         Approvals |= modifyingParty;
                         AddMessage(message, modifyingParty, userInfo);
                         UpdatedBy(modifyingParty, userInfo);
@@ -335,16 +331,13 @@ namespace SFA.DAS.CommitmentsV2.Models
                 : otherParty;
         }
 
-        private void GetTransferApprovalStatus(bool isApprovedByOtherParty)
+        private TransferApprovalStatus? GetTransferApprovalStatus(bool isApprovedByOtherParty)
         {
             if (isApprovedByOtherParty && TransferSenderId.HasValue && ChangeOfPartyRequestId.HasValue)
             {
-                TransferApprovalStatus = Types.TransferApprovalStatus.Approved;
+                return Types.TransferApprovalStatus.Approved;
             }
-            else
-            {
-                TransferApprovalStatus = null;
-            }
+            return null;
         }
 
         public virtual void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
