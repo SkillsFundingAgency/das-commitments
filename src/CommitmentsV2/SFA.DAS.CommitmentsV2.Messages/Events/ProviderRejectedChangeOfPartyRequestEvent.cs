@@ -1,7 +1,7 @@
 ﻿
 namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
-    public class ProviderRejectedChangeOfProviderRequestEvent
+    public class ProviderRejectedChangeOfPartyRequestEvent
     {
         public long EmployerAccountId { get; set; }
         public string TrainingProviderName { get; set; }

@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using System;
 using System.Threading.Tasks;
@@ -27,11 +28,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task WhenHandlingEvent_ThenSendEmailCommandShouldBeSent()
+        public async Task WhenHandlingEvent_AndChangeOfPartyTypeIsChangeOfProvider_ThenSendEmailCommandShouldBeSent()
         {
+            _fixture.SetChangeOfPartyRequestTypeToChangeProvider();
+
             await _fixture.Handle();
 
-            _fixture.VerifyEmailSentToEmployer();
+            _fixture.VerifyConfirmationEmailSentToEmployer();
         }
 
     }
@@ -44,14 +47,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public Mock<IEncodingService> _mockEncodingService { get; set; }
         public IFixture _autoFixture { get; set; }
-        public ProviderRejectedChangeOfProviderRequestEventHandler _handler { get; set; }
+        public ProviderRejectedChangeOfPartyRequestEventHandler _handler { get; set; }
         private Mock<ChangeOfPartyRequest> _changeOfPartyRequest { get; set; }
         private Mock<IMessageHandlerContext> _mockMessageHandlerContext { get; set; }
         public Mock<IPipelineContext> _mockPipelineContext { get; set; }
 
         private readonly ProviderCommitmentsDbContext _db;
         private readonly Cohort _cohort;
-        public ProviderRejectedChangeOfProviderRequestEvent _event { get; set; }
+        public ProviderRejectedChangeOfPartyRequestEvent _event { get; set; }
 
         public ProviderRejectedChangeOfProviderRequestEventHandlerTestFixture()
         {
@@ -60,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _mockMessageHandlerContext = new Mock<IMessageHandlerContext>();
             _mockPipelineContext = _mockMessageHandlerContext.As<IPipelineContext>();
 
-            _event = _autoFixture.Create<ProviderRejectedChangeOfProviderRequestEvent>();
+            _event = _autoFixture.Create<ProviderRejectedChangeOfPartyRequestEvent>();
 
             _mockEncodingService = new Mock<IEncodingService>();
             _mockEncodingService.Setup(enc => enc.Encode(_event.EmployerAccountId, EncodingType.AccountId))
@@ -83,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _db.ChangeOfPartyRequests.Add(_changeOfPartyRequest.Object);
             _db.SaveChanges();
 
-            _handler = new ProviderRejectedChangeOfProviderRequestEventHandler(_mockEncodingService.Object, new Lazy<ProviderCommitmentsDbContext>(() => _db));
+            _handler = new ProviderRejectedChangeOfPartyRequestEventHandler(_mockEncodingService.Object, new Lazy<ProviderCommitmentsDbContext>(() => _db));
 
         }
         public Task Handle()
@@ -91,7 +94,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             return _handler.Handle(_event, _mockMessageHandlerContext.Object);
         }
 
-        public void VerifyEmailSentToEmployer()
+        public void SetChangeOfPartyRequestTypeToChangeProvider()
+        {
+            _changeOfPartyRequest.Setup(x => x.ChangeOfPartyType).Returns(ChangeOfPartyRequestType.ChangeProvider);
+        }
+        public void VerifyConfirmationEmailSentToEmployer()
         {
             var apprenticeNamePossessive = _event.ApprenticeName.EndsWith("s") ? _event.ApprenticeName + "'" : _event.ApprenticeName + "'s";
 

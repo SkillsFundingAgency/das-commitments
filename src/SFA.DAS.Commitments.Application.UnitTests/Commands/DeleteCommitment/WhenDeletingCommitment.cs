@@ -322,7 +322,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
         }
 
         [Test]
-        public async Task ShouldPublishMessageIfChangeOfProviderCohortIsDeletedByProvider()
+        public async Task ShouldPublishMessageIfChangeOfPartyCohortIsDeletedByProvider()
         {
             var testCommitment = new Commitment
             {
@@ -341,7 +341,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 
             await _handler.Handle(_validCommand);
 
-            _mockV2EventsPublisher.Verify(e => e.PublishProviderRejectedChangeOfProviderCohort(testCommitment), Times.Once );
+            _mockV2EventsPublisher.Verify(e => e.PublishProviderRejectedChangeOfPartyCohort(testCommitment), Times.Once );
         }
 
         [TestCase(100, CallerType.Employer)]
@@ -368,7 +368,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 
             await _handler.Handle(_validCommand);
 
-            _mockV2EventsPublisher.Verify(e => e.PublishProviderRejectedChangeOfProviderCohort(testCommitment), Times.Never);
+            _mockV2EventsPublisher.Verify(e => e.PublishProviderRejectedChangeOfPartyCohort(testCommitment), Times.Never);
         }
     }
 }
