@@ -3,10 +3,13 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,15 +19,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     {
         public const string TemplateApproveNewEmployerDetailsLevy = "ApproveNewEmployerDetails_Levy";
         public const string TemplateApproveNewEmployerDetailsNonLevy = "ApproveNewEmployerDetails_NonLevy";
+
+        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IMediator _mediator;
         private readonly IEncodingService _encodingService;
         private readonly ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail> _logger;
 
-        public CohortWithChangeOfPartyCreatedEventHandlerForEmail(
+        public CohortWithChangeOfPartyCreatedEventHandlerForEmail(Lazy<ProviderCommitmentsDbContext> dbContext,
             IMediator mediator,
             IEncodingService encodingService,
             ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail> logger)
         {
+            _dbContext = dbContext;
             _logger = logger;
             _mediator = mediator;
             _encodingService = encodingService;
@@ -84,13 +90,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _logger.LogInformation($"Sent SendEmailToProviderCommand with template: ProviderApprenticeshipChangeOfProviderRequested");
         }
 
-        internal async Task<string> GetApprenticeNamePossessive(long apprenticeshipId)
+        private async Task<string> GetApprenticeNamePossessive(long apprenticeshipId)
         {
-            var apprenticeship = await _mediator.Send(new GetApprenticeshipQuery(apprenticeshipId));
+            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, default);
 
-            var name = $"{apprenticeship.FirstName} {apprenticeship.LastName}";
-
-            return name.EndsWith("s") ? name + "'" : name + "'s";
+            return apprenticeship.ApprenticeName.EndsWith("s") ? apprenticeship.ApprenticeName + "'" : apprenticeship.ApprenticeName + "'s";
         }
     }
 }
