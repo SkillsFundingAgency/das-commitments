@@ -852,6 +852,7 @@
         },
         {
             "name": "service-bus",
+            "resourceGroup": "[variables('resourceGroupName')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "properties": {
