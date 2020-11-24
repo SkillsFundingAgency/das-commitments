@@ -266,7 +266,7 @@
                         "value": "[variables('workerAppServicePlanName')]"
                     },
                     "appServicePlanResourceGroup": {
-                        "value": "[resourceGroup().name]"
+                        "value": "[variables('resourceGroupName')]"
                     },
                     "subnetResourceId": {
                         "value": "[reference('worker-subnet').outputs.SubnetResourceId.value]"
@@ -364,7 +364,7 @@
                         "value": "[variables('workerAppServicePlanName')]"
                     },
                     "appServicePlanResourceGroup": {
-                        "value": "[resourceGroup().name]"
+                        "value": "[variables('resourceGroupName')]"
                     },
                     "subnetResourceId": {
                         "value": "[reference('worker-subnet').outputs.SubnetResourceId.value]"
