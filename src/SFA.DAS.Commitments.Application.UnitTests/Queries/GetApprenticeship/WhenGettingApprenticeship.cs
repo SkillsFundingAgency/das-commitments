@@ -124,5 +124,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
 
             act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider {providerId} not authorised to access apprenticeship {_fakeRepositoryApprenticeship.Id}, expected provider {_fakeRepositoryApprenticeship.ProviderId}");
         }
+
+        [Test]
+        public async Task ThenGetChangeOfPartyResponseIsCalled()
+        {
+            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryApprenticeship);
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockApprenticeshipRespository.Verify(x => x.GetChangeOfPartyResponse(It.IsAny<long>()), Times.Once);
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         {
             PriceHistory = new List<PriceHistory>();
             DataLocks = new List<DataLockStatusSummary>();
+            ChangeOfPartyRequests = new List<ChangeOfPartyRequest>();
         }
 
         public long Id { get; set; }
@@ -60,6 +61,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public long? ContinuationOfId { get; set; }
         public List<DataLockStatusSummary> DataLocks { get; set; }
         public bool? MadeRedundant { get; set; }
+        public IEnumerable<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
 
         public Apprenticeship Clone()
         {
@@ -67,4 +69,6 @@ namespace SFA.DAS.Commitments.Domain.Entities
             return JsonConvert.DeserializeObject<Apprenticeship>(json);
         }
     }
+
+
 }

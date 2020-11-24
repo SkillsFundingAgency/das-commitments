@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
@@ -58,7 +58,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 EndpointAssessorName = source.EndpointAssessorName,
                 ReservationId = source.ReservationId,
                 ContinuationOfId = source.ContinuationOfId,
-                MadeRedundant = source.MadeRedundant
+                MadeRedundant = source.MadeRedundant,
+                ChangeOfPartyRequests = MapChangeOfParty(source.ChangeOfPartyRequests)
             };
         }
 
@@ -186,9 +187,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             };
         }
 
-        public ApprenticeshipUpdate MapApprenticeshipUpdate(Types.Apprenticeship.ApprenticeshipUpdate update)
+        public Domain.Entities.ApprenticeshipUpdate MapApprenticeshipUpdate(Types.Apprenticeship.ApprenticeshipUpdate update)
         {
-            var result = new ApprenticeshipUpdate
+            var result = new Domain.Entities.ApprenticeshipUpdate
             {
                 Id = update.Id,
                 ApprenticeshipId = update.ApprenticeshipId,
@@ -219,7 +220,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             return result;
         }
 
-        public Types.Apprenticeship.ApprenticeshipUpdate MapApprenticeshipUpdate(ApprenticeshipUpdate data)
+        public Types.Apprenticeship.ApprenticeshipUpdate MapApprenticeshipUpdate(Domain.Entities.ApprenticeshipUpdate data)
         {
             if (data == null)
             {
@@ -242,6 +243,36 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 StartDate = data.StartDate,
                 EndDate = data.EndDate
             };
+        }
+
+        private IEnumerable<Types.Apprenticeship.ChangeOfPartyRequest> MapChangeOfParty(IEnumerable<Domain.ChangeOfPartyRequest> changeOfPartyRequests)
+        {
+            var apprenticeshipChangeOfPartyRequests = new List<Types.Apprenticeship.ChangeOfPartyRequest>();
+
+            if (changeOfPartyRequests != null && changeOfPartyRequests.Count() > 0)
+            {
+                foreach (var changeOfRequest in changeOfPartyRequests)
+                {
+                    var apprenticeshipChangeOfPatyRequest = new Types.Apprenticeship.ChangeOfPartyRequest
+                    {
+                        Id = changeOfRequest.Id,
+                        NewApprenticeshipId = changeOfRequest.NewApprenticeshipId,
+                        CohortId = changeOfRequest.CohortId,
+                        EndDate = changeOfRequest.EndDate,
+                        StartDate = changeOfRequest.StartDate,
+                        Price = changeOfRequest.Price,
+                        ProviderId = changeOfRequest.ProviderId,
+                        OriginatingParty = (Types.Apprenticeship.Types.Party)changeOfRequest.OriginatingParty,
+                        WithParty = (Types.Apprenticeship.Types.Party?) changeOfRequest.WithParty,
+                        ChangeOfPartyType = (Types.Apprenticeship.Types.ChangeOfPartyRequestType)changeOfRequest.ChangeOfPartyType,
+                        Status = (Types.Apprenticeship.Types.ChangeOfPartyRequestStatus)changeOfRequest.Status
+                    };
+
+                    apprenticeshipChangeOfPartyRequests.Add(apprenticeshipChangeOfPatyRequest);
+                }
+            }
+
+            return apprenticeshipChangeOfPartyRequests;
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 
 namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
@@ -44,13 +44,12 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public bool DataLockCourseChangeTriaged { get; set; }
         public bool DataLockTriagedAsRestart { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
-
         public string ApprenticeshipName => $"{FirstName} {LastName}";
-
         public string EndpointAssessorName { get; set; }
         public Guid? ReservationId { get; set; }
         public DateTime? OriginalStartDate { get; set; }
         public long? ContinuationOfId { get; set; }
         public bool? MadeRedundant { get; set; }
+        public IEnumerable<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
     }
 }
