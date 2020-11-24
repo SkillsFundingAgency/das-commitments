@@ -307,24 +307,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.Cohort.TransferApprovalStatus.Should().BeNull();
         }
-
+        
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
-        public void AndChangeOfPartyRequestAndCohortSetWithTransferSenderIdThenShouldSetTransferApprovalStatus(Party modifyingParty)
+        public void AndChangeOfPartyRequestedAndCohortSetWithTransferSenderIdThenShouldSetTransferApprovalStatus(Party modifyingParty)
         {
             _fixture
                 .SetChangeOfPartyRequestId()
                 .SetTransferSenderId()
                 .SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
-                .SetApprovals(modifyingParty == Party.TransferSender ? (Party.Employer | Party.Provider) : modifyingParty.GetOtherParty())
+                .SetApprovals(modifyingParty.GetOtherParty())
                 .AddDraftApprenticeship()
                 .Approve();
             
             _fixture.Cohort.TransferApprovalStatus.Should().Be(TransferApprovalStatus.Approved);
             _fixture.Cohort.WithParty.Should().Be(Party.None);
-        }
-		
+        }    
+
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
         public void ThenTheStateChangesAreTracked(Party modifyingParty)
@@ -366,7 +366,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .Approve();
 
             _fixture.VerifyCohortWithChangeOfPartyRequestFullyApprovedEventIsEmitted(modifyingParty);
-        }       
+        }
+
+        [Test]
+        public void AndChangeOfPartyRequestedAndCohortSetWithTransferSenderIdThenShouldNotPublishCohortTransferApprovalRequestedEvent()
+        {
+            Party modifyingParty = Party.Provider;
+
+            _fixture
+                .SetChangeOfPartyRequestId()
+                .SetTransferSenderId()
+                .SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetApprovals(modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship()
+                .Approve();
+
+            _fixture.UnitOfWorkContext.GetEvents().OfType<CohortTransferApprovalRequestedEvent>().Count().Should().Be(0);
+        }
     }
 
     public class WhenApprovingCohortFixture

@@ -149,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             IsDraft = false;
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
-            {                   
+            {                  
                 TransferSenderId = apprenticeship.Cohort.TransferSenderId;               
             }
 
