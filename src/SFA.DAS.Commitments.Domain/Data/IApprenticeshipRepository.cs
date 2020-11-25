@@ -49,5 +49,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IEnumerable<long>> GetEmployerAccountIds();
         Task<ApprenticeshipsResult> GetApprovedApprenticeshipsByProvider(long providerId);
         Task<ApprenticeshipsResult> GetApprovedApprenticeshipsByEmployer(long accountId);
+        Task<IEnumerable<ChangeOfPartyRequest>> GetChangeOfPartyResponse(long apprenticeshipId);
     }
 }
