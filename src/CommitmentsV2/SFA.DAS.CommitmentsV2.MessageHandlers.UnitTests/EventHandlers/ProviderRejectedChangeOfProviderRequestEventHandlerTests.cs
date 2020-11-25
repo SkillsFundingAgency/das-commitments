@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             await _fixture.Handle();
 
-            _fixture.VerifyNoEmailIsSent();
+            _fixture.VerifyNoEmailIsSentToEmployer();
         }
 
     }
@@ -129,9 +129,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             ), It.IsAny<SendOptions>()));
         }
 
-        public void VerifyNoEmailIsSent()
+        public void VerifyNoEmailIsSentToEmployer()
         {
-            _mockPipelineContext.Verify(x => x.Publish(It.IsAny<SendEmailToProviderCommand>(), It.IsAny<PublishOptions>()), Times.Never);
             _mockPipelineContext.Verify(x => x.Publish(It.IsAny<SendEmailToEmployerCommand>(), It.IsAny<PublishOptions>()), Times.Never);
         }
     }
