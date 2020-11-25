@@ -42,11 +42,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
-            if (message.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+            if (message.OriginatingParty == Party.Provider)
             {
                 await SendEmployerEmail(context, cohortSummary);
             }
-            else if (message.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+            else if (message.OriginatingParty == Party.Employer)
             {
                 await SendProviderEmail(message, context, cohortSummary);
             }
@@ -74,7 +74,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         private async Task SendProviderEmail(CohortWithChangeOfPartyCreatedEvent message, IMessageHandlerContext context, GetCohortSummaryQueryResult cohortSummary)
         {
-            var apprenticeNamePossessive = await GetApprenticeNamePossessive(message.ApprenticeshipId);
+            var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+            
+            var apprenticeNamePossessive = await GetApprenticeNamePossessive(changeOfPartyRequest.ApprenticeshipId);
 
             var tokens = new Dictionary<string, string>
                 {

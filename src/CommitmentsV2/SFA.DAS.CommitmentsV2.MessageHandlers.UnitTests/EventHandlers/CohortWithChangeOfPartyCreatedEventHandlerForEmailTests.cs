@@ -19,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -45,15 +46,28 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             await _fixture.WithLevyStatus(ApprenticeshipEmployerType.NonLevy).Handle();
             _fixture.VerifyEmployerEmailSent(CohortWithChangeOfPartyCreatedEventHandlerForEmail.TemplateApproveNewEmployerDetailsNonLevy);
-        }   
+        }
+
+        [Test]
+        public async Task When_HandlingEvent_AndChangeOfPartyTypeIsEmployer_ThenProviderEmailNotSent()
+        {
+            await _fixture.WithLevyStatus(ApprenticeshipEmployerType.NonLevy).Handle();
+            _fixture.VerifyProviderEmailNotSent();
+        }
 
         [Test]
         public async Task When_HandlingEvent_AndChangeOfPartyTypeIsProvider_Then_EmailSentToProvider()
         {
-            await _fixture.ChangeProvider().Handle();
+            await _fixture.WithOriginatingParty(Party.Employer).Handle();
             _fixture.VerifyProviderEmailSent();
         }
 
+        [Test]
+        public async Task When_HandlingEvent_AndIsChangeOfProvider_ThenEmployerEmailIsNotSent()
+        {
+            await _fixture.WithOriginatingParty(Party.Employer).Handle();
+            _fixture.VerifyEmployerEmailNotSent();
+        }
         public class CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture
         {
             private readonly CohortWithChangeOfPartyCreatedEventHandlerForEmail _handler;
@@ -65,6 +79,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private readonly Mock<IEncodingService> _encodingService;
             private readonly GetCohortSummaryQueryResult _cohortSummary;
             private readonly Apprenticeship _apprenticeship;
+            private readonly ChangeOfPartyRequest _changeOfPartyRequest;
             private readonly string _expectedApprenticeName;
             private readonly string _expectedSubject;
             private readonly string _expectedRequestUrl;
@@ -72,11 +87,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private readonly string _cohortReference;
             private readonly string _employerEncodedAccountId;
             private Fixture _autoFixture;
+            public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
             public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture()
             {
                 _autoFixture = new Fixture();
                 _mediator = new Mock<IMediator>();
+                UnitOfWorkContext = new UnitOfWorkContext();
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -99,6 +116,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     ReservationId = _autoFixture.Create<Guid>()
                 };
 
+                _changeOfPartyRequest = new ChangeOfPartyRequest(_apprenticeship, ChangeOfPartyRequestType.ChangeProvider, Party.Employer, _autoFixture.Create<long>(), null, null, null, _autoFixture.Create<UserInfo>(), DateTime.Now);
+                _apprenticeship.Cohort.ChangeOfPartyRequestId = _changeOfPartyRequest.Id;
+
+                _db.ChangeOfPartyRequests.Add(_changeOfPartyRequest);
                 _db.Apprenticeships.Add(_apprenticeship);
                 _db.SaveChanges();
 
@@ -120,9 +141,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     Mock.Of<ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail>>());
 
                 _messageHandlerContext = new TestableMessageHandlerContext();
-                _event = _autoFixture.Create<CohortWithChangeOfPartyCreatedEvent>();
-                _event.OriginatingParty = Party.Provider;
-                _event.ApprenticeshipId = _apprenticeship.Id;
+
+                _event = new CohortWithChangeOfPartyCreatedEvent(_cohortSummary.CohortId, _changeOfPartyRequest.Id, Party.Employer, DateTime.Now, _autoFixture.Create<UserInfo>());
             }
 
             public async Task Handle()
@@ -132,14 +152,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture WithLevyStatus(ApprenticeshipEmployerType levyStatus)
             {
-                _event.ChangeOfPartyType = ChangeOfPartyRequestType.ChangeEmployer;
+                _event.OriginatingParty = Party.Provider;
                 _cohortSummary.LevyStatus = levyStatus;
-                return this;
-            }
-
-            public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture ChangeProvider()
-            {
-                _event.ChangeOfPartyType = ChangeOfPartyRequestType.ChangeProvider;
                 return this;
             }
 
@@ -158,6 +172,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Assert.AreEqual(_cohortReference, emailToEmployerCommand.Tokens["cohort_reference"]);
             }
 
+            public void VerifyEmployerEmailNotSent()
+            {
+                var emailToEmployerCommands = _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToEmployerCommand)
+                      .Select(y => y.Message as SendEmailToEmployerCommand);
+
+                Assert.AreEqual(0, emailToEmployerCommands.Count());
+            }
+
             public void VerifyProviderEmailSent()
             {
                 var emailToProviderCommands = _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToProviderCommand)
@@ -171,6 +193,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Assert.AreEqual(_expectedRequestUrl, providerEmail.Tokens["RequestUrl"]);
                 Assert.AreEqual(_expectedApprenticeName, providerEmail.Tokens["ApprenticeNamePossessive"]);
                 Assert.AreEqual(_expectedSubject, providerEmail.Tokens["Subject"]);
+            }
+
+            public void VerifyProviderEmailNotSent()
+            {
+                var emailToProviderCommands = _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToProviderCommand)
+                      .Select(y => y.Message as SendEmailToProviderCommand);
+
+                Assert.AreEqual(0, emailToProviderCommands.Count());
             }
 
             internal CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture WithOriginatingParty(Party originatingParty)

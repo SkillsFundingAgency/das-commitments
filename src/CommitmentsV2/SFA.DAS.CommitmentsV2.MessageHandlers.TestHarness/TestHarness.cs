@@ -157,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Sent {nameof(LevyAddedToAccount)}");
                             break;
                         case ConsoleKey.T:
-                            await _publisher.Publish(new CohortWithChangeOfPartyCreatedEvent (10006, 1, Party.Provider, ChangeOfPartyRequestType.ChangeEmployer, 1, DateTime.UtcNow, new UserInfo()));
+                            await _publisher.Publish(new CohortWithChangeOfPartyCreatedEvent (10006, 1, Party.Provider, DateTime.UtcNow, new UserInfo()));
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(CohortWithChangeOfPartyCreatedEvent)}");
                             break;
