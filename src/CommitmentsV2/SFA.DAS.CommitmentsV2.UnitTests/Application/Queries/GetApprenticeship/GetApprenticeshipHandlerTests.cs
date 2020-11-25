@@ -133,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     Cohort = previousCohort
                 };
 
-                var NextApprenticeship = new Apprenticeship
+                var nextApprenticeship = new Apprenticeship
                 {
                     Id = _autoFixture.Create<long>()
                 };
@@ -158,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     ContinuationOfId = PreviousApprenticeship.Id,
                     PreviousApprenticeship = PreviousApprenticeship,
                     OriginalStartDate = PreviousApprenticeship.StartDate,
-                    Continuation = NextApprenticeship
+                    Continuation = nextApprenticeship
                 };
 
                 switch (Apprenticeship.PaymentStatus)
