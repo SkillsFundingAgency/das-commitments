@@ -37,6 +37,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyConfirmationEmailSentToEmployer();
         }
 
+        [Test]
+        public async Task WhenHandlingEvent_AndChangeOfPartyTypeIsChangeOfEmployer_ThenNoEmailShouldBeSent()
+        {
+            _fixture.SetChangeOfPartyRequestTypeToChangeEmployer();
+
+            await _fixture.Handle();
+
+            _fixture.VerifyNoEmailIsSent();
+        }
+
     }
 
     class ProviderRejectedChangeOfProviderRequestEventHandlerTestFixture
@@ -98,6 +108,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             _changeOfPartyRequest.Setup(x => x.ChangeOfPartyType).Returns(ChangeOfPartyRequestType.ChangeProvider);
         }
+
+        public void SetChangeOfPartyRequestTypeToChangeEmployer()
+        {
+            _changeOfPartyRequest.Setup(x => x.ChangeOfPartyType).Returns(ChangeOfPartyRequestType.ChangeEmployer);
+        }
+
         public void VerifyConfirmationEmailSentToEmployer()
         {
             var apprenticeNamePossessive = _event.ApprenticeName.EndsWith("s") ? _event.ApprenticeName + "'" : _event.ApprenticeName + "'s";
@@ -111,6 +127,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                e.Tokens["AccountHashedId"] == AccountHashedId &&
                e.Tokens["ApprenticeshipHashedId"] == ApprenticeshipHashedId
             ), It.IsAny<SendOptions>()));
+        }
+
+        public void VerifyNoEmailIsSent()
+        {
+            _mockPipelineContext.Verify(x => x.Publish(It.IsAny<SendEmailToProviderCommand>(), It.IsAny<PublishOptions>()), Times.Never);
+            _mockPipelineContext.Verify(x => x.Publish(It.IsAny<SendEmailToEmployerCommand>(), It.IsAny<PublishOptions>()), Times.Never);
         }
     }
 }
