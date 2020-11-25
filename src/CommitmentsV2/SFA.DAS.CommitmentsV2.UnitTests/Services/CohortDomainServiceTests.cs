@@ -407,6 +407,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             }
         }
 
+        [Test]
+        public async Task UpdateDraftApprenticeship_When_CohortIsLinkedToChangeOfPartyRequest_Then_ChangeOfPartyRequestIsUpdated()
+        {
+            _fixture.VerifyChangeOfPartyRequestUpdated();
+        }
+
         [TestCase("2018-04-30", false)]
         [TestCase("2018-05-01", true)]
         public async Task AddDraftApprenticeship_Verify_StartDate_ForTransferSender_Is_After_May_2018(DateTime startDate, bool pass)
@@ -448,7 +454,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public DraftApprenticeship ExistingDraftApprenticeship { get; }
             public Apprenticeship PreviousApprenticeship { get; }
             public long DraftApprenticeshipId { get; }
-
+            public ChangeOfPartyRequest ChangeOfPartyRequest { get; }
             public Account EmployerAccount { get; set; }
             public Account TransferSenderAccount { get; set; }
             public Mock<Provider> Provider { get; set; }
@@ -556,6 +562,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     AccountLegalEntity = new AccountLegalEntity()
                 });
                 Db.Apprenticeships.Add(PreviousApprenticeship);
+
+                ChangeOfPartyRequest = fixture.Build<ChangeOfPartyRequest>()
+                    .With(x => x.ApprenticeshipId, PreviousApprenticeship.Id)
+                    .With(x => x.ProviderId, )
+                    .Create();
+
+                Db.ChangeOfPartyRequests.Add(ChangeOfPartyRequest);
 
                 AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
                 AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2020, 7, 31));
@@ -1164,6 +1177,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.IsNull(deleted, "Draft apprenticeship record not deleted");
             }
 
+            public void VerifyChangeOfPartyRequestUpdated()
+            {
+
+            }
             public void TearDown()
             {
                 Db.Database.EnsureDeleted();

@@ -147,7 +147,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
-
+            
             AssertHasProvider(cohortId, cohort.ProviderId);
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
 
@@ -156,6 +156,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (cohort.IsLinkedToChangeOfPartyRequest)
             {
                 await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
+
+                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(cohort.ChangeOfPartyRequestId.Value, cancellationToken);
+
+                changeOfPartyRequest.UpdateChangeOfPartyRequest(draftApprenticeshipDetails, cohort.EmployerAccountId, cohort.ProviderId, userInfo, _authenticationService.GetUserParty());
             }
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
