@@ -139,7 +139,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
         [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
         [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
-        public void And_RequestTypeIsChangeOfEmployer_Then_AssignedToOtherPartyEvent_Is_Emitted(ChangeOfPartyRequestType requestType)
+        public void Then_AssignedToOtherPartyEvent_Is_Emitted(ChangeOfPartyRequestType requestType)
         {
             _fixture.WithChangeOfPartyType(requestType);
             _fixture.CreateCohort();
