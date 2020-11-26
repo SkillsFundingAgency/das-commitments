@@ -142,6 +142,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return this;
         }
 
+        public ChangeOfPartyRequestDomainServiceTestsFixture WithSameTrainingProviderWhenRequestingChangeOfProvider()
+        {
+            ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider;
+            NewPartyId = Cohort.ProviderId;
+
+            return this;
+        }
+
         public async Task CreateChangeOfPartyRequest()
         {
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(OriginatingParty);
