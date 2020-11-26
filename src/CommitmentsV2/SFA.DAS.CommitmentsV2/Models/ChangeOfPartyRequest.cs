@@ -159,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public void UpdateChangeOfPartyRequest(DraftApprenticeshipDetails draftApprenticeshipDetails, long employerAccountId, long providerId, UserInfo userInfo, Party modifyingParty)
+        public virtual void UpdateChangeOfPartyRequest(DraftApprenticeshipDetails draftApprenticeshipDetails, long employerAccountId, long providerId, UserInfo userInfo, Party modifyingParty)
         {
             StartTrackingSession(UserAction.UpdateChangeOfPartyRequest, modifyingParty, employerAccountId, providerId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
