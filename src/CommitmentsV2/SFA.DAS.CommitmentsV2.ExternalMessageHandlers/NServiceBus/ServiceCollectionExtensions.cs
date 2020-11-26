@@ -15,11 +15,11 @@ using SFA.DAS.Payments.ProviderPayments.Messages;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
+namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.NServiceBus
 {
     public static class ServiceCollectionExtensions
     {
-        private const string EndpointName = "SFA.DAS.CommitmentsV2.MessageHandlers";
+        private const string EndpointName = "SFA.DAS.CommitmentsV2.ExternalMessageHandlers";
 
         public static IServiceCollection AddNServiceBus(this IServiceCollection services)
         {
@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                         .UseStructureMapBuilder(container)
                         .UseUnitOfWork();
 
-                    endpointConfiguration.Conventions().DefiningEventsAs(t => t.Name.EndsWith("Event") );
+                    endpointConfiguration.Conventions().DefiningEventsAs(t => t == typeof(RecordedAct1CompletionPayment));
 
                     if (isDevelopment)
                     {
