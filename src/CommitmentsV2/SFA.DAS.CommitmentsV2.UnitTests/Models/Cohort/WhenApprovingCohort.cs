@@ -307,7 +307,42 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.Cohort.TransferApprovalStatus.Should().BeNull();
         }
-		
+        
+        [Test]
+        public void AndChangeOfProviderRequestedAndCohortSetWithTransferSenderIdThenShouldSetTransferApprovalStatus()
+        {
+            Party modifyingParty = Party.Provider;
+
+            _fixture
+                .SetChangeOfPartyRequestId()
+                .SetTransferSenderId()
+                .SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetApprovals(modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship()
+                .Approve();
+            
+            _fixture.Cohort.TransferApprovalStatus.Should().Be(TransferApprovalStatus.Approved);
+            _fixture.Cohort.WithParty.Should().Be(Party.None);
+        }
+
+        [Test]
+        public void AndChangeOfEmployerRequestedAndCohortNotSetWithTransferSenderIdThenShouldNotSetTransferApprovalStatus()
+        {
+            Party modifyingParty = Party.Employer;
+
+            _fixture
+                .SetChangeOfPartyRequestId()                
+                .SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetApprovals(modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship()
+                .Approve();
+
+            _fixture.Cohort.TransferApprovalStatus.Should().Be(null);
+            _fixture.Cohort.WithParty.Should().Be(Party.None);
+        }
+
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
         public void ThenTheStateChangesAreTracked(Party modifyingParty)
@@ -341,7 +376,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public void ThenIfTheCohortIsLinkedToAChangeOfPartyRequestThenAnEventIsEmitted(Party modifyingParty)
         {
             _fixture
-                .SetChangeOfPartyRequestId()
+                .SetChangeOfPartyRequestId()    
                 .SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
                 .SetApprovals(modifyingParty == Party.TransferSender? (Party.Employer | Party.Provider) : modifyingParty.GetOtherParty())
@@ -349,6 +384,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .Approve();
 
             _fixture.VerifyCohortWithChangeOfPartyRequestFullyApprovedEventIsEmitted(modifyingParty);
+        }
+
+        [Test]
+        public void AndChangeOfProviderRequestedAndCohortSetWithTransferSenderIdThenShouldNotPublishCohortTransferApprovalRequestedEvent()
+        {
+            Party modifyingParty = Party.Provider;
+
+            _fixture
+                .SetChangeOfPartyRequestId()
+                .SetTransferSenderId()
+                .SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetApprovals(modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship()
+                .Approve();
+
+            _fixture.UnitOfWorkContext.GetEvents().OfType<CohortTransferApprovalRequestedEvent>().Count().Should().Be(0);
         }
     }
 
@@ -464,6 +516,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public WhenApprovingCohortFixture SetIsDraft(bool isDraft)
         {
             Cohort.IsDraft = isDraft;
+            return this;
+        }
+
+        public WhenApprovingCohortFixture SetTransferSenderId()
+        {
+            Cohort.Set(c => c.TransferSenderId, 456);
             return this;
         }
 
