@@ -10,10 +10,10 @@ namespace SFA.DAS.Commitments.Api
         {
             app.UseMixedModeAuthentication(new MixedModeAuthenticationOptions
             {
-                ConfigurationManager.AppSettings["ApiIssuers"].Split(' '),
-                ConfigurationManager.AppSettings["ApiAudiences"].Split(' '),
-                ConfigurationManager.AppSettings["ApiTokenSecret"],
-                ConfigurationManager.AppSettings["MetadataEndpoint"]
+                ValidIssuers = ConfigurationManager.AppSettings["ApiIssuers"].Split(' '),
+                ValidAudiences = ConfigurationManager.AppSettings["ApiAudiences"].Split(' '),
+                ApiTokenSecret = ConfigurationManager.AppSettings["ApiTokenSecret"],
+                MetadataEndpoint = ConfigurationManager.AppSettings["MetadataEndpoint"]
             });
         }
     }
