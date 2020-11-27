@@ -10,7 +10,7 @@
     <WebJobProjects>
       $(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj;
       $(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.Jobs\SFA.DAS.CommitmentsV2.Jobs.csproj;
-      $(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.ExternalExternalMessageHandlers\SFA.DAS.CommitmentsV2.ExternalExternalMessageHandlers.csproj;
+      $(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.ExternalMessageHandlers\SFA.DAS.CommitmentsV2.ExternalMessageHandlers.csproj;
     </WebJobProjects>
   </PropertyGroup>
 
