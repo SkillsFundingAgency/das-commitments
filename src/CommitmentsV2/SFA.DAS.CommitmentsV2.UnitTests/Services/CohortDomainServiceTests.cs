@@ -600,7 +600,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 });
                 Db.Apprenticeships.Add(PreviousApprenticeship);
 
-                // ChangeOfPartyRequest = new ChangeOfPartyRequest(PreviousApprenticeship, ChangeOfPartyRequestType.ChangeProvider, Party.Employer, ProviderId, null, null, null, fixture.Create<UserInfo>(), DateTime.Now);
                 ChangeOfPartyRequest = new Mock<ChangeOfPartyRequest>();
                 ChangeOfPartyRequest.Setup(x => x.Id).Returns(ChangeOfPartyRequestId);
 
@@ -1269,7 +1268,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyChangeOfPartyRequestUpdated()
             {
-                ChangeOfPartyRequest.Verify(x => x.UpdateChangeOfPartyRequest(It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<UserInfo>(), It.IsAny<Party>()), Times.Once);
+                ChangeOfPartyRequest.Verify(x => x.UpdateChangeOfPartyRequest(DraftApprenticeshipDetails, EmployerAccount.Id, ProviderId, It.IsAny<UserInfo>(), It.IsAny<Party>()), Times.Once);
             }
 
             public void VerifyChangeOfPartyRequestIsNotUpdated()
