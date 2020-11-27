@@ -150,7 +150,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual void SetNewApprenticeship(Apprenticeship apprenticeship, UserInfo userInfo, Party modifyingParty)
         {
             CheckNewApprenticeshipIdNotSet(apprenticeship.Id);
-
+           
             StartTrackingSession(UserAction.SetNewApprenticeshipId, modifyingParty, apprenticeship.Cohort.EmployerAccountId, apprenticeship.Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
