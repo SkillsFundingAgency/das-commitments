@@ -190,12 +190,15 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishProviderRejectedChangeOfPartyCohort(Commitment commitment)
         {
+            var apprenticeship = commitment.Apprenticeships.FirstOrDefault();
+
             var changeOfPartyRejectedEvent = new ProviderRejectedChangeOfPartyRequestEvent
             {
                 EmployerAccountId = commitment.EmployerAccountId,
                 EmployerName = commitment.LegalEntityName,
                 TrainingProviderName = commitment.ProviderName,
                 ChangeOfPartyRequestId = commitment.ChangeOfPartyRequestId.Value,
+                ApprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}"
             };
 
             return PublishWithLog(changeOfPartyRejectedEvent, $"Commitment: {commitment.Id}, EmployerAccountId: {commitment.EmployerAccountId}, ChangeOfPartyRequest: {commitment.ChangeOfPartyRequestId.Value}");

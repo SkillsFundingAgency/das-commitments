@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NServiceBus;
@@ -270,6 +271,39 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
+        #region PublishProviderRejectedChangeOfPartyCohort
+        [Test]
+        public async Task PublishProviderRejectedChangeOfPartyCohort_ShouldNotThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<BulkUploadIntoCohortCompletedEvent>();
+
+            await fixtures.Publish(publisher => publisher.PublishBulkUploadIntoCohortCompleted(fixtures.Commitment.ProviderId.Value, fixtures.Commitment.Id, 2));
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task PublishProviderRejectedChangeOfPartyCohort_ShouldPublishEventWithMappedValues()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ProviderRejectedChangeOfPartyRequestEvent>()
+                .WithChangeOfPartyRequest();
+
+            var apprenticeship = fixtures.Commitment.Apprenticeships.FirstOrDefault();
+
+            var employerAccountId = fixtures.Commitment.EmployerAccountId;
+            var employerName = fixtures.Commitment.LegalEntityName;
+            var trainingProvider = fixtures.Commitment.ProviderName;
+            var changeOfPartyRequestId = fixtures.Commitment.ChangeOfPartyRequestId;
+            var apprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}";
+
+            await fixtures.Publish(publisher => publisher.PublishProviderRejectedChangeOfPartyCohort(fixtures.Commitment));
+            fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.Is<ProviderRejectedChangeOfPartyRequestEvent>(p => p.EmployerAccountId == employerAccountId && 
+                p.EmployerName == employerName && 
+                p.TrainingProviderName == trainingProvider && 
+                p.ChangeOfPartyRequestId == changeOfPartyRequestId &&
+                p.ApprenticeName == apprenticeName), It.IsAny<PublishOptions>()));
+        }
+        #endregion
+
         #region SendApproveTransferRequestCommand
         [Test]
         public async Task ApproveTransferRequestCommandSent_ShouldMapPropertiesCorrectly()
@@ -330,7 +364,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             Apprenticeship = new Apprenticeship();
             Apprenticeship.AgreedOn = DateTime.Today.AddDays(-1);
-            Commitment = new Commitment {ProviderId = 123, Id = 1};
+            Apprenticeship.FirstName = "First";
+            Apprenticeship.LastName = "Last";
+            Commitment = new Commitment {ProviderId = 123, Id = 1, Apprenticeships = new List<Apprenticeship> { Apprenticeship } };
 
             var apprenticeship = new Mock<IApprenticeshipEvent>();
             apprenticeship.Setup(a => a.Apprenticeship).Returns(Apprenticeship);
@@ -393,6 +429,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         {
             Commitment.ApprenticeshipEmployerTypeOnApproval = apprenticeshipEmployerType;
             
+            return this;
+        }
+
+        public V2EventsPublisherTestFixtures<TEvent> WithChangeOfPartyRequest()
+        {
+            Commitment.ChangeOfPartyRequestId = 1;
             return this;
         }
 
