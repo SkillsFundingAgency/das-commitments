@@ -9,7 +9,7 @@ using StructureMap;
 using ApprenticeshipInfoServiceRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.ApprenticeshipInfoServiceRegistry;
 using EncodingRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.EncodingRegistry;
 
-namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.DependencyResolution
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution
 {
     public static class IoC
     {

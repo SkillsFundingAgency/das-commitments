@@ -6,7 +6,7 @@ using MediatR;
 using Moq;
 using NServiceBus;
 
-namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests
 {
     public class EventHandlerTestsFixture<TEvent, TEventHandler> where TEventHandler : IHandleMessages<TEvent>
     {

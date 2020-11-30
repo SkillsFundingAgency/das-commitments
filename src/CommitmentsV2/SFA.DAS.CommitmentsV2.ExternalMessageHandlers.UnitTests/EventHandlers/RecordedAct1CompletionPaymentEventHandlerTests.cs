@@ -6,13 +6,13 @@ using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.ExternalMessageHandlers.EventHandlers;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Payments.ProviderPayments.Messages;
 using SFA.DAS.Testing.Fakes;
 
-namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests.EventHandlers
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 {
     [TestFixture]
     public class RecordedAct1CompletionPaymentEventHandlerTests

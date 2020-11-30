@@ -4,7 +4,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.DependencyResolution
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution
 {
     public class DefaultRegistry : Registry
     {

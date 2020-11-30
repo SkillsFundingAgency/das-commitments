@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers
+﻿namespace SFA.DAS.CommitmentsV2.ExternalHandlers
 {
     public class AzureActiveDirectoryApiConfiguration
     {

@@ -4,13 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Caching;
-using SFA.DAS.CommitmentsV2.ExternalMessageHandlers.DependencyResolution;
-using SFA.DAS.CommitmentsV2.ExternalMessageHandlers.NServiceBus;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution;
+using SFA.DAS.CommitmentsV2.ExternalHandlers.NServiceBus;
 using SFA.DAS.CommitmentsV2.Startup;
 using SFA.DAS.Configuration.AzureTableStorage;
 using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers
 {
     public class Program
     {

@@ -7,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Payments.ProviderPayments.Messages;
 
-namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.EventHandlers
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers
 {
     public class RecordedAct1CompletionPaymentEventHandler : IHandleMessages<RecordedAct1CompletionPayment>
     {

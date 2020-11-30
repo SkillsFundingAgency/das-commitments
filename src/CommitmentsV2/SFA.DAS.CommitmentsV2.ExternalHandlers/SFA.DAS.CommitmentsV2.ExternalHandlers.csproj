@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsWebJobProject>true</IsWebJobProject>
-    <WebJobName>Commitmentsv2-ExternalMessageHandlers</WebJobName>
+    <WebJobName>Commitmentsv2-ExternalHandlers</WebJobName>
     <WebJobType>Continuous</WebJobType>
   </PropertyGroup>
   <ItemGroup>
@@ -44,7 +44,6 @@
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.3" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.2" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj" />

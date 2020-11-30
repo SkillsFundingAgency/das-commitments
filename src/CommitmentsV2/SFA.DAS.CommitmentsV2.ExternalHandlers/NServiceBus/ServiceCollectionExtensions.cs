@@ -15,11 +15,11 @@ using SFA.DAS.Payments.ProviderPayments.Messages;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.ExternalMessageHandlers.NServiceBus
+namespace SFA.DAS.CommitmentsV2.ExternalHandlers.NServiceBus
 {
     public static class ServiceCollectionExtensions
     {
-        private const string EndpointName = "SFA.DAS.CommitmentsV2.ExternalMessageHandlers";
+        private const string EndpointName = "SFA.DAS.CommitmentsV2.ExternalHandlers";
 
         public static IServiceCollection AddNServiceBus(this IServiceCollection services)
         {

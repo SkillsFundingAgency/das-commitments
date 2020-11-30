@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.ExternalMessageHandlers\SFA.DAS.CommitmentsV2.ExternalMessageHandlers.csproj" />
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.ExternalHandlers\SFA.DAS.CommitmentsV2.ExternalHandlers.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj" />
   </ItemGroup>
 
