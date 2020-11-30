@@ -7,10 +7,10 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
     {
         public long CohortId { get; }
         public long ChangeOfPartyRequestId { get; }
+        public Party OriginatingParty { get; set; }
         public DateTime CreatedOn { get; }
         public UserInfo UserInfo { get;  }
-        public Party OriginatingParty { get; set; }
-
+        
         public CohortWithChangeOfPartyCreatedEvent(long cohortId, long changeOfPartyRequestId, Party originatingParty, DateTime createdOn, UserInfo userInfo)
         {
             CohortId = cohortId;

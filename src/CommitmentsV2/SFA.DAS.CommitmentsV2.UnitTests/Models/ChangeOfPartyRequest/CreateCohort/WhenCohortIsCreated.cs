@@ -361,9 +361,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
                 {
                     Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
-                        x is CohortAssignedToEmployerEvent @event
-                        && @event.AssignedBy == Party.Provider
-                        && @event.CohortId == Result.Id));
+                    x is CohortAssignedToEmployerEvent @event
+                    && @event.AssignedBy == Party.Provider
+                    && @event.CohortId == Result.Id));
                 }
                 else
                 {

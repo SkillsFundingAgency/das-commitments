@@ -43,6 +43,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             fixture.VerfiyProviderTransferEmailRequestIsCreatedAndSentCorrectly(fixture.GetCohortSummaryQueryResult.LastAction);
         }
+
+        [Test]
+        public async Task Handle_WhenCalledAndCohortIsChangeOfProvider_ThenEmailShouldNotBeSent()
+        {
+            var fixture = new CohortAssignedToProviderEventHandlerTestsFixture().SetupChangeOfProviderCohort();
+            await fixture.Handle();
+
+            fixture.VerifyProviderAssignedEmailIsNotSentIfItIsAChangeOfProviderRequest();
+        }
     }
 
     public class CohortAssignedToProviderEventHandlerTestsFixture : EventHandlerTestsFixture<CohortAssignedToProviderEvent, CohortAssignedToProviderEventHandler>
@@ -63,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public CohortAssignedToProviderEventHandlerTestsFixture SetupNonTransferCohort()
         {
             GetCohortSummaryQueryResult = DataFixture.Build<GetCohortSummaryQueryResult>()
-                .With(p => p.CohortId, Message.CohortId).Without(p => p.TransferSenderId).Create();
+                .With(p => p.CohortId, Message.CohortId).Without(p => p.TransferSenderId).Without(p => p.ChangeOfPartyRequestId).Create();
 
             Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(GetCohortSummaryQueryResult);
@@ -74,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public CohortAssignedToProviderEventHandlerTestsFixture SetupTransferCohort()
         {
             GetCohortSummaryQueryResult = DataFixture.Build<GetCohortSummaryQueryResult>()
-                .With(p => p.CohortId, Message.CohortId).With(p => p.TransferSenderId, 12345).Create();
+                .With(p => p.CohortId, Message.CohortId).With(p => p.TransferSenderId, 12345).Without(p => p.ChangeOfPartyRequestId).Create();
 
             Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(GetCohortSummaryQueryResult);
@@ -82,6 +91,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             return this;
         }
 
+        public CohortAssignedToProviderEventHandlerTestsFixture SetupChangeOfProviderCohort()
+        {
+            GetCohortSummaryQueryResult = DataFixture.Build<GetCohortSummaryQueryResult>()
+                .With(p => p.ChangeOfPartyRequestId, 1000).Create();
+
+            Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(GetCohortSummaryQueryResult);
+
+            return this;
+        }
         public void VerfiyProviderEmailRequestIsCreatedAndSentCorrectly(LastAction lastAction)
         {
             var actionType = lastAction == LastAction.Approve ? "approval" : "review";
@@ -105,6 +124,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     p.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
                     p.Tokens["employer_name"] == GetCohortSummaryQueryResult.LegalEntityName &&
                     p.Tokens["type"] == actionType), default));
+        }
+
+        public void VerifyProviderAssignedEmailIsNotSentIfItIsAChangeOfProviderRequest()
+        {
+            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(It.IsAny<long>(),  It.IsAny<ProviderEmailRequest>(), 
+                It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }

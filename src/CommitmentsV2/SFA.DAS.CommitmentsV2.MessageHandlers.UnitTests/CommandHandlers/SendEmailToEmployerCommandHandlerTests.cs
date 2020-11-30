@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         {
             _fixture.SetupCommandWithSpecificEmailAddress(email).AddToEmployeeList(email, false);
             await _fixture.Handle();
-            _fixture.VerifyNoMessagesSent(); ;
+            _fixture.VerifyNoMessagesSent(); 
         }
 
         [TestCase("test@test.com")]
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         {
             _fixture.SetupCommandWithSpecificEmailAddress(email);
             await _fixture.Handle();
-            _fixture.VerifyNoMessagesSent(); ;
+            _fixture.VerifyNoMessagesSent(); 
         }
 
         [Test]
