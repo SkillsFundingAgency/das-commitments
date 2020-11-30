@@ -338,6 +338,47 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.UpdateDraftApprenticeship());
         }
 
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public async Task UpdateDraftApprenticeship_When_CohortIsLinkedToChangeOfProviderRequest_Then_ChangeOfPartyRequestIsUpdated(Party updatingParty)
+        {
+            _fixture.WithParty(updatingParty)
+                .WithChangeOfProviderCohort(updatingParty)
+                .WithExistingDraftApprenticeship()
+                .WithContinuation(false);
+
+            await _fixture.UpdateDraftApprenticeship();
+
+            _fixture.VerifyChangeOfPartyRequestUpdated();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public async Task UpdateDraftApprenticeship_When_CohortIsLinkedToChangeOfEmployerRequest_Then_ChangeOfPartyRequestIsNotUpdated(Party updatingParty)
+        {
+            _fixture.WithParty(updatingParty)
+                .WithChangeOfEmployerCohort(updatingParty)
+                .WithExistingDraftApprenticeship()
+                .WithContinuation(false);
+
+            await _fixture.UpdateDraftApprenticeship();
+
+            _fixture.VerifyChangeOfPartyRequestIsNotUpdated();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public async Task UpdateDraftApprenticeship_When_CohortIsNotLinkedToChangeOfPartyRequest_Then_ChangeOfPartyRequestIsNotUpdated(Party updatingParty)
+        {
+            _fixture.WithParty(updatingParty)
+                .WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, updatingParty)
+                .WithExistingDraftApprenticeship()
+                .WithNoUserInfo();
+
+            await _fixture.UpdateDraftApprenticeship();
+            _fixture.VerifyChangeOfPartyRequestIsNotUpdated();
+        }
+
         [Test]
         public void SendCohortToOtherParty_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
@@ -444,11 +485,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public long AccountLegalEntityId { get; }
             public long CohortId { get; }
             public string AccountLegalEntityPublicHashedId { get; }
+            public long ChangeOfPartyRequestId { get; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
             public DraftApprenticeship ExistingDraftApprenticeship { get; }
             public Apprenticeship PreviousApprenticeship { get; }
             public long DraftApprenticeshipId { get; }
-
+            public Mock<ChangeOfPartyRequest> ChangeOfPartyRequest { get; }
             public Account EmployerAccount { get; set; }
             public Account TransferSenderAccount { get; set; }
             public Mock<Provider> Provider { get; set; }
@@ -492,13 +534,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountId = 2;
                 AccountLegalEntityId = 3;
                 CohortId = 4;
+                ChangeOfPartyRequestId = 5;
                 MaLegalEntityId = fixture.Create<long>();
                 AccountLegalEntityPublicHashedId = fixture.Create<string>();
 
                 Message = fixture.Create<string>();
 
                 NewCohort = new Cohort {Apprenticeships = new List<ApprenticeshipBase> {new DraftApprenticeship()}};
-
+                
                 Provider = new Mock<Provider>(()=> new Provider(ProviderId, "Test Provider", DateTime.UtcNow, DateTime.UtcNow));
                 Provider.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<AccountLegalEntity>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
@@ -556,6 +599,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     AccountLegalEntity = new AccountLegalEntity()
                 });
                 Db.Apprenticeships.Add(PreviousApprenticeship);
+
+                ChangeOfPartyRequest = new Mock<ChangeOfPartyRequest>();
+                ChangeOfPartyRequest.Setup(x => x.Id).Returns(ChangeOfPartyRequestId);
+
+                Db.ChangeOfPartyRequests.Add(ChangeOfPartyRequest.Object);
 
                 AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
                 AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2020, 7, 31));
@@ -705,7 +753,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     TransferSenderId = null,
                 };
 
-
                 var cohorts = new List<Cohort> {Cohort};
                 
                 Provider.Setup(x => x.Cohorts).Returns(cohorts);
@@ -716,6 +763,63 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithChangeOfProviderCohort(Party withParty = Party.None)
+            {
+                Cohort = new Cohort
+                {
+                    Id = CohortId,
+                    WithParty = withParty,
+                    Originator = Originator.Employer,
+                    EditStatus = (withParty == Party.Employer || withParty == Party.Provider) ? withParty.ToEditStatus() : EditStatus.Both,
+                    Provider = Provider.Object,
+                    ProviderId = ProviderId,
+                    EmployerAccountId = AccountId,
+                    AccountLegalEntityId = AccountLegalEntityId,
+                    AccountLegalEntity = AccountLegalEntity.Object,
+                    TransferSenderId = null,
+                    ChangeOfPartyRequestId = ChangeOfPartyRequest.Object.Id
+                };
+
+                var cohorts = new List<Cohort> { Cohort };
+
+                Provider.Setup(x => x.Cohorts).Returns(cohorts);
+                AccountLegalEntity.Setup(x => x.Cohorts).Returns(cohorts);
+
+                Db.Cohorts.Add(Cohort);
+
+                ChangeOfPartyRequest.Setup(x => x.ChangeOfPartyType).Returns(ChangeOfPartyRequestType.ChangeProvider);
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithChangeOfEmployerCohort(Party withParty = Party.None)
+            {
+                Cohort = new Cohort
+                {
+                    Id = CohortId,
+                    WithParty = withParty,
+                    Originator = Originator.Provider,
+                    EditStatus = (withParty == Party.Employer || withParty == Party.Provider) ? withParty.ToEditStatus() : EditStatus.Both,
+                    Provider = Provider.Object,
+                    ProviderId = ProviderId,
+                    EmployerAccountId = AccountId,
+                    AccountLegalEntityId = AccountLegalEntityId,
+                    AccountLegalEntity = AccountLegalEntity.Object,
+                    TransferSenderId = null,
+                    ChangeOfPartyRequestId = ChangeOfPartyRequest.Object.Id
+                };
+
+                var cohorts = new List<Cohort> { Cohort };
+
+                Provider.Setup(x => x.Cohorts).Returns(cohorts);
+                AccountLegalEntity.Setup(x => x.Cohorts).Returns(cohorts);
+
+                Db.Cohorts.Add(Cohort);
+
+                ChangeOfPartyRequest.Setup(x => x.ChangeOfPartyType).Returns(ChangeOfPartyRequestType.ChangeEmployer);
+
+                return this;
+            }
             public CohortDomainServiceTestFixture WithExistingCohortApprovedByAllParties(Party creatingParty)
             {
                 WithCohortMappedToProviderAndAccountLegalEntity(creatingParty, Party.None);
@@ -747,13 +851,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     WithParty = Party.Employer
                 };
 
-                
-
                 Db.Cohorts.Add(Cohort);
 
                 return this;
             }
-
+          
             public CohortDomainServiceTestFixture WithExistingDraftApprenticeship()
             {
                 DraftApprenticeshipDetails.Id = DraftApprenticeshipId;
@@ -763,7 +865,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public CohortDomainServiceTestFixture WithContinuation(bool overlap)
             {
-                long? changeOfPartyRequestId = 234;
+                long? changeOfPartyRequestId = ChangeOfPartyRequest.Object.Id;
                 ExistingDraftApprenticeship.SetValue(x => x.ContinuationOfId, PreviousApprenticeship.Id);
                 Cohort.SetValue(x => x.ChangeOfPartyRequestId, changeOfPartyRequestId);
                 DraftApprenticeshipDetails.FirstName = ExistingDraftApprenticeship.FirstName;
@@ -1162,6 +1264,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var deleted = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
 
                 Assert.IsNull(deleted, "Draft apprenticeship record not deleted");
+            }
+
+            public void VerifyChangeOfPartyRequestUpdated()
+            {
+                ChangeOfPartyRequest.Verify(x => x.UpdateChangeOfPartyRequest(DraftApprenticeshipDetails, EmployerAccount.Id, ProviderId, It.IsAny<UserInfo>(), It.IsAny<Party>()), Times.Once);
+            }
+
+            public void VerifyChangeOfPartyRequestIsNotUpdated()
+            {
+                ChangeOfPartyRequest.Verify(x => x.UpdateChangeOfPartyRequest(It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<UserInfo>(), It.IsAny<Party>()), Times.Never);
             }
 
             public void TearDown()
