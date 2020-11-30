@@ -25,7 +25,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                         Price = r.Price,
                         CohortId = r.CohortId,
                         WithParty =  r.WithParty,
-                        NewApprenticeshipId = r.NewApprenticeshipId
+                        NewApprenticeshipId = r.NewApprenticeshipId,
+                        ProviderId = r.ProviderId
                     }).ToList()
             });
         }

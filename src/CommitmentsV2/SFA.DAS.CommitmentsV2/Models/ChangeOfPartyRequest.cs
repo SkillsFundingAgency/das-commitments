@@ -1,5 +1,6 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Domain;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
@@ -154,6 +155,18 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(this);
 
             NewApprenticeshipId = apprenticeship.Id;
+
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        public virtual void UpdateChangeOfPartyRequest(DraftApprenticeshipDetails draftApprenticeshipDetails, long employerAccountId, long providerId, UserInfo userInfo, Party modifyingParty)
+        {
+            StartTrackingSession(UserAction.UpdateChangeOfPartyRequest, modifyingParty, employerAccountId, providerId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+
+            Price = draftApprenticeshipDetails.Cost;
+            StartDate = draftApprenticeshipDetails.StartDate;
+            EndDate = draftApprenticeshipDetails.EndDate;
 
             ChangeTrackingSession.CompleteTrackingSession();
         }
