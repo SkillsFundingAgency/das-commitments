@@ -294,13 +294,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             var trainingProvider = fixtures.Commitment.ProviderName;
             var changeOfPartyRequestId = fixtures.Commitment.ChangeOfPartyRequestId;
             var apprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}";
+            var recipientEmail = fixtures.Commitment.LastUpdatedByEmployerEmail;
 
             await fixtures.Publish(publisher => publisher.PublishProviderRejectedChangeOfPartyCohort(fixtures.Commitment));
             fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.Is<ProviderRejectedChangeOfPartyRequestEvent>(p => p.EmployerAccountId == employerAccountId && 
                 p.EmployerName == employerName && 
                 p.TrainingProviderName == trainingProvider && 
                 p.ChangeOfPartyRequestId == changeOfPartyRequestId &&
-                p.ApprenticeName == apprenticeName), It.IsAny<PublishOptions>()));
+                p.ApprenticeName == apprenticeName &&
+                p.RecipientEmailAddress == recipientEmail), It.IsAny<PublishOptions>()));
         }
         #endregion
 

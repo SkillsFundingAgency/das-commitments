@@ -8,5 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public string EmployerName { get; set; }
         public string ApprenticeName { get; set; }
         public long ChangeOfPartyRequestId { get; set; }
+        public string RecipientEmailAddress { get; set; }
     }
 }

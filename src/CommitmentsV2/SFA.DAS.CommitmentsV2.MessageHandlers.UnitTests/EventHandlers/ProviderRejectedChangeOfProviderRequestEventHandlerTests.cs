@@ -97,7 +97,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _db.SaveChanges();
 
             _handler = new ProviderRejectedChangeOfPartyRequestEventHandler(_mockEncodingService.Object, new Lazy<ProviderCommitmentsDbContext>(() => _db));
-
         }
         public Task Handle()
         {
@@ -125,7 +124,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                e.Tokens["TrainingProviderName"] == _event.TrainingProviderName &&
                e.Tokens["ApprenticeNamePossessive"] == apprenticeNamePossessive &&
                e.Tokens["AccountHashedId"] == AccountHashedId &&
-               e.Tokens["ApprenticeshipHashedId"] == ApprenticeshipHashedId
+               e.Tokens["ApprenticeshipHashedId"] == ApprenticeshipHashedId &&
+               e.EmailAddress == _event.RecipientEmailAddress
             ), It.IsAny<SendOptions>()));
         }
 
