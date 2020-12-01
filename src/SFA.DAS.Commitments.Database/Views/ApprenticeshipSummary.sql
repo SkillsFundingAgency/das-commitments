@@ -1,7 +1,7 @@
 ﻿CREATE VIEW [dbo].[ApprenticeshipSummary]
 AS 
 
-SELECT
+SELECT 
 	a.Id,a.CommitmentId,a.FirstName,a.LastName, a.Cost,a.ULN,a.TrainingType,a.TrainingCode,a.TrainingName,
 	a.StartDate,a.EndDate,	
 	CASE
@@ -24,15 +24,15 @@ SELECT
 	CASE WHEN dlCourse.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourse',
 	CASE WHEN dlCourseTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourseTriaged',
 	CASE WHEN dlCourseChangeTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourseChangeTriaged',
-	CASE
+	CASE 
 		WHEN
-			a.FirstName IS NOT NULL AND
-			a.LastName IS NOT NULL AND
-			a.Cost IS NOT NULL AND
-			a.StartDate IS NOT NULL AND
-			a.EndDate IS NOT NULL AND
-			a.TrainingCode IS NOT NULL AND
-			a.DateOfBirth IS NOT NULL
+			a.FirstName IS NOT NULL AND 
+			a.LastName IS NOT NULL AND 
+			a.Cost IS NOT NULL AND 
+			a.StartDate IS NOT NULL AND 
+			a.EndDate IS NOT NULL AND 
+			a.TrainingCode IS NOT NULL AND 
+			a.DateOfBirth IS NOT NULL 
 		THEN
 			1
 		ELSE
@@ -40,13 +40,13 @@ SELECT
 	END AS 'EmployerCanApproveApprenticeship',
 	CASE
 		WHEN
-			a.FirstName IS NOT NULL AND
-			a.LastName IS NOT NULL AND
-			a.ULN IS NOT NULL AND -- ULN is required for provider approval
-			a.Cost IS NOT NULL AND
-			a.StartDate IS NOT NULL AND
-			a.EndDate IS NOT NULL AND
-			a.TrainingCode IS NOT NULL AND
+			a.FirstName IS NOT NULL AND 
+			a.LastName IS NOT NULL AND 
+			a.ULN IS NOT NULL AND -- ULN is required for provider approval 
+			a.Cost IS NOT NULL AND 
+			a.StartDate IS NOT NULL AND 
+			a.EndDate IS NOT NULL AND 
+			a.TrainingCode IS NOT NULL AND 
 			a.DateOfBirth IS NOT NULL
 		THEN
 			1
@@ -57,7 +57,7 @@ SELECT
 	a.ReservationId,
 	a.OriginalStartDate,
 	a.MadeRedundant,
-	CASE
+	CASE 
 		WHEN
 			changeOfPartyRequest.Id IS NOT NULL AND
 			changeOfPartyRequest.ChangeOfPartyType =1
@@ -66,11 +66,11 @@ SELECT
 		 ELSE
 		     0
 	END As 'IsEmployerContinuation'
-	FROM
+	FROM 
 		Apprenticeship a
-	INNER JOIN
+	INNER JOIN 
 		Commitment c
-	ON
+	ON 
 		c.Id = a.CommitmentId
 	INNER JOIN [Providers] p on p.Ukprn = c.ProviderId
 	INNER JOIN [AccountLegalEntities] ale on ale.Id = c.AccountLegalEntityId
@@ -81,8 +81,8 @@ SELECT
 	LEFT JOIN DataLockStatus dlPrice on dlPrice.Id =
 		(
 			SELECT TOP 1
-        Id
-      FROM
+        Id 
+      FROM 
         DataLockStatus
 			WHERE ApprenticeshipId = a.Id
 			AND ErrorCode = 64
@@ -91,7 +91,7 @@ SELECT
 			AND [IsResolved] = 0
 			AND [EventStatus] <> 3
 			AND [IsExpired] = 0
-      ORDER BY
+      ORDER BY 
         IlrEffectiveFromDate, Id
 		)
 	LEFT JOIN DataLockStatus dlPriceTriaged on dlPriceTriaged.Id =
