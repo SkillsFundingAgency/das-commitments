@@ -51,5 +51,6 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public long? ContinuationOfId { get; set; }
         public bool? MadeRedundant { get; set; }
         public IEnumerable<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
+        public bool IsEmployerContinuation { get; set; }
     }
 }
