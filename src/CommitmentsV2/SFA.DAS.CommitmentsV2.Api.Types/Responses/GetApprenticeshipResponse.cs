@@ -28,8 +28,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string EndpointAssessorName { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public long? ContinuationOfId { get; set; }
+        public long? ContinuedById { get; set; }
         public DateTime? OriginalStartDate { get; set; }
         public bool IsContinuation => ContinuationOfId.HasValue;
+        public bool HasContinuation => ContinuedById.HasValue;
         public long? PreviousProviderId { get; set; }
         public long? PreviousEmployerAccountId { get; set; }
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
