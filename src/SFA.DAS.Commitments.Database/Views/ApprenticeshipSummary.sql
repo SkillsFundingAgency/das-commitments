@@ -65,7 +65,7 @@ SELECT
 		    1
 		 ELSE
 		     0
-	END As 'IsEmployerContinuation'
+	END As 'IsChangeOfProviderContinuation'
 	FROM 
 		Apprenticeship a
 	INNER JOIN 

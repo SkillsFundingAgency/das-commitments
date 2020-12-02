@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 ContinuationOfId = source.ContinuationOfId,
                 MadeRedundant = source.MadeRedundant,
                 ChangeOfPartyRequests = MapChangeOfParty(source.ChangeOfPartyRequests),
-                IsEmployerContinuation = source.IsEmployerContinuation
+                IsChangeOfProviderContinuation = source.IsChangeOfProviderContinuation
             };
         }
 
