@@ -16,16 +16,13 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<ConfigurationRegistry>();
-            registry.IncludeRegistry<ApprenticeshipInfoServiceRegistry>();
+
             registry.IncludeRegistry<DataRegistry>();
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
-            registry.IncludeRegistry<PasAccountApiClientRegistry>();
             registry.IncludeRegistry<EncodingRegistry>();
             registry.IncludeRegistry<DiffServiceRegistry>();
-            registry.IncludeRegistry<EmployerAccountsRegistry>();
-            registry.IncludeRegistry<ReservationsApiClientRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
         }
     }

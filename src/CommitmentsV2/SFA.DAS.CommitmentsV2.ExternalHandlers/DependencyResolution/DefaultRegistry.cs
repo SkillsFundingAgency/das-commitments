@@ -11,9 +11,8 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution
         public DefaultRegistry()
         {
             For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
-            For<IFundingCapService>().Use<FundingCapService>().Singleton();
             For<ITopicClientFactory>().Use<TopicClientFactory>();
-            For<ILegacyTopicMessagePublisher>().Use<LegacyTopicMessagePublisher>().Ctor<string>("connectionString").Is(ctx=>ctx.GetInstance<CommitmentsV2Configuration>().MessageServiceBusConnectionString);
+            For<ILegacyTopicMessagePublisher>().Use<LegacyTopicMessagePublisher>().Ctor<string>("connectionString").Is(ctx => ctx.GetInstance<CommitmentsV2Configuration>().MessageServiceBusConnectionString);
         }
     }
 }
