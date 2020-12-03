@@ -64,6 +64,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             await CreateHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName);
             await _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED");
             await PublishMessageIfProviderApprovedCohortDeletedByEmployer(commitment, command.Caller.CallerType);
+            await PublishMessageIfChangeOfPartyCohortRejected(commitment, command.Caller.CallerType);
             await PublishV2Events(commitment);
         }
 
@@ -148,6 +149,14 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             foreach (var apprenticeship in commitment.Apprenticeships)
             {
                 await _v2EventsPublisher.PublishApprenticeshipDeleted(commitment, apprenticeship);
+            }
+        }
+
+        private async Task PublishMessageIfChangeOfPartyCohortRejected(Commitment commitment, CallerType caller)
+        {
+            if (caller == CallerType.Provider && commitment.ChangeOfPartyRequestId.HasValue)
+            {
+                await _v2EventsPublisher.PublishProviderRejectedChangeOfPartyCohort(commitment);
             }
         }
     }
