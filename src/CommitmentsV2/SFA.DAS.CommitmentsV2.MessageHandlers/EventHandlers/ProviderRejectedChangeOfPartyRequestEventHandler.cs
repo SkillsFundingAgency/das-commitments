@@ -36,8 +36,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                         { "TrainingProviderName", message.TrainingProviderName },
                         { "ApprenticeNamePossessive", message.ApprenticeName.EndsWith("s") ? message.ApprenticeName + "'" : message.ApprenticeName + "'s" },
                         { "AccountHashedId", _encodingService.Encode(message.EmployerAccountId, EncodingType.AccountId) },
-                        { "ApprenticeshipHashedId", _encodingService.Encode(changeOfPartyRequest.ApprenticeshipId, EncodingType.ApprenticeshipId) }
-                    }
+                        { "ApprenticeshipHashedId", _encodingService.Encode(changeOfPartyRequest.ApprenticeshipId, EncodingType.ApprenticeshipId) } 
+                    },
+                    message.RecipientEmailAddress
                 );
 
                 await context.Send(sendEmailCommand, new SendOptions());
