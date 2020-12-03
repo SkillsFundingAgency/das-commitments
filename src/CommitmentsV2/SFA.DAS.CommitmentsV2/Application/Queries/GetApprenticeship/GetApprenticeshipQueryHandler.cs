@@ -53,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         HasHadDataLockSuccess = apprenticeship.HasHadDataLockSuccess,
                         CompletionDate = apprenticeship.CompletionDate,
                         ContinuationOfId = apprenticeship.ContinuationOfId,
+                        ContinuedById = apprenticeship.Continuation != null ? apprenticeship.Continuation.Id : default(long?),
                         PreviousProviderId = apprenticeship.IsContinuation
                             ? apprenticeship.PreviousApprenticeship.Cohort.ProviderId
                             : default(long?),
