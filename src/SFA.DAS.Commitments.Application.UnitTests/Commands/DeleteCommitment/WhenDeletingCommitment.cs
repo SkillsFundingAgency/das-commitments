@@ -334,7 +334,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
                 {
                     new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval, AgreementStatus = AgreementStatus.NotAgreed},
                 },
-                ChangeOfPartyRequestId = 100
+                ChangeOfPartyRequestId = 100,
+                LastUpdatedByEmployerEmail = "test@employer.com"
             };
 
             _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
@@ -359,7 +360,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
                 {
                     new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval, AgreementStatus = AgreementStatus.NotAgreed},
                 },
-                ChangeOfPartyRequestId = changeOfProviderId
+                ChangeOfPartyRequestId = changeOfProviderId,
+                LastUpdatedByEmployerEmail = "test@employer.com"
             };
 
             _validCommand.Caller.CallerType = callerType;
