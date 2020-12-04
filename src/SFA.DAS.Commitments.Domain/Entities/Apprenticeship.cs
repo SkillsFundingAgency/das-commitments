@@ -62,6 +62,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public List<DataLockStatusSummary> DataLocks { get; set; }
         public bool? MadeRedundant { get; set; }
         public IEnumerable<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
+        public bool IsChangeOfProviderContinuation { get; set; }
 
         public Apprenticeship Clone()
         {
