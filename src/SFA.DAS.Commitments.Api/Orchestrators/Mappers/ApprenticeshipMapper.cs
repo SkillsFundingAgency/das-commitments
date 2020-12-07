@@ -59,7 +59,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 ReservationId = source.ReservationId,
                 ContinuationOfId = source.ContinuationOfId,
                 MadeRedundant = source.MadeRedundant,
-                ChangeOfPartyRequests = MapChangeOfParty(source.ChangeOfPartyRequests)
+                ChangeOfPartyRequests = MapChangeOfParty(source.ChangeOfPartyRequests),
+                IsChangeOfProviderContinuation = source.IsChangeOfProviderContinuation
             };
         }
 
