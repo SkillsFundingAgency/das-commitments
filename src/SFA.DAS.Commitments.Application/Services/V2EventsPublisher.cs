@@ -198,7 +198,8 @@ namespace SFA.DAS.Commitments.Application.Services
                 EmployerName = commitment.LegalEntityName,
                 TrainingProviderName = commitment.ProviderName,
                 ChangeOfPartyRequestId = commitment.ChangeOfPartyRequestId.Value,
-                ApprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}"
+                ApprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
+                RecipientEmailAddress = commitment.LastUpdatedByEmployerEmail
             };
 
             return PublishWithLog(changeOfPartyRejectedEvent, $"Commitment: {commitment.Id}, EmployerAccountId: {commitment.EmployerAccountId}, ChangeOfPartyRequest: {commitment.ChangeOfPartyRequestId.Value}");
