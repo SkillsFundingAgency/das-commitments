@@ -45,12 +45,6 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Apprenticeships.Api.Types, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Types.0.11.129\lib\net462\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
-    </Reference>
-    <Reference Include="SFA.DAS.AssessmentOrgs.Api.Client, Version=0.11.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.AssessmentOrgs.Api.Client.0.11.75\lib\net45\SFA.DAS.AssessmentOrgs.Api.Client.dll</HintPath>
-    </Reference>
     <Reference Include="SFA.DAS.Common.Domain, Version=1.4.272.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Common.Domain.1.4.272\lib\net462\SFA.DAS.Common.Domain.dll</HintPath>
     </Reference>
@@ -90,7 +84,14 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Configuration\IApprovalsOuterApiConfiguration.cs" />
+    <Compile Include="Api\Requests\IGetApiRequest.cs" />
+    <Compile Include="Api\Types\FrameworkSummary.cs" />
+    <Compile Include="Api\Types\FundingPeriodItem.cs" />
+    <Compile Include="Api\Types\OrganisationSummary.cs" />
+    <Compile Include="Api\Types\StandardSummary.cs" />
     <Compile Include="CallerTypeExtensions.cs" />
+    <Compile Include="Configuration\ApprovalsOuterApiConfiguration.cs" />
     <Compile Include="Data\IApprenticeshipRepository.cs" />
     <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
     <Compile Include="Data\IAssessmentOrganisationRepository.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="Extensions\DataLockStatusSummaryExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="GetChangeOfPartyResponse.cs" />
+    <Compile Include="Interfaces\IApiClient.cs" />
     <Compile Include="Interfaces\IApprenticeshipInfoServiceMapper.cs" />
     <Compile Include="Interfaces\IAssessmentOrgs.cs" />
     <Compile Include="Interfaces\ICache.cs" />
