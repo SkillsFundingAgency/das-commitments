@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SFA.DAS.Apprenticeships.Api.Types;
+using SFA.DAS.Commitments.Domain.Api.Types;
 using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using Framework = SFA.DAS.Commitments.Domain.Entities.TrainingProgramme.Framework;
-using Standard = SFA.DAS.Commitments.Domain.Entities.TrainingProgramme.Standard;
-using FundingPeriod = SFA.DAS.Commitments.Domain.Entities.TrainingProgramme.FundingPeriod;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
@@ -43,8 +40,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 CreationDate = DateTime.UtcNow,
                 Standards = standards.Select(x => new Standard
                 {
-                    Id = x.Id,
-                    Code = long.Parse(x.Id),
+                    Id = x.Id.ToString(),
+                    Code = Convert.ToInt64(x.Id),
                     Level = x.Level,
                     Title = GetTitle(x.Title, x.Level) + " (Standard)",
                     CourseName = x.Title,
@@ -56,7 +53,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 }).ToList()
             };
         }
-        private static IEnumerable<FundingPeriod> MapFundingPeriods(IEnumerable<Apprenticeships.Api.Types.FundingPeriod> source)
+        private static IEnumerable<FundingPeriod> MapFundingPeriods(IEnumerable<FundingPeriodItem> source)
         {
             if (source == null)
             {

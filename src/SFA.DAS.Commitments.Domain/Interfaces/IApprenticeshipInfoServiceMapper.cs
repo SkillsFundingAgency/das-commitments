@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using SFA.DAS.Apprenticeships.Api.Types;
+using SFA.DAS.Commitments.Domain.Api.Types;
 using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.Commitments.Domain.Interfaces

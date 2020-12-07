@@ -29,15 +29,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
         protected Mock<ICommitmentRepository> CommitmentRepository;
         protected Mock<IApprenticeshipRepository> ApprenticeshipRepository;
         protected Mock<IApprenticeshipOverlapRules> OverlapRules;
-        protected Mock<ICurrentDateTime> CurrentDateTime;
-        protected Mock<IHistoryRepository> HistoryRepository;
-        protected Mock<IApprenticeshipEventsList> ApprenticeshipEventsList;
-        protected Mock<IApprenticeshipEventsPublisher> ApprenticeshipEventsPublisher;
-        protected Mock<IMediator> Mediator;
-        protected Mock<IMessagePublisher> MessagePublisher;
-        protected Mock<IApprenticeshipInfoService> ApprenticeshipInfoService;
         protected Mock<IEmployerAccountsService> EmployerAccountsService;
-        protected Mock<INotificationsPublisher> NotificationsPublisher;
         protected Mock<IV2EventsPublisher> V2EventsPublisher;
         protected AsyncRequestHandler<T> Target;
         protected T Command;
@@ -57,14 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
             CommitmentRepository = new Mock<ICommitmentRepository>();
             ApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             OverlapRules = new Mock<IApprenticeshipOverlapRules>();
-            CurrentDateTime = new Mock<ICurrentDateTime>();
-            HistoryRepository = new Mock<IHistoryRepository>();
-            ApprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
-            ApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
-            Mediator = new Mock<IMediator>();
-            MessagePublisher = new Mock<IMessagePublisher>();
             EmployerAccountsService = new Mock<IEmployerAccountsService>();
-            NotificationsPublisher = new Mock<INotificationsPublisher>();
             V2EventsPublisher = new Mock<IV2EventsPublisher>();
         }
 
