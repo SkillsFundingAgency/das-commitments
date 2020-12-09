@@ -35,8 +35,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
             // ms fake would be preferable
             For<ICurrentDateTime>().Use(x => new CurrentDateTime());
 
-            For<HttpClient>().Singleton().Use(x => new HttpClient());
-            For<IApiClient>().Use<ApiClient>();
+            For<IApiClient>().Use<ApiClient>().Ctor<HttpClient>().Is(new HttpClient());
 
             For<IAssessmentOrganisationRepository>().Use<AssessmentOrganisationRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);

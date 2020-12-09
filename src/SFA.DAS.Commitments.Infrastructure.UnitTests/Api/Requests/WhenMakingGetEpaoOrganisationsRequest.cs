@@ -1,7 +1,7 @@
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Infrastructure.Api.Requests;
+using SFA.DAS.Commitments.Domain.Api.Requests;
 
 namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Api.Requests
 {

@@ -26,8 +26,6 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Api
         {
             //Arrange
             config.BaseUrl = "https://test.local";
-            var configMock = new Mock<IApprovalsOuterApiConfiguration>();
-            configMock.Setup(x => x).Returns(config);
             var getTestRequest = new GetTestRequest();
             
             var response = new HttpResponseMessage
@@ -35,9 +33,9 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Api
                 Content = new StringContent(JsonConvert.SerializeObject(testObject)),
                 StatusCode = HttpStatusCode.Accepted
             };
-            var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, getTestRequest.GetUrl, config.Key);
+            var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, configMock.Object);
+            var apiClient = new ApiClient(client, config);
 
             //Act
             var actual = await apiClient.Get<List<string>>(getTestRequest);
@@ -52,8 +50,6 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Api
         {
             //Arrange
             config.BaseUrl = "https://test.local";
-            var configMock = new Mock<IApprovalsOuterApiConfiguration>();
-            configMock.Setup(x => x).Returns(config);
             var getTestRequest = new GetTestRequest();
             var response = new HttpResponseMessage
             {
@@ -63,7 +59,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Api
             
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, configMock.Object);
+            var apiClient = new ApiClient(client, config);
             
             //Act Assert
             Assert.ThrowsAsync<HttpRequestException>(() => apiClient.Get<List<string>>(getTestRequest));
@@ -75,9 +71,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Api
             ApprovalsOuterApiConfiguration config)
         {
             //Arrange
-            var configMock = new Mock<IApprovalsOuterApiConfiguration>();
             config.BaseUrl = "https://test.local";
-            configMock.Setup(x => x).Returns(config);
+            
             var getTestRequest = new GetTestRequest();
             var response = new HttpResponseMessage
             {
@@ -87,7 +82,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Api
             
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, configMock.Object);
+            var apiClient = new ApiClient(client, config);
             
             //Act Assert
             var actual = await apiClient.Get<List<string>>(getTestRequest);
