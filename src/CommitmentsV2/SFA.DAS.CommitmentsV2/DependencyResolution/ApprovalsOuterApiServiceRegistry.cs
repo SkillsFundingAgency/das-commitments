@@ -6,9 +6,9 @@ using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
 {
-    public class ApprenticeshipInfoServiceRegistry : Registry
+    public class ApprovalsOuterApiServiceRegistry : Registry
     {
-        public ApprenticeshipInfoServiceRegistry()
+        public ApprovalsOuterApiServiceRegistry()
         {
             For<IApiClient>().Use<ApiClient>().Ctor<HttpClient>().Is(new HttpClient());
             For<ITrainingProgrammeLookup>().Use<TrainingProgrammeLookup>().Singleton();

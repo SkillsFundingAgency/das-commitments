@@ -2,12 +2,10 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models.Api;
-using SFA.DAS.CommitmentsV2.Models.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Infrastructure
 {
@@ -16,9 +14,9 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
         private readonly HttpClient _httpClient;
         private readonly ApprovalsOuterApiConfiguration _config;
 
-        public ApiClient (HttpClient httpClient, IOptions<ApprovalsOuterApiConfiguration> config)
+        public ApiClient (HttpClient httpClient, ApprovalsOuterApiConfiguration config)
         {
-            _config = config.Value;
+            _config = config;
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri(_config.BaseUrl);
             
