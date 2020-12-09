@@ -17,6 +17,7 @@ namespace SFA.DAS.Commitments.Application.Extensions
             routingSettings.RouteToEndpoint(typeof(SendEmailToEmployerCommand), CommitmentsV2MessageHandler);
             routingSettings.RouteToEndpoint(typeof(ApproveTransferRequestCommand), CommitmentsV2MessageHandler);
             routingSettings.RouteToEndpoint(typeof(RejectTransferRequestCommand), CommitmentsV2MessageHandler);
+            routingSettings.RouteToEndpoint(typeof(UpdateChangeOfPartyRequestCommand), CommitmentsV2MessageHandler);
             routingSettings.RouteToEndpoint(typeof(SendEmailCommand), NotificationsMessageHandler);
         }
     }

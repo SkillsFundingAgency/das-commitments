@@ -63,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             LogMessage(command);
 
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
-
+            
             CheckCommitmentCanBeUpdated(command, commitment);
 
             var userInfo = new UserInfo
@@ -72,6 +72,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 UserEmail = command.LastUpdatedByEmail,
                 UserId = command.UserId
             };
+
+            if (commitment.ChangeOfPartyRequestId.HasValue)
+            {
+                await _v2EventsPublisher.SendUpdateChangeOfPartyRequestCommand(command.CommitmentId, userInfo);
+            }
 
             await _v2EventsPublisher.SendProviderSendCohortCommand(command.CommitmentId, command.Message, userInfo);
         }

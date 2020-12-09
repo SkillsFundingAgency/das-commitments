@@ -57,7 +57,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             V2EventsPublisher = new Mock<IV2EventsPublisher>();
             V2EventsPublisher.Setup(x => x.SendProviderSendCohortCommand(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<UserInfo>()))
                 .Returns(Task.CompletedTask);
-
+            
             _handler = new UpdateCommitmentAgreementCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRespository.Object,
@@ -207,6 +207,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
             Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(_validCommand));
+        }
+
+        [Test]
+        public async Task If_CohortIsAChangeProviderRequest_Then_SendUpdateOfPartyRequestCommandIsSent()
+        {
+            _validCommand.Caller = new Caller
+            {
+                CallerType = CallerType.Provider,
+                Id = 325
+            };
+            
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.ProviderOnly, ProviderId = 325, ChangeOfPartyRequestId = 222 };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            await _handler.Handle(_validCommand);
+
+            V2EventsPublisher.Verify(x => x.SendUpdateChangeOfPartyRequestCommand(_validCommand.CommitmentId,
+                It.Is<UserInfo>(u =>
+                    u.UserId == _validCommand.UserId &&
+                    u.UserDisplayName == _validCommand.LastUpdatedByName &&
+                    u.UserEmail == _validCommand.LastUpdatedByEmail)));
         }
     }
 }

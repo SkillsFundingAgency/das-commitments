@@ -237,6 +237,12 @@ namespace SFA.DAS.Commitments.Application.Services
             return SendCommandAndLog(command, $"TransferRequest Id {transferRequestId} approved");
         }
 
+        public Task SendUpdateChangeOfPartyRequestCommand(long cohortId, UserInfo userInfo)
+        {
+            var command = new UpdateChangeOfPartyRequestCommand(cohortId, userInfo);
+            return SendCommandAndLog(command, $"ChangeOfPartyRequest for cohort {cohortId} updated");
+        }
+
         private enum ApprenticePreChecks
         {
             NotRequired = 1,

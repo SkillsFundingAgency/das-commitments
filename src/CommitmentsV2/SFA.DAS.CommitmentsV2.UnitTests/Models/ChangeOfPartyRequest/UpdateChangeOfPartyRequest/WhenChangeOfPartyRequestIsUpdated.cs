@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.UpdateChan
         private class WhenChangeOfPartyRequestIsUpdatedFixture
         {
             private readonly CommitmentsV2.Models.ChangeOfPartyRequest _changeOfPartyRequest;
-            private readonly CommitmentsV2.Domain.Entities.DraftApprenticeshipDetails _draftApprenticeshipDetails;
+            private readonly CommitmentsV2.Models.DraftApprenticeship _draftApprenticeship;
 
             private readonly long _providerId;
             private readonly long _employerAccountId;
@@ -66,32 +66,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.UpdateChan
 
                 _changeOfPartyRequest = autoFixture.Create<CommitmentsV2.Models.ChangeOfPartyRequest>();
 
-                _draftApprenticeshipDetails = new CommitmentsV2.Domain.Entities.DraftApprenticeshipDetails();
-                _draftApprenticeshipDetails.SetValue(x => x.Cost, autoFixture.Create<int>());
-                _draftApprenticeshipDetails.SetValue(x => x.StartDate, autoFixture.Create<DateTime>());
-                _draftApprenticeshipDetails.SetValue(x => x.EndDate, autoFixture.Create<DateTime>());
+                _draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship();
+                _draftApprenticeship.SetValue(x => x.Cost, autoFixture.Create<decimal>());
+                _draftApprenticeship.SetValue(x => x.StartDate, autoFixture.Create<DateTime>());
+                _draftApprenticeship.SetValue(x => x.EndDate, autoFixture.Create<DateTime>());
 
                 UnitOfWorkContext = new UnitOfWorkContext();
             }
 
             public void UpdateChangeOfPartyRequest()
             {
-                _changeOfPartyRequest.UpdateChangeOfPartyRequest(_draftApprenticeshipDetails, _employerAccountId, _providerId, new UserInfo(), Party.Provider);
+                _changeOfPartyRequest.UpdateChangeOfPartyRequest(_draftApprenticeship, _employerAccountId, _providerId, new UserInfo(), Party.Provider);
             }
 
             public void VerifyPriceIsUpdated()
             {
-                Assert.AreEqual(_draftApprenticeshipDetails.Cost, _changeOfPartyRequest.Price);
+                Assert.AreEqual(_draftApprenticeship.Cost, _changeOfPartyRequest.Price);
             }
 
             public void VerifyStartDateIsUpdated()
             {
-                Assert.AreEqual(_draftApprenticeshipDetails.StartDate, _changeOfPartyRequest.StartDate);
+                Assert.AreEqual(_draftApprenticeship.StartDate, _changeOfPartyRequest.StartDate);
             }
 
             public void VerifyEndDateIsUpdated()
             {
-                Assert.AreEqual(_draftApprenticeshipDetails.EndDate, _changeOfPartyRequest.EndDate);
+                Assert.AreEqual(_draftApprenticeship.EndDate, _changeOfPartyRequest.EndDate);
             }
         }
     }

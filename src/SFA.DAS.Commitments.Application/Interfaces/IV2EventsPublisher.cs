@@ -28,5 +28,6 @@ namespace SFA.DAS.Commitments.Application.Interfaces
         Task SendProviderSendCohortCommand(long cohortId, string message, UserInfo userInfo);
         Task SendApproveTransferRequestCommand(long transferRequestId, DateTime approvedOn, UserInfo userInfo);
         Task SendRejectTransferRequestCommand(long transferRequestId, DateTime rejectedOn, UserInfo userInfo);
+        Task SendUpdateChangeOfPartyRequestCommand(long cohortId, UserInfo userInfo);
     }
 }
