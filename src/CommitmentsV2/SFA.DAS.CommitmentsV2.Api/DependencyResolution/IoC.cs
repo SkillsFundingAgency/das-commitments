@@ -9,7 +9,6 @@ using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.StructureMap;
 using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.StructureMap;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.StructureMap;
 using StructureMap;
-using ApprenticeshipInfoServiceRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.ApprenticeshipInfoServiceRegistry;
 using EncodingRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.EncodingRegistry;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
@@ -19,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
-            registry.IncludeRegistry<ApprenticeshipInfoServiceRegistry>();
+            registry.IncludeRegistry<ApprovalsOuterApiServiceRegistry>();
             registry.IncludeRegistry<AuthorizationRegistry>();
             registry.IncludeRegistry<ApprenticeshipSearchRegistry>();
             registry.IncludeRegistry<ConfigurationRegistry>();
