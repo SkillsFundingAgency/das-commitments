@@ -209,7 +209,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\ApiClient.cs" />
-    <Compile Include="Api\Requests\GetEpaoOrganisationsRequest.cs" />
     <Compile Include="Authorization\AuthorizeRemoteOnlyAttribute.cs" />
     <Compile Include="AzureStorage\AzureBlobStorage.cs" />
     <Compile Include="AzureStorage\IAzureBlobStorage.cs" />

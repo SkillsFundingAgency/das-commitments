@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\Configuration\IApprovalsOuterApiConfiguration.cs" />
+    <Compile Include="Api\Requests\GetEpaoOrganisationsRequest.cs" />
     <Compile Include="Api\Requests\IGetApiRequest.cs" />
     <Compile Include="Api\Types\FrameworkSummary.cs" />
     <Compile Include="Api\Types\FundingPeriodItem.cs" />

@@ -5,7 +5,6 @@ using Polly;
 using SFA.DAS.Commitments.Domain.Api.Requests;
 using SFA.DAS.Commitments.Domain.Api.Types;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Infrastructure.Api.Requests;
 using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
