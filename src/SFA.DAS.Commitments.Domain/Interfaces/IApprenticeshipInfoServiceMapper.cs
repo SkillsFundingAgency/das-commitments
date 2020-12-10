@@ -6,7 +6,7 @@ namespace SFA.DAS.Commitments.Domain.Interfaces
 {
     public interface IApprenticeshipInfoServiceMapper
     {
-        FrameworksView MapFrom(List<FrameworkSummary> frameworks);
-        StandardsView MapFrom(List<StandardSummary> standards);
+        FrameworksView MapFrom(List<Framework> frameworks);
+        StandardsView MapFrom(List<Standard> standards);
     }
 }

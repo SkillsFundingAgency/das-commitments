@@ -73,6 +73,8 @@
     <Folder Include="AdhocScripts\Manual" />
   </ItemGroup>
   <ItemGroup>
+    <Build Include="StoredProcedures\GetFrameworks.sql" />
+    <Build Include="StoredProcedures\GetStandards.sql" />
     <Build Include="StoredProcedures\ImportFrameworks.sql" />
     <Build Include="StoredProcedures\ImportFrameworksFunding.sql" />
     <Build Include="StoredProcedures\ImportStandards.sql" />

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -87,12 +87,10 @@
     <Compile Include="Api\Configuration\IApprovalsOuterApiConfiguration.cs" />
     <Compile Include="Api\Requests\GetEpaoOrganisationsRequest.cs" />
     <Compile Include="Api\Requests\IGetApiRequest.cs" />
-    <Compile Include="Api\Types\FrameworkSummary.cs" />
-    <Compile Include="Api\Types\FundingPeriodItem.cs" />
     <Compile Include="Api\Types\OrganisationSummary.cs" />
-    <Compile Include="Api\Types\StandardSummary.cs" />
     <Compile Include="CallerTypeExtensions.cs" />
     <Compile Include="Configuration\ApprovalsOuterApiConfiguration.cs" />
+    <Compile Include="Data\ITrainingProgrammeRepository.cs" />
     <Compile Include="Data\IApprenticeshipRepository.cs" />
     <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
     <Compile Include="Data\IAssessmentOrganisationRepository.cs" />

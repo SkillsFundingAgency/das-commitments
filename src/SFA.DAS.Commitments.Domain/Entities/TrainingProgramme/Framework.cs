@@ -17,6 +17,6 @@ namespace SFA.DAS.Commitments.Domain.Entities.TrainingProgramme
         public int MaxFunding { get; set; }
         public DateTime? EffectiveFrom { get; set; }
         public DateTime? EffectiveTo { get; set; }
-        public IEnumerable<FundingPeriod> FundingPeriods { get; set; }
+        public List<FundingPeriod> FundingPeriods { get; set; }
     }
 }
