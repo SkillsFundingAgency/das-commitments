@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Client;
-using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -57,32 +57,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             public FundingCapService FundingCapService;
             public IList<DraftApprenticeship> Apprentices;
-            public readonly Mock<ITrainingProgrammeApiClient> TrainingProgrammeApiClient;
-            public readonly Mock<ITrainingProgramme> TrainingProgramme;
+            public readonly Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup;
+            public readonly TrainingProgramme TrainingProgramme;
             private static DateTime _startDate = new DateTime(2000, 01, 01);
             private static DateTime _breakDate = new DateTime(2010, 11, 01);
             private static DateTime _endDate = new DateTime(2011, 10, 01);
             private static int _firstCap = 1000;
             private static int _secondCap = 1200;
-            private FundingPeriod _fundingPeriod1 = new FundingPeriod { EffectiveFrom = _startDate, EffectiveTo = _breakDate, FundingCap = _firstCap };
-            private FundingPeriod _fundingPeriod2 = new FundingPeriod { EffectiveFrom = _breakDate.AddMonths(1), EffectiveTo = _endDate, FundingCap = _secondCap };
+            private StandardFundingPeriod _fundingPeriod1 = new StandardFundingPeriod { EffectiveFrom = _startDate, EffectiveTo = _breakDate, FundingCap = _firstCap };
+            private StandardFundingPeriod _fundingPeriod2 = new StandardFundingPeriod { EffectiveFrom = _breakDate.AddMonths(1), EffectiveTo = _endDate, FundingCap = _secondCap };
             private Fixture _autoFixture;
 
             public FundingCapServiceTestFixture()
             {
                 _autoFixture = new Fixture();
+                TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
+                var fundingList = new List<StandardFundingPeriod>
+                {
+                    _fundingPeriod1, _fundingPeriod2
+                };
+                TrainingProgramme = new TrainingProgramme("1","Title", ProgrammeType.Standard,_startDate, _endDate, new List<IFundingPeriod>(fundingList));
+                
+                TrainingProgrammeLookup.Setup(x => x.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(TrainingProgramme);
 
-                TrainingProgramme = new Mock<ITrainingProgramme>();
-                TrainingProgramme.Setup(x => x.EffectiveFrom).Returns(_startDate);
-                TrainingProgramme.Setup(x => x.EffectiveTo).Returns(_endDate);
-                TrainingProgramme.Setup(x => x.FundingPeriods).Returns(new List<IFundingPeriod>
-                    {_fundingPeriod1, _fundingPeriod2});
-
-                TrainingProgrammeApiClient = new Mock<ITrainingProgrammeApiClient>();
-                TrainingProgrammeApiClient.Setup(x => x.GetTrainingProgramme(It.IsAny<string>()))
-                    .ReturnsAsync(TrainingProgramme.Object);
-
-                FundingCapService = new FundingCapService(TrainingProgrammeApiClient.Object);
+                FundingCapService = new FundingCapService(TrainingProgrammeLookup.Object);
             }
 
             public FundingCapServiceTestFixture SetApprenticesList()
