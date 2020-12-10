@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 
         private static Task ImportStandardsFunding(ICommitmentsDbContext db, DataTable standardsFundingDataTable)
         {
-            var standardsFunding = new SqlParameter("StandardsFunding", SqlDbType.Structured)
+            var standardsFunding = new SqlParameter("standardsFunding", SqlDbType.Structured)
             {
                 TypeName = "StandardsFunding",
                 Value = standardsFundingDataTable
