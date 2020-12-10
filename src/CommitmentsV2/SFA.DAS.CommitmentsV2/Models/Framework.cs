@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? EffectiveTo { get; set; }
         public virtual List<FrameworkFundingPeriod> FundingPeriods { get; set; }
     }
-    public class FrameworkFundingPeriod
+    public class FrameworkFundingPeriod : IFundingPeriod
     {
         public string Id { get; set; }
         public DateTime? EffectiveFrom { get; set; }

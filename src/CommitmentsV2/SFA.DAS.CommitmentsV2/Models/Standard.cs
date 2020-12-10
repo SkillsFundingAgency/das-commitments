@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual List<StandardFundingPeriod> FundingPeriods { get; set; }
     }
 
-    public class StandardFundingPeriod
+    public class StandardFundingPeriod : IFundingPeriod
     {
         public int Id { get; set; }
         public DateTime? EffectiveFrom { get; set; }

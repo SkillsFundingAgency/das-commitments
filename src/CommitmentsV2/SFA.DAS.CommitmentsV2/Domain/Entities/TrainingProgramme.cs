@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Entities
@@ -11,6 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public ProgrammeType ProgrammeType { get; } 
         public DateTime? EffectiveFrom { get; }
         public DateTime? EffectiveTo { get; }
+        public List<TrainingProgrammeFundingPeriod> FundingPeriods { get; set; }
 
         public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
@@ -19,6 +23,16 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             ProgrammeType = programmeType;
             EffectiveFrom = effectiveFrom;
             EffectiveTo = effectiveTo;
+        }
+        
+        public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods)
+        {
+            CourseCode = courseCode;
+            Name = name;
+            ProgrammeType = programmeType;
+            EffectiveFrom = effectiveFrom;
+            EffectiveTo = effectiveTo;
+            FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
         }
 
         public bool IsActiveOn(DateTime date)
@@ -37,6 +51,24 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
                 return TrainingProgrammeStatus.Active;
 
             return TrainingProgrammeStatus.Expired;
+        }
+        
+    }
+
+    public class TrainingProgrammeFundingPeriod
+    {
+        public int FundingCap { get ; set ; }
+        public DateTime? EffectiveTo { get ; set ; }
+        public DateTime? EffectiveFrom { get ; set ; }
+
+        public TrainingProgrammeFundingPeriod Map(IFundingPeriod source)
+        {
+            return new TrainingProgrammeFundingPeriod
+            {
+                EffectiveFrom = source.EffectiveFrom,
+                EffectiveTo = source.EffectiveTo,
+                FundingCap = source.FundingCap
+            };
         }
         
     }
