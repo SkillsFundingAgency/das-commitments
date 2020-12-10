@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Types;
+using SFA.DAS.Commitments.Domain.Api.Types;
+using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Infrastructure.Services;
 
 namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipInfoServiceMapperTests
@@ -10,21 +11,21 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
     public class WhenIMapFramework
     {
         private ApprenticeshipInfoServiceMapper _mapper;
-        private FrameworkSummary _framework;
+        private Framework _framework;
 
         [SetUp]
         public void Arrange()
         {
             _mapper = new ApprenticeshipInfoServiceMapper();
 
-            _framework = new FrameworkSummary
+            _framework = new Framework
             {
                 Id = "1",
                 Title = "TestTitle",
                 FrameworkName = "TestFrameworkName",
                 PathwayName = "TestPathwayName",
                 Level = 1,
-                CurrentFundingCap = 1000, //this is to become redundant
+                MaxFunding = 1000, //this is to become redundant
                 EffectiveFrom = new DateTime(2017, 05, 01),
                 EffectiveTo = new DateTime(2020, 7, 31),
                 FundingPeriods = new List<FundingPeriod>
@@ -39,7 +40,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenTitleIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
+            var result = _mapper.MapFrom(new List<Framework> { TestHelper.Clone(_framework) });
 
             //Assert
             var expectedTitle = $"{_framework.Title}, Level: {_framework.Level}";
@@ -50,7 +51,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenEffectiveFromIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
+            var result = _mapper.MapFrom(new List<Framework> { TestHelper.Clone(_framework) });
 
             //Assert
             Assert.AreEqual(_framework.EffectiveFrom, result.Frameworks[0].EffectiveFrom);
@@ -60,7 +61,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenEffectiveToIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
+            var result = _mapper.MapFrom(new List<Framework> { TestHelper.Clone(_framework) });
 
             //Assert
             Assert.AreEqual(_framework.EffectiveFrom, result.Frameworks[0].EffectiveFrom);
@@ -71,20 +72,20 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenFundingPeriodsAreMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
+            var result = _mapper.MapFrom(new List<Framework> { TestHelper.Clone(_framework) });
 
             //Assert
             Assert.IsTrue(TestHelper.EnumerablesAreEqual<object>(_framework.FundingPeriods, result.Frameworks[0].FundingPeriods));
         }
 
-        [Test]
+        [Ignore("FAT2-294 - Not possible to have no funding periods")]
         public void ThenFundingPeriodsAreMappedCorrectlyWhenNull()
         {
             //Arrange
             _framework.FundingPeriods = null;
 
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
+            var result = _mapper.MapFrom(new List<Framework> { TestHelper.Clone(_framework) });
 
             //Assert
             Assert.IsNotNull(result.Frameworks[0].FundingPeriods);

@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Types;
+using SFA.DAS.Commitments.Domain.Api.Types;
+using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Infrastructure.Services;
 
 namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipInfoServiceMapperTests
@@ -11,21 +12,21 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
     public class WhenIMapStandard
     {
         private ApprenticeshipInfoServiceMapper _mapper;
-        private StandardSummary _standard;
+        private Standard _standard;
 
         [SetUp]
         public void Arrange()
         {
             _mapper = new ApprenticeshipInfoServiceMapper();
 
-            _standard = new StandardSummary
+            _standard = new Standard
             {
                 Id = "1",
                 Title = "TestTitle",
                 Level = 1,
-                CurrentFundingCap = 1000, //this is to become redundant
+                MaxFunding = 1000, //this is to become redundant
                 EffectiveFrom = new DateTime(2017, 05, 01),
-                LastDateForNewStarts = new DateTime(2020, 7, 31),
+                EffectiveTo = new DateTime(2020, 7, 31),
                 FundingPeriods = new List<FundingPeriod>
                 {
                     new FundingPeriod { EffectiveFrom = new DateTime(2017,05,01), EffectiveTo = new DateTime(2018, 12, 31), FundingCap = 5000 },
@@ -38,7 +39,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenTitleIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
+            var result = _mapper.MapFrom(new List<Standard> { TestHelper.Clone(_standard) });
 
             //Assert
             var expectedTitle = $"{_standard.Title}, Level: {_standard.Level} (Standard)";
@@ -49,7 +50,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenEffectiveFromIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
+            var result = _mapper.MapFrom(new List<Standard> { TestHelper.Clone(_standard) });
 
             //Assert
             Assert.AreEqual(_standard.EffectiveFrom, result.Standards[0].EffectiveFrom);
@@ -59,17 +60,17 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenEffectiveToIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
+            var result = _mapper.MapFrom(new List<Standard> { TestHelper.Clone(_standard) });
 
             //Assert
-            Assert.AreEqual(_standard.LastDateForNewStarts, result.Standards[0].EffectiveTo);
+            Assert.AreEqual(_standard.EffectiveTo, result.Standards[0].EffectiveTo);
         }
 
         [Test]
         public void ThenFundingPeriodsAreMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
+            var result = _mapper.MapFrom(new List<Standard> { TestHelper.Clone(_standard) });
 
             var comparer = new CompareLogic(new ComparisonConfig
             {
@@ -79,14 +80,14 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
             Assert.IsTrue(comparer.Compare(result.Standards[0].FundingPeriods, _standard.FundingPeriods).AreEqual);
         }
 
-        [Test]
+        [Ignore("FAT2-294 - Not possible to have no funding periods")]
         public void ThenFundingPeriodsAreMappedCorrectlyWhenNull()
         {
             //Arrange
             _standard.FundingPeriods = null;
 
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
+            var result = _mapper.MapFrom(new List<Standard> { TestHelper.Clone(_standard) });
 
             //Assert
             Assert.IsNotNull(result.Standards[0].FundingPeriods);
