@@ -1,22 +1,23 @@
-﻿using System;
+using System;
 using System.Linq;
-using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 
-namespace SFA.DAS.Commitments.Application.Extensions
+namespace SFA.DAS.CommitmentsV2.Extensions
 {
-    public static class ITrainingProgrammeExtensions
+    public static class TrainingProgrammeExtensions
     {
-        public static bool IsActiveOn(this ITrainingProgramme course, DateTime date)
+        public static bool IsActiveOn(this TrainingProgramme course, DateTime date)
         {
             return GetStatusOn(course.EffectiveFrom, course.EffectiveTo, date) == TrainingProgrammeStatus.Active;
         }
 
-        public static TrainingProgrammeStatus GetStatusOn(this ITrainingProgramme course, DateTime date)
+        public static TrainingProgrammeStatus GetStatusOn(this TrainingProgramme course, DateTime date)
         {
             return GetStatusOn(course.EffectiveFrom, course.EffectiveTo, date);
         }
 
-        public static int FundingCapOn(this ITrainingProgramme course, DateTime date)
+        public static int FundingCapOn(this TrainingProgramme course, DateTime date)
         {
             //todo: would probably be better to return int? null or throw if out of range
             if (!course.IsActiveOn(date))

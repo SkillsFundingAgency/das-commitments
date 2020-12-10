@@ -1,10 +1,9 @@
-﻿using System;
-using Moq;
+using System;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Extensions;
-using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Extensions.ITrainingProgrammeExtensions
+namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
 {
     [TestFixture]
     public class WhenDeterminingTheStatusOfACourseOnSpecificDate
@@ -26,12 +25,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Extensions.ITrainingProgramm
         public void ThenTheCourseEffectiveDatesAreUsedToDetermineTheStatus(DateTime? courseStart, DateTime? courseEnd, DateTime effectiveDate, TrainingProgrammeStatus expectStatus)
         {
             //Arrange
-            var course = new Mock<ITrainingProgramme>();
-            course.SetupGet(x => x.EffectiveFrom).Returns(courseStart);
-            course.SetupGet(x => x.EffectiveTo).Returns(courseEnd);
-
+            var course = new CommitmentsV2.Domain.Entities.TrainingProgramme("1","test",ProgrammeType.Standard,courseStart,courseEnd);
+            
             //Act
-            var result = course.Object.GetStatusOn(effectiveDate);
+            var result = course.GetStatusOn(effectiveDate);
 
             //Assert
             Assert.AreEqual(expectStatus, result);

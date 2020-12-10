@@ -342,7 +342,6 @@
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
-    <Compile Include="Extensions\ITrainingProgrammeExtensions.cs" />
     <Compile Include="Interfaces\IApprenticeshipInfoService.cs" />
     <Compile Include="Interfaces\IV2EventsPublisher.cs" />
     <Compile Include="Queries\GetApprenticeshipsByUln\GetApprenticeshipsByUlnQueryHandler.cs" />
