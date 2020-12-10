@@ -1,5 +1,4 @@
 ﻿using System;
-using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
@@ -24,20 +23,21 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
 
         public bool IsActiveOn(DateTime date)
         {
-            return GetStatusOn(date) == Apprenticeships.Api.Types.TrainingProgrammeStatus.Active;
+            return GetStatusOn(date) == TrainingProgrammeStatus.Active;
         }
 
-        public Apprenticeships.Api.Types.TrainingProgrammeStatus GetStatusOn(DateTime date)
+        public TrainingProgrammeStatus GetStatusOn(DateTime date)
         {
             var dateOnly = date.Date;
 
             if (EffectiveFrom.HasValue && EffectiveFrom.Value.FirstOfMonth() > dateOnly)
-                return Apprenticeships.Api.Types.TrainingProgrammeStatus.Pending;
+                return TrainingProgrammeStatus.Pending;
 
             if (!EffectiveTo.HasValue || EffectiveTo.Value >= dateOnly)
-                return Apprenticeships.Api.Types.TrainingProgrammeStatus.Active;
+                return TrainingProgrammeStatus.Active;
 
-            return Apprenticeships.Api.Types.TrainingProgrammeStatus.Expired;
+            return TrainingProgrammeStatus.Expired;
         }
+        
     }
 }
