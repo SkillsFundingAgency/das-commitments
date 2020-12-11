@@ -77,5 +77,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
                     u.UserDisplayName == Command.LastUpdatedByName &&
                     u.UserEmail == Command.LastUpdatedByEmail)));
         }
+
+        [Test]
+        public async Task If_CohortIsAChangeProviderRequest_Then_SendUpdateOfPartyRequestCommandIsSent()
+        {
+            Commitment.ChangeOfPartyRequestId = 100;
+
+            await Target.Handle(Command);
+
+            V2EventsPublisher.Verify(x => x.SendUpdateChangeOfPartyRequestCommand(Command.CommitmentId,
+                It.Is<UserInfo>(u =>
+                    u.UserId == Command.UserId &&
+                    u.UserDisplayName == Command.LastUpdatedByName &&
+                    u.UserEmail == Command.LastUpdatedByEmail)));
+        }
+
+        [Test]
+        public async Task If_CohortIsNotAChangeProviderRequest_Then_SendUpdateOfPartyRequestCommandIsNotSent()
+        {
+            await Target.Handle(Command);
+
+            V2EventsPublisher.Verify(x => x.SendUpdateChangeOfPartyRequestCommand(It.IsAny<long>(), It.IsAny<UserInfo>()), Times.Never());
+        }
     }
 }
