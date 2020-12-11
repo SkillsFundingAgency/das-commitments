@@ -9,6 +9,10 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
 {
     public class TrainingProgramme
     {
+        protected TrainingProgramme ()
+        {
+            
+        }
         public string CourseCode { get;  }
         public string Name { get; }
         public ProgrammeType ProgrammeType { get; } 
