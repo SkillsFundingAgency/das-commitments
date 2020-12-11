@@ -29,7 +29,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasPrincipalKey(c => c.Id)
                 .HasForeignKey(c => c.Id).Metadata.DeleteBehavior = DeleteBehavior.Restrict;
      
-            builder.HasIndex(x => x.Id).IsUnique();;
         }
     }
 }

@@ -12,5 +12,4 @@
     [MaxFunding] INT NOT NULL,
     [EffectiveFrom] DATETIME NULL,
     [EffectiveTo] DATETIME NULL,
-    constraint PK_Framework PRIMARY KEY (Id),
 )
