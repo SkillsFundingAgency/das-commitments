@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.ToTable("Standard");
             builder.HasKey(x=> x.Id);
 
-            builder.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired();
+            builder.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().ValueGeneratedNever();
             builder.Property(x => x.Title).HasColumnName("Title").HasColumnType("varchar").HasMaxLength(500).IsRequired(false);
             builder.Property(x => x.Duration).HasColumnName("Duration").HasColumnType("int").IsRequired();
             builder.Property(x => x.Level).HasColumnName("Level").HasColumnType("tinyint").IsRequired();
@@ -23,8 +23,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithOne(c=>c.Standard)
                 .HasPrincipalKey(c => c.Id)
                 .HasForeignKey(c => c.Id).Metadata.DeleteBehavior = DeleteBehavior.Restrict;
-     
-            builder.HasIndex(x => x.Id).IsUnique();
+
+            builder.HasIndex(c => c.Id);
         }
     }
 }

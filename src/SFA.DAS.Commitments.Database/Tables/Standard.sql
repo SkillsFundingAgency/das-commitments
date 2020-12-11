@@ -7,5 +7,5 @@
     [MaxFunding] INT NOT NULL,
     [EffectiveFrom] DATETIME NULL,
     [EffectiveTo] DATETIME NULL,
-    constraint PK_Standard PRIMARY KEY (Id),
+    CONSTRAINT [PK_Standards] PRIMARY KEY CLUSTERED ([Id] ASC)    
 )

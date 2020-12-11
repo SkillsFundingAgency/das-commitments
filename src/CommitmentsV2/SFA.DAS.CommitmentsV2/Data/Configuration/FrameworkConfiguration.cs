@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.ToTable("Framework");
             builder.HasKey(x=> x.Id);
 
-            builder.Property(x => x.Id).HasColumnName("Id").HasColumnType("varchar").HasMaxLength(25).IsRequired();
+            builder.Property(x => x.Id).HasColumnName("Id").HasColumnType("varchar").HasMaxLength(25).IsRequired().ValueGeneratedNever();
             builder.Property(x => x.FrameworkCode).HasColumnName("FrameworkCode").HasColumnType("int").IsRequired();
             builder.Property(x => x.FrameworkName).HasColumnName("FrameworkName").HasColumnType("varchar").HasMaxLength(500).IsRequired();
             builder.Property(x => x.Level).HasColumnName("Level").HasColumnType("tinyint").IsRequired();
@@ -28,7 +28,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithOne(c=>c.Framework)
                 .HasPrincipalKey(c => c.Id)
                 .HasForeignKey(c => c.Id).Metadata.DeleteBehavior = DeleteBehavior.Restrict;
-     
+            
+            builder.HasIndex(c => c.Id);
         }
     }
 }

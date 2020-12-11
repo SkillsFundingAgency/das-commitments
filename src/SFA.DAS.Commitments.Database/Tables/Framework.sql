@@ -12,4 +12,5 @@
     [MaxFunding] INT NOT NULL,
     [EffectiveFrom] DATETIME NULL,
     [EffectiveTo] DATETIME NULL,
+    CONSTRAINT [PK_Frameworks] PRIMARY KEY CLUSTERED ([Id] ASC)
 )
