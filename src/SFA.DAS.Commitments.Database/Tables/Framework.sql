@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Framework]
 (
-    [Id] VARCHAR(25) NOT NULL PRIMARY KEY,
+    [Id] VARCHAR(25) NOT NULL,
     [FrameworkCode] INT NOT NULL,
     [FrameworkName] VARCHAR(500) NOT NULL,    
     [Level] TINYINT NOT NULL,
@@ -11,5 +11,6 @@
     [Duration] INT NOT NULL,
     [MaxFunding] INT NOT NULL,
     [EffectiveFrom] DATETIME NULL,
-    [EffectiveTo] DATETIME NULL
+    [EffectiveTo] DATETIME NULL,
+    constraint PK_Framework PRIMARY KEY (Id),
 )
