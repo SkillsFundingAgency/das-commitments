@@ -79,7 +79,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
         }
 
         [Test]
-        public async Task If_CohortIsAChangePartyRequest_Then_SendUpdateOfPartyRequestCommandIsSent()
+        public async Task If_CohortIsAChangePartyRequest_Then_CohortWithChangeOfPartyRequestEventIsPublished()
         {
             Commitment.ChangeOfPartyRequestId = 100;
 
@@ -93,7 +93,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
         }
 
         [Test]
-        public async Task If_CohortIsNotAChangePartyRequest_Then_SendUpdateOfPartyRequestCommandIsNotSent()
+        public async Task If_CohortIsNotAChangePartyRequest_Then_CohortWithChangeOfPartyRequestEventIsNotPublished()
         {
             await Target.Handle(Command);
 

@@ -210,7 +210,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         }
 
         [Test]
-        public async Task If_CohortIsAChangePartyRequest_Then_UpdateOfPartyRequestEventIsPublished()
+        public async Task If_CohortIsAChangePartyRequest_Then_CohortWithChangeOfPartyRequestUpdatedEventIsPublished()
         {
             _validCommand.Caller = new Caller
             {
