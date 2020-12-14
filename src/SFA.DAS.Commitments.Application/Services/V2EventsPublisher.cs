@@ -207,8 +207,8 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishCohortWithChangeOfPartyUpdatedEvent(long cohortId, UserInfo userInfo)
         {
-            var command = new CohortWithChangeOfPartyUpdatedEvent(cohortId, userInfo);
-            return SendCommandAndLog(command, $"ChangeOfPartyRequest for cohort {cohortId} updated");
+            var @event = new CohortWithChangeOfPartyUpdatedEvent(cohortId, userInfo);
+            return PublishWithLog(@event, $"Cohort with change of party request, CohortId:{cohortId}, updated");
         }
 
         public async Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo)
