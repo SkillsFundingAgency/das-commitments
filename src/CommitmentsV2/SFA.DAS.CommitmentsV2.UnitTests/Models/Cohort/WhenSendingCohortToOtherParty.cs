@@ -176,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .SetChangeOfPartyRequestId()
                 .SendToOtherParty();
 
-            _fixture.VerifyUpdateChangeOfPartyRequestIsPublished();
+            _fixture.VerifyCohortWithChangeOfPartyRequestEventIsPublished();
         }
     }
 
@@ -279,7 +279,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                                                                                 nameof(Cohort)));
         }
 
-        public void VerifyUpdateChangeOfPartyRequestIsPublished()
+        public void VerifyCohortWithChangeOfPartyRequestEventIsPublished()
         {
             Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyUpdatedEvent @event
                                                                                && @event.CohortId == Cohort.Id));

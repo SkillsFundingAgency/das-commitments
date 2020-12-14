@@ -405,7 +405,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
-        public void And_IsChangeOfPartyCohort_Then_UpdateChangeOfProviderCohortEventIsPublished(Party modifyingParty)
+        public void And_IsChangeOfPartyCohort_Then_CohortWithChangeOfPartyRequestEvent_IsPublished(Party modifyingParty)
         {
             _fixture
                 .SetChangeOfPartyRequestId()

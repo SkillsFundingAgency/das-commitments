@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task When_HandlingCommand_And_IsChangeOfEmployerRequest_Then_ChangeOfPartyRequestIsUpdated()
+        public async Task When_HandlingCommand_And_IsChangeOfEmployerRequest_Then_ChangeOfPartyRequestIsNotUpdated()
         {
             _fixture.AddChangeOfEmployerRequest();
 
