@@ -344,16 +344,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public async Task SendCohortToOtherParty_WhenEmployerSendsCohort_And_CohortHasChangeOfPartyRequest_Then_ChangeOfPartyRequestIsUpdated()
-        {
-            _fixture.WithChangeOfProviderCohort(Party.Employer);
-
-            await _fixture.SendCohortToOtherParty();
-
-            _fixture.VerifyChangeOfPartyRequestUpdated();
-        }
-
-        [Test]
         public void ApproveCohort_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
             _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
@@ -385,16 +375,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Employer).ApproveCohort();
             _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
-        }
-
-        [Test]
-        public async Task ApproveCohort_WhenEmployerApprovesCohort_And_CohortHasChangeOfPartyRequest_Then_ChangeOfPartyRequestIsUpdated()
-        {
-            _fixture.WithChangeOfProviderCohort(Party.Employer);
-
-             await _fixture.ApproveCohort();
-
-            _fixture.VerifyChangeOfPartyRequestUpdated();
         }
 
         [Test]
@@ -1051,11 +1031,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     DomainErrors.AddRange(ex.DomainErrors);
                 }
-            }
-
-            public void VerifyChangeOfPartyRequestUpdated()
-            {
-                ChangeOfPartyRequest.Verify(x => x.UpdateChangeOfPartyRequest(Cohort.DraftApprenticeships.FirstOrDefault(), Cohort.EmployerAccountId, Cohort.ProviderId, UserInfo, Party));
             }
 
             public void VerifyCohortCreation(Party party)

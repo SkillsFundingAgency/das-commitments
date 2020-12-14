@@ -84,8 +84,6 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);
             }
 
-            await UpdateChangeOfPartyRequest(cohort, userInfo, party, cancellationToken);
-
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
@@ -142,8 +140,6 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
-
-            await UpdateChangeOfPartyRequest(cohort, userInfo, party, cancellationToken);
 
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
         }
@@ -251,19 +247,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             var provider = await db.Providers.SingleOrDefaultAsync(p => p.UkPrn == providerId, cancellationToken);
             if (provider == null) throw new BadRequestException($"Provider {providerId} was not found");
             return provider;
-        }
-
-        private async Task UpdateChangeOfPartyRequest(Cohort cohort, UserInfo userInfo, Party party, CancellationToken cancellationToken)
-        {
-            if (cohort.IsLinkedToChangeOfPartyRequest)
-            {
-                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(cohort.ChangeOfPartyRequestId.Value, cancellationToken);
-
-                if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
-                {
-                    changeOfPartyRequest.UpdateChangeOfPartyRequest(cohort.DraftApprenticeships.FirstOrDefault(), cohort.EmployerAccountId, cohort.ProviderId, userInfo, party);
-                }
-            }
         }
 
         private async Task ValidateStartDateForContinuation(Cohort cohort, DraftApprenticeshipDetails draftApprenticeshipDetails)

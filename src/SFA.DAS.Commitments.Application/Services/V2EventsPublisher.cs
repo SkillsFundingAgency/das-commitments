@@ -239,7 +239,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task SendUpdateChangeOfPartyRequestCommand(long cohortId, UserInfo userInfo)
         {
-            var command = new UpdateChangeOfPartyRequestCommand(cohortId, userInfo);
+            var command = new UpdateChangeOfPartyRequestEvent(cohortId, userInfo);
             return SendCommandAndLog(command, $"ChangeOfPartyRequest for cohort {cohortId} updated");
         }
 
