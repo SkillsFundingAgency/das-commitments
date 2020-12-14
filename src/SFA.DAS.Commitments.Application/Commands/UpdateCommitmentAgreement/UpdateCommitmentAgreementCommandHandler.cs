@@ -75,7 +75,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             if (commitment.ChangeOfPartyRequestId.HasValue)
             {
-                await _v2EventsPublisher.SendUpdateChangeOfPartyRequestCommand(command.CommitmentId, userInfo);
+                await _v2EventsPublisher.PublishCohortWithChangeOfPartyUpdatedEvent(command.CommitmentId, userInfo);
             }
 
             await _v2EventsPublisher.SendProviderSendCohortCommand(command.CommitmentId, command.Message, userInfo);

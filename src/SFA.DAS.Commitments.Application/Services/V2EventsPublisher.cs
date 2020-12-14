@@ -205,6 +205,12 @@ namespace SFA.DAS.Commitments.Application.Services
             return PublishWithLog(changeOfPartyRejectedEvent, $"Commitment: {commitment.Id}, EmployerAccountId: {commitment.EmployerAccountId}, ChangeOfPartyRequest: {commitment.ChangeOfPartyRequestId.Value}");
         }
 
+        public Task PublishCohortWithChangeOfPartyUpdatedEvent(long cohortId, UserInfo userInfo)
+        {
+            var command = new CohortWithChangeOfPartyUpdatedEvent(cohortId, userInfo);
+            return SendCommandAndLog(command, $"ChangeOfPartyRequest for cohort {cohortId} updated");
+        }
+
         public async Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo)
         {
             await _endpointInstance.Send<ProviderApproveCohortCommand>(ev =>
@@ -235,12 +241,6 @@ namespace SFA.DAS.Commitments.Application.Services
         {
             var command = new RejectTransferRequestCommand(transferRequestId, rejectedOn, userInfo);
             return SendCommandAndLog(command, $"TransferRequest Id {transferRequestId} approved");
-        }
-
-        public Task SendUpdateChangeOfPartyRequestCommand(long cohortId, UserInfo userInfo)
-        {
-            var command = new UpdateChangeOfPartyRequestEvent(cohortId, userInfo);
-            return SendCommandAndLog(command, $"ChangeOfPartyRequest for cohort {cohortId} updated");
         }
 
         private enum ApprenticePreChecks

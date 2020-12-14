@@ -79,13 +79,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
         }
 
         [Test]
-        public async Task If_CohortIsAChangeProviderRequest_Then_SendUpdateOfPartyRequestCommandIsSent()
+        public async Task If_CohortIsAChangePartyRequest_Then_SendUpdateOfPartyRequestCommandIsSent()
         {
             Commitment.ChangeOfPartyRequestId = 100;
 
             await Target.Handle(Command);
 
-            V2EventsPublisher.Verify(x => x.SendUpdateChangeOfPartyRequestCommand(Command.CommitmentId,
+            V2EventsPublisher.Verify(x => x.PublishCohortWithChangeOfPartyUpdatedEvent(Command.CommitmentId,
                 It.Is<UserInfo>(u =>
                     u.UserId == Command.UserId &&
                     u.UserDisplayName == Command.LastUpdatedByName &&
@@ -93,11 +93,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
         }
 
         [Test]
-        public async Task If_CohortIsNotAChangeProviderRequest_Then_SendUpdateOfPartyRequestCommandIsNotSent()
+        public async Task If_CohortIsNotAChangePartyRequest_Then_SendUpdateOfPartyRequestCommandIsNotSent()
         {
             await Target.Handle(Command);
 
-            V2EventsPublisher.Verify(x => x.SendUpdateChangeOfPartyRequestCommand(It.IsAny<long>(), It.IsAny<UserInfo>()), Times.Never());
+            V2EventsPublisher.Verify(x => x.PublishCohortWithChangeOfPartyUpdatedEvent(It.IsAny<long>(), It.IsAny<UserInfo>()), Times.Never());
         }
     }
 }

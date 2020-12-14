@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
 
             if (commitment.ChangeOfPartyRequestId.HasValue)
             {
-                await _v2EventsPublisher.SendUpdateChangeOfPartyRequestCommand(message.CommitmentId, userInfo);
+                await _v2EventsPublisher.PublishCohortWithChangeOfPartyUpdatedEvent(message.CommitmentId, userInfo);
             }
 
             await _v2EventsPublisher.SendProviderApproveCohortCommand(message.CommitmentId, message.Message, userInfo);

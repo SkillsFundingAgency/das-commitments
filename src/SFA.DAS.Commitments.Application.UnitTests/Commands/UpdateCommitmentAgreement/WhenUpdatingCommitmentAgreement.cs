@@ -210,7 +210,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         }
 
         [Test]
-        public async Task If_CohortIsAChangeProviderRequest_Then_SendUpdateOfPartyRequestCommandIsSent()
+        public async Task If_CohortIsAChangePartyRequest_Then_UpdateOfPartyRequestEventIsPublished()
         {
             _validCommand.Caller = new Caller
             {
@@ -223,7 +223,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             await _handler.Handle(_validCommand);
 
-            V2EventsPublisher.Verify(x => x.SendUpdateChangeOfPartyRequestCommand(_validCommand.CommitmentId,
+            V2EventsPublisher.Verify(x => x.PublishCohortWithChangeOfPartyUpdatedEvent(_validCommand.CommitmentId,
                 It.Is<UserInfo>(u =>
                     u.UserId == _validCommand.UserId &&
                     u.UserDisplayName == _validCommand.LastUpdatedByName &&

@@ -169,7 +169,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
-        public void And_IsChangeOfProviderRequest_ThenShouldPublishEvent(Party modifyingParty)
+        public void And_IsChangeOfPartyRequest_ThenShouldPublishEvent(Party modifyingParty)
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetWithParty(modifyingParty)
@@ -281,7 +281,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public void VerifyUpdateChangeOfPartyRequestIsPublished()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is UpdateChangeOfPartyRequestEvent @event
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyUpdatedEvent @event
                                                                                && @event.CohortId == Cohort.Id));
         }
     }

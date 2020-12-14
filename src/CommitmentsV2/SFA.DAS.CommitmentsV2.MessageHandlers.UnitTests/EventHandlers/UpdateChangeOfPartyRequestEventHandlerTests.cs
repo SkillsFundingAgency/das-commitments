@@ -12,7 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
     public class UpdateChangeOfPartyRequestEventHandlerTests
     {
@@ -27,15 +27,27 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         [Test]
         public async Task When_HandlingCommand_And_IsChangeOfProviderRequest_Then_ChangeOfPartyRequestIsUpdated()
         {
+            _fixture.AddChangeOfProviderRequest();
+
             await _fixture.Handle();
 
             _fixture.VerifyChangeOfPartyUpdated();
         }
 
+        [Test]
+        public async Task When_HandlingCommand_And_IsChangeOfEmployerRequest_Then_ChangeOfPartyRequestIsUpdated()
+        {
+            _fixture.AddChangeOfEmployerRequest();
+
+            await _fixture.Handle();
+
+            _fixture.VerifyChangeOfPartyNotUpdated();
+        }
+
         public class UpdateChangeOfPartyRequestEventHandlerTestsFixture
         {
-            private UpdateChangeOfPartyRequestEventHandler _handler;
-            private UpdateChangeOfPartyRequestEvent _command;
+            private CohortWithChangeOfPartyUpdatedEventHandler _handler;
+            private CohortWithChangeOfPartyUpdatedEvent _command;
             private Mock<ProviderCommitmentsDbContext> _mockDbContext;
             private Cohort _cohort;
             private DraftApprenticeship _draftApprenticeship;
@@ -50,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 var autoFixture = new Fixture();
 
-                _command = autoFixture.Build<UpdateChangeOfPartyRequestEvent>()
+                _command = autoFixture.Build<CohortWithChangeOfPartyUpdatedEvent>()
                     .Create();
 
                 _draftApprenticeship = new DraftApprenticeship
@@ -69,9 +81,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 };
 
                 _changeOfPartyRequest = new Mock<ChangeOfPartyRequest>();
-                _changeOfPartyRequest.Setup(x => x.Id).Returns(_cohort.ChangeOfPartyRequestId.Value);
-                _changeOfPartyRequest.Setup(x => x.ChangeOfPartyType).Returns(ChangeOfPartyRequestType.ChangeProvider);
-
+                
                 _mockDbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
 
                 _mockDbContext.Object.Cohorts.Add(_cohort);
@@ -80,9 +90,29 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
-                _handler = new UpdateChangeOfPartyRequestEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _mockDbContext.Object));
+                _handler = new CohortWithChangeOfPartyUpdatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _mockDbContext.Object));
             }
 
+            public UpdateChangeOfPartyRequestEventHandlerTestsFixture AddChangeOfProviderRequest()
+            {
+                _changeOfPartyRequest.Setup(x => x.Id).Returns(_cohort.ChangeOfPartyRequestId.Value);
+                _changeOfPartyRequest.Setup(x => x.ChangeOfPartyType).Returns(ChangeOfPartyRequestType.ChangeProvider);
+
+                _mockDbContext.Object.ChangeOfPartyRequests.Add(_changeOfPartyRequest.Object);
+                _mockDbContext.Object.SaveChanges();
+
+                return this;
+            }
+            public UpdateChangeOfPartyRequestEventHandlerTestsFixture AddChangeOfEmployerRequest()
+            {
+                _changeOfPartyRequest.Setup(x => x.Id).Returns(_cohort.ChangeOfPartyRequestId.Value);
+                _changeOfPartyRequest.Setup(x => x.ChangeOfPartyType).Returns(ChangeOfPartyRequestType.ChangeEmployer);
+
+                _mockDbContext.Object.ChangeOfPartyRequests.Add(_changeOfPartyRequest.Object);
+                _mockDbContext.Object.SaveChanges();
+
+                return this;
+            }
             public async Task Handle()
             {
                 await _handler.Handle(_command, _messageHandlerContext.Object);
@@ -91,6 +121,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             public void VerifyChangeOfPartyUpdated()
             {
                 _changeOfPartyRequest.Verify(x => x.UpdateChangeOfPartyRequest(_draftApprenticeship, _cohort.EmployerAccountId, _cohort.ProviderId, It.IsAny<UserInfo>(), _cohort.WithParty), Times.Once);
+            }
+
+            public void VerifyChangeOfPartyNotUpdated()
+            {
+                _changeOfPartyRequest.Verify(x => x.UpdateChangeOfPartyRequest(It.IsAny<DraftApprenticeship>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<UserInfo>(), It.IsAny<Party>()), Times.Never);
             }
         }
     }

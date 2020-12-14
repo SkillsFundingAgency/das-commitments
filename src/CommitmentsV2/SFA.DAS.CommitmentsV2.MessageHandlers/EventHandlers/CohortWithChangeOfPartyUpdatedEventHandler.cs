@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
-    public class UpdateChangeOfPartyRequestEventHandler : IHandleMessages<UpdateChangeOfPartyRequestEvent>
+    public class CohortWithChangeOfPartyUpdatedEventHandler : IHandleMessages<CohortWithChangeOfPartyUpdatedEvent>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public UpdateChangeOfPartyRequestEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public CohortWithChangeOfPartyUpdatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task Handle(UpdateChangeOfPartyRequestEvent message, IMessageHandlerContext context)
+        public async Task Handle(CohortWithChangeOfPartyUpdatedEvent message, IMessageHandlerContext context)
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
 

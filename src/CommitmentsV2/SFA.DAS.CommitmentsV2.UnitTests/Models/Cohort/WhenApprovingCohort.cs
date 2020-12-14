@@ -405,7 +405,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
-        public void And_IsChangeOfProviderCohort_Then_UpdateChangeOfProviderCohortEventIsPublished(Party modifyingParty)
+        public void And_IsChangeOfPartyCohort_Then_UpdateChangeOfProviderCohortEventIsPublished(Party modifyingParty)
         {
             _fixture
                 .SetChangeOfPartyRequestId()
@@ -414,7 +414,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .AddDraftApprenticeship()
                 .Approve();
 
-            _fixture.UnitOfWorkContext.GetEvents().OfType<UpdateChangeOfPartyRequestEvent>().Count(e =>
+            _fixture.UnitOfWorkContext.GetEvents().OfType<CohortWithChangeOfPartyUpdatedEvent>().Count(e =>
                     e.CohortId == _fixture.Cohort.Id &&
                     e.UserInfo == _fixture.UserInfo).Should().Be(1);
         }

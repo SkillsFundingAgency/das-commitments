@@ -318,7 +318,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (ChangeOfPartyRequestId.HasValue)
             {
-                Publish(() => new UpdateChangeOfPartyRequestEvent(Id, userInfo));
+                Publish(() => new CohortWithChangeOfPartyUpdatedEvent(Id, userInfo));
             }
 
             ChangeTrackingSession.CompleteTrackingSession();
@@ -382,7 +382,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (ChangeOfPartyRequestId.HasValue)
             {
-                Publish(() => new UpdateChangeOfPartyRequestEvent(Id, userInfo));
+                Publish(() => new CohortWithChangeOfPartyUpdatedEvent(Id, userInfo));
             }
 
             Approvals = Party.None;
