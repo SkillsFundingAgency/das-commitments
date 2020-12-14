@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             {
                 var standards = await _repository.GetAllStandards();
 
-                await _cache.SetCustomValueAsync(StandardsKey, _mapper.MapFrom(standards));
+                await _cache.SetCustomValueAsync(StandardsKey, _mapper.MapFrom(standards.OrderBy(c=>c.Title).ToList()));
             }
 
             return await _cache.GetCustomValueAsync<StandardsView>(StandardsKey);
@@ -43,7 +43,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             {
                 var frameworks = await _repository.GetAllFrameworks();
 
-                await _cache.SetCustomValueAsync(FrameworksKey, _mapper.MapFrom(frameworks));
+                await _cache.SetCustomValueAsync(FrameworksKey, _mapper.MapFrom(frameworks.OrderBy(c=>c.Title).ToList()));
             }
 
             return await _cache.GetCustomValueAsync<FrameworksView>(FrameworksKey);
