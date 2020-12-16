@@ -23,8 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
 
         public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
         {
-            var requestingParty = _authenticationService.GetUserParty();
-
             var x = await _dbContext.Value
                 .Apprenticeships
                 .GetById(request.ApprenticeshipId, apprenticeship => 
@@ -46,7 +44,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         StartDate = apprenticeship.StartDate.Value,
                         EndDate = apprenticeship.EndDate.Value,
                         EndpointAssessorName = apprenticeship.EpaOrg.Name,
-                        Reference = requestingParty == Party.Provider ? apprenticeship.ProviderRef : apprenticeship.EmployerRef,
+                        EmployerReference = apprenticeship.EmployerRef,
+                        ProviderReference = apprenticeship.ProviderRef,
                         Status = apprenticeship.GetApprenticeshipStatus(null),
                         StopDate = apprenticeship.StopDate,
                         PauseDate = apprenticeship.PauseDate,
