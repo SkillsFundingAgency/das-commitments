@@ -19,8 +19,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string CourseName { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public string Reference { get; set; }
+        public DateTime DateOfBirth { get; set; }        
+        public string EmployerReference { get; set; }
+        public string ProviderReference { get; set; }
         public ApprenticeshipStatus Status { get; set; }
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
