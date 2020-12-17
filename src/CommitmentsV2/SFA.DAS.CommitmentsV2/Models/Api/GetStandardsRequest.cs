@@ -2,6 +2,6 @@ namespace SFA.DAS.CommitmentsV2.Models.Api
 {
     public class GetStandardsRequest : IGetApiRequest
     {
-        public string GetUrl => "standards";
+        public string GetUrl => "TrainingCourses/standards";
     }
 }

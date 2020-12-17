@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Api
             var actual = new GetFrameworksRequest();
             
             //Assert
-            actual.GetUrl.Should().Be("frameworks");
+            actual.GetUrl.Should().Be("TrainingCourses/frameworks");
         }
     }
 }
