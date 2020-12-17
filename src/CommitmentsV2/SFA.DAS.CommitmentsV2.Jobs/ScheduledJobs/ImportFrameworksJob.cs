@@ -17,9 +17,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
     {
         private readonly ILogger<ImportStandardsJob> _logger;
         private readonly IApiClient _apiClient;
-        private readonly ICommitmentsDbContext _providerContext;
+        private readonly IProviderCommitmentsDbContext _providerContext;
         
-        public ImportFrameworksJob (ILogger<ImportStandardsJob> logger, IApiClient apiClient, ICommitmentsDbContext providerContext)
+        public ImportFrameworksJob (ILogger<ImportStandardsJob> logger, IApiClient apiClient, IProviderCommitmentsDbContext providerContext)
         {
             _logger = logger;
             _apiClient = apiClient;
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _logger.LogInformation("ImportFrameworksJob - Finished");
         }
         
-        private static Task ImportFrameworks(ICommitmentsDbContext db, DataTable frameworksDataTable)
+        private static Task ImportFrameworks(IProviderCommitmentsDbContext db, DataTable frameworksDataTable)
         {
             var standards = new SqlParameter("frameworks", SqlDbType.Structured)
             {
@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             return db.ExecuteSqlCommandAsync("EXEC ImportFrameworks @frameworks", standards);
         }
 
-        private static Task ImportFrameworksFunding(ICommitmentsDbContext db, DataTable standardsFundingDataTable)
+        private static Task ImportFrameworksFunding(IProviderCommitmentsDbContext db, DataTable standardsFundingDataTable)
         {
             var standardsFunding = new SqlParameter("frameworksFunding", SqlDbType.Structured)
             {

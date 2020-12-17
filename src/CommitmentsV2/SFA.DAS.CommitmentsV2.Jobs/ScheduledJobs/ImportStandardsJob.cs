@@ -18,9 +18,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
     {
         private readonly ILogger<ImportStandardsJob> _logger;
         private readonly IApiClient _apiClient;
-        private readonly ICommitmentsDbContext _providerContext;
+        private readonly IProviderCommitmentsDbContext _providerContext;
 
-        public ImportStandardsJob(ILogger<ImportStandardsJob> logger, IApiClient apiClient, ICommitmentsDbContext providerContext)
+        public ImportStandardsJob(ILogger<ImportStandardsJob> logger, IApiClient apiClient, IProviderCommitmentsDbContext providerContext)
         {
             _logger = logger;
             _apiClient = apiClient;
@@ -77,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _logger.LogInformation("ImportStandardsJob - Finished");
         }
 
-        private static Task ImportStandards(ICommitmentsDbContext db, DataTable standardsDataTable)
+        private static Task ImportStandards(IProviderCommitmentsDbContext db, DataTable standardsDataTable)
         {
             var standards = new SqlParameter("standards", SqlDbType.Structured)
             {
@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             return db.ExecuteSqlCommandAsync("EXEC ImportStandards @standards", standards);
         }
 
-        private static Task ImportStandardsFunding(ICommitmentsDbContext db, DataTable standardsFundingDataTable)
+        private static Task ImportStandardsFunding(IProviderCommitmentsDbContext db, DataTable standardsFundingDataTable)
         {
             var standardsFunding = new SqlParameter("standardsFunding", SqlDbType.Structured)
             {

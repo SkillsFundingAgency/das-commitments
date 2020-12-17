@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         public async Task Then_The_Standards_Are_Imported_From_The_Client(
             StandardResponse apiResponse,
             [Frozen] Mock<IApiClient> apiClient,
-            [Frozen] Mock<ICommitmentsDbContext> context,
+            [Frozen] Mock<IProviderCommitmentsDbContext> context,
             ImportStandardsJob importStandardsJob
             )
         {
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         public async Task Then_The_StandardsFunding_Items_Are_Imported_From_The_Client(
             StandardResponse apiResponse,
             [Frozen] Mock<IApiClient> apiClient,
-            [Frozen] Mock<ICommitmentsDbContext> context,
+            [Frozen] Mock<IProviderCommitmentsDbContext> context,
             ImportStandardsJob importStandardsJob
         )
         {
