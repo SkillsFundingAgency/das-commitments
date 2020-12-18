@@ -156,13 +156,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (cohort.IsLinkedToChangeOfPartyRequest)
             {
                 await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
-
-                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(cohort.ChangeOfPartyRequestId.Value, cancellationToken);
-
-                if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
-                {
-                    changeOfPartyRequest.UpdateChangeOfPartyRequest(draftApprenticeshipDetails, cohort.EmployerAccountId, cohort.ProviderId, userInfo, _authenticationService.GetUserParty());
-                }
             }
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);

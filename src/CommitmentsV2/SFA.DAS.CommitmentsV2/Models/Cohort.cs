@@ -255,7 +255,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             StartTrackingSession(UserAction.ApproveCohort, modifyingParty, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
-
+            
             switch (modifyingParty)
             {
                 case Party.Employer:
@@ -315,8 +315,13 @@ namespace SFA.DAS.CommitmentsV2.Models
                 }
             }
 
+            if (ChangeOfPartyRequestId.HasValue)
+            {
+                Publish(() => new CohortWithChangeOfPartyUpdatedEvent(Id, userInfo));
+            }
+
             ChangeTrackingSession.CompleteTrackingSession();
-        }        
+        }
 
         private Party GetWithParty(Party otherParty, bool isApprovedByOtherParty)
         {
@@ -372,6 +377,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (Approvals.HasFlag(Party.Provider))
             {
                 Publish(() => new ApprovedCohortReturnedToProviderEvent(Id, now));
+            }
+
+            if (ChangeOfPartyRequestId.HasValue)
+            {
+                Publish(() => new CohortWithChangeOfPartyUpdatedEvent(Id, userInfo));
             }
 
             Approvals = Party.None;

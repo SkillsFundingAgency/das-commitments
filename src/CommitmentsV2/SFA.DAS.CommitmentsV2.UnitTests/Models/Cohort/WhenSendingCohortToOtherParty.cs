@@ -166,6 +166,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.VerifyCohortTracking();
         }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void And_IsChangeOfPartyRequest_ThenShouldPublishEvent(Party modifyingParty)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetChangeOfPartyRequestId()
+                .SendToOtherParty();
+
+            _fixture.VerifyCohortWithChangeOfPartyRequestEventIsPublished();
+        }
     }
 
     public class WhenSendingCohortToOtherPartyTestsFixture
@@ -254,11 +266,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             return this;
         }
 
+        public WhenSendingCohortToOtherPartyTestsFixture SetChangeOfPartyRequestId()
+        {
+            Cohort.Set(c => c.ChangeOfPartyRequestId, 123);
+            return this;
+        }
+
         public void VerifyCohortTracking()
         {
             Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType ==
                                                                                 nameof(Cohort)));
+        }
+
+        public void VerifyCohortWithChangeOfPartyRequestEventIsPublished()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyUpdatedEvent @event
+                                                                               && @event.CohortId == Cohort.Id));
         }
     }
 }

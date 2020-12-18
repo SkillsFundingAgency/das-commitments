@@ -306,6 +306,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
+        #region PublishCohortWithChangeOfPartyUpdatedEvent
+        [Test]
+        public async Task PublishCohortWithChangeOfPartyUpdatedEvent_ShouldPublishEvent()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<CohortWithChangeOfPartyUpdatedEvent>()
+                .WithChangeOfPartyRequest();
+
+            await fixtures.Publish(publisher => publisher.PublishCohortWithChangeOfPartyUpdatedEvent(fixtures.Commitment.Id, fixtures.UserInfo));
+
+            fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.Is<CohortWithChangeOfPartyUpdatedEvent>(c => c.CohortId == fixtures.Commitment.Id &&
+                c.UserInfo == fixtures.UserInfo), It.IsAny<PublishOptions>()));
+        }
+        #endregion
+
         #region SendApproveTransferRequestCommand
         [Test]
         public async Task ApproveTransferRequestCommandSent_ShouldMapPropertiesCorrectly()

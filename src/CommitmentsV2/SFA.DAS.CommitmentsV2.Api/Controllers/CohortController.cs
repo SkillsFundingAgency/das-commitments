@@ -130,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             var command = new SendCohortCommand(cohortId, request.Message, request.UserInfo);
             await _mediator.Send(command);
-            
+
             return Ok();
         }
 

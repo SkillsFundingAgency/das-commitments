@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _cohort.Setup(x =>
                     x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()));
                
-               _dbContext.Object.Cohorts.Add(_cohort.Object);
+                _dbContext.Object.Cohorts.Add(_cohort.Object);
                 _dbContext.Object.SaveChanges();
             }
 
