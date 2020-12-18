@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -29,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             
             if (int.TryParse(courseCode, out var standardId))
             {
-                var standard = await _dbContext.Standards.FindAsync(standardId);
+                var standard = await _dbContext.Standards.Include(c=>c.FundingPeriods).FirstOrDefaultAsync(c=>c.Id.Equals(standardId));
 
                 if (standard == null)
                 {
@@ -39,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return new TrainingProgramme(standard.Id.ToString(),GetTitle(standard.Title, standard.Level) + " (Standard)",ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
             }
 
-            var framework = await _dbContext.Frameworks.FindAsync(courseCode);
+            var framework = await _dbContext.Frameworks.Include(c=>c.FundingPeriods).FirstOrDefaultAsync(c=>c.Id.Equals(courseCode));
             
             if (framework == null)
             {

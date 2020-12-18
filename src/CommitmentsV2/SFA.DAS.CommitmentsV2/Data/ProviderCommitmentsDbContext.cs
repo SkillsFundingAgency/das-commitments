@@ -65,6 +65,8 @@ namespace SFA.DAS.CommitmentsV2.Data
             modelBuilder.ApplyConfiguration(new ChangeOfPartyRequestConfiguration());
             modelBuilder.ApplyConfiguration(new StandardConfiguration());
             modelBuilder.ApplyConfiguration(new FrameworkConfiguration());
+            modelBuilder.ApplyConfiguration(new FrameworkFundingPeriodConfiguration());
+            modelBuilder.ApplyConfiguration(new StandardFundingPeriodConfiguration());
         }
     }
 }

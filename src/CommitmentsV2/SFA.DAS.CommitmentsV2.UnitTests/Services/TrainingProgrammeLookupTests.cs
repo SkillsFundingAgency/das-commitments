@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CosmosDb;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -26,8 +27,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             //Assert
             actual.Should().BeNull();
-            dbContext.Verify(x=>x.Frameworks.FindAsync(It.IsAny<int>()), Times.Never);
-            dbContext.Verify(x=>x.Standards.FindAsync(It.IsAny<int>()), Times.Never);
         }
         
         [Test, RecursiveMoqAutoData]
@@ -41,9 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             //Arrange
             standards.Add(standard);
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
-            dbContext.Setup(x => x.Standards.FindAsync(standard.Id))
-                .ReturnsAsync(standards.FirstOrDefault(c => c.Id.Equals(standard.Id)));
-            
+
             //Act
             var actual = await service.GetTrainingProgramme(standard.Id.ToString());
             
@@ -67,8 +64,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             //Arrange
             frameworks.Add(framework);
             dbContext.Setup(x => x.Frameworks).ReturnsDbSet(frameworks);
-            dbContext.Setup(x => x.Frameworks.FindAsync(framework.Id))
-                .ReturnsAsync(frameworks.FirstOrDefault(c => c.Id.Equals(framework.Id)));
             
             //Act
             var actual = await service.GetTrainingProgramme(framework.Id);
@@ -90,8 +85,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             //Arrange
             dbContext.Setup(x => x.Standards).ReturnsDbSet(new List<Standard>());
-            dbContext.Setup(x => x.Standards.FindAsync(It.IsAny<string>()))
-                .ReturnsAsync((Standard) null);
             
             //Act Assert
             Assert.ThrowsAsync<Exception>(()=> service.GetTrainingProgramme(standardCode.ToString()),$"The course code {standardCode} was not found");
@@ -105,8 +98,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             //Arrange
             dbContext.Setup(x => x.Frameworks).ReturnsDbSet(new List<Framework>());
-            dbContext.Setup(x => x.Frameworks.FindAsync(It.IsAny<string>()))
-                .ReturnsAsync((Framework) null);
             
             //Act Assert
             Assert.ThrowsAsync<Exception>(()=> service.GetTrainingProgramme(frameworkId),$"The course code {frameworkId} was not found");
