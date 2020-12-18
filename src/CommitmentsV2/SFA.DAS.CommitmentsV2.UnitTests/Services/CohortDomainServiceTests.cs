@@ -27,9 +27,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using TestSupport.EfHelpers;
 using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -336,47 +334,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.UpdateDraftApprenticeship());
-        }
-
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public async Task UpdateDraftApprenticeship_When_CohortIsLinkedToChangeOfProviderRequest_Then_ChangeOfPartyRequestIsUpdated(Party updatingParty)
-        {
-            _fixture.WithParty(updatingParty)
-                .WithChangeOfProviderCohort(updatingParty)
-                .WithExistingDraftApprenticeship()
-                .WithContinuation(false);
-
-            await _fixture.UpdateDraftApprenticeship();
-
-            _fixture.VerifyChangeOfPartyRequestUpdated();
-        }
-
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public async Task UpdateDraftApprenticeship_When_CohortIsLinkedToChangeOfEmployerRequest_Then_ChangeOfPartyRequestIsNotUpdated(Party updatingParty)
-        {
-            _fixture.WithParty(updatingParty)
-                .WithChangeOfEmployerCohort(updatingParty)
-                .WithExistingDraftApprenticeship()
-                .WithContinuation(false);
-
-            await _fixture.UpdateDraftApprenticeship();
-
-            _fixture.VerifyChangeOfPartyRequestIsNotUpdated();
-        }
-
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public async Task UpdateDraftApprenticeship_When_CohortIsNotLinkedToChangeOfPartyRequest_Then_ChangeOfPartyRequestIsNotUpdated(Party updatingParty)
-        {
-            _fixture.WithParty(updatingParty)
-                .WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, updatingParty)
-                .WithExistingDraftApprenticeship()
-                .WithNoUserInfo();
-
-            await _fixture.UpdateDraftApprenticeship();
-            _fixture.VerifyChangeOfPartyRequestIsNotUpdated();
         }
 
         [Test]
@@ -1264,16 +1221,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var deleted = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
 
                 Assert.IsNull(deleted, "Draft apprenticeship record not deleted");
-            }
-
-            public void VerifyChangeOfPartyRequestUpdated()
-            {
-                ChangeOfPartyRequest.Verify(x => x.UpdateChangeOfPartyRequest(DraftApprenticeshipDetails, EmployerAccount.Id, ProviderId, It.IsAny<UserInfo>(), It.IsAny<Party>()), Times.Once);
-            }
-
-            public void VerifyChangeOfPartyRequestIsNotUpdated()
-            {
-                ChangeOfPartyRequest.Verify(x => x.UpdateChangeOfPartyRequest(It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<UserInfo>(), It.IsAny<Party>()), Times.Never);
             }
 
             public void TearDown()

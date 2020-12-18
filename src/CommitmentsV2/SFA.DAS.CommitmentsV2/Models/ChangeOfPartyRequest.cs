@@ -159,14 +159,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public virtual void UpdateChangeOfPartyRequest(DraftApprenticeshipDetails draftApprenticeshipDetails, long employerAccountId, long providerId, UserInfo userInfo, Party modifyingParty)
+        public virtual void UpdateChangeOfPartyRequest(DraftApprenticeship draftApprenticeship, long employerAccountId, long providerId, UserInfo userInfo, Party modifyingParty)
         {
             StartTrackingSession(UserAction.UpdateChangeOfPartyRequest, modifyingParty, employerAccountId, providerId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
-            Price = draftApprenticeshipDetails.Cost;
-            StartDate = draftApprenticeshipDetails.StartDate;
-            EndDate = draftApprenticeshipDetails.EndDate;
+            Price = (int)draftApprenticeship.Cost;
+            StartDate = draftApprenticeship.StartDate;
+            EndDate = draftApprenticeship.EndDate;
 
             ChangeTrackingSession.CompleteTrackingSession();
         }

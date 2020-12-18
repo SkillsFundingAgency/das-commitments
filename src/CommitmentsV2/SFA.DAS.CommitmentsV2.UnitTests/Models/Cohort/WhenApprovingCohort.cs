@@ -402,6 +402,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.UnitOfWorkContext.GetEvents().OfType<CohortTransferApprovalRequestedEvent>().Count().Should().Be(0);
         }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void And_IsChangeOfPartyCohort_Then_CohortWithChangeOfPartyRequestEvent_IsPublished(Party modifyingParty)
+        {
+            _fixture
+                .SetChangeOfPartyRequestId()
+                .SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .AddDraftApprenticeship()
+                .Approve();
+
+            _fixture.UnitOfWorkContext.GetEvents().OfType<CohortWithChangeOfPartyUpdatedEvent>().Count(e =>
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.UserInfo == _fixture.UserInfo).Should().Be(1);
+        }
     }
 
     public class WhenApprovingCohortFixture

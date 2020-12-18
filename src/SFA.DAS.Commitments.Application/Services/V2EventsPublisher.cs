@@ -205,6 +205,12 @@ namespace SFA.DAS.Commitments.Application.Services
             return PublishWithLog(changeOfPartyRejectedEvent, $"Commitment: {commitment.Id}, EmployerAccountId: {commitment.EmployerAccountId}, ChangeOfPartyRequest: {commitment.ChangeOfPartyRequestId.Value}");
         }
 
+        public Task PublishCohortWithChangeOfPartyUpdatedEvent(long cohortId, UserInfo userInfo)
+        {
+            var @event = new CohortWithChangeOfPartyUpdatedEvent(cohortId, userInfo);
+            return PublishWithLog(@event, $"Cohort with change of party request, CohortId:{cohortId}, updated");
+        }
+
         public async Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo)
         {
             await _endpointInstance.Send<ProviderApproveCohortCommand>(ev =>
