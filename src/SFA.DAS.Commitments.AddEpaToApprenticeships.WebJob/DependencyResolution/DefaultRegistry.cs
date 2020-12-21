@@ -2,6 +2,8 @@
 using System.Configuration;
 using System.Net.Http;
 using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration;
+using SFA.DAS.Commitments.Domain.Api.Configuration;
+using SFA.DAS.Commitments.Domain.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Api;
@@ -31,7 +33,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
                 });
 
             var config = GetConfiguration("SFA.DAS.Commitments.AddEpaToApprenticeships");
-
+            For<ApprovalsOuterApiConfiguration>().Use(c => config.ApprovalsOuterApiConfiguration);
+            For<IApprovalsOuterApiConfiguration>().Use(c => c.GetInstance<ApprovalsOuterApiConfiguration>());
+            
             // ms fake would be preferable
             For<ICurrentDateTime>().Use(x => new CurrentDateTime());
 
