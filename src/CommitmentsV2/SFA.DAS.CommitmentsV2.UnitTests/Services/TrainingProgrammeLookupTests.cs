@@ -10,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CosmosDb;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -101,6 +100,40 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             
             //Act Assert
             Assert.ThrowsAsync<Exception>(()=> service.GetTrainingProgramme(frameworkId),$"The course code {frameworkId} was not found");
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_List_Of_Standards_And_Frameworks_When_Getting_All(
+            List<Framework> frameworks,
+            List<Standard> standards,
+            [Frozen]Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            //Arrange
+            dbContext.Setup(x => x.Frameworks).ReturnsDbSet(frameworks);
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+            
+            //Act
+            var actual = (await service.GetAll()).ToList();
+            
+            //Assert
+            actual.Count.Should().Be(frameworks.Count + standards.Count);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_List_Of_Standards(
+            List<Standard> standards,
+            [Frozen]Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            //Arrange
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+            
+            //Act
+            var actual = (await service.GetAllStandards()).ToList();
+            
+            //Assert
+            actual.Count.Should().Be(standards.Count);
         }
     }
 }
