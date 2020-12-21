@@ -201,7 +201,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
         public void IfThereAreNoFundingPeriodsThenCapShouldBeZero()
         {
             //Arrange
-            _course.FundingPeriods = new List<TrainingProgrammeFundingPeriod>();
+            _course.FundingPeriods = new List<SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgrammeFundingPeriod>();
 
             //Act
             var result = _course.FundingCapOn(new DateTime(2018, 05, 15));

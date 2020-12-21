@@ -629,7 +629,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType  programmeType = ProgrammeType.Standard)
             {
-                DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
+                DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST",
                   "TEST",
                   programmeType,
                   new DateTime(2016, 1, 1),
@@ -641,7 +641,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 DraftApprenticeshipDetails.ReservationId = Guid.NewGuid();
                 DraftApprenticeshipDetails.StartDate = new DateTime(2019, 01, 01);
-                DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
+                DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST",
                     "TEST",
                     ProgrammeType.Standard,
                     new DateTime(2016, 1, 1),
@@ -830,7 +830,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DraftApprenticeshipDetails.DateOfBirth = ExistingDraftApprenticeship.DateOfBirth;
                 DraftApprenticeshipDetails.Uln = ExistingDraftApprenticeship.Uln;
                 DraftApprenticeshipDetails.StartDate = ExistingDraftApprenticeship.StartDate;
-                DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme(ExistingDraftApprenticeship.CourseCode, "", ProgrammeType.Framework, Now,Now);
+                DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(ExistingDraftApprenticeship.CourseCode, "", ProgrammeType.Framework, Now,Now);
 
                 if (overlap)
                 {

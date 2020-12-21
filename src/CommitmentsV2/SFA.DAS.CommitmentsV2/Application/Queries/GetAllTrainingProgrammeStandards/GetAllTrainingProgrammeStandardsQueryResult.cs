@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards
 {

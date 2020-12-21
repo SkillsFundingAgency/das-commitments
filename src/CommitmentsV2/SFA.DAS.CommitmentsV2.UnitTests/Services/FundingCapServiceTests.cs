@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public FundingCapService FundingCapService;
             public IList<DraftApprenticeship> Apprentices;
             public readonly Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup;
-            public readonly TrainingProgramme TrainingProgramme;
+            public readonly SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme TrainingProgramme;
             private static DateTime _startDate = new DateTime(2000, 01, 01);
             private static DateTime _breakDate = new DateTime(2010, 11, 01);
             private static DateTime _endDate = new DateTime(2011, 10, 01);
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     _fundingPeriod1, _fundingPeriod2
                 };
-                TrainingProgramme = new TrainingProgramme("1","Title", ProgrammeType.Standard,_startDate, _endDate, new List<IFundingPeriod>(fundingList));
+                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("1","Title", ProgrammeType.Standard,_startDate, _endDate, new List<IFundingPeriod>(fundingList));
                 
                 TrainingProgrammeLookup.Setup(x => x.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(TrainingProgramme);
 

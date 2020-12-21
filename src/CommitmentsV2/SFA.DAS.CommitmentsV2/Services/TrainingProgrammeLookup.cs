@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                     new List<IFundingPeriod>(standard.FundingPeriods))));
 
-            return trainingProgrammes;
+            return trainingProgrammes.OrderBy(c=>c.Name);
         }
 
         public async Task<IEnumerable<TrainingProgramme>> GetAllStandards()
@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                     new List<IFundingPeriod>(standard.FundingPeriods))));
 
-            return trainingProgrammes;
+            return trainingProgrammes.OrderBy(c=>c.Name);
         }
     }
 }
