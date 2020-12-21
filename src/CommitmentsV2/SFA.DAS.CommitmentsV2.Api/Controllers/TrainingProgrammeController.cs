@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammes;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -58,6 +59,28 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting all standards");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<IActionResult>  GetTrainingProgramme(string id)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetTrainingProgrammeQuery
+                {
+                    Id = id
+                });
+                return Ok(new GetTrainingProgrammeResponse
+                {
+                    TrainingProgramme = result.TrainingProgramme
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error getting training programme {id}");
                 return BadRequest();
             }
         }
