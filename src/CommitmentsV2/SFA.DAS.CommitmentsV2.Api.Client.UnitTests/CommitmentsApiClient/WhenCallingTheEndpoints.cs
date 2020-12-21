@@ -520,6 +520,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
 
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/details/pause", request, CancellationToken.None));
         }
+
+        [Test]
+        public async Task GetAllStandards()
+        {
+            await _fixture.CommitmentsApiClient.GetAllTrainingProgrammeStandards();
+            
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetAllTrainingProgrammeStandardsResponse>("api/TrainingProgramme/standards", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetAllTrainingProgrammes()
+        {
+            await _fixture.CommitmentsApiClient.GetAllTrainingProgrammes();
+                
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetAllTrainingProgrammesResponse>("api/TrainingProgramme/all", null, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture
