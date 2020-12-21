@@ -356,5 +356,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<GetAllTrainingProgrammeStandardsResponse>($"api/TrainingProgramme/standards", null, cancellationToken);
         }
+
+        public Task<GetTrainingProgrammeResponse> GetTrainingProgramme(string id, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{id}", null, cancellationToken);
+        }
     }
 }
