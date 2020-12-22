@@ -14,12 +14,12 @@ namespace SFA.DAS.CommitmentsV2.Services
     
     public class TrainingProgrammeLookup : ITrainingProgrammeLookup
     {
-        private readonly ProviderCommitmentsDbContext _dbContext;
+        private readonly IProviderCommitmentsDbContext _dbContext;
         
 
-        public TrainingProgrammeLookup(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext)
         {
-            _dbContext = dbContext.Value;
+            _dbContext = dbContext;
         }
 
         public async Task<TrainingProgramme> GetTrainingProgramme(string courseCode)
