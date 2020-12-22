@@ -15,7 +15,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<ConfigurationRegistry>();
-            registry.IncludeRegistry<ApprovalsOuterApiServiceRegistry>();
             registry.IncludeRegistry<DataRegistry>();
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<MediatorRegistry>();

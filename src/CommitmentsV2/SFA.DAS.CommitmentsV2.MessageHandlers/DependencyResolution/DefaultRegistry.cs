@@ -11,7 +11,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
         public DefaultRegistry()
         {
             For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
-            For<IFundingCapService>().Use<FundingCapService>().Singleton();
+            For<IFundingCapService>().Use<FundingCapService>().ContainerScoped();
+            For<ITrainingProgrammeLookup>().Use<TrainingProgrammeLookup>().ContainerScoped();
             For<ITopicClientFactory>().Use<TopicClientFactory>();
             For<ILegacyTopicMessagePublisher>().Use<LegacyTopicMessagePublisher>().Ctor<string>("connectionString").Is(ctx=>ctx.GetInstance<CommitmentsV2Configuration>().MessageServiceBusConnectionString);
         }
