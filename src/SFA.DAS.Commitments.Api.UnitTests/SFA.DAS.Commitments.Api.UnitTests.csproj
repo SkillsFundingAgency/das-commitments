@@ -121,6 +121,9 @@
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\StatisticsControllerTests\WhenGettingStatistics.cs" />
+    <Compile Include="Controllers\TrainingProgrammeControllerTests\WhenGettingAllStandards.cs" />
+    <Compile Include="Controllers\TrainingProgrammeControllerTests\WhenGettingAllTrainingProgrammes.cs" />
+    <Compile Include="Controllers\TrainingProgrammeControllerTests\WhenGettingATrainingProgramme.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestForReceiver.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequests.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestForSender.cs" />
