@@ -185,5 +185,14 @@ namespace SFA.DAS.Commitments.Api.Client
 
             await _commitmentHelper.PatchCommitment(url, submission);
         }
+
+        public async Task<GetProviderResponse> GetProvider(long providerId)
+        {
+            var url = $"{_configuration.BaseUrl}api/provider/{providerId}";
+
+            var response = await GetAsync(url);
+            
+            return JsonConvert.DeserializeObject<GetProviderResponse>(response);
+        }
     }
 }

@@ -39,5 +39,6 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task PatchDataLocks(long providerId, long apprenticeshipId, DataLockTriageSubmission triageSubmission);
 
         Task ApproveCohort(long providerId, long commitmentId, CommitmentSubmission submission);
+        Task<GetProviderResponse> GetProvider(long providerId);
     }
 }
