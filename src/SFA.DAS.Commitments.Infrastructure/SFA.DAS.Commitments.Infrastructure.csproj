@@ -218,6 +218,7 @@
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\CurrentDatePolicy.cs" />
     <Compile Include="Configuration\ProviderUserApiConfiguration.cs" />
+    <Compile Include="Data\ProviderRepository.cs" />
     <Compile Include="Data\TrainingProgrammeRepository.cs" />
     <Compile Include="Data\ApprenticeshipRepository.cs" />
     <Compile Include="Data\ApprenticeshipUpdateRepository.cs" />

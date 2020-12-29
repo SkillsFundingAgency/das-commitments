@@ -90,6 +90,7 @@
     <Compile Include="Api\Types\OrganisationSummary.cs" />
     <Compile Include="CallerTypeExtensions.cs" />
     <Compile Include="Configuration\ApprovalsOuterApiConfiguration.cs" />
+    <Compile Include="Data\IProviderRepository.cs" />
     <Compile Include="Data\ITrainingProgrammeRepository.cs" />
     <Compile Include="Data\IApprenticeshipRepository.cs" />
     <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Entities\CommitmentAgreement.cs" />
     <Compile Include="Entities\DataLock\DataLockStatusSummary.cs" />
     <Compile Include="Entities\Party.cs" />
+    <Compile Include="Entities\Provider.cs" />
     <Compile Include="Entities\Statistics.cs" />
     <Compile Include="Entities\TrainingProgramme\FundingPeriod.cs" />
     <Compile Include="Entities\TrainingProgramme\TrainingProgrammeStatus.cs" />
