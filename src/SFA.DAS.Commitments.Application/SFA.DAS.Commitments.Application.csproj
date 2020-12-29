@@ -261,6 +261,9 @@
     <Compile Include="Commands\ValidateReservation\ValidateReservationRequest.cs" />
     <Compile Include="Commands\ValidateReservation\ValidateReservationResponse.cs" />
     <Compile Include="Interfaces\INotificationsPublisher.cs" />
+    <Compile Include="Queries\GetTrainingProgramme\GetTrainingProgrammeQuery.cs" />
+    <Compile Include="Queries\GetTrainingProgramme\GetTrainingProgrammeQueryHandler.cs" />
+    <Compile Include="Queries\GetTrainingProgramme\GetTrainingProgrammeQueryResponse.cs" />
     <Compile Include="Services\NotificationsPublisher.cs" />
     <Compile Include="Services\ReservationValidationRequest.cs" />
     <Compile Include="Services\ReservationValidationService.cs" />
@@ -467,7 +470,6 @@
       <Name>SFA.DAS.Reservations.Api.Types</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
