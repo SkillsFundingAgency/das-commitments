@@ -261,6 +261,9 @@
     <Compile Include="Commands\ValidateReservation\ValidateReservationRequest.cs" />
     <Compile Include="Commands\ValidateReservation\ValidateReservationResponse.cs" />
     <Compile Include="Interfaces\INotificationsPublisher.cs" />
+    <Compile Include="Queries\GetAllStandardTrainingProgrammes\GetAllStandardTrainingProgrammesQuery.cs" />
+    <Compile Include="Queries\GetAllStandardTrainingProgrammes\GetAllStandardTrainingProgrammesQueryHandler.cs" />
+    <Compile Include="Queries\GetAllStandardTrainingProgrammes\GetAllStandardTrainingProgrammesQueryResponse.cs" />
     <Compile Include="Queries\GetAllTrainingProgrammes\GetAllTrainingProgrammesQuery.cs" />
     <Compile Include="Queries\GetAllTrainingProgrammes\GetAllTrainingProgrammesQueryHandler.cs" />
     <Compile Include="Queries\GetAllTrainingProgrammes\GetAllTrainingProgrammesQueryResponse.cs" />
