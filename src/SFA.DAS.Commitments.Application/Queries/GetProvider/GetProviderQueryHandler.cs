@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetProvider
@@ -18,7 +19,11 @@ namespace SFA.DAS.Commitments.Application.Queries.GetProvider
             
             return new GetProviderQueryResponse
             {
-                Provider = result
+                Provider = new ProviderResponse
+                {
+                    Name = result.Name,
+                    Ukprn = result.Ukprn
+                } 
             };
         }
     }

@@ -89,7 +89,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<ICache>().Use<InMemoryCache>();
 
             ConfigureLogging();
-        }Í
+        }
 
         private void ConfigureLogging()
         {

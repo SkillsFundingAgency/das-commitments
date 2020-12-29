@@ -149,6 +149,7 @@
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentView.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentAgreement.cs" />
     <Compile Include="Orchestrators\Provider\WhenGettingCommitmentAgreements.cs" />
+    <Compile Include="Orchestrators\Provider\WhenGettingProviderByUkprn.cs" />
     <Compile Include="Orchestrators\Statistics\StatisticsOrchestratorTestBase.cs" />
     <Compile Include="Orchestrators\Statistics\WhenGettingStatistics.cs" />
     <Compile Include="StubCurrentDateTime.cs" />

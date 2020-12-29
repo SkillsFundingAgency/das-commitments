@@ -1,9 +1,9 @@
-using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Api.Types;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetProvider
 {
     public class GetProviderQueryResponse
     {
-        public Provider Provider { get ; set ; }
+        public ProviderResponse Provider { get ; set ; }
     }
 }

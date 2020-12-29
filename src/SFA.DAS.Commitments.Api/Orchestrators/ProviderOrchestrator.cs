@@ -31,6 +31,7 @@ using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
 using SFA.DAS.Commitments.Application.Queries.GetCommitmentAgreements;
+using SFA.DAS.Commitments.Application.Queries.GetProvider;
 using SFA.DAS.Commitments.Domain.Entities;
 
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
@@ -402,6 +403,19 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved bulk upload for provider {providerId}", providerId: providerId);
             return result.Data;
+        }
+
+        public async Task<GetProviderResponse> GetProvider(long providerId)
+        {
+            var result = await _mediator.SendAsync(new GetProviderQuery
+            {
+                Ukprn = providerId
+            });
+            
+            return new GetProviderResponse
+            {
+                Provider = result.Provider
+            }; 
         }
     }
 }
