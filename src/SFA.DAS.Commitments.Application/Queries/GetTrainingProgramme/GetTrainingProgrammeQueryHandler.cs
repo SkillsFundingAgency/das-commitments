@@ -1,5 +1,7 @@
+using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types.TrainingProgramme;
 using SFA.DAS.Commitments.Application.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetTrainingProgramme
@@ -19,7 +21,20 @@ namespace SFA.DAS.Commitments.Application.Queries.GetTrainingProgramme
             
             return new GetTrainingProgrammeQueryResponse
             {
-                TrainingProgramme = result
+                TrainingProgramme = new TrainingProgramme
+                {
+                    Name = result.Title,
+                    CourseCode = result.Id,
+                    EffectiveFrom = result.EffectiveFrom,
+                    EffectiveTo = result.EffectiveTo,
+                    ProgrammeType = int.TryParse(result.Id, out var code) ?  ProgrammeType.Standard : ProgrammeType.Framework,
+                    FundingPeriods = result.FundingPeriods.Select(x=>new TrainingProgrammeFundingPeriod
+                    {
+                        EffectiveFrom = x.EffectiveFrom,
+                        EffectiveTo = x.EffectiveTo,
+                        FundingCap = x.FundingCap
+                    }).ToList()
+                }
             };
         }
     }

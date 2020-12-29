@@ -5,6 +5,7 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.Types.TrainingProgramme;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetAllStandardTrainingProgrammes;
 using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
@@ -28,7 +29,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetAllStandardTraini
         }
         
         [Test]
-        public async Task Then_The_Service_Is_Called_And_TrainingProgramme_Returned()
+        public async Task Then_The_Service_Is_Called_And_TrainingProgramme_Standards_Returned()
         {
             //Arrange
             var query = new GetAllStandardTrainingProgrammesQuery();
@@ -37,7 +38,22 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetAllStandardTraini
             var actual = await _handler.Handle(query);
             
             //Assert
-            actual.TrainingProgrammes.ShouldBeEquivalentTo(_standard.Standards.OrderBy(c=>c.Title));
+            var expectedList = new List<TrainingProgramme>();
+            expectedList.AddRange(_standard.Standards.Select(c=> new TrainingProgramme
+            {
+                Name = c.Title,
+                CourseCode = c.Id,
+                EffectiveFrom = c.EffectiveFrom,
+                EffectiveTo = c.EffectiveTo,
+                ProgrammeType = ProgrammeType.Standard,
+                FundingPeriods = c.FundingPeriods.Select(x=>new TrainingProgrammeFundingPeriod
+                {
+                    EffectiveFrom = x.EffectiveFrom,
+                    EffectiveTo = x.EffectiveTo,
+                    FundingCap = x.FundingCap
+                }).ToList()
+            }));
+            actual.TrainingProgrammes.ShouldBeEquivalentTo(expectedList.OrderBy(c=>c.Name));
         }
     }
 }

@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
+using SFA.DAS.Commitments.Api.Types.TrainingProgramme;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetAllTrainingProgrammes
 {
     public class GetAllTrainingProgrammesQueryResponse
     {
-        public IEnumerable<ITrainingProgramme> TrainingProgrammes { get ; set ; }
+        public IEnumerable<TrainingProgramme> TrainingProgrammes { get ; set ; }
     }
 }

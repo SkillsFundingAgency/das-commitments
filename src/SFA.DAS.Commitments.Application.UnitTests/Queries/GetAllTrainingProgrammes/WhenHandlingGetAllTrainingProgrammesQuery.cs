@@ -5,6 +5,7 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.Types.TrainingProgramme;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetAllTrainingProgrammes;
 using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
@@ -31,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetAllTrainingProgra
         }
         
         [Test]
-        public async Task Then_The_Service_Is_Called_And_TrainingProgramme_Returned()
+        public async Task Then_The_Service_Is_Called_And_TrainingProgrammes_Returned()
         {
             //Arrange
             var query = new GetAllTrainingProgrammesQuery();
@@ -40,10 +41,36 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetAllTrainingProgra
             var actual = await _handler.Handle(query);
             
             //Assert
-            var expectedList = new List<ITrainingProgramme>();
-            expectedList.AddRange(_standard.Standards);
-            expectedList.AddRange(_frameworks.Frameworks);
-            actual.TrainingProgrammes.ShouldBeEquivalentTo(expectedList.OrderBy(c=>c.Title));
+            var expectedList = new List<TrainingProgramme>();
+            expectedList.AddRange(_standard.Standards.Select(c=> new TrainingProgramme
+            {
+                Name = c.Title,
+                CourseCode = c.Id,
+                EffectiveFrom = c.EffectiveFrom,
+                EffectiveTo = c.EffectiveTo,
+                ProgrammeType = ProgrammeType.Standard,
+                FundingPeriods = c.FundingPeriods.Select(x=>new TrainingProgrammeFundingPeriod
+                {
+                    EffectiveFrom = x.EffectiveFrom,
+                    EffectiveTo = x.EffectiveTo,
+                    FundingCap = x.FundingCap
+                }).ToList()
+            }));
+            expectedList.AddRange(_frameworks.Frameworks.Select(c=> new TrainingProgramme
+            {
+                Name = c.Title,
+                CourseCode = c.Id,
+                EffectiveFrom = c.EffectiveFrom,
+                EffectiveTo = c.EffectiveTo,
+                ProgrammeType = ProgrammeType.Framework,
+                FundingPeriods = c.FundingPeriods.Select(x=>new TrainingProgrammeFundingPeriod
+                {
+                    EffectiveFrom = x.EffectiveFrom,
+                    EffectiveTo = x.EffectiveTo,
+                    FundingCap = x.FundingCap
+                }).ToList()
+            }));
+            actual.TrainingProgrammes.ShouldBeEquivalentTo(expectedList.OrderBy(c=>c.Name));
         }
     }
 }
