@@ -283,6 +283,7 @@
     <Compile Include="Queries\GetAllTrainingProgrammes\WhenHandlingGetAllTrainingProgrammesQuery.cs" />
     <Compile Include="Queries\GetCommitmentAgreements\WhenGettingCommitmentAgreements.cs" />
     <Compile Include="Queries\GetCommitmentAgreements\WhenValidatingGetCommitmentAgreementsRequest.cs" />
+    <Compile Include="Queries\GetProvider\WhenHandlingGetProviderQuery.cs" />
     <Compile Include="Queries\GetStatistics\WhenGettingStatistics.cs" />
     <Compile Include="Queries\GetEmployerAccountIds\WhenGettingAllEmployerAccountIds.cs" />
     <Compile Include="Queries\GetTrainingProgramme\WhenHandlingGetTrainingProgrammeQuery.cs" />
