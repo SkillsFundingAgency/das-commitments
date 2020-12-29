@@ -279,6 +279,7 @@
     <Compile Include="Extensions\DateTimeExtensions\WhenGettingFirstOfMonth.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenGetActiveApprenticeshipsByUln.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenValidatingRequest.cs" />
+    <Compile Include="Queries\GetAllTrainingProgrammes\WhenHandlingGetAllTrainingProgrammesQuery.cs" />
     <Compile Include="Queries\GetCommitmentAgreements\WhenGettingCommitmentAgreements.cs" />
     <Compile Include="Queries\GetCommitmentAgreements\WhenValidatingGetCommitmentAgreementsRequest.cs" />
     <Compile Include="Queries\GetStatistics\WhenGettingStatistics.cs" />
