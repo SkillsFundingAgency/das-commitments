@@ -25,5 +25,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task<long> PostBulkUploadFile(long providerId, BulkUploadFileRequest bulkUploadFile);
         Task<string> GetBulkUploadFile(long providerId, long bulkUploadFileId);
         Task<GetProviderResponse> GetProvider(long providerId);
+        Task<GetProvidersResponse> GetProviders();
     }
 }
