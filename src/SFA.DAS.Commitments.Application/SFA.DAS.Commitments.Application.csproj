@@ -267,6 +267,9 @@
     <Compile Include="Queries\GetAllTrainingProgrammes\GetAllTrainingProgrammesQuery.cs" />
     <Compile Include="Queries\GetAllTrainingProgrammes\GetAllTrainingProgrammesQueryHandler.cs" />
     <Compile Include="Queries\GetAllTrainingProgrammes\GetAllTrainingProgrammesQueryResponse.cs" />
+    <Compile Include="Queries\GetProviders\GetProvidersQuery.cs" />
+    <Compile Include="Queries\GetProviders\GetProvidersQueryHandler.cs" />
+    <Compile Include="Queries\GetProviders\GetProvidersQueryResponse.cs" />
     <Compile Include="Queries\GetProvider\GetProviderQuery.cs" />
     <Compile Include="Queries\GetProvider\GetProviderQueryHandler.cs" />
     <Compile Include="Queries\GetProvider\GetProviderQueryResponse.cs" />
