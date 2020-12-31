@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
@@ -12,11 +13,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
         }
 
+        public async Task<List<Domain.Entities.Provider>> GetProviders()
+        {
+            return await WithConnection(async c =>
+            {
+                var results = await c.QueryAsync<Domain.Entities.Provider>(
+                    $@"SELECT Ukprn, Name
+                            FROM [dbo].[Providers]");
+                return results.AsList();
+            });
+        }
+
         public async Task<Domain.Entities.Provider> GetProvider(long ukPrn)
         {
             return await WithConnection(async c =>
             {
-                // we only want to get commitments that are approved
                 var results = await c.QuerySingleAsync<Domain.Entities.Provider>(
                     $@"SELECT Ukprn, Name
                             FROM [dbo].[Providers]
