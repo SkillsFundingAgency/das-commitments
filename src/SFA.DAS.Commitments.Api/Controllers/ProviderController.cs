@@ -36,6 +36,15 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response);
         }
         
+        [Route("")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
+        [HttpGet]
+        public async Task<IHttpActionResult> GetAllProvider()
+        {
+            var response = await _providerOrchestrator.GetProviders();
+            return Ok(response);
+        }
+        
 
         [Route("{providerId}/commitments")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
