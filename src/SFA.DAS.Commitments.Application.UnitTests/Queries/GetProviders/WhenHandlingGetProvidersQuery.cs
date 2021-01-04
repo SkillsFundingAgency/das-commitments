@@ -17,15 +17,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviders
         {
             private Mock<IProviderRepository> _repository;
             private GetProvidersQueryHandler _handler;
-            private List<Provider> _provider;
+            private List<Provider> _providers;
             
             [SetUp]
             public void Arrange()
             {
                 var fixture = new Fixture();
-                _provider = fixture.CreateMany<Provider>().ToList();
+                _providers = fixture.CreateMany<Provider>().ToList();
                 _repository = new Mock<IProviderRepository>();
-                _repository.Setup(x => x.GetProviders()).ReturnsAsync(_provider);
+                _repository.Setup(x => x.GetProviders()).ReturnsAsync(_providers);
                 _handler = new GetProvidersQueryHandler(_repository.Object);
             }
         
@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviders
                 var actual = await _handler.Handle(query);
             
                 //Assert
-                actual.Providers.ShouldBeEquivalentTo(_provider);
+                actual.Providers.ShouldBeEquivalentTo(_providers);
             }
         }
     }
