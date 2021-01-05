@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     splitOn: "Id"
                     );
 
-                return results.ToList();
+                return results.GroupBy(c => c.Id).Select(item=>item.First()).ToList();
             });
         }
         
@@ -48,7 +48,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     splitOn: "Id"
                     );
 
-                return results.ToList();
+                return results.GroupBy(c => c.Id).Select(item=>item.First()).ToList();
             });
         }
     }
