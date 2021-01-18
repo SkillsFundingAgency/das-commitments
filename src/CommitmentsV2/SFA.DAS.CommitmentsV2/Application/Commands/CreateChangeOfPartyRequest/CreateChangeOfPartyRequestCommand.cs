@@ -12,8 +12,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
         public int? NewPrice { get; set; }
         public DateTime? NewStartDate { get; set; }
         public DateTime? NewEndDate { get; set; }
-        public bool EmployerWillAdd { get; set; }
-        public DateTime StopDate { get; set; }
         public UserInfo UserInfo { get; set; }
     }
 }
