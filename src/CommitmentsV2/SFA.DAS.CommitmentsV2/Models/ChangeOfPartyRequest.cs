@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Status = ChangeOfPartyRequestStatus.Pending;
             CreatedOn = now;
             LastUpdatedOn = now;
-
+            
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
 
@@ -232,6 +232,24 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 throw new InvalidOperationException($"ChangeOfPartyRequest has status of {Status} and cannot be modified");
             }
+        }
+
+        public Party IsPreApproved()
+        {
+            if (OriginatingParty == Party.Provider && ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+            {
+                return Party.Provider;
+            }
+
+            if (OriginatingParty == Party.Employer && ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
+            {
+                if (StartDate.HasValue && EndDate.HasValue && Price.HasValue)
+                {
+                    return Party.Employer;
+                }
+            }
+
+            return Party.None;
         }
     }
 }
