@@ -17,12 +17,13 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <LangVersion>latest</LangVersion>
+    <Version>5.1.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="SFA.DAS.Authentication.Extensions.Legacy" Version="1.0.22" />
-    <PackageReference Include="SFA.DAS.Http" Version="3.2.28" />
+    <PackageReference Include="SFA.DAS.Http" Version="3.2.6" />
   </ItemGroup>
 
   <ItemGroup>
