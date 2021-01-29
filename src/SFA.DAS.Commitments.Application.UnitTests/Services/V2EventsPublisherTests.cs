@@ -320,6 +320,33 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
+        #region PublishApprenticeshipUlnUpdatedEvent
+        [Test]
+        public async Task PublishApprenticeshipUlnUpdatedEvent_ImmediateUpdate_ShouldPublishEvent()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipUlnUpdatedEvent>()
+                .WithApprenticeshipImmediateUpdate();
+
+            await fixtures.Publish(publisher => publisher.PublishApprenticeshipUlnUpdatedEvent(fixtures.Apprenticeship));
+
+            fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.Is<ApprenticeshipUlnUpdatedEvent>(c => c.ApprenticeshipId == fixtures.Apprenticeship.Id &&
+            c.Uln == fixtures.Apprenticeship.ULN), It.IsAny<PublishOptions>()));
+        }
+        #endregion
+
+        #region PublishApprenticeshipUlnUpdatedEvent
+        [Test]
+        public async Task PublishApprenticeshipUlnUpdatedEvent_WithouitImmediateUpdate_ShouldNotPublishEvent()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipUlnUpdatedEvent>()
+                .WithoutApprenticeshipImmediateUpdate();
+
+            await fixtures.Publish(publisher => publisher.PublishApprenticeshipUlnUpdatedEvent(fixtures.Apprenticeship));
+
+            fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.IsAny<ApprenticeshipUlnUpdatedEvent>(), It.IsAny<PublishOptions>()), Times.Never);
+        }
+        #endregion
+
         #region SendApproveTransferRequestCommand
         [Test]
         public async Task ApproveTransferRequestCommandSent_ShouldMapPropertiesCorrectly()
@@ -367,7 +394,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
     internal class V2EventsPublisherTestFixtures<TEvent> where TEvent : class
     {
-        public V2EventsPublisherTestFixtures()
+        public V2EventsPublisherTestFixtures(bool immediateUpdate = true)
         {
             TransferRequestId = 9798;
             Now = DateTime.Now;
@@ -378,10 +405,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             CurrentDateTimeMock = new Mock<ICurrentDateTime>();
             CurrentDateTimeMock.Setup(x => x.Now).Returns(Now);
 
-            Apprenticeship = new Apprenticeship();
-            Apprenticeship.AgreedOn = DateTime.Today.AddDays(-1);
-            Apprenticeship.FirstName = "First";
-            Apprenticeship.LastName = "Last";
+            if (immediateUpdate)
+            {
+                Apprenticeship = new Apprenticeship();
+                Apprenticeship.Id = 123456;
+                Apprenticeship.ULN = "1234567890";
+                Apprenticeship.AgreedOn = DateTime.Today.AddDays(-1);
+                Apprenticeship.FirstName = "First";
+                Apprenticeship.LastName = "Last";
+            }
+
             Commitment = new Commitment {ProviderId = 123, Id = 1, Apprenticeships = new List<Apprenticeship> { Apprenticeship } };
 
             var apprenticeship = new Mock<IApprenticeshipEvent>();
@@ -452,6 +485,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         {
             Commitment.ChangeOfPartyRequestId = 1;
             return this;
+        }
+
+        public V2EventsPublisherTestFixtures<TEvent> WithApprenticeshipImmediateUpdate()
+        {
+            Apprenticeship.ULN = "0987654321";
+            return this;
+        }
+
+        public V2EventsPublisherTestFixtures<TEvent> WithoutApprenticeshipImmediateUpdate()
+        {
+            return new V2EventsPublisherTestFixtures<TEvent>(false);
         }
 
         public Apprenticeship Apprenticeship { get; }

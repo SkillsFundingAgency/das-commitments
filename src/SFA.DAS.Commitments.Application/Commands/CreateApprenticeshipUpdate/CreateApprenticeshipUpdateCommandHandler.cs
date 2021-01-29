@@ -35,6 +35,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IReservationValidationService _reservationValidationService;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
         public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger,
@@ -43,7 +44,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             ICurrentDateTime currentDateTime, IMessagePublisher messagePublisher,
             IApprenticeshipEventsList apprenticeshipEventsList,
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
-            IReservationValidationService reservationValidationService)
+            IReservationValidationService reservationValidationService,
+            IV2EventsPublisher v2EventsPublisher)
         {
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
@@ -57,6 +59,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _reservationValidationService = reservationValidationService;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(CreateApprenticeshipUpdateCommand command)
@@ -107,9 +110,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
 
             await Task.WhenAll(
-                    _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate),
-                    SaveHistory()
-                );
+                _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate),
+                SaveHistory(),
+                _v2EventsPublisher.PublishApprenticeshipUlnUpdatedEvent(immediateUpdate)
+            );
 
             if (command.ApprenticeshipUpdate.ULN != null)
             {
