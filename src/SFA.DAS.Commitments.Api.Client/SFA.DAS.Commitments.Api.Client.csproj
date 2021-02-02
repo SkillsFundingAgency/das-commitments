@@ -10,7 +10,7 @@
     <Title>Provides types for the SFA.DAS.Commitments client service</Title>
     <Description>Provides types for the SFA.DAS.Commitments client service</Description>
     <PackageLicense>https://github.com/SkillsFundingAgency/das-commitments/blob/master/LICENSE</PackageLicense>
-    <PackageProjectUrl>https://github.com/SkillsFundingAgency/das-commitments/tree/master/src/SFA.DAS.Apprenticeships.Api.Client</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/SkillsFundingAgency/das-commitments/tree/master/src/SFA.DAS.Commitments.Api.Client</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SkillsFundingAgency/das-commitments</RepositoryUrl>
     <PackageTags>Esfa;Das;</PackageTags>
     <PackageReleaseNotes>Added support for .NetStandard2.0</PackageReleaseNotes>

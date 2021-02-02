@@ -102,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 FirstName = draftApprenticeship.FirstName,
                 LastName = draftApprenticeship.LastName,
                 Uln = draftApprenticeship.Uln,
-                TrainingProgramme = new TrainingProgramme(draftApprenticeship.CourseCode, "", ProgrammeType.Framework,
+                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(draftApprenticeship.CourseCode, "", ProgrammeType.Framework,
                     null, null),
                 Cost = (int?) draftApprenticeship.Cost,
                 StartDate = draftApprenticeship.StartDate,

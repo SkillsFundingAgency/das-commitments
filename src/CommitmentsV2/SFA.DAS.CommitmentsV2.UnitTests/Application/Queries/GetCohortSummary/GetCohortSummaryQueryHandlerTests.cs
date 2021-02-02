@@ -236,7 +236,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 Id = 1,
                 FirstName = "FirstName",
                 LastName = "LastName",
-                TrainingProgramme = new TrainingProgramme("code", "name", ProgrammeType.Framework, DateTime.Now, DateTime.Now),
+                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("code", "name", ProgrammeType.Framework, DateTime.Now, DateTime.Now),
                 Cost = 1500,
                 StartDate = new DateTime(2019, 10, 1),
                 EndDate = DateTime.Now,

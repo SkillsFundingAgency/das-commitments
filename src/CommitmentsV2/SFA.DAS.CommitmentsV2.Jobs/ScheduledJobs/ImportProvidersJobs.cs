@@ -5,22 +5,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
+using MoreLinq.Extensions;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.Providers.Api.Client;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models.Api;
+using SFA.DAS.CommitmentsV2.Models.Api.Types;
+
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {
     public class ImportProvidersJobs
     {
         private readonly ILogger<ImportProvidersJobs> _logger;
-        private readonly IProviderApiClient _providerApiClient;
+        private readonly IApiClient _apiClient;
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
-        public ImportProvidersJobs(ILogger<ImportProvidersJobs> logger, IProviderApiClient providerApiClient, Lazy<ProviderCommitmentsDbContext> db)
+        public ImportProvidersJobs(ILogger<ImportProvidersJobs> logger, IApiClient apiClient, Lazy<ProviderCommitmentsDbContext> db)
         {
             _logger = logger;
-            _providerApiClient = providerApiClient;
+            _apiClient = apiClient;
             _db = db;
         }
 
@@ -28,8 +31,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
         {
             _logger.LogInformation("ImportProvidersJob - Started");
 
-            var providers = await _providerApiClient.FindAllAsync();
-            var batches = providers.Batch(1000).Select(b => b.ToDataTable(p => p.Ukprn, p => p.ProviderName));
+            var response = await _apiClient.Get<ProviderResponse>(new GetProvidersRequest());
+            var batches = response.Providers.Batch(1000).Select(b => b.ToDataTable(p => p.Ukprn, p => p.ProviderName));
 
             foreach (var batch in batches)
             {

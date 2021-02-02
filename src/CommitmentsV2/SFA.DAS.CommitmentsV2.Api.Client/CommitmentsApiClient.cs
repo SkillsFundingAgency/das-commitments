@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -345,6 +346,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task ResumeApprenticeship(ResumeApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/details/resume", request, cancellationToken);
+        }
+
+        public Task<GetAllTrainingProgrammesResponse> GetAllTrainingProgrammes(CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetAllTrainingProgrammesResponse>($"api/TrainingProgramme/all", null, cancellationToken);
+        }
+        public Task<GetAllTrainingProgrammeStandardsResponse> GetAllTrainingProgrammeStandards(CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetAllTrainingProgrammeStandardsResponse>($"api/TrainingProgramme/standards", null, cancellationToken);
+        }
+
+        public Task<GetTrainingProgrammeResponse> GetTrainingProgramme(string id, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{id}", null, cancellationToken);
         }
     }
 }

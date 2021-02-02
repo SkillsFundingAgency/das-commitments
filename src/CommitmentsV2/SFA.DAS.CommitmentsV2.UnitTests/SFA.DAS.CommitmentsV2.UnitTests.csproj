@@ -35,11 +35,4 @@
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="SFA.DAS.Apprenticeships.Api.Client">
-    </Reference>
-    <Reference Include="SFA.DAS.Apprenticeships.Api.Types">
-    </Reference>
-  </ItemGroup>
-
 </Project>

@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Models;
 
@@ -28,6 +28,8 @@ namespace SFA.DAS.CommitmentsV2.Data
         DbSet<Provider> Providers { get; set; }
         DbSet<PriceHistory> PriceHistory { get; set; }
         DbSet<TransferRequest> TransferRequests { get; set; }
+        DbSet<Standard> Standards { get; set; }
+        DbSet<Framework> Frameworks { get; set; }
         Task ExecuteSqlCommandAsync(string sql, params object[] parameters);
     }
 }

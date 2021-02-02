@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Configuration;
-using System.Reflection;
-using Microsoft.Azure;
-using SFA.DAS.AssessmentOrgs.Api.Client;
+using System.Net.Http;
 using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration;
+using SFA.DAS.Commitments.Domain.Api.Configuration;
+using SFA.DAS.Commitments.Domain.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Api;
 using SFA.DAS.Commitments.Infrastructure.AzureStorage;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
-using SFA.DAS.Provider.Events.Api.Client;
-using SFA.DAS.Provider.Events.Api.Client.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolution
@@ -34,12 +33,13 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
                 });
 
             var config = GetConfiguration("SFA.DAS.Commitments.AddEpaToApprenticeships");
-
+            For<ApprovalsOuterApiConfiguration>().Use(c => config.ApprovalsOuterApiConfiguration);
+            For<IApprovalsOuterApiConfiguration>().Use(c => c.GetInstance<ApprovalsOuterApiConfiguration>());
+            
             // ms fake would be preferable
             For<ICurrentDateTime>().Use(x => new CurrentDateTime());
 
-            For<IAssessmentOrgsApiClient>().Use<AssessmentOrgsApiClient>()
-                .Ctor<string>().Is(config.AssessmentOrgsApiBaseUri);
+            For<IApiClient>().Use<ApiClient>().Ctor<HttpClient>().Is(new HttpClient()).Singleton();
 
             For<IAssessmentOrganisationRepository>().Use<AssessmentOrganisationRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);

@@ -121,6 +121,9 @@
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\StatisticsControllerTests\WhenGettingStatistics.cs" />
+    <Compile Include="Controllers\TrainingProgrammeControllerTests\WhenGettingAllStandards.cs" />
+    <Compile Include="Controllers\TrainingProgrammeControllerTests\WhenGettingAllTrainingProgrammes.cs" />
+    <Compile Include="Controllers\TrainingProgrammeControllerTests\WhenGettingATrainingProgramme.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestForReceiver.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequests.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestForSender.cs" />
@@ -148,7 +151,9 @@
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentListItem.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentView.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentAgreement.cs" />
+    <Compile Include="Orchestrators\Provider\WhenGettingAllProviders.cs" />
     <Compile Include="Orchestrators\Provider\WhenGettingCommitmentAgreements.cs" />
+    <Compile Include="Orchestrators\Provider\WhenGettingProviderByUkprn.cs" />
     <Compile Include="Orchestrators\Statistics\StatisticsOrchestratorTestBase.cs" />
     <Compile Include="Orchestrators\Statistics\WhenGettingStatistics.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
