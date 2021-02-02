@@ -22,7 +22,6 @@
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="SFA.DAS.Http" Version="3.2.62" />
-    <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
   </ItemGroup>
 
