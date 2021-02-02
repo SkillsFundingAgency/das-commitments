@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Application.Queries.GetAllStandardTrainingProgrammes;
 using SFA.DAS.Commitments.Application.Queries.GetAllTrainingProgrammes;
 using SFA.DAS.Commitments.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Authorization;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
@@ -23,6 +24,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
         [HttpGet]
         [Route("all")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> GetAll()
         {
             try
@@ -42,6 +44,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         
         [HttpGet]
         [Route("standards")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> GetAllStandards()
         {
             try
@@ -61,6 +64,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [HttpGet]
         [Route("{id}")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult>  GetTrainingProgramme(string id)
         {
             try

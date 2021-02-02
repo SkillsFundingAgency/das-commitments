@@ -32,6 +32,7 @@ using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
 using SFA.DAS.Commitments.Application.Queries.GetCommitmentAgreements;
 using SFA.DAS.Commitments.Application.Queries.GetProvider;
+using SFA.DAS.Commitments.Application.Queries.GetProviders;
 using SFA.DAS.Commitments.Domain.Entities;
 
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
@@ -416,6 +417,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Provider = result.Provider
             }; 
+        }
+
+        public async Task<GetProvidersResponse> GetProviders()
+        {
+            var result = await _mediator.SendAsync(new GetProvidersQuery());
+            
+            return new GetProvidersResponse
+            {
+                Providers = result.Providers
+            };
         }
     }
 }

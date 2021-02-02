@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProvider
         }
         
         [Test]
-        public async Task Then_The_Service_Is_Called_And_TrainingProgramme_Returned()
+        public async Task Then_The_Service_Is_Called_And_Provider_Returned()
         {
             //Arrange
             var query = new GetProviderQuery

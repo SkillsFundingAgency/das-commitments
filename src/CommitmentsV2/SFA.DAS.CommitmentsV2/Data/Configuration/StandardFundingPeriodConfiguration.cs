@@ -8,9 +8,10 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<StandardFundingPeriod> builder)
         {
-            builder.ToTable("StandardFunding");
-            builder.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().ValueGeneratedNever();;
-            builder.Property(x => x.EffectiveFrom).HasColumnName("EffectiveFrom").HasColumnType("DateTime").IsRequired(false);
+            
+            builder.ToTable("StandardFunding").HasKey(c=>new{c.Id,c.EffectiveFrom});
+            builder.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().ValueGeneratedNever();
+            builder.Property(x => x.EffectiveFrom).HasColumnName("EffectiveFrom").HasColumnType("DateTime").IsRequired();
             builder.Property(x => x.EffectiveTo).HasColumnName("EffectiveTo").HasColumnType("DateTime").IsRequired(false);
             builder.Property(x => x.FundingCap).HasColumnName("FundingCap").HasColumnType("int").IsRequired();
         }

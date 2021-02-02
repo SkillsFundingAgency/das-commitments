@@ -194,5 +194,14 @@ namespace SFA.DAS.Commitments.Api.Client
             
             return JsonConvert.DeserializeObject<GetProviderResponse>(response);
         }
+
+        public async Task<GetProvidersResponse> GetProviders()
+        {
+            var url = $"{_configuration.BaseUrl}api/provider";
+
+            var response = await GetAsync(url);
+            
+            return JsonConvert.DeserializeObject<GetProvidersResponse>(response);
+        }
     }
 }

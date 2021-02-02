@@ -40,5 +40,6 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
 
         Task ApproveCohort(long providerId, long commitmentId, CommitmentSubmission submission);
         Task<GetProviderResponse> GetProvider(long providerId);
+        Task<GetProvidersResponse> GetProviders();
     }
 }
