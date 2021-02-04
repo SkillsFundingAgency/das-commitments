@@ -23,8 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
 
         public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
         {
-            var y = _dbContext.Value.Apprenticeships;
-
             var x = await _dbContext.Value
                 .Apprenticeships
                 .GetById(request.ApprenticeshipId, apprenticeship => 
