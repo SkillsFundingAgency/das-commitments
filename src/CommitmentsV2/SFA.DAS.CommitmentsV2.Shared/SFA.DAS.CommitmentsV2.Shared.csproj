@@ -10,8 +10,6 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.2276" />
-    <PackageReference Include="SFA.DAS.Apprenticeships.Api.Client" Version="0.11.233" />
-    <PackageReference Include="SFA.DAS.Apprenticeships.Api.Types" Version="0.11.233" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.77" />
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.61" />
     <PackageReference Include="SFA.DAS.ProviderRelationships.Api.Client" Version="3.2.61" />

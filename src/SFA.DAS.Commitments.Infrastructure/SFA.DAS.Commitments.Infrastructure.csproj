@@ -92,15 +92,6 @@
     <Reference Include="Polly, Version=5.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.5.7.0\lib\net45\Polly.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Apprenticeships.Api.Client, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Client.0.11.129\lib\net462\SFA.DAS.Apprenticeships.Api.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="SFA.DAS.Apprenticeships.Api.Types, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Types.0.11.129\lib\net462\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
-    </Reference>
-    <Reference Include="SFA.DAS.AssessmentOrgs.Api.Client, Version=0.11.75.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.AssessmentOrgs.Api.Client.0.11.75\lib\net45\SFA.DAS.AssessmentOrgs.Api.Client.dll</HintPath>
-    </Reference>
     <Reference Include="SFA.DAS.Common.Domain, Version=1.4.272.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Common.Domain.1.4.272\lib\net462\SFA.DAS.Common.Domain.dll</HintPath>
     </Reference>
@@ -217,6 +208,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\ApiClient.cs" />
     <Compile Include="Authorization\AuthorizeRemoteOnlyAttribute.cs" />
     <Compile Include="AzureStorage\AzureBlobStorage.cs" />
     <Compile Include="AzureStorage\IAzureBlobStorage.cs" />
@@ -226,6 +218,8 @@
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\CurrentDatePolicy.cs" />
     <Compile Include="Configuration\ProviderUserApiConfiguration.cs" />
+    <Compile Include="Data\ProviderRepository.cs" />
+    <Compile Include="Data\TrainingProgrammeRepository.cs" />
     <Compile Include="Data\ApprenticeshipRepository.cs" />
     <Compile Include="Data\ApprenticeshipUpdateRepository.cs" />
     <Compile Include="Data\AssessmentOrganisationRepository.cs" />

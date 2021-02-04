@@ -5,6 +5,10 @@ namespace SFA.DAS.Commitments.Domain.Entities.TrainingProgramme
 {
     public class Framework : ITrainingProgramme
     {
+        public Framework ()
+        {
+            FundingPeriods = new List<FundingPeriod>();
+        }
         public int FrameworkCode { get; set; }
         public string FrameworkName { get; set; }
         public string Id { get; set; }
@@ -17,6 +21,6 @@ namespace SFA.DAS.Commitments.Domain.Entities.TrainingProgramme
         public int MaxFunding { get; set; }
         public DateTime? EffectiveFrom { get; set; }
         public DateTime? EffectiveTo { get; set; }
-        public IEnumerable<FundingPeriod> FundingPeriods { get; set; }
+        public List<FundingPeriod> FundingPeriods { get; set; }
     }
 }

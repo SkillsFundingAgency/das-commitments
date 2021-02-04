@@ -219,7 +219,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             public void UpdateDraftApprenticeshipCourseCode()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
-                details.TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
+                details.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
                 TryUpdate(details, ModifyingParty, UserInfo);
             }
 
@@ -289,7 +289,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                     FirstName = draftApprenticeship.FirstName,
                     LastName = draftApprenticeship.LastName,
                     Uln = draftApprenticeship.Uln,
-                    TrainingProgramme = new TrainingProgramme(draftApprenticeship.CourseCode, "", ProgrammeType.Framework,
+                    TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(draftApprenticeship.CourseCode, "", ProgrammeType.Framework,
                         null, null),
                     Cost = (int?)draftApprenticeship.Cost,
                     StartDate = draftApprenticeship.StartDate,
