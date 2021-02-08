@@ -1,8 +1,10 @@
 using System;
 using System.Linq.Expressions;
 using FluentValidation.TestHelper;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
@@ -11,6 +13,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable]
     public class CreateChangeOfPartyRequestValidatorTests
     {
+        private Mock<IAcademicYearDateProvider> _mockAcademicYearDateProvider;
+        private DateTime _currentAcademicYearStartDate;
+
+        [SetUp]
+        public void Arrange()
+        {
+            _currentAcademicYearStartDate = new DateTime(2020, 8, 1);
+           
+            _mockAcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
+            _mockAcademicYearDateProvider.Setup(p => p.CurrentAcademicYearStartDate).Returns(_currentAcademicYearStartDate);
+        }
+
         [TestCase(0, false)]
         [TestCase(1, true)]
         public void Validate_NewPartyId_ShouldBeValidated(long newPartyId, bool isValid)
@@ -93,6 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AssertValidationResult(r => r.NewPrice, command, isValid);
         }
 
+        [Test]
         public void Validate_NewStartDate_WhenNewStartDateIsBeforeNewEndDate_ThenIsValid()
         {
             var command = new CreateChangeOfPartyRequestCommand
@@ -104,6 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AssertValidationResult(r => r.NewStartDate, command, true);
         }
 
+        [Test]
         public void Validate_NewStartDate_WhenNewStartDateIsEqualToNewEndDate_ThenIsInvalid()
         {
             var command = new CreateChangeOfPartyRequestCommand
@@ -115,6 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AssertValidationResult(r => r.NewStartDate, command, false);
         }
 
+        [Test]
         public void Validate_NewStartDate_WhenNewStartDateIsAfterNewEndDate_ThenIsInvalid()
         {
             var command = new CreateChangeOfPartyRequestCommand
@@ -126,9 +143,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AssertValidationResult(r => r.NewStartDate, command, false);
         }
 
+        [Test]
+        public void Validate_NewStartDate_WhenNewStartDateIsAfterCurrentAcademicYearPlusOneYear_ThenIsInvalid()
+        {
+            var command = new CreateChangeOfPartyRequestCommand
+            {
+                NewStartDate = _currentAcademicYearStartDate.AddYears(2).AddDays(1),
+                NewEndDate = _currentAcademicYearStartDate.AddYears(3)
+            };
+
+            AssertValidationResult(r => r.NewStartDate, command, false);
+        }
+
         private void AssertValidationResult<T>(Expression<Func<CreateChangeOfPartyRequestCommand, T>> property, T value, bool isValid)
         {
-            var validator = new CreateChangeOfPartyRequestValidator();
+            var validator = new CreateChangeOfPartyRequestValidator(_mockAcademicYearDateProvider.Object);
             
             if (isValid)
             {
@@ -142,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         private void AssertValidationResult<T>(Expression<Func<CreateChangeOfPartyRequestCommand, T>> property, CreateChangeOfPartyRequestCommand command , bool isValid)
         {
-            var validator = new CreateChangeOfPartyRequestValidator();
+            var validator = new CreateChangeOfPartyRequestValidator(_mockAcademicYearDateProvider.Object);
 
             if (isValid)
             {

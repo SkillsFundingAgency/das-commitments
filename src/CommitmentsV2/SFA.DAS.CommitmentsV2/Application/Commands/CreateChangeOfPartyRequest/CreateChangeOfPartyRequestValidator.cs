@@ -1,11 +1,15 @@
 ﻿using FluentValidation;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
 {
     public class CreateChangeOfPartyRequestValidator : AbstractValidator<CreateChangeOfPartyRequestCommand>
     {
-        public CreateChangeOfPartyRequestValidator()
+        private readonly IAcademicYearDateProvider _academicYearDateProvider;
+        public CreateChangeOfPartyRequestValidator(IAcademicYearDateProvider academicYearDateProvider)
         {
+            _academicYearDateProvider = academicYearDateProvider;
+
             RuleFor(model => model.UserInfo).NotNull().WithMessage("The UserInfo cannot be empty");
             RuleFor(model => model.NewPartyId).Must(id => id > 0).WithMessage("The NewPartyId must be positive");
             RuleFor(model => model.ApprenticeshipId).Must(id => id > 0).WithMessage("The ApprenticeshipId must be positive");
@@ -27,8 +31,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
             {
                 RuleFor(model => model.NewStartDate).Must((args, value) => value.Value < args.NewEndDate)
                     .WithMessage("The NewStartDate must be before the NewEndDate");
-            });
 
+                RuleFor(model => model.NewStartDate).Must((args, newStartDate) => newStartDate.Value < _academicYearDateProvider.CurrentAcademicYearStartDate.AddYears(2))
+                    .WithMessage("The start date must be no later than one year after the end of the current teaching year");
+            });
         }
     }
 }
