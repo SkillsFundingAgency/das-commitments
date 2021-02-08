@@ -8,7 +8,6 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
-using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -139,11 +138,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             userInfo)
         {
 
-            ChangeOfPartyRequestId = changeOfPartyRequest.Id;            
-            if (changeOfPartyRequest.OriginatingParty == Party.Provider && changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
-            {
-                Approvals = changeOfPartyRequest.OriginatingParty;
-            }
+            ChangeOfPartyRequestId = changeOfPartyRequest.Id;
+
+            Approvals = changeOfPartyRequest.IsPreApproved();
 
             WithParty = changeOfPartyRequest.OriginatingParty.GetOtherParty();
             IsDraft = false;
@@ -314,11 +311,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 {
                     Publish(() => new CohortWithChangeOfPartyFullyApprovedEvent(Id, ChangeOfPartyRequestId.Value, now, modifyingParty, userInfo));
                 }
-            }
-
-            if (ChangeOfPartyRequestId.HasValue)
-            {
-                Publish(() => new CohortWithChangeOfPartyUpdatedEvent(Id, userInfo));
             }
 
             ChangeTrackingSession.CompleteTrackingSession();

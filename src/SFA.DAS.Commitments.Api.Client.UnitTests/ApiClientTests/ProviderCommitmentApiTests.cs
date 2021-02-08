@@ -291,5 +291,39 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 
             Assert.Pass();
         }
+
+        [Test]
+        public async Task GetProvider()
+        {
+            var request = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/provider/{ProviderId}"), string.Empty);
+            var getProviderResponse = new GetProviderResponse
+            {
+                Provider = new ProviderResponse()
+            };
+            var content = JsonConvert.SerializeObject(
+                getProviderResponse);
+            _fakeHandler.AddFakeResponse(request, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(content) });
+
+            var response = (await _apiclient.GetProvider(ProviderId));
+
+            response.ShouldBeEquivalentTo(getProviderResponse);
+        }
+
+        [Test]
+        public async Task GetProviders()
+        {
+            var request = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/provider"), string.Empty);
+            var getProvidersResponse = new GetProvidersResponse
+            {
+                Providers = new List<ProviderResponse>()
+            };
+            
+            var content = JsonConvert.SerializeObject(getProvidersResponse);
+            _fakeHandler.AddFakeResponse(request, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(content) });
+
+            var response = (await _apiclient.GetProviders());
+
+            response.ShouldBeEquivalentTo(getProvidersResponse);
+        }
     }
 }

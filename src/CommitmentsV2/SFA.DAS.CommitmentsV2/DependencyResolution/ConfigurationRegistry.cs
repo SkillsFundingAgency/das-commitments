@@ -13,10 +13,10 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         {
             AddConfiguration<CommitmentsV2Configuration>(CommitmentsConfigurationKeys.CommitmentsV2);
             AddConfiguration<AccountApiConfiguration>(CommitmentsConfigurationKeys.AccountApi);
-            AddConfiguration<ApprenticeshipInfoServiceConfiguration>(CommitmentsConfigurationKeys.ApprenticeshipInfoService);
             AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);
             AddConfiguration<FeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
             AddConfiguration<EncodingConfig>(CommitmentsConfigurationKeys.EncodingConfiguration);
+            AddConfiguration<ApprovalsOuterApiConfiguration>(CommitmentsConfigurationKeys.ApprovalsOuterApiConfiguration);
         }
 
         private void AddConfiguration<T>(string name) where T : class

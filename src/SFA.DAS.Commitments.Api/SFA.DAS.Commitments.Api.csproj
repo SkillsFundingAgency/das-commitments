@@ -451,6 +451,7 @@
     <Compile Include="App_Start\CustomExceptionHandler.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\StatisticsController.cs" />
+    <Compile Include="Controllers\TrainingProgrammeController.cs" />
     <Compile Include="Controllers\TransferController.cs" />
     <Compile Include="Controllers\EmployerController.cs" />
     <Compile Include="Controllers\HealthCheckController.cs" />

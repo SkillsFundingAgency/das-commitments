@@ -15,7 +15,6 @@ namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
             var databaseConnectionString = configuration.GetValue<string>(CommitmentsConfigurationKeys.DatabaseConnectionString);
             
             services.AddHealthChecks()
-                .AddCheck<ApprenticeshipInfoServiceApiHealthCheck>("Apprenticeship Info Service API Health Check")
                 .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
                 .AddCheck<ReservationsApiHealthCheck>("Reservations API Health Check")
                 .AddSqlServer(databaseConnectionString, name: "Commitments DB Health Check");

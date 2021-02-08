@@ -21,7 +21,6 @@ namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection
             For<ICreateCsvService>().Use<CreateCsvService>().Singleton();
 
             IncludeRegistry<CommitmentsSharedConfigurationRegistry>();
-            IncludeRegistry<ApprenticeshipInfoServiceRegistry>();
             IncludeRegistry<CommitmentsApiClientRegistry>();
             IncludeRegistry<EncodingRegistry>();
         }
