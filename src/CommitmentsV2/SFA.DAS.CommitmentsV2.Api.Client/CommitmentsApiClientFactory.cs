@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         
         public ICommitmentsApiClient CreateClient()
         {
-            var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(_configuration, _loggerFactory);
+            var httpClientFactory = new ManagedIdentityHttpClientFactory(_configuration, _loggerFactory);
             var httpClient = httpClientFactory.CreateHttpClient();
             var restHttpClient = new CommitmentsRestHttpClient(httpClient, _loggerFactory);
             var apiClient = new CommitmentsApiClient(restHttpClient);
