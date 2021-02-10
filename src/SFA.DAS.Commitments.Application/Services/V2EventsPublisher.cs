@@ -211,6 +211,17 @@ namespace SFA.DAS.Commitments.Application.Services
             return PublishWithLog(@event, $"Cohort with change of party request, CohortId:{cohortId}, updated");
         }
 
+        public Task PublishApprenticeshipUlnUpdatedEvent(Apprenticeship apprenticeship)
+        {
+            if (apprenticeship != null)
+            {
+                var @event = new ApprenticeshipUlnUpdatedEvent(apprenticeship.Id, apprenticeship.ULN, _currentDateTime.Now);
+                return PublishWithLog(@event, $"ApprenticeshipId:{apprenticeship.Id}, updated");
+            }
+
+            return Task.CompletedTask;
+        }
+
         public async Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo)
         {
             await _endpointInstance.Send<ProviderApproveCohortCommand>(ev =>

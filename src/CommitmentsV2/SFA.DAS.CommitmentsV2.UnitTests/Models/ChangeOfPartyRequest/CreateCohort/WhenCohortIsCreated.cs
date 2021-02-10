@@ -81,13 +81,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyWithOtherParty();
         }
 
-        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
-        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
-        public void Then_Originator_Approval_Is_Given(ChangeOfPartyRequestType requestType)
+        [Test]
+        public void By_The_Provider_Then_Originator_Approval_Is_Given()
         {
-            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.WithChangeOfPartyType(ChangeOfPartyRequestType.ChangeEmployer);
             _fixture.CreateCohort();
-            _fixture.VerifyOriginatorApproval();
+            _fixture.VerifyProviderOriginatorApproval();
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void By_The_Employer_And_They_Have_Supplied_All_Details_Then_Originator_Approval_Is_Given(bool isEmployerLed)
+        {
+            _fixture.WithChangeOfPartyType(ChangeOfPartyRequestType.ChangeProvider, isEmployerLed);
+            _fixture.CreateCohort();
+            _fixture.VerifyEmployerOriginatorApproval(isEmployerLed);
         }
 
         [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
@@ -192,7 +200,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Request.SetValue(x => x.OriginatingParty, _autoFixture.Create<Party>());
             }
 
-            public WhenCohortIsCreatedTestFixture WithChangeOfPartyType(ChangeOfPartyRequestType value)
+            public WhenCohortIsCreatedTestFixture WithChangeOfPartyType(ChangeOfPartyRequestType value, bool employerLed = false)
             {
                 Request.SetValue(x => x.ChangeOfPartyType, value);
                 Request.SetValue(x => x.OriginatingParty, value == ChangeOfPartyRequestType.ChangeEmployer ? Party.Provider : Party.Employer);
@@ -210,6 +218,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 }
                 else
                 {
+                    if (employerLed)
+                    {
+                        var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+
+                        Request.SetValue(x => x.StartDate, date);
+                        Request.SetValue(x => x.EndDate, date.AddYears(1));
+                        Request.SetValue(x => x.Price, 1000);
+                    }
+
                     Request.SetValue(x => x.ProviderId, _autoFixture.Create<long>());
                     ContinuedApprenticeship.Cohort.SetValue(x => x.AccountLegalEntityId, _autoFixture.Create<long>());
                     ContinuedApprenticeship.Cohort.SetValue(x => x.EmployerAccountId, _autoFixture.Create<long>());
@@ -288,13 +305,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                     Result.WithParty);
             }
 
-            public void VerifyOriginatorApproval()
+            public void VerifyProviderOriginatorApproval()
             {
-                Assert.AreEqual(
-                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer 
-                        ? Party.Provider
-                        : Party.None,
-                    Result.Approvals);
+                Assert.AreEqual(Party.Provider, Result.Approvals);
+            }
+
+            public void VerifyEmployerOriginatorApproval(bool isEmployerLed)
+            {
+                Assert.AreEqual(isEmployerLed ? Party.Employer : Party.None, Result.Approvals);
             }
 
             public void VerifyCohortIsNotDraft()

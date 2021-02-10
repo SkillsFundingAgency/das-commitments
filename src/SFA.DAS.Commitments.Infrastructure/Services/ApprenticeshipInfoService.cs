@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.Commitments.Application.Interfaces;
+using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -13,27 +13,25 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         private const string FrameworksKey = "Frameworks";
 
         private readonly ICache _cache;
-        private readonly IApprenticeshipInfoServiceConfiguration _config;
         private readonly IApprenticeshipInfoServiceMapper _mapper;
+        private readonly ITrainingProgrammeRepository _repository;
 
         public ApprenticeshipInfoService(ICache cache,
-            IApprenticeshipInfoServiceConfiguration config,
-            IApprenticeshipInfoServiceMapper mapper)
+            IApprenticeshipInfoServiceMapper mapper,
+            ITrainingProgrammeRepository repository)
         {
             _cache = cache;
-            _config = config;
             _mapper = mapper;
+            _repository = repository;
         }
 
         public async Task<StandardsView> GetStandards(bool refreshCache = false)
         {
             if (!await _cache.ExistsAsync(StandardsKey) || refreshCache)
             {
-                var api = new StandardApiClient(_config.BaseUrl);
+                var standards = await _repository.GetAllStandards();
 
-                var standards = (await api.GetAllAsync()).OrderBy(x => x.Title).ToList();
-
-                await _cache.SetCustomValueAsync(StandardsKey, _mapper.MapFrom(standards));
+                await _cache.SetCustomValueAsync(StandardsKey, _mapper.MapFrom(standards.OrderBy(c=>c.Title).ToList()));
             }
 
             return await _cache.GetCustomValueAsync<StandardsView>(StandardsKey);
@@ -43,11 +41,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         {
             if (!await _cache.ExistsAsync(FrameworksKey) || refreshCache)
             {
-                var api = new FrameworkApiClient(_config.BaseUrl);
+                var frameworks = await _repository.GetAllFrameworks();
 
-                var frameworks = (await api.GetAllAsync()).OrderBy(x => x.Title).ToList();
-
-                await _cache.SetCustomValueAsync(FrameworksKey, _mapper.MapFrom(frameworks));
+                await _cache.SetCustomValueAsync(FrameworksKey, _mapper.MapFrom(frameworks.OrderBy(c=>c.Title).ToList()));
             }
 
             return await _cache.GetCustomValueAsync<FrameworksView>(FrameworksKey);

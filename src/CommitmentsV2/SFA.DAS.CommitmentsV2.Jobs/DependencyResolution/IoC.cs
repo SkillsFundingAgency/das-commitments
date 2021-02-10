@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
     {
         public static void Initialize(Registry registry)
         {
-            registry.IncludeRegistry<ApprenticeshipInfoServiceRegistry>();
+            registry.IncludeRegistry<ApprovalsOuterApiServiceRegistry>();
             registry.IncludeRegistry<ConfigurationRegistry>();
             registry.IncludeRegistry<DataRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();

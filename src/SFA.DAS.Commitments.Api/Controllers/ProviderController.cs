@@ -27,6 +27,25 @@ namespace SFA.DAS.Commitments.Api.Controllers
             _apprenticeshipsOrchestrator = apprenticeshipsOrchestrator;
         }
 
+        [Route("{providerId}")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
+        [HttpGet]
+        public async Task<IHttpActionResult> GetProvider(long providerId)
+        {
+            var response = await _providerOrchestrator.GetProvider(providerId);
+            return Ok(response);
+        }
+        
+        [Route("")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
+        [HttpGet]
+        public async Task<IHttpActionResult> GetAllProvider()
+        {
+            var response = await _providerOrchestrator.GetProviders();
+            return Ok(response);
+        }
+        
+
         [Route("{providerId}/commitments")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> GetCommitments(long providerId)

@@ -9,6 +9,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
         public DefaultRegistry()
         {
             For<ImportProvidersJobs>();
+            For<ImportStandardsJob>();
+            For<ImportFrameworksJob>();
             For<IDbContextFactory>().Use<DbContextFactory>();
         }
     }

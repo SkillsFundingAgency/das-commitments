@@ -14,13 +14,14 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReleaseNotes>We have now moved to Managed Identities authorisation headers instead of Azure Active Directory</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="SFA.DAS.Http" Version="3.2.23" />
+    <PackageReference Include="SFA.DAS.Http" Version="3.2.62" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
   </ItemGroup>
 

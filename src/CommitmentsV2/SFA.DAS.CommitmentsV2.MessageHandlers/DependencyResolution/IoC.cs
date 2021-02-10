@@ -6,7 +6,6 @@ using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.StructureMap;
 using SFA.DAS.PAS.Account.Api.ClientV2.DependencyResolution;
 using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
 using StructureMap;
-using ApprenticeshipInfoServiceRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.ApprenticeshipInfoServiceRegistry;
 using EncodingRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.EncodingRegistry;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
@@ -16,7 +15,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<ConfigurationRegistry>();
-            registry.IncludeRegistry<ApprenticeshipInfoServiceRegistry>();
             registry.IncludeRegistry<DataRegistry>();
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<MediatorRegistry>();

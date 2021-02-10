@@ -1,3 +1,4 @@
+using SFA.DAS.Commitments.Domain.Configuration;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Provider.Events.Api.Client.Configuration;
 
@@ -8,7 +9,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
         public string DatabaseConnectionString { get; set; }
         public string ServiceBusConnectionString { get; set; }
 
-        public string AssessmentOrgsApiBaseUri { get; set; }
+        public ApprovalsOuterApiConfiguration ApprovalsOuterApiConfiguration { get; set; }
 
         public PaymentEventsApi PaymentEventsApi { get; set; }
 
