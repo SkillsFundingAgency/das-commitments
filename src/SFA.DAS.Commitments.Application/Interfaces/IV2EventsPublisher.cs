@@ -25,6 +25,7 @@ namespace SFA.DAS.Commitments.Application.Interfaces
         Task PublishBulkUploadIntoCohortCompleted(long providerId, long cohortId, uint numberOfApprentices);
         Task PublishProviderRejectedChangeOfPartyCohort(Commitment commitment);
         Task PublishCohortWithChangeOfPartyUpdatedEvent(long cohortId, UserInfo userInfo);
+        Task PublishApprenticeshipUlnUpdatedEvent(Apprenticeship apprenticeship);
         Task SendProviderApproveCohortCommand(long cohortId, string message, UserInfo userInfo);
         Task SendProviderSendCohortCommand(long cohortId, string message, UserInfo userInfo);
         Task SendApproveTransferRequestCommand(long transferRequestId, DateTime approvedOn, UserInfo userInfo);
