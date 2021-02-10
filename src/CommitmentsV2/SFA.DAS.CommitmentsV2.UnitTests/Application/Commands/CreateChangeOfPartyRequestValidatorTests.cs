@@ -14,15 +14,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     public class CreateChangeOfPartyRequestValidatorTests
     {
         private Mock<IAcademicYearDateProvider> _mockAcademicYearDateProvider;
-        private DateTime _currentAcademicYearStartDate;
+        private DateTime _currentAcademicYearEndDate;
 
         [SetUp]
         public void Arrange()
         {
-            _currentAcademicYearStartDate = new DateTime(2020, 8, 1);
+            _currentAcademicYearEndDate = new DateTime(2021, 7, 31);
            
             _mockAcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
-            _mockAcademicYearDateProvider.Setup(p => p.CurrentAcademicYearStartDate).Returns(_currentAcademicYearStartDate);
+            _mockAcademicYearDateProvider.Setup(p => p.CurrentAcademicYearEndDate).Returns(_currentAcademicYearEndDate);
         }
 
         [TestCase(0, false)]
@@ -148,8 +148,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var command = new CreateChangeOfPartyRequestCommand
             {
-                NewStartDate = _currentAcademicYearStartDate.AddYears(2).AddDays(1),
-                NewEndDate = _currentAcademicYearStartDate.AddYears(3)
+                NewStartDate = _currentAcademicYearEndDate.AddYears(1).AddDays(1),
+                NewEndDate = _currentAcademicYearEndDate.AddYears(2)
             };
 
             AssertValidationResult(r => r.NewStartDate, command, false);
