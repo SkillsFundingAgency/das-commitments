@@ -111,7 +111,7 @@
         },
         "logAnalyticsSubscriptionId": {
             "type": "string",
-            "defaultValue": ""
+            "defaultValue": "[subscription().subscriptionId]"
         },
         "logAnalyticsWorkspaceName": {
             "type": "string"
