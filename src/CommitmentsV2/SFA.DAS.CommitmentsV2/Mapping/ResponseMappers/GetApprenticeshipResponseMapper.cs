@@ -39,7 +39,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 OriginalStartDate = source.OriginalStartDate,
                 PreviousProviderId = source.PreviousProviderId,
                 PreviousEmployerAccountId = source.PreviousEmployerAccountId,
-                ApprenticeshipEmployerTypeOnApproval = source.ApprenticeshipEmployerTypeOnApproval
+                ApprenticeshipEmployerTypeOnApproval = source.ApprenticeshipEmployerTypeOnApproval,
+                MadeRedundant = source.MadeRedundant
             });
         }
     }

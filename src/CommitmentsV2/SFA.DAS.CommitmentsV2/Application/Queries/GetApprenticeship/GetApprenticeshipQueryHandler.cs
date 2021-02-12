@@ -60,7 +60,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                             ? apprenticeship.PreviousApprenticeship.Cohort.EmployerAccountId
                             : default(long?),
                         OriginalStartDate = apprenticeship.OriginalStartDate,
-                        ApprenticeshipEmployerTypeOnApproval = apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval
+                        ApprenticeshipEmployerTypeOnApproval = apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval,
+                        MadeRedundant = apprenticeship.MadeRedundant
                     },
                     cancellationToken);
 
