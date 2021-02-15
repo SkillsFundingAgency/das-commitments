@@ -51,5 +51,24 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
 
             controllerResult.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
         }
+
+        [Test, MoqAutoData]
+        public async Task Then_If_The_Course_Is_Not_Found_Then_A_NotFound_Result_Is_Returned(
+            [Frozen] Mock<IMediator> mediator,
+            TrainingProgrammeController controller)
+        {
+            mediator
+                .Setup(mediator => mediator.Send(
+                    It.IsAny<GetTrainingProgrammeQuery>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetTrainingProgrammeQueryResult
+                {
+                    TrainingProgramme = null
+                });
+            
+            var controllerResult = await controller.GetTrainingProgramme("1") as StatusCodeResult;
+
+            controllerResult.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+        }
     }
 }
