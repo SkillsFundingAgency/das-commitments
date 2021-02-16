@@ -36,5 +36,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public long? PreviousProviderId { get; set; }
         public long? PreviousEmployerAccountId { get; set; }
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
+        public bool? MadeRedundant { get; set; }
     }
 }
