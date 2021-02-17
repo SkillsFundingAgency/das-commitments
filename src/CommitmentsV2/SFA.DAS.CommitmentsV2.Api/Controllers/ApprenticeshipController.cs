@@ -16,7 +16,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
-
+using System.Web.Script.Serialization;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -54,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             try
             {
+                LogTheObject(request);
                 var filterValues = new ApprenticeshipSearchFilters
                 {
                     SearchTerm = request.SearchTerm,
@@ -91,6 +92,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 _logger.LogError(e, e.Message);
                 throw;
+            }
+        }
+
+        private void LogTheObject(GetApprenticeshipsRequest request)
+        {
+            try
+            {
+                var obj = new JavaScriptSerializer().Serialize(request);
+                _logger.LogDebug(obj);
+            }
+            catch(Exception exc)
+            {
+                _logger.LogDebug("unabel to convert to json " + exc.Message);
+                _logger.LogDebug("and accountId is " + request.AccountId);
             }
         }
 
