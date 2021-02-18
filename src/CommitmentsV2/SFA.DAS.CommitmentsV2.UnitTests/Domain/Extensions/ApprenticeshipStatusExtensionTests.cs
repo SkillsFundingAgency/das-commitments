@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.Kernel;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
@@ -27,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var apprenticeship = CreateApprenticeship();
             apprenticeship.PaymentStatus = paymentStatus;
             apprenticeship.StartDate = DateTime.UtcNow.AddMonths(-2);
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime(), Mock.Of<ILogger<ApprenticeshipToApprenticeshipDetailsMapper>>());
 
             //Act
             var actual = await mapper.Map(apprenticeship);
@@ -43,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var apprenticeship = CreateApprenticeship();
             apprenticeship.PaymentStatus = PaymentStatus.Active;
             apprenticeship.StartDate = DateTime.UtcNow.AddMonths(2);
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime(), Mock.Of<ILogger<ApprenticeshipToApprenticeshipDetailsMapper>>());
 
             //Act
             var actual = await mapper.Map(apprenticeship);
