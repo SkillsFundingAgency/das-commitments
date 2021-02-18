@@ -54,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             try
             {
+                LogTheObject(request);
                 var filterValues = new ApprenticeshipSearchFilters
                 {
                     SearchTerm = request.SearchTerm,
@@ -91,6 +92,26 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 _logger.LogError(e, e.Message);
                 throw;
+            }
+        }
+
+        private void LogTheObject(GetApprenticeshipsRequest request)
+        {
+            try
+            {
+                if (request.AccountId.HasValue)
+                {
+                    _logger.LogDebug("and accountId is " + request.AccountId);
+                }
+                if (request.ProviderId.HasValue)
+                {
+                    _logger.LogDebug("and accountId is " + request.ProviderId);
+                }
+            }
+            catch (Exception exc)
+            {
+                _logger.LogDebug("unabel to convert to json " + exc.Message);
+                _logger.LogDebug("and accountId is " + request.AccountId);
             }
         }
 
