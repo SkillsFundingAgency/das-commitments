@@ -56,16 +56,16 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
         {
             try
             {
-                _logger.LogDebug("and apprenticeship Id is " + request.Id);
-                _logger.LogDebug("and commitment Id is " + request.CommitmentId);
+                _logger.LogInformation("and apprenticeship Id is " + request.Id);
+                _logger.LogInformation("and commitment Id is " + request.CommitmentId);
                 if (request.PriceHistory?.Count > 0)
                 {
-                    _logger.LogDebug("price history found");
+                    _logger.LogInformation("price history found");
                     foreach (var pricehistory in request.PriceHistory)
                     {
-                        _logger.LogDebug("and pricehistory Id is " + pricehistory.Id);
-                        _logger.LogDebug("and pricehistory fromDate " + pricehistory.FromDate);
-                        _logger.LogDebug("and pricehistory toDate " + pricehistory.ToDate);
+                        _logger.LogInformation("and pricehistory Id is " + pricehistory.Id);
+                        _logger.LogInformation("and pricehistory fromDate " + pricehistory.FromDate);
+                        _logger.LogInformation("and pricehistory toDate " + pricehistory.ToDate);
                     }
                 }
                 else
@@ -75,9 +75,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
             }
             catch (Exception exc)
             {
-                _logger.LogDebug("unabel to convert to json " + exc.Message);
-                _logger.LogDebug("and apprenticeship Id is " + request.Id);
-                _logger.LogDebug("and commitment Id is " + request.CommitmentId);
+                _logger.LogInformation("unabel to convert to json " + exc.Message);
+                _logger.LogInformation("and apprenticeship Id is " + request.Id);
+                _logger.LogInformation("and commitment Id is " + request.CommitmentId);
             }
         }
 

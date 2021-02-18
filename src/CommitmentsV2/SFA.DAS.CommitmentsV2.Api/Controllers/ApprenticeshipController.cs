@@ -101,17 +101,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 if (request.AccountId.HasValue)
                 {
-                    _logger.LogDebug("and accountId is " + request.AccountId);
+                    _logger.LogInformation("and accountId is " + request.AccountId);
                 }
                 if (request.ProviderId.HasValue)
                 {
-                    _logger.LogDebug("and accountId is " + request.ProviderId);
+                    _logger.LogInformation("and accountId is " + request.ProviderId);
                 }
             }
             catch (Exception exc)
             {
-                _logger.LogDebug("unabel to convert to json " + exc.Message);
-                _logger.LogDebug("and accountId is " + request.AccountId);
+                _logger.LogInformation("unabel to convert to json " + exc.Message);
+                _logger.LogInformation("and accountId is " + request.AccountId);
             }
         }
 
