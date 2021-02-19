@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 DateOfBirth = source.DateOfBirth.GetValueOrDefault(),
                 PaymentStatus = source.PaymentStatus,
                 ApprenticeshipStatus = source.MapApprenticeshipStatus(_currentDateTime),
-                TotalAgreedPrice = source.PriceHistory.GetPrice(_currentDateTime.UtcNow),
+                TotalAgreedPrice = source.PriceHistory.GetPrice(_currentDateTime.UtcNow, source.Id, _logger),
                 Uln = source.Uln,
                 Alerts = source.MapAlerts(),
                 AccountLegalEntityId = source.Cohort.AccountLegalEntityId,
