@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -42,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             private AccountController Controller { get; }
             private Mock<IMediator> Mediator { get; }
+            private Mock<IModelMapper> ModelMapper { get;  }
             private long AccountId { get; }
             private GetAccountSummaryQueryResult MediatorQueryResult { get; }
 
@@ -56,12 +58,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 Mediator = new Mock<IMediator>();
                 Mediator.Setup(x => x.Send(It.IsAny<GetAccountSummaryQuery>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(MediatorQueryResult);
+                ModelMapper = new Mock<IModelMapper>();
 
                 ApprovedProviderQueryResponse = autoFixture.Create<GetApprovedProvidersQueryResult>();
                 Mediator.Setup(x => x.Send(It.IsAny<GetApprovedProvidersQuery>(), It.IsAny<CancellationToken>()))
                    .ReturnsAsync(ApprovedProviderQueryResponse);
 
-                Controller = new AccountController(Mediator.Object);
+                Controller = new AccountController(Mediator.Object, ModelMapper.Object);
                 AccountId = autoFixture.Create<long>();
             }
 

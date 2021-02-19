@@ -1,11 +1,15 @@
-﻿using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
-using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -15,10 +19,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IModelMapper _modelMapper;
 
-        public AccountController(IMediator mediator)
+        public AccountController(IMediator mediator, IModelMapper modelMapper)
         {
             _mediator = mediator;
+            _modelMapper = modelMapper;
         }
 
         [HttpGet]
@@ -46,6 +52,32 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var result = await _mediator.Send(query);
 
             return Ok(new GetApprovedProvidersResponse(result.ProviderIds));
+        }
+
+        [HttpGet]
+        [Route("{accountId}/provider-payment-priority")]
+        public async Task<IActionResult> GetProviderPaymentPriority(long accountId)
+        {
+            var result = await _mediator.Send(new GetProviderPaymentsPriorityQuery(accountId));
+            var response = await _modelMapper.Map<GetProviderPaymentsPriorityResponse>(result);
+
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("{AccountId}/update-provider-payment-priority")]
+        public async Task<IActionResult> UpdateProviderPaymentPriority([FromBody] UpdateProviderPaymentsPriorityRequest request)
+        {
+            var response = await _mediator.Send(new UpdateProviderPaymentsPriorityCommand(
+                request.EmployerAccountId,
+                request.ProviderPriorities.Select(p => new UpdateProviderPaymentsPriorityCommand.ProviderPaymentPriorityUpdateItem
+                {
+                    ProviderId = p.ProviderId,
+                    PriorityOrder = p.PriorityOrder
+                }).ToList(),
+                request.UserInfo));
+
+            return Ok(response);
         }
     }
 }
