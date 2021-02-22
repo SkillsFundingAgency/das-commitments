@@ -1,7 +1,7 @@
-﻿using SFA.DAS.CommitmentsV2.Messages.Events;
+﻿using Newtonsoft.Json;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -13,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public long Id => 0; // There is no Id for the table which has a composite key, but ITrackableEntity requires an implementation
 
+        [JsonIgnore]
         public virtual Account EmployerAccount { get; set; }
 
         public void UpdateProviderPriority(int priorityOrder, UserInfo userInfo)
