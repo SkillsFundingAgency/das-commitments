@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using KellermanSoftware.CompareNetObjects;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Types.AssessmentOrgs;
+using SFA.DAS.Commitments.Domain.Api.Types;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;

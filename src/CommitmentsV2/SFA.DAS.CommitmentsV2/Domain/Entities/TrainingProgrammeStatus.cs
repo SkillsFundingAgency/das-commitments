@@ -2,6 +2,8 @@
 {
     public enum TrainingProgrammeStatus
     {
-        Pending, Active, Expired
+        Pending = 0, 
+        Active = 1, 
+        Expired = 2
     }
 }

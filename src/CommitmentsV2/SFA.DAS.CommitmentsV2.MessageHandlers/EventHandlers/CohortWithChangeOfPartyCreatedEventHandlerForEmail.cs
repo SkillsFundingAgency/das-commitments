@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var tokens = new Dictionary<string, string>
                 {
-                    { "Subject", $"{cohortSummary.LegalEntityName} has requested that you add details on their behalf" },
+                    { "Subject", $"{cohortSummary.LegalEntityName} {(cohortSummary.IsCompleteForEmployer ? "has added details for you to review" : "has requested that you add details on their behalf")}" },
                     { "TrainingProviderName" , cohortSummary.ProviderName},
                     { "EmployerName" , cohortSummary.LegalEntityName},
                     { "ApprenticeNamePossessive" , apprenticeNamePossessive },

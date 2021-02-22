@@ -8,10 +8,11 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Types.Providers;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
-using SFA.DAS.Providers.Api.Client;
+using SFA.DAS.CommitmentsV2.Models.Api;
+using SFA.DAS.CommitmentsV2.Models.Api.Types;
 using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
@@ -41,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         public DateTime Now { get; set; }
         public Mock<ProviderCommitmentsDbContext> Db { get; set; }
         public ImportProvidersJobs ImportProvidersJob { get; set; }
-        public Mock<IProviderApiClient> ProviderApiClient { get; set; }
+        public Mock<IApiClient> ProviderApiClient { get; set; }
         public List<ProviderSummary> Providers { get; set; }
         public List<ProviderSummary> ImportedProviders { get; set; }
 
@@ -49,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         {
             Now = DateTime.UtcNow;
             Db = new Mock<ProviderCommitmentsDbContext>();
-            ProviderApiClient = new Mock<IProviderApiClient>();
+            ProviderApiClient = new Mock<IApiClient>();
             ImportedProviders = new List<ProviderSummary>();
 
             Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<SqlParameter>(), It.IsAny<SqlParameter>()))
@@ -61,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
 
                     ImportedProviders.AddRange(dataTable.AsEnumerable().Select(r => new ProviderSummary
                     {
-                        Ukprn = (long)r[0],
+                        Ukprn = (int)r[0],
                         ProviderName = (string)r[1]
                     }));
                 });
@@ -84,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 })
                 .ToList();
 
-            ProviderApiClient.Setup(c => c.FindAllAsync()).ReturnsAsync(Providers);
+            ProviderApiClient.Setup(c => c.Get<ProviderResponse>(It.IsAny<GetProvidersRequest>())).ReturnsAsync(new ProviderResponse{Providers = Providers});
 
             return this;
         }

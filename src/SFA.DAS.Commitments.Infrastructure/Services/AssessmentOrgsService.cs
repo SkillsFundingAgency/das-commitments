@@ -2,23 +2,23 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Polly;
-using SFA.DAS.Apprenticeships.Api.Types.AssessmentOrgs;
-using SFA.DAS.AssessmentOrgs.Api.Client;
+using SFA.DAS.Commitments.Domain.Api.Requests;
+using SFA.DAS.Commitments.Domain.Api.Types;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
-    public class AssessmentOrgsService : IAssessmentOrgs, IDisposable
+    public class AssessmentOrgsService : IAssessmentOrgs
     {
         private readonly ILog _logger;
-        private readonly IAssessmentOrgsApiClient _assessmentOrgsApi;
+        private readonly IApiClient _apiClient;
         private readonly Policy _retryPolicy;
 
-        public AssessmentOrgsService(IAssessmentOrgsApiClient assessmentOrgsApi, ILog logger)
+        public AssessmentOrgsService(IApiClient apiClient, ILog logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _assessmentOrgsApi = assessmentOrgsApi ?? throw new ArgumentNullException(nameof(assessmentOrgsApi));
+            _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
 
             _retryPolicy = Policy
                 .Handle<Exception>()
@@ -32,12 +32,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task<IEnumerable<OrganisationSummary>> All()
         {
-            return await _retryPolicy.ExecuteAsync(() => _assessmentOrgsApi.FindAllAsync());
+            var response = await _retryPolicy.ExecuteAsync(() => _apiClient.Get<EpaoResponse>(new GetEpaoOrganisationsRequest()));
+            
+            return response.Epaos;
         }
 
-        public void Dispose()
-        {
-            _assessmentOrgsApi.Dispose();
-        }
     }
 }

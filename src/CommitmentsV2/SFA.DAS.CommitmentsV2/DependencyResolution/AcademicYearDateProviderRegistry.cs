@@ -1,5 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Services;
+﻿using SFA.DAS.CommitmentsV2.Services.Shared;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution

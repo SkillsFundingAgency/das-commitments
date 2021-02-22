@@ -5,9 +5,8 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Services.Shared;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.CommitmentsV2.Types;
@@ -124,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 StartDate = new DateTime(1950, 01, 01),
-                TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1))
+                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1))
             };
 
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider,
@@ -176,7 +175,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             UnitOfWorkContext = new UnitOfWorkContext();
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
-                TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
+                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
             };
             SetupMinimumNameProperties();
             Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
@@ -236,7 +235,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public AddDraftApprenticeshipValidationTestsFixture WithTrainingProgrammeEffectiveBetween(DateTime startDate, DateTime endDate)
         {
-            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
+            DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST",
                 "TEST",
                 ProgrammeType.Framework,
                 DateTime.SpecifyKind(startDate,DateTimeKind.Utc),
