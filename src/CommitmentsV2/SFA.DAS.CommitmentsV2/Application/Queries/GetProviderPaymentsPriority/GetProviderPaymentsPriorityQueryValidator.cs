@@ -2,9 +2,9 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority
 {
-    public class GetProviderPaymentsPriorityValidator : AbstractValidator<GetProviderPaymentsPriorityQuery>
+    public class GetProviderPaymentsPriorityQueryValidator : AbstractValidator<GetProviderPaymentsPriorityQuery>
     {
-        public GetProviderPaymentsPriorityValidator()
+        public GetProviderPaymentsPriorityQueryValidator()
         {
             RuleFor(x => x.EmployerAccountId).GreaterThan(0).WithMessage("The employer account id must be supplied");
         }

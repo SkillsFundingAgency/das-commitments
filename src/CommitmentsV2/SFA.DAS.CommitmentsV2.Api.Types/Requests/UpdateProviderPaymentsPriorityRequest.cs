@@ -4,7 +4,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
     public class UpdateProviderPaymentsPriorityRequest : SaveDataRequest
     {
-        public long EmployerAccountId { get; set; }
         public List<ProviderPaymentPriorityUpdateItem> ProviderPriorities { get; set; }
 
         public sealed class ProviderPaymentPriorityUpdateItem

@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Api\SFA.DAS.CommitmentsV2.Api.csproj" />
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>

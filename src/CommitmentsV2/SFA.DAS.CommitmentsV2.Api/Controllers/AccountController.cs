@@ -55,8 +55,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{accountId}/provider-payment-priority")]
-        public async Task<IActionResult> GetProviderPaymentPriority(long accountId)
+        [Route("{accountId}/provider-payments-priority")]
+        public async Task<IActionResult> GetProviderPaymentsPriority(long accountId)
         {
             var result = await _mediator.Send(new GetProviderPaymentsPriorityQuery(accountId));
             var response = await _modelMapper.Map<GetProviderPaymentsPriorityResponse>(result);
@@ -65,11 +65,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
-        [Route("{AccountId}/update-provider-payment-priority")]
-        public async Task<IActionResult> UpdateProviderPaymentPriority([FromBody] UpdateProviderPaymentsPriorityRequest request)
+        [Route("{accountId}/update-provider-payments-priority")]
+        public async Task<IActionResult> UpdateProviderPaymentsPriority(long accountId, [FromBody] UpdateProviderPaymentsPriorityRequest request)
         {
-            var response = await _mediator.Send(new UpdateProviderPaymentsPriorityCommand(
-                request.EmployerAccountId,
+            await _mediator.Send(new UpdateProviderPaymentsPriorityCommand(
+                accountId,
                 request.ProviderPriorities.Select(p => new UpdateProviderPaymentsPriorityCommand.ProviderPaymentPriorityUpdateItem
                 {
                     ProviderId = p.ProviderId,
@@ -77,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 }).ToList(),
                 request.UserInfo));
 
-            return Ok(response);
+            return Ok();
         }
     }
 }
