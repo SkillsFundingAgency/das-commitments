@@ -1,8 +1,7 @@
 ﻿using System;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Services
+namespace SFA.DAS.CommitmentsV2.Services.Shared
 {
     public class AcademicYearDateProvider : IAcademicYearDateProvider
     {
