@@ -34,5 +34,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public long? PreviousEmployerAccountId { get; set; }
         public long? PreviousProviderId { get; set; }
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
+        public bool? MadeRedundant { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
@@ -25,6 +26,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetTrainingProgram
             var actual = await handler.Handle(query, CancellationToken.None);
 
             actual.TrainingProgramme.Should().BeEquivalentTo(result);
+        }
+        
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Null_Is_Returned_From_The_Service_When_There_Is_No_Course(
+            GetTrainingProgrammeQuery query,
+            TrainingProgramme result,
+            [Frozen] Mock<ITrainingProgrammeLookup> service,
+            GetTrainingProgrammeQueryHandler handler)
+        {
+            service.Setup(x => x.GetTrainingProgramme(query.Id)).ReturnsAsync((TrainingProgramme) null);
+            
+            var actual = await handler.Handle(query, CancellationToken.None);
+
+            actual.TrainingProgramme.Should().BeNull();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_If_An_Exception_Is_Thrown_Then_Null_Is_Returned(
+            GetTrainingProgrammeQuery query,
+            TrainingProgramme result,
+            [Frozen] Mock<ITrainingProgrammeLookup> service,
+            GetTrainingProgrammeQueryHandler handler)
+        {
+            service.Setup(x => x.GetTrainingProgramme(query.Id)).ThrowsAsync(new Exception("Course not found"));
+            
+            var actual  = await handler.Handle(query, CancellationToken.None);
+
+            actual.TrainingProgramme.Should().BeNull();
         }
     }
 }

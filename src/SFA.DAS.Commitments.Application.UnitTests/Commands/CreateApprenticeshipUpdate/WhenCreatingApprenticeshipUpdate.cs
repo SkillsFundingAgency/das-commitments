@@ -43,6 +43,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<IApprenticeshipEventsList> _apprenticeshipEventsList;
         private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
         private Mock<IReservationValidationService> _reservationsValidationService;
+        private Mock<IV2EventsPublisher> _v2EventsPublisher;
 
         private CreateApprenticeshipUpdateCommandHandler _handler;
         private Apprenticeship _existingApprenticeship;
@@ -61,6 +62,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _apprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
             _apprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             _reservationsValidationService = new Mock<IReservationValidationService>();
+            _v2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             _validator.Setup(x => x.Validate(It.IsAny<CreateApprenticeshipUpdateCommand>()))
                 .Returns(() => new ValidationResult());
@@ -98,6 +100,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 .Setup(rvs => rvs.CheckReservation(It.IsAny<ReservationValidationServiceRequest>()))
                 .ReturnsAsync(new ReservationValidationResult());
 
+            _v2EventsPublisher
+                .Setup(x => x.PublishApprenticeshipUlnUpdatedEvent(It.IsAny<Apprenticeship>()))
+                .Returns(Task.CompletedTask);
+
             _handler = new CreateApprenticeshipUpdateCommandHandler(
                 _validator.Object, 
                 _apprenticeshipUpdateRepository.Object, 
@@ -110,7 +116,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 _messagePublisher.Object,
                 _apprenticeshipEventsList.Object,
                 _apprenticeshipEventsPublisher.Object,
-                _reservationsValidationService.Object);
+                _reservationsValidationService.Object,
+                _v2EventsPublisher.Object);
         }
 
         [Test]

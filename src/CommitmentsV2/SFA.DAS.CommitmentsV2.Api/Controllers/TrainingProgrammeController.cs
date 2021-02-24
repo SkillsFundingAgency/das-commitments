@@ -73,6 +73,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 {
                     Id = id
                 });
+                
+                if (result.TrainingProgramme == null)
+                {
+                    return NotFound();
+                }
+                
                 return Ok(new GetTrainingProgrammeResponse
                 {
                     TrainingProgramme = result.TrainingProgramme
