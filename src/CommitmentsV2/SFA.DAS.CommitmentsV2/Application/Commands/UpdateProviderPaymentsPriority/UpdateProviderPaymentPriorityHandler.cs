@@ -85,9 +85,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPrior
                 }, userInfo);
             }
 
-            account.NotifyCustomProviderPaymentPrioritiesChanged();
-
-            _logger.LogInformation($"ProviderPaymentsPriority updated for AccountId : {account.Id}");
+            if (changedPriorities.Any() || removedPriorities.Any() || addedPriorities.Any())
+            {
+                account.NotifyCustomProviderPaymentPrioritiesChanged();
+                
+                _logger.LogInformation($"ProviderPaymentsPriority updated for AccountId : {account.Id}");
+            }
         }
     }
 }
