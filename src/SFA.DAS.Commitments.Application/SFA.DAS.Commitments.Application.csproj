@@ -328,9 +328,6 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandValidator.cs" />
-    <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandHandler.cs" />
-    <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommand.cs" />
-    <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandValidator.cs" />
     <Compile Include="Commands\RejectDataLockTriage\RejectDataLockTriageCommand.cs" />
     <Compile Include="Commands\RejectDataLockTriage\RejectDataLockTriageCommandHandler.cs" />
     <Compile Include="Commands\RejectDataLockTriage\RejectDataLockTriageCommandValidator.cs" />
@@ -389,7 +386,6 @@
     <Compile Include="Queries\GetTransferRequestsForSender\GetTransferRequestsForSenderQueryHandler.cs" />
     <Compile Include="Queries\GetTransferRequestsForSender\GetTransferRequestsForSenderRequest.cs" />
     <Compile Include="Queries\GetTransferRequestsForSender\GetTransferRequestsForSenderResponse.cs" />
-    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityValidator.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksRequest.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksQueryHandler.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksResponse.cs" />
@@ -418,9 +414,6 @@
     <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateRequest.cs" />
     <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateResponse.cs" />
     <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateValidator.cs" />
-    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityQueryHandler.cs" />
-    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityRequest.cs" />
-    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityResponse.cs" />
     <Compile Include="Queries\GetPriceHistory\GetPriceHistoryResponse.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="Rules\ApprenticeshipOverlapRules.cs" />

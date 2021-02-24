@@ -7,9 +7,7 @@ using System.Web.Http.Description;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
-using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
-using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Infrastructure.Authorization;
 
@@ -195,24 +193,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> PatchApprenticeshipUpdate(long accountId, long apprenticeshipId, [FromBody] ApprenticeshipUpdateSubmission apprenticeshipSubmission)
         {
             await _employerOrchestrator.PatchApprenticeshipUpdate(accountId, apprenticeshipId, apprenticeshipSubmission);
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        [Route("{accountId}/customproviderpaymentpriority")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetCustomProviderPaymentPriority(long accountId)
-        {
-            var response = await _employerOrchestrator.GetCustomProviderPaymentPriority(accountId);
-
-            return Ok(response);
-        }
-
-        [Route("{accountId}/customproviderpaymentpriority")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> PutCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)
-        {
-            await _employerOrchestrator.UpdateCustomProviderPaymentPriority(accountId, submission);
 
             return StatusCode(HttpStatusCode.NoContent);
         }

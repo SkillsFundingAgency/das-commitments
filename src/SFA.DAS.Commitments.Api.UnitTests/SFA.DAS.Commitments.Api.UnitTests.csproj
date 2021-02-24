@@ -113,7 +113,6 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleApprenticeship.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenPuttingApprenticeshipStopDate.cs" />
-    <Compile Include="Controllers\EmployerControllerTests\WhenGettingProviderPaymentPriorites.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenUpdatingApprenticeshipStatus.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingCommitmentAgreements.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleApprenticeship.cs" />

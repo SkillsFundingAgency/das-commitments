@@ -77,7 +77,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IHistoryRepository>().Use<HistoryRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IBulkUploadRepository>().Use<BulkUploadRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
-            For<IProviderPaymentRepository>().Use<ProviderPaymentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IStatisticsRepository>().Use<StatisticsRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<ITrainingProgrammeRepository>().Use<TrainingProgrammeRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IProviderRepository>().Use<ProviderRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
