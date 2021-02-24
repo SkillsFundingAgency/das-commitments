@@ -91,8 +91,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     InitialState = JsonConvert.SerializeObject(new CustomProviderPaymentPriority { EmployerAccountId = accountId, ProviderId = p.ProviderId, PriorityOrder = p.OriginalPriorityOrder }),
                     UpdatedState = JsonConvert.SerializeObject(new CustomProviderPaymentPriority { EmployerAccountId = accountId, ProviderId = p.ProviderId, PriorityOrder = p.PriorityOrder }),
                 });
-            
-            fixture.VerifyUpdatedEntityStateChangedEventPublished(changedEntityStateChangedEvents.ToList());
+
+            if (changedEntityStateChangedEvents.Any())
+            {
+                fixture.VerifyUpdatedEntityStateChangedEventPublished(changedEntityStateChangedEvents.ToList());
+            }
         }
 
         [TestCaseSource(typeof(UpdateProviderPaymentsPriorityDataCases))]
@@ -128,7 +131,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     UpdatedState = JsonConvert.SerializeObject(new CustomProviderPaymentPriority { EmployerAccountId = accountId, ProviderId = p.ProviderId, PriorityOrder = p.PriorityOrder }),
                 });
 
-            fixture.VerifyUpdatedEntityStateChangedEventPublished(addedEntityStateChangedEvents.ToList());
+            if (addedEntityStateChangedEvents.Any())
+            {
+                fixture.VerifyUpdatedEntityStateChangedEventPublished(addedEntityStateChangedEvents.ToList());
+            }
         }
 
         [TestCaseSource(typeof(UpdateProviderPaymentsPriorityDataCases))]
@@ -164,7 +170,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     UpdatedState = null,
                 });
 
-            fixture.VerifyUpdatedEntityStateChangedEventPublished(removedEntityStateChangedEvents.ToList());
+            if (removedEntityStateChangedEvents.Any())
+            {
+                fixture.VerifyUpdatedEntityStateChangedEventPublished(removedEntityStateChangedEvents.ToList());
+            }
         }
 
         [TestCaseSource(typeof(UpdateProviderPaymentsPriorityDataCases))]
@@ -190,12 +199,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await fixture.Handle(accountId, updateItems, new UserInfo());
 
             // Assert
-            var paymentOrder = expectedOutputs
-                .Where(p => p.UpdateType != UpdateProviderPaymentsPriorityDataCases.UpdateType.Removed)
-                .OrderBy(x => x.PriorityOrder)
-                .Select(x => (int)x.ProviderId);
+            var entityStateChanged = expectedOutputs
+                .Any(p => p.UpdateType != UpdateProviderPaymentsPriorityDataCases.UpdateType.None);
 
-            fixture.VerifyPaymentOrderChangedEventPublished(accountId, paymentOrder.ToArray());
+            if (entityStateChanged)
+            {
+                var paymentOrder = expectedOutputs
+                    .Where(p => p.UpdateType != UpdateProviderPaymentsPriorityDataCases.UpdateType.Removed)
+                    .OrderBy(x => x.PriorityOrder)
+                    .Select(x => (int)x.ProviderId);
+
+                fixture.VerifyPaymentOrderChangedEventPublished(accountId, paymentOrder.ToArray());
+            }
         }
     }
 

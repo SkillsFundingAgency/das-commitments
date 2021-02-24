@@ -25,6 +25,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPrior
 
         protected override async Task Handle(UpdateProviderPaymentsPriorityCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Updating Provider Payment Priority for employer account {request.AccountId}");
+
             var account = await _db.Value.Accounts
                 .Include(a => a.CustomProviderPaymentPriorities)
                 .SingleAsync(a => a.Id == request.AccountId, cancellationToken);
@@ -40,6 +42,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPrior
                 account,
                 updatedCustomProviderPaymentPriorities,
                 request.UserInfo);
+
+            _logger.LogInformation($"Updated Provider Payment Priorities with {request.ProviderPaymentPriorityUpdateItems.Count} providers for employer account {request.AccountId}");
         }
 
         private void UpdateDifferences(
@@ -61,35 +65,50 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPrior
                 .Where(w => !currentPriorities.Exists(e => e.ProviderId == w.ProviderId))
                 .ToList();
 
-            foreach (var item in changedPriorities)
+            if (changedPriorities.Any())
             {
-                var updatedPrority = updatedPriorites.First(f => f.ProviderId == item.ProviderId);
-                account.UpdateCustomProviderPaymentPriority(item.ProviderId, updatedPrority.PriorityOrder, userInfo);
+                foreach (var item in changedPriorities)
+                {
+                    var updatedPrority = updatedPriorites.First(f => f.ProviderId == item.ProviderId);
+                    account.UpdateCustomProviderPaymentPriority(item.ProviderId, updatedPrority.PriorityOrder, userInfo);
+                }
+
+                _logger.LogInformation($"Changed {changedPriorities.Count} Provider Payment Priorities for employer account {account.Id}");
             }
 
-            foreach (var item in removedPriorities)
+            if (removedPriorities.Any())
             {
-                account.RemoveCustomProviderPaymentPriority(() =>
+                foreach (var item in removedPriorities)
                 {
-                    _db.Value.CustomProviderPaymentPriorities.Remove(item);
-                    return item;
-                }, userInfo);
+                    account.RemoveCustomProviderPaymentPriority(() =>
+                    {
+                        _db.Value.CustomProviderPaymentPriorities.Remove(item);
+                        return item;
+                    }, userInfo);
+                }
+
+                _logger.LogInformation($"Removed {changedPriorities.Count} Provider Payment Priorities for employer account {account.Id}");
             }
 
-            foreach (var item in addedPriorities)
+            if (addedPriorities.Any())
             {
-                account.AddCustomProviderPaymentPriority(() =>
+                foreach (var item in addedPriorities)
                 {
-                    _db.Value.CustomProviderPaymentPriorities.Add(item);
-                    return item;
-                }, userInfo);
+                    account.AddCustomProviderPaymentPriority(() =>
+                    {
+                        _db.Value.CustomProviderPaymentPriorities.Add(item);
+                        return item;
+                    }, userInfo);
+                }
+
+                _logger.LogInformation($"Added {changedPriorities.Count} Provider Payment Priorities for employer account {account.Id}");
             }
 
             if (changedPriorities.Any() || removedPriorities.Any() || addedPriorities.Any())
             {
                 account.NotifyCustomProviderPaymentPrioritiesChanged();
-                
-                _logger.LogInformation($"ProviderPaymentsPriority updated for AccountId : {account.Id}");
+
+                _logger.LogInformation($"Notified Provider Payment Priorities Updated for employer account {account.Id}");
             }
         }
     }

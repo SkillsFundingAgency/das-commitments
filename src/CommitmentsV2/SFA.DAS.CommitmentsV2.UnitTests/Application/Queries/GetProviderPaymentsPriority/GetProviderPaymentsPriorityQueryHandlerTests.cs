@@ -11,6 +11,8 @@ using AutoFixture;
 using SFA.DAS.UnitOfWork.Context;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
 using System.Collections;
+using Moq;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPaymentsPriority
 {
@@ -260,12 +262,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public GetProviderPaymentsPriorityQueryHandler Handler { get; set; }
+        public Mock<ILogger<GetProviderPaymentsPriorityQueryHandler>> Logger { get; set; }
 
         public GetProviderPaymentsPriorityQueryHandlerTestFixtures()
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Logger = new Mock<ILogger<GetProviderPaymentsPriorityQueryHandler>>();
             Handler = new GetProviderPaymentsPriorityQueryHandler(
-                new Lazy<ProviderCommitmentsDbContext>(() => Db));
+                new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger.Object);
         }
 
         public Task<GetProviderPaymentsPriorityQueryResult> Handle(long accountId)

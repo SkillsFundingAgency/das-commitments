@@ -1,12 +1,10 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Expressions;
-using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
-using SFA.DAS.CommitmentsV2.Extensions;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,17 +14,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority
     public class GetProviderPaymentsPriorityQueryHandler : IRequestHandler<GetProviderPaymentsPriorityQuery, GetProviderPaymentsPriorityQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly ILogger<GetProviderPaymentsPriorityQueryHandler> _logger;
 
-        public GetProviderPaymentsPriorityQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public GetProviderPaymentsPriorityQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+            ILogger<GetProviderPaymentsPriorityQueryHandler> logger)
         {
             if (dbContext == null)
                 throw new ArgumentNullException(nameof(dbContext));
-            
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<GetProviderPaymentsPriorityQueryResult> Handle(GetProviderPaymentsPriorityQuery message, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Getting Provider Payment Priority for employer account {message.EmployerAccountId}");
+
             // get the approved providers and their current custom provider payment priority order (if any)
             // ordered by their approved on date for the given employer account
             var query = from customProviderPaymentPriority in 
@@ -79,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority
             // for those providers which have a custom provider payment priority, the priority order will
             // be preserved regardless of their approved on date, with all those providers without a custom
             // provider payment priority included afterwards ordered by their approved on date
-            return new GetProviderPaymentsPriorityQueryResult
+            var response = new GetProviderPaymentsPriorityQueryResult
             {
                 PriorityItems = results.Select((p, index) => new 
                 {
@@ -96,6 +101,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority
                 })
                 .ToList()
             };
+
+            _logger.LogInformation($"Retrieved {response.PriorityItems.Count()} Provider Payment Priorities for employer account {message.EmployerAccountId}");
+            
+            return response;
         }
     }
 }
