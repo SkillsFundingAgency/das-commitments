@@ -65,8 +65,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
 
             For<IEventsApi>().Use<DummyEventsApiClient>();
 
-            For<IApprenticeshipInfoServiceConfiguration>().Use(config.ApprenticeshipInfoService);
-
             For<IAcademicYearDateProvider>().Use<AcademicYearDateProvider>();
             For<IUlnValidator>().Use<UlnValidator>();
             For<IAcademicYearValidator>().Use<AcademicYearValidator>();

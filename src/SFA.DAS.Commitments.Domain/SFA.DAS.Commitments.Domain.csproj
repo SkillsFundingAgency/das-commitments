@@ -154,7 +154,6 @@
     <Compile Include="Entities\ProviderUser.cs" />
     <Compile Include="Entities\TrainingProgramme\Framework.cs" />
     <Compile Include="Entities\TrainingProgramme\FrameworksView.cs" />
-    <Compile Include="Entities\TrainingProgramme\IApprenticeshipInfoServiceConfiguration.cs" />
     <Compile Include="Entities\TrainingProgramme\ITrainingProgramme.cs" />
     <Compile Include="Entities\TrainingProgramme\Standard.cs" />
     <Compile Include="Entities\TrainingProgramme\StandardsView.cs" />

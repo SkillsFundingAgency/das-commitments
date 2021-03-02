@@ -213,7 +213,6 @@
     <Compile Include="AzureStorage\AzureBlobStorage.cs" />
     <Compile Include="AzureStorage\IAzureBlobStorage.cs" />
     <Compile Include="Configuration\EmployerAccountsApiClientConfiguration.cs" />
-    <Compile Include="Configuration\ApprenticeshipInfoServiceConfiguration.cs" />
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\CurrentDatePolicy.cs" />
