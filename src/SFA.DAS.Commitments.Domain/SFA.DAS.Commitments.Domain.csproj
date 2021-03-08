@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -97,7 +97,6 @@
     <Compile Include="Data\IAssessmentOrganisationRepository.cs" />
     <Compile Include="Data\IBulkUploadRepository.cs" />
     <Compile Include="Data\IJobProgressRepository.cs" />
-    <Compile Include="Data\IProviderPaymentRepository.cs" />
     <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Data\IHistoryRepository.cs" />
     <Compile Include="Data\IStatisticsRepository.cs" />
@@ -130,8 +129,6 @@
     <Compile Include="Entities\EventStatus.cs" />
     <Compile Include="Entities\PriceHistory.cs" />
     <Compile Include="Entities\ProviderAlertSummary.cs" />
-    <Compile Include="Entities\ProviderPaymentPriorityUpdateItem.cs" />
-    <Compile Include="Entities\ProviderPaymentPriorityItem.cs" />
     <Compile Include="Entities\DataLock\DataLockErrorCode.cs" />
     <Compile Include="Entities\DataLock\DataLockEventError.cs" />
     <Compile Include="Entities\DataLock\DataLockStatus.cs" />

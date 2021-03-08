@@ -8,6 +8,9 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<CustomProviderPaymentPriority> builder)
         {
+            // necessary to restate the table name for Linq query syntax
+            builder.ToTable("CustomProviderPaymentPriority");
+
             builder.HasKey(e => new {e.EmployerAccountId, e.ProviderId});
         }
     }
