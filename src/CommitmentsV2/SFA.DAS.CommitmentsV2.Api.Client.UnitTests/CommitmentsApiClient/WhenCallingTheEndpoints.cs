@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -428,6 +429,31 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             await _fixture.CommitmentsApiClient.GetAccount(123, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(x => x.Get<AccountResponse>("api/accounts/123", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetProviderPaymentPriority_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetProviderPaymentsPriority(123, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetProviderPaymentsPriorityResponse>("api/accounts/123/provider-payments-priority", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task UpdateProviderPaymentPriority_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var accountId = 123;
+            var request = new UpdateProviderPaymentsPriorityRequest
+            {
+                ProviderPriorities = new List<UpdateProviderPaymentsPriorityRequest.ProviderPaymentPriorityUpdateItem>(),
+                UserInfo = new UserInfo()
+            };
+            
+            //Act
+            await _fixture.CommitmentsApiClient.UpdateProviderPaymentsPriority(accountId, request, CancellationToken.None);
+            
+            // Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/accounts/{accountId}/update-provider-payments-priority", request, CancellationToken.None));
         }
 
         [Test]

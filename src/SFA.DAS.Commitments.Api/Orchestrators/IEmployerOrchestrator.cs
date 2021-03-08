@@ -3,12 +3,10 @@ using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Domain;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Api.Types.ApprenticeshipStatusSummary;
 using ApprenticeshipUpdate = SFA.DAS.Commitments.Api.Types.Apprenticeship.ApprenticeshipUpdate;
-using ProviderPaymentPriorityItem = SFA.DAS.Commitments.Api.Types.ProviderPayment.ProviderPaymentPriorityItem;
 using TransferRequestSummary = SFA.DAS.Commitments.Api.Types.Commitment.TransferRequestSummary;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
@@ -21,8 +19,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task<IEnumerable<Apprenticeship>> GetApprenticeships(long accountId);
         Task<ApprenticeshipSearchResponse> GetApprenticeships(long accountId, ApprenticeshipSearchQuery query);
         Task<Apprenticeship> GetApprenticeship(long accountId, long apprenticeshipId);
-        Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission);
-        Task<IEnumerable<ProviderPaymentPriorityItem>> GetCustomProviderPaymentPriority(long accountId);
         Task PatchCommitment(long accountId, long commitmentId, CommitmentSubmission submission);
         Task PatchApprenticeship(long accountId, long apprenticeshipId, ApprenticeshipSubmission apprenticeshipSubmission);
         Task DeleteApprenticeship(long accountId, long apprenticeshipId, string userId, string userName);

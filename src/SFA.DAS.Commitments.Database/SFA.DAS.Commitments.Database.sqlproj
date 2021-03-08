@@ -110,10 +110,7 @@
     <Build Include="StoredProcedures\InsertHistory.sql" />
     <Build Include="Views\CommitmentSummaryWithMessages.sql" />
     <Build Include="Tables\CustomProviderPaymentPriority.sql" />
-    <Build Include="Views\ProviderPaymentPriority.sql" />
-    <Build Include="StoredProcedures\GetCustomProviderPaymentPriority.sql" />
     <Build Include="UserDefinedTypes\ProviderPriorityTable.sql" />
-    <Build Include="StoredProcedures\UpdateCustomProviderPaymentPriority.sql" />
     <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
     <Build Include="Tables\PriceHistory.sql" />
     <Build Include="StoredProcedures\GetAlertsSummary.sql" />
