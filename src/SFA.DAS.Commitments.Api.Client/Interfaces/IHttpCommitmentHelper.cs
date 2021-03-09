@@ -1,7 +1,6 @@
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -42,10 +41,6 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<ApprenticeshipUpdate> GetApprenticeshipUpdate(string url);
 
         Task PatchApprenticeshipUpdate(string url, ApprenticeshipUpdateSubmission submission);
-
-        Task<IList<ProviderPaymentPriorityItem>> GetPaymentPriorityOrder(string url);
-
-        Task PutPaymentPriorityOrder(string url, ProviderPaymentPrioritySubmission submission);
 
         Task<long> PostBulkuploadFile(string url, BulkUploadFileRequest bulkUploadFileRequest);
 

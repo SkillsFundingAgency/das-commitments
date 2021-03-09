@@ -288,6 +288,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetApprovedProvidersResponse>($"api/accounts/{accountId}/providers/approved", null, cancellationToken);
         }
 
+        public Task<GetProviderPaymentsPriorityResponse> GetProviderPaymentsPriority(long accountId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetProviderPaymentsPriorityResponse>($"api/accounts/{accountId}/provider-payments-priority", null, cancellationToken);
+        }
+
+        public Task UpdateProviderPaymentsPriority(long accountId, UpdateProviderPaymentsPriorityRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/accounts/{accountId}/update-provider-payments-priority", request, cancellationToken);
+        }
+
         public Task<CreateCohortResponse> CreateCohort(CreateEmptyCohortRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<CreateEmptyCohortRequest, CreateCohortResponse>("api/cohorts/create-empty-cohort", request, cancellationToken);

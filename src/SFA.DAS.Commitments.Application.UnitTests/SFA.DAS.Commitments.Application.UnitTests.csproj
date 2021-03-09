@@ -273,8 +273,6 @@
     <Compile Include="Commands\TriageDataLocks\WhenTriagingDataLocks.cs" />
     <Compile Include="Commands\TriageDataLock\WhenTriagingDataLock.cs" />
     <Compile Include="Commands\TriageDataLock\WhenValidatingRequest.cs" />
-    <Compile Include="Commands\UpdateProviderPaymentsPriority\WhenSavingNewPriorityList.cs" />
-    <Compile Include="Commands\UpdateProviderPaymentsPriority\WhenValidatingCommand.cs" />
     <Compile Include="Extensions\DataLockStatusExtensions\WhenGettingPriceEpisodeIdentifierDate.cs" />
     <Compile Include="Extensions\DateTimeExtensions\WhenGettingFirstOfMonth.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenGetActiveApprenticeshipsByUln.cs" />
@@ -292,7 +290,6 @@
     <Compile Include="Queries\GetTransfeRequest\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetCommitment\WhenGettingCommitmentForTransferSender.cs" />
     <Compile Include="Queries\GetApprenticeshipsByUln\WhenGetApprenticeshipsByUln.cs" />
-    <Compile Include="Queries\GetCustomProviderPaymentPriority\WhenGettingProviderPaymentPriority.cs" />
     <Compile Include="Queries\GetDataLocks\WhenGettingDataLocks.cs" />
     <Compile Include="Queries\GetDataLocks\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetDataLock\WhenGettingDataLock.cs" />

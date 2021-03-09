@@ -3,7 +3,6 @@ using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Http;
@@ -130,18 +129,6 @@ namespace SFA.DAS.Commitments.Api.Client
         {
             var data = JsonConvert.SerializeObject(submission);
             await PatchAsync(url, data);
-        }
-
-        public async Task<IList<ProviderPaymentPriorityItem>> GetPaymentPriorityOrder(string url)
-        {
-            var content = await GetAsync(url);
-            return JsonConvert.DeserializeObject<List<ProviderPaymentPriorityItem>>(content);
-        }
-
-        public async Task PutPaymentPriorityOrder(string url, ProviderPaymentPrioritySubmission submission)
-        {
-            var data = JsonConvert.SerializeObject(submission);
-            await PutAsync(url, data);
         }
 
         public async Task<long> PostBulkuploadFile(string url, BulkUploadFileRequest bulkUploadFileRequest)
