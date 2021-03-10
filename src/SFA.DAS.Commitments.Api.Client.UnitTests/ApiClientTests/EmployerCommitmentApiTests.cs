@@ -16,7 +16,6 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
-using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 
 namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 {
@@ -200,29 +199,6 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 
             Assert.Pass();
         }
-
-        [Test]
-        public async Task GetCustomProviderPaymentPriority()
-        {
-            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/customproviderpaymentpriority/"), string.Empty);
-            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<ProviderPaymentPriorityItem>())) });
-
-            var apprenticeship = await _employerApiClient.GetCustomProviderPaymentPriority(EmployerAccountId);
-
-            Assert.Pass();
-        }
-
-        [Test]
-        public async Task UpdateCustomProviderPaymentPriority()
-        {
-            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/customproviderpaymentpriority/"), JsonConvert.SerializeObject(new ProviderPaymentPrioritySubmission()));
-            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
-
-            await _employerApiClient.UpdateCustomProviderPaymentPriority(EmployerAccountId, new ProviderPaymentPrioritySubmission());
-
-            Assert.Pass();
-        }
-
 
         [Test]
         public async Task GetPriceHistory()

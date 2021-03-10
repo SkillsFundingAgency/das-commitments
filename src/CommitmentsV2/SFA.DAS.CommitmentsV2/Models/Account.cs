@@ -1,11 +1,13 @@
-﻿using SFA.DAS.CommitmentsV2.Types;
+﻿using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class Account 
+    public class Account : Aggregate, ITrackableEntity
     {
         public long Id { get; private set; }
         public string HashedId { get; private set; }
@@ -19,6 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         private readonly List<AccountLegalEntity> _accountLegalEntities = new List<AccountLegalEntity>();
 
         public virtual ICollection<Cohort> TransferFundedCohorts { get; set; }
+
+        public virtual ICollection<CustomProviderPaymentPriority> CustomProviderPaymentPriorities { get; set; }
 
         public Account(long id, string hashedId, string publicHashedId, string name, DateTime created)
         {
@@ -61,12 +65,44 @@ namespace SFA.DAS.CommitmentsV2.Models
             LevyStatus = apprenticeshipEmployerType;
         }
 
-
         public void RemoveAccountLegalEntity(AccountLegalEntity accountLegalEntity, DateTime removed)
         {
             EnsureAccountLegalEntityHasBeenAdded(accountLegalEntity);
 
             accountLegalEntity.Delete(removed);
+        }
+
+        public void AddCustomProviderPaymentPriority(Func<CustomProviderPaymentPriority> add, UserInfo userInfo)
+        {
+            var item = add();
+            StartTrackingSession(UserAction.UpdateCustomProviderPaymentPriorities, Party.Employer, Id, item.ProviderId, userInfo);
+            ChangeTrackingSession.TrackInsert(item);
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        public void RemoveCustomProviderPaymentPriority(Func<CustomProviderPaymentPriority> remove, UserInfo userInfo)
+        {
+            var item = remove();
+            StartTrackingSession(UserAction.UpdateCustomProviderPaymentPriorities, Party.Employer, Id, item.ProviderId, userInfo);
+            ChangeTrackingSession.TrackDelete(item);
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        public void UpdateCustomProviderPaymentPriority(long providerId, int priorityOrder, UserInfo userInfo)
+        {
+            CustomProviderPaymentPriorities
+                .Single(w => w.ProviderId == providerId)
+                .UpdateProviderPriority(priorityOrder, userInfo);
+        }
+
+        public void NotifyCustomProviderPaymentPrioritiesChanged()
+        {
+            var paymentOrder = CustomProviderPaymentPriorities.OrderBy(x => x.PriorityOrder).Select(x => (int)x.ProviderId);
+            Publish(() => new PaymentOrderChangedEvent
+            {
+                AccountId = Id,
+                PaymentOrder = paymentOrder.ToArray()
+            });
         }
 
         private void EnsureAccountLegalEntityHasBeenAdded(AccountLegalEntity accountLegalEntity)
