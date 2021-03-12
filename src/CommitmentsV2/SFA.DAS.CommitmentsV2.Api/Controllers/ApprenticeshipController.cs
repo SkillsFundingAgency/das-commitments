@@ -173,13 +173,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ValidateApprenticeshipForEdit(long apprenticeshipId, [FromBody] ValidateApprenticeshipForEditRequest request)
+        [Route("edit/validate")]
+        public async Task<IActionResult> ValidateApprenticeshipForEdit([FromBody] ValidateApprenticeshipForEditRequest request)
         {
             var response = await _mediator.Send(new ValidateApprenticeshipForEditCommand
             {
                 ProviderId = request.ProviderId,
                 EmployerAccountId = request.EmployerAccountId,
-                ApprenticeshipId = apprenticeshipId,
+                ApprenticeshipId = request.ApprenticeshipId,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 DateOfBirth = request.DateOfBirth,
