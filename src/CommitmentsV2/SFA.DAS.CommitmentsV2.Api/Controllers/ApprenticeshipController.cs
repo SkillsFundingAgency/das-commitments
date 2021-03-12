@@ -16,7 +16,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
-
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -169,6 +169,33 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 ApprenticeshipId = request.ApprenticeshipId,
                 UserInfo = request.UserInfo
             });
+            return Ok(response);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ValidateApprenticeshipForEdit(long apprenticeshipId, [FromBody] ValidateApprenticeshipForEditRequest request)
+        {
+            var response = await _mediator.Send(new ValidateApprenticeshipForEditCommand
+            {
+                ProviderId = request.ProviderId,
+                EmployerAccountId = request.EmployerAccountId,
+                ApprenticeshipId = apprenticeshipId,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                DateOfBirth = request.DateOfBirth,
+                ULN = request.ULN,
+                Cost = request.Cost,
+                EmployerReference = request.EmployerReference,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                TrainingCode = request.TrainingCode
+            });
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
             return Ok(response);
         }
     }
