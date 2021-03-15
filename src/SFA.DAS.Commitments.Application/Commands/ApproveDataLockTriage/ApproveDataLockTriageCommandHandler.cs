@@ -123,7 +123,11 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 
             for (var i = 0; i < newPriceHistory.Length - 1; i++)
             {
-                newPriceHistory[i].ToDate = newPriceHistory[i + 1].FromDate.AddDays(-1);
+                var derivedToDate = newPriceHistory[i + 1].FromDate.AddDays(-1);
+
+                newPriceHistory[i].ToDate = derivedToDate < newPriceHistory[i].FromDate
+                    ? newPriceHistory[i].FromDate
+                    : derivedToDate;
             }
             return newPriceHistory;
         }
