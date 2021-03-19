@@ -18,6 +18,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 using GetApprenticeshipsRequest = SFA.DAS.CommitmentsV2.Api.Types.Requests.GetApprenticeshipsRequest;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -246,6 +247,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             _mediator.Verify(p => p.Send(It.Is<ResumeApprenticeshipCommand>(c =>
                     c.ApprenticeshipId == request.ApprenticeshipId && c.UserInfo == request.UserInfo),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task ValidateApprenticeshipForEdit(ValidateApprenticeshipForEditRequest request)
+        {
+            //Act
+            await _controller.ValidateApprenticeshipForEdit(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.IsAny<ValidateApprenticeshipForEditCommand>(),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
     }

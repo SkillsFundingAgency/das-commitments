@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SFA.DAS.CommitmentsV2.Types;
 using System;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit
@@ -27,5 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEd
         public string ULN { get; set; }
 
         public string TrainingCode { get; set; }
+
+        public UserInfo UserInfo { get; set; }
     }
 }

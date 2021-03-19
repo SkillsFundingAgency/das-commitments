@@ -20,5 +20,10 @@ namespace SFA.DAS.CommitmentsV2.Shared.Extensions
         {
             return $"{value:MMMM yyyy}";
         }
+
+        public static string ToGdsFormatShortMonthWithoutDay(this DateTime value)
+        {
+            return $"{value:MM yyyy}";
+        }
     }
 }
