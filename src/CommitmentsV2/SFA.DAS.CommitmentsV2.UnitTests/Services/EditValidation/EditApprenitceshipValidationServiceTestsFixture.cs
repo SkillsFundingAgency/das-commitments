@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -26,6 +27,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         private Mock<IAcademicYearDateProvider> _academicYearDateProvider;
         private Mock<ICurrentDateTime> _currentDateTime;
 
+        internal DateTime GetEndOfCurrentTeachingYear()
+        {
+            return _academicYearDateProvider.Object.CurrentAcademicYearEndDate;
+        }
+
+        private Apprenticeship _apprenticeship;
+
         public EditApprenitceshipValidationServiceTestsFixture()
         {
             _dbContext = new Mock<IProviderCommitmentsDbContext>();
@@ -41,13 +49,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 _academicYearDateProvider.Object,
                 _currentDateTime.Object);
 
-            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long>(), CancellationToken.None))
+            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
                 .Returns(Task.FromResult(new OverlapCheckResult(false, false))) ;
 
-            //_currentDateTime.Setup(x => x.UtcNow).Returns(() => new DateTime(2021, 3, 19));
+            _currentDateTime.Setup(x => x.UtcNow).Returns(() => new DateTime(2021, 3, 19));
 
             _reservationValidationService.Setup(x => x.Validate(It.IsAny<ReservationValidationRequest>(), CancellationToken.None))
                 .Returns(Task.FromResult(new ReservationValidationResult(new ReservationValidationError[0])));
+        }
+
+        internal DateTime GetCurrentAcademicYearStartDate()
+        {
+            return _academicYearDateProvider.Object.CurrentAcademicYearStartDate;
+        }
+
+        internal void SetUpLastAcademicYearFundingPeriodToBeBeforeDateTimeNow()
+        {
+            _academicYearDateProvider.Setup(t => t.LastAcademicYearFundingPeriod).Returns(_currentDateTime.Object.UtcNow.AddMonths(-1));
         }
 
         public EditApprenitceshipValidationServiceTestsFixture SetupReservationValidationService()
@@ -59,14 +77,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        public EditApprenitceshipValidationServiceTestsFixture SetupMockAcademicYearDateProvider(DateTime currentAcademicYearStartDate)
-        {
-            _academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(currentAcademicYearStartDate);
-            _academicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(currentAcademicYearStartDate.AddYears(1).AddDays(-1));
-            _academicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod).Returns(new DateTime(currentAcademicYearStartDate.Year, 10, 19, 18, 0, 0, DateTimeKind.Utc));
+        //public EditApprenitceshipValidationServiceTestsFixture SetupMockAcademicYearDateProvider(DateTime currentAcademicYearStartDate)
+        //{
+        //    _academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(currentAcademicYearStartDate);
+        //    _academicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(currentAcademicYearStartDate.AddYears(1).AddDays(-1));
+        //    _academicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod).Returns(new DateTime(currentAcademicYearStartDate.Year, 10, 19, 18, 0, 0, DateTimeKind.Utc));
 
-            return this;
-        }
+        //    return this;
+        //}
 
         public EditApprenitceshipValidationServiceTestsFixture SetUpMediatorForTrainingCourse(DateTime effectiveFrom, int activeForInYears = 5, ProgrammeType programmeType = ProgrammeType.Standard)
         {
@@ -83,6 +101,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
+        internal EditApprenitceshipValidationServiceTestsFixture CourseIsEffectiveFromDate(DateTime effectiveFrom, int activeForInYears = 5, ProgrammeType programmeType = ProgrammeType.Standard)
+        {
+            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), CancellationToken.None))
+                .Returns(Task.FromResult(new GetTrainingProgrammeQueryResult()
+                {
+                    TrainingProgramme = new Types.TrainingProgramme
+                    {
+                        EffectiveFrom = effectiveFrom,
+                        EffectiveTo = effectiveFrom.AddYears(activeForInYears),
+                        ProgrammeType = programmeType
+                    }
+                }));
+
+            return this;
+        }
+
+        internal DateTime GetStartDate()
+        {
+            return _apprenticeship.StartDate.Value;
+        }
+
         public EditApprenitceshipValidationServiceTestsFixture SetupCurrentDateTime(DateTime currentDateTime)
         {
             _currentDateTime.Setup(x => x.UtcNow).Returns(currentDateTime);
@@ -91,8 +130,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
         public EditApprenitceshipValidationServiceTestsFixture SetupOverlapService(bool startDateOverlaps, bool endDateOverlaps)
         {
-            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long>(), CancellationToken.None))
+            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
               .Returns(Task.FromResult(new OverlapCheckResult(startDateOverlaps, endDateOverlaps)));
+            return this;
+        }
+
+        private void WithStartDateInFuture()
+        {
+            _apprenticeship.StartDate = _currentDateTime.Object.UtcNow.AddMonths(1);
+            _apprenticeship.EndDate = _currentDateTime.Object.UtcNow.AddYears(1);
+        }
+
+        private EditApprenitceshipValidationServiceTestsFixture WithInFundingPeriod()
+        {
+            // Make the start date later than CurrentAcademicYearStartDate
+            _academicYearDateProvider.Setup(t => t.CurrentAcademicYearStartDate).Returns(_apprenticeship.StartDate.Value.AddMonths(-1));
+
+            _academicYearDateProvider.Setup(t => t.CurrentAcademicYearEndDate).Returns(_apprenticeship.StartDate.Value.AddYears(1));
+
+            // Make the DateTime Now earlier than LastAcademicYearFundingPeriod
+            _academicYearDateProvider.Setup(t => t.LastAcademicYearFundingPeriod).Returns(_currentDateTime.Object.UtcNow.AddMonths(2));
+
             return this;
         }
 
@@ -104,10 +162,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             int dobYear = 1995,
             int dobMonth = 1,
             int dobDay = 1,
-            int startMonth = 1,
-            int startYear = 2020,
-            int endMonth = 1,
-            int endYear = 2021,
             string employerRef = "employerRef",
             string uln = "XYZ123",
             string courseCode = "12",
@@ -119,83 +173,128 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             bool hasHadDataLockSuccess = false
             )
         {
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeship = new List<CommitmentsV2.Models.Apprenticeship>()
+            CreateApprenticeship(id, commitmentId, firstName, lastName, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess);
+
+            WithStartDateInFuture();
+
+            WithInFundingPeriod();
+
+            CreateMockApprenticeshipContext();
+            return this;
+        }
+
+        private EditApprenitceshipValidationServiceTestsFixture CreateMockApprenticeshipContext()
+        {
+            List<Apprenticeship> apprenticeships = new List<Apprenticeship>()
             {
-                new CommitmentsV2.Models.Apprenticeship
-                {
-                    Id = id,
-                    CommitmentId = commitmentId,
-                    FirstName = firstName,
-                    LastName = lastName,
-                    DateOfBirth = new DateTime(dobYear,dobMonth,dobDay),
-                    StartDate = new DateTime(startYear,startMonth,1),
-                    EndDate = new DateTime(endYear,endMonth,1),
-                    Cost = cost,
-                    EmployerRef = employerRef,
-                    ProgrammeType = programmeType,
-                    CourseCode = courseCode,
-                    ReservationId = Guid.Parse(reservationId),
-                    Cohort = new CommitmentsV2.Models.Cohort
-                    {
-                        Id = commitmentId,
-                        TransferSenderId = transferSenderId
-                    },
-                    Uln = uln,
-                    PaymentStatus = paymentStatus,
-                    HasHadDataLockSuccess = hasHadDataLockSuccess
-                }
+              _apprenticeship
             };
 
-            _dbContext.Setup(x => x.Apprenticeships).ReturnsDbSet(apprenticeship);
+            _dbContext.Setup(x => x.Apprenticeships).ReturnsDbSet(apprenticeships);
+
+            return this;
+        }
+
+        public EditApprenitceshipValidationServiceTestsFixture CreateApprenticeship(long id = 100,
+            long commitmentId = 200,
+            string firstName = "FirstName",
+            string lastName = "lastName",
+            int dobYear = 1995,
+            int dobMonth = 1,
+            int dobDay = 1,
+            string employerRef = "employerRef",
+            string uln = "XYZ123",
+            string courseCode = "12",
+            Types.ProgrammeType programmeType = Types.ProgrammeType.Standard,
+            int? transferSenderId = null,
+            decimal cost = 200,
+            string reservationId = "134463EF-0088-4828-8775-EBD1223486AF",
+            Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
+            bool hasHadDataLockSuccess = false)
+        {
+           _apprenticeship = new Apprenticeship
+            {
+                Id = id,
+                CommitmentId = commitmentId,
+                FirstName = firstName,
+                LastName = lastName,
+                DateOfBirth = new DateTime(dobYear, dobMonth, dobDay),
+                Cost = cost,
+                EmployerRef = employerRef,
+                ProgrammeType = programmeType,
+                CourseCode = courseCode,
+                ReservationId = Guid.Parse(reservationId),
+                Cohort = new Cohort
+                {
+                    Id = commitmentId,
+                    TransferSenderId = transferSenderId
+                },
+                Uln = uln,
+                PaymentStatus = paymentStatus,
+                HasHadDataLockSuccess = hasHadDataLockSuccess
+            };
+
             return this;
         }
 
         public EditApprenticeshipValidationRequest CreateValidationRequest(
            long id = 100,
            long employerAccountId = 250,
-           string firstName = "FirstName",
-           string lastName = "lastName",
-           int? dobYear = 1995,
-           int dobMonth = 1,
-           int dobDay = 1,
-           int startMonth = 1,
-           int? startYear = 2020,
-           int endMonth = 1,
-           int? endYear = 2021,
-           string employerRef = "employerRef",
-           string uln = "XYZ123",
-           string courseCode = "12",
-           decimal? cost = 200
+           string firstName = "",
+           string lastName = "",
+           int? dobYear = null,
+           int? dobMonth = null,
+           int? dobDay = null,
+           int? startMonth = null,
+           int? startYear = null,
+           int? endMonth = null,
+           int? endYear = null,
+           string employerRef = "",
+           string uln = "",
+           string courseCode = "",
+           decimal? cost = null
            )
         {
             var request = new EditApprenticeshipValidationRequest
             {
                 ApprenticeshipId = id,
                 EmployerAccountId = employerAccountId,
-                FirstName = firstName,
-                LastName = lastName,
+                FirstName = string.IsNullOrEmpty(firstName) ? _apprenticeship.FirstName : firstName,
+                LastName = string.IsNullOrEmpty(lastName) ? _apprenticeship.LastName : lastName,
                 EndDate = null,
                 DateOfBirth = null,
                 StartDate = null,
-                Cost = cost,
-                EmployerReference = employerRef,
-                TrainingCode = courseCode, // TODO: change the training code to couseCode
-                ULN = uln
+                Cost = cost.HasValue ? cost : _apprenticeship.Cost,
+                EmployerReference = string.IsNullOrEmpty(employerRef) ? _apprenticeship.EmployerRef : employerRef,
+                CourseCode = string.IsNullOrEmpty(courseCode) ? _apprenticeship.CourseCode : courseCode,
+                ULN = string.IsNullOrEmpty(uln) ? _apprenticeship.Uln : uln,
             };
 
-            if (dobYear.HasValue)
+            if (dobYear.HasValue && dobMonth.HasValue && dobDay.HasValue)
             {
-                request.DateOfBirth = new DateTime(dobYear.Value, dobMonth, dobDay);
+                request.DateOfBirth = new DateTime(dobYear.Value, dobMonth.Value, dobDay.Value);
+            }
+            else
+            {
+                request.DateOfBirth = _apprenticeship.DateOfBirth;
             }
 
-            if (startYear.HasValue)
+            if (startYear.HasValue && startMonth.HasValue)
             {
-                request.StartDate = new DateTime(startYear.Value, startMonth, 1);
+                request.StartDate = new DateTime(startYear.Value, startMonth.Value, 1);
+            }
+            else
+            {
+                request.StartDate = _apprenticeship.StartDate;
             }
 
-            if (endYear.HasValue)
+            if (endYear.HasValue && endMonth.HasValue)
             {
-                request.EndDate = new DateTime(endYear.Value, endMonth, 1);
+                request.EndDate = new DateTime(endYear.Value, endMonth.Value, 1);
+            }
+            else
+            {
+                request.EndDate = _apprenticeship.EndDate;
             }
 
             return request;

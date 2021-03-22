@@ -10,7 +10,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenitceshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenitceship();
-            var request = fixture.CreateValidationRequest(cost: null);
+
+            var request = fixture.CreateValidationRequest();
+            request.Cost = null;
 
             var result = await fixture.Validate(request);
 

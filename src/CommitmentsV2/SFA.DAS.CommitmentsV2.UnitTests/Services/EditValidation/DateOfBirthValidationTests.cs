@@ -55,9 +55,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var fixture = new EditApprenitceshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenitceship();
             // The default course start date for these test is 1st Jan 2020 
-            var request = fixture.CreateValidationRequest(dobYear: null);
+            var request = fixture.CreateValidationRequest();
+            request.DateOfBirth = null;
 
             var result = await fixture.Validate(request);
+
 
             Assert.AreEqual(result.Errors.Count, 1);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "The Date of birth is not valid");

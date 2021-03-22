@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenitceshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenitceship().SetupOverlapService(true, true);
-            var request = fixture.CreateValidationRequest();
+            var request = fixture.CreateValidationRequest(employerRef : "abc123");
 
             var result = await fixture.Validate(request);
 

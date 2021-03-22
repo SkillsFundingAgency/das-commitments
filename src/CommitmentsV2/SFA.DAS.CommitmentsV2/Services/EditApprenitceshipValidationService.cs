@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
            if (IsLockedForUpdate(apprenticeship) || IsUpdateLockedForStartDateAndCourse(apprenticeship) || apprenticeship.IsContinuation)
             {
-                if (request.TrainingCode != apprenticeship.CourseCode)
+                if (request.CourseCode != apprenticeship.CourseCode)
                 {
                     throw new InvalidOperationException("Invalid operation - training code can't change for the current state of the object.");
                 }
@@ -121,24 +121,24 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> BuildTrainingProgramValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
-            if (!string.IsNullOrEmpty(request.TrainingCode))
+            if (!string.IsNullOrEmpty(request.CourseCode))
             {
-                if (request.TrainingCode != apprenticeshipDetails.CourseCode)
+                if (request.CourseCode != apprenticeshipDetails.CourseCode)
                 {
                     var result = _mediator.Send(new GetTrainingProgrammeQuery
                     {
-                        Id = request.TrainingCode
+                        Id = request.CourseCode
                     }).Result;
 
                     if (result.TrainingProgramme.ProgrammeType == ProgrammeType.Framework && apprenticeshipDetails.Cohort.TransferSenderId.HasValue)
                     {
-                        yield return new DomainError(nameof(request.TrainingCode), "Entered course is not valid.");
+                        yield return new DomainError(nameof(request.CourseCode), "Entered course is not valid.");
                     }
                 }
             }
             else
             {
-                yield return new DomainError(nameof(request.TrainingCode), "Invalid training code");
+                yield return new DomainError(nameof(request.CourseCode), "Invalid training code");
             }
             
         }
@@ -152,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.EndDate == apprenticeship.EndDate
                 && request.Cost == apprenticeship.Cost
                 && request.StartDate == apprenticeship.StartDate
-                && request.TrainingCode == apprenticeship.CourseCode
+                && request.CourseCode == apprenticeship.CourseCode
                 && request.ULN == apprenticeship.Uln)
             {
                 yield return new DomainError("NoChangesRequested", "No change made");
@@ -198,9 +198,9 @@ namespace SFA.DAS.CommitmentsV2.Services
         private async Task<IEnumerable<DomainError>> BuildReservationValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
         {
             List<DomainError> errors = new List<DomainError>();
-            if (request.StartDate.HasValue && !string.IsNullOrWhiteSpace(request.TrainingCode))
+            if (request.StartDate.HasValue && !string.IsNullOrWhiteSpace(request.CourseCode))
             {
-                var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, request.StartDate.Value, request.TrainingCode);
+                var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, request.StartDate.Value, request.CourseCode);
                 var validationResult = await _reservationValidationService.Validate(validationRequest, CancellationToken.None);
 
                 errors = validationResult.ValidationErrors.Select(error =>  new DomainError(error.PropertyName, error.Reason)).ToList();
@@ -328,11 +328,11 @@ namespace SFA.DAS.CommitmentsV2.Services
                         yield break;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(request.TrainingCode))
+                    if (!string.IsNullOrWhiteSpace(request.CourseCode))
                     {
                         var result = _mediator.Send(new GetTrainingProgrammeQuery
                         {
-                            Id = request.TrainingCode
+                            Id = request.CourseCode
                         }).Result;
 
                         var courseStartedBeforeDas = result.TrainingProgramme != null &&
@@ -341,7 +341,6 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                         var trainingProgrammeStatus = GetStatusOn(request.StartDate.Value, result);
 
-                        //TODO: why are we doing this.
                         if ((request.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
                         {
                             yield return new DomainError(nameof(request.StartDate), "The start date must not be earlier than May 2017");

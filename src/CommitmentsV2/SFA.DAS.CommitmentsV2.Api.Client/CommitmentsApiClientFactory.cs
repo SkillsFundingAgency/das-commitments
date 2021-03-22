@@ -10,13 +10,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
     {
         private readonly CommitmentsClientApiConfiguration _configuration;
         private readonly ILoggerFactory _loggerFactory;
-        DAS.Http.Configuration.IManagedIdentityClientConfiguration _config;
 
-        public CommitmentsApiClientFactory(CommitmentsClientApiConfiguration configuration, ILoggerFactory loggerFactory, DAS.Http.Configuration.IManagedIdentityClientConfiguration config)
+        public CommitmentsApiClientFactory(CommitmentsClientApiConfiguration configuration, ILoggerFactory loggerFactory)
         {
             _configuration = configuration;
             _loggerFactory = loggerFactory;
-            _config = config;
         }
         
         public ICommitmentsApiClient CreateClient()
@@ -30,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                .WithBearerAuthorisationHeader(new DAS.Http.TokenGenerators.GenericJwtBearerTokenGenerator(new JwtConfig()))
                .Build();
 
-                httpClient.BaseAddress = new Uri(_config.ApiBaseUrl);
+                httpClient.BaseAddress = new Uri(_configuration.ApiBaseUrl);
 
                 var restHttpClient = new CommitmentsRestHttpClient(httpClient, _loggerFactory);
                 return new CommitmentsApiClient(restHttpClient);
