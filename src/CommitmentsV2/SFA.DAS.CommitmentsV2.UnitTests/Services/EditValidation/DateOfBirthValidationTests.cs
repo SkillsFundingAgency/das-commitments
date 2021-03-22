@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenitceshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenitceship();
-            // The default course start date for these test is 1st Jan 2020 
+           
             var request = fixture.CreateValidationRequest(dobYear: 2006, dobMonth: 12, dobDay: 31);
 
             var result = await fixture.Validate(request);
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenitceshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenitceship();
-            // The default course start date for these test is 1st Jan 2020 
+           
             var request = fixture.CreateValidationRequest(dobYear: 1904, dobMonth: 12, dobDay: 31);
 
             var result = await fixture.Validate(request);
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenitceshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenitceship();
-            // The default course start date for these test is 1st Jan 2020 
+          
             var request = fixture.CreateValidationRequest();
             request.DateOfBirth = null;
 
@@ -65,21 +65,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Assert.AreEqual(result.Errors[0].ErrorMessage, "The Date of birth is not valid");
             Assert.AreEqual(result.Errors[0].PropertyName, "DateOfBirth");
         }
-
-        //TODO: Remove this test.
-        //[Test]
-        //public async Task DateOfBirth__Should_Be_Valid()
-        //{
-        //    var fixture = new EditApprenitceshipValidationServiceTestsFixture();
-        //    fixture.CreateMockContextApprenitceship();
-        //    // The default course start date for these test is 1st Jan 2020 
-        //    var request = fixture.CreateValidationRequest(dobMonth : 2, dobDay: 30);
-
-        //    var result = await fixture.Validate(request);
-
-        //    Assert.AreEqual(result.Errors.Count, 1);
-        //    Assert.AreEqual(result.Errors[0].ErrorMessage, "The Date of birth is not valid");
-        //    Assert.AreEqual(result.Errors[0].PropertyName, "DateOfBirth");
-        //}
     }
 }

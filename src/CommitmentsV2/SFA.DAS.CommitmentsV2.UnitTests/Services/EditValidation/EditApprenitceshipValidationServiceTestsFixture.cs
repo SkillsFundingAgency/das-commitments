@@ -77,30 +77,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        //public EditApprenitceshipValidationServiceTestsFixture SetupMockAcademicYearDateProvider(DateTime currentAcademicYearStartDate)
-        //{
-        //    _academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(currentAcademicYearStartDate);
-        //    _academicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(currentAcademicYearStartDate.AddYears(1).AddDays(-1));
-        //    _academicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod).Returns(new DateTime(currentAcademicYearStartDate.Year, 10, 19, 18, 0, 0, DateTimeKind.Utc));
-
-        //    return this;
-        //}
-
-        public EditApprenitceshipValidationServiceTestsFixture SetUpMediatorForTrainingCourse(DateTime effectiveFrom, int activeForInYears = 5, ProgrammeType programmeType = ProgrammeType.Standard)
-        {
-            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), CancellationToken.None))
-                .Returns(Task.FromResult(new GetTrainingProgrammeQueryResult() {
-                TrainingProgramme = new Types.TrainingProgramme
-                {
-                    EffectiveFrom = effectiveFrom,
-                    EffectiveTo = effectiveFrom.AddYears(activeForInYears),
-                    ProgrammeType = programmeType
-                }
-            }));
-
-            return this;
-        }
-
         internal EditApprenitceshipValidationServiceTestsFixture CourseIsEffectiveFromDate(DateTime effectiveFrom, int activeForInYears = 5, ProgrammeType programmeType = ProgrammeType.Standard)
         {
             _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), CancellationToken.None))
@@ -121,13 +97,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             return _apprenticeship.StartDate.Value;
         }
-
-        public EditApprenitceshipValidationServiceTestsFixture SetupCurrentDateTime(DateTime currentDateTime)
-        {
-            _currentDateTime.Setup(x => x.UtcNow).Returns(currentDateTime);
-            return this;
-        }
-
+  
         public EditApprenitceshipValidationServiceTestsFixture SetupOverlapService(bool startDateOverlaps, bool endDateOverlaps)
         {
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
@@ -143,12 +113,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
         private EditApprenitceshipValidationServiceTestsFixture WithInFundingPeriod()
         {
-            // Make the start date later than CurrentAcademicYearStartDate
             _academicYearDateProvider.Setup(t => t.CurrentAcademicYearStartDate).Returns(_apprenticeship.StartDate.Value.AddMonths(-1));
 
             _academicYearDateProvider.Setup(t => t.CurrentAcademicYearEndDate).Returns(_apprenticeship.StartDate.Value.AddYears(1));
 
-            // Make the DateTime Now earlier than LastAcademicYearFundingPeriod
             _academicYearDateProvider.Setup(t => t.LastAcademicYearFundingPeriod).Returns(_currentDateTime.Object.UtcNow.AddMonths(2));
 
             return this;
