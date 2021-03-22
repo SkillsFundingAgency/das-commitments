@@ -16,10 +16,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "Enter the total agreed training cost");
-            Assert.AreEqual(result.Errors[0].PropertyName, "Cost");
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("Enter the total agreed training cost", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("Cost", result.Errors[0].PropertyName);
         }
 
         [Test]
@@ -31,10 +30,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "Enter the total agreed training cost");
-            Assert.AreEqual(result.Errors[0].PropertyName, "Cost");
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("Enter the total agreed training cost", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("Cost", result.Errors[0].PropertyName);
         }
 
         [Test]
@@ -46,10 +44,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "The total cost must be £100,000 or less");
-            Assert.AreEqual(result.Errors[0].PropertyName, "Cost");
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("The total cost must be £100,000 or less", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("Cost", result.Errors[0].PropertyName);
         }
     }
 }

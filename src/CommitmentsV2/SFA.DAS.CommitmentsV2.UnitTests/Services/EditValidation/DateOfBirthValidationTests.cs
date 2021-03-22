@@ -14,9 +14,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(result.Errors.Count, 1);
+            Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "The Date of birth is not valid");
-            Assert.AreEqual(result.Errors[0].PropertyName, "DateOfBirth");
+            Assert.AreEqual("DateOfBirth", result.Errors[0].PropertyName);
         }
 
         [Test]
@@ -29,9 +29,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(result.Errors.Count, 1);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "The apprentice must be at least 15 years old at the start of their training");
-            Assert.AreEqual(result.Errors[0].PropertyName, "DateOfBirth");
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("The apprentice must be at least 15 years old at the start of their training", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("DateOfBirth", result.Errors[0].PropertyName);
         }
 
         [Test]
@@ -44,9 +44,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(result.Errors.Count, 1);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "The apprentice must be younger than 115 years old at the start of their training");
-            Assert.AreEqual(result.Errors[0].PropertyName, "DateOfBirth");
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("The apprentice must be younger than 115 years old at the start of their training", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("DateOfBirth", result.Errors[0].PropertyName);
         }
 
         [Test]
@@ -60,10 +60,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-
-            Assert.AreEqual(result.Errors.Count, 1);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "The Date of birth is not valid");
-            Assert.AreEqual(result.Errors[0].PropertyName, "DateOfBirth");
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("The Date of birth is not valid", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("DateOfBirth", result.Errors[0].PropertyName);
         }
     }
 }

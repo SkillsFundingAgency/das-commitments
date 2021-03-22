@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
+           Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "Employer cannot modify ULN");
             Assert.AreEqual(result.Errors[0].PropertyName, "ULN");
         }

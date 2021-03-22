@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
+           Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "The date overlaps with existing training dates for the same apprentice. Please check the date - contact your training provider for help");
             Assert.AreEqual(result.Errors[0].PropertyName, "StartDate");
         }
@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
+           Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "The date overlaps with existing training dates for the same apprentice. Please check the date - contact your training provider for help");
             Assert.AreEqual(result.Errors[0].PropertyName, "EndDate");
         }

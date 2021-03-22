@@ -15,8 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
+            Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "The end date is not valid");
             Assert.AreEqual(result.Errors[0].PropertyName, "EndDate");
         }
@@ -31,9 +30,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
+            Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "The end date must not be earlier than May 2017");
-            Assert.AreEqual(result.Errors[0].PropertyName, "EndDate");
+             Assert.AreEqual(result.Errors[0].PropertyName, "EndDate");
         }
 
         [Test]
@@ -47,9 +46,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
+            Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "The end date must not be on or before the start date");
-            Assert.AreEqual(result.Errors[0].PropertyName, "EndDate");
+             Assert.AreEqual(result.Errors[0].PropertyName, "EndDate");
         }
     }
 }

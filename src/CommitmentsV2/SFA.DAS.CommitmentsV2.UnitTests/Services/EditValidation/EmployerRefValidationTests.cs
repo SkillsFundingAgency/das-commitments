@@ -14,10 +14,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "The Reference must be 20 characters or fewer");
-            Assert.AreEqual(result.Errors[0].PropertyName, "EmployerReference");
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("The Reference must be 20 characters or fewer", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("EmployerReference", result.Errors[0].PropertyName);
         }
     }
 }

@@ -22,21 +22,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEd
         {
             var request = await _modelMapper.Map<Domain.Entities.EditApprenticeshipValidation.EditApprenticeshipValidationRequest>(command);
             var response = await _editValidationService.Validate(request, CancellationToken.None);
-            //var response = await _editValidationService.Validate(new Domain.Entities.EditApprenticeshipValidation.EditApprenticeshipValidationRequest
-            //{
-            //    ProviderId = request.ProviderId,
-            //    EmployerAccountId = request.EmployerAccountId,
-            //    ApprenticeshipId = request.ApprenticeshipId,
-            //    FirstName = request.FirstName,
-            //    LastName = request.LastName,
-            //    DateOfBirth = request.DateOfBirth,
-            //    ULN = request.ULN,
-            //    Cost = request.Cost,
-            //    EmployerReference = request.EmployerReference,
-            //    StartDate = request.StartDate,
-            //    EndDate = request.EndDate,
-            //    TrainingCode = request.TrainingCode
-            //}, CancellationToken.None);
 
             response.Errors.ThrowIfAny();
         }

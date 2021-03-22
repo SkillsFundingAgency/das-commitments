@@ -178,21 +178,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             var command = await _modelMapper.Map<ValidateApprenticeshipForEditCommand>(request);
             var response = await _mediator.Send(command);
-            //var response = await _mediator.Send(new ValidateApprenticeshipForEditCommand
-            //{
-            //    ProviderId = request.ProviderId,
-            //    EmployerAccountId = request.EmployerAccountId,
-            //    ApprenticeshipId = request.ApprenticeshipId,
-            //    FirstName = request.FirstName,
-            //    LastName = request.LastName,
-            //    DateOfBirth = request.DateOfBirth,
-            //    ULN = request.ULN,
-            //    Cost = request.Cost,
-            //    EmployerReference = request.EmployerReference,
-            //    StartDate = request.StartDate,
-            //    EndDate = request.EndDate,
-            //    TrainingCode = request.TrainingCode
-            //});
 
             if (response == null)
             {

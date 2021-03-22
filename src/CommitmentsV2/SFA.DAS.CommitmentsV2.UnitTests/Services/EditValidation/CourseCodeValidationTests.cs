@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Assert.NotNull(result.Errors);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual("Invalid training code", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("TrainingCode", result.Errors[0].PropertyName);
+            Assert.AreEqual("CourseCode", result.Errors[0].PropertyName);
         }
     }
 }

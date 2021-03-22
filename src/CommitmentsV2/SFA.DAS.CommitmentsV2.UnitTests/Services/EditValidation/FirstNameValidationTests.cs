@@ -15,8 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(result.Errors.Count, 1);
+           Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "First name must be entered");
             Assert.AreEqual(result.Errors[0].PropertyName, "FirstName");
         }
@@ -37,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             }
             else
             {
-                Assert.AreEqual(result.Errors.Count, 1);
+               Assert.AreEqual(1, result.Errors.Count);
                 Assert.AreEqual(result.Errors[0].ErrorMessage, "You must enter a first name that's no longer than 100 characters");
                 Assert.AreEqual(result.Errors[0].PropertyName, "FirstName");
             }
