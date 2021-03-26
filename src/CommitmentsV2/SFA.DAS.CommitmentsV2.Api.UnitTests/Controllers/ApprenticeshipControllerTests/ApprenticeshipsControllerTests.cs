@@ -18,6 +18,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 using GetApprenticeshipsRequest = SFA.DAS.CommitmentsV2.Api.Types.Requests.GetApprenticeshipsRequest;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -246,6 +247,40 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             _mediator.Verify(p => p.Send(It.Is<ResumeApprenticeshipCommand>(c =>
                     c.ApprenticeshipId == request.ApprenticeshipId && c.UserInfo == request.UserInfo),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task PutApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request)
+        {
+            //Act
+            await _controller.PutApprenticeshipStopDate(apprenticeshipId, request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<UpdateApprenticeshipStopDateCommand>(c =>
+                    c.AccountId == request.AccountId &&
+                    c.ApprenticeshipId == apprenticeshipId &&                    
+                    c.StopDate == request.NewStopDate &&
+                    c.UserInfo == request.UserInfo),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task WhenPostingPutApprenticeshipStopDate_ThenUpdateApprenticeshipStopDateCommandIsSent(long apprenticeshipId, ApprenticeshipStopDateRequest request)
+        {
+            //Arrange
+            _mediator.Setup(p => p.Send(It.IsAny<UpdateApprenticeshipStopDateCommand>(), It.IsAny<CancellationToken>()));
+
+            //Act
+            await _controller.PutApprenticeshipStopDate(apprenticeshipId, request);
+
+            //Assert
+            _mediator.Verify(p => p.Send(It.Is<UpdateApprenticeshipStopDateCommand>(c =>
+                    c.AccountId == request.AccountId &&
+                    c.ApprenticeshipId == apprenticeshipId &&
+                    c.StopDate == request.NewStopDate &&
+                    c.UserInfo == request.UserInfo),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
     }
