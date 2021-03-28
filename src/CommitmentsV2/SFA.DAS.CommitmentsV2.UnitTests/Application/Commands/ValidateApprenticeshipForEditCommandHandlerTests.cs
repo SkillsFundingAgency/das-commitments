@@ -24,22 +24,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.Verify_EditApprenticeshipValidationService_IsCalled_Once();
         }
 
-        [Test, MoqAutoData]
-        public async Task ModelMapperIsCalled()
-        {
-            //Act
-            var fixture = new ValidateApprenticeshipForEditCommandHandlerTestsFixture();
-            await fixture.Handle();
-
-            fixture.Verify_ModelMapper_IsCalled_Once();
-        }
-
         public class ValidateApprenticeshipForEditCommandHandlerTestsFixture
         {
             Mock<IEditApprenticeshipValidationService> _editValidationService;
             Mock<IModelMapper> _modelMapper;
             ValidateApprenticeshipForEditCommand _command;
-            public IRequestHandler<ValidateApprenticeshipForEditCommand> Handler { get; set; }
+            public IRequestHandler<ValidateApprenticeshipForEditCommand, EditApprenticeshipValidationResult> Handler { get; set; }
 
             public ValidateApprenticeshipForEditCommandHandlerTestsFixture()
             {
@@ -49,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _command = fixture.Create<ValidateApprenticeshipForEditCommand>();
 
                 _editValidationService.Setup(x => x.Validate(It.IsAny<EditApprenticeshipValidationRequest>(), CancellationToken.None)).Returns(Task.FromResult(new EditApprenticeshipValidationResult()));
-                Handler = new ValidateApprenticeshipForEditCommandHandler(_editValidationService.Object, _modelMapper.Object);
+                Handler = new ValidateApprenticeshipForEditCommandHandler(_editValidationService.Object);
             }
 
             public async Task<ValidateApprenticeshipForEditCommandHandlerTestsFixture> Handle()
@@ -61,11 +51,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             public void Verify_EditApprenticeshipValidationService_IsCalled_Once()
             {
                 _editValidationService.Verify(x => x.Validate(It.IsAny<EditApprenticeshipValidationRequest>(), CancellationToken.None), Times.Once);
-            }
-
-            public void Verify_ModelMapper_IsCalled_Once()
-            {
-                _modelMapper.Verify(x => x.Map<EditApprenticeshipValidationRequest>(_command), Times.Once);
             }
         }
     }

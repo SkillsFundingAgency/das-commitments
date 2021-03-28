@@ -9,8 +9,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         [Test]
         public async Task CourseCode_Is_Mandatory()
         {
-            var fixture = new EditApprenitceshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenitceship();
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship();
             var request = fixture.CreateValidationRequest();
             request.CourseCode = string.Empty;
 

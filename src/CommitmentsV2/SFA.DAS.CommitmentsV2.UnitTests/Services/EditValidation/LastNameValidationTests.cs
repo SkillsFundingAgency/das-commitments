@@ -8,25 +8,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         [Test]
         public async Task LastName_Should_Not_Be_Empty()
         {
-            var fixture = new EditApprenitceshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenitceship();
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship();
             var request = fixture.CreateValidationRequest();
             request.LastName = string.Empty;
 
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-           Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "Last name must be entered");
-            Assert.AreEqual(result.Errors[0].PropertyName, "LastName");
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("Last name must be entered", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("LastName", result.Errors[0].PropertyName);
         }
 
-        [TestCase("01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567891",false)]
+        [TestCase("01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567891", false)]
         [TestCase("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789", true)]
         public async Task LastName_Length_Should_Be_No_Longer_Than_100_Characters(string LastName, bool isValid)
         {
-            var fixture = new EditApprenitceshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenitceship();
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship();
             var request = fixture.CreateValidationRequest(lastName: LastName);
 
             var result = await fixture.Validate(request);
@@ -37,9 +37,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             }
             else
             {
-               Assert.AreEqual(1, result.Errors.Count);
-                Assert.AreEqual(result.Errors[0].ErrorMessage, "You must enter a last name that's no longer than 100 characters");
-                Assert.AreEqual(result.Errors[0].PropertyName, "LastName");
+                Assert.AreEqual(1, result.Errors.Count);
+                Assert.AreEqual("You must enter a last name that's no longer than 100 characters", result.Errors[0].ErrorMessage);
+                Assert.AreEqual("LastName", result.Errors[0].PropertyName);
             }
         }
     }

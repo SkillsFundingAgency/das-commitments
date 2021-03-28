@@ -22,7 +22,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
-    public class ApprenticeshipsControllerTests
+    public class ApprenticeshipControllerTests
     {
         private Mock<IMediator> _mediator;
         private Mock<ILogger<ApprenticeshipController>> _logger;

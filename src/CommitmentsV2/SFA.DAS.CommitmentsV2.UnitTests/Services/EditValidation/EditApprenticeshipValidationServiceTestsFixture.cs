@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
-    public class EditApprenitceshipValidationServiceTestsFixture
+    public class EditApprenticeshipValidationServiceTestsFixture
     {
         private EditApprenitceshipValidationService _sut;
         private Mock<IProviderCommitmentsDbContext> _dbContext;
@@ -27,6 +27,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         private Mock<IAcademicYearDateProvider> _academicYearDateProvider;
         private Mock<ICurrentDateTime> _currentDateTime;
 
+        public DateTime? StartDate { get
+            {
+                return _apprenticeship.StartDate;
+            }
+        }
+
         internal DateTime GetEndOfCurrentTeachingYear()
         {
             return _academicYearDateProvider.Object.CurrentAcademicYearEndDate;
@@ -34,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
         private Apprenticeship _apprenticeship;
 
-        public EditApprenitceshipValidationServiceTestsFixture()
+        public EditApprenticeshipValidationServiceTestsFixture()
         {
             _dbContext = new Mock<IProviderCommitmentsDbContext>();
             _mediator = new Mock<IMediator>();
@@ -68,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             _academicYearDateProvider.Setup(t => t.LastAcademicYearFundingPeriod).Returns(_currentDateTime.Object.UtcNow.AddMonths(-1));
         }
 
-        public EditApprenitceshipValidationServiceTestsFixture SetupReservationValidationService()
+        public EditApprenticeshipValidationServiceTestsFixture SetupReservationValidationService()
         {
             _reservationValidationService.Setup(x => x.Validate(It.IsAny<ReservationValidationRequest>(), CancellationToken.None))
                 .Returns(Task.FromResult(new ReservationValidationResult(new ReservationValidationError[1] { 
@@ -77,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        internal EditApprenitceshipValidationServiceTestsFixture CourseIsEffectiveFromDate(DateTime effectiveFrom, int activeForInYears = 5, ProgrammeType programmeType = ProgrammeType.Standard)
+        internal EditApprenticeshipValidationServiceTestsFixture CourseIsEffectiveFromDate(DateTime effectiveFrom, int activeForInYears = 5, ProgrammeType programmeType = ProgrammeType.Standard)
         {
             _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), CancellationToken.None))
                 .Returns(Task.FromResult(new GetTrainingProgrammeQueryResult()
@@ -98,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return _apprenticeship.StartDate.Value;
         }
   
-        public EditApprenitceshipValidationServiceTestsFixture SetupOverlapService(bool startDateOverlaps, bool endDateOverlaps)
+        public EditApprenticeshipValidationServiceTestsFixture SetupOverlapService(bool startDateOverlaps, bool endDateOverlaps)
         {
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
               .Returns(Task.FromResult(new OverlapCheckResult(startDateOverlaps, endDateOverlaps)));
@@ -111,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             _apprenticeship.EndDate = _currentDateTime.Object.UtcNow.AddYears(1);
         }
 
-        private EditApprenitceshipValidationServiceTestsFixture WithInFundingPeriod()
+        private EditApprenticeshipValidationServiceTestsFixture WithInFundingPeriod()
         {
             _academicYearDateProvider.Setup(t => t.CurrentAcademicYearStartDate).Returns(_apprenticeship.StartDate.Value.AddMonths(-1));
 
@@ -122,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        public EditApprenitceshipValidationServiceTestsFixture SetupMockContextApprenitceship(
+        public EditApprenticeshipValidationServiceTestsFixture SetupMockContextApprenticeship(
             long id = 100,
             long commitmentId = 200,
             string firstName = "FirstName",
@@ -151,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        private EditApprenitceshipValidationServiceTestsFixture CreateMockApprenticeshipContext()
+        private EditApprenticeshipValidationServiceTestsFixture CreateMockApprenticeshipContext()
         {
             List<Apprenticeship> apprenticeships = new List<Apprenticeship>()
             {
@@ -163,7 +169,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        public EditApprenitceshipValidationServiceTestsFixture CreateApprenticeship(long id = 100,
+        public EditApprenticeshipValidationServiceTestsFixture CreateApprenticeship(long id = 100,
             long commitmentId = 200,
             string firstName = "FirstName",
             string lastName = "lastName",

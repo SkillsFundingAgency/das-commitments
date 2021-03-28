@@ -8,8 +8,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         [Test]
         public async Task Cost_Should_Not_Be_Empty()
         {
-            var fixture = new EditApprenitceshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenitceship();
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship();
 
             var request = fixture.CreateValidationRequest();
             request.Cost = null;
@@ -24,8 +24,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         [Test]
         public async Task Cost_Should_Be_More_Than_zero()
         {
-            var fixture = new EditApprenitceshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenitceship();
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship();
             var request = fixture.CreateValidationRequest(cost: 0);
 
             var result = await fixture.Validate(request);
@@ -38,8 +38,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         [Test]
         public async Task Cost_Should_Not_Be_More_Than_100000()
         {
-            var fixture = new EditApprenitceshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenitceship();
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship();
             var request = fixture.CreateValidationRequest(cost: 100001);
 
             var result = await fixture.Validate(request);

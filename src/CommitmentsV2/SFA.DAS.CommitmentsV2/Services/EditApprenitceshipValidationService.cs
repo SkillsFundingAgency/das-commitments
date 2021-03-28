@@ -52,6 +52,11 @@ namespace SFA.DAS.CommitmentsV2.Services
                 .Include(y => y.Cohort)
                 .FirstOrDefault(x => x.Id == request.ApprenticeshipId);
 
+            if (apprenticeship == null)
+            {
+                return null;
+            }
+
             errors.AddRange(NoChangeValidationFailures(request, apprenticeship));
             if (errors.Count == 0)
             {
@@ -155,7 +160,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.CourseCode == apprenticeship.CourseCode
                 && request.ULN == apprenticeship.Uln)
             {
-                yield return new DomainError("NoChangesRequested", "No change made");
+                yield return new DomainError("ApprenticeshipId", "No change made");
             }
         }
 
