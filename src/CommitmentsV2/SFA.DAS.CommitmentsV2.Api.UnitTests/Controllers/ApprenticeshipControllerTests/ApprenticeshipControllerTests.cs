@@ -261,5 +261,20 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                 It.IsAny<ValidateApprenticeshipForEditCommand>(),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
+
+        [Test, MoqAutoData]
+        public async Task ValidateApprenticeshipForEditNotFound(ValidateApprenticeshipForEditRequest request)
+        {
+            _mapper.Setup(x => x.Map<ValidateApprenticeshipForEditCommand>(request)).ReturnsAsync(() =>new ValidateApprenticeshipForEditCommand());
+            _mediator.Setup(p => p.Send(It.IsAny<ValidateApprenticeshipForEditCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
+
+            //Act
+            await _controller.ValidateApprenticeshipForEdit(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.IsAny<ValidateApprenticeshipForEditCommand>(),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
     }
 }
