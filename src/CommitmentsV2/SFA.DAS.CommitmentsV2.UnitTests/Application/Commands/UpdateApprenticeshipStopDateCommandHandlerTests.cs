@@ -26,6 +26,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -38,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         private Mock<IAuthenticationService> _authenticationService;
         private Mock<IMessageSession> _nserviceBusContext;
         private Mock<IEncodingService> _encodingService;
+        private Mock<IOverlapCheckService> _overlapCheckService;
         ProviderCommitmentsDbContext _dbContext;
         ProviderCommitmentsDbContext _confirmationDbContext;
         private UnitOfWorkContext _unitOfWorkContext { get; set; }
@@ -61,6 +64,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _authenticationService = new Mock<IAuthenticationService>();
             _nserviceBusContext = new Mock<IMessageSession>();
             _encodingService = new Mock<IEncodingService>();
+            _overlapCheckService = new Mock<IOverlapCheckService>();
+            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
             _logger = new Mock<ILogger<UpdateApprenticeshipStopDateCommandHandler>>();
             _unitOfWorkContext = new UnitOfWorkContext();
 
@@ -69,7 +74,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _currentDateTime.Object,
                 _authenticationService.Object,
                  _nserviceBusContext.Object,
-                _encodingService.Object);
+                _encodingService.Object,
+                _overlapCheckService.Object);
                 
         }
 
@@ -156,7 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
 
         [Test, MoqAutoData]
-        public async Task Handle_WhenHandlingCommand_WithApprenticeshipWaitingToStart_WithStopDateNotEqualStartDate_ThenShouldThrowDomainException()
+        public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateNotEqualStartDate_ThenShouldThrowDomainException()
         {
             // Arrange
             var apprenticeship = await SetupApprenticeship(startDate: DateTime.UtcNow.AddMonths(2));
@@ -168,6 +174,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // Assert
             exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = $"Invalid Date of Change. Date cannot be before the training start date." });
+        }    
+
+        [Test]
+        public async Task Handle_WhenHandlingCommand_WithValidateEndDateOverlap_ThenShouldThrowDomainException()
+        {
+            // Arrange
+            var apprenticeship = await SetupApprenticeship();
+            apprenticeship.Uln = "X";
+            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, new UserInfo());
+            _overlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(() => new OverlapCheckResult(false, true));
+
+            // Act
+            var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
+
+            // Assert
+            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "StopDate", ErrorMessage = $"The date overlaps with existing dates for the same apprentice." + Environment.NewLine + "Please check the date - contact the provider for help" });
         }
 
         [Test, MoqAutoData]

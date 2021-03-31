@@ -5,9 +5,12 @@ using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using System;
@@ -25,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
         private readonly IAuthenticationService _authenticationService;
         private readonly IMessageSession _nserviceBusContext;
         private readonly IEncodingService _encodingService;
+        private readonly IOverlapCheckService _overlapCheckService;
         private const string StopEditNotificationEmailTemplate = "ProviderApprenticeshipStopEditNotification";
 
         public UpdateApprenticeshipStopDateCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
@@ -32,7 +36,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             ICurrentDateTime currentDate,
             IAuthenticationService authenticationService,
             IMessageSession nserviceBusContext,
-            IEncodingService encodingService)
+            IEncodingService encodingService,
+            IOverlapCheckService overlapCheckService)
         {
             _dbContext = dbContext;
             _logger = logger;            
@@ -40,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             _authenticationService = authenticationService;
             _nserviceBusContext = nserviceBusContext;
             _encodingService = encodingService;
+            _overlapCheckService = overlapCheckService;
         }
 
         
@@ -55,6 +61,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             CheckAuthorization(command, apprenticeship);
 
             ValidateChangeDateForStop(command.StopDate, apprenticeship);
+
+            await ValidateEndDateOverlap(command, apprenticeship, cancellationToken); //details.StartDate.Value.To(details.EndDate.Value)
 
             apprenticeship.ApprenticeshipStopDate(command, _currentDate, party);
 
@@ -82,6 +90,28 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
 
             if (newStopDate.Date < apprenticeship.StartDate.Value.Date)
                 throw new DomainException(nameof(newStopDate), "Invalid Date of Change. Date cannot be before the training start date.");
+        }
+
+        public async Task ValidateEndDateOverlap(UpdateApprenticeshipStopDateCommand command, Apprenticeship apprenticeship, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(apprenticeship.Uln) || !apprenticeship.StartDate.HasValue) return;
+
+            var overlapResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate), apprenticeship.Id, cancellationToken);
+
+            if (!overlapResult.HasOverlaps) return;
+
+            var errorMessage = "The date overlaps with existing dates for the same apprentice."
+                              + Environment.NewLine +
+                              "Please check the date - contact the " + (_authenticationService.GetUserParty() == Party.Employer ? "provider" : "employer") + " for help";
+
+            var errors = new List<DomainError>();        
+
+            if (overlapResult.HasOverlappingEndDate)
+            {
+                errors.Add(new DomainError(nameof(command.StopDate), errorMessage));
+            }
+
+            throw new DomainException(errors);
         }
 
         private void CheckPartyIsValid(Party party)
