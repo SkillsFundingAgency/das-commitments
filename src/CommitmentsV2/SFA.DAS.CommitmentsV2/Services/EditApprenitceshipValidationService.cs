@@ -18,6 +18,7 @@ using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Types;
 using Microsoft.EntityFrameworkCore;
+using SFA.DAS.CommitmentsV2.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -50,6 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var errors = new List<DomainError>();
             var apprenticeship = _context.Apprenticeships
                 .Include(y => y.Cohort)
+                .Include(y => y.PriceHistory)
                 .FirstOrDefault(x => x.Id == request.ApprenticeshipId);
 
             if (apprenticeship == null)
@@ -117,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (IsLockedForUpdate(apprenticeship))
             {
-                if (request.Cost != apprenticeship.Cost)
+                if (request.Cost != apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow))
                 {
                     throw new InvalidOperationException("Invalid operation - Cost can't change for the current state of the object.");
                 }
@@ -155,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                       && request.DateOfBirth == apprenticeship.DateOfBirth
                 && request.EmployerReference == apprenticeship.EmployerRef
                 && request.EndDate == apprenticeship.EndDate
-                && request.Cost == apprenticeship.Cost
+                && request.Cost == apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow)
                 && request.StartDate == apprenticeship.StartDate
                 && request.CourseCode == apprenticeship.CourseCode
                 && request.ULN == apprenticeship.Uln)
@@ -237,7 +239,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (request.Cost.HasValue)
             {
-                if (request.Cost != apprenticeshipDetails.Cost)
+                if (request.Cost != apprenticeshipDetails.PriceHistory.GetPrice(_currentDateTime.UtcNow))
                 {
                     if (request.Cost <= 0)
                     {

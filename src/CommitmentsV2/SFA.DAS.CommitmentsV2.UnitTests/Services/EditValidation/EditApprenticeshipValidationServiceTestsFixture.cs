@@ -153,8 +153,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             WithInFundingPeriod();
 
+            WithPriceHistoryWithStartDate(cost);
+
             CreateMockApprenticeshipContext();
             return this;
+        }
+
+        private void WithPriceHistoryWithStartDate(decimal cost)
+        {
+            _apprenticeship.PriceHistory = new List<PriceHistory>
+            {
+                new PriceHistory
+                {
+                    FromDate = _apprenticeship.StartDate.Value.AddMonths(-1),
+                    ToDate = null,
+                    Cost = cost
+                }
+            };
         }
 
         private EditApprenticeshipValidationServiceTestsFixture CreateMockApprenticeshipContext()
