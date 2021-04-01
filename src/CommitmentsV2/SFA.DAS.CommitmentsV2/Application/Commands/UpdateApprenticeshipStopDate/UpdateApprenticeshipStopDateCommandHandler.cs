@@ -10,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using System;
@@ -51,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
         
         protected override async Task Handle(UpdateApprenticeshipStopDateCommand command, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Employer: {command.AccountId} has called StopApprenticeshipCommand ApprenticeshipId : {command.ApprenticeshipId} ");
+            _logger.LogInformation($"Employer: {command.AccountId} has called UpdateApprenticeshipStopDateCommand ApprenticeshipId : {command.ApprenticeshipId} ");
 
             var party = _authenticationService.GetUserParty();
             CheckPartyIsValid(party);           
@@ -62,13 +61,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
 
             ValidateChangeDateForStop(command.StopDate, apprenticeship);
 
-            await ValidateEndDateOverlap(command, apprenticeship, cancellationToken); //details.StartDate.Value.To(details.EndDate.Value)
+            await ValidateEndDateOverlap(command, apprenticeship, cancellationToken); 
 
             apprenticeship.ApprenticeshipStopDate(command, _currentDate, party);
 
+            _logger.LogInformation($"Update apprenticeship stop date. Apprenticeship-Id:{command.ApprenticeshipId}");
+
+            _logger.LogInformation($"Sending email to Provider {apprenticeship.Cohort.ProviderId}, template {StopEditNotificationEmailTemplate}");
+
             await NotifyProvider(apprenticeship, command.StopDate);
-        }
-    
+        }    
 
         private static void CheckAuthorization(UpdateApprenticeshipStopDateCommand message, Apprenticeship apprenticeship)
         {

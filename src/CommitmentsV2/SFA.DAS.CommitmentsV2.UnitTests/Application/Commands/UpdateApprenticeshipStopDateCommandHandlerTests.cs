@@ -128,13 +128,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        [InlineAutoData(PaymentStatus.Completed)]
-        //[InlineAutoData(PaymentStatus.Withdrawn)]
-        public async Task Handle_WhenHandlingCommand_WithInvalidApprenticeshipForStop_PaymentStatusCompleted_ThenShouldThrowDomainException(PaymentStatus paymentStatus)
+        public async Task Handle_WhenHandlingCommand_WithInvalidApprenticeshipForStop_PaymentStatusCompleted_ThenShouldThrowDomainException()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship(paymentStatus: paymentStatus);
-
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Completed);
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, new UserInfo());
 
             // Act
@@ -144,13 +141,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = "Apprenticeship must be stopped in order to update stop date" });
         }
 
-        [Test, MoqAutoData]
+        [Test]
         public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateInFuture_ThenShouldThrowDomainException()
         {
             // Arrange
             var stopDate = DateTime.UtcNow.AddMonths(1);
-            var apprenticeship = await SetupApprenticeship();
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);            
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, new UserInfo());
 
             // Act
@@ -161,12 +157,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
 
-        [Test, MoqAutoData]
+        [Test]
         public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateNotEqualStartDate_ThenShouldThrowDomainException()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship(startDate: DateTime.UtcNow.AddMonths(2));
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn, startDate: DateTime.UtcNow.AddMonths(2));            
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, new UserInfo());
 
             // Act
@@ -180,9 +175,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenHandlingCommand_WithValidateEndDateOverlap_ThenShouldThrowDomainException()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship();
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             apprenticeship.Uln = "X";
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, new UserInfo());
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(() => new OverlapCheckResult(false, true));
@@ -194,12 +188,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "StopDate", ErrorMessage = $"The date overlaps with existing dates for the same apprentice." + Environment.NewLine + "Please check the date - contact the provider for help" });
         }
 
-        [Test, MoqAutoData]
+        [Test]
         public async Task Handle_WhenHandlingCommand_UpdateApprenticeshipStopDate_ThenShouldUpdateDatabaseRecord()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship();
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var newStopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, newStopDate,  new UserInfo());
@@ -215,12 +208,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             apprenticeshipAssertion.PaymentStatus.Should().NotBe(PaymentStatus.Completed);
         }
 
-        [Test, MoqAutoData]
+        [Test]
         public async Task Handle_WhenHandlingCommand_UpdateApprenticeshipStopDate_ThenShouldPublishApprenticeshipStoppedEvent()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship();
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, new UserInfo());
@@ -239,12 +231,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             });
         }
 
-        [Test, MoqAutoData]
+        [Test]
         public async Task Handle_WhenHandlingCommand_UpdateApprenticeshipStopDate_ThenShouldResolveDataLocks()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship();
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, new UserInfo());
@@ -260,12 +251,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             dataLockAssertion.Where(s => s.IsResolved).Should().HaveCount(2);
         }
 
-        [Test, MoqAutoData]
+        [Test]
         public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_CreatesAddHistoyEvent()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship();
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate,  new UserInfo());
@@ -290,8 +280,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenHandlingCommand_UpdateApprenticeshipStopDate_ThenShouldSendProviderEmail(string hashedAppId)
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship();
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;            
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var fixture = new Fixture();
             apprenticeship.Cohort.ProviderId = fixture.Create<long>();
             _encodingService.Setup(a => a.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)).Returns(hashedAppId);
