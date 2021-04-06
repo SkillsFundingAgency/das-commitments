@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,6 +9,7 @@ using Polly;
 using Polly.Retry;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Extensions;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.PAS.Account.Api.Client;
 using SFA.DAS.PAS.Account.Api.Types;
@@ -20,6 +22,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
         private readonly ILog _logger;
         private readonly IPasAccountApiClient _providerAccountClient;
         private readonly Policy _retryPolicy;
+
+        // set at 50 to limit the number of concurrent api calls to stay below the S0 azure database user limit
+        private const int MaxConcurrentThreads = 50;
 
         public ProviderAlertSummaryEmailService(
             IApprenticeshipRepository apprenticeshipRepository,
@@ -51,8 +56,21 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
             var stopwatch = Stopwatch.StartNew();
             _logger.Debug($"About to send emails to {distinctProviderIds.Count} providers, JobId: {jobId}");
 
-            await Task.WhenAll(distinctProviderIds.Select(x =>
-                _retryPolicy.ExecuteAndCaptureAsync(() => SendEmails(x, alertSummaries))));
+            var taskQueue = new ConcurrentQueue<Task>(distinctProviderIds
+                .Select(x => _retryPolicy.ExecuteAndCaptureAsync(() => SendEmails(x, alertSummaries))));
+            
+            var taskRunners = new List<Task>();
+            for (int n = 0; n < Math.Min(distinctProviderIds.Count, MaxConcurrentThreads); n++)
+            {
+                taskRunners.Add(Task.Run(async () => {
+                    while (taskQueue.TryDequeue(out Task sendEmailsTask))
+                    {
+                        await sendEmailsTask;
+                    }
+                }));
+            }
+
+            await Task.WhenAll(taskRunners);
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {distinctProviderIds.Count} emails, JobId; {jobId}",
                 new Dictionary<string, object>
