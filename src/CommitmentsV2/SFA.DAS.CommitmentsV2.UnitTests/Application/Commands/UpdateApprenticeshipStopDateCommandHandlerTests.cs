@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task Handle_WhenHandlingCommand_WithInvalidData_ThenShouldThrowException()
+        public async Task Handle_WhenHandlingCommand_WithInvalidData_ThenValidateErrorMessage()
         {
             // Arrange
             var command = new UpdateApprenticeshipStopDateCommand(0, 0, DateTime.MinValue, new UserInfo());
@@ -153,12 +153,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = $"Invalid Date of Change. Date cannot be in the future." });
+            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = "Invalid Date of Change. Date cannot be in the future." });
         }
 
 
         [Test]
-        public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateNotEqualStartDate_ThenShouldThrowDomainException()
+        public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateBeforeStartDate_ThenShouldThrowDomainException()
         {
             // Arrange
             var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn, startDate: DateTime.UtcNow.AddMonths(2));            
@@ -168,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = $"Invalid Date of Change. Date cannot be before the training start date." });
+            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = "Invalid Date of Change. Date cannot be before the training start date." });
         }    
 
         [Test]
@@ -199,13 +199,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // Act
             await _handler.Handle(command, new CancellationToken());
-            // Simulate Unit of Work contex transaction ending in http request.
+            // Simulate Unit of Work context transaction ending in http request.
             await _dbContext.SaveChangesAsync();
 
             // Assert
             var apprenticeshipAssertion = await _confirmationDbContext.Apprenticeships.FirstAsync(a => a.Id == apprenticeship.Id);
             apprenticeshipAssertion.StopDate.Should().Be(newStopDate);            
-            apprenticeshipAssertion.PaymentStatus.Should().NotBe(PaymentStatus.Completed);
+            apprenticeshipAssertion.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
         }
 
         [Test]
@@ -262,7 +262,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // Act
             await _handler.Handle(command, new CancellationToken());
-            // Simulate Unit of Work contex transaction ending in http request.
+            // Simulate Unit of Work context transaction ending in http request.
             await _dbContext.SaveChangesAsync();
 
             // Assert
