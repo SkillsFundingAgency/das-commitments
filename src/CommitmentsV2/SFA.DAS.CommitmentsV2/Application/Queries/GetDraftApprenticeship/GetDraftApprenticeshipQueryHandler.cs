@@ -38,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                         EndDate = draft.EndDate,
                         FirstName = draft.FirstName,
                         LastName = draft.LastName,
+                        Email = draft.Email,
                         Reference = requestingParty == Party.Provider ? draft.ProviderRef : draft.EmployerRef,
                         ReservationId = draft.ReservationId,
                         Uln = draft.Uln,
