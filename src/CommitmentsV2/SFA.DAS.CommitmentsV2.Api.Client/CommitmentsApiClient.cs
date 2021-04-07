@@ -374,7 +374,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task UpdateApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/stopdate", request, cancellationToken);            
+            return _client.PutAsJson($"api/apprenticeships/{apprenticeshipId}/stopdate", request, cancellationToken);            
         }
     }
 }
