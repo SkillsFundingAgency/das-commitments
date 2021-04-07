@@ -12,6 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
             {
                 FirstName = source.FirstName,
                 LastName = source.LastName,
+                Email = source.Email,
                 DateOfBirth = source.DateOfBirth,
                 Uln = source.Uln,
                 CourseCode = source.CourseCode,

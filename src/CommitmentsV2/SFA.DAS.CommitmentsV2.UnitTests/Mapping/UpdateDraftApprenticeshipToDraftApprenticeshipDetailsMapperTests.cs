@@ -37,6 +37,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
 
         [Test]
+        public Task Map_Email_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.Email, "Fred@Flintstone");
+        }
+
+        [Test]
         public Task Map_Uln_ShouldBeSet()
         {
             return AssertPropertySet(from => from.Uln, "1234567890");
