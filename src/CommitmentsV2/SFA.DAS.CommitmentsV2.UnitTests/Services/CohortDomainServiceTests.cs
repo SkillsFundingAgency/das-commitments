@@ -261,6 +261,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyUlnException(passes);
         }
 
+
+        [TestCase("", false)]
+        [TestCase("bob", false)]
+        [TestCase("bob@", false)]
+        [TestCase("bob@hope", true)]
+        [TestCase("bob@hope.com", true)]
+        [TestCase("bob@hope.com,bing@crosby.com", false)]
+        [TestCase("bob@hope.com;bing@crosby.com", false)]
+        [TestCase("bob@@hope.com;", false)]
+        public async Task CreateCohort_WithAnInvalidEmail_ThrowsBadRequestException(string email, bool passes)
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .WithEmail(email)
+                .CreateCohort();
+
+            _fixture.VerifyEmailException(passes);
+        }
+
         [TestCase(true, false)]
         [TestCase(false, true)]
         public async Task Reservation_Validation(bool hasValidationError, bool passes)
@@ -851,6 +870,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithEmail(string email)
+            {
+                DraftApprenticeshipDetails.Email = email;
+                return this;
+            }
+
             public CohortDomainServiceTestFixture WithNoUserInfo()
             {
                 UserInfo = null;
@@ -1158,6 +1183,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Uln"));
+            }
+
+            public void VerifyEmailException(bool passes)
+            {
+                if (passes)
+                {
+                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    return;
+                }
+
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email"));
             }
 
             public void VerifyReservationException(bool passes)

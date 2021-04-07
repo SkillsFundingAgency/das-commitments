@@ -52,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.ReservationId,
                 request.FirstName,
                 request.LastName,
+                request.Email,
                 request.DateOfBirth,
                 request.Uln,
                 request.TransferSenderId,
