@@ -172,9 +172,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("{apprenticeshipId}/stopdate")]
-        public async Task<IActionResult> PutApprenticeshipStopDate(long apprenticeshipId, [FromBody] ApprenticeshipStopDateRequest request)
+        public async Task<IActionResult> UpdateApprenticeshipStopDate(long apprenticeshipId, [FromBody] ApprenticeshipStopDateRequest request)
         {   
             var response = await _mediator.Send(new UpdateApprenticeshipStopDateCommand(            
                 request.AccountId,

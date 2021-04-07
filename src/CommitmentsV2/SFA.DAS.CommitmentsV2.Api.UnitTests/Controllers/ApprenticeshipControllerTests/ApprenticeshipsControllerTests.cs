@@ -251,29 +251,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test, MoqAutoData]
-        public async Task PutApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request)
-        {
-            //Act
-            await _controller.PutApprenticeshipStopDate(apprenticeshipId, request);
-
-            //Assert
-            _mediator.Verify(m => m.Send(
-                It.Is<UpdateApprenticeshipStopDateCommand>(c =>
-                    c.AccountId == request.AccountId &&
-                    c.ApprenticeshipId == apprenticeshipId &&                    
-                    c.StopDate == request.NewStopDate &&
-                    c.UserInfo == request.UserInfo),
-                It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Test, MoqAutoData]
-        public async Task WhenPostingPutApprenticeshipStopDate_ThenUpdateApprenticeshipStopDateCommandIsSent(long apprenticeshipId, ApprenticeshipStopDateRequest request)
+        public async Task WhenPostingUpdateApprenticeshipStopDate_ThenUpdateApprenticeshipStopDateCommandIsSent(long apprenticeshipId, ApprenticeshipStopDateRequest request)
         {
             //Arrange
             _mediator.Setup(p => p.Send(It.IsAny<UpdateApprenticeshipStopDateCommand>(), It.IsAny<CancellationToken>()));
 
             //Act
-            await _controller.PutApprenticeshipStopDate(apprenticeshipId, request);
+            await _controller.UpdateApprenticeshipStopDate(apprenticeshipId, request);
 
             //Assert
             _mediator.Verify(p => p.Send(It.Is<UpdateApprenticeshipStopDateCommand>(c =>

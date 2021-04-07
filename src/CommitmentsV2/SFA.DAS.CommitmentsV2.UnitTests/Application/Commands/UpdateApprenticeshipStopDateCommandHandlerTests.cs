@@ -242,7 +242,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // Act
             await _handler.Handle(command, new CancellationToken());
-            // Simulate Unit of Work contex transaction ending in http request.
+            // Simulate Unit of Work context transaction ending in http request.
             await _dbContext.SaveChangesAsync();
 
             // Assert
@@ -252,7 +252,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_CreatesAddHistoyEvent()
+        public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_CreatesAddHistoryEvent()
         {
             // Arrange
             var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
