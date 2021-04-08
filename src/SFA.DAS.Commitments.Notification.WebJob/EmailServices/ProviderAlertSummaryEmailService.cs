@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Polly;
 using Polly.Retry;
 using SFA.DAS.Commitments.Domain.Data;
@@ -56,21 +57,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
             var stopwatch = Stopwatch.StartNew();
             _logger.Debug($"About to send emails to {distinctProviderIds.Count} providers, JobId: {jobId}");
 
-            var taskQueue = new ConcurrentQueue<Task>(distinctProviderIds
-                .Select(x => _retryPolicy.ExecuteAndCaptureAsync(() => SendEmails(x, alertSummaries))));
-            
-            var taskRunners = new List<Task>();
-            for (int n = 0; n < Math.Min(distinctProviderIds.Count, MaxConcurrentThreads); n++)
-            {
-                taskRunners.Add(Task.Run(async () => {
-                    while (taskQueue.TryDequeue(out Task sendEmailsTask))
-                    {
-                        await sendEmailsTask;
-                    }
-                }));
-            }
-
-            await Task.WhenAll(taskRunners);
+            await distinctProviderIds
+                .Select(distinctProviderId => _retryPolicy.ExecuteAndCaptureAsync(() => SendEmails(distinctProviderId, alertSummaries)))
+                .ParallelForEachAsync(async sendEmailTask => await sendEmailTask, maxDegreeOfParallelism: MaxConcurrentThreads);
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {distinctProviderIds.Count} emails, JobId; {jobId}",
                 new Dictionary<string, object>
