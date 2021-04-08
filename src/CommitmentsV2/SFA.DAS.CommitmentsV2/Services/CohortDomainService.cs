@@ -315,7 +315,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
             catch
             {
-                throw new DomainException(nameof(details.Email), "The email address must be valid");
+                throw new DomainException(nameof(details.Email), "Please enter a valid email address");
             }
         }
 
