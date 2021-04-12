@@ -158,6 +158,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 nameof(_fixture.DraftApprenticeshipDetails.Uln),
                 passes);
         }
+
+        [TestCase(null,  true)]
+        [TestCase("valid@email.com",  true)]
+        [TestCase("valid@email",  true)]
+        [TestCase("invalidemail@", false)]
+        [TestCase("invalidemail.com",  false)]
+        [TestCase("invalid\\@email.com", false)]
+        [TestCase("invalid@email.com;valid@email.com", false)]
+        public void Email_CheckEmailIsValidIfPresent_Validation(string email, bool passes)
+        {
+            _fixture.AssertValidationForProperty(
+                () => _fixture.WithEmail(email),
+                nameof(_fixture.DraftApprenticeshipDetails.Email),
+                passes);
+        }
     }
 
     public class AddDraftApprenticeshipValidationTestsFixture
@@ -230,6 +245,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public AddDraftApprenticeshipValidationTestsFixture WithStartDate(DateTime? startDate)
         {
             DraftApprenticeshipDetails.StartDate = startDate;
+            return this;
+        }
+
+        public AddDraftApprenticeshipValidationTestsFixture WithEmail(string email)
+        {
+            DraftApprenticeshipDetails.Email = email;
             return this;
         }
 
