@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using Dasync.Collections;
+using Polly;
+using Polly.Retry;
+using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.NLog.Logger;
+using SFA.DAS.PAS.Account.Api.Client;
+using SFA.DAS.PAS.Account.Api.Types;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Dasync.Collections;
-using Polly;
-using Polly.Retry;
-using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Extensions;
-using SFA.DAS.NLog.Logger;
-using SFA.DAS.PAS.Account.Api.Client;
-using SFA.DAS.PAS.Account.Api.Types;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 {
@@ -58,8 +56,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
             _logger.Debug($"About to send emails to {distinctProviderIds.Count} providers, JobId: {jobId}");
 
             await distinctProviderIds
-                .Select(distinctProviderId => _retryPolicy.ExecuteAndCaptureAsync(() => SendEmails(distinctProviderId, alertSummaries)))
-                .ParallelForEachAsync(async sendEmailTask => await sendEmailTask, maxDegreeOfParallelism: MaxConcurrentThreads);
+                .ParallelForEachAsync(async distinctProviderId => {
+                    await _retryPolicy.ExecuteAndCaptureAsync(() => SendEmails(distinctProviderId, alertSummaries));
+                }, maxDegreeOfParallelism: MaxConcurrentThreads);
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {distinctProviderIds.Count} emails, JobId; {jobId}",
                 new Dictionary<string, object>
