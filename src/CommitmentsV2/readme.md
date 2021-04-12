@@ -44,4 +44,9 @@ insert into Providers(Ukprn, [Name], [Created]) values (10038368,'Amazing Traini
 insert into Providers(Ukprn, [Name], [Created]) values (10000896,'Like a Pro Education Inc.', GETDATE())
 ````
 
+#### Jobs
 
+To get Course information it is necessary to run the **ImportStandardsJob** which will require you to have a subscription key for the commitments outer api on [das-apim-endpoints](https://github.com/SkillsFundingAgency/das-apim-endpoints). If you are not part of the ESFA organisation then you can follow the readme for running the commitments outer api locally. The commitments V2 configuration key should then be updated with the following:
+```
+"ApprovalsOuterApiConfiguration":{"Key":"APIM-KEY","BaseUrl":"https://[APIM-BASEURL]/"}
+```
