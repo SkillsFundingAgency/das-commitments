@@ -17,6 +17,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
+using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -177,6 +178,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public async Task<IActionResult> ValidateApprenticeshipForEdit([FromBody] ValidateApprenticeshipForEditRequest request)
         {
             var command = await _modelMapper.Map<ValidateApprenticeshipForEditCommand>(request);
+            var response = await _mediator.Send(command);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("edit")]
+        public async Task<IActionResult> EditApprenticeship([FromBody] EditApprenticeshipApiRequest request)
+        {
+            var command = await _modelMapper.Map<EditApprenticeshipCommand>(request);
             var response = await _mediator.Send(command);
 
             if (response == null)
