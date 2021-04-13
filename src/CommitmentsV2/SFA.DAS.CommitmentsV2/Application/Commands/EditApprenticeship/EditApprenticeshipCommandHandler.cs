@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 {
@@ -20,24 +21,25 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IEditApprenticeshipValidationService _editValidationService;
-        private readonly IModelMapper _modelMapper;
         private readonly IAuthenticationService _authnticationService;
         private readonly ICurrentDateTime _currentDateTime;
         private readonly ILogger<EditApprenticeshipCommandHandler> _logger;
+        private readonly IMediator _mediator;
 
-        public EditApprenticeshipCommandHandler(IEditApprenticeshipValidationService editValidationService, Lazy<ProviderCommitmentsDbContext> dbContext, IModelMapper mapper, IAuthenticationService authenticationService, ICurrentDateTime currentDateTime, ILogger<EditApprenticeshipCommandHandler> logger)
+        public EditApprenticeshipCommandHandler(IEditApprenticeshipValidationService editValidationService, Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, ICurrentDateTime currentDateTime,  IMediator mediator, ILogger<EditApprenticeshipCommandHandler> logger)
         {
             _editValidationService = editValidationService;
             _dbContext = dbContext;
-            _modelMapper = mapper;
             _authnticationService = authenticationService;
             _currentDateTime = currentDateTime;
             _logger = logger;
+            _mediator = mediator;
         }
 
         public async Task<EditApprenticeshipResponse> Handle(EditApprenticeshipCommand command, CancellationToken cancellationToken)
         {
-            var party = Party.Employer;  //_authnticationService.GetUserParty();
+            //TODO : Changes this back to getuserparty
+            var party = _authnticationService.GetUserParty();
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
 
             await Validate(command, apprenticeship, party, cancellationToken);
@@ -80,6 +82,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             if (command.EditApprenticeshipRequest.IntermediateApprenticeshipUpdateRequired())
             {
                 var apprenticeshipUpdate = command.MapToApprenticeshipUpdate(apprenticeship, party, _currentDateTime.UtcNow);
+                
+                if (!string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCode))
+                {
+                    var result = _mediator.Send(new GetTrainingProgrammeQuery
+                    {
+                        Id = apprenticeshipUpdate.TrainingCode
+                    }).Result;
+
+                    apprenticeshipUpdate.TrainingName = result?.TrainingProgramme?.Name;
+                    apprenticeshipUpdate.TrainingType = result?.TrainingProgramme?.ProgrammeType;
+                }
+
                 apprenticeship.CreateApprenticeshipUpdate(apprenticeshipUpdate, party);
                 return true;
             }
