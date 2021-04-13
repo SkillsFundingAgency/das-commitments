@@ -19,10 +19,11 @@ using SFA.DAS.Testing.AutoFixture;
 using GetApprenticeshipsRequest = SFA.DAS.CommitmentsV2.Api.Types.Requests.GetApprenticeshipsRequest;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
-    public class ApprenticeshipsControllerTests
+    public class ApprenticeshipControllerTests
     {
         private Mock<IMediator> _mediator;
         private Mock<ILogger<ApprenticeshipController>> _logger;
@@ -265,6 +266,33 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     c.ApprenticeshipId == apprenticeshipId &&
                     c.StopDate == request.NewStopDate &&
                     c.UserInfo == request.UserInfo),
+					It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+		[Test, MoqAutoData]
+        public async Task ValidateApprenticeshipForEdit(ValidateApprenticeshipForEditRequest request)
+        {
+            //Act
+            await _controller.ValidateApprenticeshipForEdit(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.IsAny<ValidateApprenticeshipForEditCommand>(),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task ValidateApprenticeshipForEditNotFound(ValidateApprenticeshipForEditRequest request)
+        {
+            _mapper.Setup(x => x.Map<ValidateApprenticeshipForEditCommand>(request)).ReturnsAsync(() =>new ValidateApprenticeshipForEditCommand());
+            _mediator.Setup(p => p.Send(It.IsAny<ValidateApprenticeshipForEditCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
+
+            //Act
+            await _controller.ValidateApprenticeshipForEdit(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.IsAny<ValidateApprenticeshipForEditCommand>(),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
     }
