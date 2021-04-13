@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -13,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 {
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
         public async Task<EditApprenticeshipResponse> Handle(EditApprenticeshipCommand command, CancellationToken cancellationToken)
         {
             var party = Party.Employer;  //_authnticationService.GetUserParty();
-            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
 
             await Validate(command, apprenticeship, party, cancellationToken);
 
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
             var immediateUpdateCreated = CreateIntermediateUpdate(command, party, apprenticeship);
 
-            return new EditApprenticeshipResponse { ApprenticeshipId = command.ApprenticeshipId, NeedReapproval = immediateUpdateCreated };
+            return new EditApprenticeshipResponse { ApprenticeshipId = command.EditApprenticeshipRequest.ApprenticeshipId, NeedReapproval = immediateUpdateCreated };
         }
 
         private bool CreateImmedidateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
@@ -54,20 +54,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             bool immediateUpdate = false;
             if (command.EmployerReferenceUpdateRequired(apprenticeship, party))
             {
-                apprenticeship.UpdateEmployerReference(command.EmployerReference, party, command.UserInfo);
+                apprenticeship.UpdateEmployerReference(command.EditApprenticeshipRequest.EmployerReference, party, command.EditApprenticeshipRequest.UserInfo);
                 immediateUpdate = true;
             }
             else
             {
                 if (command.ProviderReferenceUpdateRequired(apprenticeship, party))
                 {
-                    apprenticeship.UpdateProviderReference(command.ProviderReference, party, command.UserInfo);
+                    apprenticeship.UpdateProviderReference(command.EditApprenticeshipRequest.ProviderReference, party, command.EditApprenticeshipRequest.UserInfo);
                     immediateUpdate = true;
                 }
 
                 if (command.ULNUpdateRequired(apprenticeship, party))
                 {
-                    apprenticeship.UpdateULN(command.ULN, party, _currentDateTime.UtcNow, command.UserInfo);
+                    apprenticeship.UpdateULN(command.EditApprenticeshipRequest.ULN, party, _currentDateTime.UtcNow, command.EditApprenticeshipRequest.UserInfo);
                     immediateUpdate = true;
                 }
             }
@@ -77,10 +77,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
         private bool CreateIntermediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
         {
-            var apprenticeshipUpdate = command.MapToApprenticeshipUpdate(apprenticeship, party, _currentDateTime.UtcNow);
-
-            if (apprenticeshipUpdate.ApprenticeshipUpdateRequired())
+            if (command.EditApprenticeshipRequest.IntermediateApprenticeshipUpdateRequired())
             {
+                var apprenticeshipUpdate = command.MapToApprenticeshipUpdate(apprenticeship, party, _currentDateTime.UtcNow);
                 apprenticeship.CreateApprenticeshipUpdate(apprenticeshipUpdate, party);
                 return true;
             }
@@ -92,16 +91,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
         {
             CheckPartyIsValid(party);
 
-            var validateRequest = await _modelMapper.Map<EditApprenticeshipValidationRequest>(command);
-            var validationResult = await _editValidationService.Validate(validateRequest, cancellationToken);
+            var validationResult = await _editValidationService.Validate(command.CreateValidationRequest(apprenticeship, _currentDateTime.UtcNow ), cancellationToken);
             if (validationResult?.Errors?.Count > 0)
             {
-                string messages = string.Empty;
-                validationResult.Errors.ForEach(x => messages += (x.PropertyName + ":" + x.ErrorMessage));
-
-                _logger.LogError("Invalid operation for edit - the following error/s occured :" + messages);
                 // This shouldn't get triggered as these checks should already been passed.
                 // But in case someone is calling the EditApprenticeship endpoint directly
+                string messages = string.Empty;
+                validationResult.Errors.ForEach(x => messages += (x.PropertyName + ":" + x.ErrorMessage));
+                _logger.LogError("Invalid operation for edit - the following error/s occured :" + messages);
                 throw new InvalidOperationException("The operation is not allowed for the current state of the object");
             }
 

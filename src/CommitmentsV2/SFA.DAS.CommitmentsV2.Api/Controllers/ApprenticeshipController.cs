@@ -192,7 +192,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("edit")]
         public async Task<IActionResult> EditApprenticeship([FromBody] EditApprenticeshipApiRequest request)
         {
-            var command = await _modelMapper.Map<EditApprenticeshipCommand>(request);
+            var command = new EditApprenticeshipCommand { EditApprenticeshipRequest = request };
             var response = await _mediator.Send(command);
 
             if (response == null)
