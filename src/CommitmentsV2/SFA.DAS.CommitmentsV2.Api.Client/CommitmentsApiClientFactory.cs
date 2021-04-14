@@ -16,33 +16,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             _configuration = configuration;
             _loggerFactory = loggerFactory;
         }
-        
+
         public ICommitmentsApiClient CreateClient()
         {
-            var value = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            if (value == "Development")
-            {
-                var httpClientBuilder = new HttpClientBuilder();
-                var httpClient = httpClientBuilder
-               .WithDefaultHeaders()
-               .WithBearerAuthorisationHeader(new DAS.Http.TokenGenerators.GenericJwtBearerTokenGenerator(new JwtConfig()))
-               .Build();
+            var httpClientFactory = new ManagedIdentityHttpClientFactory(_configuration, _loggerFactory);
+            var httpClient = httpClientFactory.CreateHttpClient();
+            var restHttpClient = new CommitmentsRestHttpClient(httpClient, _loggerFactory);
+            var apiClient = new CommitmentsApiClient(restHttpClient);
 
-                httpClient.BaseAddress = new Uri(_configuration.ApiBaseUrl);
-
-                var restHttpClient = new CommitmentsRestHttpClient(httpClient, _loggerFactory);
-                return new CommitmentsApiClient(restHttpClient);
-
-            }
-            else
-            {
-                var httpClientFactory = new ManagedIdentityHttpClientFactory(_configuration, _loggerFactory);
-                var httpClient = httpClientFactory.CreateHttpClient();
-                var restHttpClient = new CommitmentsRestHttpClient(httpClient, _loggerFactory);
-                var apiClient = new CommitmentsApiClient(restHttpClient);
-
-                return apiClient;
-            }
+            return apiClient;
         }
 
         public class JwtConfig : DAS.Http.Configuration.IGenericJwtClientConfiguration
