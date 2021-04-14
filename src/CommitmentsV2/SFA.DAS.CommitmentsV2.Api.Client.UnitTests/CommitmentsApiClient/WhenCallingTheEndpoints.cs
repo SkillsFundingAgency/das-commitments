@@ -576,7 +576,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             var request = new EditApprenticeshipApiRequest();
             await _fixture.CommitmentsApiClient.EditApprenticeship(request);
-
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<EditApprenticeshipApiRequest, EditApprenticeshipResponse>("api/apprenticeships/edit", request, CancellationToken.None));
         }
     }

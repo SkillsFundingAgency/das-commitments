@@ -201,7 +201,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(new EditApprenticeshipResponse { ApprenticeshipId = request.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
+            return Ok(new EditApprenticeshipResponse { ApprenticeshipId = response.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
         }
     }
 }
