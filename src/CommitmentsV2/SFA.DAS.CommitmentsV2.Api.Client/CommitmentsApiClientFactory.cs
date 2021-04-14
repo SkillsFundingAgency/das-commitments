@@ -26,16 +26,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
             return apiClient;
         }
-
-        public class JwtConfig : DAS.Http.Configuration.IGenericJwtClientConfiguration
-        {
-            public string Issuer => "dummyissuer";
-
-            public string Audience => "dummyaudience";
-
-            public string ClientSecret => "dummyaudience";
-
-            public int TokenExpirySeconds => 5000;
-        }
     }
 }
