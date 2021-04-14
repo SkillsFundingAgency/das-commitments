@@ -18,6 +18,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -200,7 +201,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(response);
+            return Ok(new EditApprenticeshipResponse { ApprenticeshipId = request.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
         }
     }
 }
