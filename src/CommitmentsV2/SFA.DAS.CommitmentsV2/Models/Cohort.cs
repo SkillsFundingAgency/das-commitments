@@ -556,7 +556,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 try
                 {
-                    var e = new MailAddress(email);
+                    var _ = new MailAddress(email);
                     return true;
                 }
                 catch
