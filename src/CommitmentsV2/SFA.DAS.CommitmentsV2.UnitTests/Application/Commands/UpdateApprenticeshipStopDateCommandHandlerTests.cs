@@ -168,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = "Invalid Date of Change. Date cannot be before the training start date." });
+            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = "The stop month cannot be before the apprenticeship started" });
         }    
 
         [Test]
@@ -255,7 +255,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_CreatesAddHistoryEvent()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);            
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate,  new UserInfo());
@@ -333,7 +333,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 },
                 DataLockStatus = SetupDataLocks(apprenticeshipId),
                 PaymentStatus = paymentStatus,
-                StartDate = startDate != null ? startDate.Value : DateTime.UtcNow.AddMonths(-2)
+                StartDate = startDate != null ? startDate.Value : DateTime.UtcNow.AddMonths(-2),
+                StopDate = DateTime.UtcNow.AddMonths(-1)
             };
 
             _dbContext.Apprenticeships.Add(apprenticeship);

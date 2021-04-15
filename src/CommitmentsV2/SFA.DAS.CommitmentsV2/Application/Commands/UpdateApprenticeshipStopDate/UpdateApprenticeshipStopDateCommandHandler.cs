@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             _logger.LogInformation($"Employer: {command.AccountId} has called UpdateApprenticeshipStopDateCommand ApprenticeshipId : {command.ApprenticeshipId} ");
 
             var party = _authenticationService.GetUserParty();
-            CheckPartyIsValid(party);           
+            CheckPartyIsValid(party);
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
 
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
 
             ValidateChangeDateForStop(command.StopDate, apprenticeship);
 
-            await ValidateEndDateOverlap(command, apprenticeship, cancellationToken); 
+            ValidateEndDateOverlap(command, apprenticeship, cancellationToken); 
 
             apprenticeship.ApprenticeshipStopDate(command, _currentDate, party);
 
@@ -90,17 +90,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             if (newStopDate.Date > _currentDate.UtcNow.Date)
                 throw new DomainException(nameof(newStopDate), "Invalid Date of Change. Date cannot be in the future.");
 
+            if (newStopDate.Date == apprenticeship.StopDate.Value.Date)
+                throw new DomainException(nameof(newStopDate), "Enter a date that is different to the current stopped date");
+
             if (newStopDate.Date < apprenticeship.StartDate.Value.Date)
-                throw new DomainException(nameof(newStopDate), "Invalid Date of Change. Date cannot be before the training start date.");
+                throw new DomainException(nameof(newStopDate), "The stop month cannot be before the apprenticeship started");
         }
 
-        public async Task ValidateEndDateOverlap(UpdateApprenticeshipStopDateCommand command, Apprenticeship apprenticeship, CancellationToken cancellationToken)
+        public void ValidateEndDateOverlap(UpdateApprenticeshipStopDateCommand command, Apprenticeship apprenticeship, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(apprenticeship.Uln) || !apprenticeship.StartDate.HasValue) return;
 
-            var overlapResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate), apprenticeship.Id, cancellationToken);
+            var overlapResult =  _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate), apprenticeship.Id, cancellationToken);
 
-            if (!overlapResult.HasOverlaps) return;
+            if (!overlapResult.Result.HasOverlaps) return;
 
             var errorMessage = "The date overlaps with existing dates for the same apprentice."
                               + Environment.NewLine +
@@ -108,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
 
             var errors = new List<DomainError>();        
 
-            if (overlapResult.HasOverlappingEndDate)
+            if (overlapResult.Result.HasOverlappingEndDate)
             {
                 errors.Add(new DomainError(nameof(command.StopDate), errorMessage));
             }
