@@ -105,15 +105,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
 
             if (!overlapResult.Result.HasOverlaps) return;
 
-            var errorMessage = "The date overlaps with existing dates for the same apprentice."
-                              + Environment.NewLine +
-                              "Please check the date - contact the " + (_authenticationService.GetUserParty() == Party.Employer ? "provider" : "employer") + " for help";
+            var errorMessage = "The date overlaps with existing dates for the same apprentice";
 
             var errors = new List<DomainError>();        
 
             if (overlapResult.Result.HasOverlappingEndDate)
             {
-                errors.Add(new DomainError(nameof(command.StopDate), errorMessage));
+                errors.Add(new DomainError("newStopDate", errorMessage));
             }
 
             throw new DomainException(errors);

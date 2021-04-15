@@ -185,7 +185,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "StopDate", ErrorMessage = $"The date overlaps with existing dates for the same apprentice." + Environment.NewLine + "Please check the date - contact the provider for help" });
+            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = $"The date overlaps with existing dates for the same apprentice" });
         }
 
         [Test]
