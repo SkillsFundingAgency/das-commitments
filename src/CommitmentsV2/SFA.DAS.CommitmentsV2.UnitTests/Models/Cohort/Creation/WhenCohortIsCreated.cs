@@ -15,7 +15,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             _fixture = new CohortCreationTestFixture();
         }
 
-
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public void TheCohortBelongsToTheProvider(Party creatingParty)
@@ -236,8 +235,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             _fixture.VerifyCohortTracking();
             _fixture.VerifyDraftApprenticeshipTracking();
         }
-
-
-
     }
 }
