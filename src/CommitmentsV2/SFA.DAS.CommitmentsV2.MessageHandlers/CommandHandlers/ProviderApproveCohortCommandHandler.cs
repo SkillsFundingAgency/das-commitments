@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                     return;
                 }
 
-                cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow);
+                cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow, false);
 
                 await _dbContext.Value.SaveChangesAsync();
             }

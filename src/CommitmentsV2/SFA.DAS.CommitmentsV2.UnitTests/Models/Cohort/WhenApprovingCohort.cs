@@ -431,7 +431,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public void Approve()
         {
-            Cohort.Approve(Party, Message, UserInfo, Now);
+            Cohort.Approve(Party, Message, UserInfo, Now, false);
         }
 
         public WhenApprovingCohortFixture AddDraftApprenticeship(bool isIncompleteForEmployer = false, bool isIncompleteForProvider = false)
