@@ -29,7 +29,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
             if (_apprenticeEmailFeatureService.IsEnabled)
             {
                 var parties = await db.Cohorts.Select(x=> new { x.Id, x.EmployerAccountId, x.ProviderId }).FirstOrDefaultAsync(c=>c.Id == request.CohortId, cancellationToken);
-                apprenticeEmailIsRequired = await _apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
+                if (parties != null)
+                {
+                    apprenticeEmailIsRequired = _apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
+                }
             }
 
             var result = await (

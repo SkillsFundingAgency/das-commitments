@@ -83,8 +83,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
             var apprenticeEmailIsRequired = _apprenticeEmailFeatureService.IsEnabled &&
-                                            await _apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(
-                                                cohort.EmployerAccountId, cohort.ProviderId);
+                                            _apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
             if (party == Party.Employer)
             {
                 await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);

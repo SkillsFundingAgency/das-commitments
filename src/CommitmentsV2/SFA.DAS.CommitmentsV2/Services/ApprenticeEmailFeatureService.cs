@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -8,25 +9,28 @@ namespace SFA.DAS.CommitmentsV2.Services
 {
     public class ApprenticeEmailFeatureService : IApprenticeEmailFeatureService
     {
-        private FeatureToggle _apprenticeEmailFeature;
-        private bool _useEmployerProviderList;
+        private readonly FeatureToggle _apprenticeEmailFeature;
+        private readonly bool _usePrivateBetaList;
+        private readonly List<PrivateBetaItem> _privateBetaList;
 
         public ApprenticeEmailFeatureService(FeatureTogglesService<CustomisedFeaturesConfiguration, FeatureToggle> featureToggle, CustomisedFeaturesConfiguration config)
         {
             _apprenticeEmailFeature = featureToggle.GetFeatureToggle("ApprenticeEmail");
-            _useEmployerProviderList = config.ApprenticeEmailFeatureUseEmployerProviderList;
+            _usePrivateBetaList = config.ApprenticeEmailFeatureUsePrivateBetaList;
+            _privateBetaList = config.PrivateBetaList;
         }
 
         public bool IsEnabled => _apprenticeEmailFeature.IsEnabled;
 
-        public async Task<bool> ApprenticeEmailIsRequiredFor(long employerAccountId, long providerId)
+        public bool ApprenticeEmailIsRequiredFor(long employerAccountId, long providerId)
         {
-            if (_useEmployerProviderList)
+            if (_usePrivateBetaList)
             {
-                // check if employer & provider exist
+                var found = _privateBetaList.Any(i => i.EmployerAccountId == employerAccountId && i.ProviderId == providerId);
+                return found;
             }
 
-            return await Task.FromResult(true);
+            return true;
         }
     }
 }

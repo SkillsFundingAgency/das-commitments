@@ -175,7 +175,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             {
                 f.ApprenticeEmailFeatureServiceMock.Setup(x => x.IsEnabled).Returns(apprenticeEmailRequired);
                 f.ApprenticeEmailFeatureServiceMock
-                    .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(apprenticeEmailRequired);
+                    .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(apprenticeEmailRequired);
             });
 
             var apprenticeDetails = SetApprenticeDetails(fieldToSet);
@@ -183,7 +183,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(response => Assert.AreEqual(expectedEmployerCanApprove, response.IsCompleteForEmployer),
                 apprenticeDetails, arrange);
         }
-
 
         [Test]
         public async Task Handle_WithNoApprenticeDetails_ShouldReturnEmployerCannotApprove()
