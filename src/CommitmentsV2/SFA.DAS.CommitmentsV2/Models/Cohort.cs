@@ -247,7 +247,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return draftApprenticeship;
         }
 
-        public virtual void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now, bool apprenticeEmailRequired)
+        public virtual void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now, bool apprenticeEmailRequired = false)
         {
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
