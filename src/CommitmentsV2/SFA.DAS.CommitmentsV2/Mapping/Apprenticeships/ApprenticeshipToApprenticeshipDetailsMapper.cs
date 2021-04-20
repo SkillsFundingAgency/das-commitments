@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 Id = source.Id,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
+                Email = source.Email,
                 CourseName = source.CourseName,
                 EmployerName = source.Cohort.AccountLegalEntity.Name,
                 ProviderName = source.Cohort.Provider.Name,
