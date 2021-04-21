@@ -17,12 +17,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public Guid? ReservationId { get; }
         public string FirstName { get; }
         public string LastName { get; }
+        public string Email { get; }
         public DateTime? DateOfBirth { get; }
         public string Uln { get; }
         public long? TransferSenderId { get; }
         public UserInfo UserInfo { get; }
 
-        public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode, int? cost, DateTime? startDate, DateTime? endDate, string originatorReference, Guid? reservationId, string firstName, string lastName, DateTime? dateOfBirth, string uln, long? transferSenderId, UserInfo userInfo)
+        public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode, int? cost, DateTime? startDate, DateTime? endDate, 
+            string originatorReference, Guid? reservationId, string firstName, 
+            string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId, UserInfo userInfo)
         {
             AccountId = accountId;
             AccountLegalEntityId = accountLegalEntityId;
@@ -35,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             ReservationId = reservationId;
             FirstName = firstName;
             LastName = lastName;
+            Email = email;
             DateOfBirth = dateOfBirth;
             Uln = uln;
             TransferSenderId = transferSenderId;

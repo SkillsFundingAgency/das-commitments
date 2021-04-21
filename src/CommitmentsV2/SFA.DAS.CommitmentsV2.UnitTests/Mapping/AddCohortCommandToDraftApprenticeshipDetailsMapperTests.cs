@@ -2,7 +2,6 @@
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Authorization;
 using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -23,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             
             Assert.AreEqual(fixture.Command.FirstName, draftApprenticeshipDetails.FirstName);
             Assert.AreEqual(fixture.Command.LastName, draftApprenticeshipDetails.LastName);
+            Assert.AreEqual(fixture.Command.Email, draftApprenticeshipDetails.Email);
             Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
             Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
             Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
@@ -66,7 +66,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         {
             return Mapper.Map(Command);
         }
-
-        
     }
 }
