@@ -28,6 +28,26 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
 
         private HttpClient CreateHttpClient(IContext ctx, ReservationsClientApiConfiguration config)
         {
+            var value = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            if (value == "Development")
+            {
+                var _loggerFactory = ctx.GetInstance<ILoggerFactory>();
+                var httpClientBuilder = new HttpClientBuilder();
+
+                if (_loggerFactory != null)
+                {
+                    httpClientBuilder.WithLogging(_loggerFactory);
+                }
+
+                var httpClient = httpClientBuilder
+                    .WithDefaultHeaders()
+                    .Build();
+
+                httpClient.BaseAddress = new Uri(config.ApiBaseUrl);
+
+                return httpClient;
+            }
+
             if (config.UseStub)
             {
                 return new HttpClient();

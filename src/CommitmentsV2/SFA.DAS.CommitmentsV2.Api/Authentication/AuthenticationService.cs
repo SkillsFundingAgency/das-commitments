@@ -38,6 +38,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
                 return isEmployer ? Party.Employer : Party.Provider;
             }
 
+            return Party.Provider;
+
             //This method may need revisiting in future, as it does not support TransferSenders, who are in the Employer role. Specific endpoints will be
             //made available for TransferSender functionality, so perhaps it doesn't matter - in this case, we would just need to assert that the user is
             //in the Employer role and thereby infer that they must be the TransferSender in that context. Alternatively, could another implementation of this
