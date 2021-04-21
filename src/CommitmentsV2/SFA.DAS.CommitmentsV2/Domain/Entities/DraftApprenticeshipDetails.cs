@@ -8,6 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public long Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Email { get; set; }
         public string Uln { get; set; }
         public TrainingProgramme TrainingProgramme { get; set; }
         public int? Cost { get; set; }

@@ -851,6 +851,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithEmail(string email)
+            {
+                DraftApprenticeshipDetails.Email = email;
+                return this;
+            }
+
             public CohortDomainServiceTestFixture WithNoUserInfo()
             {
                 UserInfo = null;
@@ -1158,6 +1164,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Uln"));
+            }
+
+            public void VerifyEmailException(bool passes)
+            {
+                if (passes)
+                {
+                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    return;
+                }
+
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email"));
             }
 
             public void VerifyReservationException(bool passes)

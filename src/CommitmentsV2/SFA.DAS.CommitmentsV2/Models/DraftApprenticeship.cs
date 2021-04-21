@@ -54,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             FirstName = source.FirstName;
             LastName = source.LastName;
+            Email = source.Email;
             if (modifyingParty == Party.Provider)
             {
                 Uln = source.Uln;
