@@ -36,15 +36,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task OnlyImmediateUpdate_WhenOnlyEmployerReferenceIsChanged()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    EmployerReference = "NewEmployerRef"
-                }
-            };
-            
+            fixture.Command.EditApprenticeshipRequest.EmployerReference = "NewEmployerRef";
+
             await fixture.Handle();
             fixture.VerifyOnlyImmediateUpdate();
         }
@@ -52,14 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task WhenFirstNameIsChanged()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    FirstName = "NewFirstName"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.FirstName = "NewFirstName";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated("NewFirstName", app => app.ApprenticeshipUpdate.First().FirstName);
@@ -68,14 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task WhenLastNameIsChanged()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    LastName = "NewLastName"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.LastName = "NewLastName";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated("NewLastName", app => app.ApprenticeshipUpdate.First().LastName);
@@ -84,32 +63,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task WhenDobIsChanged()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    DateOfBirth = DateTime.UtcNow
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.DateOfBirth = DateTime.UtcNow;
 
             await fixture.Handle();
-            fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.DateOfBirth.Value, 
+            fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.DateOfBirth.Value,
                 app => app.ApprenticeshipUpdate.First().DateOfBirth.Value);
         }
 
         [Test]
         public async Task WhenStartDateIsChanged()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    StartDate = DateTime.UtcNow
-                }
-            };
-
+            fixture.Command.EditApprenticeshipRequest.StartDate = DateTime.UtcNow;
+            
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.StartDate.Value,
                 app => app.ApprenticeshipUpdate.First().StartDate.Value);
@@ -118,15 +83,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task WhenEndDateIsChanged()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    EndDate = DateTime.UtcNow
-                }
-            };
-
+            fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
+         
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.EndDate.Value,
                 app => app.ApprenticeshipUpdate.First().EndDate.Value);
@@ -135,14 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task WhenCourseCodeIsChanged()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    CourseCode = "NewCourse"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated("NewCourse",
@@ -156,16 +107,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task WhenMultipleAreChangedIsChanged()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    CourseCode = "NewCourse",
-                    EndDate = DateTime.UtcNow,
-                    LastName = "NewLastName"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
+            fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
+            fixture.Command.EditApprenticeshipRequest.LastName = "NewLastName";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated("NewCourse",
@@ -179,14 +123,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task NotChangedFieldsAreNull_InApprenticehipUpdateTable()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    CourseCode = "NewCourse"
-                }
-            };
+
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated(null,
@@ -206,14 +144,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task WhenAnEmployerMakesAChange_OriginatorIsSetToEmployer()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    CourseCode = "NewCourse"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated((int)Types.Originator.Employer,
@@ -223,14 +154,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task UpdateOriginIsSetTo_ChangeOfCircumstances()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    CourseCode = "NewCourse"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated((int)Types.ApprenticeshipUpdateOrigin.ChangeOfCircumstances,
@@ -240,14 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task EffectiveFromDate_Is_Set_To_Apprenticeship_StartDate()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    CourseCode = "NewCourse"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated(fixture.Db.Apprenticeships.Where(x => x.Id == fixture.ApprenticeshipId).First().StartDate,
@@ -257,14 +174,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task EffectiveToDate_Is_Set_To_Null()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    CourseCode = "NewCourse"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated(null,
@@ -274,14 +184,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task CreatedOn_Is_Set_To_DateTimeNow()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    CourseCode = "NewCourse"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             var dateTimeNow = DateTime.Now;
             fixture.currentDateTime.Setup(x => x.UtcNow).Returns(dateTimeNow);
@@ -294,14 +197,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Published_ApprenticeshipUpdateCreatedEvent()
         {
-            fixture.Command = new EditApprenticeshipCommand
-            {
-                EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
-                {
-                    ApprenticeshipId = fixture.ApprenticeshipId,
-                    CourseCode = "NewCourse"
-                }
-            };
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreatedEvent();
@@ -366,7 +262,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 EditApprenticeshipRequest = new Api.Types.Requests.EditApprenticeshipApiRequest
                 {
-                    FirstName = "YYY"
+                   ApprenticeshipId = ApprenticeshipId,
+                   AccountId = 222,
+                   UserInfo = new UserInfo { UserId = 122.ToString()}
                 }
             };
 

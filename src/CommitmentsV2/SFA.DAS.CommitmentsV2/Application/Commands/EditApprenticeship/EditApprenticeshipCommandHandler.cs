@@ -12,7 +12,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
@@ -21,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IEditApprenticeshipValidationService _editValidationService;
-        private readonly IAuthenticationService _authnticationService;
+        private readonly IAuthenticationService _authenticationService;
         private readonly ICurrentDateTime _currentDateTime;
         private readonly ILogger<EditApprenticeshipCommandHandler> _logger;
         private readonly IMediator _mediator;
@@ -30,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
         {
             _editValidationService = editValidationService;
             _dbContext = dbContext;
-            _authnticationService = authenticationService;
+            _authenticationService = authenticationService;
             _currentDateTime = currentDateTime;
             _logger = logger;
             _mediator = mediator;
@@ -38,8 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
         public async Task<EditApprenticeshipResponse> Handle(EditApprenticeshipCommand command, CancellationToken cancellationToken)
         {
-            //TODO : Changes this back to getuserparty
-            var party = _authnticationService.GetUserParty();
+            var party = _authenticationService.GetUserParty();
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.EditApprenticeshipRequest.ApprenticeshipId, cancellationToken);
 
             await Validate(command, apprenticeship, party, cancellationToken);
@@ -104,6 +102,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
         private async Task Validate(EditApprenticeshipCommand command, Apprenticeship apprenticeship, Party party, CancellationToken cancellationToken)
         {
             CheckPartyIsValid(party);
+            CheckAuthorisation(command, apprenticeship, party);
 
             var validationResult = await _editValidationService.Validate(command.CreateValidationRequest(apprenticeship, _currentDateTime.UtcNow ), cancellationToken);
             if (validationResult?.Errors?.Count > 0)
@@ -127,6 +126,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             if (party != Party.Employer)
             {
                 throw new DomainException(nameof(party), $"Only employers are allowed to edit the records");
+            }
+        }
+
+        private void CheckAuthorisation(EditApprenticeshipCommand command, Apprenticeship apprenticeship, Party party)
+        {
+            switch (party)
+            {
+                case Party.Employer:
+                    if (apprenticeship.Cohort.EmployerAccountId != command.EditApprenticeshipRequest.AccountId)
+                        throw new UnauthorizedAccessException($"Employer {command.EditApprenticeshipRequest.UserInfo.UserId} not authorised to update apprenticeship {apprenticeship.Id}");
+                    break;
             }
         }
     }
