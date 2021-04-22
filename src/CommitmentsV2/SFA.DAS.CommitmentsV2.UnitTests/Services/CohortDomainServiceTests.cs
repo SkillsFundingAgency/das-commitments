@@ -460,6 +460,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IEmployerAgreementService> EmployerAgreementService { get; }
             public Mock<IEncodingService> EncodingService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
+            private Mock<IApprenticeEmailFeatureService> ApprenticeEmailFeatureService { get; }
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
             public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
@@ -588,6 +589,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountApiClient.Setup(x => x.GetTransferConnections(It.IsAny<string>()))
                     .ReturnsAsync(TransferConnections);
 
+                ApprenticeEmailFeatureService = new Mock<IApprenticeEmailFeatureService>();
+
                 Exception = null;
                 DomainErrors = new List<DomainError>();
                 UserInfo = fixture.Create<UserInfo>();
@@ -602,7 +605,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     CurrentDateTime.Object,
                     EmployerAgreementService.Object,
                     EncodingService.Object,
-                    AccountApiClient.Object);
+                    AccountApiClient.Object,
+                    ApprenticeEmailFeatureService.Object);
 
                 Db.SaveChanges();
             }
