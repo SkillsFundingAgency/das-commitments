@@ -37,6 +37,7 @@
 	[MadeRedundant] BIT NULL, 
 	[OriginalStartDate] DATETIME NULL
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
+    [Email] NVARCHAR(200) NULL, 
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
 GO

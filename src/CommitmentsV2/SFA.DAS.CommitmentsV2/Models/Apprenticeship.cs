@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -366,6 +367,28 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
 
             Publish(() => new ApprenticeshipUlnUpdatedEvent (Id, uln, currentDateTime ));
+        }
+
+        public void ApprenticeshipStopDate(UpdateApprenticeshipStopDateCommand command,ICurrentDateTime currentDate, Party party)
+        {
+            StartTrackingSession(UserAction.UpdateApprenticeshipStopDate, party, Cohort.EmployerAccountId, Cohort.ProviderId, command.UserInfo);
+            
+            ChangeTrackingSession.TrackUpdate(this);
+            if (PaymentStatus != PaymentStatus.Completed)
+            {
+                StopDate = command.StopDate;
+            }
+
+            ResolveDatalocks(command.StopDate);
+
+            ChangeTrackingSession.CompleteTrackingSession();
+            
+            Publish(() => new ApprenticeshipStopDateChangedEvent
+            {
+                StopDate = command.StopDate,
+                ApprenticeshipId = command.ApprenticeshipId,
+                ChangedOn = currentDate.UtcNow
+            });
         }
 
         private void ResolveDatalocks(DateTime stopDate)

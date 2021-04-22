@@ -7,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public long Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Email { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }

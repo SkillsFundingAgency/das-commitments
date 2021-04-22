@@ -26,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
             {
                 FirstName = source.FirstName,
                 LastName = source.LastName,
+                Email = source.Email,
                 Uln = source.Uln,
                 TrainingProgramme = trainingProgramme,
                 Cost = source.Cost,
