@@ -11,5 +11,7 @@ namespace SFA.DAS.Reservations.Api.Types
         Task<ReservationAllocationStatusResult> GetReservationAllocationStatus(ReservationAllocationStatusMessage request, CancellationToken cancellationToken);
         Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntity, BulkCreateReservationsRequest request, CancellationToken cancellationToken);
         Task<CreateChangeOfPartyReservationResult> CreateChangeOfPartyReservation(Guid reservationId, CreateChangeOfPartyReservationRequest request, CancellationToken cancellationToken);
+        Task<bool> IsLevyAccount(long accountLegalEntityId, CancellationToken cancellationToken);
+        Task<Guid> CreateReservationNonLevy(Reservation reservation, CancellationToken cancellationToken);
     }
 }

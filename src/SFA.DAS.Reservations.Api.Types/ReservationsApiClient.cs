@@ -56,6 +56,22 @@ namespace SFA.DAS.Reservations.Api.Types
             return _httpHelper.PostAsJson<CreateChangeOfPartyReservationRequest, CreateChangeOfPartyReservationResult>(url, request, cancellationToken);
         }
 
+        public Task<bool> IsLevyAccount(long accountLegalEntityId, CancellationToken cancellationToken)
+        {
+            var url =BuildUrl($"api/AccountLegalEntities/isLevy/{accountLegalEntityId}");
+
+            return _httpHelper.GetAsync<bool>(url, null, cancellationToken);
+        }
+
+        public async Task<Guid> CreateReservationNonLevy(Reservation reservation, CancellationToken cancellationToken)
+        {
+            var url = BuildUrl($"api/accounts/{reservation.AccountId}/Reservations");
+
+            var response = await _httpHelper.PostAsJson<Reservation, Reservation>(url, reservation, cancellationToken);
+
+            return response.Id;
+        }
+
         private string BuildUrl(string path)
         {
             var effectiveApiBaseUrl = _config.EffectiveApiBaseUrl.TrimEnd(new[] { '/' });

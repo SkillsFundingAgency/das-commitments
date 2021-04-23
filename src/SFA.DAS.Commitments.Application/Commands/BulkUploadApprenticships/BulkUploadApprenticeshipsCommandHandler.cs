@@ -74,7 +74,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             await ValidateOverlaps(apprenticeships);
 
-            var apprenticeshipsWithReservationIds = await MergeBulkCreatedReservationIdsOnToApprenticeships(apprenticeships, commitment);
+            var apprenticeshipsWithReservationIds = await MergeBulkCreatedReservationIdsOnToApprenticeships(apprenticeships, commitment, command.UserId);
 
             var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeshipsWithReservationIds);
             await Task.WhenAll(
@@ -100,39 +100,68 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             }
         }
 
-        private async Task<IEnumerable<Apprenticeship>> MergeBulkCreatedReservationIdsOnToApprenticeships(IList<Apprenticeship> apprenticeships, Commitment commitment)
+        private async Task<IEnumerable<Apprenticeship>> MergeBulkCreatedReservationIdsOnToApprenticeships(IList<Apprenticeship> apprenticeships, Commitment commitment, string userId = "")
         {
-            BulkCreateReservationsRequest BuildBulkCreateRequest()
+            var accountlegalEntityId = _encodingService.Decode(commitment.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId);
+            if (await _reservationsApiClient.IsLevyAccount(accountlegalEntityId, CancellationToken.None))
             {
-                return new BulkCreateReservationsRequest
-                    {Count = (uint) apprenticeships.Count, TransferSenderId = commitment.TransferSenderId};
-            }
+                BulkCreateReservationsRequest BuildBulkCreateRequest()
+                {
+                    return new BulkCreateReservationsRequest
+                    { Count = (uint)apprenticeships.Count, TransferSenderId = commitment.TransferSenderId };
+                }
 
-            BulkCreateReservationsResult bulkReservations;
-            try
-            {
-                bulkReservations = await _reservationsApiClient.BulkCreateReservations(
-                    _encodingService.Decode(commitment.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
-                    BuildBulkCreateRequest(), CancellationToken.None);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, "Failed calling BulkCreateReservations endpoint");
-                throw;
-            }
+                BulkCreateReservationsResult bulkReservations;
+                try
+                {
+                    bulkReservations = await _reservationsApiClient.BulkCreateReservations(
+                        _encodingService.Decode(commitment.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
+                        BuildBulkCreateRequest(), CancellationToken.None);
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e, "Failed calling BulkCreateReservations endpoint");
+                    throw;
+                }
 
-            if (bulkReservations.ReservationIds.Length != apprenticeships.Count)
-            {
-                _logger.Info($"The number of bulk reservations did not match the number of apprentices");
-                throw new InvalidOperationException(
-                    $"The number of bulk reservations ({bulkReservations.ReservationIds.Length}) does not equal the number of apprenticeships ({apprenticeships.Count})");
-            }
+                if (bulkReservations.ReservationIds.Length != apprenticeships.Count)
+                {
+                    _logger.Info($"The number of bulk reservations did not match the number of apprentices");
+                    throw new InvalidOperationException(
+                        $"The number of bulk reservations ({bulkReservations.ReservationIds.Length}) does not equal the number of apprenticeships ({apprenticeships.Count})");
+                }
 
-            return apprenticeships.Zip(bulkReservations.ReservationIds, (a, r) =>
+                return apprenticeships.Zip(bulkReservations.ReservationIds, (a, r) =>
+                {
+                    a.ReservationId = r;
+                    return a;
+                });
+            }
+            else
             {
-                a.ReservationId = r;
-                return a;
-            });
+                foreach (var app in apprenticeships)
+                {
+                    var newId = Guid.NewGuid();
+                    var reservation = new Reservation
+                    {
+                        Id = newId,
+                        AccountId = commitment.EmployerAccountId,
+                        StartDate = app.StartDate,
+                        CourseId = app.TrainingCode,
+                        ProviderId = (uint)commitment.ProviderId,
+                        AccountLegalEntityId = accountlegalEntityId,
+                        AccountLegalEntityName = commitment.LegalEntityName,
+                        IsLevyAccount = false,
+                        TransferSenderAccountId = commitment.TransferSenderId,
+                        UserId = Guid.Empty
+                    };
+
+                    var updatedReservationId = await _reservationsApiClient.CreateReservationNonLevy(reservation, CancellationToken.None);
+                    app.ReservationId = updatedReservationId;
+                }
+
+                return apprenticeships;
+            }
         }
 
         private async Task CreateHistory(Commitment commitment, IList<Apprenticeship> insertedApprenticeships, CallerType callerType, string userId, string userName)
