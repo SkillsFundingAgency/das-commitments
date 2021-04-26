@@ -31,5 +31,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
             return Ok(response);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AcceptApprenticeshipUpdates(long apprenticeshipId, [FromQuery] AcceptApprenticeshipUpdatesRequest request)
+        {
+            var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, request.Status));
+            var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
+            return Ok(response);
+        }
     }
 }

@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
+using MoreLinq;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -68,6 +69,112 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (startDate == null ||  StopDate > startDate)
             {
                 throw new DomainException(nameof(StopDate), $"Change of Party requires that Stop Date of Apprenticeship {Id} ({StopDate}) be before or same as new Start Date of {startDate}");
+            }
+        }
+
+        public void ApplyApprenticeshipUpdate(Party party, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.Updated, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+
+            var update = ApprenticeshipUpdate.First();
+            ApplyApprenticeshipUpdates(update);
+
+            PendingUpdateOriginator = null;
+            update.Status = ApprenticeshipUpdateStatus.Approved;
+
+            ResolveDataLocks(update);
+
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() =>
+            new ApprenticeshipUpdatedApprovedEvent
+            {
+                ApprenticeshipId = Id,
+                ApprovedOn = DateTime.Now,
+                StartDate = StartDate.Value,
+                EndDate = EndDate.Value,
+                PriceEpisodes = PriceHistory.Select(x => new PriceEpisode
+                {
+                    FromDate = x.FromDate,
+                    ToDate = x.ToDate,
+                    Cost = x.Cost
+                }).ToArray(),
+                TrainingType = (ProgrammeType)ProgrammeType,
+                TrainingCode = CourseCode,
+                Uln = Uln
+            });
+        }
+
+        private void ResolveDataLocks(ApprenticeshipUpdate update)
+        {
+            if (update.UpdateOrigin == ApprenticeshipUpdateOrigin.DataLock)
+            {
+                update.DataLockStatus.ForEach(dlock => {
+                    ChangeTrackingSession.TrackUpdate(dlock);
+                    dlock.Resolve();
+                    });
+            }
+        }
+
+        private void ApplyApprenticeshipUpdates(ApprenticeshipUpdate update)
+        {
+            if (!string.IsNullOrEmpty(update.FirstName))
+            {
+                FirstName = update.FirstName;
+            }
+
+            if (!string.IsNullOrEmpty(update.LastName))
+            {
+                LastName = update.LastName;
+            }
+
+            if (update.TrainingType == null)
+            {
+                ProgrammeType = update.TrainingType;
+            }
+
+            if (!string.IsNullOrEmpty(update.TrainingCode)
+                && !string.IsNullOrEmpty(update.TrainingName))
+            {
+                CourseCode = update.TrainingCode;
+                CourseName = update.TrainingName;
+            }
+
+            if (update.DateOfBirth == null)
+            {
+                DateOfBirth = update.DateOfBirth;
+            }
+
+            if (update.StartDate == null)
+            {
+                StartDate = update.StartDate;
+            }
+
+            if (update.EndDate == null)
+            {
+                EndDate = update.EndDate;
+            }
+
+            UpdatePrice(update);
+        }
+
+        private void UpdatePrice(ApprenticeshipUpdate update)
+        {
+            if (update.Cost.HasValue)
+            {
+                if (PriceHistory.Count != 1)
+                    throw new InvalidOperationException("Multiple Prices History Items not expected.");
+
+                Cost = update.Cost.Value;
+                PriceHistory.First().Cost = update.Cost.Value;
+            }
+
+            if (update.StartDate.HasValue)
+            {
+                if (PriceHistory.Count != 1)
+                    throw new InvalidOperationException("Multiple Prices History Items not expected.");
+
+                PriceHistory.First().FromDate = update.StartDate ?? PriceHistory.Single().FromDate;
             }
         }
 
