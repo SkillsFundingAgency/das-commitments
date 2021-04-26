@@ -44,6 +44,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
             //be created for use within the TransferSender functionality? This would assert that the user is in the Employer role, and return TransferSender
             //as the Party, or otherwise throw an exception.
 
+#if DEBUG
+            return Party.Employer;
+#endif
+
             throw new ArgumentException($"Unable to map User Role (IsEmployer:{isEmployer}, IsProvider:{isProvider}) to Party");
         }
     }
