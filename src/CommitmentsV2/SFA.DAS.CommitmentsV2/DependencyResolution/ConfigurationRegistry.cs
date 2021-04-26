@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SFA.DAS.Authorization.Features.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
@@ -14,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             AddConfiguration<CommitmentsV2Configuration>(CommitmentsConfigurationKeys.CommitmentsV2);
             AddConfiguration<AccountApiConfiguration>(CommitmentsConfigurationKeys.AccountApi);
             AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);
-            AddConfiguration<FeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
+            AddConfiguration<CustomisedFeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
             AddConfiguration<EncodingConfig>(CommitmentsConfigurationKeys.EncodingConfiguration);
             AddConfiguration<ApprovalsOuterApiConfiguration>(CommitmentsConfigurationKeys.ApprovalsOuterApiConfiguration);
         }

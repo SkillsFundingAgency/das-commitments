@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
+using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
@@ -100,6 +101,54 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .SetUserInfo(userDisplayName, userEmail)
                 .SetIsDraft(true)
                 .Approve();
+
+            _fixture.Cohort.IsDraft.Should().Be(false);
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void ThenCohortShouldNoLongerBeDraftWhenApprenticeEmailIsPresentAndRequired(Party modifyingParty)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .AddDraftApprenticeship()
+                .SetUserInfo("User name", "email@email.com")
+                .SetIsDraft(true)
+                .Approve(true);
+
+            _fixture.Cohort.IsDraft.Should().Be(false);
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void ThenCohortShouldThrowDomainExceptionWhenApprenticeEmailIsNotPresentAndRequired(Party modifyingParty)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .AddDraftApprenticeship(isMissingApprenticeEmail:true)
+                .SetUserInfo("User name", "email@email.com")
+                .SetIsDraft(true);
+            try
+            {
+                _fixture.Approve(true);
+                Assert.Fail();
+            }
+            catch (DomainException e)
+            {
+                e.DomainErrors.First().ErrorMessage.Should().Be($"Cohort must be complete for {modifyingParty}");
+            }
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void ThenCohortShouldNoLongerBeDraftWhenApprenticeEmailIsNotPresentAndNotRequired(Party modifyingParty)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .AddDraftApprenticeship(isMissingApprenticeEmail:true)
+                .SetUserInfo("User name", "email@email.com")
+                .SetIsDraft(true)
+                .Approve(false);
 
             _fixture.Cohort.IsDraft.Should().Be(false);
         }
@@ -429,12 +478,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .Set(c => c.ProviderId, 333);
         }
 
-        public void Approve()
+        public void Approve(bool apprenticeEmailRequired = false)
         {
-            Cohort.Approve(Party, Message, UserInfo, Now);
+            Cohort.Approve(Party, Message, UserInfo, Now, apprenticeEmailRequired);
         }
 
-        public WhenApprovingCohortFixture AddDraftApprenticeship(bool isIncompleteForEmployer = false, bool isIncompleteForProvider = false)
+        public WhenApprovingCohortFixture AddDraftApprenticeship(bool isIncompleteForEmployer = false, bool isIncompleteForProvider = false, bool isMissingApprenticeEmail = false)
         {
             var draftApprenticeshipDetailsComposer = AutoFixture.Build<DraftApprenticeshipDetails>().WithAutoProperties();
             
@@ -447,7 +496,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             {
                 draftApprenticeshipDetailsComposer = draftApprenticeshipDetailsComposer.Without(d => d.Uln);
             }
-            
+
+            if (isMissingApprenticeEmail)
+            {
+                draftApprenticeshipDetailsComposer = draftApprenticeshipDetailsComposer.Without(d => d.Email);
+            }
+
             ApprenticeshipBase apprenticeship = new DraftApprenticeship(draftApprenticeshipDetailsComposer.Create(), Party.Provider);
             Cohort.Add(c => c.Apprenticeships, apprenticeship);
             return this;

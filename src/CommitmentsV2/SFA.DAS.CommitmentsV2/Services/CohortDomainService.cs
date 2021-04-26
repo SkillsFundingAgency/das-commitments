@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -19,6 +14,12 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Mail;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -35,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IEmployerAgreementService _employerAgreementService;
         private readonly IEncodingService _encodingService;
         private readonly IAccountApiClient _accountApiClient;
+        private readonly IApprenticeEmailFeatureService _apprenticeEmailFeatureService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -46,7 +48,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             ICurrentDateTime currentDateTime,
             IEmployerAgreementService employerAgreementService,
             IEncodingService encodingService,
-            IAccountApiClient accountApiClient)
+            IAccountApiClient accountApiClient,
+            IApprenticeEmailFeatureService apprenticeEmailFeatureService)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -59,6 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _employerAgreementService = employerAgreementService;
             _encodingService = encodingService;
             _accountApiClient = accountApiClient;
+            _apprenticeEmailFeatureService = apprenticeEmailFeatureService;
         }
 
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -78,13 +82,14 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
-
+            var apprenticeEmailIsRequired = _apprenticeEmailFeatureService.IsEnabled &&
+                                            _apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
             if (party == Party.Employer)
             {
                 await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);
             }
 
-            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
+            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)

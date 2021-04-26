@@ -59,13 +59,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             return this;
         }
 
-        public CohortCreationTestFixture WithDraftApprenticeship()
+        public CohortCreationTestFixture WithDraftApprenticeship(string email = null)
         {
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 FirstName = _autoFixture.Create<string>(),
                 LastName = _autoFixture.Create<string>(),
-                ReservationId = Guid.NewGuid()
+                ReservationId = Guid.NewGuid(),
+                Email = email
             };
 
             return this;

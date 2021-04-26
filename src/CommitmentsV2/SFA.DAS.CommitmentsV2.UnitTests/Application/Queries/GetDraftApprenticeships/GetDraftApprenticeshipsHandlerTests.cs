@@ -99,6 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                         Cohort = _cohort,
                         FirstName = _autoFixture.Create<string>(),
                         LastName = _autoFixture.Create<string>(),
+                        Email = _autoFixture.Create<string>(),
                         Cost = _autoFixture.Create<int?>(),
                         DateOfBirth = _autoFixture.Create<DateTime?>(),
                         StartDate = _autoFixture.Create<DateTime?>(),
@@ -136,6 +137,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.Id, result.Id);
             Assert.AreEqual(source.FirstName, result.FirstName);
             Assert.AreEqual(source.LastName, result.LastName);
+            Assert.AreEqual(source.Email, result.Email);
             Assert.AreEqual(source.DateOfBirth, result.DateOfBirth);
             Assert.AreEqual(source.Cost, result.Cost);
             Assert.AreEqual(source.StartDate, result.StartDate);
