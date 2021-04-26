@@ -31,6 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     Id = a.Id,
                     FirstName = a.FirstName,
                     LastName = a.LastName,
+                    Email = a.Email,
                     Cost = (int?) a.Cost,
                     CourseCode = a.CourseCode,
                     CourseName = a.CourseName,

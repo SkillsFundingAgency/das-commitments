@@ -7,7 +7,7 @@ SELECT
 	, p.ProviderName
 	, COUNT(*) AS TotalCount
 	, COUNT(CASE UpdateOriginator WHEN 0 THEN 1 ELSE NULL END) AS ChangesForReview
-	, SUM(CASE WHEN (DataLockCourse = 1 OR DataLockPrice = 1) THEN 1 ELSE 0 END) as DataMismatchCount
+	, SUM(CASE WHEN ((DataLockCourse = 1 OR DataLockPrice = 1) AND PaymentStatus in (1,2)) THEN 1 ELSE 0 END) as DataMismatchCount  
 	FROM (SELECT [Id]
 				, [PaymentStatus]
 				, [UpdateOriginator]

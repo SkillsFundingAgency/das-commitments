@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
         {
             var isEmployer = IsUserInRole(Role.Employer);
             var isProvider = IsUserInRole(Role.Provider);
-
+ 
             // The client app should be one _or_ the other (not both, not neither).
             if (isEmployer ^ isProvider)
             {

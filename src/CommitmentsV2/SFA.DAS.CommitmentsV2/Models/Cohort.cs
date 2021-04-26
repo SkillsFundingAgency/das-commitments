@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -8,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
+using SFA.DAS.CommitmentsV2.Services;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -523,6 +525,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildEmailValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
@@ -544,6 +547,30 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.LastName))
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name must be entered");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildEmailValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            bool EmailIsValid(string email)
+            {
+                try
+                {
+                    var _ = new MailAddress(email);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            if (draftApprenticeshipDetails.Email != null)
+            {
+                if (!EmailIsValid(draftApprenticeshipDetails.Email))
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.Email), "Please enter a valid email address");
+                }
             }
         }
 
