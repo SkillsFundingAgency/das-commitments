@@ -338,8 +338,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(apprenticeships);
 
             var service = new OrderedApprenticeshipSearchService(mockContext.Object);
-            
-            searchParameters.FieldName= nameof(Apprenticeship.Cohort.AccountLegalEntity.Name);
+
+            //"Name" refers to nameof(Apprenticeship.Cohort.AccountLegalEntity.Name)
+            searchParameters.FieldName= "Name";
             searchParameters.ReverseSort = false;
 
             //Act
