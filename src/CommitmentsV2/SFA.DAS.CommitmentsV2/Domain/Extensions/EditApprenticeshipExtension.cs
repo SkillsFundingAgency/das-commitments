@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 CourseCode = GetValue(source.CourseCode, apprenticeship.CourseCode),
                 FirstName = GetValue(source.FirstName, apprenticeship.FirstName),
                 LastName = GetValue(source.LastName, apprenticeship.LastName),
-                EmployerReference = GetValue(source.EmployerReference, apprenticeship.EmployerRef),
+                EmployerReference = source.EmployerReference,
                 ULN = GetValue(source.ULN, apprenticeship.Uln),
                 DateOfBirth = source.DateOfBirth ?? apprenticeship.DateOfBirth,
                 EndDate = source.EndDate ?? apprenticeship.EndDate,
