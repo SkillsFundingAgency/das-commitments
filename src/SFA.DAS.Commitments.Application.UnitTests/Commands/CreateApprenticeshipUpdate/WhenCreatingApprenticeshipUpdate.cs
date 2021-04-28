@@ -588,6 +588,42 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _apprenticeshipEventsPublisher.Verify(x=>x.Publish(_apprenticeshipEventsList.Object));
         }
 
+
+        [Test]
+        public async Task ThenIfUlnDoNotChangeThenNoEventIsPublished()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
+                {
+                    ULN = "SameUln",
+                    ApprenticeshipId = 3,
+                    EffectiveFromDate = DateTime.Now,
+                    EmployerRef =  "REF01",
+                    ProviderRef = "REF02"
+                }
+            };
+
+            var apprenticeship = new Apprenticeship
+            {
+                EmployerAccountId = 1,
+                ProviderId = 2,
+                ULN = "SAMEULN",
+                StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
+                EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+            };
+
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(apprenticeship);
+
+            await _handler.Handle(command);
+
+            _v2EventsPublisher
+                .Verify(x => x.PublishApprenticeshipUlnUpdatedEvent(It.IsAny<Apprenticeship>()) , Times.Never);
+        }
+
+
         [TestCase(true)]
         [TestCase(false)]
         public async Task ThenTheReservationIsValidatedIfItHasAValue(bool setReservationId)

@@ -76,6 +76,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
+            var currentUln = apprenticeship.ULN ?? "";
+
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
 
             if (!ValidateStartedApprenticeship(apprenticeship, command.ApprenticeshipUpdate))
@@ -109,11 +111,21 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 await SendApprenticeshipUpdateCreatedEvent(apprenticeship);
             }
 
-            await Task.WhenAll(
+            var tasksToRun = new List<Task>
+            {
                 _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate),
-                SaveHistory(),
-                _v2EventsPublisher.PublishApprenticeshipUlnUpdatedEvent(immediateUpdate)
-            );
+                SaveHistory()
+            };
+
+          
+            var newUln = command.ApprenticeshipUpdate.ULN ?? "";
+
+            if (!currentUln.Equals(newUln, StringComparison.InvariantCultureIgnoreCase))
+            {
+                tasksToRun.Add(_v2EventsPublisher.PublishApprenticeshipUlnUpdatedEvent(immediateUpdate));
+            }
+
+            await Task.WhenAll(tasksToRun);
 
             if (command.ApprenticeshipUpdate.ULN != null)
             {
@@ -150,7 +162,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             if (!started)
                 return true;
 
-            if (apprenticeship.HasHadDataLockSuccess && 
+            if (apprenticeship.HasHadDataLockSuccess &&
                 (apprenticeshipUpdate.Cost != null || apprenticeshipUpdate.TrainingCode != null)
                 )
             {
@@ -186,7 +198,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             switch (command.Caller.CallerType)
             {
                 case CallerType.Employer:
-                    if(apprenticeship.EmployerAccountId != command.Caller.Id)
+                    if (apprenticeship.EmployerAccountId != command.Caller.Id)
                         throw new UnauthorizedException($"Employer {command.Caller.Id} not authorised to update apprenticeship {apprenticeship.Id}");
                     break;
                 case CallerType.Provider:
