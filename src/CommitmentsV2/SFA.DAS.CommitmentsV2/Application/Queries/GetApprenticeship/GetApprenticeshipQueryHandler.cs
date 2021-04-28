@@ -40,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         DateOfBirth = apprenticeship.DateOfBirth.Value,
                         FirstName = apprenticeship.FirstName,
                         LastName = apprenticeship.LastName,
+                        Email = apprenticeship.Email,
                         Uln = apprenticeship.Uln,
                         StartDate = apprenticeship.StartDate.Value,
                         EndDate = apprenticeship.EndDate.Value,

@@ -30,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             result.Id.Should().Be(source.Id);
             result.FirstName.Should().Be(source.FirstName);
             result.LastName.Should().Be(source.LastName);
+            result.Email.Should().Be(source.Email);
             result.CourseName.Should().Be(source.CourseName);
             result.EmployerName.Should().Be(source.Cohort.AccountLegalEntity.Name);
             result.ProviderName.Should().Be(source.Cohort.Provider.Name);
