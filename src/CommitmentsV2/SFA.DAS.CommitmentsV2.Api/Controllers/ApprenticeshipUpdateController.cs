@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -35,7 +36,24 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> AcceptApprenticeshipUpdates(long apprenticeshipId, [FromQuery] AcceptApprenticeshipUpdatesRequest request)
         {
-            var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, request.Status));
+            var result = await _mediator.Send(new RejectApprenticeshipUpdatesCommand 
+            { ApprenticeshipId = apprenticeshipId, 
+                UserInfo = request.UserInfo, 
+                AccountId = request.AccountId });
+            var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
+            return Ok(response);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> RejectApprenticeshipUpdates(long apprenticeshipId, [FromQuery] RejectApprenticeshipUpdatesRequest request)
+        {
+            var result = await _mediator.Send(new RejectApprenticeshipUpdatesCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+                UserInfo = request.UserInfo,
+                AccountId = request.AccountId
+            });
             var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
             return Ok(response);
         }

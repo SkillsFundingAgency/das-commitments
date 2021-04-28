@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Linq;
@@ -14,28 +15,29 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
 {
-    public class AcceptApprenticeshipUpdatesCommandHandler : AsyncRequestHandler<AcceptApprenticeshipUpdatesCommand>
+    public class RejectApprenticeshipUpdatesCommandHandler : AsyncRequestHandler<RejectApprenticeshipUpdatesCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly ICurrentDateTime _currentDate;
         private readonly IAuthenticationService _authenticationService;
         private readonly IOverlapCheckService _overlapCheckService;
-        private readonly ILogger<AcceptApprenticeshipUpdatesCommandHandler> _logger;
+        private readonly ILogger<RejectApprenticeshipUpdatesCommandHandler> _logger;
 
-        public AcceptApprenticeshipUpdatesCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+        public RejectApprenticeshipUpdatesCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+            ICurrentDateTime currentDate,
             IAuthenticationService authenticationService,
             IOverlapCheckService overlapCheckService,
-            ILogger<AcceptApprenticeshipUpdatesCommandHandler> logger)
+            ILogger<RejectApprenticeshipUpdatesCommandHandler> logger)
         {
             _dbContext = dbContext;
+            _currentDate = currentDate;
             _authenticationService = authenticationService;
             _overlapCheckService = overlapCheckService;
             _logger = logger;
         }
 
-        protected override async Task Handle(AcceptApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
+        protected override async Task Handle(RejectApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("AcceptApprenticeshipUpdatesCommand received from ApprenticeshipId :" + command.ApprenticeshipId);
-
             var party = _authenticationService.GetUserParty();
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
             CheckPartyIsValid(party, command, apprenticeship);
@@ -47,20 +49,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
 
             var apprenticeshipUpdate = apprenticeship.ApprenticeshipUpdate.First();
 
-           var overlapCheckResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value), command.ApprenticeshipId, cancellationToken);
+           //var overlapCheckResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value), command.ApprenticeshipId, cancellationToken);
 
-            if (overlapCheckResult.HasOverlaps)
-            {
-                //TODO : Which property name should we use.
-                throw new DomainException("StartDate",  "Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
-            }
+           // if (overlapCheckResult.HasOverlaps)
+           // {
+           //     //TODO : Which property name should we use.
+           //     throw new DomainException("StartDate",  "Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
+           // }
 
-            apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo);
+            apprenticeship.RejectApprenticeshipUpdate(party, command.UserInfo);
 
             //apprenticeship.PauseApprenticeship(_currentDate, party, command.UserInfo);
         }
 
-        private void CheckPartyIsValid(Party party, AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)
+        private void CheckPartyIsValid(Party party, RejectApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)
         {
             if (party != Party.Employer)
             {

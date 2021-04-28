@@ -77,12 +77,46 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartTrackingSession(UserAction.Updated, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
             var update = ApprenticeshipUpdate.First();
-            ApplyApprenticeshipUpdates(update);
+           // ChangeTrackingSession.TrackUpdate(update);
 
+            ApplyApprenticeshipUpdatesToApprenticeship(update);
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Approved;
 
             ResolveDataLocks(update);
+
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() =>
+            new ApprenticeshipUpdatedApprovedEvent
+            {
+                ApprenticeshipId = Id,
+                ApprovedOn = DateTime.Now,
+                StartDate = StartDate.Value,
+                EndDate = EndDate.Value,
+                PriceEpisodes = PriceHistory.Select(x => new PriceEpisode
+                {
+                    FromDate = x.FromDate,
+                    ToDate = x.ToDate,
+                    Cost = x.Cost
+                }).ToArray(),
+                TrainingType = (ProgrammeType)ProgrammeType,
+                TrainingCode = CourseCode,
+                Uln = Uln
+            });
+        }
+
+        public void RejectApprenticeshipUpdate(Party party, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.Updated, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+
+            var update = ApprenticeshipUpdate.First();
+            ChangeTrackingSession.TrackUpdate(update);
+
+            PendingUpdateOriginator = null;
+            update.Status = ApprenticeshipUpdateStatus.Rejected;
+            
+            ResetDataLocks(update);
 
             ChangeTrackingSession.CompleteTrackingSession();
 
@@ -116,7 +150,19 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void ApplyApprenticeshipUpdates(ApprenticeshipUpdate update)
+        private void ResetDataLocks(ApprenticeshipUpdate update)
+        {
+            if (update.UpdateOrigin == ApprenticeshipUpdateOrigin.DataLock)
+            {
+                update.DataLockStatus.ForEach(dlock => {
+                    ChangeTrackingSession.TrackUpdate(dlock);
+                    dlock.TriageStatus = TriageStatus.Unknown;
+                    dlock.ApprenticeshipUpdateId = null;
+                });
+            }
+        }
+
+        private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update)
         {
             if (!string.IsNullOrEmpty(update.FirstName))
             {
@@ -128,7 +174,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 LastName = update.LastName;
             }
 
-            if (update.TrainingType == null)
+            if (update.TrainingType.HasValue)
             {
                 ProgrammeType = update.TrainingType;
             }
@@ -140,17 +186,17 @@ namespace SFA.DAS.CommitmentsV2.Models
                 CourseName = update.TrainingName;
             }
 
-            if (update.DateOfBirth == null)
+            if (update.DateOfBirth.HasValue)
             {
                 DateOfBirth = update.DateOfBirth;
             }
 
-            if (update.StartDate == null)
+            if (update.StartDate.HasValue)
             {
                 StartDate = update.StartDate;
             }
 
-            if (update.EndDate == null)
+            if (update.EndDate.HasValue)
             {
                 EndDate = update.EndDate;
             }
