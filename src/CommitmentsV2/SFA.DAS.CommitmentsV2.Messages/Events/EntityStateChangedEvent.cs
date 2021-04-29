@@ -47,6 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         StopApprenticeship,
         UpdateCustomProviderPaymentPriorities,
         UpdateApprenticeshipStopDate,
-        Updated
+        Updated,
+        EditedApprenticeship,
     }
 }
