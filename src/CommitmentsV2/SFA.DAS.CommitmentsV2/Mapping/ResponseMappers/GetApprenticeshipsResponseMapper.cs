@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 Id = source.Id,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
+                Email = source.Email,
                 Uln = source.Uln,
                 EmployerName = source.EmployerName,
                 ProviderName = source.ProviderName,
