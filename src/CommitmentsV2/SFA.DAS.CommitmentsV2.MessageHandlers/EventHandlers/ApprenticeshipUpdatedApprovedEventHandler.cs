@@ -14,7 +14,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
     public class ApprenticeshipUpdatedApprovedEventHandler : IHandleMessages<ApprenticeshipUpdatedApprovedEvent>
     {
-        private readonly IMediator _mediator;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILegacyTopicMessagePublisher _legacyTopicMessagePublisher;
         private readonly ILogger<CohortApprovedByEmployerEventHandler> _logger;
