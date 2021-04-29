@@ -6,7 +6,9 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.NServiceBus.Services;
 using System;
 using System.Linq;
 using System.Threading;
@@ -19,16 +21,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
         private readonly IOverlapCheckService _overlapCheckService;
+        private readonly ICurrentDateTime _dateTimeService;
         private readonly ILogger<AcceptApprenticeshipUpdatesCommandHandler> _logger;
 
         public AcceptApprenticeshipUpdatesCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
             IAuthenticationService authenticationService,
             IOverlapCheckService overlapCheckService,
+            ICurrentDateTime dateTimeService,
             ILogger<AcceptApprenticeshipUpdatesCommandHandler> logger)
         {
             _dbContext = dbContext;
             _authenticationService = authenticationService;
             _overlapCheckService = overlapCheckService;
+            _dateTimeService = dateTimeService;
             _logger = logger;
         }
 
@@ -40,24 +45,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
             CheckPartyIsValid(party, command, apprenticeship);
 
-            if (apprenticeship.ApprenticeshipUpdate.Count == 0)
+            if (apprenticeship.ApprenticeshipUpdate.FirstOrDefault(x => x.Status == ApprenticeshipUpdateStatus.Pending) == null)
             {
                 throw new InvalidOperationException($"No existing apprenticeship update pending for apprenticeship {command.ApprenticeshipId}");
             }
 
-            var apprenticeshipUpdate = apprenticeship.ApprenticeshipUpdate.First();
+            var apprenticeshipUpdate = apprenticeship.ApprenticeshipUpdate.First(x => x.Status == ApprenticeshipUpdateStatus.Pending);
 
-           var overlapCheckResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value), command.ApprenticeshipId, cancellationToken);
+           var overlapCheckResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, 
+               new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value), 
+               command.ApprenticeshipId, 
+               cancellationToken);
 
             if (overlapCheckResult.HasOverlaps)
             {
-                //TODO : Which property name should we use.
                 throw new DomainException("StartDate",  "Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
             }
 
-            apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo);
-
-            //apprenticeship.PauseApprenticeship(_currentDate, party, command.UserInfo);
+            apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, _dateTimeService);
         }
 
         private void CheckPartyIsValid(Party party, AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)

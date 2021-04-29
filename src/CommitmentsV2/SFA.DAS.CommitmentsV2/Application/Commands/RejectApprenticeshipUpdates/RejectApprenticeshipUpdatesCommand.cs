@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
+namespace SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates
 {
     public class RejectApprenticeshipUpdatesCommand : IRequest
     {

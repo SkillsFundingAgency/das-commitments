@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using MoreLinq;
+using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -72,12 +73,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public void ApplyApprenticeshipUpdate(Party party, UserInfo userInfo)
+        public void ApplyApprenticeshipUpdate(Party party, UserInfo userInfo, ICurrentDateTime currentDateTime)
         {
             StartTrackingSession(UserAction.Updated, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
-            var update = ApprenticeshipUpdate.First();
-           // ChangeTrackingSession.TrackUpdate(update);
+            var update = ApprenticeshipUpdate.First(x => x.Status == ApprenticeshipUpdateStatus.Pending);
+            ChangeTrackingSession.TrackUpdate(update);
 
             ApplyApprenticeshipUpdatesToApprenticeship(update);
             PendingUpdateOriginator = null;
@@ -91,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             new ApprenticeshipUpdatedApprovedEvent
             {
                 ApprenticeshipId = Id,
-                ApprovedOn = DateTime.Now,
+                ApprovedOn = currentDateTime.UtcNow,
                 StartDate = StartDate.Value,
                 EndDate = EndDate.Value,
                 PriceEpisodes = PriceHistory.Select(x => new PriceEpisode
@@ -121,21 +122,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
 
             Publish(() =>
-            new ApprenticeshipUpdatedApprovedEvent
+            new ApprenticeshipUpdateRejectedEvent
             {
                 ApprenticeshipId = Id,
-                ApprovedOn = DateTime.Now,
-                StartDate = StartDate.Value,
-                EndDate = EndDate.Value,
-                PriceEpisodes = PriceHistory.Select(x => new PriceEpisode
-                {
-                    FromDate = x.FromDate,
-                    ToDate = x.ToDate,
-                    Cost = x.Cost
-                }).ToArray(),
-                TrainingType = (ProgrammeType)ProgrammeType,
-                TrainingCode = CourseCode,
-                Uln = Uln
+                AccountId = Cohort.EmployerAccountId,
+                ProviderId = Cohort.ProviderId
             });
         }
 

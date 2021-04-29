@@ -13,53 +13,38 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
+namespace SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates
 {
     public class RejectApprenticeshipUpdatesCommandHandler : AsyncRequestHandler<RejectApprenticeshipUpdatesCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ICurrentDateTime _currentDate;
+
         private readonly IAuthenticationService _authenticationService;
-        private readonly IOverlapCheckService _overlapCheckService;
         private readonly ILogger<RejectApprenticeshipUpdatesCommandHandler> _logger;
 
         public RejectApprenticeshipUpdatesCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-            ICurrentDateTime currentDate,
             IAuthenticationService authenticationService,
-            IOverlapCheckService overlapCheckService,
             ILogger<RejectApprenticeshipUpdatesCommandHandler> logger)
         {
             _dbContext = dbContext;
-            _currentDate = currentDate;
             _authenticationService = authenticationService;
-            _overlapCheckService = overlapCheckService;
             _logger = logger;
         }
 
         protected override async Task Handle(RejectApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("RejectApprenticeshipUpdatesCommand received from ApprenticeshipId :" + command.ApprenticeshipId);
             var party = _authenticationService.GetUserParty();
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
             CheckPartyIsValid(party, command, apprenticeship);
 
-            if (apprenticeship.ApprenticeshipUpdate.Count == 0)
+            if (apprenticeship.ApprenticeshipUpdate.FirstOrDefault(x => x.Status == ApprenticeshipUpdateStatus.Pending) == null)
             {
                 throw new InvalidOperationException($"No existing apprenticeship update pending for apprenticeship {command.ApprenticeshipId}");
             }
 
-            var apprenticeshipUpdate = apprenticeship.ApprenticeshipUpdate.First();
-
-           //var overlapCheckResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value), command.ApprenticeshipId, cancellationToken);
-
-           // if (overlapCheckResult.HasOverlaps)
-           // {
-           //     //TODO : Which property name should we use.
-           //     throw new DomainException("StartDate",  "Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
-           // }
 
             apprenticeship.RejectApprenticeshipUpdate(party, command.UserInfo);
-
-            //apprenticeship.PauseApprenticeship(_currentDate, party, command.UserInfo);
         }
 
         private void CheckPartyIsValid(Party party, RejectApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)

@@ -10,11 +10,10 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
+using SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
@@ -27,102 +26,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class AcceptApprenticeshipUpdatesCommandHandlerTests 
+    public class RejectApprenticeshipUpdatesCommandHandlerTests 
     {
-        AcceptApprenticeshipUpdatesCommandHandlerTestsFixture fixture;
-
-        [Test]
-        public async Task Handle_WhenCommandIsHandled_FirstNameIsUpdated()
-        {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.FirstName = "XXX";
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
-
-            await fixture.Handle();
-
-            Assert.AreEqual("XXX", fixture.ApprenticeshipFromDb.FirstName);
-        }
-
-        [Test]
-        public async Task Handle_WhenCommandIsHandled_LastNameIsUpdated()
-        {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.LastName = "XXX";
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
-
-            await fixture.Handle();
-
-            Assert.AreEqual("XXX", fixture.ApprenticeshipFromDb.LastName);
-        }
-
-        [Test]
-        public async Task Handle_WhenCommandIsHandled_DoBIsUpdated()
-        {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.DateOfBirth = new DateTime(2000,1,1);
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
-
-            await fixture.Handle();
-
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.DateOfBirth, fixture.ApprenticeshipFromDb.DateOfBirth);
-        }
-
-        [Test]
-        public async Task Handle_WhenCommandIsHandled_StartDateIsUpdated()
-        {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.StartDate = new DateTime(2000, 1, 1);
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
-
-            await fixture.Handle();
-
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.StartDate, fixture.ApprenticeshipFromDb.StartDate);
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.StartDate, fixture.PriceHistoryFromDb.FromDate);
-        }
-
-        [Test]
-        public async Task Handle_WhenCommandIsHandled_EndDateIsUpdated()
-        {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.EndDate = new DateTime(2000, 1, 1);
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
-
-            await fixture.Handle();
-
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.EndDate, fixture.ApprenticeshipFromDb.EndDate);
-        }
-
-        [Test]
-        public async Task Handle_WhenCommandIsHandled_CourseCodeIsUpdated()
-        {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.TrainingCode = "195";
-            fixture.ApprenticeshipUpdate.TrainingName = "DummyTraining";
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
-
-            await fixture.Handle();
-
-            Assert.AreEqual("195", fixture.ApprenticeshipFromDb.CourseCode);
-            Assert.AreEqual("DummyTraining", fixture.ApprenticeshipFromDb.CourseName);
-        }
-
-        [Test]
-        public async Task Handle_WhenCommandIsHandled_CostIsUpdated()
-        {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.Cost = 195;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
-
-            await fixture.Handle();
-
-            Assert.AreEqual(195, fixture.ApprenticeshipFromDb.Cost);
-            Assert.AreEqual(195, fixture.PriceHistoryFromDb.Cost);
-        }
+        RejectApprenticeshipUpdatesCommandHandlerTestsFixture fixture;
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_PendingOriginatorIsNULL()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -133,50 +44,37 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateStatus_IsApproved()
+        public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateStatus_IsRejected()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
             await fixture.Handle();
 
-            Assert.AreEqual(ApprenticeshipUpdateStatus.Approved, fixture.ApprenticeshipUpdate.Status);
+            Assert.AreEqual(ApprenticeshipUpdateStatus.Rejected, fixture.ApprenticeshipUpdate.Status);
         }
 
 
         [Test]
         public async Task Handle_WhenNoApprenticeshipUpdate_AndCommandIsHandled_ExceptionIsThrown()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
             await fixture.Handle();
 
             fixture.VerifyException<InvalidOperationException>();
         }
 
         [Test]
-        public async Task Handle_WhenHasUlnOverlap_AndCommandIsHandled_ExceptionIsThrown()
+        public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateRejectedEvent_IsEmitted()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.HasOverlapErrors = true;
+            fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
             await fixture.Handle();
 
-            fixture.VerifyException<DomainException>();
-        }
-
-        [Test]
-        public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdatedApprovedEvent_IsEmitted()
-        {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.Cost = 195;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
-
-            await fixture.Handle();
-
-            var list = fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedApprovedEvent>().ToList();
+            var list = fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdateRejectedEvent>().ToList();
 
             var apprenticeship = fixture.ApprenticeshipFromDb;
             var priceEpisode = apprenticeship.PriceHistory.Select(x => new PriceEpisode
@@ -188,28 +86,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Assert.AreEqual(1, list.Count);
             Assert.AreEqual(apprenticeship.Id, list[0].ApprenticeshipId);
-            Assert.AreEqual(fixture.proxyCurrentDateTime, list[0].ApprovedOn);
-            Assert.AreEqual(apprenticeship.StartDate, list[0].StartDate);
-            Assert.AreEqual(apprenticeship.EndDate, list[0].EndDate);
-            Assert.AreEqual(apprenticeship.ProgrammeType as SFA.DAS.CommitmentsV2.Types.ProgrammeType?, list[0].TrainingType);
-            Assert.AreEqual(apprenticeship.CourseCode, list[0].TrainingCode);
-            Assert.AreEqual(apprenticeship.Uln, list[0].Uln);
-            Assert.AreEqual(1, list[0].PriceEpisodes.Count());
-            Assert.AreEqual(priceEpisode[0].FromDate, list[0].PriceEpisodes[0].FromDate);
-            Assert.AreEqual(priceEpisode[0].ToDate, list[0].PriceEpisodes[0].ToDate);
-            Assert.AreEqual(priceEpisode[0].Cost, list[0].PriceEpisodes[0].Cost);
+            Assert.AreEqual(apprenticeship.Cohort.EmployerAccountId, list[0].AccountId);
+            Assert.AreEqual(apprenticeship.Cohort.ProviderId, list[0].ProviderId);
         }
     }
 
-    public class AcceptApprenticeshipUpdatesCommandHandlerTestsFixture
+    public class RejectApprenticeshipUpdatesCommandHandlerTestsFixture
     {
         public long ApprenticeshipId = 12;
         public Fixture fixture { get; set; }
-        public AcceptApprenticeshipUpdatesCommand Command { get; set; }
+        public RejectApprenticeshipUpdatesCommand Command { get; set; }
         public Apprenticeship ApprenticeshipDetails { get; set; }
         public CancellationToken CancellationToken { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
-        public IRequestHandler<AcceptApprenticeshipUpdatesCommand> Handler { get; set; }
+        public IRequestHandler<RejectApprenticeshipUpdatesCommand> Handler { get; set; }
         public UserInfo UserInfo { get; }
         public Mock<IAuthenticationService> AuthenticationService;
         public Mock<ICurrentDateTime> currentDateTimeService;
@@ -230,7 +120,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public DateTime proxyCurrentDateTime = new DateTime(2020, 1, 1);
 
-        public AcceptApprenticeshipUpdatesCommandHandlerTestsFixture()
+        public RejectApprenticeshipUpdatesCommandHandlerTestsFixture()
         {
             fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -293,16 +183,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             currentDateTimeService.Setup(x => x.UtcNow).Returns(proxyCurrentDateTime);
 
             UserInfo = fixture.Create<UserInfo>();
-            Command = fixture.Build<AcceptApprenticeshipUpdatesCommand>().With(o => o.UserInfo, UserInfo).Create();
+            Command = fixture.Build<RejectApprenticeshipUpdatesCommand>().With(o => o.UserInfo, UserInfo).Create();
             Command.ApprenticeshipId = ApprenticeshipId;
             Command.AccountId = 222;
 
-            Handler = new AcceptApprenticeshipUpdatesCommandHandler(
+            Handler = new RejectApprenticeshipUpdatesCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 AuthenticationService.Object,
-                OverlapCheckService.Object,
-                currentDateTimeService.Object,
-                Mock.Of<ILogger<AcceptApprenticeshipUpdatesCommandHandler>>());
+                Mock.Of<ILogger<RejectApprenticeshipUpdatesCommandHandler>>());
 
             var _ = SeedData().Result;
         }
@@ -319,7 +207,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
         }
 
-        public async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
+        public async Task<RejectApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
         {
             Db.Apprenticeships.Add(ApprenticeshipDetails);
 
@@ -336,7 +224,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return apprenticeshipUpdate;
         }
 
-        public async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> AddANewApprenticeshipUpdate(ApprenticeshipUpdate update)
+        public async Task<RejectApprenticeshipUpdatesCommandHandlerTestsFixture> AddANewApprenticeshipUpdate(ApprenticeshipUpdate update)
         {
             var apprenticeship = Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
           
