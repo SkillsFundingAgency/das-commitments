@@ -15,9 +15,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILegacyTopicMessagePublisher _legacyTopicMessagePublisher;
-        private readonly ILogger<CohortApprovedByEmployerEventHandler> _logger;
+        private readonly ILogger<ApprenticeshipUpdatedApprovedEventHandler> _logger;
 
-        public ApprenticeshipUpdatedApprovedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<CohortApprovedByEmployerEventHandler> logger)
+        public ApprenticeshipUpdatedApprovedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILegacyTopicMessagePublisher legacyTopicMessagePublisher, ILogger<ApprenticeshipUpdatedApprovedEventHandler> logger)
         {
             _dbContext = dbContext;
             _legacyTopicMessagePublisher = legacyTopicMessagePublisher;
@@ -26,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(ApprenticeshipUpdatedApprovedEvent message, IMessageHandlerContext context)
         {
+            _logger.LogInformation("ApprenticeshipUpdatedApprovedEvent received for apprenticeshipId :" + message.ApprenticeshipId);
             try
             {
                var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, CancellationToken.None);

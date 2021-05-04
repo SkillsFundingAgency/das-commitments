@@ -22,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(ApprenticeshipUpdateRejectedEvent message, IMessageHandlerContext context)
         {
+            _logger.LogInformation("Received ApprenticeshipUpdateRejectedEvent for apprenticeshipId : " + message.ApprenticeshipId);
             try
             {
                 await _legacyTopicMessagePublisher.PublishAsync(new ApprenticeshipUpdateRejected
@@ -33,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error when trying to publish ApprenticeshipUpdateAccepted");
+                _logger.LogError(e, "Error when trying to publish ApprenticeshipUpdateRejected");
                 throw;
             }
         }
