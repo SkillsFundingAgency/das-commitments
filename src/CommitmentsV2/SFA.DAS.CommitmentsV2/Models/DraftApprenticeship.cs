@@ -8,27 +8,28 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
     {
-        public bool IsCompleteForParty(Party party)
+        public bool IsCompleteForParty(Party party, bool apprenticeEmailRequired)
         {
             switch (party)
             {
-                case Party.Employer: return IsCompleteForEmployer;
-                case Party.Provider: return IsCompleteForProvider;
+                case Party.Employer: return IsCompleteForEmployer(apprenticeEmailRequired);
+                case Party.Provider: return IsCompleteForProvider(apprenticeEmailRequired);
                 default:
                     throw new InvalidOperationException($"Cannot determine completeness for Party {party}");
             }
         }
 
-        private bool IsCompleteForEmployer => 
+        private bool IsCompleteForEmployer(bool apprenticeEmailRequired) => 
             FirstName != null &&
             LastName != null &&
             Cost != null &&
             StartDate != null &&
             EndDate != null &&
             CourseCode != null &&
-            DateOfBirth != null;
+            DateOfBirth != null &&
+            (!apprenticeEmailRequired || Email != null);
 
-        private bool IsCompleteForProvider => 
+        private bool IsCompleteForProvider(bool apprenticeEmailRequired) => 
             FirstName != null &&
             LastName != null &&
             Uln != null &&
@@ -36,8 +37,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartDate != null &&
             EndDate != null &&
             CourseCode != null &&
-            DateOfBirth != null;
-        
+            DateOfBirth != null &&
+            (!apprenticeEmailRequired || Email != null);
+
         public DraftApprenticeship()
         {
             CreatedOn = DateTime.UtcNow;

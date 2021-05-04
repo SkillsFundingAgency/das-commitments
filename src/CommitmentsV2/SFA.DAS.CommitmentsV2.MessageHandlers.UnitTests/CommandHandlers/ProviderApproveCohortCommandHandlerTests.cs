@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _cohort.Setup(x => x.IsApprovedByAllParties).Returns(false);
 
                 _cohort.Setup(x =>
-                    x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()));
+                    x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), false));
                
                 _dbContext.Object.Cohorts.Add(_cohort.Object);
                 _dbContext.Object.SaveChanges();
@@ -101,12 +101,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             public void VerifyCohortApproval()
             {
-                _cohort.Verify(x=> x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Once);
+                _cohort.Verify(x=> x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), false), Times.Once);
             }
 
             public void VerifyCohortApprovalWasNotCalled()
             {
-                _cohort.Verify(x => x.Approve(It.IsAny<Party>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()), Times.Never);
+                _cohort.Verify(x => x.Approve(It.IsAny<Party>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), false), Times.Never);
             }
 
             public void VerifyHasError()
