@@ -578,6 +578,60 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.EditApprenticeship(request);
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<EditApprenticeshipApiRequest, EditApprenticeshipResponse>("api/apprenticeships/edit", request, CancellationToken.None));
         }
+
+        [Test]
+        public async Task AcceptApprenticeshipUpdates_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var apprenticeshipId = 11;
+            var request = new AcceptApprenticeshipUpdatesRequest
+            {
+                ApprenticeshipId = apprenticeshipId,
+                UserInfo = new UserInfo()
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.AcceptApprenticeshipUpdates(apprenticeshipId, request, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/{apprenticeshipId}/updates/accept-apprenticeship-update", request, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task RejectApprenticeshipUpdates_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var apprenticeshipId = 11;
+            var request = new RejectApprenticeshipUpdatesRequest
+            {
+                ApprenticeshipId = apprenticeshipId,
+                UserInfo = new UserInfo()
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.RejectApprenticeshipUpdates(apprenticeshipId, request, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/{apprenticeshipId}/updates/reject-apprenticeship-update", request, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task UndoApprenticeshipUpdates_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var apprenticeshipId = 11;
+            var request = new UndoApprenticeshipUpdatesRequest
+            {
+                ApprenticeshipId = apprenticeshipId,
+                UserInfo = new UserInfo()
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.UndoApprenticeshipUpdates(apprenticeshipId, request, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/{apprenticeshipId}/updates/undo-apprenticeship-update", request, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture
@@ -629,5 +683,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 .ReturnsAsync("");
             return this;
         }
+      
     }
 }
