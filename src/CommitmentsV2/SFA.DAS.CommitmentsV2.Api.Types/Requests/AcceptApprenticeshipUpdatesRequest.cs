@@ -2,7 +2,6 @@
 {
     public class AcceptApprenticeshipUpdatesRequest : SaveDataRequest
     {
-        //TODO: Remove providerId & AccountId if not required.
         public long ProviderId { get; set; }
         public long AccountId { get; set; }
 
