@@ -551,7 +551,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Apprentices_Are_Sorted_By_Payment_Status(
+        public async Task Then_Apprentices_Are_Sorted_By_Apprenticeship_Status(
             OrderedApprenticeshipSearchParameters searchParameters,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
@@ -568,7 +568,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     LastName = "Should_Be_Second",
                     Uln = "Uln",
                     CourseName = "Course",
-                    StartDate = DateTime.UtcNow.AddMonths(-2),
+                    StartDate = DateTime.UtcNow.AddMonths(2),
                     ProviderRef = "Provider ref",
                     Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -580,7 +580,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     LastName = "Should_Be_Third",
                     Uln = "Uln",
                     CourseName = "Course",
-                    StartDate = DateTime.UtcNow.AddMonths(-3),
+                    StartDate = DateTime.UtcNow.AddMonths(3),
                     ProviderRef = "Provider ref",
                     Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
                     DataLockStatus = new List<DataLockStatus>(),
@@ -608,77 +608,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             
             var service = new OrderedApprenticeshipSearchService(mockContext.Object);
             
-            searchParameters.FieldName = nameof(Apprenticeship.PaymentStatus);
-            searchParameters.ReverseSort = false;
-
-            //Act
-            var actual = await service.Find(searchParameters);
-
-            //Assert
-            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(0).LastName);
-            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(1).LastName);
-            Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(2).LastName);
-        }
-
-        [Test, MoqAutoData]
-        public async Task Then_Active_Apprentices_Are_Sorted_By_Start_Date(
-            OrderedApprenticeshipSearchParameters searchParameters,
-            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
-        {
-            //Arrange
-            searchParameters.PageNumber = 0;
-            searchParameters.PageItemCount = 0;
-            searchParameters.Filters = new ApprenticeshipSearchFilters();
-
-            var apprenticeships = new List<Apprenticeship>
-            {
-                new Apprenticeship
-                {
-                    FirstName = "FirstName",
-                    LastName = "Should_Be_Second",
-                    Uln = "Uln",
-                    CourseName = "Course",
-                    StartDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1),
-                    ProviderRef = "Provider ref",
-                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PaymentStatus = PaymentStatus.Active
-                },
-                new Apprenticeship
-                {
-                    FirstName = "FirstName",
-                    LastName = "Should_Be_Third",
-                    Uln = "Uln",
-                    CourseName = "Course",
-                    StartDate = DateTime.UtcNow.AddMonths(1),
-                    ProviderRef = "Provider ref",
-                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PaymentStatus = PaymentStatus.Active
-                },
-                new Apprenticeship
-                {
-                    FirstName = "FirstName",
-                    LastName = "Should_Be_First",
-                    Uln = "Uln",
-                    CourseName = "Course",
-                    StartDate = DateTime.UtcNow.AddMonths(-2),
-                    ProviderRef = "Provider ref",
-                    Cohort = new Cohort{AccountLegalEntity = CreateAccountLegalEntity("Employer")},
-                    DataLockStatus = new List<DataLockStatus>(),
-                    PaymentStatus = PaymentStatus.Active
-                }
-            };
-
-            AssignProviderToApprenticeships(searchParameters.ProviderId ?? 0, apprenticeships);
-
-            mockContext
-                .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(apprenticeships);
-
-            var service = new OrderedApprenticeshipSearchService(mockContext.Object);
-
-            searchParameters.FieldName = nameof(Apprenticeship.PaymentStatus);
+            searchParameters.FieldName = nameof(Apprenticeship.ApprenticeshipStatus);
             searchParameters.ReverseSort = false;
 
             //Act
@@ -708,7 +638,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             {
                 new Apprenticeship
                 {
-                    FirstName = "FirstName_1",
+                    FirstName = "FirstName",
                     LastName = "LastName",
                     Uln = "Uln",
                     CourseName = "Course",
@@ -720,7 +650,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 },
                 new Apprenticeship
                 {
-                    FirstName = "FirstName_2",
+                    FirstName = "FirstName",
                     LastName = "LastName",
                     Uln = "Uln",
                     CourseName = "Course",
@@ -732,7 +662,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 },
                 new Apprenticeship
                 {
-                    FirstName = "FirstName_3",
+                    FirstName = "FirstName",
                     LastName = "LastName",
                     Uln = "Uln",
                     CourseName = "Course",
@@ -750,7 +680,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var service = new OrderedApprenticeshipSearchService(mockContext.Object);
 
-            searchParameters.FieldName = "ProviderName";
+            searchParameters.FieldName = nameof(Apprenticeship.ApprenticeshipStatus);
             searchParameters.ReverseSort = false;
 
             //Act
