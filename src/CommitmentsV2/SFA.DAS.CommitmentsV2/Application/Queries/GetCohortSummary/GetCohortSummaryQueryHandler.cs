@@ -66,6 +66,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                                             !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null || 
                                                                         a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null ||
                                                                         (apprenticeEmailIsRequired && a.Email == null)),
+                    IsCompleteForProvider = c.Apprenticeships.Any() &&
+                                            !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
+                                                                        a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null ||
+                                                                        a.Uln == null || (apprenticeEmailIsRequired && a.Email == null)),
                     LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
                     ChangeOfPartyRequestId = c.ChangeOfPartyRequestId
                 })
