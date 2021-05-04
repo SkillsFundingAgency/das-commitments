@@ -165,12 +165,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 apprenticeDetails);
         }
 
-        //[TestCase(false, true, true,false)]
-        [TestCase(false, true, false,false)]
-        //[TestCase(true, true, true, true)]
-        //[TestCase(true, true, false, true)]
-        //[TestCase(false, false, false, true)]
-        //[TestCase(true, false, false, true)]
+        [TestCase(false, true, true, false)]
+        [TestCase(false, true, false,true)]
+        [TestCase(true, true, true, true)]
+        [TestCase(true, true, false, true)]
+        [TestCase(false, false, false, true)]
+        [TestCase(true, false, false, true)]
         public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(bool emailPresent, bool apprenticeEmailRequired, bool onPrivateBetaList, bool expectedCanApprove)
         {
             var fieldToSet = emailPresent ? 0 : 8;
