@@ -83,35 +83,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
                         join p in _dbContext.Value.Providers
                             on c.ProviderId equals p.UkPrn
                         join copr in _dbContext.Value.ChangeOfPartyRequests
-                            on a.Id equals copr.ApprenticeshipId into grouping
-                        from copr in grouping.DefaultIfEmpty()
-                        select new
+                            on a.Id equals copr.ApprenticeshipId into grouping 
+                        from copr in grouping.DefaultIfEmpty() // into grouping with DefaultIfEmpty is a left join to ChangeOfPartyRequests
+                        where a.Id == apprenticeshipId
+                        select new GetChangeOfProviderChainQueryResult.ChangeOfProviderLink
                         {
-                            a.Id,
-                            c.EmployerAccountId,
+                            ApprenticeshipId = a.Id,
+                            EmployerAccountId = c.EmployerAccountId,
                             ProviderName = p.Name,
-                            a.StartDate,
-                            a.EndDate,
-                            a.StopDate,
-                            a.ContinuationOfId,
-                            copr.NewApprenticeshipId,
+                            StartDate = a.StartDate,
+                            EndDate = a.EndDate,
+                            StopDate = a.StopDate,
+                            ContinuationOfId = a.ContinuationOfId,
+                            NewApprenticeshipId = copr.NewApprenticeshipId,
                             CreatedOn = (DateTime?)copr.CreatedOn
                         };
 
+
             var results = await query
-                .Where(a => a.Id == apprenticeshipId)
-                .Select(r => new GetChangeOfProviderChainQueryResult.ChangeOfProviderLink
-                {
-                    ApprenticeshipId = r.Id,
-                    EmployerAccountId = r.EmployerAccountId,
-                    ProviderName = r.ProviderName,
-                    StartDate = r.StartDate,
-                    EndDate = r.EndDate,
-                    StopDate = r.StopDate,
-                    CreatedOn = r.CreatedOn,
-                    ContinuationOfId = r.ContinuationOfId,
-                    NewApprenticeshipId = r.NewApprenticeshipId
-                })
                 .FirstOrDefaultAsync(cancellationToken);
 
             return results;
