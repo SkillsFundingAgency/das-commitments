@@ -1,0 +1,63 @@
+﻿using MediatR;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace SFA.DAS.CommitmentsV2.Application.Commands.UndoApprenticeshipUpdates
+{
+    public class UndoApprenticeshipUpdatesCommandHandler : AsyncRequestHandler<UndoApprenticeshipUpdatesCommand>
+    {
+        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+
+        private readonly IAuthenticationService _authenticationService;
+        private readonly ILogger<UndoApprenticeshipUpdatesCommandHandler> _logger;
+
+        public UndoApprenticeshipUpdatesCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+            IAuthenticationService authenticationService,
+            ILogger<UndoApprenticeshipUpdatesCommandHandler> logger)
+        {
+            _dbContext = dbContext;
+            _authenticationService = authenticationService;
+            _logger = logger;
+        }
+
+        protected override async Task Handle(UndoApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("UndoApprenticeshipUpdatesCommand received from ApprenticeshipId :" + command.ApprenticeshipId);
+            var party = _authenticationService.GetUserParty();
+            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+            CheckPartyIsValid(party, command, apprenticeship);
+
+            if (!apprenticeship.ApprenticeshipUpdate.Any(x => x.Status == ApprenticeshipUpdateStatus.Pending))
+            {
+                throw new InvalidOperationException($"No existing apprenticeship update pending for apprenticeship {command.ApprenticeshipId}");
+            }
+
+
+            apprenticeship.UndoApprenticeshipUpdate(party, command.UserInfo);
+        }
+
+        private void CheckPartyIsValid(Party party, UndoApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)
+        {
+            if (party != Party.Employer)
+            {
+                throw new DomainException(nameof(party), $"Only employers are allowed to edit the end of completed records - {party} is invalid");
+            }
+
+            if (party == Party.Employer && command.AccountId != apprenticeship.Cohort.EmployerAccountId)
+            {
+                throw new InvalidOperationException($"Employer {command.AccountId} not authorised to update apprenticeship {apprenticeship.Id}");
+            }
+        }
+    }
+}
