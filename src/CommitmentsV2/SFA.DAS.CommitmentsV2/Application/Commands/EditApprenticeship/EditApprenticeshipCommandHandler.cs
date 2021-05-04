@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 {
@@ -115,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
                 throw new InvalidOperationException("The operation is not allowed for the current state of the object");
             }
 
-            if (apprenticeship.ApprenticeshipUpdate.Count > 0)
+            if (apprenticeship.ApprenticeshipUpdate.Any(a => a.Status == ApprenticeshipUpdateStatus.Pending))
             {
                 throw new InvalidOperationException("Unable to create an ApprenticeshipUpdate for an Apprenticeship with a pending update");
             }
