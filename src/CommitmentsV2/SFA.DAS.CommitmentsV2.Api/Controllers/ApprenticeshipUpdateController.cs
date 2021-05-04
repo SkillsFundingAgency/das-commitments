@@ -35,20 +35,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpPost]
         [Route("accept-apprenticeship-update")]
-        public async Task<IActionResult> AcceptApprenticeshipUpdates(long apprenticeshipId, [FromQuery] AcceptApprenticeshipUpdatesRequest request)
+        public async Task<IActionResult> AcceptApprenticeshipUpdates(long apprenticeshipId, [FromBody] AcceptApprenticeshipUpdatesRequest request)
         {
-            var result = await _mediator.Send(new AcceptApprenticeshipUpdatesCommand 
-            { ApprenticeshipId = apprenticeshipId, 
-                UserInfo = request.UserInfo, 
-                AccountId = request.AccountId });
-            var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
-            return Ok(response);
+            var result = await _mediator.Send(new AcceptApprenticeshipUpdatesCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+                UserInfo = request.UserInfo,
+                AccountId = request.AccountId
+            });
+         
+            return Ok(result);
         }
 
 
         [HttpPost]
         [Route("reject-apprenticeship-update")]
-        public async Task<IActionResult> RejectApprenticeshipUpdates(long apprenticeshipId, [FromQuery] RejectApprenticeshipUpdatesRequest request)
+        public async Task<IActionResult> RejectApprenticeshipUpdates(long apprenticeshipId, [FromBody] RejectApprenticeshipUpdatesRequest request)
         {
             var result = await _mediator.Send(new RejectApprenticeshipUpdatesCommand
             {
@@ -56,8 +58,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 UserInfo = request.UserInfo,
                 AccountId = request.AccountId
             });
-            var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
-            return Ok(response);
+         
+            return Ok(result);
         }
     }
 }

@@ -111,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             StartTrackingSession(UserAction.Updated, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
 
-            var update = ApprenticeshipUpdate.First();
+            var update = ApprenticeshipUpdate.First(x => x.Status == ApprenticeshipUpdateStatus.Pending);
             ChangeTrackingSession.TrackUpdate(update);
 
             PendingUpdateOriginator = null;
