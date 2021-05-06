@@ -67,11 +67,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
 
         private void CheckPartyIsValid(Party party, AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)
         {
-            if (party != Party.Employer)
-            {
-                throw new DomainException(nameof(party), $"Only employers are allowed to edit the end of completed records - {party} is invalid");
-            }
-
             if (party == Party.Employer && command.AccountId != apprenticeship.Cohort.EmployerAccountId)
             {
                 throw new InvalidOperationException($"Employer {command.AccountId} not authorised to update apprenticeship {apprenticeship.Id}");

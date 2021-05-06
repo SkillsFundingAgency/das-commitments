@@ -11,7 +11,6 @@ using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using MoreLinq;
-using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -208,10 +207,11 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (update.StartDate.HasValue)
             {
+                var pH = PriceHistory.First();
                 if (PriceHistory.Count != 1)
                     throw new InvalidOperationException("Multiple Prices History Items not expected.");
 
-                PriceHistory.First().FromDate = update.StartDate ?? PriceHistory.Single().FromDate;
+                pH.FromDate = update.StartDate ?? pH.FromDate;
             }
         }
 

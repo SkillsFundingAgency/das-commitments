@@ -43,17 +43,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates
                 throw new InvalidOperationException($"No existing apprenticeship update pending for apprenticeship {command.ApprenticeshipId}");
             }
 
-
             apprenticeship.RejectApprenticeshipUpdate(party, command.UserInfo);
         }
 
         private void CheckPartyIsValid(Party party, RejectApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)
         {
-            if (party != Party.Employer)
-            {
-                throw new DomainException(nameof(party), $"Only employers are allowed to edit the end of completed records - {party} is invalid");
-            }
-
             if (party == Party.Employer && command.AccountId != apprenticeship.Cohort.EmployerAccountId)
             {
                 throw new InvalidOperationException($"Employer {command.AccountId} not authorised to update apprenticeship {apprenticeship.Id}");

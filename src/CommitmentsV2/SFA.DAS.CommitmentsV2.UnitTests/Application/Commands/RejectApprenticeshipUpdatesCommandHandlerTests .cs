@@ -128,9 +128,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Party = Party.Employer;
             HasOverlapErrors = false;
             UnitOfWorkContext = new UnitOfWorkContext();
-            // ApprenticeshipDetails = fixture.Create<Apprenticeship>();
 
-            var Cohort = new CommitmentsV2.Models.Cohort()
+            var cohort = new CommitmentsV2.Models.Cohort()
               .Set(c => c.Id, 111)
               .Set(c => c.EmployerAccountId, 222)
               .Set(c => c.ProviderId, 333)
@@ -153,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             ApprenticeshipDetails = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
-             .With(s => s.Cohort, Cohort)
+             .With(s => s.Cohort, cohort)
              .With(s => s.PaymentStatus, PaymentStatus.Completed)
              .With(s => s.EndDate, DateTime.UtcNow)
              .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))

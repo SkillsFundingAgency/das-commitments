@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task OnlyImmediateUpdate_WhenOnlyEmployerReferenceIsChanged()
+        public async Task OnlyImmediateUpdate_ThenOnlyEmployerReferenceIsChanged()
         {
             fixture.Command.EditApprenticeshipRequest.EmployerReference = "NewEmployerRef";
 
@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task WhenFirstNameIsChanged()
+        public async Task ThenFirstNameIsChanged()
         {
             fixture.Command.EditApprenticeshipRequest.FirstName = "NewFirstName";
 
@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task WhenLastNameIsChanged()
+        public async Task ThenLastNameIsChanged()
         {
             fixture.Command.EditApprenticeshipRequest.LastName = "NewLastName";
 
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task WhenDobIsChanged()
+        public async Task ThenDobIsChanged()
         {
             fixture.Command.EditApprenticeshipRequest.DateOfBirth = DateTime.UtcNow;
 
@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task WhenStartDateIsChanged()
+        public async Task ThenStartDateIsChanged()
         {
             fixture.Command.EditApprenticeshipRequest.StartDate = DateTime.UtcNow;
             
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task WhenEndDateIsChanged()
+        public async Task ThenEndDateIsChanged()
         {
             fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
          
@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task WhenCourseCodeIsChanged()
+        public async Task ThenCourseCodeIsChanged()
         {
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task WhenMultipleAreChangedIsChanged()
+        public async Task ThenMultipleAreChangedIsChanged()
         {
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
             fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
@@ -123,7 +123,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task NotChangedFieldsAreNull_InApprenticehipUpdateTable()
         {
-
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
@@ -142,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task WhenAnEmployerMakesAChange_OriginatorIsSetToEmployer()
+        public async Task ThenAnEmployerMakesAChange_OriginatorIsSetToEmployer()
         {
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
@@ -227,13 +226,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-            var Cohort = new CommitmentsV2.Models.Cohort()
+            var cohort = new Cohort()
                .Set(c => c.Id, 111)
                .Set(c => c.EmployerAccountId, 222)
                .Set(c => c.ProviderId, 333)
                .Set(c => c.AccountLegalEntity, new AccountLegalEntity());
-            var Apprenticeship = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
-             .With(s => s.Cohort, Cohort)
+
+            var apprenticeship = fixture.Build<Apprenticeship>()
+             .With(s => s.Cohort, cohort)
              .With(s => s.PaymentStatus, PaymentStatus.Active)
              .With(s => s.EndDate, DateTime.UtcNow.AddYears(1))
              .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
@@ -245,18 +245,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.CompletionDate)
              .Create();
 
-            Db.Apprenticeships.Add(Apprenticeship);
+            Db.Apprenticeships.Add(apprenticeship);
 
             Db.SaveChanges();
 
-            ApprenticeshipId = Apprenticeship.Id;
+            ApprenticeshipId = apprenticeship.Id;
 
             var authenticationService = new Mock<IAuthenticationService>();
             authenticationService.Setup(x => x.GetUserParty()).Returns(() => Party);
 
             var lazyProviderDbContext = new Lazy<ProviderCommitmentsDbContext>(() => Db);
 
-            var newEndDate = Apprenticeship.EndDate.Value.AddDays(1);
+            var newEndDate = apprenticeship.EndDate.Value.AddDays(1);
 
             Command = new EditApprenticeshipCommand
             {
