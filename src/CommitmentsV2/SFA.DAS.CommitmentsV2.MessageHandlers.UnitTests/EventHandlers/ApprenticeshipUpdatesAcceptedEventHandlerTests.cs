@@ -54,15 +54,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-            var Cohort = new CommitmentsV2.Models.Cohort()
+            var cohort = new CommitmentsV2.Models.Cohort()
               .Set(c => c.Id, 111)
               .Set(c => c.EmployerAccountId, AccountId)
               .Set(c => c.ProviderId, ProviderId)
               .Set(c => c.AccountLegalEntity, new AccountLegalEntity());
 
-           var ApprenticeshipDetails = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
+           var apprenticeshipDetails = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
-             .With(s => s.Cohort, Cohort)
+             .With(s => s.Cohort, cohort)
              .With(s => s.EndDate, DateTime.UtcNow)
              .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
              .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
@@ -74,15 +74,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
              .Without(s => s.PreviousApprenticeship)
              .Create();
 
-         var Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+         var db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                 .Options);
 
-            Db.Apprenticeships.Add(ApprenticeshipDetails);
-            Db.SaveChanges();
+            db.Apprenticeships.Add(apprenticeshipDetails);
+            db.SaveChanges();
 
-            Sut = new ApprenticeshipUpdatedApprovedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<ApprenticeshipUpdatedApprovedEventHandler>>());
+            Sut = new ApprenticeshipUpdatedApprovedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => db), LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<ApprenticeshipUpdatedApprovedEventHandler>>());
         }
 
         public Task Handle()

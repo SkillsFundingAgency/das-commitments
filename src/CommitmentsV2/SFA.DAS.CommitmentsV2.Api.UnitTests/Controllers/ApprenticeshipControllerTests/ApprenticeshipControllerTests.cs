@@ -308,7 +308,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test, MoqAutoData]
-        public async Task EditApprenticeshpResponseIsReturned(EditApprenticeshipApiRequest request)
+        public async Task EditApprenticeshipResponseIsReturned(EditApprenticeshipApiRequest request)
         {
             _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => new EditApprenticeshipResponse { ApprenticeshipId = 1, NeedReapproval = true });
 
