@@ -40,9 +40,9 @@ namespace SFA.DAS.Commitments.Application.Services
         {
             switch (environment)
             {
-                case Environment.Local:
-                case Environment.AT: return EnvironmentType.Development;
+                case Environment.Local: return EnvironmentType.Development;
 
+                case Environment.AT:
                 case Environment.Test:
                 case Environment.Test2: return EnvironmentType.Test;
 
