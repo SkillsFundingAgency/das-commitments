@@ -683,6 +683,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 .ReturnsAsync("");
             return this;
         }
-      
     }
 }
