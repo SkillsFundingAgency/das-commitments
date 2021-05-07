@@ -62,7 +62,7 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
             var bearerToken = new AzureActiveDirectoryBearerTokenGenerator(adConfig);
 
             return new HttpClientBuilder()
-                .WithBearerAuthorisationHeader(bearerToken)
+                //.WithBearerAuthorisationHeader(bearerToken)
                 .WithHandler(new NLog.Logger.Web.MessageHandlers.RequestIdMessageRequestHandler())
                 .WithHandler(new NLog.Logger.Web.MessageHandlers.SessionIdMessageRequestHandler())
                 .WithDefaultHeaders()
