@@ -74,13 +74,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             if (command.EditApprenticeshipRequest.IntermediateApprenticeshipUpdateRequired())
             {
                 var apprenticeshipUpdate = command.MapToApprenticeshipUpdate(apprenticeship, party, _currentDateTime.UtcNow);
-                
+
                 if (!string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCode))
                 {
                     var result = _mediator.Send(new GetTrainingProgrammeQuery
                     {
                         Id = apprenticeshipUpdate.TrainingCode
                     }).Result;
+
+                    if (result == null || result.TrainingProgramme == null)
+                    {
+                        throw new InvalidOperationException("Invalid training programme");
+                    }
 
                     apprenticeshipUpdate.TrainingName = result?.TrainingProgramme?.Name;
                     apprenticeshipUpdate.TrainingType = result?.TrainingProgramme?.ProgrammeType;
