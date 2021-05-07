@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateStatus_IsUndoed()
+        public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateStatus_IsUndone()
         {
             fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
