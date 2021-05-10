@@ -18,6 +18,8 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
+using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -206,5 +208,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(response);
         }
 
+        [HttpPost]
+        [Route("edit")]
+        public async Task<IActionResult> EditApprenticeship([FromBody] EditApprenticeshipApiRequest request)
+        {
+            var command = new EditApprenticeshipCommand { EditApprenticeshipRequest = request };
+            var response = await _mediator.Send(command);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new EditApprenticeshipResponse { ApprenticeshipId = response.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
+        }
     }
 }
