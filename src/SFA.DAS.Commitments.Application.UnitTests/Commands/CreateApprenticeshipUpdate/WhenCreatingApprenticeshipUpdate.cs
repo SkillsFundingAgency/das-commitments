@@ -9,7 +9,6 @@ using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
@@ -556,7 +555,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public async Task ThenIfTheCommandChangesTheULNThenAnEventIsPublishedAsItIsUpdatedImmediately()
+        public async Task ThenIfTheCommandChangesTheULNThenLegacyEventIsPublishedAsItIsUpdatedImmediately()
         {
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
@@ -588,9 +587,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _apprenticeshipEventsPublisher.Verify(x=>x.Publish(_apprenticeshipEventsList.Object));
         }
 
-
         [Test]
-        public async Task ThenIfUlnDoNotChangeThenNoEventIsPublished()
+        public async Task ThenIfTheCommandChangesTheULNThenUpdatedUlnEventIsPublished()
         {
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
@@ -598,7 +596,40 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 Caller = new Caller(2, CallerType.Provider),
                 ApprenticeshipUpdate = new ApprenticeshipUpdate
                 {
-                    ULN = "SameUln",
+                    ULN = "NewValue",
+                    ApprenticeshipId = 3,
+                    EffectiveFromDate = DateTime.Now
+                }
+            };
+
+            var apprenticeship = new Apprenticeship
+            {
+                EmployerAccountId = 1,
+                ProviderId = 2,
+                ULN = "OldValue",
+                StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
+                EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+            };
+
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(apprenticeship);
+
+            await _handler.Handle(command);
+
+            _v2EventsPublisher.Verify(x => x.PublishApprenticeshipUlnUpdatedEvent(It.Is<Apprenticeship>(x => x.ULN == command.ApprenticeshipUpdate.ULN)), Times.Once);
+        }
+
+        [Test]
+        [TestCase(null)]
+        [TestCase("")]
+        public async Task ThenIfUlnDoesNotChangeThenNoEventIsPublished(string uln)
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
+                {
+                    ULN = uln,
                     ApprenticeshipId = 3,
                     EffectiveFromDate = DateTime.Now,
                     EmployerRef =  "REF01",
@@ -622,7 +653,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _v2EventsPublisher
                 .Verify(x => x.PublishApprenticeshipUlnUpdatedEvent(It.IsAny<Apprenticeship>()) , Times.Never);
         }
-
 
         [TestCase(true)]
         [TestCase(false)]

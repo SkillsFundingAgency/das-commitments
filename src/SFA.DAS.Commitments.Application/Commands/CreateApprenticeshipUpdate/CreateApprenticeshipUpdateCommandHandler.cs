@@ -117,21 +117,15 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 SaveHistory()
             };
 
-          
-            var newUln = command.ApprenticeshipUpdate.ULN ?? "";
-
-            if (!currentUln.Equals(newUln, StringComparison.InvariantCultureIgnoreCase))
+            if (!string.IsNullOrEmpty(command.ApprenticeshipUpdate.ULN))
             {
                 tasksToRun.Add(_v2EventsPublisher.PublishApprenticeshipUlnUpdatedEvent(immediateUpdate));
+
+                _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
+                tasksToRun.Add(_apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList));
             }
 
             await Task.WhenAll(tasksToRun);
-
-            if (command.ApprenticeshipUpdate.ULN != null)
-            {
-                _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
-                await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
-            }
         }
 
         private async Task SendApprenticeshipUpdateCreatedEvent(Apprenticeship apprenticeship)
