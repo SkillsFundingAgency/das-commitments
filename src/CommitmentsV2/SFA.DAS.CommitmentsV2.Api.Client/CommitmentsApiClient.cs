@@ -381,5 +381,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson($"api/apprenticeships/edit/validate", request, cancellationToken);
         }
+
+        public Task<EditApprenticeshipResponse> EditApprenticeship(EditApprenticeshipApiRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<EditApprenticeshipApiRequest, EditApprenticeshipResponse>($"api/apprenticeships/edit", request, cancellationToken);
+        }
     }
 }
