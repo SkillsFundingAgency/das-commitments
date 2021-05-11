@@ -76,7 +76,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
-            var currentUln = apprenticeship.ULN ?? "";
 
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
 
