@@ -40,12 +40,12 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             if (source.ApprenticeshipUpdate.Any(c =>
                 c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending))
             {
-                result.Add(Alerts.ChangesPending);
+                result.Add(source.IsProviderSearch ? Alerts.ChangesForReview : Alerts.ChangesPending);
             }
             else if (source.ApprenticeshipUpdate.Any(c =>
                 c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending))
             {
-                result.Add(Alerts.ChangesForReview);
+                result.Add(source.IsProviderSearch ? Alerts.ChangesPending : Alerts.ChangesForReview);
             }
 
             return result;

@@ -170,7 +170,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
             }
-
+            
+            Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
+            
             StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.TrackInsert(draftApprenticeship);
