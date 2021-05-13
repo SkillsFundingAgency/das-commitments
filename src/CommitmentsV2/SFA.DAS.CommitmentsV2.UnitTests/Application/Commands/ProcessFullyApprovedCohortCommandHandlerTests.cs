@@ -214,16 +214,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Without(a => a.PreviousApprenticeship);
 
             var cohort = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
-            var cohortOld = cohortBuilder.Create();
-
-            var apprenticeshipOld = apprenticeshipBuilder
-                .With(a => a.Cohort, cohortOld)
-                .With(a=>a.Id, PreviousApprenticeshipId)
-                .Create();
 
             var apprenticeshipNew = apprenticeshipBuilder
                 .With(a => a.Cohort, cohort)
-                .With(a => a.ContinuationOfId, apprenticeshipOld.Id)
+                .With(a => a.ContinuationOfId, PreviousApprenticeshipId)
                 .Create();
 
             var apprenticeships = new[] { apprenticeshipNew };
