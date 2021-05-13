@@ -460,6 +460,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IEmployerAgreementService> EmployerAgreementService { get; }
             public Mock<IEncodingService> EncodingService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
+            private Mock<IApprenticeEmailFeatureService> ApprenticeEmailFeatureService { get; }
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
             public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
@@ -588,6 +589,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountApiClient.Setup(x => x.GetTransferConnections(It.IsAny<string>()))
                     .ReturnsAsync(TransferConnections);
 
+                ApprenticeEmailFeatureService = new Mock<IApprenticeEmailFeatureService>();
+
                 Exception = null;
                 DomainErrors = new List<DomainError>();
                 UserInfo = fixture.Create<UserInfo>();
@@ -602,7 +605,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     CurrentDateTime.Object,
                     EmployerAgreementService.Object,
                     EncodingService.Object,
-                    AccountApiClient.Object);
+                    AccountApiClient.Object,
+                    ApprenticeEmailFeatureService.Object);
 
                 Db.SaveChanges();
             }
@@ -848,6 +852,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 Party = party;
                 AuthenticationService.Setup(x => x.GetUserParty()).Returns(Party);
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithEmail(string email)
+            {
+                DraftApprenticeshipDetails.Email = email;
                 return this;
             }
 
@@ -1158,6 +1168,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Uln"));
+            }
+
+            public void VerifyEmailException(bool passes)
+            {
+                if (passes)
+                {
+                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    return;
+                }
+
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email"));
             }
 
             public void VerifyReservationException(bool passes)

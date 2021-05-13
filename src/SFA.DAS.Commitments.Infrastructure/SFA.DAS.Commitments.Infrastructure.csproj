@@ -225,7 +225,6 @@
     <Compile Include="Data\BulkUploadRepository.cs" />
     <Compile Include="Data\DataLockRepository.cs" />
     <Compile Include="Data\JobProgressRepository.cs" />
-    <Compile Include="Data\ProviderPaymentRepository.cs" />
     <Compile Include="Data\StatisticsRepository.cs" />
     <Compile Include="Data\Transactions\DataLockTransactions.cs" />
     <Compile Include="Data\HistoryRepository.cs" />

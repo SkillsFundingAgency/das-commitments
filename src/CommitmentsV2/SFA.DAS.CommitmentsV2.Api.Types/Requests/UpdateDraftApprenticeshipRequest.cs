@@ -6,6 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Email { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string Uln { get; set; }
         public string CourseCode { get; set; }

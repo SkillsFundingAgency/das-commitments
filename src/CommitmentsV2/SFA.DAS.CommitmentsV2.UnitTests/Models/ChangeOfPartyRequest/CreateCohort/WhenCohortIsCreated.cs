@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AutoFixture;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -153,6 +154,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.CreateCohort();
             _fixture.VerifyAssignedToOtherPartyEventIsEmitted();
         }
+
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
+        public void TheDraftApprenticeshipCreatedEventIsPublished(ChangeOfPartyRequestType requestType)
+        {
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.CreateCohort();
+
+            _fixture.VerifyDraftApprenticeshipCreatedEventIsPublished();
+        }
+
+
 
         private class WhenCohortIsCreatedTestFixture
         {
@@ -390,6 +403,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                         && @event.CohortId == Result.Id));
                 }
             }
+            public void VerifyDraftApprenticeshipCreatedEventIsPublished()
+            {
+                var draftApprenticeship = Result.Apprenticeships.Single();
+
+                UnitOfWorkContext.GetEvents().OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e =>
+                    e.CohortId == Result.Id &&
+                    e.DraftApprenticeshipId == draftApprenticeship.Id &&
+                    e.Uln == draftApprenticeship.Uln &&
+                    e.ReservationId == draftApprenticeship.ReservationId &&
+                    e.CreatedOn == draftApprenticeship.CreatedOn);
+            }
+
         }
     }
 }

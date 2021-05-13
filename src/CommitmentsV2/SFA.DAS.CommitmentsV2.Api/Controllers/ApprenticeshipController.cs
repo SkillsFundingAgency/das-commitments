@@ -16,7 +16,10 @@ using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
-
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
+using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -170,6 +173,54 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 UserInfo = request.UserInfo
             });
             return Ok(response);
+        }
+
+        [HttpPut]
+        [Route("{apprenticeshipId}/stopdate")]
+        public async Task<IActionResult> UpdateApprenticeshipStopDate(long apprenticeshipId, [FromBody] ApprenticeshipStopDateRequest request)
+        {   
+            var response = await _mediator.Send(new UpdateApprenticeshipStopDateCommand(            
+                request.AccountId,
+                apprenticeshipId,
+                request.NewStopDate,
+                request.UserInfo
+            ));
+			if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
+        }
+		
+        [HttpPost]
+        [Route("edit/validate")]
+        public async Task<IActionResult> ValidateApprenticeshipForEdit([FromBody] ValidateApprenticeshipForEditRequest request)
+        {
+            var command = await _modelMapper.Map<ValidateApprenticeshipForEditCommand>(request);
+            var response = await _mediator.Send(command);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("edit")]
+        public async Task<IActionResult> EditApprenticeship([FromBody] EditApprenticeshipApiRequest request)
+        {
+            var command = new EditApprenticeshipCommand { EditApprenticeshipRequest = request };
+            var response = await _mediator.Send(command);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new EditApprenticeshipResponse { ApprenticeshipId = response.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
         }
     }
 }

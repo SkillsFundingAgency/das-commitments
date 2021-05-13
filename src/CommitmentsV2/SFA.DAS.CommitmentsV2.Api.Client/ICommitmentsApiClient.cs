@@ -34,6 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, DeleteDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
 		Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken = default);
         Task<GetApprovedProvidersResponse> GetApprovedProviders(long accountId, CancellationToken cancellationToken);
+        Task<GetProviderPaymentsPriorityResponse> GetProviderPaymentsPriority(long accountId, CancellationToken cancellationToken = default);
+        Task UpdateProviderPaymentsPriority(long accountId, UpdateProviderPaymentsPriorityRequest request, CancellationToken cancellationToken = default);
         Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default);
         Task<GetApprenticeshipResponse> GetApprenticeship(long apprenticeshipId, CancellationToken cancellationToken = default);
         Task<GetPriceEpisodesResponse> GetPriceEpisodes(long apprenticeshipId, CancellationToken cancellationToken = default);
@@ -41,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetDataLocksResponse> GetApprenticeshipDatalocksStatus(long apprenticeshipId, CancellationToken cancellationToken = default);
         Task CreateChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default);
         Task<GetChangeOfPartyRequestsResponse> GetChangeOfPartyRequests(long apprenticeshipId, CancellationToken cancellationToken = default);
+        Task<GetChangeOfProviderChainResponse> GetChangeOfProviderChain(long apprenticeshipId, CancellationToken cancellationToken = default);
         Task UpdateEndDateOfCompletedRecord(EditEndDateRequest request, CancellationToken cancellationToken = default);
         Task StopApprenticeship(long apprenticeshipId, StopApprenticeshipRequest request, CancellationToken cancellationToken = default);
         Task PauseApprenticeship(PauseApprenticeshipRequest request, CancellationToken cancellationToken = default);
@@ -48,5 +51,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetAllTrainingProgrammesResponse> GetAllTrainingProgrammes(CancellationToken cancellationToken = default);
         Task<GetAllTrainingProgrammeStandardsResponse> GetAllTrainingProgrammeStandards(CancellationToken cancellationToken = default);
         Task<GetTrainingProgrammeResponse> GetTrainingProgramme(string id, CancellationToken cancellationToken = default);
+        Task UpdateApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request, CancellationToken cancellationToken = default);
+        Task ValidateApprenticeshipForEdit(ValidateApprenticeshipForEditRequest request, CancellationToken cancellationToken = default);
+        Task<EditApprenticeshipResponse> EditApprenticeship(EditApprenticeshipApiRequest request, CancellationToken cancellationToken = default);
     }
 }

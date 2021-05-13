@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -431,6 +432,31 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task GetProviderPaymentPriority_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetProviderPaymentsPriority(123, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetProviderPaymentsPriorityResponse>("api/accounts/123/provider-payments-priority", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task UpdateProviderPaymentPriority_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var accountId = 123;
+            var request = new UpdateProviderPaymentsPriorityRequest
+            {
+                ProviderPriorities = new List<UpdateProviderPaymentsPriorityRequest.ProviderPaymentPriorityUpdateItem>(),
+                UserInfo = new UserInfo()
+            };
+            
+            //Act
+            await _fixture.CommitmentsApiClient.UpdateProviderPaymentsPriority(accountId, request, CancellationToken.None);
+            
+            // Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/accounts/{accountId}/update-provider-payments-priority", request, CancellationToken.None));
+        }
+
+        [Test]
         public async Task GetApprenticeship_VerifyUrlAndData()
         {
             await _fixture.CommitmentsApiClient.GetApprenticeship(123);
@@ -468,6 +494,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             await _fixture.CommitmentsApiClient.GetChangeOfPartyRequests(123);
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetChangeOfPartyRequestsResponse>("api/apprenticeships/123/change-of-party-requests", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetChangeOfProviderChain_VerifyUrlAndData()
+        {
+            await _fixture.CommitmentsApiClient.GetChangeOfProviderChain(12345, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetChangeOfProviderChainResponse>("api/apprenticeships/12345/change-of-provider-chain", null, CancellationToken.None));
         }
 
         [Test]
@@ -543,6 +576,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetTrainingProgramme("123");
             
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetTrainingProgrammeResponse>("api/TrainingProgramme/123", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task EditApprenticeship_VerifyUrl()
+        {
+            var request = new EditApprenticeshipApiRequest();
+            await _fixture.CommitmentsApiClient.EditApprenticeship(request);
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<EditApprenticeshipApiRequest, EditApprenticeshipResponse>("api/apprenticeships/edit", request, CancellationToken.None));
         }
     }
 

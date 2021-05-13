@@ -61,6 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     c.ReservationId == Request.ReservationId &&
                     c.FirstName == Request.FirstName &&
                     c.LastName == Request.LastName &&
+                    c.Email == Request.Email &&
                     c.DateOfBirth == Request.DateOfBirth &&
                     c.Uln == Request.Uln &&
                     c.TransferSenderId == Request.TransferSenderId &&

@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Api.Client.Configuration;
 using SFA.DAS.CommitmentsV2.Api.Client.Http;
 using SFA.DAS.Http;
+using System;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
@@ -15,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             _configuration = configuration;
             _loggerFactory = loggerFactory;
         }
-        
+
         public ICommitmentsApiClient CreateClient()
         {
             var httpClientFactory = new ManagedIdentityHttpClientFactory(_configuration, _loggerFactory);

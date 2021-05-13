@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -308,7 +309,88 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StopDate = stopDate
             });
         }
-        
+
+        public void UpdateEmployerReference(string employerReference, Party party, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.EditedApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+
+            ValidateForEmployerReference(party);
+
+            EmployerRef = employerReference;
+
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        private void ValidateForEmployerReference(Party party)
+        {
+            if (party != Party.Employer)
+            {
+                throw new InvalidOperationException("Employer reference can only be changed by employer ");
+            }
+        }
+
+        private void ValidateForProvider(Party party)
+        {
+            if (party != Party.Provider)
+            {
+                throw new InvalidOperationException("Can only be changed by provider ");
+            }
+        }
+
+        public void CreateApprenticeshipUpdate(ApprenticeshipUpdate apprenitceshipUpdate, Party party)
+        {
+            PendingUpdateOriginator = party == Party.Employer ? Originator.Employer : Originator.Provider;
+            ApprenticeshipUpdate.Add(apprenitceshipUpdate);
+
+            Publish(() => new ApprenticeshipUpdateCreatedEvent { ApprenticeshipId = Id, ProviderId = Cohort.ProviderId, AccountId = Cohort.EmployerAccountId });
+        }
+
+        public void UpdateProviderReference(string providerReference, Party party, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.EditedApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+
+            ValidateForProvider(party);
+
+            ProviderRef = providerReference;
+
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        public void UpdateULN(string uln, Party party, DateTime currentDateTime, UserInfo userInfo)
+        {
+            ValidateForProvider(party);
+            StartTrackingSession(UserAction.EditedApprenticeship, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+            Uln = uln;
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() => new ApprenticeshipUlnUpdatedEvent (Id, uln, currentDateTime ));
+        }
+
+        public void ApprenticeshipStopDate(UpdateApprenticeshipStopDateCommand command,ICurrentDateTime currentDate, Party party)
+        {
+            StartTrackingSession(UserAction.UpdateApprenticeshipStopDate, party, Cohort.EmployerAccountId, Cohort.ProviderId, command.UserInfo);
+            
+            ChangeTrackingSession.TrackUpdate(this);
+            if (PaymentStatus != PaymentStatus.Completed)
+            {
+                StopDate = command.StopDate;
+            }
+
+            ResolveDatalocks(command.StopDate);
+
+            ChangeTrackingSession.CompleteTrackingSession();
+            
+            Publish(() => new ApprenticeshipStopDateChangedEvent
+            {
+                StopDate = command.StopDate,
+                ApprenticeshipId = command.ApprenticeshipId,
+                ChangedOn = currentDate.UtcNow
+            });
+        }
+
         private void ResolveDatalocks(DateTime stopDate)
         {
             IEnumerable<DataLockStatus> dataLocks;

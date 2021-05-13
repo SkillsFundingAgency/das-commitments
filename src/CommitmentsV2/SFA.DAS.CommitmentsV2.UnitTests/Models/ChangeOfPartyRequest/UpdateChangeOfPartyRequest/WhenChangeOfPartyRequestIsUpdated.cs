@@ -47,6 +47,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.UpdateChan
             _fixture.VerifyEndDateIsUpdated();
         }
 
+        [Test]
+        public void Then_PriceIsSetToNull_When_Draft_Apprenticeship_CostIsNull()
+        {
+            _fixture.SetPrice(null);
+            _fixture.UpdateChangeOfPartyRequest();
+
+            _fixture.VerifyPriceIsUpdated();
+        }
+
         private class WhenChangeOfPartyRequestIsUpdatedFixture
         {
             private readonly CommitmentsV2.Models.ChangeOfPartyRequest _changeOfPartyRequest;
@@ -72,6 +81,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.UpdateChan
                 _draftApprenticeship.SetValue(x => x.EndDate, autoFixture.Create<DateTime>());
 
                 UnitOfWorkContext = new UnitOfWorkContext();
+            }
+
+            public void SetPrice(decimal? price)
+            {
+                _draftApprenticeship.SetValue(x => x.Cost, price);
             }
 
             public void UpdateChangeOfPartyRequest()

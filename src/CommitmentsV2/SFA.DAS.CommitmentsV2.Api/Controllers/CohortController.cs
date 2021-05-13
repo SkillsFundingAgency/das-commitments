@@ -52,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.ReservationId,
                 request.FirstName,
                 request.LastName,
+                request.Email,
                 request.DateOfBirth,
                 request.Uln,
                 request.TransferSenderId,
@@ -119,6 +120,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 IsApprovedByEmployer = result.IsApprovedByEmployer,
                 IsApprovedByProvider = result.IsApprovedByProvider,
                 IsCompleteForEmployer = result.IsCompleteForEmployer,
+                IsCompleteForProvider = result.IsCompleteForProvider,
                 LevyStatus =  result.LevyStatus,
                 ChangeOfPartyRequestId = result.ChangeOfPartyRequestId
             });

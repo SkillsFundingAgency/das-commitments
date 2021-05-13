@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 ReservationId = source.ReservationId,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
+                Email = source.Email,
                 DateOfBirth = source.DateOfBirth,
                 Uln = source.Uln,
                 UserInfo = source.UserInfo

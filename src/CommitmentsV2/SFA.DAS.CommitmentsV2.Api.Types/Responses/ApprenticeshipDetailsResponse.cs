@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public long Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Email { get; set; }
         public string Uln { get; set; }
         public string EmployerName { get; set; }
         public string CourseName { get; set; }

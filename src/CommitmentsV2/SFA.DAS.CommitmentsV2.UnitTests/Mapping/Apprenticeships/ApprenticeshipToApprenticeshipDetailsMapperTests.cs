@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
@@ -30,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             result.Id.Should().Be(source.Id);
             result.FirstName.Should().Be(source.FirstName);
             result.LastName.Should().Be(source.LastName);
+            result.Email.Should().Be(source.Email);
             result.CourseName.Should().Be(source.CourseName);
             result.EmployerName.Should().Be(source.Cohort.AccountLegalEntity.Name);
             result.ProviderName.Should().Be(source.Cohort.Provider.Name);
@@ -46,5 +49,234 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             result.AccountLegalEntityId.Should().Be(source.Cohort.AccountLegalEntityId);
         }
 
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_IlrMismatch_When_Course_DataLock(
+    Apprenticeship source,
+    ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.DataLockStatus = new List<DataLockStatus>
+            {
+                new DataLockStatus 
+                {
+                    TriageStatus = TriageStatus.Unknown,
+                    IsResolved = false,
+                    ErrorCode = DataLockErrorCode.Dlock03 
+                }
+            };
+            source.ApprenticeshipUpdate.Clear();
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.IlrDataMismatch);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_IlrMismatch_When_Price_DataLock(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.IsProviderSearch = true;
+            source.DataLockStatus = new List<DataLockStatus> 
+            { 
+                new DataLockStatus
+                {
+                    TriageStatus = TriageStatus.Unknown,
+                    IsResolved = false,
+                    ErrorCode = DataLockErrorCode.Dlock07 
+                }
+            };
+            source.ApprenticeshipUpdate.Clear(); // isprovidesearch true
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.IlrDataMismatch);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_ChangesPending_When_Course_DataLock_PendingChanges(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.DataLockStatus = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    TriageStatus = TriageStatus.Change, 
+                    IsResolved = false,
+                    ErrorCode = DataLockErrorCode.Dlock03 
+                }
+            };
+            source.ApprenticeshipUpdate.Clear();
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ChangesPending);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_ChangesPending_When_Price_DataLock_PendingChanges(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.DataLockStatus = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    TriageStatus = TriageStatus.Change,
+                    IsResolved = false,
+                    ErrorCode = DataLockErrorCode.Dlock07
+                }
+            };
+            source.ApprenticeshipUpdate.Clear();
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ChangesPending);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_ChangesRequested_When_Course_DataLock(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.DataLockStatus = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    TriageStatus = TriageStatus.Restart,
+                    IsResolved = false,
+                    ErrorCode = DataLockErrorCode.Dlock04
+                }
+            };
+            source.ApprenticeshipUpdate.Clear();
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ChangesRequested);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_When_EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.DataLockStatus = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    TriageStatus = TriageStatus.FixIlr,
+                    IsResolved = false,
+                    Status = Status.Fail
+                }
+            };
+            source.IsProviderSearch = false;
+            source.ApprenticeshipUpdate.Clear();
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ChangesRequested);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_No_Apprenticeship_Alerts_When_No_ApprenticeshipUpdate(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.ApprenticeshipUpdate = null;
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(0);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_ChangesForReview_When_ProviderSearch_On_EmployerOriginated_PendingChanges(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.IsProviderSearch = true;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
+            {
+                new ApprenticeshipUpdate
+                {
+                    Originator = Originator.Employer,
+                    Status = ApprenticeshipUpdateStatus.Pending
+                }
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ChangesForReview);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_ChangesPending_When_EmployerSearch_On_EmployerOriginated_PendingChanges(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.IsProviderSearch = false;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
+            {
+                new ApprenticeshipUpdate
+                {
+                    Originator = Originator.Employer,
+                    Status = ApprenticeshipUpdateStatus.Pending
+                }
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ChangesPending);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_ChangesPending_When_ProviderSearch_On_ProviderOriginated_PendingChanges(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.IsProviderSearch = true;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
+            {
+                new ApprenticeshipUpdate
+                {
+                    Originator = Originator.Provider,
+                    Status = ApprenticeshipUpdateStatus.Pending
+                }
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ChangesPending);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_ChangesForReview_When_EmployerSearch_On_ProviderOriginated_PendingChanges(
+Apprenticeship source,
+ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.IsProviderSearch = false;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
+            {
+                new ApprenticeshipUpdate
+                {
+                    Originator = Originator.Provider,
+                    Status = ApprenticeshipUpdateStatus.Pending
+                }
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ChangesForReview);
+        }
     }
 }

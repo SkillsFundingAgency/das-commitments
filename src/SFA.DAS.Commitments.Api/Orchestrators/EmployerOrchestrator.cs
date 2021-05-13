@@ -12,14 +12,11 @@ using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
-using SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPriority;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Api.Types.ProviderPayment;
-using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
 using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
@@ -39,7 +36,6 @@ using SFA.DAS.HashingService;
 using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Domain.Entities.ApprenticeshipStatusSummary;
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
-using ProviderPaymentPriorityItem = SFA.DAS.Commitments.Api.Types.ProviderPayment.ProviderPaymentPriorityItem;
 using TransferApprovalStatus = SFA.DAS.Commitments.Api.Types.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
@@ -307,45 +303,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return _transferRequestMapper.MapFrom(response.Data, Commitment.TransferType.AsReceiver).ToList();
         }
 
-        public async Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)
-        {
-            _logger.Trace($"Updating Provider Payment Priority for employer account {accountId}", accountId);
-
-            await _mediator.SendAsync(new UpdateProviderPaymentsPriorityCommand
-            {
-                Caller = new Caller(accountId, CallerType.Employer),
-                EmployerAccountId = accountId,
-                ProviderPriorities = CreateListOfProviders(submission.Priorities)
-            });
-
-            _logger.Info($"Updated Provider Payment Priorities with {submission.Priorities.Count} providers for employer account {accountId}", accountId);
-        }
-
-        public async Task<IEnumerable<ProviderPaymentPriorityItem>> GetCustomProviderPaymentPriority(long accountId)
-        {
-            _logger.Trace($"Getting Provider Payment Priority for employer account {accountId}", accountId);
-
-            var response = await _mediator.SendAsync(new GetProviderPaymentsPriorityRequest
-            {
-                Caller = new Caller(accountId, CallerType.Employer),
-                EmployerAccountId = accountId
-            });
-
-            _logger.Info($"Retrieved {response.Data.Count()} Provider Payment Priorities for employer account {accountId}", accountId);
-
-            return response.Data.Select(Map);
-        }
-
-        private ProviderPaymentPriorityItem Map(Domain.Entities.ProviderPaymentPriorityItem data)
-        {
-            return new ProviderPaymentPriorityItem
-                {
-                    ProviderId = data.ProviderId,
-                    ProviderName = data.ProviderName,
-                    PriorityOrder = data.PriorityOrder
-                };
-        }
-
         public async Task PatchCommitment(long accountId, long commitmentId, CommitmentSubmission submission)
         {
             _logger.Trace($"Updating latest action to {submission.Action} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
@@ -598,18 +555,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 WithdrawnCount = s.WithdrawnCount,
                 CompletedCount = s.CompletedCount
             });
-        }
-
-        private List<Domain.Entities.ProviderPaymentPriorityUpdateItem> CreateListOfProviders(IList<Types.ProviderPayment.ProviderPaymentPriorityUpdateItem> priorities)
-        {
-            if (priorities == null)
-                new List<long>(0);
-
-            return priorities.Select(x => new Domain.Entities.ProviderPaymentPriorityUpdateItem
-            {
-                ProviderId = x.ProviderId,
-                PriorityOrder = x.PriorityOrder
-            }).ToList();
         }
     }
 }

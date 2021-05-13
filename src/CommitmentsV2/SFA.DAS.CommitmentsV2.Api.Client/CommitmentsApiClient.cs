@@ -288,6 +288,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetApprovedProvidersResponse>($"api/accounts/{accountId}/providers/approved", null, cancellationToken);
         }
 
+        public Task<GetProviderPaymentsPriorityResponse> GetProviderPaymentsPriority(long accountId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetProviderPaymentsPriorityResponse>($"api/accounts/{accountId}/provider-payments-priority", null, cancellationToken);
+        }
+
+        public Task UpdateProviderPaymentsPriority(long accountId, UpdateProviderPaymentsPriorityRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/accounts/{accountId}/update-provider-payments-priority", request, cancellationToken);
+        }
+
         public Task<CreateCohortResponse> CreateCohort(CreateEmptyCohortRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<CreateEmptyCohortRequest, CreateCohortResponse>("api/cohorts/create-empty-cohort", request, cancellationToken);
@@ -333,6 +343,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetChangeOfPartyRequestsResponse>($"api/apprenticeships/{apprenticeshipId}/change-of-party-requests", null, cancellationToken);
         }
 
+        public Task<GetChangeOfProviderChainResponse> GetChangeOfProviderChain(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetChangeOfProviderChainResponse>($"api/apprenticeships/{apprenticeshipId}/change-of-provider-chain", null, cancellationToken);
+        }
+
         public Task UpdateEndDateOfCompletedRecord(EditEndDateRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/details/editenddate", request, cancellationToken);
@@ -360,6 +375,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<GetTrainingProgrammeResponse> GetTrainingProgramme(string id, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{id}", null, cancellationToken);
+        }
+
+        public Task UpdateApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PutAsJson($"api/apprenticeships/{apprenticeshipId}/stopdate", request, cancellationToken);
+		}
+		     
+        public Task ValidateApprenticeshipForEdit(ValidateApprenticeshipForEditRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/edit/validate", request, cancellationToken);
+        }
+
+        public Task<EditApprenticeshipResponse> EditApprenticeship(EditApprenticeshipApiRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<EditApprenticeshipApiRequest, EditApprenticeshipResponse>($"api/apprenticeships/edit", request, cancellationToken);
         }
     }
 }

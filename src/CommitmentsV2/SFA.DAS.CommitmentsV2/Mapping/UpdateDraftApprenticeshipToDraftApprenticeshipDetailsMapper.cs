@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -24,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 Id = source.ApprenticeshipId,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
+                Email = source.Email,
                 Uln = source.Uln,
                 TrainingProgramme = trainingProgram,
                 Cost = source.Cost,

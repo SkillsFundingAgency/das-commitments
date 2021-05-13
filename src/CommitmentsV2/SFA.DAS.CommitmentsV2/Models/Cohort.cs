@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -8,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
+using SFA.DAS.CommitmentsV2.Services;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -168,7 +170,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
             }
-
+            
+            Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
+            
             StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.TrackInsert(draftApprenticeship);
@@ -245,11 +249,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             return draftApprenticeship;
         }
 
-        public virtual void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
+        public virtual void Approve(Party modifyingParty, string message, UserInfo userInfo, DateTime now, bool apprenticeEmailRequired = false)
         {
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
-            CheckIsCompleteForParty(modifyingParty);
+            CheckIsCompleteForParty(modifyingParty, apprenticeEmailRequired);
 
             StartTrackingSession(UserAction.ApproveCohort, modifyingParty, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
@@ -523,6 +527,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildEmailValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
@@ -544,6 +549,30 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.LastName))
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name must be entered");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildEmailValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            bool EmailIsValid(string email)
+            {
+                try
+                {
+                    var _ = new MailAddress(email);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            if (draftApprenticeshipDetails.Email != null)
+            {
+                if (!EmailIsValid(draftApprenticeshipDetails.Email))
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.Email), "Please enter a valid email address");
+                }
             }
         }
 
@@ -663,7 +692,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckIsCompleteForParty(Party party)
+        private void CheckIsCompleteForParty(Party party, bool apprenticeEmailRequired)
         {
             if (!DraftApprenticeships.Any())
             {
@@ -672,7 +701,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (party == Party.Employer || party == Party.Provider)
             {
-                if (DraftApprenticeships.Any(x => !x.IsCompleteForParty(party)))
+                if (DraftApprenticeships.Any(x => !x.IsCompleteForParty(party, apprenticeEmailRequired)))
                 {
                     throw new DomainException(nameof(DraftApprenticeships), $"Cohort must be complete for {party}");
                 }

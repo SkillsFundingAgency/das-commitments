@@ -164,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartTrackingSession(UserAction.UpdateChangeOfPartyRequest, modifyingParty, employerAccountId, providerId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
-            Price = (int)draftApprenticeship.Cost;
+            Price = (int?)draftApprenticeship.Cost;
             StartDate = draftApprenticeship.StartDate;
             EndDate = draftApprenticeship.EndDate;
 

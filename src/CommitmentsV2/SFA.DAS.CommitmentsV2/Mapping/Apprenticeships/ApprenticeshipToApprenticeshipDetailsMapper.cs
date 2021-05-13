@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
@@ -28,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 Id = source.Id,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
+                Email = source.Email,
                 CourseName = source.CourseName,
                 EmployerName = source.Cohort.AccountLegalEntity.Name,
                 ProviderName = source.Cohort.Provider.Name,
