@@ -77,6 +77,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         e => f.IsValidChangeOfPartyEvent(a, e))),
                     Times.Once));
         }
+
+        [Test]
+        public void Handle_WhenHandlingCommand_WithChangeOfParty_ThenShouldAddContinuationOfIdToApprenticeCreatedEvents()
+        {
+            var f = new ProcessFullyApprovedCohortCommandFixture();
+            f.SetChangeOfPartyRequest(true)
+                .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.NonLevy)
+                .SetApprovedApprenticeshipAsContinuation()
+                .Handle();
+
+            f.Apprenticeships.ForEach(
+                a => f.EventPublisher.Verify(
+                    p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
+                        e => e.ContinuationOfId == f.PreviousApprenticeshipId)),
+                    Times.Once));
+        }
     }
 
     public class ProcessFullyApprovedCohortCommandFixture
@@ -88,6 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IEventPublisher> EventPublisher { get; set; }
         public List<Apprenticeship> Apprenticeships { get; set; }
         public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
+        public long PreviousApprenticeshipId { get; set; }
         
         public ProcessFullyApprovedCohortCommandFixture()
         {
@@ -103,6 +120,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
             Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<object[]>())).Returns(Task.CompletedTask);
             EventPublisher.Setup(p => p.Publish(It.IsAny<object>())).Returns(Task.CompletedTask);
+            PreviousApprenticeshipId = AutoFixture.Create<long>();
         }
 
         public Task Handle()
@@ -146,7 +164,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 cohortBuilder.Without(c => c.TransferSenderId).Without(c => c.TransferApprovalActionedOn);
             }
 
-            var apprenticeshipBuilder = AutoFixture.Build<Apprenticeship>().Without(a => a.DataLockStatus).Without(a => a.EpaOrg).Without(a => a.ApprenticeshipUpdate).Without(a => a.Continuation).Without(a => a.PreviousApprenticeship);
+            var apprenticeshipBuilder = AutoFixture.Build<Apprenticeship>()
+                .Without(a => a.DataLockStatus)
+                .Without(a => a.EpaOrg)
+                .Without(a => a.ApprenticeshipUpdate)
+                .Without(a => a.Continuation)
+                .Without(a => a.PreviousApprenticeship);
+
             var cohort1 = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
             var cohort2 = cohortBuilder.Create();
             
@@ -164,6 +188,52 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Db.Object.SaveChanges();
             
+            return this;
+        }
+
+        public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeshipAsContinuation()
+        {
+            var provider = new Provider { Name = "Test Provider" };
+            var account = new Account(1, "", "", "", DateTime.UtcNow);
+            var accountLegalEntity = new AccountLegalEntity(account, 1, 1, "", "", "Test Employer", OrganisationType.Charities, "", DateTime.UtcNow);
+
+            AutoFixture.Inject(account);
+            
+            var cohortBuilder = AutoFixture.Build<Cohort>()
+                .Without(c => c.Apprenticeships)
+                .With(c => c.AccountLegalEntity, accountLegalEntity)
+                .With(c => c.Provider, provider)
+                .With(x => x.IsDeleted, false)
+                .Without(c => c.TransferSenderId).Without(c => c.TransferApprovalActionedOn);
+
+            var apprenticeshipBuilder = AutoFixture.Build<Apprenticeship>()
+                .Without(a => a.DataLockStatus)
+                .Without(a => a.EpaOrg)
+                .Without(a => a.ApprenticeshipUpdate)
+                .Without(a => a.Continuation)
+                .Without(a => a.PreviousApprenticeship);
+
+            var cohort = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
+            var cohortOld = cohortBuilder.Create();
+
+            var apprenticeshipOld = apprenticeshipBuilder
+                .With(a => a.Cohort, cohortOld)
+                .With(a=>a.Id, PreviousApprenticeshipId)
+                .Create();
+
+            var apprenticeshipNew = apprenticeshipBuilder
+                .With(a => a.Cohort, cohort)
+                .With(a => a.ContinuationOfId, apprenticeshipOld.Id)
+                .Create();
+
+            var apprenticeships = new[] { apprenticeshipNew };
+
+            Db.Object.AccountLegalEntities.Add(accountLegalEntity);
+            Db.Object.Providers.Add(provider);
+            Db.Object.Apprenticeships.AddRange(apprenticeships);
+
+            Db.Object.SaveChanges();
+
             return this;
         }
 
