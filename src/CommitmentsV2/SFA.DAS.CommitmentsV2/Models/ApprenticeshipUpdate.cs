@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class ApprenticeshipUpdate
+    public class ApprenticeshipUpdate : ITrackableEntity
     {
         public long Id { get; set; }
         public long ApprenticeshipId { get; set; }
