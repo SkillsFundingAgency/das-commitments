@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                     ImportedProviders.AddRange(dataTable.AsEnumerable().Select(r => new ProviderSummary
                     {
                         Ukprn = (int)r[0],
-                        ProviderName = (string)r[1]
+                        Name = (string)r[1]
                     }));
                 });
 
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 .Select(i => new ProviderSummary
                 {
                     Ukprn = i,
-                    ProviderName = i.ToString()
+                    Name = i.ToString()
                 })
                 .ToList();
 

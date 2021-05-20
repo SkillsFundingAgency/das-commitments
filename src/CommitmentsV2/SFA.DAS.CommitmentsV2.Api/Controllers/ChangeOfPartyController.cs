@@ -7,13 +7,14 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("api/apprenticeships/{apprenticeshipId}/change-of-party-requests")]
+    [Route("api/apprenticeships/{apprenticeshipId}")]
     public class ChangeOfPartyController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -26,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
+        [Route("change-of-party-requests")]
         public async Task<IActionResult> GetAll(long apprenticeshipId, CancellationToken cancellationToken = default)
         {
             var result = await _mediator.Send(new GetChangeOfPartyRequestsQuery(apprenticeshipId), cancellationToken);
@@ -34,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
+        [Route("change-of-party-requests")]
         public async Task<IActionResult> CreateChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
         {
             await _mediator.Send(new CreateChangeOfPartyRequestCommand
@@ -48,6 +51,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             }, cancellationToken);
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("change-of-provider-chain")]
+        public async Task<IActionResult> GetChangeOfProviderChain(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            var result = await _mediator.Send(new GetChangeOfProviderChainQuery(apprenticeshipId), cancellationToken);
+            var response = await _modelMapper.Map<GetChangeOfProviderChainResponse>(result);
+            return Ok(response);
         }
     }
 }

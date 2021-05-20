@@ -50,30 +50,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             return new EditApprenticeshipResponse { ApprenticeshipId = command.EditApprenticeshipRequest.ApprenticeshipId, NeedReapproval = immediateUpdateCreated };
         }
 
-        private bool CreateImmedidateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
+        private void CreateImmedidateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
         {
-            bool immediateUpdate = false;
             if (command.EmployerReferenceUpdateRequired(apprenticeship, party))
             {
                 apprenticeship.UpdateEmployerReference(command.EditApprenticeshipRequest.EmployerReference, party, command.EditApprenticeshipRequest.UserInfo);
-                immediateUpdate = true;
             }
             else
             {
                 if (command.ProviderReferenceUpdateRequired(apprenticeship, party))
                 {
                     apprenticeship.UpdateProviderReference(command.EditApprenticeshipRequest.ProviderReference, party, command.EditApprenticeshipRequest.UserInfo);
-                    immediateUpdate = true;
                 }
 
                 if (command.ULNUpdateRequired(apprenticeship, party))
                 {
                     apprenticeship.UpdateULN(command.EditApprenticeshipRequest.ULN, party, _currentDateTime.UtcNow, command.EditApprenticeshipRequest.UserInfo);
-                    immediateUpdate = true;
                 }
             }
-
-            return immediateUpdate;
         }
 
         private bool CreateIntermediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
@@ -81,13 +75,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             if (command.EditApprenticeshipRequest.IntermediateApprenticeshipUpdateRequired())
             {
                 var apprenticeshipUpdate = command.MapToApprenticeshipUpdate(apprenticeship, party, _currentDateTime.UtcNow);
-                
+
                 if (!string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCode))
                 {
                     var result = _mediator.Send(new GetTrainingProgrammeQuery
                     {
                         Id = apprenticeshipUpdate.TrainingCode
                     }).Result;
+
+                    if (result == null || result.TrainingProgramme == null)
+                    {
+                        throw new InvalidOperationException("Invalid training programme");
+                    }
 
                     apprenticeshipUpdate.TrainingName = result?.TrainingProgramme?.Name;
                     apprenticeshipUpdate.TrainingType = result?.TrainingProgramme?.ProgrammeType;
