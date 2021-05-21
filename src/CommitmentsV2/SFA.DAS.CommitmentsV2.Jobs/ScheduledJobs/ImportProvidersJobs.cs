@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _logger.LogInformation("ImportProvidersJob - Started");
 
             var response = await _apiClient.Get<ProviderResponse>(new GetProvidersRequest());
-            var batches = response.Providers.Batch(1000).Select(b => b.ToDataTable(p => p.Ukprn, p => p.ProviderName));
+            var batches = response.Providers.Batch(1000).Select(b => b.ToDataTable(p => p.Ukprn, p => p.Name));
 
             foreach (var batch in batches)
             {

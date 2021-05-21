@@ -129,6 +129,29 @@ namespace SFA.DAS.CommitmentsV2.Models
             });
         }
 
+        public void UndoApprenticeshipUpdate(Party party, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.Updated, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+
+            var update = ApprenticeshipUpdate.First(x => x.Status == ApprenticeshipUpdateStatus.Pending);
+            ChangeTrackingSession.TrackUpdate(update);
+
+            PendingUpdateOriginator = null;
+            update.Status = ApprenticeshipUpdateStatus.Deleted;
+
+            ResetDataLocks(update);
+
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() =>
+            new ApprenticeshipUpdateCancelledEvent
+            {
+                ApprenticeshipId = Id,
+                AccountId = Cohort.EmployerAccountId,
+                ProviderId = Cohort.ProviderId
+            });
+        }
+
         private void ResolveDataLocks(ApprenticeshipUpdate update)
         {
             if (update.UpdateOrigin == ApprenticeshipUpdateOrigin.DataLock)

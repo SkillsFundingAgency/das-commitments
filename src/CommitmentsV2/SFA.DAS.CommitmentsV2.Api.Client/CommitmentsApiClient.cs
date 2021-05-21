@@ -397,6 +397,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/updates/reject-apprenticeship-update", request, cancellationToken);
         }
 
+        public Task UndoApprenticeshipUpdates(long apprenticeshipId, UndoApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/updates/undo-apprenticeship-update", request, cancellationToken);
+        }
+
         public Task<EditApprenticeshipResponse> EditApprenticeship(EditApprenticeshipApiRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<EditApprenticeshipApiRequest, EditApprenticeshipResponse>($"api/apprenticeships/edit", request, cancellationToken);
