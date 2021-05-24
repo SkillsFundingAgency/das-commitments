@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
+using SFA.DAS.CommitmentsV2.Application.Queries.BulkUpload;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Types;
@@ -152,6 +154,44 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             await _mediator.Send(command, cancellationToken);
 
             return NoContent();
+        }
+
+        //Move this to its own controller
+        [HttpPost]
+        [Route("bulk-upload")]
+        public async Task<IActionResult> BulkUploadValidator(BulkUploadValidatorRequest request, CancellationToken cancellationToken)
+        {
+            var query = new BulkUploadValidateQuery { request = request, UserInfo = request.UserInfo };
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+
+        [HttpPost]
+        [Route("bulk-upload/action")]
+        public async Task<IActionResult> BulkAction(BulkCohortActionRequest request, CancellationToken cancellationToken)
+        {
+            request.UserInfo = new UserInfo() { UserDisplayName = "xxx", UserEmail = "xxx@hotmail.com", UserId = "1" };
+            List<Task> tasks = new List<Task>();
+            if (request.CohortAction == CohortAction.Approve)
+            {
+                foreach (var cohortId in request.CohortIds)
+                {
+                    var command = new ApproveCohortCommand(cohortId, string.Empty, request.UserInfo);
+                   tasks.Add(_mediator.Send(command));
+                }
+            }
+            else if (request.CohortAction == CohortAction.Send)
+            {
+                foreach (var cohortId in request.CohortIds)
+                {
+                    var command = new SendCohortCommand(cohortId, string.Empty, request.UserInfo);
+                    tasks.Add(_mediator.Send(command));
+                }
+            }
+
+            await Task.WhenAll(tasks);
+            return Ok();
         }
     }
 }

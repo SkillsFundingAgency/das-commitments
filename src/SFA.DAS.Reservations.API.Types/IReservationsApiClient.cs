@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,5 +14,6 @@ namespace SFA.DAS.Reservations.Api.Types
         Task<CreateChangeOfPartyReservationResult> CreateChangeOfPartyReservation(Guid reservationId, CreateChangeOfPartyReservationRequest request, CancellationToken cancellationToken);
         Task<bool> IsLevyAccount(long accountLegalEntityId, CancellationToken cancellationToken);
         Task<Guid> CreateReservationNonLevy(Reservation reservation, CancellationToken cancellationToken);
+        Task<BulkValidationResults> BulkValidate(IEnumerable<Reservation> request, CancellationToken cancellationToken);
     }
 }
