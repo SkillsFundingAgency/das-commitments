@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.Reservations.Api.Types.Configuration;
@@ -54,6 +56,30 @@ namespace SFA.DAS.Reservations.Api.Types
         {
             var url = BuildUrl($"api/reservations/{reservationId}/change");
             return _httpHelper.PostAsJson<CreateChangeOfPartyReservationRequest, CreateChangeOfPartyReservationResult>(url, request, cancellationToken);
+        }
+
+        public Task<bool> IsLevyAccount(long accountLegalEntityId, CancellationToken cancellationToken)
+        {
+            var url =BuildUrl($"api/AccountLegalEntities/isLevy/{accountLegalEntityId}");
+
+            return _httpHelper.GetAsync<bool>(url, null, cancellationToken);
+        }
+
+        public async Task<Guid> CreateReservationNonLevy(Reservation reservation, CancellationToken cancellationToken)
+        {
+            var url = BuildUrl($"api/accounts/{reservation.AccountId}/Reservations");
+
+            var response = await _httpHelper.PostAsJson<Reservation, Reservation>(url, reservation, cancellationToken);
+
+            return response.Id;
+        }
+
+        public Task<BulkValidationResults> BulkValidate(IEnumerable<Reservation> request, CancellationToken cancellationToken)
+        {
+            var url = BuildUrl($"api/Reservations/accounts/{request.First().AccountLegalEntityId}/bulk-validate");
+
+
+            return _httpHelper.PostAsJson<IEnumerable<Reservation>, BulkValidationResults>(url, request, cancellationToken);
         }
 
         private string BuildUrl(string path)
