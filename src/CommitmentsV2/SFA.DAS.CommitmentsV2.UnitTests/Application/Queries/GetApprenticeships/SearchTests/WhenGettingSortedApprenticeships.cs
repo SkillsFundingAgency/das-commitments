@@ -551,7 +551,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Apprentices_Are_Sorted_By_Payment_Status(
+        public async Task Then_Apprentices_Are_Not_Sorted_By_Payment_Status(
             OrderedApprenticeshipSearchParameters searchParameters,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
@@ -563,9 +563,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
-                {
+                {   // Would be second if sorting by payment status were enabled
                     FirstName = "FirstName",
-                    LastName = "Should_Be_Second",
+                    LastName = "Should_Be_First",
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(-2),
@@ -575,9 +575,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     PaymentStatus = PaymentStatus.Paused
                 },
                 new Apprenticeship
-                {
+                {   // Would be third
                     FirstName = "FirstName",
-                    LastName = "Should_Be_Third",
+                    LastName = "Should_Be_Second",
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(-3),
@@ -587,9 +587,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     PaymentStatus = PaymentStatus.Completed
                 },
                 new Apprenticeship
-                {
+                {   // Would be first
                     FirstName = "FirstName",
-                    LastName = "Should_Be_First",
+                    LastName = "Should_Be_Third",
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(-1),
@@ -621,7 +621,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Active_Apprentices_Are_Sorted_By_Start_Date(
+        public async Task Then_Active_Apprentices_Are_Not_Sorted_By_Start_Date(
             OrderedApprenticeshipSearchParameters searchParameters,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
@@ -633,9 +633,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
-                {
+                {   // Would be second if sorting by payment status were enabled
                     FirstName = "FirstName",
-                    LastName = "Should_Be_Second",
+                    LastName = "Should_Be_First",
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1),
@@ -645,9 +645,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     PaymentStatus = PaymentStatus.Active
                 },
                 new Apprenticeship
-                {
+                {   // Would be third
                     FirstName = "FirstName",
-                    LastName = "Should_Be_Third",
+                    LastName = "Should_Be_Second",
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(1),
@@ -657,9 +657,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     PaymentStatus = PaymentStatus.Active
                 },
                 new Apprenticeship
-                {
+                {   // Would be first
                     FirstName = "FirstName",
-                    LastName = "Should_Be_First",
+                    LastName = "Should_Be_Third",
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow.AddMonths(-2),
