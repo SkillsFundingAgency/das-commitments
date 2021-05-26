@@ -465,6 +465,45 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _v2EventsPublisher.Verify(x => x.PublishDataLockTriageApproved(It.Is<IApprenticeshipEvent>(ev => ev.Apprenticeship.Id == _command.ApprenticeshipId)), Times.Exactly(_eventsToPublish.Count));
         }
 
+
+        [Test]
+        public async Task ShouldSetEndDateEqualStartWhenStartDateIsRepeated()
+        {
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
+                    .ReturnsAsync(new List<DataLockStatus>
+                      {
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1500,
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2019-12-13"),  DataLockEventId = 1, TriageStatus = TriageStatus.Change},
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1600,
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2019-12-13"), DataLockEventId = 2, TriageStatus = TriageStatus.Change},
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1700,
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2020-09-14"), DataLockEventId = 3, TriageStatus = TriageStatus.Change},
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1800,
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2020-10-23"), DataLockEventId = 4, TriageStatus = TriageStatus.Change}
+                      });
+
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
+                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L });
+
+            IEnumerable<PriceHistory> prices = null;
+            _apprenticeshipRepository.Setup(
+                m => m.InsertPriceHistory(_command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()))
+                .Callback<long, IEnumerable<PriceHistory>>((i, l) => prices = l)
+                .Returns(Task.FromResult(1L));
+
+            await _sut.Handle(_command);
+
+            var p1 = prices.Single(m => m.Cost == 1500);
+            var p2 = prices.Single(m => m.Cost == 1600);
+            var p3 = prices.Single(m => m.Cost == 1700);
+            var p4 = prices.Single(m => m.Cost == 1800);
+
+            p1.ToDate.Should().Be(p1.FromDate);
+            p2.ToDate.Should().Be(p3.FromDate.AddDays(-1));
+            p3.ToDate.Should().Be(p4.FromDate.AddDays(-1));
+            p4.ToDate.Should().Be(null);
+        }
+        
         private bool AssertPriceHistory(IEnumerable<PriceHistory> ph, int expectedTotal)
         {
             return
