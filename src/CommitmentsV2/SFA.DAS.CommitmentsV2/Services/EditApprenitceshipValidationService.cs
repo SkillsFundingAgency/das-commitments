@@ -75,6 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.AddRange(await BuildReservationValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildTrainingProgramValidationFailures(request, apprenticeship));
             }
+
             return new EditApprenticeshipValidationResult()
             {
                 Errors = errors

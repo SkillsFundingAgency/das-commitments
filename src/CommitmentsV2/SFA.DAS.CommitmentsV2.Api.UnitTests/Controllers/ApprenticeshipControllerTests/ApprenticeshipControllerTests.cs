@@ -20,6 +20,7 @@ using GetApprenticeshipsRequest = SFA.DAS.CommitmentsV2.Api.Types.Requests.GetAp
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
+using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -288,12 +289,49 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Setup(p => p.Send(It.IsAny<ValidateApprenticeshipForEditCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
 
             //Act
-            await _controller.ValidateApprenticeshipForEdit(request);
+            var notFoundResult = await _controller.ValidateApprenticeshipForEdit(request) as NotFoundResult;
+
+            //Assert
+            Assert.IsNotNull(notFoundResult);
+        }
+
+        [Test, MoqAutoData]
+        public async Task EditApprenticeshpCommandIsSent(EditApprenticeshipApiRequest request)
+        {
+            //Act
+            await _controller.EditApprenticeship(request);
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.IsAny<ValidateApprenticeshipForEditCommand>(),
+                It.IsAny<EditApprenticeshipCommand>(),
                 It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task EditApprenticeshipResponseIsReturned(EditApprenticeshipApiRequest request)
+        {
+            _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => new EditApprenticeshipResponse { ApprenticeshipId = 1, NeedReapproval = true });
+
+            //Act
+           var result = await _controller.EditApprenticeship(request) as OkObjectResult;
+
+            var response = result.WithModel<Types.Responses.EditApprenticeshipResponse>();
+
+            //Assert
+            Assert.AreEqual(true, response.NeedReapproval);
+            Assert.AreEqual(1, response.ApprenticeshipId);
+        }
+
+        [Test, MoqAutoData]
+        public async Task EditApprenticeshpNotFound(EditApprenticeshipApiRequest request)
+        {
+            _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
+
+            //Act
+           var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult; 
+
+            //Assert
+            Assert.IsNotNull(notFoundResult);
         }
     }
 }

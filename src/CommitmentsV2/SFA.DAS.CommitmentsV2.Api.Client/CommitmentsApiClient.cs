@@ -343,6 +343,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetChangeOfPartyRequestsResponse>($"api/apprenticeships/{apprenticeshipId}/change-of-party-requests", null, cancellationToken);
         }
 
+        public Task<GetChangeOfProviderChainResponse> GetChangeOfProviderChain(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetChangeOfProviderChainResponse>($"api/apprenticeships/{apprenticeshipId}/change-of-provider-chain", null, cancellationToken);
+        }
+
         public Task UpdateEndDateOfCompletedRecord(EditEndDateRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/details/editenddate", request, cancellationToken);
@@ -380,6 +385,27 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task ValidateApprenticeshipForEdit(ValidateApprenticeshipForEditRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/edit/validate", request, cancellationToken);
+        }
+
+        public Task AcceptApprenticeshipUpdates(long apprenticeshipId, AcceptApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/updates/accept-apprenticeship-update", request, cancellationToken);
+        }
+
+        public Task RejectApprenticeshipUpdates(long apprenticeshipId, RejectApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/updates/reject-apprenticeship-update", request, cancellationToken);
+        }
+
+        public Task UndoApprenticeshipUpdates(long apprenticeshipId, UndoApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/updates/undo-apprenticeship-update", request, cancellationToken);
+        }
+
+        public Task<EditApprenticeshipResponse> EditApprenticeship(EditApprenticeshipApiRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<EditApprenticeshipApiRequest, EditApprenticeshipResponse>($"api/apprenticeships/edit", request, cancellationToken);
+
         }
     }
 }
