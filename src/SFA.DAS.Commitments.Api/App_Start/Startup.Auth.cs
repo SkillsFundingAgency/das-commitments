@@ -8,7 +8,6 @@ namespace SFA.DAS.Commitments.Api
     {
         public void ConfigureAuth(IAppBuilder app)
         {
-#if !DEBUG
             app.UseMixedModeAuthentication(new MixedModeAuthenticationOptions
             {
                 ValidIssuers = ConfigurationManager.AppSettings["ApiIssuers"].Split(' '),
@@ -16,7 +15,6 @@ namespace SFA.DAS.Commitments.Api
                 ApiTokenSecret = ConfigurationManager.AppSettings["ApiTokenSecret"],
                 MetadataEndpoint = ConfigurationManager.AppSettings["MetadataEndpoint"]
             });
-#endif
         }
     }
 }
