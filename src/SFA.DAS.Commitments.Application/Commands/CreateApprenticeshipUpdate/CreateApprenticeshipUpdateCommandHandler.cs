@@ -76,6 +76,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
+
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
 
             if (!ValidateStartedApprenticeship(apprenticeship, command.ApprenticeshipUpdate))
@@ -109,17 +110,21 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 await SendApprenticeshipUpdateCreatedEvent(apprenticeship);
             }
 
-            await Task.WhenAll(
-                _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate),
-                SaveHistory(),
-                _v2EventsPublisher.PublishApprenticeshipUlnUpdatedEvent(immediateUpdate)
-            );
-
-            if (command.ApprenticeshipUpdate.ULN != null)
+            var tasksToRun = new List<Task>
             {
+                _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate),
+                SaveHistory()
+            };
+
+            if (!string.IsNullOrEmpty(command.ApprenticeshipUpdate.ULN))
+            {
+                tasksToRun.Add(_v2EventsPublisher.PublishApprenticeshipUlnUpdatedEvent(immediateUpdate));
+
                 _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
-                await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+                tasksToRun.Add(_apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList));
             }
+
+            await Task.WhenAll(tasksToRun);
         }
 
         private async Task SendApprenticeshipUpdateCreatedEvent(Apprenticeship apprenticeship)
@@ -150,7 +155,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             if (!started)
                 return true;
 
-            if (apprenticeship.HasHadDataLockSuccess && 
+            if (apprenticeship.HasHadDataLockSuccess &&
                 (apprenticeshipUpdate.Cost != null || apprenticeshipUpdate.TrainingCode != null)
                 )
             {
@@ -186,7 +191,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             switch (command.Caller.CallerType)
             {
                 case CallerType.Employer:
-                    if(apprenticeship.EmployerAccountId != command.Caller.Id)
+                    if (apprenticeship.EmployerAccountId != command.Caller.Id)
                         throw new UnauthorizedException($"Employer {command.Caller.Id} not authorised to update apprenticeship {apprenticeship.Id}");
                     break;
                 case CallerType.Provider:
