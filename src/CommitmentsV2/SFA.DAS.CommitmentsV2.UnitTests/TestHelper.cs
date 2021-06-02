@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests
 {

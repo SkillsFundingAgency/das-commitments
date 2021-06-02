@@ -33,28 +33,4 @@ namespace SFA.DAS.CommitmentsV2.UnitTests
             return new NoSpecimen();
         }
     }
-
-    /*public class UserInfoArgSpecimenBuilder : ISpecimenBuilder
-    {
-        private readonly UserInfo value;
-
-        public UserInfoArgSpecimenBuilder(UserInfo value)
-        {
-            this.value = value;
-        }
-
-        public object Create(object request, ISpecimenContext context)
-        {
-            var pi = request as ParameterInfo;
-            if (pi == null)
-                return new NoSpecimen();
-
-            if (!pi.Member.DeclaringType.GetInterfaces().ToList().Contains(typeof(IRequest)) ||
-                pi.ParameterType != typeof(UserInfo) ||
-                pi.Name != "userInfo")
-                return new NoSpecimen();
-
-            return value;
-        }
-    }*/
 }
