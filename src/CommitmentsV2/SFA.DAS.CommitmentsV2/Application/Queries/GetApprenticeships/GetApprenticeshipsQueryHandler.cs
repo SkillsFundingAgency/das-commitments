@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             ApprenticeshipSearchResult searchResult;
 
-            if (string.IsNullOrEmpty(query.SortField) || query.SortField == "DataLockStatus")
+            if (string.IsNullOrEmpty(query.SortField))
             {
                 var searchParameters = new ApprenticeshipSearchParameters
                 {
