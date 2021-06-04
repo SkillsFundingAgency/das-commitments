@@ -115,6 +115,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("details/editenddate")]
         public async Task<IActionResult> EditEndDate([FromBody]EditEndDateRequest request)
         {
+            _logger.LogInformation("Edit end date apprenticeship api endpoint called for : " + request.ApprenticeshipId);
+
             var response = await _mediator.Send(new EditEndDateRequestCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
@@ -134,6 +136,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{apprenticeshipId}/stop")]
         public async Task<IActionResult> StopApprenticeship(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
         {
+            _logger.LogInformation("Stop apprenticeship api endpoint called for : " + apprenticeshipId);
+
             await _mediator.Send(new StopApprenticeshipCommand(
                 request.AccountId,
                 apprenticeshipId,
@@ -149,6 +153,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("details/pause")]
         public async Task<IActionResult> Pause([FromBody]PauseApprenticeshipRequest request)
         {
+            _logger.LogInformation("Pause apprenticeship api endpoint called for : " + request.ApprenticeshipId);
+
             var response = await _mediator.Send(new PauseApprenticeshipCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
@@ -167,6 +173,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("details/resume")]
         public async Task<IActionResult> Resume([FromBody] ResumeApprenticeshipRequest request)
         {
+            _logger.LogInformation("Resume apprenticeship api endpoint called for : " + request.ApprenticeshipId);
+
             var response = await _mediator.Send(new ResumeApprenticeshipCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
@@ -178,7 +186,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpPut]
         [Route("{apprenticeshipId}/stopdate")]
         public async Task<IActionResult> UpdateApprenticeshipStopDate(long apprenticeshipId, [FromBody] ApprenticeshipStopDateRequest request)
-        {   
+        {
+            _logger.LogInformation("Update apprenticeship stop date api endpoint called for : " + apprenticeshipId);
+
             var response = await _mediator.Send(new UpdateApprenticeshipStopDateCommand(            
                 request.AccountId,
                 apprenticeshipId,
@@ -212,6 +222,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("edit")]
         public async Task<IActionResult> EditApprenticeship([FromBody] EditApprenticeshipApiRequest request)
         {
+            _logger.LogInformation("Edit apprenticeship api endpoint called for  : " + request.ApprenticeshipId);
+
             var command = new EditApprenticeshipCommand { EditApprenticeshipRequest = request };
             var response = await _mediator.Send(command);
 

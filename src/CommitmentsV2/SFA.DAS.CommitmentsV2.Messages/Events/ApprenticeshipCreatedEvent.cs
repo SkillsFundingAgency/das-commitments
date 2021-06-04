@@ -21,5 +21,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public string TrainingCode { get; set; }
         public long? TransferSenderId { get; set; }
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
+        public long? ContinuationOfId { get; set; }
     }
 }
