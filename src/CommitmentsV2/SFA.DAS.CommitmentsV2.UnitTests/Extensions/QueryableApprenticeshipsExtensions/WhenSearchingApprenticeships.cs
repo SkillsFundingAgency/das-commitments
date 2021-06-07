@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             apprenticeships[0].FirstName = searchTerm + apprenticeships[0].FirstName;
             var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm};
 
-            var filtered = apprenticeships.AsQueryable().Filter(filter);
+            var filtered = apprenticeships.AsQueryable().Filter(filter, default);
 
             filtered.Count().Should().Be(apprenticeships.Count(apprenticeship =>
                 apprenticeship.FirstName.StartsWith(searchTerm)));
@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             apprenticeships[0].LastName = searchTerm + apprenticeships[0].LastName;
             var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm};
 
-            var filtered = apprenticeships.AsQueryable().Filter(filter);
+            var filtered = apprenticeships.AsQueryable().Filter(filter, default);
 
             filtered.Count().Should().Be(apprenticeships.Count(apprenticeship =>
                 apprenticeship.LastName.StartsWith(searchTerm)));
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             apprenticeships[0].Uln = searchTerm.ToString();
             var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm.ToString()};
 
-            var filtered = apprenticeships.AsQueryable().Filter(filter);
+            var filtered = apprenticeships.AsQueryable().Filter(filter, default);
 
             filtered.Count().Should().Be(apprenticeships.Count(apprenticeship =>
                 apprenticeship.Uln == searchTerm.ToString()));
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             apprenticeships[1].LastName = searchTerm;
             var filter = new ApprenticeshipSearchFilters {SearchTerm = searchTerm};
 
-            var filtered = apprenticeships.AsQueryable().Filter(filter);
+            var filtered = apprenticeships.AsQueryable().Filter(filter, default);
 
             filtered.Count().Should().Be(apprenticeships.Count(apprenticeship =>
                 apprenticeship.FirstName == searchTerm ||
@@ -79,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var searchTerm = searchName + " " + searchUln;
             var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm};
 
-            var filtered = apprenticeships.AsQueryable().Filter(filter);
+            var filtered = apprenticeships.AsQueryable().Filter(filter, default);
 
             filtered.Count().Should().Be(0);
         }
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var searchTerm = searchTermFirstName + " " + searchTermLastName;
             var filter = new ApprenticeshipSearchFilters{SearchTerm = searchTerm};
 
-            var filtered = apprenticeships.AsQueryable().Filter(filter);
+            var filtered = apprenticeships.AsQueryable().Filter(filter, default);
 
             filtered.Count().Should().Be(0);
         }
@@ -111,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var searchTerm = searchTermFirstName + " " + searchTermLastName;
             var filter = new ApprenticeshipSearchFilters { SearchTerm = searchTerm };
 
-            var filtered = apprenticeships.AsQueryable().Filter(filter);
+            var filtered = apprenticeships.AsQueryable().Filter(filter, default);
 
             filtered.Count().Should().Be(0);
         }

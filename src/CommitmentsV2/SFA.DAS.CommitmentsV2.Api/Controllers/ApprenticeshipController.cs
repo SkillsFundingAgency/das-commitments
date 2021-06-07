@@ -19,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using SFA.DAS.CommitmentsV2.Types;
 using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -67,7 +68,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     EndDate = request.EndDate,
                     ProviderName = request.ProviderName,
                     AccountLegalEntityId = request.AccountLegalEntityId,
-                    StartDateRange = new DateRange { From = request.StartDateRangeFrom, To = request.StartDateRangeTo }
+                    StartDateRange = new DateRange { From = request.StartDateRangeFrom, To = request.StartDateRangeTo },
+                    Alert = request.Alert
                 };
 
                 var queryResult = await _mediator.Send(new GetApprenticeshipsQuery

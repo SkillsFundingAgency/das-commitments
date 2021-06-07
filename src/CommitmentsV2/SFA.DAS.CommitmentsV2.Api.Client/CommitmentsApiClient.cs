@@ -247,6 +247,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 filterQuery += $"&startDateRangeTo={WebUtility.UrlEncode(request.StartDateRangeTo.Value.ToString("u"))}";
             }
 
+            if (request.Alert.HasValue)
+            {
+                filterQuery += $"&alert={WebUtility.UrlEncode(request.Alert.Value.ToString())}";
+            }
+
             return filterQuery;
         }
 

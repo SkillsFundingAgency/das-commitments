@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -11,8 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 {
     public static class QueryableApprenticeshipsExtensions
     {
-        public static IQueryable<Apprenticeship> Filter(this IQueryable<Apprenticeship> apprenticeships,
-            ApprenticeshipSearchFilters filters)
+        public static IQueryable<Apprenticeship> Filter(this IQueryable<Apprenticeship> apprenticeships, ApprenticeshipSearchFilters filters, long? providerId)
         {
             if (filters == null)
             {
@@ -120,6 +120,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     apprenticeships = apprenticeships.Where(x => x.StartDate.HasValue && x.StartDate.Value <= filters.StartDateRange.To);
                 }
             }
+                                                       
+            if (filters.Alert.HasValue)
+            {
+                apprenticeships =  FilterApprenticeshipByAlert(apprenticeships,filters.Alert.Value, providerId);
+            }
 
             return apprenticeships;
         }
@@ -181,5 +186,102 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             return identifier.EmployerAccountId.HasValue ? 
                 apprenticeships.Where(app => app.Cohort.EmployerAccountId == identifier.EmployerAccountId) : apprenticeships;
         }
+
+        public static IQueryable<Apprenticeship> FilterApprenticeshipByAlert( IQueryable<Apprenticeship> apprenticeships, Alerts alert, long? providerId)
+        {
+            switch (alert)
+            {
+                case Alerts.IlrDataMismatch:
+                    return apprenticeships.Where(a =>
+                        (
+                            a.DataLockStatus.Any(x =>
+                                (x.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
+                                 || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
+                                 || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
+                                 || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)) &&
+                                x.TriageStatus == TriageStatus.Unknown &&
+                                !x.IsResolved)
+                        ) ||
+                        (
+                            a.DataLockStatus.Any(x =>
+                                ((int) x.ErrorCode == (int) DataLockErrorCode.Dlock07) &&
+                                x.TriageStatus == TriageStatus.Unknown &&
+                                !x.IsResolved)
+                        )
+                    );
+                  
+                case Alerts.ChangesPending:
+                    return apprenticeships.Where(a =>
+                        (
+                            a.DataLockStatus.Any(x =>
+                                (
+                                    x.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
+                                    || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
+                                    || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
+                                    || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
+                                ) &&
+                                x.TriageStatus == TriageStatus.Change &&
+                                !x.IsResolved)
+                        )
+                        ||
+                        (
+                            a.DataLockStatus.Any(x =>
+                                (
+                                    (int) x.ErrorCode == (int) DataLockErrorCode.Dlock07
+                                ) &&
+                                x.TriageStatus == TriageStatus.Change &&
+                                !x.IsResolved)
+                        ));
+                case Alerts.ChangesRequested:
+
+                    if (!providerId.HasValue)
+                    {
+                        return apprenticeships.Where(a =>
+                        (
+                            a.DataLockStatus.Any(x =>
+                                x.Status == Status.Fail &&
+                                (x.TriageStatus != TriageStatus.Unknown && x.TriageStatus != TriageStatus.Change) &&
+                                !x.IsResolved)
+                        ));
+                    }
+
+                    return apprenticeships.Where(a =>
+                    (
+                        a.DataLockStatus.Any(x =>
+                        (
+                            x.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
+                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
+                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
+                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
+
+                        ) && x.TriageStatus == TriageStatus.Restart && !x.IsResolved)
+                    ));
+
+
+                case Alerts.ChangesForReview:
+
+                    if (!providerId.HasValue)
+                    {
+                        return apprenticeships.Where(a =>
+                            a.ApprenticeshipUpdate != null &&
+                            a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending)
+                        );
+                    }
+
+                    return apprenticeships.Where(a =>
+                        a.ApprenticeshipUpdate != null &&
+                        a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending)
+                    );
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(alert), alert, null);
+            }
+
+
+
+        }
+
+
+
     }
 }

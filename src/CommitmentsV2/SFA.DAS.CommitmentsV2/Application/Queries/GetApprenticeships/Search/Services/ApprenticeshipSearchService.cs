@@ -229,7 +229,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
         { 
             return GetApprenticeshipsQuery(searchParameters)
                 .WithAlerts(withAlerts, searchParameters)
-                .Filter(searchParameters.Filters);
+                .Filter(searchParameters.Filters, searchParameters.ProviderId);
         }
     }
 }

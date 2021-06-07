@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             //Act
-            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters {EmployerName = filterValue}).ToList();
+            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { EmployerName = filterValue }, default).ToList();
 
             //Assert
             Assert.AreEqual(2, result.Count);
@@ -76,14 +76,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             //Act
-            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters{EmployerName = filterValue}).ToList();
+            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { EmployerName = filterValue }, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
             Assert.IsTrue(result.All(a => a.Cohort.AccountLegalEntity.Name.Equals(filterValue)));
         }
 
-         [Test]
+        [Test]
         public void ThenShouldFilterProviderNames()
         {
             //Arrange
@@ -115,7 +115,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             //Act
-            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters {ProviderName = filterValue}).ToList();
+            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { ProviderName = filterValue }, default).ToList();
 
             //Assert
             Assert.AreEqual(2, result.Count);
@@ -148,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             //Act
-            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters{ProviderName = filterValue}).ToList();
+            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { ProviderName = filterValue }, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -178,7 +178,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             //Act
-            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters {CourseName = filterValue}).ToList();
+            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { CourseName = filterValue }, default).ToList();
 
             //Assert
             Assert.AreEqual(2, result.Count);
@@ -205,7 +205,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             //Act
-            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters {CourseName = filterValue}).ToList();
+            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters { CourseName = filterValue }, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -235,10 +235,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             var filterValues = new ApprenticeshipSearchFilters
-                {Status = ApprenticeshipStatus.Completed};
+            { Status = ApprenticeshipStatus.Completed };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(2, result.Count);
@@ -272,10 +272,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             var filterValues = new ApprenticeshipSearchFilters
-                { Status = ApprenticeshipStatus.WaitingToStart };
+            { Status = ApprenticeshipStatus.WaitingToStart };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -309,10 +309,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             var filterValues = new ApprenticeshipSearchFilters
-                { Status = ApprenticeshipStatus.Live };
+            { Status = ApprenticeshipStatus.Live };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -339,17 +339,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             var filterValues = new ApprenticeshipSearchFilters
-                {Status = ApprenticeshipStatus.Completed};
+            { Status = ApprenticeshipStatus.Completed };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
             Assert.IsTrue(result.All(a => a.PaymentStatus.Equals(filterValue)));
         }
 
-         [Test]
+        [Test]
         public void ThenShouldFilterStartDate()
         {
             //Arrange
@@ -371,10 +371,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 }
             }.AsQueryable();
 
-            var filterValues = new ApprenticeshipSearchFilters {StartDate = filterValue};
+            var filterValues = new ApprenticeshipSearchFilters { StartDate = filterValue };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(2, result.Count);
@@ -400,10 +400,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 }
             }.AsQueryable();
 
-            var filterValues = new ApprenticeshipSearchFilters {StartDate = filterValue};
+            var filterValues = new ApprenticeshipSearchFilters { StartDate = filterValue };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -432,10 +432,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 }
             }.AsQueryable();
 
-            var filterValues = new ApprenticeshipSearchFilters {EndDate = filterValue};
+            var filterValues = new ApprenticeshipSearchFilters { EndDate = filterValue };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(2, result.Count);
@@ -461,10 +461,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 }
             }.AsQueryable();
 
-            var filterValues = new ApprenticeshipSearchFilters {EndDate = filterValue};
+            var filterValues = new ApprenticeshipSearchFilters { EndDate = filterValue };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -493,7 +493,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var filterValues = new ApprenticeshipSearchFilters { AccountLegalEntityId = filterValue };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -524,7 +524,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var filterValues = new ApprenticeshipSearchFilters { StartDateRange = new DateRange { From = filterValue } };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -555,11 +555,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var filterValues = new ApprenticeshipSearchFilters { StartDateRange = new DateRange { To = filterValue } };
 
             //Act
-            var result = apprenticeships.Filter(filterValues).ToList();
+            var result = apprenticeships.Filter(filterValues, default).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
             Assert.IsTrue(result.All(a => a.StartDate.Value.Date <= filterValue));
+        }
+
+        
+        [TestCase(Alerts.IlrDataMismatch, "1")]
+        [TestCase(Alerts.ChangesPending, "2")]
+        [TestCase(Alerts.ChangesRequested, "3")]
+        public void ThenShouldFilterAlert(Alerts alert, string validApprenticeshipUln)
+        {
+            //Arrange
+            var apprenticeships = CreateApprenticeships();
+            long? providerId = 100;
+
+            var filterValues = new ApprenticeshipSearchFilters
+            {
+                Alert = alert
+            };
+
+            //Act
+            var result = apprenticeships.Filter(filterValues, providerId).ToList();
+
+            //Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.All(a => a.Uln.Equals(validApprenticeshipUln)));
         }
 
         [Test]
@@ -592,7 +615,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             //Act
-            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters()).ToList();
+            var result = apprenticeships.Filter(new ApprenticeshipSearchFilters(), default).ToList();
 
             //Assert
             Assert.AreEqual(3, result.Count);
@@ -619,7 +642,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             }.AsQueryable();
 
             //Act
-            var result = apprenticeships.Filter(null).ToList();
+            var result = apprenticeships.Filter(null, null).ToList();
 
             //Assert
             Assert.AreEqual(3, result.Count);
@@ -631,5 +654,68 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",
                 DateTime.UtcNow);
         }
+
+        private IQueryable<Apprenticeship> CreateApprenticeships()
+        {
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Uln =  "1",
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock03,
+                            TriageStatus = TriageStatus.Unknown,
+                            IsResolved = false
+                        },
+                    }
+                },
+                new Apprenticeship
+                {
+
+                    Uln =  "2",
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock03,
+                            TriageStatus = TriageStatus.Change,
+                            IsResolved = false
+                        },
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock07,
+                            TriageStatus = TriageStatus.Change,
+                            IsResolved = false
+                        },
+                    }
+                },
+                new Apprenticeship
+                {
+
+                    Uln =  "3",
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock03,
+                            TriageStatus = TriageStatus.Restart,
+                            IsResolved = false
+                        },
+                    }
+                },
+                new Apprenticeship
+                {
+                    Uln =  "100"
+                }
+            }.AsQueryable();
+
+            return apprenticeships;
+        }
+
+
+
     }
 }
