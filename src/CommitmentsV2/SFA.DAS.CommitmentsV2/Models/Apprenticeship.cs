@@ -31,7 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         [NotMapped]
         public string ApprenticeName => string.Concat(FirstName, " ", LastName);
 
-
         public Apprenticeship()
         {
             DataLockStatus = new List<DataLockStatus>();
@@ -373,6 +372,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 FirstName = this.FirstName,
                 LastName = this.LastName,
+                Email = this.Email,
                 DateOfBirth = this.DateOfBirth,
                 Cost = changeOfPartyRequest.Price,
                 StartDate = changeOfPartyRequest.StartDate,

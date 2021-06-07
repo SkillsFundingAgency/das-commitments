@@ -339,6 +339,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 var draftApprenticeship = Result.DraftApprenticeships.Single();
                 Assert.AreEqual(ContinuedApprenticeship.FirstName, draftApprenticeship.FirstName);
                 Assert.AreEqual(ContinuedApprenticeship.LastName, draftApprenticeship.LastName);
+                Assert.AreEqual(ContinuedApprenticeship.Email, draftApprenticeship.Email);
                 Assert.AreEqual(ContinuedApprenticeship.DateOfBirth, draftApprenticeship.DateOfBirth);
                 Assert.AreEqual(ContinuedApprenticeship.Uln, draftApprenticeship.Uln);
                 Assert.AreEqual(Request.StartDate, draftApprenticeship.StartDate);
