@@ -275,7 +275,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             { Status = ApprenticeshipStatus.WaitingToStart };
 
             //Act
-            var result = apprenticeships.Filter(filterValues, default).ToList();
+            var result = apprenticeships.Filter(filterValues).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -342,7 +342,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             { Status = ApprenticeshipStatus.Completed };
 
             //Act
-            var result = apprenticeships.Filter(filterValues, default).ToList();
+            var result = apprenticeships.Filter(filterValues).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
