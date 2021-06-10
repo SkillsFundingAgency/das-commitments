@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 {
     public static class QueryableApprenticeshipsExtensions
     {
-        public static IQueryable<Apprenticeship> Filter(this IQueryable<Apprenticeship> apprenticeships, ApprenticeshipSearchFilters filters, long? providerId)
+        public static IQueryable<Apprenticeship> Filter(this IQueryable<Apprenticeship> apprenticeships, ApprenticeshipSearchFilters filters, bool isProvider = true)
         {
             if (filters == null)
             {
@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
             if (!string.IsNullOrEmpty(filters.SearchTerm))
             {
-                if(long.TryParse(filters.SearchTerm, out var result))
+                if (long.TryParse(filters.SearchTerm, out var result))
                 {
                     apprenticeships = apprenticeships.Where(app =>
                         app.Uln == filters.SearchTerm);
@@ -44,9 +44,9 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     {
                         var firstName = filters.SearchTerm.Substring(0, filters.SearchTerm.IndexOf(' '));
                         var lastName = filters.SearchTerm.Substring(firstName.Length + 1);
-                        
+
                         found.AddRange(apprenticeships.Where(app =>
-                                app.FirstName.StartsWith(firstName) && 
+                                app.FirstName.StartsWith(firstName) &&
                                 app.LastName.StartsWith(lastName))
                             .Select(apprenticeship => apprenticeship.Id));
                     }
@@ -89,17 +89,17 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
             if (filters.StartDate.HasValue)
             {
-                apprenticeships = apprenticeships.Where(app =>  
+                apprenticeships = apprenticeships.Where(app =>
                     app.StartDate.HasValue &&
-                    filters.StartDate.Value.Month.Equals(app.StartDate.Value.Month) && 
+                    filters.StartDate.Value.Month.Equals(app.StartDate.Value.Month) &&
                     filters.StartDate.Value.Year.Equals(app.StartDate.Value.Year));
             }
 
             if (filters.EndDate.HasValue)
             {
-                apprenticeships = apprenticeships.Where(app => 
+                apprenticeships = apprenticeships.Where(app =>
                     app.EndDate.HasValue &&
-                    filters.EndDate.Value.Month.Equals(app.EndDate.Value.Month) && 
+                    filters.EndDate.Value.Month.Equals(app.EndDate.Value.Month) &&
                     filters.EndDate.Value.Year.Equals(app.EndDate.Value.Year));
             }
 
@@ -120,10 +120,10 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     apprenticeships = apprenticeships.Where(x => x.StartDate.HasValue && x.StartDate.Value <= filters.StartDateRange.To);
                 }
             }
-                                                       
+
             if (filters.Alert.HasValue)
             {
-                apprenticeships =  FilterApprenticeshipByAlert(apprenticeships,filters.Alert.Value, providerId);
+                apprenticeships = FilterApprenticeshipByAlert(apprenticeships, filters.Alert.Value, isProvider);
             }
 
             return apprenticeships;
@@ -140,11 +140,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions
         {
             if (hasAlerts)
             {
-                return apprenticeships.Where(apprenticeship => apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed) || 
+                return apprenticeships.Where(apprenticeship => apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed) ||
                                                                    apprenticeship.ApprenticeshipUpdate != null &&
                                                                    apprenticeship.ApprenticeshipUpdate.Any(
-                                                                       c => c.Status == ApprenticeshipUpdateStatus.Pending 
-                                                                            && (c.Originator == Originator.Employer 
+                                                                       c => c.Status == ApprenticeshipUpdateStatus.Pending
+                                                                            && (c.Originator == Originator.Employer
                                                                                 || c.Originator == Originator.Provider)));
             }
 
@@ -183,11 +183,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 return apprenticeships.Where(app => app.Cohort.ProviderId == identifier.ProviderId);
             }
 
-            return identifier.EmployerAccountId.HasValue ? 
+            return identifier.EmployerAccountId.HasValue ?
                 apprenticeships.Where(app => app.Cohort.EmployerAccountId == identifier.EmployerAccountId) : apprenticeships;
         }
 
-        public static IQueryable<Apprenticeship> FilterApprenticeshipByAlert( IQueryable<Apprenticeship> apprenticeships, Alerts alert, long? providerId)
+        public static IQueryable<Apprenticeship> FilterApprenticeshipByAlert(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
         {
             switch (alert)
             {
@@ -204,12 +204,12 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                         ) ||
                         (
                             a.DataLockStatus.Any(x =>
-                                ((int) x.ErrorCode == (int) DataLockErrorCode.Dlock07) &&
+                                ((int)x.ErrorCode == (int)DataLockErrorCode.Dlock07) &&
                                 x.TriageStatus == TriageStatus.Unknown &&
                                 !x.IsResolved)
                         )
                     );
-                  
+
                 case Alerts.ChangesPending:
                     return apprenticeships.Where(a =>
                         (
@@ -227,14 +227,14 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                         (
                             a.DataLockStatus.Any(x =>
                                 (
-                                    (int) x.ErrorCode == (int) DataLockErrorCode.Dlock07
+                                    (int)x.ErrorCode == (int)DataLockErrorCode.Dlock07
                                 ) &&
                                 x.TriageStatus == TriageStatus.Change &&
                                 !x.IsResolved)
                         ));
                 case Alerts.ChangesRequested:
 
-                    if (!providerId.HasValue)
+                    if (!isProvider)
                     {
                         return apprenticeships.Where(a =>
                         (
@@ -260,7 +260,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
                 case Alerts.ChangesForReview:
 
-                    if (!providerId.HasValue)
+                    if (!isProvider)
                     {
                         return apprenticeships.Where(a =>
                             a.ApprenticeshipUpdate != null &&

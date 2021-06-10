@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
 
             var totalAvailableApprenticeships = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
 
-            apprenticeshipsQuery = apprenticeshipsQuery.Filter(searchParameters.Filters, searchParameters.ProviderId);
+            apprenticeshipsQuery = apprenticeshipsQuery.Filter(searchParameters.Filters);
 
             var totalApprenticeshipsWithAlertsFound = await apprenticeshipsQuery.WithAlerts(true, searchParameters).CountAsync(searchParameters.CancellationToken);
 
