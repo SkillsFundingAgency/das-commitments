@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public virtual DbSet<Standard> Standards { get; set; }
         public virtual DbSet<Framework> Frameworks { get; set; }
+        public virtual DbSet<ApprenticeshipConfirmationStatus> ApprenticeshipConfirmationStatus { get; set; }
 
         public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
         {
