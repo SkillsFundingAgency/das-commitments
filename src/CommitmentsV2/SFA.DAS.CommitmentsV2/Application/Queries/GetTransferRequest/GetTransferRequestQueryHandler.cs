@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest
 
         public async Task<GetTransferRequestQueryResult> Handle(GetTransferRequestQuery message, CancellationToken cancellationToken)
         {
-            var result = await _transferRequestDomainService.GetTransferRequest(message.TransferRequestId, message.EmployerAccountId);
+            var result = await _transferRequestDomainService.GetTransferRequest(message.TransferRequestId, message.EmployerAccountId, cancellationToken);
             CheckAuthorization(message, result);
             return result;
         }

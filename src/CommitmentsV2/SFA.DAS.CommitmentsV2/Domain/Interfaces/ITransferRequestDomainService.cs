@@ -10,6 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     {
         Task ApproveTransferRequest(long transferRequestId, UserInfo userInfo, DateTime approvedOn, CancellationToken cancellation);
         Task RejectTransferRequest(long transferRequestId, UserInfo userInfo, DateTime rejectedOn, CancellationToken cancellationToken);
-        Task<GetTransferRequestQueryResult> GetTransferRequest(long transferRequestId, long employerAccountId);
+        Task<GetTransferRequestQueryResult> GetTransferRequest(long transferRequestId, long employerAccountId, CancellationToken cancellationToken);
     }
 }
