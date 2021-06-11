@@ -562,11 +562,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             Assert.IsTrue(result.All(a => a.StartDate.Value.Date <= filterValue));
         }
 
-        
-        [TestCase(Alerts.IlrDataMismatch, "1")]
-        [TestCase(Alerts.ChangesPending, "2")]
-        [TestCase(Alerts.ChangesRequested, "3")]
-        public void ThenShouldFilterAlert(Alerts alert, string validApprenticeshipUln)
+
+        [TestCase(Alerts.IlrDataMismatch, "1", true)]
+        [TestCase(Alerts.ChangesPending, "2", true)]
+        [TestCase(Alerts.ChangesRequested, "3", true)]
+        [TestCase(Alerts.ChangesForReview, "4", true)]
+        public void ThenShouldFilterAlert(Alerts alert, string validApprenticeshipUln, bool isProvider)
         {
             //Arrange
             var apprenticeships = CreateApprenticeships();
@@ -576,7 +577,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             };
 
             //Act
-            var result = apprenticeships.Filter(filterValues, true).ToList();
+            var result = apprenticeships.Filter(filterValues, isProvider).ToList();
 
             //Assert
             Assert.AreEqual(1, result.Count);
@@ -702,6 +703,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                             TriageStatus = TriageStatus.Restart,
                             IsResolved = false
                         },
+                    }
+                },
+                 new Apprenticeship
+                {
+                    Uln =  "4",
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>{
+
+                            new ApprenticeshipUpdate {
+
+                                    Originator = Originator.Employer,
+                                    Status = ApprenticeshipUpdateStatus.Pending
+                            }
+
                     }
                 },
                 new Apprenticeship
