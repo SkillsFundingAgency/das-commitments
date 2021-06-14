@@ -41,6 +41,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetPriceEpisodesResponse> GetPriceEpisodes(long apprenticeshipId, CancellationToken cancellationToken = default);
         Task<GetApprenticeshipUpdatesResponse> GetApprenticeshipUpdates(long apprenticeshipId, GetApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default);
         Task<GetDataLocksResponse> GetApprenticeshipDatalocksStatus(long apprenticeshipId, CancellationToken cancellationToken = default);
+        Task<GetDataLockSummariesResponse> GetApprenticeshipDatalockSummariesStatus(long apprenticeshipId, CancellationToken cancellationToken = default);
+        Task AcceptDataLockChanges(long apprenticeshipId, AcceptDataLocksRequestChangesRequest request, CancellationToken cancellationToken = default);
+        Task RejectDataLockChanges(long apprenticeshipId, RejectDataLocksRequestChangesRequest request, CancellationToken cancellationToken = default);
         Task CreateChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default);
         Task<GetChangeOfPartyRequestsResponse> GetChangeOfPartyRequests(long apprenticeshipId, CancellationToken cancellationToken = default);
         Task<GetChangeOfProviderChainResponse> GetChangeOfProviderChain(long apprenticeshipId, CancellationToken cancellationToken = default);

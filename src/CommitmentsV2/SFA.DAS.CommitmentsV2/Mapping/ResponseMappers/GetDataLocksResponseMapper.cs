@@ -1,8 +1,9 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Types;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
 {
@@ -12,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
         {
             return Task.FromResult(new GetDataLocksResponse
             {
-                DataLocks = result.DataLocks.Select(source => new GetDataLocksResponse.DataLock
+                DataLocks = result.DataLocks.Select(source => new DataLock
                 {
                     Id = source.Id,
                     DataLockEventDatetime = source.DataLockEventDatetime,
