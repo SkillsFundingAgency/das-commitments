@@ -338,6 +338,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetDataLocksResponse>($"api/apprenticeships/{apprenticeshipId}/datalocks", null, cancellationToken);
         }
 
+        public Task<GetDataLockSummariesResponse> GetApprenticeshipDatalockSummariesStatus(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetDataLockSummariesResponse>($"api/apprenticeships/{apprenticeshipId}/datalocksummaries", null, cancellationToken);
+        }
+
+        public Task AcceptDataLockChanges(long apprenticeshipId, AcceptDataLocksRequestChangesRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/datalocks/accept-changes", request, cancellationToken);
+        }
+        
+        public Task RejectDataLockChanges(long apprenticeshipId, RejectDataLocksRequestChangesRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/datalocks/reject-changes", request, cancellationToken);
+        }
+
         public Task CreateChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/change-of-party-requests", request, cancellationToken);
