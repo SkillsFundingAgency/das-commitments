@@ -23,6 +23,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? ConfirmationOverdueOn { get; set; }
         public DateTime? ApprenticeshipConfirmedOn { get; set; }
 
+        public ConfirmationStatus ConfirmationStatus => ApprenticeshipConfirmedOn == null
+            ? ConfirmationStatus.Unconfirmed
+            : ConfirmationStatus.Confirmed;
+
         public void SetStatusToUnconfirmedIfChangeIsLatest(DateTime newCommitmentsApprovedOn, DateTime newConfirmationOverdueOn)
         {
             if (CommitmentsApprovedOn < newCommitmentsApprovedOn)
@@ -35,10 +39,18 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void SetStatusToConfirmedIfChangeIsLatest(DateTime newCommitmentsApprovedOn, DateTime apprenticeshipConfirmedOn)
         {
-            if (CommitmentsApprovedOn <= newCommitmentsApprovedOn && ApprenticeshipConfirmedOn == null)
+            if (CommitmentsApprovedOn <= newCommitmentsApprovedOn)
             {
+                CommitmentsApprovedOn = newCommitmentsApprovedOn;
                 ApprenticeshipConfirmedOn = apprenticeshipConfirmedOn;
+                ConfirmationOverdueOn = null;
             }
         }
+    }
+
+    public enum ConfirmationStatus : short
+    {
+        Unconfirmed = 0,
+        Confirmed = 1
     }
 }

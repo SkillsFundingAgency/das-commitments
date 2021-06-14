@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task WhenHandlingApprenticeshipPauseEvent_ThenEncodingServiceIsCalled()
+        public async Task WhenHandlingApprenticeshipConfirmationCommencedEvent_ThenCommandIsSentToMediator()
         {
             await _fixture.Handle();
             _fixture.VerifySend<ApprenticeshipConfirmationCommencedCommand>((c, e) =>

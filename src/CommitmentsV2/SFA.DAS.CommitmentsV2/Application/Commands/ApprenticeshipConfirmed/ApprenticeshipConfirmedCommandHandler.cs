@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed
 
             if (status == null)
             {
-                var confirmationStatus = new ApprenticeshipConfirmationStatus(request.ApprenticeshipId, request.CommitmentsApprovedOn, null, request.CommitmentsApprovedOn);
+                var confirmationStatus = new ApprenticeshipConfirmationStatus(request.ApprenticeshipId, request.CommitmentsApprovedOn, null, request.ConfirmedOn);
                 _db.Value.ApprenticeshipConfirmationStatus.Add(confirmationStatus);
             }
             else
