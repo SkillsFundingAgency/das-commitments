@@ -35,6 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public string ProviderRef { get; set; }
             public string CohortReference { get; set; }
             public long AccountLegalEntityId { get; set; }
+            public ConfirmationStatus? ConfirmationStatus { get; set; }
         }
     }
 }
