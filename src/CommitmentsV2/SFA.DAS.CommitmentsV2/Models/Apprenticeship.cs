@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Approved;
 
-            ResolveDataLocks(update);
+            update.ResolveDataLocks();
 
             ChangeTrackingSession.CompleteTrackingSession();
 
@@ -105,6 +105,71 @@ namespace SFA.DAS.CommitmentsV2.Models
             });
         }
 
+        public void AcceptDataLocks(Party party, DateTime acceptedOn, List<long> dataLockEventIds, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.AcceptDataLockChange, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            foreach (var dataLockEventId in dataLockEventIds)
+            {
+                var dataLockStatus = DataLockStatus.SingleOrDefault(p => p.DataLockEventId == dataLockEventId);
+                if (dataLockStatus != null)
+                {
+                    ChangeTrackingSession.TrackUpdate(dataLockStatus);
+                    dataLockStatus.IsResolved = true;
+                }
+            }
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            Publish(() => new
+                DataLockTriageApprovedEvent
+                {
+                    ApprenticeshipId = Id,
+                    ApprovedOn = acceptedOn,
+                    PriceEpisodes = PriceHistory.Select(x => new PriceEpisode
+                    {
+                        FromDate = x.FromDate,
+                        ToDate = x.ToDate,
+                        Cost = x.Cost
+                    }).ToArray(),
+                    TrainingCode = CourseCode,
+                    TrainingType = ProgrammeType.Value
+                });
+        }
+
+        public void RejectDataLocks(Party party, List<long> dataLockEventIds, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.RejectDataLockChange, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            foreach (var dataLockEventId in dataLockEventIds)
+            {
+                var dataLockStatus = DataLockStatus.SingleOrDefault(p => p.DataLockEventId == dataLockEventId);
+                if (dataLockStatus != null)
+                {
+                    ChangeTrackingSession.TrackUpdate(dataLockStatus);
+                    dataLockStatus.TriageStatus = TriageStatus.Unknown;
+                }
+            }
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        public void ReplacePriceHistory(Party party, List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.UpdatePriceHistory, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            this.PriceHistory = updatedPriceHistory;
+            ChangeTrackingSession.TrackUpdate(this);
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo)
+        {
+            StartTrackingSession(UserAction.UpdateCourse, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+
+            CourseCode = courseCode;
+            CourseName = courseName;
+            ProgrammeType = programmeType;
+
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
         public void RejectApprenticeshipUpdate(Party party, UserInfo userInfo)
         {
             StartTrackingSession(UserAction.Updated, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
@@ -115,7 +180,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Rejected;
             
-            ResetDataLocks(update);
+            update.ResetDataLocks();
 
             ChangeTrackingSession.CompleteTrackingSession();
 
@@ -138,7 +203,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Deleted;
 
-            ResetDataLocks(update);
+            update.ResetDataLocks();
 
             ChangeTrackingSession.CompleteTrackingSession();
 
@@ -151,27 +216,30 @@ namespace SFA.DAS.CommitmentsV2.Models
             });
         }
 
-        private void ResolveDataLocks(ApprenticeshipUpdate update)
+        public List<PriceHistory> CreatePriceHistory(
+            IEnumerable<DataLockStatus> dataLocksToBeUpdated,
+            IEnumerable<DataLockStatus> dataLockPasses)
         {
-            if (update.UpdateOrigin == ApprenticeshipUpdateOrigin.DataLock)
-            {
-                update.DataLockStatus.ForEach(dlock => {
-                    ChangeTrackingSession.TrackUpdate(dlock);
-                    dlock.Resolve();
-                    });
-            }
-        }
+            var newPriceHistory =
+                dataLocksToBeUpdated.Concat(dataLockPasses)
+                    .Select(
+                        m =>
+                        new PriceHistory
+                        {
+                            ApprenticeshipId = Id,
+                            Cost = (decimal)m.IlrTotalCost,
+                            FromDate = (DateTime)m.IlrEffectiveFromDate,
+                            ToDate = null
+                        })
+                    .OrderBy(x => x.FromDate)
+                    .ToArray();
 
-        private void ResetDataLocks(ApprenticeshipUpdate update)
-        {
-            if (update.UpdateOrigin == ApprenticeshipUpdateOrigin.DataLock)
+            for (var i = 0; i < newPriceHistory.Length - 1; i++)
             {
-                update.DataLockStatus.ForEach(dlock => {
-                    ChangeTrackingSession.TrackUpdate(dlock);
-                    dlock.TriageStatus = TriageStatus.Unknown;
-                    dlock.ApprenticeshipUpdateId = null;
-                });
+                newPriceHistory[i].ToDate = newPriceHistory[i + 1].FromDate.AddDays(-1);
             }
+            
+            return newPriceHistory.ToList();
         }
 
         private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update)

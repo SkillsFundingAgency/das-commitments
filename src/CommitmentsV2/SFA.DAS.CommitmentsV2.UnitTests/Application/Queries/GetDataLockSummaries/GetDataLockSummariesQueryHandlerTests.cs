@@ -1,36 +1,37 @@
-﻿using System;
+﻿using AutoFixture;
+using AutoFixture.Kernel;
+using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoFixture;
-using AutoFixture.Kernel;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
-using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummaries
 {
     [TestFixture]
-    public class GetDataLocksQueryHandlerTests
+    public class GetDataLockSummariesQueryHandlerTests
     {
-        private GetDataLocksQueryHandlerTestsFixture _fixture;
+        private GetDataLockSummariesQueryHandlerTestsFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new GetDataLocksQueryHandlerTestsFixture();
+            _fixture = new GetDataLockSummariesQueryHandlerTestsFixture();
         }
 
         [Test]
         public async Task Handle_ThenShouldReturnResultWithValues()
         {
             _fixture.SeedData();
-            await _fixture.Handle();
-            _fixture.VerifyResultMapping(3);
+            var result = await _fixture.Handle();
+            _fixture.VerifyResultMapping(1, result.DataLocksWithCourseMismatch);
+            _fixture.VerifyResultMapping(2, result.DataLocksWithOnlyPriceMismatch);
         }
 
         [Test]
@@ -39,7 +40,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             _fixture.SeedData().WithNoMatchingApprenticeship();
             var result = await _fixture.Handle();
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.DataLocks.Count);
+            Assert.AreEqual(0, result.DataLocksWithCourseMismatch.Count);
+            Assert.AreEqual(0, result.DataLocksWithOnlyPriceMismatch.Count);
         }
 
         [Test]
@@ -48,7 +50,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             await _fixture.SeedData().ExpireTheDataLockRecords();
             var result = await _fixture.Handle();
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.DataLocks.Count);
+            Assert.AreEqual(0, result.DataLocksWithCourseMismatch.Count);
+            Assert.AreEqual(0, result.DataLocksWithOnlyPriceMismatch.Count);
         }
 
         [Test]
@@ -57,77 +60,90 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             await _fixture.SeedData().SetEventStatusRemoved();
             var result = await _fixture.Handle();
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.DataLocks.Count);
+            Assert.AreEqual(0, result.DataLocksWithCourseMismatch.Count);
+            Assert.AreEqual(0, result.DataLocksWithOnlyPriceMismatch.Count);
         }
 
-        public class GetDataLocksQueryHandlerTestsFixture
+        public class GetDataLockSummariesQueryHandlerTestsFixture
         {
-            private readonly GetDataLocksQueryHandler _handler;
+            private readonly GetDataLockSummariesQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;
-            private GetDataLocksQuery _request;
-            private GetDataLocksQueryResult _result;
+            private GetDataLockSummariesQuery _request;
+            private GetDataLockSummariesQueryResult _result;
             private readonly Fixture _autofixture;
             private List<DataLockStatus> _dataLocks;
             private readonly long _apprenticeshipId;
 
-            public GetDataLocksQueryHandlerTestsFixture()
+            public GetDataLockSummariesQueryHandlerTestsFixture()
             {
                 _autofixture = new Fixture();
 
                 _apprenticeshipId = 1;
-                _request = new GetDataLocksQuery(_apprenticeshipId);
+                _request = new GetDataLockSummariesQuery(_apprenticeshipId);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString()).EnableSensitiveDataLogging().Options);
-                _handler = new GetDataLocksQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
+                _handler = new GetDataLockSummariesQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
-            public async Task<GetDataLocksQueryResult> Handle()
+            public async Task<GetDataLockSummariesQueryResult> Handle()
             {
                 _result = await _handler.Handle(_request, new CancellationToken());
                 return _result;
             }
 
-            public GetDataLocksQueryHandlerTestsFixture SeedData(short count = 1)
+            public GetDataLockSummariesQueryHandlerTestsFixture SeedData(short count = 1)
             {
                 _autofixture.Customizations.Add(new ModelSpecimenBuilder());
-                _dataLocks = _autofixture.Create<List<DataLockStatus>>();
-                _dataLocks.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.IsExpired = false; z.EventStatus = Types.EventStatus.New; z.Apprenticeship.Id = z.ApprenticeshipId; });
+
+                _dataLocks = _autofixture.CreateMany<DataLockStatus>(6).ToList();
+                // first 3 are for the known apprenticeship id
+                _dataLocks.Take(3).ToList().ForEach(d => { d.ApprenticeshipId = _apprenticeshipId; });
+
+                // first and second are is price only datalocks
+                _dataLocks.Take(2).ToList().ForEach(d => { d.ErrorCode = DataLockErrorCode.Dlock07; });
+                
+                // third is with course error datalock
+                _dataLocks.Skip(2).Take(1).ToList().ForEach(d => { d.ErrorCode = DataLockErrorCode.Dlock03; });
+                
+                // last 3 are not for the known apprenticeship id
+                _dataLocks.Skip(3).Take(3).ToList().ForEach(d => { d.ApprenticeshipId = ++count; });
+                
+                // all are unhandled new data locks
+                _dataLocks.ToList().ForEach(d => { d.Apprenticeship.Id = d.ApprenticeshipId; d.IsExpired = false; d.EventStatus = Types.EventStatus.New; d.IsResolved = false; d.Status = Status.Unknown; });
+                
                 _db.DataLocks.AddRange(_dataLocks);
-
-                var additionalRecord = _autofixture.Create<List<DataLockStatus>>();
-                additionalRecord.ForEach(z => { z.ApprenticeshipId = ++count; z.Apprenticeship.Id = z.ApprenticeshipId; z.IsExpired = false; z.EventStatus = Types.EventStatus.New; });
-                _db.DataLocks.AddRange(additionalRecord);
-
                 _db.SaveChanges();
                 return this;
             }
 
-            public GetDataLocksQueryHandlerTestsFixture WithNoMatchingApprenticeship()
+            
+
+            public GetDataLockSummariesQueryHandlerTestsFixture WithNoMatchingApprenticeship()
             {
-                _request = new GetDataLocksQuery(_apprenticeshipId + 100);
+                _request = new GetDataLockSummariesQuery(_apprenticeshipId + 100);
                 return this;
             }
 
-            internal async Task<GetDataLocksQueryHandlerTestsFixture> ExpireTheDataLockRecords()
+            internal async Task<GetDataLockSummariesQueryHandlerTestsFixture> ExpireTheDataLockRecords()
             {
                 await _db.DataLocks.Where(x => x.ApprenticeshipId == _apprenticeshipId).ForEachAsync(x => x.IsExpired = true);
                 _db.SaveChanges();
                 return this;
             }
 
-            internal async Task<GetDataLocksQueryHandlerTestsFixture> SetEventStatusRemoved()
+            internal async Task<GetDataLockSummariesQueryHandlerTestsFixture> SetEventStatusRemoved()
             {
                 await _db.DataLocks.Where(x => x.ApprenticeshipId == _apprenticeshipId).ForEachAsync(x => x.EventStatus = Types.EventStatus.Removed);
                 _db.SaveChanges();
                 return this;
             }
 
-            public void VerifyResultMapping(int resultCount)
+            public void VerifyResultMapping(int resultCount, IReadOnlyCollection<DataLock> resultDataLocks)
             {
-                Assert.AreEqual(resultCount, _result.DataLocks.Count);
+                Assert.AreEqual(resultCount, resultDataLocks.Count);
 
-                foreach (var result in _result.DataLocks)
+                foreach (var result in resultDataLocks)
                 {
                     AssertEquality(_dataLocks.Single(x => x.Id == result.Id), result);
                 }
