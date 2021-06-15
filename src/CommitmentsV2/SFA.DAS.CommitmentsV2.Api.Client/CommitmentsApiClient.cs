@@ -363,6 +363,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetChangeOfProviderChainResponse>($"api/apprenticeships/{apprenticeshipId}/change-of-provider-chain", null, cancellationToken);
         }
 
+        public Task<GetChangeOfEmployerChainResponse> GetChangeOfEmployerChain(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetChangeOfEmployerChainResponse>($"api/apprenticeships/{apprenticeshipId}/change-of-employer-chain", null, cancellationToken);
+        }
+
         public Task UpdateEndDateOfCompletedRecord(EditEndDateRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/details/editenddate", request, cancellationToken);
