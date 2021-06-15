@@ -11,6 +11,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands

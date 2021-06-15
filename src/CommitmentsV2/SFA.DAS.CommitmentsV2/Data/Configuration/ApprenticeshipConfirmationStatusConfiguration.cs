@@ -13,6 +13,10 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.CommitmentsApprovedOn).HasColumnType("datetime");
             builder.Property(e => e.ConfirmationOverdueOn).HasColumnType("datetime");
             builder.Property(e => e.ApprenticeshipConfirmedOn).HasColumnType("datetime");
+
+            builder.HasOne(d => d.Apprenticeship)
+                .WithOne(p => p.ConfirmationStatus);
+                //.HasForeignKey<Apprenticeship>(x=>x.Id);
         }
     }
 }

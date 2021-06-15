@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
         public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public virtual ApprenticeshipBase Continuation { get; set; }
+        public virtual ApprenticeshipConfirmationStatus ApprenticeshipConfirmationStatus { get; set; }
 
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
@@ -578,6 +579,21 @@ namespace SFA.DAS.CommitmentsV2.Models
                 ChangeTrackingSession.TrackUpdate(dataLock);
                 dataLock.Resolve();
             }
+        }
+
+        public ConfirmationStatus? DisplayConfirmationStatus()
+        {
+            if (Email == null)
+            {
+                return null;
+            }
+
+            if (ApprenticeshipConfirmationStatus == null)
+            {
+                return ConfirmationStatus.Unconfirmed;
+            }
+
+            return ApprenticeshipConfirmationStatus.ConfirmationStatus;
         }
     }
 }

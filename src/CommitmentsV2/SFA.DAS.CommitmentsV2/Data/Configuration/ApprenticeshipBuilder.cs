@@ -12,6 +12,10 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
 
             builder.Property(e => e.PauseDate).HasColumnType("date");
             builder.Property(e => e.StopDate).HasColumnType("date");
+
+            builder.HasOne(p => p.ConfirmationStatus)
+                .WithOne(c=>c.Apprenticeship)
+                .HasForeignKey<ApprenticeshipConfirmationStatus>(a => a.ApprenticeshipId);
         }
     }
 }

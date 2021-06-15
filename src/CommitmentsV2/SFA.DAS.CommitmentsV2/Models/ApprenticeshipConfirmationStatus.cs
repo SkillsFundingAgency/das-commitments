@@ -1,5 +1,6 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -22,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime CommitmentsApprovedOn { get; set; }
         public DateTime? ConfirmationOverdueOn { get; set; }
         public DateTime? ApprenticeshipConfirmedOn { get; set; }
+        public Apprenticeship Apprenticeship { get; set; }
 
         public ConfirmationStatus ConfirmationStatus => ApprenticeshipConfirmedOn == null
             ? ConfirmationStatus.Unconfirmed
@@ -46,11 +48,5 @@ namespace SFA.DAS.CommitmentsV2.Models
                 ConfirmationOverdueOn = null;
             }
         }
-    }
-
-    public enum ConfirmationStatus : short
-    {
-        Unconfirmed = 0,
-        Confirmed = 1
     }
 }
