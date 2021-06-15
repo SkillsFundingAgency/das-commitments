@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .ThenInclude(cohort => cohort.AccountLegalEntity)
                 .Include(apprenticeship => apprenticeship.Cohort)
                     .ThenInclude(cohort => cohort.Provider)
-                .Include(apprenticeship => apprenticeship.ConfirmationStatus);
+                .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus);
             
 
             var totalApprenticeshipsFound = await apprenticeshipsQuery.CountAsync(searchParameters.CancellationToken);
