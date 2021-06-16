@@ -1,10 +1,11 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks
 {
@@ -23,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks
 
             return new GetDataLocksQueryResult
             {
-                DataLocks = await dataLocks.Select(source => new GetDataLocksQueryResult.DataLock
+                DataLocks = await dataLocks.Select(source => new DataLock
                 {
                     Id = source.Id,
                     DataLockEventDatetime = source.DataLockEventDatetime,

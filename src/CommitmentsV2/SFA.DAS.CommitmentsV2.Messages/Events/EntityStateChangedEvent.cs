@@ -49,5 +49,9 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         UpdateApprenticeshipStopDate,
         Updated,
         EditedApprenticeship,
+        UpdatePriceHistory,
+        UpdateCourse,
+        AcceptDataLockChange,
+        RejectDataLockChange
     }
 }
