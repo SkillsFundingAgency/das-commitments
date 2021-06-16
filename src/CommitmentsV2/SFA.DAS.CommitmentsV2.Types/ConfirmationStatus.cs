@@ -2,7 +2,7 @@
 {
     public enum ConfirmationStatus : short
     {
-        Unconfirmed = 0,
+        Unconfirmed = 2,
         Confirmed = 1
     }
 }
