@@ -97,7 +97,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             DataFixture = new Fixture();
 
-            ConfirmationStatus = DataFixture.Create<ApprenticeshipConfirmationStatus>();
+            ConfirmationStatus = DataFixture.Build<ApprenticeshipConfirmationStatus>().Without(x=>x.Apprenticeship).Create();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
