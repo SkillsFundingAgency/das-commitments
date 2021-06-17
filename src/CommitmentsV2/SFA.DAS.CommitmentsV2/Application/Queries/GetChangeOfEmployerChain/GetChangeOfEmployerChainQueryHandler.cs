@@ -40,9 +40,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfEmployerChain
                 await BuildChangeOfPartyRequestBackwardsChain(initialLink.ContinuationOfId, changeOfEmployerChain, cancellationToken);
                 await BuildChangeOfPartyRequestForwardsChain(initialLink.NewApprenticeshipId, changeOfEmployerChain, cancellationToken);
 
-                // after the chain has been built links are removed where the employer account
+                // after the chain has been built links are removed where the provider account
                 // is different to the initial link as these are not links which are visible
-                // to the employer requesting the provider chain
+                // to the provider requesting the employer chain
                 changeOfEmployerChain = changeOfEmployerChain
                     .Where(r => r.Ukprn == initialLink.Ukprn)
                     .OrderByDescending(o => o.CreatedOn ?? DateTime.MaxValue)
