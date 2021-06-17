@@ -68,8 +68,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
                 .Returns(_eventsToPublish);
 
             _sut = new ApproveDataLockTriageCommandHandler(
-            _validator.Object, 
-            _dataLockRepository.Object, 
+            _validator.Object,
+            _dataLockRepository.Object,
             _apprenticeshipRepository.Object,
             Mock.Of<IApprenticeshipEventsPublisher>(),
             _apprenticeshipEventsList.Object,
@@ -112,7 +112,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         public void ShouldValidateInput()
         {
             _validator.Setup(m => m.Validate(_command))
-                .Returns(new ValidationResult { Errors = { new ValidationFailure("Error", "Oh no!")}});
+                .Returns(new ValidationResult { Errors = { new ValidationFailure("Error", "Oh no!") } });
 
             Func<Task> act = () => _sut.Handle(_command);
             act.ShouldThrow<ValidationException>();
@@ -137,18 +137,44 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldExcludeSomeDataLocksWhenUpdatingPriceHistory()
         {
-            var isResolvedDataLock = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = true, Status = Status.Fail,  IlrTotalCost = 505,
-                        ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, TriageStatus = TriageStatus.Change};
-            var isPassedDataLock = new DataLockStatus { DataLockEventId = 2, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Pass, IlrTotalCost = 499,
-                        ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now};
-            var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
-                        ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change};
+            var isResolvedDataLock = new DataLockStatus
+            {
+                DataLockEventId = 1,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = true,
+                Status = Status.Fail,
+                IlrTotalCost = 505,
+                ErrorCode = DataLockErrorCode.Dlock07,
+                IlrEffectiveFromDate = DateTime.Now,
+                TriageStatus = TriageStatus.Change
+            };
+            var isPassedDataLock = new DataLockStatus
+            {
+                DataLockEventId = 2,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Pass,
+                IlrTotalCost = 499,
+                ErrorCode = DataLockErrorCode.Dlock07,
+                IlrEffectiveFromDate = DateTime.Now
+            };
+            var toBeUpdateDataLock = new DataLockStatus
+            {
+                DataLockEventId = 3,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Fail,
+                IlrTotalCost = 400,
+                ErrorCode = DataLockErrorCode.Dlock07,
+                IlrEffectiveFromDate = DateTime.Now.AddMonths(1),
+                TriageStatus = TriageStatus.Change
+            };
 
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus> { isResolvedDataLock, isPassedDataLock, toBeUpdateDataLock });
 
             long[] idsToBeUpdated = null;
-            _dataLockRepository.Setup(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>())).Callback<IEnumerable<long>>( (ids) => { idsToBeUpdated = ids.ToArray(); })
+            _dataLockRepository.Setup(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>())).Callback<IEnumerable<long>>((ids) => { idsToBeUpdated = ids.ToArray(); })
                 .Returns(Task.CompletedTask);
 
             IEnumerable<PriceHistory> prices = null;
@@ -159,7 +185,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
 
             await _sut.Handle(_command);
 
-            _apprenticeshipRepository.Verify(m => m.InsertPriceHistory( _command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()), Times.Once);
+            _apprenticeshipRepository.Verify(m => m.InsertPriceHistory(_command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()), Times.Once);
 
             prices.Count().ShouldBeEquivalentTo(3);
             _dataLockRepository.Verify(m => m.ResolveDataLock(
@@ -220,11 +246,29 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [TestCase(false)]
         public async Task ShouldResolveDataLockWithCourse(bool hasHadDatalockSuccess)
         {
-            var isDataLockWithCourse = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail,  IlrTotalCost = 505,
-                        ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03, IlrEffectiveFromDate = DateTime.Now, TriageStatus = TriageStatus.Change};
+            var isDataLockWithCourse = new DataLockStatus
+            {
+                DataLockEventId = 1,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Fail,
+                IlrTotalCost = 505,
+                ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03,
+                IlrEffectiveFromDate = DateTime.Now,
+                TriageStatus = TriageStatus.Change
+            };
 
-            var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
-                        ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change};
+            var toBeUpdateDataLock = new DataLockStatus
+            {
+                DataLockEventId = 3,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Fail,
+                IlrTotalCost = 400,
+                ErrorCode = DataLockErrorCode.Dlock07,
+                IlrEffectiveFromDate = DateTime.Now.AddMonths(1),
+                TriageStatus = TriageStatus.Change
+            };
 
 
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
@@ -234,7 +278,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
                 .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = hasHadDatalockSuccess });
 
             long[] idsToBeUpdated = null;
-            _dataLockRepository.Setup(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>())).Callback<IEnumerable<long>>( (ids) => { idsToBeUpdated = ids.ToArray(); })
+            _dataLockRepository.Setup(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>())).Callback<IEnumerable<long>>((ids) => { idsToBeUpdated = ids.ToArray(); })
                 .Returns(Task.CompletedTask);
 
             await _sut.Handle(_command);
@@ -243,7 +287,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             if (hasHadDatalockSuccess)
                 idsToBeUpdated.Should().NotContain(isDataLockWithCourse.DataLockEventId, because: "Should not update when apprenticeship has had a datalock success");
             else
-                idsToBeUpdated.Should().Contain(isDataLockWithCourse.DataLockEventId, because: "Should not update when apprenticeship has NOT had a datalock success"); 
+                idsToBeUpdated.Should().Contain(isDataLockWithCourse.DataLockEventId, because: "Should not update when apprenticeship has NOT had a datalock success");
 
             idsToBeUpdated.Should().Contain(toBeUpdateDataLock.DataLockEventId, because: "Should update datalocks with triage status 'change' that is not passed or resolved");
         }
@@ -251,11 +295,29 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldNotUpdateApprenticeshipIfApprenticeshipHasHadSuccessDataLock()
         {
-            var isDataLockWithCourse = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail,  IlrTotalCost = 505,
-                        ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03, IlrEffectiveFromDate = DateTime.Now, TriageStatus = TriageStatus.Change};
+            var isDataLockWithCourse = new DataLockStatus
+            {
+                DataLockEventId = 1,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Fail,
+                IlrTotalCost = 505,
+                ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03,
+                IlrEffectiveFromDate = DateTime.Now,
+                TriageStatus = TriageStatus.Change
+            };
 
-            var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
-                        ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change};
+            var toBeUpdateDataLock = new DataLockStatus
+            {
+                DataLockEventId = 3,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Fail,
+                IlrTotalCost = 400,
+                ErrorCode = DataLockErrorCode.Dlock07,
+                IlrEffectiveFromDate = DateTime.Now.AddMonths(1),
+                TriageStatus = TriageStatus.Change
+            };
 
 
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
@@ -268,7 +330,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
 
             _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
 
-            
+
             _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgram(It.IsAny<string>()), Times.Never);
             _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), new Caller()), Times.Never);
         }
@@ -280,11 +342,30 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             var trainingCode = 10123;
             var standard = new Standard { Title = "Standard 1", Code = trainingCode, CourseName = "Standard 1 Course Name", Level = 1 };
 
-            var isDataLockWithCourse = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail,  IlrTotalCost = 505,
-                        ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03, IlrEffectiveFromDate = DateTime.Now, TriageStatus = TriageStatus.Change, IlrTrainingCourseCode = $"{trainingCode}" };
+            var isDataLockWithCourse = new DataLockStatus
+            {
+                DataLockEventId = 1,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Fail,
+                IlrTotalCost = 505,
+                ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03,
+                IlrEffectiveFromDate = DateTime.Now,
+                TriageStatus = TriageStatus.Change,
+                IlrTrainingCourseCode = $"{trainingCode}"
+            };
 
-            var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
-                        ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change};
+            var toBeUpdateDataLock = new DataLockStatus
+            {
+                DataLockEventId = 3,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Fail,
+                IlrTotalCost = 400,
+                ErrorCode = DataLockErrorCode.Dlock07,
+                IlrEffectiveFromDate = DateTime.Now.AddMonths(1),
+                TriageStatus = TriageStatus.Change
+            };
 
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus> { isDataLockWithCourse, toBeUpdateDataLock });
@@ -319,18 +400,37 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             var trainingCode = 10123;
             var standard = new Standard { Title = "Standard 1", Code = trainingCode, CourseName = "Standard 1 Course Name", Level = 1 };
 
-            var isDataLockWithCourse = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail,  IlrTotalCost = 505,
-                        ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03, IlrEffectiveFromDate = DateTime.Now, TriageStatus = TriageStatus.Change, IlrTrainingCourseCode = $"{trainingCode}" };
+            var isDataLockWithCourse = new DataLockStatus
+            {
+                DataLockEventId = 1,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Fail,
+                IlrTotalCost = 505,
+                ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03,
+                IlrEffectiveFromDate = DateTime.Now,
+                TriageStatus = TriageStatus.Change,
+                IlrTrainingCourseCode = $"{trainingCode}"
+            };
 
-            var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
-                        ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change, IlrTrainingCourseCode = $"{trainingCode}"
-             };
+            var toBeUpdateDataLock = new DataLockStatus
+            {
+                DataLockEventId = 3,
+                ApprenticeshipId = _command.ApprenticeshipId,
+                IsResolved = false,
+                Status = Status.Fail,
+                IlrTotalCost = 400,
+                ErrorCode = DataLockErrorCode.Dlock07,
+                IlrEffectiveFromDate = DateTime.Now.AddMonths(1),
+                TriageStatus = TriageStatus.Change,
+                IlrTrainingCourseCode = $"{trainingCode}"
+            };
 
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus> { isDataLockWithCourse, toBeUpdateDataLock });
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
-                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = false, EmployerAccountId = 12345, TrainingCode = $"{trainingCode}"});
+                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = false, EmployerAccountId = 12345, TrainingCode = $"{trainingCode}" });
 
             _apprenticeshipTrainingService.Setup(m => m.GetTrainingProgram($"{trainingCode}"))
                 .ReturnsAsync(standard);
@@ -415,6 +515,93 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
 
 
         [Test]
+        public async Task ShouldCreatePriceHistoryWithDistinctCostAndDates()
+        {
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
+                    .ReturnsAsync(new List<DataLockStatus>
+                      {
+                                      new DataLockStatus 
+                                      {
+                                          DataLockEventId = 1,
+                                          DataLockEventDatetime = DateTime.Parse("2020-10-23"),
+                                          PriceEpisodeIdentifier = "25-362-01/07/2020",
+                                          ApprenticeshipId = _command.ApprenticeshipId,
+                                          IlrTrainingCourseCode = "362",
+                                          IlrTrainingType = 0,
+                                          IlrActualStartDate = DateTime.Parse("2020-07-01"),
+                                          IlrEffectiveFromDate = DateTime.Parse("2020-07-01"),
+                                          IlrPriceEffectiveToDate = DateTime.Parse("2020-07-31"),
+                                          IlrTotalCost = 18291,
+                                          ErrorCode = (DataLockErrorCode)0,
+                                          Status = Status.Pass,
+                                          TriageStatus = TriageStatus.Unknown,
+                                          ApprenticeshipUpdateId = null,
+                                          IsResolved = false,
+                                          EventStatus = EventStatus.Updated,
+                                          IsExpired = false,
+                                          Expired = null
+                                      },
+                                      new DataLockStatus
+                                      {
+                                          DataLockEventId = 2,
+                                          DataLockEventDatetime = DateTime.Parse("2021-06-04"),
+                                          PriceEpisodeIdentifier = "25-362-01/08/2020",
+                                          ApprenticeshipId = _command.ApprenticeshipId,
+                                          IlrTrainingCourseCode = "362",
+                                          IlrTrainingType = 0,
+                                          IlrActualStartDate = DateTime.Parse("2020-08-01"),
+                                          IlrEffectiveFromDate = DateTime.Parse("2020-07-01"),
+                                          IlrPriceEffectiveToDate = DateTime.Parse("2021-02-04"),
+                                          IlrTotalCost = 18291,
+                                          ErrorCode = (DataLockErrorCode)0,
+                                          Status = Status.Pass,
+                                          TriageStatus = TriageStatus.Unknown,
+                                          ApprenticeshipUpdateId = null,
+                                          IsResolved = false,
+                                          EventStatus = EventStatus.New,
+                                          IsExpired = false,
+                                          Expired = null
+                                      },
+                                      new DataLockStatus
+                                      {
+                                          DataLockEventId = 3,
+                                          DataLockEventDatetime = DateTime.Parse("2021-06-04"),
+                                          PriceEpisodeIdentifier = "25-362-05/02/2021",
+                                          ApprenticeshipId = _command.ApprenticeshipId,
+                                          IlrTrainingCourseCode = "362",
+                                          IlrTrainingType = 0,
+                                          IlrActualStartDate = DateTime.Parse("2021-02-05"),
+                                          IlrEffectiveFromDate = DateTime.Parse("2021-02-05"),
+                                          IlrPriceEffectiveToDate = DateTime.Parse("2021-07-31"),
+                                          IlrTotalCost = 16725,
+                                          ErrorCode = (DataLockErrorCode)0,
+                                          Status = Status.Fail,
+                                          TriageStatus = TriageStatus.Change,
+                                          ApprenticeshipUpdateId = null,
+                                          IsResolved = false,
+                                          EventStatus = EventStatus.Updated,
+                                          IsExpired = false,
+                                          Expired = null
+                                      },
+                      });
+
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
+                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, TrainingCode = "362" });
+
+            IEnumerable<PriceHistory> prices = null;
+            _apprenticeshipRepository.Setup(
+                m => m.InsertPriceHistory(_command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()))
+                .Callback<long, IEnumerable<PriceHistory>>((i, l) => prices = l)
+                .Returns(Task.FromResult(1L));
+
+            // Act 
+            await _sut.Handle(_command);
+
+            // Assert
+            prices.Should().HaveCount(2);
+        }
+
+        [Test]
         public async Task ShouldSetEndDateForNewPriceHistoryOneRecord()
         {
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
@@ -445,7 +632,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         public async Task ShouldPublishDataLockTriageApprovedEvent()
         {
             var mockEvent = new Mock<IApprenticeshipEvent>();
-            mockEvent.Setup(ev => ev.Apprenticeship).Returns(new Apprenticeship {Id = _command.ApprenticeshipId});
+            mockEvent.Setup(ev => ev.Apprenticeship).Returns(new Apprenticeship { Id = _command.ApprenticeshipId });
             mockEvent.Setup(ev => ev.Commitment).Returns(new Commitment());
             _eventsToPublish.Add(mockEvent.Object);
             _eventsToPublish.Add(mockEvent.Object);

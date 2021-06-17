@@ -118,6 +118,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
                                 FromDate = (DateTime)m.IlrEffectiveFromDate,
                                 ToDate = null
                             })
+                    .DistinctBy(x => new { x.Cost, x.FromDate})
                     .OrderBy(x => x.FromDate)
                     .ToArray();
 
