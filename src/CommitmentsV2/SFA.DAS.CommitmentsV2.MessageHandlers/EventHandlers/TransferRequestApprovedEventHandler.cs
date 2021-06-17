@@ -31,6 +31,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
+                _logger.LogInformation($"TransferRequestApprovedEvent received for CohortId : {message.CohortId}, TransferRequestId : { message.TransferRequestId}");
+
                 var cohort = await _dbContext.Value.Cohorts.Include(c=>c.Apprenticeships).SingleAsync(c => c.Id == message.CohortId);
                 cohort.Approve(Party.TransferSender, null, message.UserInfo, message.ApprovedOn);
 
