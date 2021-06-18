@@ -14,5 +14,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? EndDate { get; set; }
         public int? AccountLegalEntityId { get; set; }
         public DateRange StartDateRange { get; set; }
+        public Alerts? Alert { get; set; }
     }
 }
