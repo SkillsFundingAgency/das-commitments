@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         {
             For<ICohortDomainService>().Use<CohortDomainService>();
             For<IChangeOfPartyRequestDomainService>().Use<ChangeOfPartyRequestDomainService>();
+            For<ITransferRequestDomainService>().Use<TransferRequestDomainService>();
 
             For<IReservationValidationService>().Use<ReservationValidationService>();
             For<IEmployerAgreementService>().Use<EmployerAgreementService>().Singleton();
