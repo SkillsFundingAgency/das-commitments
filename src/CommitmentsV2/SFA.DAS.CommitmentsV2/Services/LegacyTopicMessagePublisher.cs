@@ -34,10 +34,12 @@ namespace SFA.DAS.CommitmentsV2.Services
                 var messageBody = Serialize(@event);
                 Message message = new Message(messageBody);
                 await client.SendAsync(message);
+                
+                _logger.LogInformation($"Sent Message {typeof(T).Name} to Azure ServiceBus ");
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error sending Message to Azure ServiceBus");
+                _logger.LogError(e, $"Error sending Message {typeof(T).Name} to Azure ServiceBus");
                 throw;
             }
             finally

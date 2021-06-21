@@ -247,6 +247,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 filterQuery += $"&startDateRangeTo={WebUtility.UrlEncode(request.StartDateRangeTo.Value.ToString("u"))}";
             }
 
+            if (request.Alert.HasValue)
+            {
+                filterQuery += $"&alert={WebUtility.UrlEncode(request.Alert.Value.ToString())}";
+            }
+
             return filterQuery;
         }
 
@@ -421,6 +426,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson<EditApprenticeshipApiRequest, EditApprenticeshipResponse>($"api/apprenticeships/edit", request, cancellationToken);
 
+        }
+
+        public Task<GetTransferRequestResponse> GetTransferRequestForSender(long transferSenderId, long transferRequestId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTransferRequestResponse>($"api/accounts/{transferSenderId}/sender/transfers/{transferRequestId}", null, cancellationToken);
+        }
+
+        public Task UpdateTransferRequestForSender(long transferSenderId, long transferRequestId, long cohortId, UpdateTransferApprovalForSenderRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/accounts/{transferSenderId}/transfers/{transferRequestId}/approval/{cohortId}", request, cancellationToken);
+        }
+
+        public Task<GetTransferRequestResponse> GetTransferRequestForReceiver(long transferReceiverId, long transferRequestId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTransferRequestResponse>($"api/accounts/{transferReceiverId}/receiver/transfers/{transferRequestId}", null, cancellationToken);
         }
     }
 }
