@@ -24,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
             registry.IncludeRegistry<DiffServiceRegistry>();
             registry.IncludeRegistry<EmployerAccountsRegistry>();
             registry.IncludeRegistry<ReservationsApiClientRegistry>();
+            registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
         }
     }
