@@ -315,9 +315,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .SetApprovals(Party.Employer | Party.Provider)
                 .Approve();
 
-            _fixture.Cohort.Approvals.HasFlag(Party.TransferSender);
-            _fixture.Cohort.Approvals.HasFlag(Party.Employer);
-            _fixture.Cohort.Approvals.HasFlag(Party.Provider);
+            _fixture.Cohort.Approvals.HasFlag(Party.TransferSender).Should().BeTrue();
+            _fixture.Cohort.Approvals.HasFlag(Party.Employer).Should().BeTrue();
+            _fixture.Cohort.Approvals.HasFlag(Party.Provider).Should().BeTrue();
         }
 
         [TestCase(Party.Employer)]
