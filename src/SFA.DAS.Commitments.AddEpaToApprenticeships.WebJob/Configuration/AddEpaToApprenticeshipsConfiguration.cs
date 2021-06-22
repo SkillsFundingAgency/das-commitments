@@ -1,6 +1,7 @@
 using SFA.DAS.Commitments.Domain.Configuration;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Provider.Events.Api.Client.Configuration;
+using System;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
 {
@@ -28,6 +29,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
         public string ClientSecret { get; set; }
         public string IdentifierUri { get; set; }
 
+        [Obsolete("This property is deprecated use AAD auth properties instead", true)]
         public string ClientToken { get; set; }
     }
 }
