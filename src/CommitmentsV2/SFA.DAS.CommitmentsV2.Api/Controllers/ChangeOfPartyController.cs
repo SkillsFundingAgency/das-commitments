@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfEmployerChain;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -59,6 +60,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             var result = await _mediator.Send(new GetChangeOfProviderChainQuery(apprenticeshipId), cancellationToken);
             var response = await _modelMapper.Map<GetChangeOfProviderChainResponse>(result);
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("change-of-employer-chain")]
+        public async Task<IActionResult> GetChangeOfEmployerChain(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            var result = await _mediator.Send(new GetChangeOfEmployerChainQuery(apprenticeshipId), cancellationToken);
+            var response = await _modelMapper.Map<GetChangeOfEmployerChainResponse>(result);
             return Ok(response);
         }
     }
