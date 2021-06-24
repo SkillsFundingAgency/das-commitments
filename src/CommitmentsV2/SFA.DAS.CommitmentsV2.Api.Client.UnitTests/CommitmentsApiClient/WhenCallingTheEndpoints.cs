@@ -504,6 +504,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task GetChangeOfEmployerChain_VerifyUrlAndData()
+        {
+            await _fixture.CommitmentsApiClient.GetChangeOfEmployerChain(12345, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetChangeOfEmployerChainResponse>("api/apprenticeships/12345/change-of-employer-chain", null, CancellationToken.None));
+        }
+
+        [Test]
         public async Task StopApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
             //Arrange
