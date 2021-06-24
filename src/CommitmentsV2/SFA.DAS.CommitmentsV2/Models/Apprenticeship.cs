@@ -656,6 +656,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                 return null;
             }
 
+            if (ApprenticeshipConfirmationStatus == null)
+            {
+                return ConfirmationStatus.Unconfirmed;
+            }
+
             return DisplayConfirmationStatus(Email, 
                 ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn, 
                 ApprenticeshipConfirmationStatus.CommitmentsApprovedOn, 
