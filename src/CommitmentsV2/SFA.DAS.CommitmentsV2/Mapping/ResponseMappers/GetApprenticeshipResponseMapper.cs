@@ -41,8 +41,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 PreviousProviderId = source.PreviousProviderId,
                 PreviousEmployerAccountId = source.PreviousEmployerAccountId,
                 ApprenticeshipEmployerTypeOnApproval = source.ApprenticeshipEmployerTypeOnApproval,
-                MadeRedundant = source.MadeRedundant
-            });
+                MadeRedundant = source.MadeRedundant,
+                ConfirmationStatus = source.ConfirmationStatus,
+    });
         }
     }
 }

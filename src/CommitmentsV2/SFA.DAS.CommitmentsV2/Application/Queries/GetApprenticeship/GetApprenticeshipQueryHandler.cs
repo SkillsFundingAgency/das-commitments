@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         {
             var x = await _dbContext.Value
                 .Apprenticeships
-                .GetById(request.ApprenticeshipId, apprenticeship => 
+                .GetById(request.ApprenticeshipId, apprenticeship =>
                     new GetApprenticeshipQueryResult
                     {
                         Id = apprenticeship.Id,
@@ -62,7 +62,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                             : default(long?),
                         OriginalStartDate = apprenticeship.OriginalStartDate,
                         ApprenticeshipEmployerTypeOnApproval = apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval,
-                        MadeRedundant = apprenticeship.MadeRedundant
+                        MadeRedundant = apprenticeship.MadeRedundant,                        
+                        ConfirmationStatus = apprenticeship.DisplayConfirmationStatus(
+                            apprenticeship.Email,
+                            apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn : null,
+                            apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.CommitmentsApprovedOn : DateTime.MinValue,
+                            apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn : null)
                     },
                     cancellationToken);
 
@@ -70,5 +75,3 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         }
     }
 }
-
-
