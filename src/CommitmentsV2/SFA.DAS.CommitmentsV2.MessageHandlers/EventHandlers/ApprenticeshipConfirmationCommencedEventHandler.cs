@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediatR;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmationCommenced;
+using SFA.DAS.ApprenticeCommitments.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -18,17 +18,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         public Task Handle(ApprenticeshipConfirmationCommencedEvent message, IMessageHandlerContext context)
         {
             return _mediator.Send(new ApprenticeshipConfirmationCommencedCommand(message.CommitmentsApprenticeshipId,
-                message.CommitmentsApprovedOn, message.ApprenticeshipConfirmationOverdueOn));
+                message.CommitmentsApprovedOn, message.ConfirmationOverdueOn));
         }
-    }
-
-    public class ApprenticeshipConfirmationCommencedEvent
-    {
-        public Guid ApprenticeId {get; set;}
-        public long? ADCApprenticeshipId {get; set;}
-        public long? ApprenticeshipConfirmationId { get; set; }
-        public DateTime ApprenticeshipConfirmationOverdueOn { get; set; }
-        public long CommitmentsApprenticeshipId { get; set; }
-        public DateTime CommitmentsApprovedOn { get; set; }
     }
 }
