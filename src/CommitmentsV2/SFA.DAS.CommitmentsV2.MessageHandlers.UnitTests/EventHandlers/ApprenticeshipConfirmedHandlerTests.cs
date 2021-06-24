@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using System.Threading.Tasks;
+using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
@@ -23,11 +24,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifySend<ApprenticeshipConfirmedCommand>((c, e) =>
                 c.ApprenticeshipId == e.CommitmentsApprenticeshipId &&
                 c.CommitmentsApprovedOn == e.CommitmentsApprovedOn &&
-                c.ConfirmedOn == e.ApprenticeshipConfirmedOn);
+                c.ConfirmedOn == e.ConfirmedOn);
         }
     }
 
-    public class ApprenticeshipConfirmedHandlerTestsFixture : EventHandlerTestsFixture<ApprenticeshipConfirmedEvent, ApprenticeshipConfirmedEventHandler>
+    public class ApprenticeshipConfirmedHandlerTestsFixture : EventHandlerTestsFixture<ApprenticeshipConfirmationConfirmedEvent, ApprenticeshipConfirmedEventHandler>
     {
     }
 }
