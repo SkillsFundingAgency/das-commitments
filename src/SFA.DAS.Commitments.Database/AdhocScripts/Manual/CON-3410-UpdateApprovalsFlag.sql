@@ -5,7 +5,7 @@ Execute the below againsts the Commitments db.
 Copy the output, to keep a copy all the record which are going to be effected/
 */
 
-Select * from Commitment
+Select Id from Commitment
 Where TransferSenderId is not null
 and IsFullApprovalProcessed = 1
 and Approvals = 3
