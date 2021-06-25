@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
-using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
+using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
@@ -170,22 +170,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Sent {nameof(ApprenticeshipPausedEvent)}");
                             break;
                         case ConsoleKey.V:
-                            await _publisher.Publish(new ApprenticeshipConfirmationCommencedEvent()
+                            await _publisher.Publish(new ApprenticeshipConfirmationCommencedEvent
                             {
-                                ApprenticeId = Guid.NewGuid(), CommitmentsApprenticeshipId = 80024,
+                                //ApprenticeId = Guid.NewGuid(),
+                                CommitmentsApprenticeshipId = 80024,
                                 CommitmentsApprovedOn = DateTime.Now.AddDays(-1),
-                                ApprenticeshipConfirmationOverdueOn = DateTime.Now.AddDays(13)
+                                ConfirmationOverdueOn = DateTime.Now.AddDays(13)
                             });
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ApprenticeshipConfirmationCommencedEvent)}");
                             break;
                         case ConsoleKey.W:
-                            await _publisher.Publish(new ApprenticeshipConfirmedEvent()
+                            await _publisher.Publish(new ApprenticeshipConfirmationConfirmedEvent()
                             {
-                                ApprenticeId = Guid.NewGuid(),
+                                //ApprenticeId = Guid.NewGuid(),
                                 CommitmentsApprenticeshipId = 80024,
                                 CommitmentsApprovedOn = DateTime.Now.AddDays(-1),
-                                ApprenticeshipConfirmedOn = DateTime.Now
+                                ConfirmedOn = DateTime.Now
                             });
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ApprenticeshipConfirmationCommencedEvent)}");

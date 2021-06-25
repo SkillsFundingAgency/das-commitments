@@ -1,12 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediatR;
 using NServiceBus;
+using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
-    public class ApprenticeshipConfirmedEventHandler : IHandleMessages<ApprenticeshipConfirmedEvent>
+    public class ApprenticeshipConfirmedEventHandler : IHandleMessages<ApprenticeshipConfirmationConfirmedEvent>
     {
         private readonly IMediator _mediator;
 
@@ -15,20 +15,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _mediator = mediator;
         }
 
-        public Task Handle(ApprenticeshipConfirmedEvent message, IMessageHandlerContext context)
+        public Task Handle(ApprenticeshipConfirmationConfirmedEvent message, IMessageHandlerContext context)
         {
             return _mediator.Send(new ApprenticeshipConfirmedCommand(message.CommitmentsApprenticeshipId,
-                message.CommitmentsApprovedOn, message.ApprenticeshipConfirmedOn));
+                message.CommitmentsApprovedOn, message.ConfirmedOn));
         }
-    }
-
-    public class ApprenticeshipConfirmedEvent
-    {
-        public Guid ApprenticeId {get; set;}
-        public long? ADCApprenticeshipId {get; set;}
-        public long? ApprenticeshipConfirmationId { get; set; }
-        public DateTime ApprenticeshipConfirmedOn { get; set; }
-        public long CommitmentsApprenticeshipId { get; set; }
-        public DateTime CommitmentsApprovedOn { get; set; }
     }
 }

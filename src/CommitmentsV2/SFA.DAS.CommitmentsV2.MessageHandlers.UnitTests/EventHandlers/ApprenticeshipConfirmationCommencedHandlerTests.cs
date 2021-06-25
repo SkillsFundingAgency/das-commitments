@@ -1,7 +1,7 @@
-﻿using AutoFixture;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using System.Threading.Tasks;
+using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmationCommenced;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifySend<ApprenticeshipConfirmationCommencedCommand>((c, e) =>
                 c.ApprenticeshipId == e.CommitmentsApprenticeshipId &&
                 c.CommitmentsApprovedOn == e.CommitmentsApprovedOn &&
-                c.ConfirmationOverdueOn == e.ApprenticeshipConfirmationOverdueOn);
+                c.ConfirmationOverdueOn == e.ConfirmationOverdueOn);
         }
     }
 
