@@ -296,6 +296,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 case Party.TransferSender:
                     TransferApprovalStatus = Types.TransferApprovalStatus.Approved;
                     TransferApprovalActionedOn = now;
+                    Approvals |= modifyingParty;
                     WithParty = Party.None;
                     break;
                 default:
