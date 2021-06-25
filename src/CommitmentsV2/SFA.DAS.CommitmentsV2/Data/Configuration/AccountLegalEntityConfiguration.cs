@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         public void Configure(EntityTypeBuilder<AccountLegalEntity> builder)
         {
             builder.Property(ale => ale.Id).ValueGeneratedNever();
-            builder.Property(ale => ale.LegalEntityId).IsRequired().HasColumnType("nvarchar(50)");
+            builder.Property(ale => ale.LegalEntityId).IsRequired().HasColumnType("nvarchar(100)");
             builder.Property(ale => ale.PublicHashedId).IsRequired().HasColumnType("nchar(6)");
             builder.Property(ale => ale.Name).IsRequired().HasColumnType("nvarchar(100)");
             builder.Property(ale => ale.OrganisationType).IsRequired().HasConversion(new EnumToNumberConverter< OrganisationType,short>());
