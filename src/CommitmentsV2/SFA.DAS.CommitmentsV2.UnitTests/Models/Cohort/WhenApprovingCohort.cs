@@ -304,7 +304,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.Cohort.TransferApprovalStatus.Should().Be(TransferApprovalStatus.Approved);
             _fixture.Cohort.TransferApprovalActionedOn.Should().Be(_fixture.Now);
         }
-        
+
+        [Test]
+        public void AndPartyIsTransferSenderAndEmployerAndProviderHaveApprovedAndCohortIsFundedByTransferThenShouldUpdateApprovalsFlag()
+        {
+            _fixture.SetModifyingParty(Party.TransferSender)
+                .SetWithParty(Party.TransferSender)
+                .SetTransferSender()
+                .AddDraftApprenticeship()
+                .SetApprovals(Party.Employer | Party.Provider)
+                .Approve();
+
+            _fixture.Cohort.Approvals.HasFlag(Party.TransferSender).Should().BeTrue();
+            _fixture.Cohort.Approvals.HasFlag(Party.Employer).Should().BeTrue();
+            _fixture.Cohort.Approvals.HasFlag(Party.Provider).Should().BeTrue();
+        }
+
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
         public void AndPartyIsTransferSenderAndOtherPartyHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent(Party modifyingParty)
