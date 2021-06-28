@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 

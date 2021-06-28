@@ -47,6 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task CreateChangeOfPartyRequest(long apprenticeshipId, CreateChangeOfPartyRequestRequest request, CancellationToken cancellationToken = default);
         Task<GetChangeOfPartyRequestsResponse> GetChangeOfPartyRequests(long apprenticeshipId, CancellationToken cancellationToken = default);
         Task<GetChangeOfProviderChainResponse> GetChangeOfProviderChain(long apprenticeshipId, CancellationToken cancellationToken = default);
+        Task<GetChangeOfEmployerChainResponse> GetChangeOfEmployerChain(long apprenticeshipId, CancellationToken cancellationToken = default);
         Task UpdateEndDateOfCompletedRecord(EditEndDateRequest request, CancellationToken cancellationToken = default);
         Task StopApprenticeship(long apprenticeshipId, StopApprenticeshipRequest request, CancellationToken cancellationToken = default);
         Task PauseApprenticeship(PauseApprenticeshipRequest request, CancellationToken cancellationToken = default);
@@ -60,5 +61,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task RejectApprenticeshipUpdates(long apprenticeshipId, RejectApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default);
         Task UndoApprenticeshipUpdates(long apprenticeshipId, UndoApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default);
         Task<EditApprenticeshipResponse> EditApprenticeship(EditApprenticeshipApiRequest request, CancellationToken cancellationToken = default);
+        Task<GetTransferRequestResponse> GetTransferRequestForSender(long transferSenderId, long transferRequestId, CancellationToken cancellationToken = default);
+        Task UpdateTransferRequestForSender(long transferSenderId, long transferRequestId, long cohortId, UpdateTransferApprovalForSenderRequest request, CancellationToken cancellationToken = default);
+        Task<GetTransferRequestResponse> GetTransferRequestForReceiver(long transferReceiverId, long transferRequestId, CancellationToken cancellationToken = default);
     }
 }

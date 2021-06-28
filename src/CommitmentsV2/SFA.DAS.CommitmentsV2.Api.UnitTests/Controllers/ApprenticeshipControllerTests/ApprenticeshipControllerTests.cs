@@ -117,7 +117,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                    r.SearchFilters.EndDate.Equals(request.EndDate) &&
                    r.SearchFilters.AccountLegalEntityId.Equals(request.AccountLegalEntityId) &&
                    r.SearchFilters.StartDateRange.From.Equals(request.StartDateRangeFrom) &&
-                   r.SearchFilters.StartDateRange.To.Equals(request.StartDateRangeTo)),
+                   r.SearchFilters.StartDateRange.To.Equals(request.StartDateRangeTo) &&
+                   r.SearchFilters.Alert == request.Alert),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 

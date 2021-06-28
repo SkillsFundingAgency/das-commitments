@@ -26,8 +26,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             if (HasCourseDataLockChangesRequested(source))
             {
                 result.Add(Alerts.ChangesRequested);
-            } 
-            else if(EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(source))
+            }
+            else if (EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(source))
             {
                 result.Add(Alerts.ChangesRequested);
             }

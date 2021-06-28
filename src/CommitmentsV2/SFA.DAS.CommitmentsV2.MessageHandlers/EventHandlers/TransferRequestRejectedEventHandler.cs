@@ -27,6 +27,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
+                _logger.LogInformation($"TransferRequestRejectedEvent received for CohortId : {message.CohortId}, TransferRequestId : { message.TransferRequestId}");
+
                 var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
                 cohort.RejectTransferRequest(message.UserInfo);
 
