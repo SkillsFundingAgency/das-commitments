@@ -649,32 +649,24 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public ConfirmationStatus? DisplayConfirmationStatus()
+        public ConfirmationStatus? DisplayConfirmationStatus(string Email, DateTime? confirmedOn, DateTime? overdueOn)
         {
             if (Email == null)
             {
                 return null;
             }
 
-            if (ApprenticeshipConfirmationStatus == null)
+            if (confirmedOn.HasValue)
             {
-                return ConfirmationStatus.Unconfirmed;
+                return ConfirmationStatus.Confirmed;
             }
 
-            return DisplayConfirmationStatus(Email, 
-                ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn, 
-                ApprenticeshipConfirmationStatus.CommitmentsApprovedOn, 
-                ApprenticeshipConfirmationStatus.ConfirmationOverdueOn);
-        }
-
-        public ConfirmationStatus? DisplayConfirmationStatus(string Email, DateTime? confirmedOn, DateTime approvedOn, DateTime? overdueOn)
-        {
-            if (Email == null)
+            if (overdueOn.HasValue && DateTime.UtcNow > overdueOn)
             {
-                return null;
+                return ConfirmationStatus.Overdue;
             }
 
-            return confirmedOn != null ? ConfirmationStatus.Confirmed : ConfirmationStatus.Unconfirmed;
+            return ConfirmationStatus.Unconfirmed;
         }
     }
 }
