@@ -173,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new ApprenticeshipConfirmationCommencedEvent
                             {
                                 //ApprenticeId = Guid.NewGuid(),
-                                CommitmentsApprenticeshipId = 80024,
+                                CommitmentsApprenticeshipId = 40002,
                                 CommitmentsApprovedOn = DateTime.Now.AddDays(-1),
                                 ConfirmationOverdueOn = DateTime.Now.AddDays(13)
                             });
@@ -184,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new ApprenticeshipConfirmationConfirmedEvent()
                             {
                                 //ApprenticeId = Guid.NewGuid(),
-                                CommitmentsApprenticeshipId = 80024,
+                                CommitmentsApprenticeshipId = 40002,
                                 CommitmentsApprovedOn = DateTime.Now.AddDays(-1),
                                 ConfirmedOn = DateTime.Now
                             });

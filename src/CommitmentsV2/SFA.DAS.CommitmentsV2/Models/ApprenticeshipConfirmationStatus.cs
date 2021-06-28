@@ -4,7 +4,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class ApprenticeshipConfirmationStatus : Aggregate, ITrackableEntity
+    public class ApprenticeshipConfirmationStatus : Aggregate
     {
         public ApprenticeshipConfirmationStatus()
         {
@@ -17,8 +17,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             ConfirmationOverdueOn = confirmationOverdueOn;
             ApprenticeshipConfirmedOn = apprenticeshipConfirmedOn;
         }
-
-        public long Id { get; set; }
         public long ApprenticeshipId { get; set; }
         public DateTime CommitmentsApprovedOn { get; set; }
         public DateTime? ConfirmationOverdueOn { get; set; }
@@ -46,7 +44,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 CommitmentsApprovedOn = newCommitmentsApprovedOn;
                 ApprenticeshipConfirmedOn = apprenticeshipConfirmedOn;
-                ConfirmationOverdueOn = null;
             }
         }
     }

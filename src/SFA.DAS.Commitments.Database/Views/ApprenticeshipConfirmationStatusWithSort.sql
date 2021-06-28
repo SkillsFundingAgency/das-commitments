@@ -1,7 +1,6 @@
 ﻿CREATE VIEW [dbo].[ApprenticeshipConfirmationStatusWithSort]
 AS 
 SELECT 
-	[Id], 
 	[ApprenticeshipId],
 	[ApprenticeshipConfirmedOn],
 	[CommitmentsApprovedOn],
