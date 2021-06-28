@@ -50,6 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Data
             modelBuilder.ApplyConfiguration(new AccountLegalEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeshipBaseConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeshipUpdateConfiguration());
+            modelBuilder.ApplyConfiguration(new ApprenticeshipConfirmationStatusConfiguration());
             modelBuilder.ApplyConfiguration(new AssessmentOrganisationConfiguration());
             modelBuilder.ApplyConfiguration(new BulkUploadConfiguration());
             modelBuilder.ApplyConfiguration(new CohortConfiguration());

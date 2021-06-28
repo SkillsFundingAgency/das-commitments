@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                 case nameof(Apprenticeship.Uln):
                     return apprenticeship => apprenticeship.Uln;
                 case nameof(Apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationStatus):
-                    return apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn;
+                    return apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationStatusSort;
                 case "ProviderName": //todo: this isn't very good
                     return apprenticeship => apprenticeship.Cohort.Provider.Name;
                 default:

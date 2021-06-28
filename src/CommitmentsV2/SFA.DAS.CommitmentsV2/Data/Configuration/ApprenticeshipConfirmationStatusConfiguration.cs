@@ -8,11 +8,12 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<ApprenticeshipConfirmationStatus> builder)
         {
-            builder.ToTable("ApprenticeshipConfirmationStatus")
+            builder.ToTable("ApprenticeshipConfirmationStatusWithSort")
                 .HasKey(e => e.Id);
             builder.Property(e => e.CommitmentsApprovedOn).HasColumnType("datetime");
             builder.Property(e => e.ConfirmationOverdueOn).HasColumnType("datetime");
             builder.Property(e => e.ApprenticeshipConfirmedOn).HasColumnType("datetime");
+            builder.Property(e => e.ConfirmationStatusSort).HasColumnType("varchar(1)");
 
             builder.HasOne(d => d.Apprenticeship)
                 .WithOne(p => p.ApprenticeshipConfirmationStatus);
