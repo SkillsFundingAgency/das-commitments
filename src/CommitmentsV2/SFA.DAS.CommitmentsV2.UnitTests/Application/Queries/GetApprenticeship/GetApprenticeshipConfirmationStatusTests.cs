@@ -106,13 +106,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .Create();
 
             var conf = _fixture.Build<ApprenticeshipConfirmationStatus>()
-                .With(x => x.ApprenticeshipId, _apprenticeshipID)
                 .With(x => x.Apprenticeship, appr)
                 .With(x => x.ApprenticeshipConfirmedOn, confirmedOnDate)
                 .With(x => x.ConfirmationOverdueOn, overdueDate)
                 .Create();
 
-            var _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options;
+            var _db = new ProviderCommitmentsDbContext(options);
+
             _db.Apprenticeships.Add(appr);
             _db.ApprenticeshipConfirmationStatus.Add(conf);
             _db.SaveChanges();
