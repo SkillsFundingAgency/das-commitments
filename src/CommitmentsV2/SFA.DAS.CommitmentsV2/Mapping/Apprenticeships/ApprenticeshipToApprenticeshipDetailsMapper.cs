@@ -43,7 +43,10 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 Alerts = source.MapAlerts(),
                 AccountLegalEntityId = source.Cohort.AccountLegalEntityId,
                 ProviderId = source.Cohort.ProviderId,
-                ConfirmationStatus = source.DisplayConfirmationStatus()
+                ConfirmationStatus = source.DisplayConfirmationStatus(
+                            source.Email,
+                            source.ApprenticeshipConfirmationStatus?.ApprenticeshipConfirmedOn,
+                            source.ApprenticeshipConfirmationStatus?.ConfirmationOverdueOn)
             });
         }
 
