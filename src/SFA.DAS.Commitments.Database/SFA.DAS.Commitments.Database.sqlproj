@@ -163,6 +163,7 @@
     <None Include="AdhocScripts\Manual\CV-679-Completion-Backfill.sql" />
     <None Include="AdhocScripts\Manual\CV-684-Update-Account-LevyStatus.sql" />
     <None Include="AdhocScripts\Support\UpdateAccountLevyStatus.sql" />
+    <None Include="AdhocScripts\Manual\CON-3410-UpdateApprovalsFlag.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
