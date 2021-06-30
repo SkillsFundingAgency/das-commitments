@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Provider.Events.Api.Client.Configuration;
+using System;
 
 namespace SFA.DAS.CommitmentPayments.WebJob.Configuration
 {
@@ -28,6 +29,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Configuration
         public string ClientSecret { get; set; }
         public string IdentifierUri { get; set; }
 
+        [Obsolete("This property is deprecated use AAD auth properties instead", true)]
         public string ClientToken { get; set; }
     }
 }
