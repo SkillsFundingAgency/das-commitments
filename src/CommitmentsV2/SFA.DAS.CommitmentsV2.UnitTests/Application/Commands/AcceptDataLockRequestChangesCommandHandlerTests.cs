@@ -104,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
                 .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
                 .WithDataLock(
-                    TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, 
+                    TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false,
                     TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03);
 
             // Act
@@ -222,7 +222,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
                 .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
                 .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07);
-                
+
             inputDataLocks.ToList().ForEach(p =>
                 _fixture.WithDataLock(p.ApprenticeshipId, p.EventDataLockId, p.IlrTrainingCourseCode, p.IlrEffectiveFromDate, p.IlrTotalCost, p.IsExpired,
                     p.TriageStatus, p.EventStatus, p.IsResolved, p.Status, p.DataLockErrorCode));
@@ -267,7 +267,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
                 .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
                 .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07);
-                
+
 
             inputDataLocks.ToList().ForEach(p =>
                 _fixture.WithDataLock(p.ApprenticeshipId, p.EventDataLockId, p.IlrTrainingCourseCode, p.IlrEffectiveFromDate, p.IlrTotalCost, p.IsExpired,
@@ -424,6 +424,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdateCourse, Times.Never);
         }
 
+        [Test]
+        public async Task ShouldNotDuplicatePriceHistory_WhenMultipleDataLockStatusForSameCostAndFromDate()
+        {
+            // Arrange
+            _fixture.SeedData(withPriceHistory: false)
+                .WithHasHadDataLockSuccess(true)
+                .WithDataLock(TestsFixture.ApprenticeshipId, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime.AddDays(-2), 1000, false, TriageStatus.Change, EventStatus.New, true, Status.Fail, DataLockErrorCode.Dlock07)
+                .WithDataLock(TestsFixture.ApprenticeshipId, 11, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1100, false, TriageStatus.Change, EventStatus.New, true, Status.Fail, DataLockErrorCode.Dlock07)
+                .WithDataLock(TestsFixture.ApprenticeshipId, 12, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1100, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
+
+            // Act
+            await _fixture.Handle();
+
+            // Assert
+            _fixture.VerifyNoDuplicatePriceHistory(TestsFixture.ApprenticeshipId, 2);
+        }
+
         public class ShouldUpdatePriceHistoryDataCases : IEnumerable
         {
             public IEnumerator GetEnumerator()
@@ -477,7 +494,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         },
                         CourseCode = TestsFixture.TrainingCourseCode100,
                         ProgrammeType = TestsFixture.ProgrammeType100
-                    }   
+                    }
                 };
 
                 // has had datalock success will not include course/price datalocks in price history
@@ -585,7 +602,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 public OutputResolvedEventDataLockId[] OutputResolvedEventDataLockIds { get; set; }
                 public OutputPriceHistory[] OutputPriceHistories { get; set; }
-                public string CourseCode {get; set;}
+                public string CourseCode { get; set; }
                 public ProgrammeType ProgrammeType { get; set; }
             }
 
@@ -625,15 +642,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public ProviderCommitmentsDbContext Db { get; set; }
         public IRequestHandler<AcceptDataLocksRequestChangesCommand> Handler { get; set; }
-        
+
         public UserInfo UserInfo { get; }
         public Mock<IAuthenticationService> AuthenticationService;
         public Mock<ICurrentDateTime> CurrentDateTimeService;
         public Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup;
-        
+
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
-        public Apprenticeship ApprenticeshipFromDb => 
+        public Apprenticeship ApprenticeshipFromDb =>
             Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
         public PriceHistory PriceHistoryFromDb =>
           Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).PriceHistory.First();
@@ -653,7 +670,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             AuthenticationService = new Mock<IAuthenticationService>();
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(() => Party.Employer);
-            
+
             CurrentDateTimeService = new Mock<ICurrentDateTime>();
             CurrentDateTimeService.Setup(x => x.UtcNow).Returns(ProxyCurrentDateTime);
 
@@ -665,7 +682,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             UserInfo = AutoFixture.Create<UserInfo>();
             Command = new AcceptDataLocksRequestChangesCommand(ApprenticeshipId, UserInfo);
-            
+
             Handler = new AcceptDataLocksRequestChangesCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 CurrentDateTimeService.Object,
@@ -681,7 +698,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Db.SaveChangesAsync();
         }
 
-        public AcceptDataLockRequestChangesCommandHandlerTestsFixture SeedData()
+        public AcceptDataLockRequestChangesCommandHandlerTestsFixture SeedData(bool withPriceHistory = true)
         {
             var accountLegalEntityDetails = new AccountLegalEntity()
                 .Set(c => c.Id, 444);
@@ -696,17 +713,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Db.Cohorts.Add(cohortDetails);
 
-            var priceHistoryDetails = new List<PriceHistory>()
+            if (withPriceHistory)
             {
-                new PriceHistory
+                var priceHistoryDetails = new List<PriceHistory>()
                 {
-                    FromDate = DateTime.Now,
-                    ToDate = null,
-                    Cost = 10000,
-                }
-            };
+                    new PriceHistory
+                    {
+                        FromDate = DateTime.Now,
+                        ToDate = null,
+                        Cost = 10000,
+                    }
+                };
 
-            Db.PriceHistory.AddRange(priceHistoryDetails);
+                Db.PriceHistory.AddRange(priceHistoryDetails);
+            }
 
             var apprenticeshipDetails = AutoFixture.Build<CommitmentsV2.Models.Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
@@ -768,6 +788,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
+        public void VerifyNoDuplicatePriceHistory(long apprenticeshipId, int count)
+        {
+            Db.PriceHistory.Count().Should().Be(count);
+
+            Db.PriceHistory
+                .Where(ph => ph.ApprenticeshipId == apprenticeshipId)
+                .GroupBy(ph => new { ph.Cost, ph.FromDate })
+                .Any(grp => grp.Count() > 1)
+                .Should()
+                .BeFalse();
+        }
+
         public void VerifyDataLockResolved(long dataLockEventId, bool isResolved, string because)
         {
             Db.DataLocks
@@ -825,7 +857,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Should()
                 .Be(expectedFrom);
 
-            events.ToList().ForEach(p => {
+            events.ToList().ForEach(p =>
+            {
                 p.Should().BeEquivalentTo(new DataLockTriageApprovedEvent()
                 {
                     ApprenticeshipId = apprenticeshipId,
