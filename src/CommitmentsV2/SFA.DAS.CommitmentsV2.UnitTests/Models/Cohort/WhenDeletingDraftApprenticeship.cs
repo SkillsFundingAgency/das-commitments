@@ -89,6 +89,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.VerifyCohortIsNotDeleted();
         }
 
+        [Test]
+        public void If_The_Cohort_Is_Left_Empty_And_Party_Is_Provider_Then_It_Is_Not_Deleted()
+        {
+            _fixture
+                .WithCohortSize(1)
+                .WithParty(Party.Provider)
+                .DeleteDraftApprenticeship();
+
+            _fixture.VerifyCohortIsNotDeleted();
+        }
+
         private class WhenDeletingDraftApprenticeshipFixture
         {
             public int CohortSize { get; private set; }
