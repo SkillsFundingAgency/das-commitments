@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Moq;
 using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
 
@@ -30,5 +32,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
     public class ApprenticeshipConfirmedHandlerTestsFixture : EventHandlerTestsFixture<ApprenticeshipConfirmationConfirmedEvent, ApprenticeshipConfirmedEventHandler>
     {
+        public ApprenticeshipConfirmedHandlerTestsFixture() : base(m => new ApprenticeshipConfirmedEventHandler(m, Mock.Of<ILogger<ApprenticeshipConfirmedEventHandler>>()))
+        {}
     }
 }

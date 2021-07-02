@@ -1,8 +1,11 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
+using Moq;
 using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmationCommenced;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -31,5 +34,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
     public class ApprenticeshipConfirmationCommencedHandlerTestsFixture : EventHandlerTestsFixture<ApprenticeshipConfirmationCommencedEvent, ApprenticeshipConfirmationCommencedEventHandler>
     {
+        public ApprenticeshipConfirmationCommencedHandlerTestsFixture() : base(m=> new ApprenticeshipConfirmationCommencedEventHandler(m, Mock.Of<ILogger<ApprenticeshipConfirmationCommencedEventHandler>>()))
+        { }
     }
 }
