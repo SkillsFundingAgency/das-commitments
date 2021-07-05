@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
@@ -555,22 +556,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildEmailValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            bool EmailIsValid(string email)
-            {
-                try
-                {
-                    var _ = new MailAddress(email);
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-
             if (draftApprenticeshipDetails.Email != null)
             {
-                if (!EmailIsValid(draftApprenticeshipDetails.Email))
+                if (!draftApprenticeshipDetails.Email.IsAValidEmailAddress())
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.Email), "Please enter a valid email address");
                 }
