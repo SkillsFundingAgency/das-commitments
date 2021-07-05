@@ -24,6 +24,9 @@ GO
 CREATE NONCLUSTERED INDEX [IX_ApprenticeshipUpdate_ApprenticeshipId_Status] ON [dbo].[ApprenticeshipUpdate] ([ApprenticeshipId], [Status]) INCLUDE ([Originator]) WITH (ONLINE = ON)
 GO
 
+CREATE NONCLUSTERED INDEX [IDX_ApprenticeshipUpdate_Status_Originator] ON [dbo].[ApprenticeshipUpdate] ([Status], [Originator])
+GO
+
 CREATE NONCLUSTERED INDEX [IDX_ApprenticeshipUpdate_StatusSearch] ON [dbo].[ApprenticeshipUpdate] ([Status]) INCLUDE ([ApprenticeshipId])
 GO
 -- this was recommended by azure (with the old apprenticeshipsummary view)

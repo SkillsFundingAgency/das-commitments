@@ -46,6 +46,10 @@ CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId_CommitmentStatus]
 ON [dbo].[Commitment] ([EmployerAccountId], [CommitmentStatus]) 
 GO
 
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_IsDeleted_CommitmentStatus]
+ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus], [IsDeleted]) 
+GO
+
 CREATE NONCLUSTERED INDEX [IX_Commitment_TransferSenderId] ON [dbo].[Commitment] ([TransferSenderId]) WHERE [TransferSenderId] IS NOT NULL 
 GO
 
