@@ -52,6 +52,50 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             Assert.AreEqual(ApprenticeshipStatus.WaitingToStart, actual.ApprenticeshipStatus);
         }
 
+        [Test]
+        public async Task And_ApprenticeshipConfirmationStatus_Is_Mapped_To_ConfirmationStatus()
+        {
+            //Arrange
+            var apprenticeship = CreateApprenticeship();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
+
+            //Act
+            var actual = await mapper.Map(apprenticeship);
+
+            //Assert
+            Assert.AreEqual(apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationStatus, actual.ConfirmationStatus);
+        }
+
+        [Test]
+        public async Task And_ApprenticeshipConfirmationStatus_Is_Mapped_To_Unconfirmed_When_Not_Present()
+        {
+            //Arrange
+            var apprenticeship = CreateApprenticeship();
+            apprenticeship.ApprenticeshipConfirmationStatus = null;
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
+
+            //Act
+            var actual = await mapper.Map(apprenticeship);
+
+            //Assert
+            Assert.AreEqual(ConfirmationStatus.Unconfirmed, actual.ConfirmationStatus);
+        }
+
+        [Test]
+        public async Task And_ApprenticeshipConfirmationStatus_Is_Mapped_To_Null_When_Email_Not_Present()
+        {
+            //Arrange
+            var apprenticeship = CreateApprenticeship();
+            apprenticeship.Email = null;
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(new CurrentDateTime());
+
+            //Act
+            var actual = await mapper.Map(apprenticeship);
+
+            //Assert
+            Assert.IsNull(actual.ConfirmationStatus);
+        }
+
         private static Apprenticeship CreateApprenticeship()
         {
             var autoFixture = new Fixture();
