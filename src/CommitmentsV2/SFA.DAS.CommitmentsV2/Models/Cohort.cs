@@ -461,7 +461,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Approvals = Party.None;
             ResetTransferSenderRejection();
 
-            if (!DraftApprenticeships.Any())
+            if (!DraftApprenticeships.Any() && !(modifyingParty == Party.Provider))
             {
                 MarkAsDeletedAndEmitCohortDeletedEvent(modifyingParty, userInfo);
             }

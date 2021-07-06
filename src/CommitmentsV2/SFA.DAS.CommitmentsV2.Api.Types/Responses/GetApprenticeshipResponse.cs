@@ -38,5 +38,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public long? PreviousEmployerAccountId { get; set; }
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
         public bool? MadeRedundant { get; set; }
+        public ConfirmationStatus? ConfirmationStatus { get; set; }
     }
 }
