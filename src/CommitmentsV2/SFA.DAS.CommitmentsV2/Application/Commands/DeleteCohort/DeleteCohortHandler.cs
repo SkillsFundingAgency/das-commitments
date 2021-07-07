@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -30,7 +31,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort
             try
             {
                 var db = _dbContext.Value;
-                var cohort = await db.GetCohortAggregate(command.CohortId, cancellationToken: cancellationToken);
+                var cohort = await db.Cohorts.Include(c => c.Apprenticeships)
+                .Include(c => c.Provider)
+                .Include(c => c.AccountLegalEntity)
+                .Include(c => c.TransferRequests)
+                .SingleOrDefaultAsync(c => c.Id == command.CohortId, cancellationToken);
 
                 cohort.Delete(_authenticationService.GetUserParty(), command.UserInfo);
                 await db.SaveChangesAsync(cancellationToken);
