@@ -82,6 +82,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await f.Handle();
             f.VerifyCohortDeletedEventIsEmittedAndWasApprovedBy(Party.Provider);
         }
+
+        [Test]
+        public async Task DeleteCohort_WhenChangeOfPartyCohort_WhenWithProvider_ShouldEmitProviderRejectedChangeOfPartyRequestEvent()
+        {
+            var f = new DeleteCohortHandlerTestsFixture();
+            f.WithExistingCohort(Party.Provider).WithParty(Party.Provider).WithExistingDraftApprenticeship().WithChangeOfParty(true);
+               
+            await f.Handle();
+            f.VerifProviderRejectedChangeOfPartyRequestEvent();
+        }
+
+        [Test]
+        public async Task DeleteCohort_WhenChangeOfPartyCohort_WhenWithEmployer_ShouldNotEmitProviderRejectedChangeOfPartyRequestEvent()
+        {
+            var f = new DeleteCohortHandlerTestsFixture();
+            f.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship().WithChangeOfParty(true);
+
+            await f.Handle();
+            f.VerifProviderRejectedChangeOfPartyRequestEventIsNotPublished();
+        }
     }
 
     public class DeleteCohortHandlerTestsFixture
@@ -161,7 +181,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 EditStatus = creatingParty.ToEditStatus(),
                 WithParty = creatingParty,
                 ProviderId = _autoFixture.Create<long>(),
-                EmployerAccountId = _autoFixture.Create<long>()
+                EmployerAccountId = _autoFixture.Create<long>(),
+                Provider = new Provider
+                {
+                    Name = "ProviderName"
+                },
+                AccountLegalEntity = new AccountLegalEntity(new Account(), 1, 1, "1", "XX", "EmployerName", OrganisationType.Other, "XX", DateTime.Now),
+                LastUpdatedByEmployerEmail = "abc@abc.com"
             };
 
             Db.Cohorts.Add(Cohort);
@@ -199,6 +225,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual( Cohort.EmployerAccountId, emittedEvent.AccountId);
             Assert.AreEqual( Cohort.ProviderId,emittedEvent.ProviderId);
             Assert.IsTrue( emittedEvent.ApprovedBy.HasFlag(party));
+        }
+
+        public void VerifProviderRejectedChangeOfPartyRequestEvent()
+        {
+            var emittedEvent = (ProviderRejectedChangeOfPartyRequestEvent)UnitOfWorkContext.GetEvents().Single(x => x is ProviderRejectedChangeOfPartyRequestEvent);
+
+            Assert.AreEqual(Cohort.EmployerAccountId, emittedEvent.EmployerAccountId);
+            Assert.AreEqual(Cohort.Provider.Name, emittedEvent.TrainingProviderName);
+            Assert.AreEqual(Cohort.ChangeOfPartyRequestId, emittedEvent.ChangeOfPartyRequestId);
+            Assert.AreEqual(Cohort.LastUpdatedByEmployerEmail, emittedEvent.RecipientEmailAddress);
+            Assert.AreEqual(Cohort.AccountLegalEntity.Name, emittedEvent.EmployerName);
+            Assert.AreEqual($"Test Test", emittedEvent.ApprenticeName);
+        }
+
+        public void VerifProviderRejectedChangeOfPartyRequestEventIsNotPublished()
+        {
+            Assert.IsNull(UnitOfWorkContext.GetEvents().FirstOrDefault(x => x is ProviderRejectedChangeOfPartyRequestEvent));
+        }
+
+        internal void WithChangeOfParty(bool v)
+        {
+            if (v)
+                Cohort.ChangeOfPartyRequestId = 1;
         }
     }
 }

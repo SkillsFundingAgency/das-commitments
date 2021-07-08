@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
+using SFA.DAS.ApprenticeCommitments.Messages.Events;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
@@ -55,6 +56,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("S - LevyAddedToAccount");
                 Console.WriteLine("T - CohortWithChangeOfPartyCreatedEvent Event");
                 Console.WriteLine("U - ApprenticeshipPausedEvent Event");
+                Console.WriteLine("V - ApprenticeshipConfirmationCommencedEvent Event");
+                Console.WriteLine("W - ApprenticeshipConfirmedEvent Event");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -165,6 +168,28 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new ApprenticeshipPausedEvent() { ApprenticeshipId = 80024, PausedOn = DateTime.Now });
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ApprenticeshipPausedEvent)}");
+                            break;
+                        case ConsoleKey.V:
+                            await _publisher.Publish(new ApprenticeshipConfirmationCommencedEvent
+                            {
+                                //ApprenticeId = Guid.NewGuid(),
+                                CommitmentsApprenticeshipId = 40002,
+                                CommitmentsApprovedOn = DateTime.Now.AddDays(-1),
+                                ConfirmationOverdueOn = DateTime.Now.AddDays(13)
+                            });
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(ApprenticeshipConfirmationCommencedEvent)}");
+                            break;
+                        case ConsoleKey.W:
+                            await _publisher.Publish(new ApprenticeshipConfirmationConfirmedEvent()
+                            {
+                                //ApprenticeId = Guid.NewGuid(),
+                                CommitmentsApprenticeshipId = 40002,
+                                CommitmentsApprovedOn = DateTime.Now.AddDays(-1),
+                                ConfirmedOn = DateTime.Now
+                            });
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(ApprenticeshipConfirmationCommencedEvent)}");
                             break;
                     }
                 }

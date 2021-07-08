@@ -137,7 +137,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.Cohort)
                     .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
                     .Include(apprenticeship => apprenticeship.Cohort.Provider)
-                    .Include(apprenticeship => apprenticeship.PriceHistory);
+                    .Include(apprenticeship => apprenticeship.PriceHistory)
+                    .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus);
             }
             else
             {
@@ -151,7 +152,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.Cohort)
                     .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
                     .Include(apprenticeship => apprenticeship.Cohort.Provider)
-                    .Include(apprenticeship => apprenticeship.PriceHistory);
+                    .Include(apprenticeship => apprenticeship.PriceHistory)
+                    .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus);
             }
 
             if (skipCount > 0)
@@ -184,8 +186,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.Cohort)
                     .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
                     .Include(apprenticeship => apprenticeship.Cohort.Provider)
-                    .Include(apprenticeship => apprenticeship.PriceHistory);
-
+                    .Include(apprenticeship => apprenticeship.PriceHistory)
+                    .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus);
+                    
             }
             else
             {
@@ -199,8 +202,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Se
                     .Include(apprenticeship => apprenticeship.Cohort)
                     .Include(apprenticeship => apprenticeship.Cohort.AccountLegalEntity)
                     .Include(apprenticeship => apprenticeship.Cohort.Provider)
-                    .Include(apprenticeship => apprenticeship.PriceHistory);
-
+                    .Include(apprenticeship => apprenticeship.PriceHistory)
+                    .Include(apprenticeship => apprenticeship.ApprenticeshipConfirmationStatus);
             }
 
 
