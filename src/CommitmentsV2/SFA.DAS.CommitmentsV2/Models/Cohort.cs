@@ -494,6 +494,21 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (ChangeOfPartyRequestId.HasValue)
             {
                 Publish(() => new CohortWithChangeOfPartyDeletedEvent(Id, ChangeOfPartyRequestId.Value, DateTime.UtcNow, deletedBy, userInfo));
+
+                if (deletedBy == Party.Provider)
+                {
+                    var firstName = DraftApprenticeships.First().FirstName;
+                    var lastName = DraftApprenticeships.First().LastName;
+                    Publish(() => new ProviderRejectedChangeOfPartyRequestEvent
+                    {
+                        EmployerAccountId = EmployerAccountId,
+                        EmployerName = AccountLegalEntity.Name,
+                        TrainingProviderName = Provider.Name,
+                        ChangeOfPartyRequestId = ChangeOfPartyRequestId.Value,
+                        ApprenticeName = $"{firstName} {lastName}",
+                        RecipientEmailAddress = LastUpdatedByEmployerEmail
+                    });
+                }
             }
         }
 

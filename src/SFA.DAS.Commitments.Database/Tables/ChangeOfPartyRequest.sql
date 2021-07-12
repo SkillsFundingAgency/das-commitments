@@ -21,5 +21,7 @@
 	CONSTRAINT [FK_ChangeOfPartyRequest_ProviderId] FOREIGN KEY ([ProviderId]) REFERENCES [Providers]([Ukprn]),
 	CONSTRAINT [FK_ChangeOfPartyRequest_CohortId] FOREIGN KEY ([CohortId]) REFERENCES [Commitment]([Id])
 )
+GO
 
-
+CREATE NONCLUSTERED INDEX [IDX_ChangeOfPartyRequest_Apprenticeship] ON [dbo].[ChangeOfPartyRequest] ([ApprenticeshipId], [NewApprenticeshipId], [Status])
+GO
