@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                     OriginatingParty = source.Originator.ToParty(),
                     FirstName = source.FirstName,
                     LastName = source.LastName,
+                    Email = source.Email,
                     TrainingType = source.TrainingType,
                     TrainingCode = source.TrainingCode,
                     TrainingName = source.TrainingName,

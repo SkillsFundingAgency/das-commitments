@@ -68,6 +68,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
+        public async Task Handle_WhenCommandIsHandled_EmailIsUpdated()
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.Email = "XXX@XX.com";
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            Assert.AreEqual("XXX@XX.com", fixture.ApprenticeshipFromDb.Email);
+        }
+
+
+
+        [Test]
         public async Task Handle_WhenCommandIsHandled_StartDateIsUpdated()
         {
             fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();

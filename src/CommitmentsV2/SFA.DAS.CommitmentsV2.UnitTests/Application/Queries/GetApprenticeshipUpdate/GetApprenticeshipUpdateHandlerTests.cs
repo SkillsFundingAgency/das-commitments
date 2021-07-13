@@ -175,6 +175,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             Assert.AreEqual(source.StartDate, result.StartDate);
             Assert.AreEqual(source.EndDate, result.EndDate);
             Assert.AreEqual(source.DateOfBirth, result.DateOfBirth);
+            Assert.AreEqual(source.Email,result.Email);
         }
     }
 

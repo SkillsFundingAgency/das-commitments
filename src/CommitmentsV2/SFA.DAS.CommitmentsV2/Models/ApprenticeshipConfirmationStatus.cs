@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void SetStatusToUnconfirmedIfChangeIsLatest(DateTime newCommitmentsApprovedOn, DateTime newConfirmationOverdueOn)
         {
-            if (CommitmentsApprovedOn.AddSeconds(-1) < newCommitmentsApprovedOn)
+            if (CommitmentsApprovedOn < newCommitmentsApprovedOn.AddSeconds(-1))
             {
                 CommitmentsApprovedOn = newCommitmentsApprovedOn;
                 ConfirmationOverdueOn = newConfirmationOverdueOn;

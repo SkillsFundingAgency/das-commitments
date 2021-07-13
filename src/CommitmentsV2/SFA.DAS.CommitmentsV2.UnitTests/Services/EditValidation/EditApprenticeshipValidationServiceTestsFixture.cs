@@ -133,6 +133,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             long commitmentId = 200,
             string firstName = "FirstName",
             string lastName = "lastName",
+            string email = null,
             int dobYear = 1995,
             int dobMonth = 1,
             int dobDay = 1,
@@ -147,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             bool hasHadDataLockSuccess = false
             )
         {
-            CreateApprenticeship(id, commitmentId, firstName, lastName, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess);
+            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess);
 
             WithStartDateInFuture();
 
@@ -188,6 +189,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             long commitmentId = 200,
             string firstName = "FirstName",
             string lastName = "lastName",
+            string email = null,
             int dobYear = 1995,
             int dobMonth = 1,
             int dobDay = 1,
@@ -207,6 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 CommitmentId = commitmentId,
                 FirstName = firstName,
                 LastName = lastName,
+                Email = email,
                 DateOfBirth = new DateTime(dobYear, dobMonth, dobDay),
                 Cost = cost,
                 EmployerRef = employerRef,
@@ -231,6 +234,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
            long employerAccountId = 250,
            string firstName = "",
            string lastName = "",
+           string email = null,
            int? dobYear = null,
            int? dobMonth = null,
            int? dobDay = null,
@@ -250,6 +254,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 EmployerAccountId = employerAccountId,
                 FirstName = string.IsNullOrEmpty(firstName) ? _apprenticeship.FirstName : firstName,
                 LastName = string.IsNullOrEmpty(lastName) ? _apprenticeship.LastName : lastName,
+                Email = email,
                 EndDate = null,
                 DateOfBirth = null,
                 StartDate = null,

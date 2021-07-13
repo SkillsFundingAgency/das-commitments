@@ -61,6 +61,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
+        public async Task ThenEmailAddressIsChanged()
+        {
+            fixture.Command.EditApprenticeshipRequest.Email = "New@mail.com";
+
+            await fixture.Handle();
+            fixture.VerifyApprenticeshipUpdateCreated("New@mail.com", app => app.ApprenticeshipUpdate.First().Email);
+        }
+
+        [Test]
         public async Task ThenDobIsChanged()
         {
             fixture.Command.EditApprenticeshipRequest.DateOfBirth = DateTime.UtcNow;

@@ -161,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         [TestCase(null,  true)]
         [TestCase("valid@email.com",  true)]
-        [TestCase("valid@email",  true)]
+        [TestCase("valid@email",  false)]
         [TestCase("invalidemail@", false)]
         [TestCase("invalidemail.com",  false)]
         [TestCase("invalid\\@email.com", false)]
