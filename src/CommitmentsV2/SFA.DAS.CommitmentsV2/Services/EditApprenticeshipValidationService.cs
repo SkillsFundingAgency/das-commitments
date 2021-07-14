@@ -23,7 +23,7 @@ using SFA.DAS.CommitmentsV2.Authentication;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class EditApprenitceshipValidationService : IEditApprenticeshipValidationService
+    public class EditApprenticeshipValidationService : IEditApprenticeshipValidationService
     {
         private readonly IProviderCommitmentsDbContext _context;
         private readonly IOverlapCheckService _overlapCheckService;
@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IAuthenticationService _authenticationService;
 
-        public EditApprenitceshipValidationService(IProviderCommitmentsDbContext context,
+        public EditApprenticeshipValidationService(IProviderCommitmentsDbContext context,
             IMediator mediator,
             IOverlapCheckService overlapCheckService,
             IReservationValidationService reservationValidationService,
@@ -299,7 +299,6 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
-            //TODO : Check if I give an invalid date what happens then on the UI.
             if (request.DateOfBirth.HasValue)
             {
                 if (request.DateOfBirth.Value != apprenticeshipDetails.DateOfBirth.Value)

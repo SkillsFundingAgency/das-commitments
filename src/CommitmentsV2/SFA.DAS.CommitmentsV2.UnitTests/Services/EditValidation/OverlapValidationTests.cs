@@ -8,15 +8,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class OverlapValidationTests
     {
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public async Task When_StartDate_Overlaps(Party party)
+        const string providerErrorText = "The date overlaps with existing training dates for the same apprentice. Please check the date - contact your employer for help";
+        const string employerErrorText = "The date overlaps with existing training dates for the same apprentice. Please check the date - contact your training provider for help";
+
+        [TestCase(Party.Employer, employerErrorText)]
+        [TestCase(Party.Provider, providerErrorText)]
+        public async Task When_StartDate_Overlaps(Party party, string errorText)
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-            var tupleResult = await SetupAuthenticationContext(party, fixture, true, false);
-
-            var result = tupleResult.Result;
-            var errorText = tupleResult.ErrorText;
+            var result = await SetupAuthenticationContext(party, fixture, true, false);
 
             Assert.NotNull(result.Errors);
             Assert.AreEqual(1, result.Errors.Count);
@@ -24,14 +24,45 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Assert.AreEqual("StartDate", result.Errors[0].PropertyName);
         }
 
-        private static async Task<(EditApprenticeshipValidationResult Result, string ErrorText)> 
-            SetupAuthenticationContext(Party party, EditApprenticeshipValidationServiceTestsFixture fixture, bool startDateOverlap, bool endDateOverlap)
+    
+
+        [TestCase(Party.Employer, employerErrorText)]
+        [TestCase(Party.Provider, providerErrorText)]
+        public async Task When_EndDate_Overlaps(Party party, string errorText)
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            var result = await SetupAuthenticationContext(party, fixture, false, true);
+
+            Assert.NotNull(result.Errors);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual(errorText, result.Errors[0].ErrorMessage);
+            Assert.AreEqual("EndDate", result.Errors[0].PropertyName);
+        }
+
+
+        [TestCase(Party.Employer, employerErrorText)]
+        [TestCase(Party.Provider, providerErrorText)]
+        public async Task When_StarDate_And_EndDate_Overlaps(Party party, string errorText)
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            var result = await SetupAuthenticationContext(party, fixture, true, true);
+
+            Assert.NotNull(result.Errors);
+            Assert.AreEqual(2, result.Errors.Count);
+            var endDateError = result.Errors.First(x => x.PropertyName == "EndDate");
+            Assert.AreEqual(errorText, endDateError.ErrorMessage);
+            Assert.AreEqual("EndDate", endDateError.PropertyName);
+
+            var startDateError = result.Errors.First(x => x.PropertyName == "StartDate");
+            Assert.AreEqual(errorText, startDateError.ErrorMessage);
+            Assert.AreEqual("StartDate", startDateError.PropertyName);
+        }
+
+        private static async Task<EditApprenticeshipValidationResult>
+        SetupAuthenticationContext(Party party, EditApprenticeshipValidationServiceTestsFixture fixture, bool startDateOverlap, bool endDateOverlap)
         {
             var eaFixture = fixture.SetupMockContextApprenticeship()
                 .SetupOverlapService(startDateOverlap, endDateOverlap);
-            
-            var partyText = party == Party.Employer ? "training provider" : "employer";
-            var errorText = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact your {partyText} for help";
 
             EditApprenticeshipValidationRequest request;
 
@@ -48,45 +79,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            return (result, errorText);
-        }
-
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public async Task When_EndDate_Overlaps(Party party)
-        {
-            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-            var tupleResult = await SetupAuthenticationContext(party, fixture, false, true);
-
-            var result = tupleResult.Result;
-            var errorText = tupleResult.ErrorText;
-
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(errorText, result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EndDate", result.Errors[0].PropertyName);
-        }
-
-
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public async Task When_StarDate_And_EndDate_Overlaps(Party party)
-        {
-            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-            var tupleResult = await SetupAuthenticationContext(party, fixture, true, true);
-
-            var result = tupleResult.Result;
-            var errorText = tupleResult.ErrorText;
-
-            Assert.NotNull(result.Errors);
-            Assert.AreEqual(2, result.Errors.Count);
-            var endDateError = result.Errors.First(x => x.PropertyName == "EndDate");
-            Assert.AreEqual(errorText, endDateError.ErrorMessage);
-            Assert.AreEqual("EndDate", endDateError.PropertyName);
-
-            var startDateError = result.Errors.First(x => x.PropertyName == "StartDate");
-            Assert.AreEqual(errorText, startDateError.ErrorMessage);
-            Assert.AreEqual("StartDate", startDateError.PropertyName);
+            return result;
         }
     }
 }
