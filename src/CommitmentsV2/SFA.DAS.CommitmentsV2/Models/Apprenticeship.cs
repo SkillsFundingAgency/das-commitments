@@ -256,6 +256,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                 LastName = update.LastName;
             }
 
+            if (!string.IsNullOrEmpty(update.Email))
+            {
+                Email = update.Email;
+            }
+
             if (update.TrainingType.HasValue)
             {
                 ProgrammeType = update.TrainingType;
