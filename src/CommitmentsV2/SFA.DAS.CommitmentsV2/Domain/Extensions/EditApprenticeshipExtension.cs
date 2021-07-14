@@ -79,10 +79,5 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         {
             return apprenticeship.ProviderRef != command.EditApprenticeshipRequest.ProviderReference && party == Party.Provider;
         }
-
-        public static bool ULNUpdateRequired(this EditApprenticeshipCommand command, Apprenticeship apprenticeship, Party party)
-        {
-            return apprenticeship.Uln != command.EditApprenticeshipRequest.ULN && party == Party.Provider; ;
-        }
     }
 }

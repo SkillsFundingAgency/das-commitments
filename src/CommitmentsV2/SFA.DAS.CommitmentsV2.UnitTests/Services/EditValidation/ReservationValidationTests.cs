@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         public async Task Reservation_Validations_Are_Returned()
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenticeship().SetupReservationValidationService();
+            fixture.SetupMockContextApprenticeship().SetupAuthenticationContextAsEmployer().SetupReservationValidationService();
             var request = fixture.CreateValidationRequest(employerRef: "abc");
 
             var result = await fixture.Validate(request);

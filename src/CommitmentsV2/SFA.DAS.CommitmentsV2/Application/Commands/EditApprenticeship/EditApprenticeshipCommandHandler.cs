@@ -56,17 +56,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             {
                 apprenticeship.UpdateEmployerReference(command.EditApprenticeshipRequest.EmployerReference, party, command.EditApprenticeshipRequest.UserInfo);
             }
-            else
+            else if (command.ProviderReferenceUpdateRequired(apprenticeship, party))
             {
-                if (command.ProviderReferenceUpdateRequired(apprenticeship, party))
-                {
-                    apprenticeship.UpdateProviderReference(command.EditApprenticeshipRequest.ProviderReference, party, command.EditApprenticeshipRequest.UserInfo);
-                }
-
-                if (command.ULNUpdateRequired(apprenticeship, party))
-                {
-                    apprenticeship.UpdateULN(command.EditApprenticeshipRequest.ULN, party, _currentDateTime.UtcNow, command.EditApprenticeshipRequest.UserInfo);
-                }
+                apprenticeship.UpdateProviderReference(command.EditApprenticeshipRequest.ProviderReference, party, command.EditApprenticeshipRequest.UserInfo);
             }
         }
 
