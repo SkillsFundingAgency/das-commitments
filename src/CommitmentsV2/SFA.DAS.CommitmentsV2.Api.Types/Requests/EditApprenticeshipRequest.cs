@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public long ApprenticeshipId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Email { get; set; }
         public string ULN { get; set; }
         public string TrainingName { get; set; }
         public decimal? Cost { get; set; }
