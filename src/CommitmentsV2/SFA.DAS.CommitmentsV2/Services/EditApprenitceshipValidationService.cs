@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -74,6 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.AddRange(BuildOverlapValidationFailures(request, apprenticeship));
                 errors.AddRange(await BuildReservationValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildTrainingProgramValidationFailures(request, apprenticeship));
+                errors.AddRange(BuildEmailValidationFailures(request, apprenticeship));
             }
 
             return new EditApprenticeshipValidationResult()
@@ -156,6 +158,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (request.FirstName == apprenticeship.FirstName
                       && request.LastName == apprenticeship.LastName
                       && request.DateOfBirth == apprenticeship.DateOfBirth
+                && request.Email == apprenticeship.Email
                 && request.EmployerReference == apprenticeship.EmployerRef
                 && request.EndDate == apprenticeship.EndDate
                 && request.Cost == apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow)
@@ -200,6 +203,27 @@ namespace SFA.DAS.CommitmentsV2.Services
             else
             {
                 yield return new DomainError(nameof(request.LastName), "Last name must be entered");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildEmailValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+        {
+            if (apprenticeshipDetails.Email != null && string.IsNullOrWhiteSpace(request.Email))
+            {
+                yield return new DomainError(nameof(request.Email), "Email address cannot be blank");
+            }
+
+            if (apprenticeshipDetails.Email == null && !string.IsNullOrWhiteSpace(request.Email))
+            {
+                yield return new DomainError(nameof(request.Email), "Email update cannot be requested");
+            }
+
+            if (request.Email != apprenticeshipDetails.Email && !string.IsNullOrWhiteSpace(request.Email))
+            {
+                if (!request.Email.IsAValidEmailAddress())
+                {
+                    yield return new DomainError(nameof(request.Email), "Please enter a valid email address");
+                }
             }
         }
 

@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
             CreateImmedidateUpdate(command, party, apprenticeship);
 
-            var immediateUpdateCreated = CreateIntermediateUpdate(command, party, apprenticeship);
+            var immediateUpdateCreated = await CreateIntermediateUpdate(command, party, apprenticeship);
 
             return new EditApprenticeshipResponse { ApprenticeshipId = command.EditApprenticeshipRequest.ApprenticeshipId, NeedReapproval = immediateUpdateCreated };
         }
@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             }
         }
 
-        private bool CreateIntermediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
+        private async Task<bool> CreateIntermediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
         {
             if (command.EditApprenticeshipRequest.IntermediateApprenticeshipUpdateRequired())
             {
@@ -78,10 +78,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
                 if (!string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCode))
                 {
-                    var result = _mediator.Send(new GetTrainingProgrammeQuery
+                    var result = await _mediator.Send(new GetTrainingProgrammeQuery
                     {
                         Id = apprenticeshipUpdate.TrainingCode
-                    }).Result;
+                    });
 
                     if (result == null || result.TrainingProgramme == null)
                     {
