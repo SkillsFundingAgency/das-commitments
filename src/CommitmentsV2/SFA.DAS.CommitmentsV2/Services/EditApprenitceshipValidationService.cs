@@ -218,7 +218,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 yield return new DomainError(nameof(request.Email), "Email update cannot be requested");
             }
 
-            if (request.Email != apprenticeshipDetails.Email)
+            if (request.Email != apprenticeshipDetails.Email && !string.IsNullOrWhiteSpace(request.Email))
             {
                 if (!request.Email.IsAValidEmailAddress())
                 {
