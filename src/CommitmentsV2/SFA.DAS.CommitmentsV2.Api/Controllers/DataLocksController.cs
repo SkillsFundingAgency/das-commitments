@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks;
+using SFA.DAS.CommitmentsV2.Application.Commands.TriageDataLocks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -60,6 +61,18 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             await _mediator.Send(new RejectDataLocksRequestChangesCommand(
                 apprenticeshipId,
+                request.UserInfo));
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{apprenticeshipId}/datalocks/triage")]
+        public async Task<IActionResult> TriageDataLocks(long apprenticeshipId, [FromBody] TriageDataLocksRequest request)
+        {
+            await _mediator.Send(new TriageDataLocksCommand(
+                apprenticeshipId,
+                request.TriageStatus,
                 request.UserInfo));
 
             return Ok();
