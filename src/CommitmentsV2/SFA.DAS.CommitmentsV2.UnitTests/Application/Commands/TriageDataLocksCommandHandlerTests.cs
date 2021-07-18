@@ -18,16 +18,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Commands.TriageDataLocks;
-using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
     public class TriageDataLocksCommandHandlerTests
-    {
-        ProviderCommitmentsDbContext Db;
-        ProviderCommitmentsDbContext DbConfirm;
+    {        
         ProviderCommitmentsDbContext _dbContext;
         ProviderCommitmentsDbContext _confirmationDbContext;
         private Mock<IAuthenticationService> _authenticationService;
@@ -35,28 +32,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         private IRequestHandler<TriageDataLocksCommand> _handler;
         private TriageDataLocksCommand _validCommand;
         public UserInfo UserInfo;
-        public Fixture AutoFixture { get; set; }
+        public Fixture _fixture;
         private UnitOfWorkContext _unitOfWorkContext { get; set; }
+        private long _apprenticeshipId; 
 
         [SetUp]
         public void Init()
         {
-            var databaseGuid = Guid.NewGuid().ToString();            
-            
+            var databaseGuid = Guid.NewGuid().ToString();
+            _fixture = new Fixture();
+            _apprenticeshipId = 10082;
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                         .UseInMemoryDatabase(databaseGuid)
                                         .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
-                                        .Options);
-
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()               
-               .UseInMemoryDatabase(databaseGuid)
-               .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
-               .Options);
-
-            DbConfirm = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()               
-               .UseInMemoryDatabase(databaseGuid)
-               .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
-               .Options);
+                                        .Options);           
 
             _confirmationDbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                             .UseInMemoryDatabase(databaseGuid)
@@ -67,106 +56,51 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _authenticationService = new Mock<IAuthenticationService>();
             _logger = new Mock<ILogger<TriageDataLocksCommandHandler>>();
 
-            _handler = new TriageDataLocksCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
+            _handler = new TriageDataLocksCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
                 _logger.Object,
                 _authenticationService.Object);
 
         }
 
         [Test]
-        public async Task Should_Triage_DataLocks()
+        public async Task Should_Update_DataLock()
         {
             //Arrange
-            var apprenticeship = SeedData(false);
-            var fixture = new Fixture();
-            UserInfo = fixture.Create<UserInfo>();
-
-            _validCommand = new TriageDataLocksCommand(10082, TriageStatus.Restart, UserInfo);            
+            var apprenticeship = SetupApprenticeship(TriageStatus.Unknown , false);
+            _validCommand = new TriageDataLocksCommand(_apprenticeshipId, TriageStatus.Restart, _fixture.Create<UserInfo>());            
 
             //Act
             await _handler.Handle(_validCommand, default);
-            await Db.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
-            //Assert
-            var apprenticeshipAssertion = await Db.Apprenticeships.FirstAsync(a => a.Id == apprenticeship.Id);
-            Assert.AreEqual(TriageStatus.Restart , apprenticeshipAssertion.DataLockStatus.FirstOrDefault().TriageStatus);
+            //Assert          
+            var apprenticeshipDataLock = _confirmationDbContext.DataLocks.Where(s => s.ApprenticeshipId == apprenticeship.Id);
+            Assert.AreEqual(TriageStatus.Restart, apprenticeshipDataLock.FirstOrDefault().TriageStatus);
         }
 
         [Test]
-        public void Should_Not_Update_If_Request_Has_Same_TriageStatus()
+        public async Task Should_Update_All_DataLocks()
         {
             //Arrange
-
-            var fixture = new Fixture();
-            var apprenticeshipId = 10082;
-            var apprenticeship = new Apprenticeship
-            {
-                Id = apprenticeshipId,                
-                Cohort = new Cohort
-                {
-                    EmployerAccountId = fixture.Create<long>(),
-                    AccountLegalEntity = new AccountLegalEntity()
-                },
-                DataLockStatus = new List<DataLockStatus>()
-                {
-                    new DataLockStatus
-                    {
-                        ApprenticeshipId = apprenticeshipId,
-                        DataLockEventId = 1,
-                        EventStatus = EventStatus.New,
-                        IsExpired = false,
-                        TriageStatus = TriageStatus.Change,
-                        ErrorCode = DataLockErrorCode.Dlock04
-                    }
-                },
-                StartDate = DateTime.UtcNow.AddMonths(-2)
-            };
-            Db.Apprenticeships.Add(apprenticeship);
-            Db.SaveChanges();
-            UserInfo = fixture.Create<UserInfo>();
-            _validCommand = new TriageDataLocksCommand(10082, TriageStatus.Change, UserInfo);
-            var expectedMessage = $"Trying to update data lock for apprenticeship: {_validCommand.ApprenticeshipId} with the same TriageStatus ({_validCommand.TriageStatus}) ";          
+            var apprenticeship = SetupApprenticeshipWithDatalocks(TriageStatus.Unknown, false);
+            _validCommand = new TriageDataLocksCommand(_apprenticeshipId, TriageStatus.Restart, _fixture.Create<UserInfo>());
 
             //Act
-            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await _handler.Handle(_validCommand, new CancellationToken()));
+            await _handler.Handle(_validCommand, default);
+            await _dbContext.SaveChangesAsync();
 
-            //Assert
-            Assert.AreEqual(expectedMessage, exception.Message);
+            //Assert          
+            var apprenticeshipDataLock = _confirmationDbContext.DataLocks.Where(s => s.ApprenticeshipId == apprenticeship.Id);
+            apprenticeshipDataLock.Where(x => x.TriageStatus == TriageStatus.Restart).Should().HaveCount(2);            
         }
 
         [Test]
         public async Task Should_Ignore_Passed_Datalocks()
         {
             //Arrange
-            var fixture = new Fixture();
-            var apprenticeshipId = 10082;
-            var apprenticeship = new Apprenticeship
-            {
-                Id = apprenticeshipId,
-                HasHadDataLockSuccess = true,
-                Cohort = new Cohort
-                {
-                    EmployerAccountId = fixture.Create<long>(),
-                    AccountLegalEntity = new AccountLegalEntity()
-                },
-                DataLockStatus = new List<DataLockStatus>()
-                {
-                    new DataLockStatus
-                    {
-                        ApprenticeshipId = apprenticeshipId,
-                        DataLockEventId = 1,
-                        TriageStatus = TriageStatus.Change,
-                        ErrorCode = DataLockErrorCode.Dlock04,
-                        Status = Status.Pass
-                    }
-                },
-                StartDate = DateTime.UtcNow.AddMonths(-2)
-            };
-            Db.Apprenticeships.Add(apprenticeship);
-            Db.SaveChanges();
-            UserInfo = fixture.Create<UserInfo>();
-            _validCommand = new TriageDataLocksCommand(10082, TriageStatus.Restart, UserInfo);
-
+            var apprenticeship = SetupApprenticeship(TriageStatus.Change, true);
+            apprenticeship.DataLockStatus.FirstOrDefault().Status = Status.Pass;
+            _validCommand = new TriageDataLocksCommand(_apprenticeshipId, TriageStatus.Restart, _fixture.Create<UserInfo>());
 
             //Act
             await _handler.Handle(_validCommand, default);
@@ -177,31 +111,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
 
         [Test]
-        public void Should_Not_Update_CourseDataLock_If_Apprenticeship_HasHadSuccessful_DataLock()
+        public void Should_Not_Update_If_Request_Has_Same_TriageStatus()
         {
-
             //Arrange
-            var fixture = new Fixture();
-            var apprenticeshipId = 10082;
-            var apprenticeship = new Apprenticeship
-            {
-                Id = apprenticeshipId,
-                HasHadDataLockSuccess = true,
-                Cohort = new Cohort
-                {
-                    EmployerAccountId = fixture.Create<long>(),
-                    AccountLegalEntity = new AccountLegalEntity()
-                },
-                DataLockStatus = new List<DataLockStatus>()
-                {
-                    new DataLockStatus {   ErrorCode = (DataLockErrorCode)68}
-                },                
-                StartDate = DateTime.UtcNow.AddMonths(-2)
-            };
-            Db.Apprenticeships.Add(apprenticeship);
-            Db.SaveChanges();
-            UserInfo = fixture.Create<UserInfo>();            
-            _validCommand = new TriageDataLocksCommand(10082, TriageStatus.Change, UserInfo);
+            var apprenticeship = SetupApprenticeship(TriageStatus.Change, false);           
+            _validCommand = new TriageDataLocksCommand(_apprenticeshipId, TriageStatus.Change, _fixture.Create<UserInfo>());
+            var expectedMessage = $"Trying to update data lock for apprenticeship: {_validCommand.ApprenticeshipId} with the same TriageStatus ({_validCommand.TriageStatus}) ";          
+
+            //Act
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await _handler.Handle(_validCommand, new CancellationToken()));
+
+            //Assert
+            Assert.AreEqual(expectedMessage, exception.Message);
+        }   
+
+
+        [Test]
+        public void Should_Not_Update_DataLock_If_Apprenticeship_HasHadSuccessful_DataLock()
+        {
+            //Arrange
+            var apprenticeship = SetupApprenticeship(TriageStatus.Change, true);           
+            _validCommand = new TriageDataLocksCommand(_apprenticeshipId, TriageStatus.Change, _fixture.Create<UserInfo>());
             var expectedMessage = $"Trying to update data lock for apprenticeship: {_validCommand.ApprenticeshipId} with triage status ({_validCommand.TriageStatus}) and datalock with course and price when Successful DataLock already received";
 
             //Act
@@ -209,74 +139,85 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             
             //Assert         
             Assert.AreEqual(expectedMessage, exception.Message);
-        }
+        }        
 
 
-        public Apprenticeship SeedData(bool withPriceHistory = true)
+        private Apprenticeship SetupApprenticeship(TriageStatus triageStatus, bool hasHadDataLockSuccess)
         {
-            var accountLegalEntityDetails = new AccountLegalEntity()
-                .Set(c => c.Id, 444);
-
-            Db.AccountLegalEntities.Add(accountLegalEntityDetails);
-
-            var cohortDetails = new Cohort()
-                .Set(c => c.Id, 111)
-                .Set(c => c.EmployerAccountId, 222)
-                .Set(c => c.ProviderId, 333)
-                .Set(c => c.AccountLegalEntityId, accountLegalEntityDetails.Id);
-
-            Db.Cohorts.Add(cohortDetails);
-
-            if (withPriceHistory)
-            {
-                var priceHistoryDetails = new List<PriceHistory>()
-                {
-                    new PriceHistory
-                    {
-                        FromDate = DateTime.Now,
-                        ToDate = null,
-                        Cost = 10000,
-                    }
-                };
-
-                Db.PriceHistory.AddRange(priceHistoryDetails);
-            }
-
             var fixture = new Fixture();
             var apprenticeshipId = 10082;
             var apprenticeship = new Apprenticeship
             {
                 Id = apprenticeshipId,
+                HasHadDataLockSuccess = hasHadDataLockSuccess,
                 Cohort = new Cohort
                 {
                     EmployerAccountId = fixture.Create<long>(),
                     AccountLegalEntity = new AccountLegalEntity()
                 },
-                DataLockStatus = SetupDataLocks(apprenticeshipId),                
+                DataLockStatus = new List<DataLockStatus>()
+                {
+                    new DataLockStatus {  
+                        
+                        ApprenticeshipId = apprenticeshipId,
+                        DataLockEventId = 1,
+                        EventStatus = EventStatus.New,
+                        IsExpired = false,
+                        TriageStatus = triageStatus,
+                        ErrorCode = DataLockErrorCode.Dlock04
+                    }
+                },
                 StartDate = DateTime.UtcNow.AddMonths(-2)
-            };            
-            apprenticeship.CommitmentId = cohortDetails.Id;
+            };
 
-            Db.Apprenticeships.Add(apprenticeship);
-            Db.SaveChanges();
+            _dbContext.Apprenticeships.Add(apprenticeship);
+            _dbContext.SaveChangesAsync();
 
             return apprenticeship;           
         }
 
-        private ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
+        private Apprenticeship SetupApprenticeshipWithDatalocks(TriageStatus triageStatus, bool hasHadDataLockSuccess)
         {
-            var activeDataLock4 = new DataLockStatus
+            var fixture = new Fixture();
+            var apprenticeshipId = 10082;
+            var apprenticeship = new Apprenticeship
             {
-                ApprenticeshipId = apprenticeshipId,
-                DataLockEventId = 1,
-                EventStatus = EventStatus.New,
-                IsExpired = false,
-                TriageStatus = TriageStatus.Unknown,
-                ErrorCode = DataLockErrorCode.Dlock04
+                Id = apprenticeshipId,
+                HasHadDataLockSuccess = false,
+                Cohort = new Cohort
+                {
+                    EmployerAccountId = fixture.Create<long>(),
+                    AccountLegalEntity = new AccountLegalEntity()
+                },
+                DataLockStatus = new List<DataLockStatus>()
+                {
+                    new DataLockStatus {
+
+                        ApprenticeshipId = apprenticeshipId,
+                        DataLockEventId = 1,
+                        EventStatus = EventStatus.New,
+                        IsExpired = false,
+                        TriageStatus = triageStatus,
+                        ErrorCode = DataLockErrorCode.Dlock04
+                    },
+                    new DataLockStatus {
+
+                        ApprenticeshipId = apprenticeshipId,
+                        DataLockEventId = 2,
+                        EventStatus = EventStatus.New,
+                        IsExpired = false,
+                        TriageStatus = triageStatus,
+                        ErrorCode = DataLockErrorCode.Dlock05
+                    }
+                },
+                StartDate = DateTime.UtcNow.AddMonths(-2)
             };
-            
-            return new List<DataLockStatus> { activeDataLock4};
+
+            _dbContext.Apprenticeships.Add(apprenticeship);
+            _dbContext.SaveChangesAsync();
+
+            return apprenticeship;
         }
-       
+
     }
 }
