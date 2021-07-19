@@ -80,8 +80,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public void AuthorizationController_ApprenticeEmailRequired_ShouldReturnOk()
         {
             var providerId = 123456;
-
-            var retVal = _fixture.SetApprenticeEmailRequiredForProviderToReturnTrue(providerId).AuthorizationController.ApprenticeEmailRequired(providerId);
+            
+            var retVal = _fixture
+                .SetApprenticeEmailFeatureOnOff(true)
+                .SetApprenticeEmailRequiredForProviderToReturnTrue(providerId).AuthorizationController.ApprenticeEmailRequired(providerId);
 
             Assert.IsInstanceOf<OkResult>(retVal);
         }
@@ -90,6 +92,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public void AuthorizationController_ApprenticeEmailRequired_ShouldReturnNotFound()
         {
             var providerId = 123456;
+
+            var retVal = _fixture.AuthorizationController.ApprenticeEmailRequired(providerId);
+
+            Assert.IsInstanceOf<NotFoundResult>(retVal);
+        }
+
+        [Test]
+        public void AuthorizationController_WhenFeatureIsOff_ApprenticeEmailRequired_ShouldReturnNotFound()
+        {
+            var providerId = 123456;
+
+            _fixture.SetApprenticeEmailFeatureOnOff(false);
+            _fixture.SetApprenticeEmailRequiredForProviderToReturnTrue(providerId);
 
             var retVal = _fixture.AuthorizationController.ApprenticeEmailRequired(providerId);
 
@@ -129,6 +144,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public AuthorizationControllerTestFixture SetApprenticeEmailRequiredForProviderToReturnTrue(long providerId)
         {
             ApprenticeEmailFeatureServiceMock.Setup(x => x.ApprenticeEmailIsRequiredFor(providerId)).Returns(true);
+
+            return this;
+        }
+
+        public AuthorizationControllerTestFixture SetApprenticeEmailFeatureOnOff(bool onOff)
+        {
+            ApprenticeEmailFeatureServiceMock.Setup(x => x.IsEnabled).Returns(onOff);
 
             return this;
         }

@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("features/providers/{providerId}/apprentice-email-required")]
         public IActionResult ApprenticeEmailRequired(long providerId)
         {
-            if(_apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(providerId))
+            if(_apprenticeEmailFeatureService.IsEnabled && _apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(providerId))
             {
                 return Ok();
             }
