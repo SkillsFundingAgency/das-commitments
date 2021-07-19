@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -13,10 +14,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class AuthorizationController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IApprenticeEmailFeatureService _apprenticeEmailFeatureService;
 
-        public AuthorizationController(IMediator mediator)
+        public AuthorizationController(IMediator mediator, IApprenticeEmailFeatureService apprenticeEmailFeatureService)
         {
             _mediator = mediator;
+            _apprenticeEmailFeatureService = apprenticeEmailFeatureService;
         }
 
         [HttpGet]
@@ -45,6 +48,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             };
 
             return Ok(await _mediator.Send(query));
+        }
+
+        [HttpGet]
+        [Route("features/{providerId}/apprentice-email-required")]
+        public IActionResult ApprenticeEmailRequired(long providerId)
+        {
+            if(_apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(providerId))
+            {
+                return Ok();
+            }
+            return NotFound();
         }
     }
 }

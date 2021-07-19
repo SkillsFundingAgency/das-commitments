@@ -6,5 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     {
         bool IsEnabled { get; }
         bool ApprenticeEmailIsRequiredFor(long employerAccountId, long providerId);
+        bool ApprenticeEmailIsRequiredFor(long providerId);
     }
 }

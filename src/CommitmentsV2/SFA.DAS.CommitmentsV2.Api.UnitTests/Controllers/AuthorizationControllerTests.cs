@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
@@ -74,6 +75,26 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             Assert.IsInstanceOf<OkObjectResult>(retVal);
             Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
         }
+
+        [Test]
+        public void AuthorizationController_ApprenticeEmailRequired_ShouldReturnOk()
+        {
+            var providerId = 123456;
+
+            var retVal = _fixture.SetApprenticeEmailRequiredForProviderToReturnTrue(providerId).AuthorizationController.ApprenticeEmailRequired(providerId);
+
+            Assert.IsInstanceOf<OkResult>(retVal);
+        }
+
+        [Test]
+        public void AuthorizationController_ApprenticeEmailRequired_ShouldReturnNotFound()
+        {
+            var providerId = 123456;
+
+            var retVal = _fixture.AuthorizationController.ApprenticeEmailRequired(providerId);
+
+            Assert.IsInstanceOf<NotFoundResult>(retVal);
+        }
     }
 
     public class AuthorizationControllerTestFixture
@@ -81,11 +102,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public AuthorizationControllerTestFixture()
         {
             MediatorMock = new Mock<IMediator>();
+            ApprenticeEmailFeatureServiceMock = new Mock<IApprenticeEmailFeatureService>();
 
-            AuthorizationController = new AuthorizationController(MediatorMock.Object);
+            AuthorizationController = new AuthorizationController(MediatorMock.Object, ApprenticeEmailFeatureServiceMock.Object);
         }
 
         public Mock<IMediator> MediatorMock { get; }
+        public Mock<IApprenticeEmailFeatureService> ApprenticeEmailFeatureServiceMock { get; }
 
         public AuthorizationController AuthorizationController { get; }
 
@@ -99,6 +122,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public AuthorizationControllerTestFixture SetCanAccessApprenticeshipToReturnTrue()
         {
             MediatorMock.Setup(x => x.Send(It.IsAny<CanAccessApprenticeshipQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+            return this;
+        }
+
+        public AuthorizationControllerTestFixture SetApprenticeEmailRequiredForProviderToReturnTrue(long providerId)
+        {
+            ApprenticeEmailFeatureServiceMock.Setup(x => x.ApprenticeEmailIsRequiredFor(providerId)).Returns(true);
 
             return this;
         }
