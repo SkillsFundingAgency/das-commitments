@@ -29,6 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships.EditValidation
             result.ApprenticeshipValidationRequest.EndDate.Should().Be(source.EndDate);
             result.ApprenticeshipValidationRequest.CourseCode.Should().BeEquivalentTo(source.TrainingCode);
             result.ApprenticeshipValidationRequest.ProviderReference.Should().BeEquivalentTo(source.ProviderReference);
+            result.ApprenticeshipValidationRequest.Email.Should().Be(source.Email);
         }
     }
 }

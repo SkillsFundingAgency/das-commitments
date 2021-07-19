@@ -77,7 +77,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public async Task ThenEmailAddressIsChanged(Party party)
+        {
+            fixture.SetParty(party);
+            fixture.Command.EditApprenticeshipRequest.Email = "New@mail.com";
+
+            await fixture.Handle();
+            fixture.VerifyApprenticeshipUpdateCreated("New@mail.com", app => app.ApprenticeshipUpdate.First().Email);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public async Task ThenDobIsChanged(Party party)
+
         {
             fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.DateOfBirth = DateTime.UtcNow;

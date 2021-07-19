@@ -17,5 +17,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string ULN { get; set; }
         public string TrainingCode { get; set; }
         public string ProviderReference { get; set; }
+        public string Email { get; set; }
     }
 }
