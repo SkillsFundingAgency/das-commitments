@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("features/{providerId}/apprentice-email-required")]
+        [Route("features/providers/{providerId}/apprentice-email-required")]
         public IActionResult ApprenticeEmailRequired(long providerId)
         {
             if(_apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(providerId))
