@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.TriageDataLocks
 
         protected override async Task Handle(TriageDataLocksCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Traiage Data Locks for apprenticeship {request.ApprenticeshipId}");
+            _logger.LogInformation($"Triage Data Locks for apprenticeship {request.ApprenticeshipId}");
 
             var apprenticeship = await _db.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
