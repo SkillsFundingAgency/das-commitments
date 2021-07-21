@@ -148,6 +148,7 @@
     <Build Include="Tables\ChangeOfPartyRequest.sql" />
     <Build Include="Tables\ApprenticeshipConfirmationStatus.sql" />
     <Build Include="Views\ApprenticeshipConfirmationStatusWithSort.sql" />
+    <Build Include="Tables\StandardOption.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
