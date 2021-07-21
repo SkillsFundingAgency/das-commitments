@@ -1,10 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
 using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
@@ -119,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             MediatorMock = new Mock<IMediator>();
             ApprenticeEmailFeatureServiceMock = new Mock<IApprenticeEmailFeatureService>();
 
-            AuthorizationController = new AuthorizationController(MediatorMock.Object, ApprenticeEmailFeatureServiceMock.Object);
+            AuthorizationController = new AuthorizationController(MediatorMock.Object, ApprenticeEmailFeatureServiceMock.Object, Mock.Of<ILogger<AuthorizationController>>());
         }
 
         public Mock<IMediator> MediatorMock { get; }
