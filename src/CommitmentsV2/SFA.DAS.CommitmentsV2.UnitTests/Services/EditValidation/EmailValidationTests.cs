@@ -30,9 +30,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(2, result.Errors.Count);
+            Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "Email address cannot be blank");
-            Assert.AreEqual(result.Errors[1].ErrorMessage, "Please enter a valid email address");
         }
 
         [TestCase("@")]

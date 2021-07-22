@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class EditApprenticeshipValidationServiceTestsFixture
     {
-        private EditApprenitceshipValidationService _sut;
+        private EditApprenticeshipValidationService _sut;
         private Mock<IProviderCommitmentsDbContext> _dbContext;
         private Mock<IMediator> _mediator;
         private Mock<IOverlapCheckService> _overlapCheckService;
@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             _currentDateTime = new Mock<ICurrentDateTime>();
             _authenticationService = new Mock<IAuthenticationService>();
 
-            _sut = new EditApprenitceshipValidationService(_dbContext.Object, _mediator.Object,
+            _sut = new EditApprenticeshipValidationService(_dbContext.Object, _mediator.Object,
                 _overlapCheckService.Object,
                 _reservationValidationService.Object,
                 _academicYearDateProvider.Object,

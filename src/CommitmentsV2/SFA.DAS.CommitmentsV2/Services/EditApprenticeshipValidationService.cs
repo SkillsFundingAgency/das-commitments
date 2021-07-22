@@ -24,7 +24,7 @@ using SFA.DAS.CommitmentsV2.Authentication;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class EditApprenitceshipValidationService : IEditApprenticeshipValidationService
+    public class EditApprenticeshipValidationService : IEditApprenticeshipValidationService
     {
         private readonly IProviderCommitmentsDbContext _context;
         private readonly IOverlapCheckService _overlapCheckService;
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IAuthenticationService _authenticationService;
 
-        public EditApprenitceshipValidationService(IProviderCommitmentsDbContext context,
+        public EditApprenticeshipValidationService(IProviderCommitmentsDbContext context,
             IMediator mediator,
             IOverlapCheckService overlapCheckService,
             IReservationValidationService reservationValidationService,
@@ -171,10 +171,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                  : request.ProviderReference == apprenticeship.ProviderRef;
 
             if (request.FirstName == apprenticeship.FirstName
-                      && request.LastName == apprenticeship.LastName
-                      && request.DateOfBirth == apprenticeship.DateOfBirth
+                && request.LastName == apprenticeship.LastName
+                && request.DateOfBirth == apprenticeship.DateOfBirth
                 && request.Email == apprenticeship.Email
-                && request.EmployerReference == apprenticeship.EmployerRef
                 && request.EndDate == apprenticeship.EndDate
                 && request.Cost == apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow)
                 && request.StartDate == apprenticeship.StartDate
@@ -234,7 +233,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 yield return new DomainError(nameof(request.Email), "Email update cannot be requested");
             }
 
-            if (request.Email != apprenticeshipDetails.Email)
+            if (request.Email != apprenticeshipDetails.Email && !string.IsNullOrWhiteSpace(request.Email))
             {
                 if (!request.Email.IsAValidEmailAddress())
                 {
@@ -324,7 +323,6 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
-            //TODO : Check if I give an invalid date what happens then on the UI.
             if (request.DateOfBirth.HasValue)
             {
                 if (request.DateOfBirth.Value != apprenticeshipDetails.DateOfBirth.Value)

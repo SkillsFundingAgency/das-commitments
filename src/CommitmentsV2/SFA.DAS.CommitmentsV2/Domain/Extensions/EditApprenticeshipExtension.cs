@@ -35,7 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 DateOfBirth = source.DateOfBirth ?? apprenticeship.DateOfBirth,
                 EndDate = source.EndDate ?? apprenticeship.EndDate,
                 StartDate = source.StartDate ?? apprenticeship.StartDate,
-                Cost = source.Cost ?? apprenticeship.PriceHistory.GetPrice(dateTimeNow)
+                Cost = source.Cost ?? apprenticeship.PriceHistory.GetPrice(dateTimeNow),
+                ProviderReference = source.ProviderReference
             };
 
             return validationRequest;
