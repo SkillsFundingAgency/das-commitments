@@ -7,8 +7,8 @@ SELECT
 	[ConfirmationOverdueOn],
 	CASE 
 		WHEN CommitmentsApprovedOn IS NULL THEN 'N'
-		WHEN ConfirmationOverdueOn < GETDATE() THEN 'O'
 		WHEN ApprenticeshipConfirmedOn IS NOT NULL THEN 'C'
+		WHEN ConfirmationOverdueOn < GETDATE() THEN 'O'
 		ELSE 'U'
 	END AS ConfirmationStatusSort
 FROM [dbo].[ApprenticeshipConfirmationStatus]
