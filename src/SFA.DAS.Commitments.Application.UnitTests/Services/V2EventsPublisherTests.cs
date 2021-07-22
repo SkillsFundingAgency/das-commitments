@@ -138,6 +138,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
+        #region PublishDataLockTriageApproved
+        [Test]
+        public async Task PublishDataLockTriageApproved_WithStartAndEndDateSet_ShouldNotThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<DataLockTriageApprovedEvent>()
+                .WithStartDate()
+                .WithEndDate();
+
+            await fixtures.Publish(publisher => publisher.PublishDataLockTriageApproved(fixtures.ApprenticeshipEvent));
+        }
+        #endregion
+
         #region PublishPaymentOrderChanged
         [Test]
         public async Task PublishPaymentOrderChanged_ShouldNotThrowException()
