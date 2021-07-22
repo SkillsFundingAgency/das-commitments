@@ -147,7 +147,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         }
 
         [Test, RecursiveMoqAutoData]
-        public async Task And_Has_PendingUpdateOriginator_Provider_Then_Changes_Pending_Alert(
+        public async Task And_Has_PendingUpdateOriginator_Provider_And_IsProviderSearch_Then_Changes_Pending_Alert(
             Apprenticeship source,
             ApprenticeshipUpdate apprenticeshipUpdate,
             PriceHistory priceHistory,
@@ -159,14 +159,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate.Add(apprenticeshipUpdate);
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.IsProviderSearch = true;
 
             var result = await mapper.Map(source);
 
-            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesForReview });
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesPending });
         }
 
         [Test, RecursiveMoqAutoData]
-        public async Task And_Has_PendingUpdateOriginator_Employer_Then_Changes_For_Review_Alert(
+        public async Task And_Has_PendingUpdateOriginator_Employer_And_IsProviderSearch_Then_Changes_For_Review_Alert(
             Apprenticeship source,
             ApprenticeshipUpdate apprenticeshipUpdate,
             PriceHistory priceHistory,
@@ -180,6 +181,49 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
                 Originator = (byte)Originator.Employer
             });
             source.DataLockStatus = new List<DataLockStatus>();
+            source.IsProviderSearch = true;
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesForReview });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_PendingUpdateOriginator_Provider_And_IsNotProviderSearch_Then_Changes_for_Review_Alert(
+            Apprenticeship source,
+            ApprenticeshipUpdate apprenticeshipUpdate,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            apprenticeshipUpdate.Originator = Originator.Provider;
+            apprenticeshipUpdate.Status = (byte)ApprenticeshipUpdateStatus.Pending;
+            source.ApprenticeshipUpdate.Add(apprenticeshipUpdate);
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.IsProviderSearch = false;
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ChangesForReview });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_PendingUpdateOriginator_Employer_And_IsNotProviderSearch_Then_Changes_Pending_Alert(
+            Apprenticeship source,
+            ApprenticeshipUpdate apprenticeshipUpdate,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            apprenticeshipUpdate.Originator = Originator.Employer;
+            apprenticeshipUpdate.Status = (byte)ApprenticeshipUpdateStatus.Pending;
+            source.ApprenticeshipUpdate.Add(new ApprenticeshipUpdate
+            {
+                Originator = (byte)Originator.Employer
+            });
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.IsProviderSearch = false;
 
             var result = await mapper.Map(source);
 
