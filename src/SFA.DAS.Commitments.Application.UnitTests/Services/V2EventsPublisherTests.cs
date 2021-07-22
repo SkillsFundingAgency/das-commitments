@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Services;
@@ -136,89 +135,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
                 .WithStartDate();
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipUpdatedApproved(fixtures.Commitment, fixtures.Apprenticeship)));
-        }
-        #endregion
-
-        #region PublishDataLockTriageApproved
-        [Test]
-        public async Task PublishDataLockTriageApproved_WithStartAndEndDateSet_ShouldNotThrowException()
-        {
-            var fixtures = new V2EventsPublisherTestFixtures<DataLockTriageApprovedEvent>()
-                .WithStartDate()
-                .WithEndDate();
-
-            await fixtures.Publish(publisher => publisher.PublishDataLockTriageApproved(fixtures.ApprenticeshipEvent));
-        }
-        #endregion
-
-        #region PublishApprenticeshipCreated
-        [Test]
-        public async Task PublishApprenticeshipCreated_WithStartAndEndDateSet_ShouldNotThrowException()
-        {
-            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
-                .WithStartDate()
-                .WithEndDate();
-
-            await fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent));
-        }
-
-        [Test]
-        public void PublishApprenticeshipCreated_WithoutStartDateSet_ShouldThrowException()
-        {
-            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
-                .WithEndDate();
-
-            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent)));
-        }
-
-        [Test]
-        public void PublishApprenticeshipCreated_WithoutEndDateSet_ShouldThrowException()
-        {
-            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
-                .WithStartDate();
-
-            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent)));
-        }
-
-        [Test]
-        public async Task PublishApprenticeshipCreated_WithoutATransferSender_ShouldSetAgreedOnSameAsCreatedOn()
-        {
-            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
-                .WithStartDate()
-                .WithEndDate();
-
-            await fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent));
-
-            fixtures.EndpointInstanceMock.Verify(x=>x.Publish(It.Is<ApprenticeshipCreatedEvent>(p=>p.AgreedOn == p.CreatedOn), It.IsAny<PublishOptions>()));
-
-        }
-
-        [Test]
-        public async Task PublishApprenticeshipCreated_WithATransferSender_ShouldSetAgreedOnDifferentToCreatedOn()
-        {
-            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
-                .WithStartDate()
-                .WithEndDate()
-                .WithTransferApprovalData();
-
-            await fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent));
-
-            fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.Is<ApprenticeshipCreatedEvent>(p => p.AgreedOn != p.CreatedOn), It.IsAny<PublishOptions>()));
-        }
-
-        [TestCase(null)]
-        [TestCase(ApprenticeshipEmployerType.NonLevy)]
-        [TestCase(ApprenticeshipEmployerType.Levy)]
-        public async Task PublishApprenticeshipCreated_ShouldSetApprenticeshipEmployerTypeOnApproval(ApprenticeshipEmployerType? apprenticeshipEmployerType)
-        {
-            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
-                .WithStartDate()
-                .WithEndDate()
-                .WithApprenticeshipEmployerTypeOnApproval(apprenticeshipEmployerType);
-            
-            await fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent));
-
-            fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.Is<ApprenticeshipCreatedEvent>(p => p.ApprenticeshipEmployerTypeOnApproval == apprenticeshipEmployerType), It.IsAny<PublishOptions>())); 
         }
         #endregion
 
@@ -529,15 +445,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             var publisher = CreateV2EventsPublisher();
 
             await publisher.PublishApprenticeshipStopped(Commitment, Apprenticeship);
-
-            return this;
-        }
-
-        public async Task<V2EventsPublisherTestFixtures<TEvent>> PublishApprenticeshipCreated()
-        {
-            var publisher = CreateV2EventsPublisher();
-
-            await publisher.PublishApprenticeshipCreated(ApprenticeshipEvent);
 
             return this;
         }

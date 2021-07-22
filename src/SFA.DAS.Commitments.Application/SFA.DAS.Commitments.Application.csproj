@@ -436,7 +436,6 @@
     <Compile Include="Queries\QueryResponse{T}.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules.cs" />
     <Compile Include="Rules\ICommitmentRules.cs" />
-    <Compile Include="Services\ApprenticeshipEventsService.cs" />
     <Compile Include="Services\HistoryService.cs" />
     <Compile Include="Services\InMemoryCache.cs" />
     <Compile Include="Services\OverlappingApprenticeshipService.cs" />
