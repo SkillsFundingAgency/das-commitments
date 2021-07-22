@@ -8,8 +8,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class OverlapValidationTests
     {
-        const string providerErrorText = "The date overlaps with existing training dates for the same apprentice. Please check the date - contact your employer for help";
-        const string employerErrorText = "The date overlaps with existing training dates for the same apprentice. Please check the date - contact your training provider for help";
+        const string providerErrorText = "The date overlaps with existing training dates for the same apprentice. Please check the date - contact the employer for help";
+        const string employerErrorText = "The date overlaps with existing training dates for the same apprentice. Please check the date - contact the training provider for help";
 
         [TestCase(Party.Employer, employerErrorText)]
         [TestCase(Party.Provider, providerErrorText)]
