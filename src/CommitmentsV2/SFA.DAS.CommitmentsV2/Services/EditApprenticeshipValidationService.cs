@@ -21,6 +21,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Authentication;
+using System.Text.RegularExpressions;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -181,7 +182,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.ULN == apprenticeship.Uln
                 && referenceNotUpdated)
             {
-                yield return new DomainError("ApprenticeshipId", "No change made");
+                yield return new DomainError("ApprenticeshipId", "No change made: you need to amend details or cancel");
             }
         }
 
@@ -260,7 +261,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (request.StartDate.HasValue && request.EndDate.HasValue)
             {
-                var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact your {(_authenticationService.GetUserParty() == Party.Employer ? "training provider" : "employer")} for help";
+                var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(_authenticationService.GetUserParty() == Party.Employer ? "training provider" : "employer")} for help";
                 var overlapResult = _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, request.StartDate.Value.To(request.EndDate.Value), apprenticeship.Id, CancellationToken.None).Result;
 
                 if (overlapResult.HasOverlappingStartDate)
@@ -290,6 +291,12 @@ namespace SFA.DAS.CommitmentsV2.Services
                     if (request.Cost > Constants.MaximumApprenticeshipCost)
                     {
                         yield return new DomainError(nameof(request.Cost), "The total cost must be £100,000 or less");
+                    }
+
+                    if (request.Cost.Value - Math.Truncate(request.Cost.Value) > 0)
+                    {
+                        yield return new DomainError(nameof(request.Cost), "Enter the total agreed training cost");
+                        yield break;
                     }
                 }
             }
