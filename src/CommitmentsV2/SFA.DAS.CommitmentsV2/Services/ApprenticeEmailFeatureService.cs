@@ -32,5 +32,16 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             return true;
         }
+
+        public bool ApprenticeEmailIsRequiredFor(long providerId)
+        {
+            if (_usePrivateBetaList)
+            {
+                var found = _privateBetaList.Any(i => i.ProviderId == providerId);
+                return found;
+            }
+
+            return true;
+        }
     }
 }
