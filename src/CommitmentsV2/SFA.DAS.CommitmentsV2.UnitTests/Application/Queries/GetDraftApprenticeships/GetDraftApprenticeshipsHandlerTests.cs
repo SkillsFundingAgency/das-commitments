@@ -107,7 +107,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
                         Uln = _autoFixture.Create<string>(),
-                        OriginalStartDate = _autoFixture.Create<DateTime?>()
+                        OriginalStartDate = _autoFixture.Create<DateTime?>(),
+                        ProgrammeType = ProgrammeType.Standard
                     };
                     _cohort.Apprenticeships.Add(apprenticeship);
                 }
