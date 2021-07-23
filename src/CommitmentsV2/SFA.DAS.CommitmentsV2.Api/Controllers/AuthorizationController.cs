@@ -2,9 +2,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -13,10 +15,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class AuthorizationController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IApprenticeEmailFeatureService _apprenticeEmailFeatureService;
+        private readonly ILogger<AuthorizationController> _logger;
 
-        public AuthorizationController(IMediator mediator)
+        public AuthorizationController(IMediator mediator, IApprenticeEmailFeatureService apprenticeEmailFeatureService, ILogger<AuthorizationController> logger)
         {
             _mediator = mediator;
+            _apprenticeEmailFeatureService = apprenticeEmailFeatureService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -45,6 +51,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             };
 
             return Ok(await _mediator.Send(query));
+        }
+
+        [HttpGet]
+        [Route("features/providers/{providerId}/apprentice-email-required")]
+        public IActionResult ApprenticeEmailRequired(long providerId)
+        {
+            _logger.LogInformation($"Check feature 'apprentice-email-required' is enabled for provider {providerId}");
+            if(_apprenticeEmailFeatureService.IsEnabled && _apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(providerId))
+            {
+                _logger.LogInformation($"Feature 'apprentice-email-required' is on for provider {providerId}");
+                return Ok();
+            }
+            _logger.LogInformation($"Feature 'apprentice-email-required' is off for provider {providerId}");
+            return NotFound();
         }
     }
 }
