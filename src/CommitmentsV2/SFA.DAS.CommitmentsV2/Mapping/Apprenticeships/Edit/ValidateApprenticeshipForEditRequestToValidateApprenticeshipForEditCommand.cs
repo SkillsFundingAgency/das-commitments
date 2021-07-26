@@ -25,7 +25,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships.EditValidation
                     EmployerReference = request.EmployerReference,
                     StartDate = request.StartDate,
                     EndDate = request.EndDate,
-                    CourseCode = request.TrainingCode
+                    CourseCode = request.TrainingCode,
+                    ProviderReference = request.ProviderReference,
+                    Email = request.Email
                 }
             });
         }

@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
             CreateImmedidateUpdate(command, party, apprenticeship);
 
-            var immediateUpdateCreated = CreateIntermediateUpdate(command, party, apprenticeship);
+            var immediateUpdateCreated = await CreateIntermediateUpdate(command, party, apprenticeship);
 
             return new EditApprenticeshipResponse { ApprenticeshipId = command.EditApprenticeshipRequest.ApprenticeshipId, NeedReapproval = immediateUpdateCreated };
         }
@@ -56,21 +56,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             {
                 apprenticeship.UpdateEmployerReference(command.EditApprenticeshipRequest.EmployerReference, party, command.EditApprenticeshipRequest.UserInfo);
             }
-            else
+            else if (command.ProviderReferenceUpdateRequired(apprenticeship, party))
             {
-                if (command.ProviderReferenceUpdateRequired(apprenticeship, party))
-                {
-                    apprenticeship.UpdateProviderReference(command.EditApprenticeshipRequest.ProviderReference, party, command.EditApprenticeshipRequest.UserInfo);
-                }
-
-                if (command.ULNUpdateRequired(apprenticeship, party))
-                {
-                    apprenticeship.UpdateULN(command.EditApprenticeshipRequest.ULN, party, _currentDateTime.UtcNow, command.EditApprenticeshipRequest.UserInfo);
-                }
+                apprenticeship.UpdateProviderReference(command.EditApprenticeshipRequest.ProviderReference, party, command.EditApprenticeshipRequest.UserInfo);
             }
         }
 
-        private bool CreateIntermediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
+        private async Task<bool> CreateIntermediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
         {
             if (command.EditApprenticeshipRequest.IntermediateApprenticeshipUpdateRequired())
             {
@@ -78,10 +70,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
                 if (!string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCode))
                 {
-                    var result = _mediator.Send(new GetTrainingProgrammeQuery
+                    var result = await _mediator.Send(new GetTrainingProgrammeQuery
                     {
                         Id = apprenticeshipUpdate.TrainingCode
-                    }).Result;
+                    });
 
                     if (result == null || result.TrainingProgramme == null)
                     {
@@ -123,7 +115,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
         private void CheckPartyIsValid(Party party)
         {
-            if (party != Party.Employer)
+            if (party != Party.Employer && party != Party.Provider)
             {
                 throw new DomainException(nameof(party), $"Only employers are allowed to edit the records");
             }
@@ -136,6 +128,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
                 case Party.Employer:
                     if (apprenticeship.Cohort.EmployerAccountId != command.EditApprenticeshipRequest.AccountId)
                         throw new UnauthorizedAccessException($"Employer {command.EditApprenticeshipRequest.UserInfo.UserId} not authorised to update apprenticeship {apprenticeship.Id}");
+                    break;
+                case Party.Provider:
+                    if (apprenticeship.Cohort.ProviderId != command.EditApprenticeshipRequest.ProviderId)
+                        throw new UnauthorizedAccessException($"ProviderId : {command.EditApprenticeshipRequest.ProviderId} - UserInfo : {command.EditApprenticeshipRequest.UserInfo.UserId} - not authorised to update apprenticeship {apprenticeship.Id}");
                     break;
             }
         }

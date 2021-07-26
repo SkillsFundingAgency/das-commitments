@@ -63,6 +63,12 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithOne(p => p.Apprenticeship)
                 .HasForeignKey(d => d.ApprenticeshipId);
 
+            /*
+             * During an apprenticeship entity materialization from a query for each apprenticeship which is being selected, when the PreviousApprenticeship 
+             * property is accessed during the query selection the ContinuationOfId will materialize the previous apprenticeship (if any), likewise if the 
+             * Continuation property is accessed the apprenticeship which is the ContinuationOf for the apprenticeship being selected (if any) is 
+             * also materialized; allowing the ContinuedById property to be populated correctly.
+             */
             builder.HasOne(p => p.PreviousApprenticeship)
                 .WithOne(a => a.Continuation)
                 .HasForeignKey<ApprenticeshipBase>(a => a.ContinuationOfId);

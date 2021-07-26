@@ -8,5 +8,26 @@ namespace SFA.DAS.CommitmentsV2.Extensions
         {
             return (T)Enum.Parse(typeof(T), value);
         }
+
+        public static bool IsAValidEmailAddress(this string emailAsString)
+        {
+            try
+            {
+                var email = new System.Net.Mail.MailAddress(emailAsString);
+
+                // check it contains a top level domain
+                var parts = email.Address.Split('@');
+                if (!parts[1].Contains(".") || parts[1].EndsWith("."))
+                {
+                    return false;
+                }
+
+                return email.Address == emailAsString;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

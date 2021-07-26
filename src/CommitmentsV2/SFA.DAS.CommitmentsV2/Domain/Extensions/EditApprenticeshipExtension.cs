@@ -29,12 +29,14 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 CourseCode = GetValue(source.CourseCode, apprenticeship.CourseCode),
                 FirstName = GetValue(source.FirstName, apprenticeship.FirstName),
                 LastName = GetValue(source.LastName, apprenticeship.LastName),
+                Email = GetValue(source.Email, apprenticeship.Email),
                 EmployerReference = source.EmployerReference,
                 ULN = GetValue(source.ULN, apprenticeship.Uln),
                 DateOfBirth = source.DateOfBirth ?? apprenticeship.DateOfBirth,
                 EndDate = source.EndDate ?? apprenticeship.EndDate,
                 StartDate = source.StartDate ?? apprenticeship.StartDate,
-                Cost = source.Cost ?? apprenticeship.PriceHistory.GetPrice(dateTimeNow)
+                Cost = source.Cost ?? apprenticeship.PriceHistory.GetPrice(dateTimeNow),
+                ProviderReference = source.ProviderReference
             };
 
             return validationRequest;
@@ -49,6 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             apprenticeshipUpdate.StartDate = command.EditApprenticeshipRequest.StartDate;
             apprenticeshipUpdate.FirstName = command.EditApprenticeshipRequest.FirstName;
             apprenticeshipUpdate.LastName = command.EditApprenticeshipRequest.LastName;
+            apprenticeshipUpdate.Email = command.EditApprenticeshipRequest.Email;
             apprenticeshipUpdate.Cost = command.EditApprenticeshipRequest.Cost;
             apprenticeshipUpdate.ApprenticeshipId = apprenticeship.Id;
             apprenticeshipUpdate.Originator = party == Party.Employer ? Originator.Employer : Originator.Provider;
@@ -63,6 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         {
             return !string.IsNullOrWhiteSpace(request.FirstName)
                 || !string.IsNullOrWhiteSpace(request.LastName)
+                || !string.IsNullOrWhiteSpace(request.Email)
                 || !string.IsNullOrWhiteSpace(request.CourseCode)
                 || request.DateOfBirth != null
                 || request.StartDate != null
@@ -78,11 +82,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         public static bool ProviderReferenceUpdateRequired(this EditApprenticeshipCommand command, Apprenticeship apprenticeship, Party party)
         {
             return apprenticeship.ProviderRef != command.EditApprenticeshipRequest.ProviderReference && party == Party.Provider;
-        }
-
-        public static bool ULNUpdateRequired(this EditApprenticeshipCommand command, Apprenticeship apprenticeship, Party party)
-        {
-            return apprenticeship.Uln != command.EditApprenticeshipRequest.ULN && party == Party.Provider; ;
         }
     }
 }

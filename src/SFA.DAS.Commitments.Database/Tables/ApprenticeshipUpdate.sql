@@ -16,7 +16,8 @@
 	[CreatedOn] DATETIME NULL,
 	[UpdateOrigin] TINYINT NULL,
 	[EffectiveFromDate] DATETIME NULL,
-	[EffectiveToDate] DATETIME NULL
+	[EffectiveToDate] DATETIME NULL, 
+    [Email] NVARCHAR(200) NULL
 )
 GO
 

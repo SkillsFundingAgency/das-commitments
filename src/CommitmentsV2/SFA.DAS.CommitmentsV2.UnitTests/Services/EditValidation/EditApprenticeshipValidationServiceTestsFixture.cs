@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Moq;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation;
@@ -19,13 +20,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class EditApprenticeshipValidationServiceTestsFixture
     {
-        private EditApprenitceshipValidationService _sut;
+        private EditApprenticeshipValidationService _sut;
         private Mock<IProviderCommitmentsDbContext> _dbContext;
         private Mock<IMediator> _mediator;
         private Mock<IOverlapCheckService> _overlapCheckService;
         private Mock<IReservationValidationService> _reservationValidationService;
         private Mock<IAcademicYearDateProvider> _academicYearDateProvider;
         private Mock<ICurrentDateTime> _currentDateTime;
+        private Mock<IAuthenticationService> _authenticationService;
 
         public DateTime? StartDate { get
             {
@@ -48,12 +50,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             _reservationValidationService = new Mock<IReservationValidationService>();
             _academicYearDateProvider = new Mock<IAcademicYearDateProvider>();
             _currentDateTime = new Mock<ICurrentDateTime>();
+            _authenticationService = new Mock<IAuthenticationService>();
 
-            _sut = new EditApprenitceshipValidationService(_dbContext.Object, _mediator.Object,
+            _sut = new EditApprenticeshipValidationService(_dbContext.Object, _mediator.Object,
                 _overlapCheckService.Object,
                 _reservationValidationService.Object,
                 _academicYearDateProvider.Object,
-                _currentDateTime.Object);
+                _currentDateTime.Object,
+                _authenticationService.Object);
 
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
                 .Returns(Task.FromResult(new OverlapCheckResult(false, false))) ;
@@ -133,6 +137,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             long commitmentId = 200,
             string firstName = "FirstName",
             string lastName = "lastName",
+            string email = null,
             int dobYear = 1995,
             int dobMonth = 1,
             int dobDay = 1,
@@ -147,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             bool hasHadDataLockSuccess = false
             )
         {
-            CreateApprenticeship(id, commitmentId, firstName, lastName, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess);
+            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess);
 
             WithStartDateInFuture();
 
@@ -156,6 +161,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             WithPriceHistoryWithStartDate(cost);
 
             CreateMockApprenticeshipContext();
+            return this;
+        }
+
+        public EditApprenticeshipValidationServiceTestsFixture SetupAuthenticationContextAsEmployer()
+        {
+            _authenticationService.Setup(x => x.GetUserParty()).Returns(Party.Employer);
+            return this;
+        }
+
+        public EditApprenticeshipValidationServiceTestsFixture SetupAuthenticationContextAsProvider()
+        {
+            _authenticationService.Setup(x => x.GetUserParty()).Returns(Party.Provider);
             return this;
         }
 
@@ -188,6 +205,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             long commitmentId = 200,
             string firstName = "FirstName",
             string lastName = "lastName",
+            string email = null,
             int dobYear = 1995,
             int dobMonth = 1,
             int dobDay = 1,
@@ -207,6 +225,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 CommitmentId = commitmentId,
                 FirstName = firstName,
                 LastName = lastName,
+                Email = email,
                 DateOfBirth = new DateTime(dobYear, dobMonth, dobDay),
                 Cost = cost,
                 EmployerRef = employerRef,
@@ -231,6 +250,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
            long employerAccountId = 250,
            string firstName = "",
            string lastName = "",
+           string email = null,
            int? dobYear = null,
            int? dobMonth = null,
            int? dobDay = null,
@@ -241,7 +261,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
            string employerRef = "",
            string uln = "",
            string courseCode = "",
-           decimal? cost = null
+           decimal? cost = null,
+           string providerRef = ""
            )
         {
             var request = new EditApprenticeshipValidationRequest
@@ -250,11 +271,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 EmployerAccountId = employerAccountId,
                 FirstName = string.IsNullOrEmpty(firstName) ? _apprenticeship.FirstName : firstName,
                 LastName = string.IsNullOrEmpty(lastName) ? _apprenticeship.LastName : lastName,
+                Email = email,
                 EndDate = null,
                 DateOfBirth = null,
                 StartDate = null,
                 Cost = cost.HasValue ? cost : _apprenticeship.Cost,
                 EmployerReference = string.IsNullOrEmpty(employerRef) ? _apprenticeship.EmployerRef : employerRef,
+                ProviderReference = string.IsNullOrEmpty(providerRef) ? _apprenticeship.ProviderRef : providerRef,
                 CourseCode = string.IsNullOrEmpty(courseCode) ? _apprenticeship.CourseCode : courseCode,
                 ULN = string.IsNullOrEmpty(uln) ? _apprenticeship.Uln : uln,
             };

@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -19,10 +20,12 @@ using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Types;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Authentication;
+using System.Text.RegularExpressions;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class EditApprenitceshipValidationService : IEditApprenticeshipValidationService
+    public class EditApprenticeshipValidationService : IEditApprenticeshipValidationService
     {
         private readonly IProviderCommitmentsDbContext _context;
         private readonly IOverlapCheckService _overlapCheckService;
@@ -30,13 +33,15 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IMediator _mediator;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IAuthenticationService _authenticationService;
 
-        public EditApprenitceshipValidationService(IProviderCommitmentsDbContext context,  
-            IMediator mediator, 
-            IOverlapCheckService  overlapCheckService, 
-            IReservationValidationService reservationValidationService, 
-            IAcademicYearDateProvider academicYearDateProvider, 
-            ICurrentDateTime currentDateTime)
+        public EditApprenticeshipValidationService(IProviderCommitmentsDbContext context,
+            IMediator mediator,
+            IOverlapCheckService overlapCheckService,
+            IReservationValidationService reservationValidationService,
+            IAcademicYearDateProvider academicYearDateProvider,
+            ICurrentDateTime currentDateTime,
+            IAuthenticationService authenticationService)
         {
             _context = context;
             _overlapCheckService = overlapCheckService;
@@ -44,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _academicYearDateProvider = academicYearDateProvider;
             _mediator = mediator;
             _currentDateTime = currentDateTime;
+            _authenticationService = authenticationService;
         }
 
         public async Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request, CancellationToken cancellationToken)
@@ -70,10 +76,11 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.AddRange(BuildEndDateValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildCostValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildEmployerRefValidationFailures(request, apprenticeship));
-                errors.AddRange(BuildULNValidationFailures(request, apprenticeship));
+                errors.AddRange(BuildProviderRefValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildOverlapValidationFailures(request, apprenticeship));
                 errors.AddRange(await BuildReservationValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildTrainingProgramValidationFailures(request, apprenticeship));
+                errors.AddRange(BuildEmailValidationFailures(request, apprenticeship));
             }
 
             return new EditApprenticeshipValidationResult()
@@ -84,7 +91,14 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private void CheckForInvalidOperations(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
         {
-           if (apprenticeship.IsContinuation)
+            var party = _authenticationService.GetUserParty();
+
+            if (request.ULN != apprenticeship.Uln)
+            {
+                throw new InvalidOperationException("Invalid operation - ULN can't be modified.");
+            }
+
+            if (apprenticeship.IsContinuation)
             {
                 if (request.FirstName != apprenticeship.FirstName
                     || request.LastName != apprenticeship.LastName
@@ -94,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 }
             }
 
-           if (IsLockedForUpdate(apprenticeship) || IsUpdateLockedForStartDateAndCourse(apprenticeship) || apprenticeship.IsContinuation)
+            if (IsLockedForUpdate(apprenticeship) || IsUpdateLockedForStartDateAndCourse(apprenticeship) || apprenticeship.IsContinuation)
             {
                 if (request.CourseCode != apprenticeship.CourseCode)
                 {
@@ -110,7 +124,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 }
             }
 
-            if (IsEndDateLocked(apprenticeship) )
+            if (IsEndDateLocked(apprenticeship))
             {
                 if (request.EndDate != apprenticeship.EndDate)
                 {
@@ -148,22 +162,27 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 yield return new DomainError(nameof(request.CourseCode), "Invalid training code");
             }
-            
+
         }
 
         private IEnumerable<DomainError> NoChangeValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
         {
+            var referenceNotUpdated = _authenticationService.GetUserParty() == Party.Employer 
+                 ? request.EmployerReference == apprenticeship.EmployerRef
+                 : request.ProviderReference == apprenticeship.ProviderRef;
+
             if (request.FirstName == apprenticeship.FirstName
-                      && request.LastName == apprenticeship.LastName
-                      && request.DateOfBirth == apprenticeship.DateOfBirth
-                && request.EmployerReference == apprenticeship.EmployerRef
+                && request.LastName == apprenticeship.LastName
+                && request.DateOfBirth == apprenticeship.DateOfBirth
+                && request.Email == apprenticeship.Email
                 && request.EndDate == apprenticeship.EndDate
                 && request.Cost == apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow)
                 && request.StartDate == apprenticeship.StartDate
                 && request.CourseCode == apprenticeship.CourseCode
-                && request.ULN == apprenticeship.Uln)
+                && request.ULN == apprenticeship.Uln
+                && referenceNotUpdated)
             {
-                yield return new DomainError("ApprenticeshipId", "No change made");
+                yield return new DomainError("ApprenticeshipId", "No change made: you need to amend details or cancel");
             }
         }
 
@@ -203,6 +222,27 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
+        private IEnumerable<DomainError> BuildEmailValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+        {
+            if (apprenticeshipDetails.Email != null && string.IsNullOrWhiteSpace(request.Email))
+            {
+                yield return new DomainError(nameof(request.Email), "Email address cannot be blank");
+            }
+
+            if (apprenticeshipDetails.Email == null && !string.IsNullOrWhiteSpace(request.Email))
+            {
+                yield return new DomainError(nameof(request.Email), "Email update cannot be requested");
+            }
+
+            if (request.Email != apprenticeshipDetails.Email && !string.IsNullOrWhiteSpace(request.Email))
+            {
+                if (!request.Email.IsAValidEmailAddress())
+                {
+                    yield return new DomainError(nameof(request.Email), "Please enter a valid email address");
+                }
+            }
+        }
+
         private async Task<IEnumerable<DomainError>> BuildReservationValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
         {
             List<DomainError> errors = new List<DomainError>();
@@ -211,7 +251,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, request.StartDate.Value, request.CourseCode);
                 var validationResult = await _reservationValidationService.Validate(validationRequest, CancellationToken.None);
 
-                errors = validationResult.ValidationErrors.Select(error =>  new DomainError(error.PropertyName, error.Reason)).ToList();
+                errors = validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
             }
 
             return errors;
@@ -221,7 +261,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (request.StartDate.HasValue && request.EndDate.HasValue)
             {
-                var errorMessage = "The date overlaps with existing training dates for the same apprentice. Please check the date - contact your training provider for help";
+                var errorMessage = $"The date overlaps with existing training dates for the same apprentice. Please check the date - contact the {(_authenticationService.GetUserParty() == Party.Employer ? "training provider" : "employer")} for help";
                 var overlapResult = _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, request.StartDate.Value.To(request.EndDate.Value), apprenticeship.Id, CancellationToken.None).Result;
 
                 if (overlapResult.HasOverlappingStartDate)
@@ -252,6 +292,12 @@ namespace SFA.DAS.CommitmentsV2.Services
                     {
                         yield return new DomainError(nameof(request.Cost), "The total cost must be £100,000 or less");
                     }
+
+                    if (request.Cost.Value - Math.Truncate(request.Cost.Value) > 0)
+                    {
+                        yield return new DomainError(nameof(request.Cost), "Enter the total agreed training cost");
+                        yield break;
+                    }
                 }
             }
             else
@@ -262,26 +308,28 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> BuildEmployerRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
-            if (request.EmployerReference != apprenticeshipDetails.EmployerRef)
+            if (_authenticationService.GetUserParty() == Party.Employer && request.EmployerReference != apprenticeshipDetails.EmployerRef)
             {
-                if (!string.IsNullOrWhiteSpace(request.EmployerReference) && request.EmployerReference.Length > 20 )
+                if (!string.IsNullOrWhiteSpace(request.EmployerReference) && request.EmployerReference.Length > 20)
                 {
                     yield return new DomainError(nameof(request.EmployerReference), "The Reference must be 20 characters or fewer");
                 }
             }
         }
 
-        private IEnumerable<DomainError> BuildULNValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+        private IEnumerable<DomainError> BuildProviderRefValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
-            if (request.ULN != apprenticeshipDetails.Uln)
+            if (_authenticationService.GetUserParty() == Party.Provider && request.ProviderReference != apprenticeshipDetails.ProviderRef)
             {
-                yield return new DomainError(nameof(request.ULN), "Employer cannot modify ULN");
+                if (!string.IsNullOrWhiteSpace(request.ProviderReference) && request.ProviderReference.Length > 20)
+                {
+                    yield return new DomainError(nameof(request.ProviderReference), "The Reference must be 20 characters or fewer");
+                }
             }
         }
 
         private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
-            //TODO : Check if I give an invalid date what happens then on the UI.
             if (request.DateOfBirth.HasValue)
             {
                 if (request.DateOfBirth.Value != apprenticeshipDetails.DateOfBirth.Value)

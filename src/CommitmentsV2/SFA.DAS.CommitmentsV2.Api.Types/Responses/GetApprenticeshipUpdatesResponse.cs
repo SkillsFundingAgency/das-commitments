@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public Party OriginatingParty { get; set; }
             public string FirstName { get; set; }
             public string LastName { get; set; }
+            public string Email { get; set; }
             public ProgrammeType? TrainingType { get; set; }
             public string TrainingCode { get; set; }
             public string TrainingName { get; set; }
