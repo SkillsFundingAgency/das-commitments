@@ -34,44 +34,64 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task OnlyImmediateUpdate_ThenOnlyEmployerReferenceIsChanged()
+        public async Task OnlyImmediateUpdate_WhenOnlyEmployerReferenceIsChanged()
         {
+            fixture.SetParty(Party.Employer);
             fixture.Command.EditApprenticeshipRequest.EmployerReference = "NewEmployerRef";
 
             await fixture.Handle();
-            fixture.VerifyOnlyImmediateUpdate();
+            fixture.VerifyOnlyEmployerImmediateUpdate();
         }
 
         [Test]
-        public async Task ThenFirstNameIsChanged()
+        public async Task OnlyImmediateUpdate_WhenOnlyProviderReferenceIsChanged()
         {
+            fixture.SetParty(Party.Provider);
+            fixture.Command.EditApprenticeshipRequest.ProviderReference = "NewProviderRef";
+
+            await fixture.Handle();
+            fixture.VerifyOnlyProviderImmediateUpdate();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenFirstNameIsChanged(Party party)
+        {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.FirstName = "NewFirstName";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated("NewFirstName", app => app.ApprenticeshipUpdate.First().FirstName);
         }
 
-        [Test]
-        public async Task ThenLastNameIsChanged()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenLastNameIsChanged(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.LastName = "NewLastName";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated("NewLastName", app => app.ApprenticeshipUpdate.First().LastName);
         }
 
-        [Test]
-        public async Task ThenEmailAddressIsChanged()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenEmailAddressIsChanged(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.Email = "New@mail.com";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated("New@mail.com", app => app.ApprenticeshipUpdate.First().Email);
         }
 
-        [Test]
-        public async Task ThenDobIsChanged()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenDobIsChanged(Party party)
+
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.DateOfBirth = DateTime.UtcNow;
 
             await fixture.Handle();
@@ -79,9 +99,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 app => app.ApprenticeshipUpdate.First().DateOfBirth.Value);
         }
 
-        [Test]
-        public async Task ThenStartDateIsChanged()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenStartDateIsChanged(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.StartDate = DateTime.UtcNow;
             
             await fixture.Handle();
@@ -89,9 +111,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 app => app.ApprenticeshipUpdate.First().StartDate.Value);
         }
 
-        [Test]
-        public async Task ThenEndDateIsChanged()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenEndDateIsChanged(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
          
             await fixture.Handle();
@@ -99,9 +123,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 app => app.ApprenticeshipUpdate.First().EndDate.Value);
         }
 
-        [Test]
-        public async Task ThenCourseCodeIsChanged()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenCourseCodeIsChanged(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
@@ -113,9 +139,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             app => (int) app.ApprenticeshipUpdate.First().TrainingType);
         }
 
-        [Test]
-        public async Task ThenMultipleAreChangedIsChanged()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenMultipleAreChangedIsChanged(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
             fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
             fixture.Command.EditApprenticeshipRequest.LastName = "NewLastName";
@@ -129,9 +157,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
 
-        [Test]
-        public async Task NotChangedFieldsAreNull_InApprenticehipUpdateTable()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task NotChangedFieldsAreNull_InApprenticehipUpdateTable(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
@@ -149,19 +179,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                app => app.ApprenticeshipUpdate.First().EndDate);
         }
 
-        [Test]
-        public async Task ThenAnEmployerMakesAChange_OriginatorIsSetToEmployer()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task Then_OriginatorIsSetTo_PartyMakingTheChange(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
-            fixture.VerifyApprenticeshipUpdateCreated((int)Types.Originator.Employer,
+            fixture.VerifyApprenticeshipUpdateCreated( party == Party.Employer ? (int)Originator.Employer : (int)Originator.Provider,
                 app => (int)app.ApprenticeshipUpdate.First().Originator);
         }
 
-        [Test]
-        public async Task UpdateOriginIsSetTo_ChangeOfCircumstances()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task UpdateOriginIsSetTo_ChangeOfCircumstances(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
@@ -169,9 +203,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 app => (int)app.ApprenticeshipUpdate.First().UpdateOrigin);
         }
 
-        [Test]
-        public async Task EffectiveFromDate_Is_Set_To_Apprenticeship_StartDate()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task EffectiveFromDate_Is_Set_To_Apprenticeship_StartDate(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
@@ -179,9 +215,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 app => app.ApprenticeshipUpdate.First().EffectiveFromDate);
         }
 
-        [Test]
-        public async Task EffectiveToDate_Is_Set_To_Null()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task EffectiveToDate_Is_Set_To_Null(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
@@ -189,9 +227,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 app => app.ApprenticeshipUpdate.First().EffectiveToDate);
         }
 
-        [Test]
-        public async Task CreatedOn_Is_Set_To_DateTimeNow()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task CreatedOn_Is_Set_To_DateTimeNow(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             var dateTimeNow = DateTime.Now;
@@ -202,9 +242,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 app => app.ApprenticeshipUpdate.First().CreatedOn);
         }
 
-        [Test]
-        public async Task Published_ApprenticeshipUpdateCreatedEvent()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task Published_ApprenticeshipUpdateCreatedEvent(Party party)
         {
+            fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
 
             await fixture.Handle();
@@ -294,16 +336,40 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Mock.Of<ILogger<EditApprenticeshipCommandHandler>>());
         }
 
+        public EditApprenticeshipCommandHandlerTestsFixture SetParty(Party party)
+        {
+            Party = party;
+            if (party == Party.Provider)
+            {
+                Command.EditApprenticeshipRequest.ProviderId = 333;
+                Command.EditApprenticeshipRequest.AccountId = null;
+            }
+            if (party == Party.Employer)
+            {
+                Command.EditApprenticeshipRequest.ProviderId = null;
+                Command.EditApprenticeshipRequest.AccountId = 222;
+            }
+            
+            return this;
+        }
+
         public async Task Handle()
         {
             await Handler.Handle(Command, CancellationToken.None);
             await Db.SaveChangesAsync();
         }
 
-        internal void VerifyOnlyImmediateUpdate()
+        internal void VerifyOnlyEmployerImmediateUpdate()
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
             Assert.AreEqual("NewEmployerRef", apprenticeship.EmployerRef);
+            Assert.AreEqual(0, apprenticeship.ApprenticeshipUpdate.Count);
+        }
+
+        internal void VerifyOnlyProviderImmediateUpdate()
+        {
+            var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
+            Assert.AreEqual("NewProviderRef", apprenticeship.ProviderRef);
             Assert.AreEqual(0, apprenticeship.ApprenticeshipUpdate.Count);
         }
 
