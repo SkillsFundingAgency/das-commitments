@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             Assert.NotNull(result.Errors);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("No change made", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("No change made: you need to amend details or cancel", result.Errors[0].ErrorMessage);
             Assert.AreEqual("ApprenticeshipId", result.Errors[0].PropertyName);
         }
     }
