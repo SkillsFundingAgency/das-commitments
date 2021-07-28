@@ -447,5 +447,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<GetTransferRequestResponse>($"api/accounts/{transferReceiverId}/receiver/transfers/{transferRequestId}", null, cancellationToken);
         }
+
+        public Task<ValidateUlnOverlapResult> ValidateUlnOverlap(ValidateUlnOverlapRequest validateUlnOverlapRequest, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<ValidateUlnOverlapRequest, ValidateUlnOverlapResult>($"api/apprenticeships/uln/validate", validateUlnOverlapRequest, cancellationToken);
+        }
     }
 }
