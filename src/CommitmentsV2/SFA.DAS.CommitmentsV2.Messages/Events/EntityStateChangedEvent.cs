@@ -52,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         UpdatePriceHistory,
         UpdateCourse,
         AcceptDataLockChange,
-        RejectDataLockChange
+        RejectDataLockChange,
+        TriageDataLocks
     }
 }
