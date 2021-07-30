@@ -166,7 +166,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             Assert.IsNotNull(result);
             Assert.IsFalse(result.FoundOnFullyApprovedApprenticeship);
-            Assert.AreEqual(OverlapStatus.DateEmbrace, OverlapStatus.OverlappingEndDate);
+            Assert.AreEqual(OverlapStatus.DateEmbrace, result.OverlapStatus);
         }
 
         [Test]
