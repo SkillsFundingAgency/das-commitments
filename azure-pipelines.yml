@@ -86,7 +86,7 @@ stages:
           versionSpec: 5.x
           mode: Mainline
 
-      - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
+      - template: azure-pipelines-templates/build/step/dependency-check.yml@das-platform-building-blocks
 
       - task: NuGetToolInstaller@0
         displayName: 'Use NuGet 4.3.0'

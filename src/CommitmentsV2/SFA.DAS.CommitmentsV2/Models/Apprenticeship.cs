@@ -152,6 +152,21 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
+        public void TriageDataLocks(Party party, List<long> dataLockEventIds, TriageStatus triageStatus, UserInfo userInfo)
+        {            
+            StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
+            foreach (var dataLockEventId in dataLockEventIds)
+            {
+                var dataLockStatus = DataLockStatus.SingleOrDefault(p => p.DataLockEventId == dataLockEventId);
+                if (dataLockStatus != null)
+                {
+                    ChangeTrackingSession.TrackUpdate(dataLockStatus);
+                    dataLockStatus.TriageStatus = triageStatus;
+                }
+            }
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
         public void ReplacePriceHistory(Party party, List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
         {
             StartTrackingSession(UserAction.UpdatePriceHistory, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
