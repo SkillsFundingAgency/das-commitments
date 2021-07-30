@@ -238,7 +238,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(new EditApprenticeshipResponse { ApprenticeshipId = response.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("uln/validate")]
         public async Task<IActionResult> ValidateUlnOverlap([FromBody] ValidateUlnOverlapRequest request)
         {
