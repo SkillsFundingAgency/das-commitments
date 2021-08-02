@@ -521,6 +521,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             apprenticeshipsTable.Columns.Add("ProviderRef", typeof(string));
             apprenticeshipsTable.Columns.Add("CreatedOn", typeof(DateTime));
             apprenticeshipsTable.Columns.Add("ReservationId", typeof(Guid));
+            apprenticeshipsTable.Columns.Add("Email", typeof(string));
             return apprenticeshipsTable;
         }
 
