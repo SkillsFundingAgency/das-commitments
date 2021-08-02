@@ -62,6 +62,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             feature.ApprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(employerAccountId, providerId).Should().Be(expected);
         }
 
+        [TestCase(1, true)]
+        [TestCase(2, true)]
+        [TestCase(3, false)]
+        [TestCase(4, true)]
+        [TestCase(5, false)]
+        public void WhenApprenticeEmailFeatureIsOn_AndUsePrivateBetaListIsTrueThenOnlProvidersWillRequireEmail(long providerId, bool expected)
+        {
+            var privateBetaList = new List<PrivateBetaItem>
+            {
+                new PrivateBetaItem { EmployerAccountId = 1, ProviderId = 1 },
+                new PrivateBetaItem { EmployerAccountId = 1, ProviderId = 2 },
+                new PrivateBetaItem { EmployerAccountId = 3, ProviderId = 1 },
+                new PrivateBetaItem { EmployerAccountId = 3, ProviderId = 4 }
+            };
+
+            var feature = new CheckingApprenticeEmailFeatureFixture(true, privateBetaList, CreateApprenticeEmailFeatureToggle(true));
+
+            feature.ApprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(providerId).Should().Be(expected);
+        }
+
+        [Test]
+        public void WhenApprenticeEmailFeatureIsOn_AndUsePrivateBetaListIsFalseThenAllProvidersRequireEmail()
+        {
+            var feature = new CheckingApprenticeEmailFeatureFixture(false, autoFixture.CreateMany<PrivateBetaItem>().ToList(), CreateApprenticeEmailFeatureToggle(true));
+
+            feature.ApprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(autoFixture.Create<long>()).Should().BeTrue();
+        }
+
         private FeatureToggle CreateApprenticeEmailFeatureToggle(bool state)
         {
             return new FeatureToggle { Feature = "ApprenticeEmail", IsEnabled = state };
