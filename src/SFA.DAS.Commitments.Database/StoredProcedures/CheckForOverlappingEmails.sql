@@ -16,7 +16,7 @@ SELECT
 	A.EndDate,
 	A.IsApproved,
 	A.Email,
-	dbo.CourseDatesOverlap(A.StartDate, A.EndDate, @StartDate, @EndDate) AS OverlapStatus
+	dbo.CourseDatesOverlap(A.StartDate, dbo.GetEndDateForOverlapChecks(A.PaymentStatus, A.EndDate, A.StopDate, A.CompletionDate), @StartDate, @EndDate) AS OverlapStatus
 FROM Apprenticeship A
 WHERE 
 	CASE 
@@ -27,4 +27,4 @@ WHERE
 	END = 1
 	AND A.Id != ISNULL(@ApprenticeshipId,0) 
 	AND A.Email = @Email 
-	AND dbo.CourseDatesOverlap(A.StartDate, A.EndDate, @StartDate, @EndDate) >= 1 
+	AND dbo.CourseDatesOverlap(A.StartDate, dbo.GetEndDateForOverlapChecks(A.PaymentStatus, A.EndDate, A.StopDate, A.CompletionDate), @StartDate, @EndDate) >= 1 
