@@ -386,7 +386,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [TestCase(true, true)]
-        //[TestCase(false, false)]
+        [TestCase(false, false)]
         public async Task UpdateDraftApprenticeship_WhenContinuation_StartDateMustBeAfterPreviousStopDate(bool overlap, bool expectThrow)
         {
             _fixture.WithParty(Party.Employer)
