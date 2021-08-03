@@ -68,7 +68,22 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             var overlappingEmail = overlappingEmails.First();
-            return new EmailOverlapCheckResult(overlappingEmail.OverlapStatus, overlappingEmail.IsApproved);
+            return new EmailOverlapCheckResult(overlappingEmail.RowId, overlappingEmail.OverlapStatus, overlappingEmail.IsApproved);
         }
+
+        public async Task<List<EmailOverlapCheckResult>> CheckForEmailOverlaps(long cohortId, CancellationToken cancellationToken)
+        {
+            var overlappingEmails = await _emailOverlapService.GetOverlappingEmails(cohortId, cancellationToken);
+
+            var singleEmails = from overlap in overlappingEmails
+                group overlap by overlap.RowId
+                into groups
+                select groups.OrderBy(e => e.RowId).First();
+
+            var summary = singleEmails.Select(x => new EmailOverlapCheckResult(x.RowId, x.OverlapStatus, x.IsApproved));
+
+            return summary.ToList();
+        }
+
     }
 }

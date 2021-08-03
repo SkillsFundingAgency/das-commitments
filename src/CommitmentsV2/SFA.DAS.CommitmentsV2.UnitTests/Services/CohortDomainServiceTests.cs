@@ -713,7 +713,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
                 OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new EmailOverlapCheckResult(OverlapStatus.OverlappingEndDate, isApproved));
+                    .ReturnsAsync(new EmailOverlapCheckResult(1, OverlapStatus.OverlappingEndDate, isApproved));
 
                 return this;
             }
