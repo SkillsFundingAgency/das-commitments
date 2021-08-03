@@ -366,6 +366,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task ApproveCohort_WhenThereIsAOverlap_ShouldThrowException()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider).WithParty(Party.Provider).WithExistingDraftApprenticeship().WithUlnOverlap(true);
+
+            await _fixture.ApproveCohort();
+
+            _fixture.VerifyException<DomainException>();
+        }
+
+        [Test]
         public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSigned_ShouldSucceed()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
@@ -817,7 +827,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 return this;
             }
-          
+
             public CohortDomainServiceTestFixture WithExistingDraftApprenticeship()
             {
                 DraftApprenticeshipDetails.Id = DraftApprenticeshipId;
@@ -973,6 +983,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
+            public CohortDomainServiceTestFixture WithUlnOverlap(bool hasOverlap)
+            {
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new OverlapCheckResult(hasOverlap, hasOverlap));
+
+                return this;
+            }
+
 
             public async Task ApproveCohort()
             {
@@ -986,6 +1004,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
                 catch (DomainException ex)
                 {
+                    Exception = ex;
                     DomainErrors.AddRange(ex.DomainErrors);
                 }
             }
