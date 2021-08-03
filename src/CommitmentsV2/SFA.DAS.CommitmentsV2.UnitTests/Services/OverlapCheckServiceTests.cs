@@ -188,7 +188,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task ThenIfOneOverlappingEmailRecordFoundInCohortShouldReturnOneResult()
         {
-
             var list = new List<OverlappingEmail>
             {
                 new OverlappingEmail
@@ -210,7 +209,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task ThenIfTwoOverlappingEmailRecordsFoundInCohortShouldReturnFirstIfItWasForTheSameRowId()
         {
-
             var list = new List<OverlappingEmail>
             {
                 new OverlappingEmail
@@ -238,7 +236,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task ThenIfTwoOverlappingEmailRecordsFoundInCohortShouldReturnBothIfItWasForADifferentRowId()
         {
-
             var list = new List<OverlappingEmail>
             {
                 new OverlappingEmail
