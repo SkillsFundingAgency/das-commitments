@@ -51,5 +51,24 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
+        public async Task<List<OverlappingEmail>> GetOverlappingEmails(long cohortId, CancellationToken cancellationToken)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+
+            var cohortIdParam = new SqlParameter("@CohortId", cohortId);
+
+            try
+            {
+                var query = db.OverlappingEmails.FromSql(
+                    "EXEC CheckForOverlappingEmailsInCohort @CohortId", cohortIdParam);
+
+                return await query.ToListAsync(cancellationToken);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error Calling Stored Procedure CheckForOverlappingEmailsInCohort", e);
+                throw;
+            }
+        }
     }
 }
