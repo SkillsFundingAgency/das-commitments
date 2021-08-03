@@ -246,7 +246,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private async Task<IEnumerable<DomainError>> BuildReservationValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
         {
             List<DomainError> errors = new List<DomainError>();
-            if (request.StartDate.HasValue && !string.IsNullOrWhiteSpace(request.CourseCode))
+            if (apprenticeship.ReservationId.HasValue && request.StartDate.HasValue && !string.IsNullOrWhiteSpace(request.CourseCode))
             {
                 var validationRequest = new ReservationValidationRequest(apprenticeship.ReservationId.Value, request.StartDate.Value, request.CourseCode);
                 var validationResult = await _reservationValidationService.Validate(validationRequest, CancellationToken.None);
