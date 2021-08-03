@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -86,8 +87,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                 (f, r) => r.Should().NotBeNull()
                     .And.BeOfType<OkObjectResult>()
                     .Which.Value.Should().NotBeNull()
-                    .And.Match<List<ApprenticeshipEmailOverlap>>(v =>
-                        v.Count == f.GetCohortEmailOverlapsResult.Overlaps.Count));
+                    .And.Match<GetEmailOverlapsResponse>(v =>
+                        v.ApprenticeshipEmailOverlaps.ToList().Count == f.GetCohortEmailOverlapsResult.Overlaps.Count));
         }
     }
 

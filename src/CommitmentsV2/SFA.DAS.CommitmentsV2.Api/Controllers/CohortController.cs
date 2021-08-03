@@ -134,7 +134,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var query = new GetCohortEmailOverlapsQuery(cohortId);
             var result = await _mediator.Send(query);
 
-            return Ok(result.Overlaps);
+            return Ok(new GetEmailOverlapsResponse{ ApprenticeshipEmailOverlaps = result.Overlaps});
         }
 
         [HttpPost]
