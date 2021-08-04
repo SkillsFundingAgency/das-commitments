@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[CheckForOverlappingEmailsInCohort](@CohortId INT)
+﻿CREATE PROCEDURE [dbo].[CheckForOverlappingEmailsInCohort](@CohortId BIGINT)
 AS
 BEGIN
 	DECLARE @emails dbo.[EmailCheckTable] 

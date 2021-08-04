@@ -1,12 +1,12 @@
 ﻿CREATE FUNCTION [dbo].[CourseDatesOverlap](@StartDate DATETIME2, @EndDate DATETIME2, @NewStartDate DATETIME2, @NewEndDate DATETIME2)
-RETURNS INT
+RETURNS SMALLINT
 AS
 BEGIN
 	DECLARE @Start INT = YEAR(@StartDate) * 100 + MONTH(@StartDate)
 	DECLARE @End INT = YEAR(@EndDate) * 100 + MONTH(@EndDate)
 	DECLARE @NewStart INT = YEAR(@NewStartDate) * 100 + MONTH(@NewStartDate)
 	DECLARE @NewEnd INT = YEAR(@NewEndDate) * 100 + MONTH(@NewEndDate)
-	DECLARE @RetVal INT
+	DECLARE @RetVal SMALLINT
 	DECLARE @StartOverlaps BIT = 0
 	DECLARE @EndOverlaps BIT = 0
 

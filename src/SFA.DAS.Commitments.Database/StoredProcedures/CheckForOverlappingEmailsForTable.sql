@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[CheckForOverlappingEmailsForTable]
 	@Emails [EmailCheckTable] READONLY,
-	@CohortId INT = NULL
+	@CohortId BIGINT = NULL
 AS
 BEGIN
 	SELECT 

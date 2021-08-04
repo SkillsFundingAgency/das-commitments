@@ -2,8 +2,8 @@
 	@Email NVARCHAR(200),
 	@StartDate DATETIME2,
 	@EndDate DATETIME2,
-	@ApprenticeshipId INT,
-	@CohortId INT = NULL
+	@ApprenticeshipId BIGINT,
+	@CohortId BIGINT = NULL
 AS
 BEGIN
 	DECLARE @emails dbo.[EmailCheckTable] 
