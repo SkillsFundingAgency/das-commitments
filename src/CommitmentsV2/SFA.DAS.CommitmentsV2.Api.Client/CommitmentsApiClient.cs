@@ -456,7 +456,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task TriageDataLocks(long apprenticeshipId, TriageDataLocksRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/datalocks/triage", request, cancellationToken);
-
         }
     }
 }
