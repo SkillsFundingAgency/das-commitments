@@ -383,7 +383,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSigned_ShouldSucceed()
+        public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSignedAndNoEmailOverlaps_ShouldSucceed()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
@@ -392,6 +392,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Employer).ApproveCohort();
             _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
+            _fixture.VerifyCheckForEmailOverlapsOnCohortIsCalledCorrectlyWhenApproving();
+        }
+
+        [Test]
+        public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSignedButHasEmailOverlaps_ShouldThrowException()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithAgreementSignedAs(true)
+                .WithExistingDraftApprenticeship()
+                .WithOverlappingEmails();
+
+            await _fixture.WithParty(Party.Employer).ApproveCohort();
+
+            Assert.AreEqual(1, _fixture.DomainErrors.Count);
+            Assert.AreEqual("Cannot approve this cohort because one or more emails are failing the overlap check", _fixture.DomainErrors[0].ErrorMessage);
         }
 
         [Test]
@@ -594,6 +610,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 OverlapCheckService = new Mock<IOverlapCheckService>();
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
+                OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new List<EmailOverlapCheckResult>());
 
                 EmployerAgreementService = new Mock<IEmployerAgreementService>();
                 EncodingService = new Mock<IEncodingService>();
@@ -871,6 +889,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithOverlappingEmails()
+            {
+                var f = new Fixture();
+                var list = f.CreateMany<EmailOverlapCheckResult>().ToList();
+                OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(list);
+                return this;
+            }
+
+            public void VerifyCheckForEmailOverlapsOnCohortIsCalledCorrectlyWhenApproving()
+            {
+                OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(CohortId, It.IsAny<CancellationToken>()));
+            }
+
             public CohortDomainServiceTestFixture WithContinuation(bool overlap)
             {
                 long? changeOfPartyRequestId = ChangeOfPartyRequest.Object.Id;
@@ -1018,7 +1050,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     DomainErrors.AddRange(ex.DomainErrors);
                 }
             }
-
 
             public async Task ApproveCohort()
             {
