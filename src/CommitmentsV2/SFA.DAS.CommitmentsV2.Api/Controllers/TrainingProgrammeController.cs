@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammes;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetStandardOptions;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -87,6 +88,30 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error getting training programme {id}");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
+        [Route("{id}/options/{standardUId}")]
+        public async Task<IActionResult> GetStandardOptions(string standardUId)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetStandardOptionsQuery(standardUId));
+
+                if (result.Options == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new GetStandardOptionsResponse {
+                    Options = result.Options
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error getting standard options for {standardUId}");
                 return BadRequest();
             }
         }
