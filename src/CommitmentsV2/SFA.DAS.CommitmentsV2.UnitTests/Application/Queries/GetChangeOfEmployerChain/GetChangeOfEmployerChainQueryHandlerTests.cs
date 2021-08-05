@@ -47,6 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
         private Employer Employer103 = new Employer { EmployerId = 103, EmployerName = "Employer103" };
         private Employer Employer201 = new Employer { EmployerId = 201, EmployerName = "Employer201" };
         private Employer Employer202 = new Employer { EmployerId = 202, EmployerName = "Employer202" };
+        private Employer EmployerDeleted = new Employer { EmployerId = 301, EmployerName = "EmployerDeleted", IsDeleted = true };
 
         private DateTime Now = DateTime.Now;
 
@@ -86,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                     { 2,  new ExpectedOutput { ApprenticeshipId = 10001, Ukprn = 200, EmployerName = Employer101.EmployerName, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, NewApprenticeshipId = 10002 } }
                 }
             };
-            
+
             // Provider 1 (Employer 1) => Provider 1 (Employer 2) => Provider 1 (Employer 3)
             yield return new object[] {
                 new Dictionary<long, long[]>
@@ -108,7 +109,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                     { 3, new ExpectedOutput { ApprenticeshipId = 10001, Ukprn = 200, EmployerName = Employer101.EmployerName, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, NewApprenticeshipId = 10002 } }
                 }
             };
-            
+
+            // Provider 1 (Employer 1) => skip Provider 1 (Employer Deleted) => Provider 1 (Employer 3) - [CON-3774]
+            yield return new object[] {
+                new Dictionary<long, long[]>
+                {
+                    { 10001, new long[] { 1, 2, 3 } },  // Provider 1 can see Employer 1 => 2 => 3
+                    { 10002, new long[] { 1, 2, 3 } },  // Provider 1 can see Employer 1 <= 2 => 3
+                    { 10003, new long[] { 1, 2, 3 } }   // Provider 1 can see Employer 1 <= 2 <= 3
+                },
+                new Input[]
+                {
+                    new Input { ApprenticeshipId = 10001, Ukprn = 200, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, CurrentEmployer = Employer101, NewEmployer = EmployerDeleted, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer },
+                    new Input { ApprenticeshipId = 10002, Ukprn = 200, StartDate = Now.AddDays(6), EndDate = Now.AddDays(25), StopDate = Now.AddDays(6), CreatedOn = Now.AddDays(1), ContinuationOfId = 10001, CurrentEmployer = EmployerDeleted, NewEmployer = Employer103, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer },
+                    new Input { ApprenticeshipId = 10003, Ukprn = 200, StartDate = Now.AddDays(7), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now.AddDays(2), ContinuationOfId = 10002, CurrentEmployer = Employer103, NewEmployer = null, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = null},
+                },
+                new Dictionary<long, ExpectedOutput>
+                {
+                    { 1, new ExpectedOutput { ApprenticeshipId = 10003, Ukprn = 200, EmployerName = Employer103.EmployerName, StartDate = Now.AddDays(7), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = null, ContinuationOfId = 10002, NewApprenticeshipId = null } },
+                    // Do not expect the apprenticeship for the deleted employer
+                    { 3, new ExpectedOutput { ApprenticeshipId = 10001, Ukprn = 200, EmployerName = Employer101.EmployerName, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, NewApprenticeshipId = 10002 } }
+                }
+            };
+
             // Provider 1 (Employer 1) => Provider 1 (Employer 2) => Provider 2 (Employer 2) => Provider 2 (Employer 3) => Provider 1 (Employer 3)
             yield return new object[] {
                 new Dictionary<long, long[]>
@@ -136,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                     { 5, new ExpectedOutput { ApprenticeshipId = 10001, Ukprn = 200, EmployerName = Employer101.EmployerName, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, NewApprenticeshipId = 10002 } }
                 }
             };
-            
+
             // Provider 1 (Employer 1) => Provider 1 (Employer 2) => Provider 2 (Employer 2) => Provider 2 (Employer 3) => Provider 2 (Employer 4) =>
             // Provider 1 (Employer 4) => Provider 1 (Employer 5)
             yield return new object[] {
@@ -177,6 +200,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
         {
             public long EmployerId { get; set; }
             public string EmployerName { get; set; }
+            public bool IsDeleted { get; internal set; }
         }
 
         public class Input
@@ -288,7 +312,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
 
             if (input.CurrentEmployer != null)
             {
-                if (!Db.AccountLegalEntities.Any(ale => ale.Id == input.CurrentEmployer.EmployerId))
+                if (!Db.AccountLegalEntities.IgnoreQueryFilters().Any(ale => ale.Id == input.CurrentEmployer.EmployerId))
                 {
                     var employer = new AccountLegalEntity
                     (
@@ -310,7 +334,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
 
             if (input.NewEmployer != null)
             {
-                if (!Db.AccountLegalEntities.Any(ale => ale.Id == input.NewEmployer.EmployerId))
+                if (!Db.AccountLegalEntities.IgnoreQueryFilters().Any(ale => ale.Id == input.NewEmployer.EmployerId))
                 {
                     var employer = new AccountLegalEntity
                     (
@@ -324,6 +348,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                         autoFixture.Create<string>(),
                         DateTime.Now
                     );
+
+                    if (input.NewEmployer.IsDeleted)
+                        employer.Delete(DateTime.Now);
 
                     Db.AccountLegalEntities.Add(employer);
                     Db.SaveChanges();
