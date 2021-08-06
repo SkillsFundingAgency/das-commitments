@@ -32,25 +32,59 @@
 )
 GO
 
-CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_CommitmentStatus] 
-ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus]) 
-INCLUDE ([ApprenticeshipEmployerTypeOnApproval], [CreatedOn], [EditStatus], [EmployerAccountId], [IsFullApprovalProcessed], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [Originator], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId]) WITH (ONLINE = ON)
-
+-- there are a lot of indexes on similar columns but the order does matter; mostly these indexes have been flagged as Azure recomendations
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_CommitmentStatus] ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus]) INCLUDE(
+	[ApprenticeshipEmployerTypeOnApproval], 
+	[CreatedOn], 
+	[EditStatus],
+	[EmployerAccountId], 
+	[IsFullApprovalProcessed], 
+	[LastAction], 
+	[LastUpdatedByEmployerEmail], 
+	[LastUpdatedByEmployerName], 
+	[LastUpdatedByProviderEmail], 
+	[LastUpdatedByProviderName], 
+	[Originator], 
+	[Reference], 
+	[TransferApprovalActionedByEmployerEmail], 
+	[TransferApprovalActionedByEmployerName], 
+	[TransferApprovalActionedOn], 
+	[TransferApprovalStatus], 
+	[TransferSenderId] ) 
+WITH (ONLINE = ON)
 GO
 
--- but we have 2 natural id's, providerid and EmployerAccountId
--- do we need an equivalent index for employeraccountid with all the fields included?
--- we compromise with index on EmployerAccountId (which we had before), but add in CommitmentStatus, and don't have all the columns included
---todo: reasses these indexes when they're in live, by liasing with devops to see what's recommended
-CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId_CommitmentStatus]
-ON [dbo].[Commitment] ([EmployerAccountId], [CommitmentStatus]) 
+CREATE NONCLUSTERED INDEX [IX_Commitment_IsDeleted_ProviderId_CommitmentStatus] ON [dbo].[Commitment] ([IsDeleted], [ProviderId], [CommitmentStatus]) INCLUDE (
+	[AccountLegalEntityId], 
+	[ApprenticeshipEmployerTypeOnApproval], 
+	[Approvals], 
+	[ChangeOfPartyRequestId], 
+	[CreatedOn], 
+	[EditStatus], 
+	[EmployerAccountId], 
+	[EmployerAndProviderApprovedOn], 
+	[IsDraft], 
+	[IsFullApprovalProcessed], 
+	[LastAction], 
+	[LastUpdatedByEmployerEmail], 
+	[LastUpdatedByEmployerName], 
+	[LastUpdatedByProviderEmail], 
+	[LastUpdatedByProviderName],
+	[LastUpdatedOn], 
+	[Originator], 
+	[Reference], 
+	[RowVersion], 
+	[TransferApprovalActionedByEmployerEmail], 
+	[TransferApprovalActionedByEmployerName], 
+	[TransferApprovalActionedOn], 
+	[TransferApprovalStatus], 
+	[TransferSenderId], 
+	[WithParty] ) 
+WITH (ONLINE = ON)
 GO
 
-CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_IsDeleted_CommitmentStatus]
-ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus], [IsDeleted]) 
-GO
-
-CREATE NONCLUSTERED INDEX [IX_Commitment_TransferSenderId] ON [dbo].[Commitment] ([TransferSenderId]) WHERE [TransferSenderId] IS NOT NULL 
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_IsDeleted_CommitmentStatus] ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus], [IsDeleted]) 
+WITH (ONLINE=ON)
 GO
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderIsDeleted] on [dbo].[Commitment] ([ProviderId], [IsDeleted]) INCLUDE(
@@ -72,31 +106,42 @@ CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderIsDeleted] on [dbo].[Commitment
 	[Originator] ,
 	[ApprenticeshipEmployerTypeOnApproval] ,
 	[IsFullApprovalProcessed] ,
-    [AccountLegalEntityId] ) WITH (ONLINE = ON)
-	GO
+    [AccountLegalEntityId] ) 
+WITH (ONLINE = ON)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId_CommitmentStatus] ON [dbo].[Commitment] ([EmployerAccountId], [CommitmentStatus]) 
+WITH (ONLINE=ON)
+GO
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountIsDeleted] on [dbo].[Commitment] ([EmployerAccountId], [IsDeleted]) INCLUDE(
     [Reference],
-    
-    [ProviderId] , 
-    [CommitmentStatus] , 
+    [ProviderId], 
+    [CommitmentStatus], 
     [EditStatus],
-    [CreatedOn] , 
-    [LastAction] , 
-	[LastUpdatedByEmployerName] ,
-    [LastUpdatedByEmployerEmail] , 
-    [LastUpdatedByProviderName] , 
-    [LastUpdatedByProviderEmail] ,
-    [TransferSenderId] ,
-	[TransferApprovalStatus] ,
-	[TransferApprovalActionedByEmployerName] ,
-	[TransferApprovalActionedByEmployerEmail] ,
-	[TransferApprovalActionedOn] ,
-	[Originator] ,
-	[ApprenticeshipEmployerTypeOnApproval] ,
-	[IsFullApprovalProcessed] ,
-    [AccountLegalEntityId] ) WITH (ONLINE = ON)
-	GO
+    [CreatedOn], 
+    [LastAction], 
+	[LastUpdatedByEmployerName],
+    [LastUpdatedByEmployerEmail], 
+    [LastUpdatedByProviderName], 
+    [LastUpdatedByProviderEmail],
+    [TransferSenderId],
+	[TransferApprovalStatus],
+	[TransferApprovalActionedByEmployerName],
+	[TransferApprovalActionedByEmployerEmail],
+	[TransferApprovalActionedOn],
+	[Originator],
+	[ApprenticeshipEmployerTypeOnApproval],
+	[IsFullApprovalProcessed],
+    [AccountLegalEntityId] ) 
+WITH (ONLINE = ON)
+GO
 
-CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountDeletedProviderName_Filter] ON [dbo].[Commitment] ([EmployerAccountId],[IsDeleted]) WITH (ONLINE=ON)
+-- this looks like a duplicate however there are cases where having an index on the same columns but with no includes would be useful
+CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountDeletedProviderName_Filter] ON [dbo].[Commitment] ([EmployerAccountId],[IsDeleted]) 
+WITH (ONLINE=ON)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_TransferSenderId] ON [dbo].[Commitment] ([TransferSenderId]) WHERE [TransferSenderId] IS NOT NULL 
+WITH (ONLINE=ON)
 GO
