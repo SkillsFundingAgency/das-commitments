@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
 
             if (overlapCheckResult.HasOverlaps)
             {
-                throw new DomainException("StartDate",
+                throw new DomainException("ApproveChanges",
                     "Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
             }
         }
@@ -86,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
 
             if (overlapCheckResult != null)
             {
-                throw new DomainException("Email", overlapCheckResult.BuildErrorMessage());
+                throw new DomainException("ApproveChanges", overlapCheckResult.BuildErrorMessage());
             }
         }
 
