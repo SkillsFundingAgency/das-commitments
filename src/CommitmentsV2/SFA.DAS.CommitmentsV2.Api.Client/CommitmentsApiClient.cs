@@ -452,5 +452,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/datalocks/triage", request, cancellationToken);
         }
+
+        public Task<GetAllCohortAccountIdsResponse> GetAllCohortAccountIds(CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetAllCohortAccountIdsResponse>($"api/cohorts/accountIds");
+        }
     }
 }
