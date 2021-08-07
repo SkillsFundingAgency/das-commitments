@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAllCohortAccountIds;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Types;
@@ -126,6 +127,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             });
         }
 
+        [HttpGet]
+        [Route("accountIds")]
+        public async Task<IActionResult> GetAllCohortAccountIds()
+        {
+            var result = await _mediator.Send(new GetAllCohortAccountIdsQuery());
+            return Ok(new GetAllCohortAccountIdsResponse(result.AccountIds));
+        }
+        
         [HttpPost]
         [Route("{cohortId}/send")]
         public async Task<IActionResult> Send(long cohortId, [FromBody]SendCohortRequest request)
