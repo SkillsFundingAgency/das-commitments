@@ -71,6 +71,7 @@
     <Folder Include="AdhocScripts\Support\AML-2937" />
     <Folder Include="PreDeployment" />
     <Folder Include="AdhocScripts\Manual" />
+    <Folder Include="Functions" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="StoredProcedures\GetFrameworks.sql" />
@@ -148,6 +149,10 @@
     <Build Include="Tables\ChangeOfPartyRequest.sql" />
     <Build Include="Tables\ApprenticeshipConfirmationStatus.sql" />
     <Build Include="Views\ApprenticeshipConfirmationStatusWithSort.sql" />
+    <Build Include="Functions\CourseDatesOverlap.sql" />
+    <Build Include="StoredProcedures\CheckForOverlappingEmails.sql" />
+    <Build Include="UserDefinedTypes\EmailCheckTable.sql" />
+    <Build Include="Functions\GetEndDateForOverlapChecks.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

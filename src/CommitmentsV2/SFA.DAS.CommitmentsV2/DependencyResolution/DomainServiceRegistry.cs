@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IEmployerAgreementService>().Use<EmployerAgreementService>().Singleton();
             For<IUlnUtilisationService>().Use<UlnUtilisationService>();
             For<IOverlapCheckService>().Use<OverlapCheckService>();
+            For<IEmailOverlapService>().Use<EmailOverlapService>();
             For<IUlnValidator>().Use<UlnValidator>();
             For<IEditApprenticeshipValidationService>().Use<EditApprenticeshipValidationService>();
             For<IApprenticeEmailFeatureService>().Use<ApprenticeEmailFeatureService>();
