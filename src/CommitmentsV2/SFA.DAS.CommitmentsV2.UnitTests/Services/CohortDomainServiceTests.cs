@@ -365,10 +365,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.ThrowsAsync<DomainException>(() => _fixture.ApproveCohort());
         }
 
-        [Test]
-        public async Task ApproveCohort_WhenThereIsAOverlap_ShouldThrowException()
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public async Task ApproveCohort_WhenThereIsAOverlap_ShouldThrowException(Party party)
         {
-            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider).WithParty(Party.Provider).WithExistingDraftApprenticeship().WithUlnOverlap(true);
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider).WithParty(party).WithExistingDraftApprenticeship().WithUlnOverlap(true);
 
             await _fixture.ApproveCohort();
 
