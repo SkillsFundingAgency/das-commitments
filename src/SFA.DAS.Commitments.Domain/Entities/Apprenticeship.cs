@@ -63,6 +63,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public bool? MadeRedundant { get; set; }
         public IEnumerable<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public bool IsChangeOfProviderContinuation { get; set; }
+        public string Email { get; set; }
 
         public Apprenticeship Clone()
         {

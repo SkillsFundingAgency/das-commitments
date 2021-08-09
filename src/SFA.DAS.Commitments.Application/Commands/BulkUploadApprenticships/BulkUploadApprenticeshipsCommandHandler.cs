@@ -10,6 +10,7 @@ using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
+using SFA.DAS.Commitments.Application.Queries.GetEmailOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -73,6 +74,8 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command)).ToList();
 
             await ValidateOverlaps(apprenticeships);
+
+            await ValidateEmailOverlaps(apprenticeships);
 
             var apprenticeshipsWithReservationIds = await MergeBulkCreatedReservationIdsOnToApprenticeships(apprenticeships, commitment);
 
@@ -186,6 +189,49 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 }
             }
         }
+
+        private async Task ValidateEmailOverlaps(List<Apprenticeship> apprenticeships)
+        {
+
+            _logger.Info("Performing overlap email validation for bulk upload");
+            var watch = Stopwatch.StartNew();
+            var overlapEmailValidationRequest = new GetEmailOverlappingApprenticeshipsRequest
+            {
+                OverlappingEmailApprenticeshipRequests = new List<ApprenticeshipEmailOverlapValidationRequest>()
+            };
+
+            var i = 0;
+            foreach (var apprenticeship in apprenticeships.Where(x => x.StartDate.HasValue && x.EndDate.HasValue && !string.IsNullOrEmpty(x.Email)))
+            {
+                overlapEmailValidationRequest.OverlappingEmailApprenticeshipRequests.Add(new ApprenticeshipEmailOverlapValidationRequest
+                {
+                    ApprenticeshipId = i, //assign a row id, as this value will be zero for files
+                    Email = apprenticeship.Email,
+                    StartDate = apprenticeship.StartDate.Value,
+                    EndDate = apprenticeship.EndDate.Value
+                });
+                i++;
+            }
+            _logger.Trace($"Building Overlap email validation command took {watch.ElapsedMilliseconds} milliseconds");
+
+            watch = Stopwatch.StartNew();
+
+            if (overlapEmailValidationRequest.OverlappingEmailApprenticeshipRequests.Any())
+            {
+                var overlapResponse = await _mediator.SendAsync(overlapEmailValidationRequest);
+
+                watch.Stop();
+                _logger.Trace($"Overlap email validation took {watch.ElapsedMilliseconds} milliseconds");
+
+                if (overlapResponse.Data.Any())
+                {
+                    _logger.Info($"Found {overlapResponse.Data.Count} overlapping errors");
+                    var errors = overlapResponse.Data.Select(overlap => new ValidationFailure(string.Empty, overlap.OverlapStatus.ToString())).ToList();
+                    throw new ValidationException(errors);
+                }
+            }
+        }
+
 
         // Rename to update apprenticehips status
         private Apprenticeship MapFrom(Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
