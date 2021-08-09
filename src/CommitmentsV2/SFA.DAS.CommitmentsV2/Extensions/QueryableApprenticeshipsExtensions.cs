@@ -6,7 +6,7 @@ using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
 {
@@ -126,6 +126,27 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 apprenticeships = FilterApprenticeshipByAlert(apprenticeships, filters.Alert.Value, isProvider);
             }
 
+            if (filters.ApprenticeConfirmationStatus.HasValue)
+            {
+                switch (filters.ApprenticeConfirmationStatus)
+                {
+                    case ConfirmationStatus.Confirmed:
+                        apprenticeships = apprenticeships.Where(x => x.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn.HasValue);
+                        break;
+                    case ConfirmationStatus.Unconfirmed:
+                        apprenticeships = apprenticeships.Where(x => !x.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn.HasValue &&
+                                                                    (!x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn.HasValue ||
+                                                                    (x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn.HasValue &&
+                                                                    DateTime.UtcNow < x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn)));
+                        break;
+                    case ConfirmationStatus.Overdue:
+                        apprenticeships = apprenticeships.Where(x => !x.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn.HasValue &&
+                                                                    x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn.HasValue &&
+                                                                    DateTime.UtcNow > x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn);
+                        break;
+                }
+            }
+
             return apprenticeships;
         }
 
@@ -180,11 +201,16 @@ namespace SFA.DAS.CommitmentsV2.Extensions
         {
             if (identifier.ProviderId.HasValue)
             {
-                return apprenticeships.Where(app => app.Cohort.ProviderId == identifier.ProviderId);
+                return apprenticeships
+                        .Include(app => app.ApprenticeshipConfirmationStatus)
+                        .Where(app => app.Cohort.ProviderId == identifier.ProviderId);
             }
 
             return identifier.EmployerAccountId.HasValue ?
-                apprenticeships.Where(app => app.Cohort.EmployerAccountId == identifier.EmployerAccountId) : apprenticeships;
+                apprenticeships
+                    .Include(app => app.ApprenticeshipConfirmationStatus)
+                    .Where(app => app.Cohort.EmployerAccountId == identifier.EmployerAccountId)
+                     : apprenticeships;
         }
 
         public static IQueryable<Apprenticeship> FilterApprenticeshipByAlert(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
