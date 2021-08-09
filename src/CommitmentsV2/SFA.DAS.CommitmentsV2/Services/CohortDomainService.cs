@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
 
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
 
             return draftApprenticeship;
         }
@@ -101,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, null, cancellationToken);
 
             return originator.CreateCohort(providerId, accountLegalEntity, transferSender, draftApprenticeshipDetails, userInfo);
         }
@@ -163,7 +163,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
             }
 
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
 
             return cohort;
         }
@@ -275,11 +275,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
+        private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, long? cohortId, CancellationToken cancellationToken)
         {
             ValidateStartDate(draftApprenticeshipDetails);
             ValidateUln(draftApprenticeshipDetails);
             await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
+            await ValidateEmailOverlaps(draftApprenticeshipDetails, cohortId, cancellationToken);
             await ValidateReservation(draftApprenticeshipDetails, cancellationToken);
         }
 
@@ -343,6 +344,22 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 errors.Add(new DomainError(nameof(details.EndDate), errorMessage));
             }
+
+            throw new DomainException(errors);
+        }
+
+        private async Task ValidateEmailOverlaps(DraftApprenticeshipDetails details, long? cohortId, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(details.Email) || !details.StartDate.HasValue || !details.EndDate.HasValue) return;
+
+            var overlapCheck = await _overlapCheckService.CheckForEmailOverlaps(details.Email, details.StartDate.Value.To(details.EndDate.Value), details.Id, cohortId, cancellationToken);
+
+            if (overlapCheck == null) return;
+
+            var errorMessage = overlapCheck.BuildErrorMessage();
+
+            var errors = new List<DomainError>();
+            errors.Add(new DomainError(nameof(details.Email), errorMessage));
 
             throw new DomainException(errors);
         }

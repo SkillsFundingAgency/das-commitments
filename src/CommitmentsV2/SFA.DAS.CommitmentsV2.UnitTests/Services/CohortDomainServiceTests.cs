@@ -296,6 +296,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyOverlapExceptionOnEndDate(otherPartyInMessage);
         }
 
+        [TestCase(Party.Provider, true)]
+        [TestCase(Party.Provider, false)]
+        [TestCase(Party.Employer, true)]
+        [TestCase(Party.Employer, false)]
+        public async Task EmailOverlapOnApprenticeship_Validation(Party party, bool isApproved)
+        {
+            await _fixture.WithParty(party).WithEmailOverlapWithApprenticeship(isApproved).CreateCohort();
+            _fixture.VerifyEmailOverlapExceptionOnApprenticeship(isApproved);
+        }
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task EmailOverlapOnApprenticeship_Validation_FindsNoOverlaps(Party party)
+        {
+            await _fixture.WithParty(party).WithNoEmailOverlaps().CreateCohort();
+            _fixture.VerifyCheckForEmailOverlapsIsCalledCorrectlyWhenCreatingCohortWithInitialApprenticeship();
+        }
+
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task UpdateDraftApprenticeship_IsSuccessful_ThenDraftApprenticeshipIsUpdated(Party withParty)
@@ -687,6 +704,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .ReturnsAsync(() => new OverlapCheckResult(false, true));
 
                 return this;
+            }
+
+            public CohortDomainServiceTestFixture WithEmailOverlapWithApprenticeship(bool isApproved)
+            {
+                DraftApprenticeshipDetails.Email = "test@test.com";
+                DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
+                DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
+
+                OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new EmailOverlapCheckResult(OverlapStatus.OverlappingEndDate, isApproved));
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithNoEmailOverlaps()
+            {
+                DraftApprenticeshipDetails.Email = "test@test.com";
+                DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
+                DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
+
+                return this;
+            }
+
+            public void VerifyCheckForEmailOverlapsIsCalledCorrectlyWhenCreatingCohortWithInitialApprenticeship()
+            {
+                OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(DraftApprenticeshipDetails.Email,
+                    It.Is<DateRange>(p =>
+                        p.From == DraftApprenticeshipDetails.StartDate && p.To == DraftApprenticeshipDetails.EndDate),
+                    0, null, It.IsAny<CancellationToken>()));
             }
 
             public CohortDomainServiceTestFixture WithStartDate(DateTime? startDate)
@@ -1219,6 +1265,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyOverlapExceptionOnEndDate(string otherParty)
             {
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate" && x.ErrorMessage.Contains($"contact the {otherParty}")));
+            }
+
+            public void VerifyEmailOverlapExceptionOnApprenticeship(bool isApproved)
+            {
+                var expectedErrorMessage = isApproved
+                    ? "This email address is already used for another apprentice"
+                    : "This email address is already used for another apprentice in this cohort";
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage));
             }
 
             public void VerifyException<T>()
