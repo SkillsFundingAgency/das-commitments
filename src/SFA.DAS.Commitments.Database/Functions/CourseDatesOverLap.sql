@@ -12,12 +12,12 @@ BEGIN
 
 	IF (@NewStart <= @Start AND @NewEnd <= @Start)
 	BEGIN
-		RETURN 0
+		RETURN 0 -- None
 	END
 
 	IF (@NewStart >= @End AND @NewEnd >= @End)
 	BEGIN
-		RETURN 0
+		RETURN 0 -- None
 	END
 
 	IF(@NewStart > @Start AND @NewStart < @End)
@@ -32,20 +32,20 @@ BEGIN
 
 	IF(@StartOverlaps = 1 AND @EndOverlaps = 1)
 	BEGIN
-		SET @RetVal = 4
+		SET @RetVal = 4 -- DateWithin
 	END 
 	ELSE IF (@StartOverlaps = 1) 
 	BEGIN
-		SET @RetVal = 1
+		SET @RetVal = 1 -- OverlappingStartDate
 	END 
 	ELSE IF (@EndOverlaps = 1) 
 	BEGIN
-		SET @RetVal = 2
+		SET @RetVal = 2 -- OverlappingEndDate
 	END 
 
 	IF @RetVal IS NULL
 	BEGIN
-		SET @RetVal = 3
+		SET @RetVal = 3 -- DateEmbrace
 	END 
 
 	RETURN @RetVal
