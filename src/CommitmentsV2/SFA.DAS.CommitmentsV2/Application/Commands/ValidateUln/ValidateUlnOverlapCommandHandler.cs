@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln
             return new ValidateUlnOverlapResult
             {
                 ULN = command.ULN,
-                HasOverlappingStartDate = result.HasOverlappingEndDate,
+                HasOverlappingStartDate = result.HasOverlappingStartDate,
                 HasOverlappingEndDate = result.HasOverlappingEndDate
             };
         }
