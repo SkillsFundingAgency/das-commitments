@@ -564,7 +564,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Db.ChangeOfPartyRequests.Add(ChangeOfPartyRequest.Object);
 
                 AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
-                AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2020, 7, 31));
+                AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(DateTime.Now.AddYears(1).Year, 7, 31));
 
                 UlnValidator = new Mock<IUlnValidator>();
                 UlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(UlnValidationResult.Success);
