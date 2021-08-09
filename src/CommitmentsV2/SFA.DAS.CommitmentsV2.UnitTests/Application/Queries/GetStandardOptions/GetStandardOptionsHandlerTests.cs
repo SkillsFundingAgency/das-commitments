@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetStandardOptions
 {
-    public class WhenGettingStandardOptions
+    public class GetStandardOptionsHandlerTests
     {
         private GetStandardOptionsHandlerTestFixture _fixture;
 
