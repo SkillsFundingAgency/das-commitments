@@ -68,6 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ProgrammeType = source.TrainingProgramme?.ProgrammeType;
             CourseCode = source.TrainingProgramme?.CourseCode;
             CourseName = source.TrainingProgramme?.Name;
+            TrainingCourseOption = source.TrainingCourseOption;
             Cost = source.Cost;
             StartDate = source.StartDate;
             EndDate = source.EndDate;

@@ -34,6 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                         TrainingCourseVersion = draft.TrainingCourseVersion,
                         TrainingCourseName = draft.CourseName,
                         TrainingCourseOption = draft.TrainingCourseOption,
+                        StandardUId = draft.StandardUId,
                         StartDate = draft.StartDate,
                         Id = draft.Id,
                         Cost = (int?)draft.Cost,

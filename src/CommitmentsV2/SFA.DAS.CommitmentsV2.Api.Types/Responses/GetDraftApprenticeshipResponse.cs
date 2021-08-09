@@ -13,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string TrainingCourseName { get; set; }
         public string TrainingCourseVersion { get; set; }
         public string TrainingCourseOption { get; set; }
+        public string StandardUId { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

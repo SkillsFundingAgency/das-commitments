@@ -93,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{id}/options/{standardUId}")]
+        [Route("{standardUId}/options")]
         public async Task<IActionResult> GetStandardOptions(string standardUId)
         {
             try

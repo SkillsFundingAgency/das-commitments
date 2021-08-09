@@ -28,9 +28,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<WhoAmIResponse>("api/whoami");
         }
 
-        public Task AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
+        public Task<AddDraftApprenticeshipResponse> AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships", request, cancellationToken);
+            return _client.PostAsJson<AddDraftApprenticeshipRequest, AddDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-apprenticeships", request, cancellationToken);
         }
 
         public Task ApproveCohort(long cohortId, ApproveCohortRequest request, CancellationToken cancellationToken = default)
@@ -400,6 +400,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<GetTrainingProgrammeResponse> GetTrainingProgramme(string id, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{id}", null, cancellationToken);
+        }
+
+        public Task<GetStandardOptionsResponse> GetStandardOptions(string standardUId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetStandardOptionsResponse>($"api/TrainingProgramme/{standardUId}/options", null, cancellationToken);
         }
 
         public Task UpdateApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request, CancellationToken cancellationToken = default)
