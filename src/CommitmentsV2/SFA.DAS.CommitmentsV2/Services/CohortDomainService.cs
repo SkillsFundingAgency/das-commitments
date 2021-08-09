@@ -89,8 +89,28 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);
             }
 
+            if (party == Party.Provider)
+            {
+                await ValidateUlnOverlap(cohort);
+            }
+
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
+        }
+
+        private async Task ValidateUlnOverlap(Cohort cohort)
+        {
+            foreach (var draftApprenticeship  in cohort.DraftApprenticeships)
+            {
+                if (!string.IsNullOrEmpty(draftApprenticeship.Uln) && draftApprenticeship.StartDate.HasValue && draftApprenticeship.EndDate.HasValue)
+                {
+                   var result = await  _overlapCheckService.CheckForOverlaps(draftApprenticeship.Uln, draftApprenticeship.StartDate.Value.To(draftApprenticeship.EndDate.Value), draftApprenticeship.Id, CancellationToken.None);
+                    if (result.HasOverlaps)
+                    {
+                        throw new DomainException(draftApprenticeship.Uln, "The draft apprenticeship has overlap");
+                    }
+                }
+            }
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)

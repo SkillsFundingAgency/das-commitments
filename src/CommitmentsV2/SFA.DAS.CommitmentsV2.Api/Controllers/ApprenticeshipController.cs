@@ -21,6 +21,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Types;
 using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -235,6 +236,28 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             }
 
             return Ok(new EditApprenticeshipResponse { ApprenticeshipId = response.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
+        }
+
+        [HttpPost]
+        [Route("uln/validate")]
+        public async Task<IActionResult> ValidateUlnOverlap([FromBody] ValidateUlnOverlapRequest request)
+        {
+            var command = new ValidateUlnOverlapCommand
+            {
+                ULN = request.ULN,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                ApprenticeshipId = request.ApprenticeshipId
+            };
+
+            var response = await _mediator.Send(command);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
         }
     }
 }
