@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     throw new Exception($"The course code {standardId} was not found");
                 }
                 
-                return new TrainingProgramme(standard.Id.ToString(),GetTitle(standard.Title, standard.Level) + " (Standard)",ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
+                return new TrainingProgramme(standard.Id.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
             }
 
             var framework = await _dbContext.Frameworks.Include(c=>c.FundingPeriods).FirstOrDefaultAsync(c=>c.Id.Equals(courseCode));
@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 GetTitle(
                     string.Equals(framework.FrameworkName.Trim(), framework.PathwayName.Trim(), StringComparison.OrdinalIgnoreCase)
                         ? framework.FrameworkName
-                        : framework.Title, framework.Level);
+                        : framework.Title, framework.Level) + " (Framework)";
             return new TrainingProgramme(framework.Id, frameworkTitle, ProgrammeType.Framework, framework.EffectiveFrom, framework.EffectiveTo,new List<IFundingPeriod>(framework.FundingPeriods));
                 
         }
@@ -75,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     framework.Id, 
                     GetTitle(string.Equals(framework.FrameworkName.Trim(), framework.PathwayName.Trim(), StringComparison.OrdinalIgnoreCase)
                         ? framework.FrameworkName
-                        : framework.Title, framework.Level), 
+                        : framework.Title, framework.Level) + " (Framework)", 
                     ProgrammeType.Framework, 
                     framework.EffectiveFrom, 
                     framework.EffectiveTo,
@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 )
             );
             trainingProgrammes.AddRange(standardsTask.Result.Select(standard =>
-                new TrainingProgramme(standard.Id.ToString(), GetTitle(standard.Title, standard.Level) + " (Standard)",
+                new TrainingProgramme(standard.Id.ToString(), GetTitle(standard.Title, standard.Level),
                     ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                     new List<IFundingPeriod>(standard.FundingPeriods))));
 
@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             
             var trainingProgrammes = new List<TrainingProgramme>();
             trainingProgrammes.AddRange(standards.Select(standard =>
-                new TrainingProgramme(standard.Id.ToString(), GetTitle(standard.Title, standard.Level) + " (Standard)",
+                new TrainingProgramme(standard.Id.ToString(), GetTitle(standard.Title, standard.Level),
                     ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                     new List<IFundingPeriod>(standard.FundingPeriods))));
 
