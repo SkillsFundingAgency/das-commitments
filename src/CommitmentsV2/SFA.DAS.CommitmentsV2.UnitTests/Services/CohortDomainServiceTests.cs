@@ -399,7 +399,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
                 .WithAgreementSignedAs(true)
-                .WithExistingDraftApprenticeship();
+                .WithExistingDraftApprenticeship()
+                .WithUlnOverlap(false);
 
             await _fixture.WithParty(Party.Employer).ApproveCohort();
             _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
