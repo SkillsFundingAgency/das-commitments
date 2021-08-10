@@ -792,7 +792,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var resultUnconfirmed = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Unconfirmed }).ToList();            
             var resultOverdue = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Overdue }).ToList();
 
-            //Assert
+            //Assert 
             Assert.AreEqual(1, resultConfirmed.Count);
             Assert.AreEqual(2, resultUnconfirmed.Count);
             Assert.AreEqual(3, resultOverdue.Count);
