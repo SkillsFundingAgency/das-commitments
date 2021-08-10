@@ -192,7 +192,6 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
         private async Task ValidateEmailOverlaps(List<Apprenticeship> apprenticeships)
         {
-
             _logger.Info("Performing overlap email validation for bulk upload");
             var watch = Stopwatch.StartNew();
             var overlapEmailValidationRequest = new GetEmailOverlappingApprenticeshipsRequest

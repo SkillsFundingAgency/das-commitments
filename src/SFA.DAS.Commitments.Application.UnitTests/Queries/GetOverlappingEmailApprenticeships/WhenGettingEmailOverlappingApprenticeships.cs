@@ -147,8 +147,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingEmailA
                    new ApprenticeshipEmailOverlapValidationRequest
                    {
                         Email = "test@yahoo.com",
-                        StartDate = new DateTime(2018,01,1),
-                        EndDate = new DateTime(2018,06,30)
+                        StartDate = startDate,
+                        EndDate = endDate                       
                    }
                 }
             };

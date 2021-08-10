@@ -15,7 +15,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
             Email = email;
             StartDate = startDate;
             EndDate = endDate;
-            ApprenticeshipId = apprenticeshipId; //ROWId
+            ApprenticeshipId = apprenticeshipId;
             RowId = rowId;
 
         }

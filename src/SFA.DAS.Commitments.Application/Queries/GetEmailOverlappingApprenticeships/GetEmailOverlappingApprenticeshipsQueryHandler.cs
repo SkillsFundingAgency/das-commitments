@@ -63,13 +63,15 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmailOverlappingApprentices
 
                     result.Data.Add(new OverlappingEmail
                     {
-                        Id = 1,
+                        Id = apprenticeshipEmailOverlap.RowId,
                         RowId = apprenticeshipEmailOverlap.RowId,
                         FirstName = apprenticeshipEmailOverlap.FirstName,
                         LastName = apprenticeshipEmailOverlap.LastName,
                         Email = apprenticeshipEmailOverlap.Email,
                         StartDate = apprenticeshipEmailOverlap.StartDate,
-                        EndDate = apprenticeshipEmailOverlap.EndDate
+                        EndDate = apprenticeshipEmailOverlap.EndDate,
+                        DateOfBirth = apprenticeshipEmailOverlap.DateOfBirth,
+                        CohortId = apprenticeshipEmailOverlap.CohortId,
                     });
                 }
             }

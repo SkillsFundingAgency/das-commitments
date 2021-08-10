@@ -285,6 +285,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ThenOverlappingEmailApprenticeshipValidationShouldBePerformed()
         {
+            //Arrange
             _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(new List<Apprenticeship>());
 
             //Act
@@ -325,22 +326,25 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ThenShouldThrowExceptionIfAnyEmailOverlapsExist()
         {
+            //Arrange
             var app = _exampleValidRequest.Apprenticeships.First();
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmailOverlappingApprenticeshipsRequest>()))
                 .ReturnsAsync(new Application.Queries.GetEmailOverlappingApprenticeships.GetEmailOverlappingApprenticeshipsResponse
                 {
                     Data = new List<OverlappingEmail>
-                {
-                    new OverlappingEmail
                     {
-                        Id = app.Id,
-                        OverlapStatus = (OverlapStatus)ValidationFailReason.OverlappingEndDate
+                        new OverlappingEmail
+                        {
+                            Id = app.Id,
+                            OverlapStatus = (OverlapStatus)ValidationFailReason.OverlappingEndDate
+                        }
                     }
-                }
                 });
 
+            //Act
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
+            //Assert
             act.ShouldThrow<ValidationException>();
         }
 
