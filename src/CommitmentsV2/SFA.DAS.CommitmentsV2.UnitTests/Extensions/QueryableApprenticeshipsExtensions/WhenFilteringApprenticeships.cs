@@ -736,6 +736,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 // 1 Confirmed
                 new Apprenticeship
                 {
+                    Email = "a@a.com",
                     ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
                     {
                         ApprenticeshipConfirmedOn = DateTime.Now
@@ -745,6 +746,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 // 2 Unconfirmed
                 new Apprenticeship
                 {
+                    Email = "a@a.com",
                     ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
                     {
                         ApprenticeshipConfirmedOn = null,
@@ -753,6 +755,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 },
                 new Apprenticeship
                 {
+                    Email = "a@a.com",
                     ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
                     {
                         ApprenticeshipConfirmedOn = null,
@@ -763,6 +766,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 // 3 overdue
                 new Apprenticeship
                 {
+                    Email = "a@a.com",
                     ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
                     {
                         ApprenticeshipConfirmedOn = null,
@@ -771,6 +775,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 },
                 new Apprenticeship
                 {
+                    Email = "a@a.com",
                     ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
                     {
                         ApprenticeshipConfirmedOn = null,
@@ -779,11 +784,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 },
                 new Apprenticeship
                 {
+                    Email = "a@a.com",
                     ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
                     {
                         ApprenticeshipConfirmedOn = null,
                         ConfirmationOverdueOn = DateTime.Now.AddDays(-4)
                     }
+                },
+
+                // 4 NA
+                new Apprenticeship
+                {
+                    Email = null
+                },
+                new Apprenticeship
+                {
+                    Email = null
+                },
+                new Apprenticeship
+                {
+                    Email = null
+                },
+                new Apprenticeship
+                {
+                    Email = null
                 }
             }.AsQueryable();
 
@@ -791,11 +815,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var resultConfirmed = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Confirmed }).ToList();
             var resultUnconfirmed = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Unconfirmed }).ToList();            
             var resultOverdue = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Overdue }).ToList();
+            var resultNA = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.NA }).ToList();
 
             //Assert 
             Assert.AreEqual(1, resultConfirmed.Count);
             Assert.AreEqual(2, resultUnconfirmed.Count);
             Assert.AreEqual(3, resultOverdue.Count);
+            Assert.AreEqual(4, resultNA.Count);
         }
     }
 }

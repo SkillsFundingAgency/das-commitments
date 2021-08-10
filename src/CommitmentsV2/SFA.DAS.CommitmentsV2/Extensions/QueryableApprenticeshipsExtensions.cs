@@ -131,18 +131,29 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 switch (filters.ApprenticeConfirmationStatus)
                 {
                     case ConfirmationStatus.Confirmed:
-                        apprenticeships = apprenticeships.Where(x => x.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn.HasValue);
+                        apprenticeships = apprenticeships.Where(x => x.ApprenticeshipConfirmationStatus != null &&
+                                                                        x.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn.HasValue);
                         break;
+
                     case ConfirmationStatus.Unconfirmed:
-                        apprenticeships = apprenticeships.Where(x => !x.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn.HasValue &&
-                                                                    (!x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn.HasValue ||
-                                                                    (x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn.HasValue &&
-                                                                    DateTime.UtcNow < x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn)));
+                        apprenticeships = apprenticeships.Where(x => x.Email != null &&
+                                                                        x.ApprenticeshipConfirmationStatus != null &&
+                                                                        !x.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn.HasValue &&
+                                                                        (!x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn.HasValue ||
+                                                                        (x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn.HasValue &&
+                                                                        DateTime.UtcNow < x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn)));
                         break;
+
                     case ConfirmationStatus.Overdue:
-                        apprenticeships = apprenticeships.Where(x => !x.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn.HasValue &&
-                                                                    x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn.HasValue &&
-                                                                    DateTime.UtcNow > x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn);
+                        apprenticeships = apprenticeships.Where(x => x.Email != null &&
+                                                                        x.ApprenticeshipConfirmationStatus != null &&
+                                                                        !x.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn.HasValue &&
+                                                                        x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn.HasValue &&
+                                                                        DateTime.UtcNow > x.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn);
+                        break;
+
+                    case ConfirmationStatus.NA:
+                        apprenticeships = apprenticeships.Where(x => x.Email == null);
                         break;
                 }
             }
