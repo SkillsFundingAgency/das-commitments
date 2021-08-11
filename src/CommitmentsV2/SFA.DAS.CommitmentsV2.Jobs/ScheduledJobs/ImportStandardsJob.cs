@@ -28,18 +28,29 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
         }
 
         public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
-        { 
+        {
             _logger.LogInformation("ImportStandardsJob - Started");
 
             var response = await _apiClient.Get<StandardResponse>(new GetStandardsRequest());
-            var batches = response.Standards.Batch(1000).Select(b => b.ToDataTable(
-                p => p.Id, 
+
+            var filteredStandards = FilterResponse(response);
+
+            var batches = filteredStandards.Batch(1000).Select(b => b.ToDataTable(
+                p => p.StandardUId,
+                p => p.LarsCode,
+                p => p.IFateReferenceNumber,
+                p => p.Version,
                 p => p.Title,
-                p=>p.Level,
-                p=>p.Duration,
-                p=>p.CurrentFundingCap,
-                p=>p.EffectiveFrom,
-                p=>p.LastDateForNewStarts
+                p => p.Level,
+                p => p.Duration,
+                p => p.CurrentFundingCap,
+                p => p.VersionEarliestStartDate,
+                p => p.VersionLatestStartDate,
+                p => p.VersionMajor,
+                p => p.VersionMinor,
+                p => p.StandardPageUrl,
+                p => p.Status,
+                p => p.IsLatestVersion
                 ));
 
             foreach (var batch in batches)
@@ -50,24 +61,27 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 
             var fundingPeriodItems = new List<FundingPeriodItem>();
 
-            foreach (var responseStandard in response.Standards)
+            var uniqueLarsCodes = filteredStandards.GroupBy(s => s.LarsCode).
+                                Select(t => t.OrderByDescending(x => x.VersionMajor).ThenByDescending(y => y.VersionMinor).FirstOrDefault());
+
+            foreach (var responseStandard in uniqueLarsCodes)
             {
-                var standardId = responseStandard.Id;
+                var larsCode = responseStandard.LarsCode;
                 fundingPeriodItems.AddRange(responseStandard.FundingPeriods.Select(fundingPeriod => new FundingPeriodItem
                 {
-                    StandardId = standardId, 
-                    EffectiveFrom = fundingPeriod.EffectiveFrom, 
-                    EffectiveTo = fundingPeriod.EffectiveTo, 
+                    StandardId = larsCode,
+                    EffectiveFrom = fundingPeriod.EffectiveFrom,
+                    EffectiveTo = fundingPeriod.EffectiveTo,
                     FundingCap = fundingPeriod.FundingCap
                 }));
             }
-            
+
             var fundingBatches = fundingPeriodItems.Batch(1000).Select(b =>
                 b.ToDataTable(
-                    p=> p.StandardId,
-                    p=>p.FundingCap,
+                    p => p.StandardId,
+                    p => p.FundingCap,
                     p => p.EffectiveFrom,
-                    p=>p.EffectiveTo
+                    p => p.EffectiveTo
                 ));
             foreach (var batch in fundingBatches)
             {
@@ -75,6 +89,25 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             }
 
             _logger.LogInformation("ImportStandardsJob - Finished");
+        }
+
+        private IEnumerable<StandardSummary> FilterResponse(StandardResponse response)
+        {
+            var statusList = new string[] { "Approved for delivery", "Retired" };
+            var filteredStandards = response.Standards.Where(s => statusList.Contains(s.Status));
+
+            var latestVersionsOfStandards = filteredStandards.
+                GroupBy(s => s.LarsCode).
+                Select(c => c.OrderByDescending(x => x.VersionMajor).ThenByDescending(y => y.VersionMinor).FirstOrDefault());
+
+            var latestVersionsStandardUIds = latestVersionsOfStandards.Select(s => s.StandardUId);
+
+            foreach (var latestStandard in filteredStandards.Where(s => latestVersionsStandardUIds.Contains(s.StandardUId)))
+            {
+                latestStandard.IsLatestVersion = true;
+            }
+
+            return filteredStandards;
         }
 
         private static Task ImportStandards(IProviderCommitmentsDbContext db, DataTable standardsDataTable)
