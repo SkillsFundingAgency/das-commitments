@@ -52,7 +52,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmailOverlappingApprentices
                 i++;
             }
 
-            var apprenticeshipEmailOverlapResponse = await _apprenticeshipRepository.GetEmaiOverlaps(emailToValidate);
+            var apprenticeshipEmailOverlapResponse = await _apprenticeshipRepository.GetEmailOverlaps(emailToValidate);
 
             foreach (var apprenticeshipEmailOverlap in apprenticeshipEmailOverlapResponse)
             {

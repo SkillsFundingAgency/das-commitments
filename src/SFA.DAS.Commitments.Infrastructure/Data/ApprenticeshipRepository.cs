@@ -732,7 +732,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<IEnumerable<OverlappingEmail>> GetEmaiOverlaps(List<EmailToValidate> emailToValidate)
+        public async Task<IEnumerable<OverlappingEmail>> GetEmailOverlaps(List<EmailToValidate> emailToValidate)
         {
             var emailDataTable = BuildEmailCheckTable(emailToValidate);
 

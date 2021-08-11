@@ -73,7 +73,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingEmailA
             await _handler.Handle(request);
 
             //Assert
-            _apprenticeshipRepository.Verify(x => x.GetEmaiOverlaps(It.IsAny<List<EmailToValidate>>()), Times.Once);
+            _apprenticeshipRepository.Verify(x => x.GetEmailOverlaps(It.IsAny<List<EmailToValidate>>()), Times.Once);
         }
 
         [Test]
@@ -97,14 +97,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingEmailA
             await _handler.Handle(request);
 
             //Assert
-            _apprenticeshipRepository.Verify(x => x.GetEmaiOverlaps(It.IsAny<List<EmailToValidate>>()), Times.Never);
+            _apprenticeshipRepository.Verify(x => x.GetEmailOverlaps(It.IsAny<List<EmailToValidate>>()), Times.Never);
         }
 
         [Test]
         public async Task ThenIfNoEmailsMatchInputThenNotOverlapping()
         {
             //Arrange
-            _apprenticeshipRepository.Setup(x => x.GetEmaiOverlaps(It.IsAny<List<EmailToValidate>>()))
+            _apprenticeshipRepository.Setup(x => x.GetEmailOverlaps(It.IsAny<List<EmailToValidate>>()))
                 .ReturnsAsync(CreateSingleRecordTestData());
 
             var request = new GetEmailOverlappingApprenticeshipsRequest
@@ -137,7 +137,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingEmailA
         public async Task ThenTheOverlapCheckDisregardsDatesWithinTheSameMonth(DateTime startDate, DateTime endDate)
         {
             //Arrange
-            _apprenticeshipRepository.Setup(x => x.GetEmaiOverlaps(It.IsAny<List<EmailToValidate>>()))
+            _apprenticeshipRepository.Setup(x => x.GetEmailOverlaps(It.IsAny<List<EmailToValidate>>()))
               .ReturnsAsync(CreateTestData());
 
             var request = new GetEmailOverlappingApprenticeshipsRequest

@@ -51,6 +51,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<ApprenticeshipsResult> GetApprovedApprenticeshipsByEmployer(long accountId);
         Task<IEnumerable<ChangeOfPartyRequest>> GetChangeOfPartyResponse(long apprenticeshipId);
 
-        Task<IEnumerable<OverlappingEmail>> GetEmaiOverlaps(List<EmailToValidate> emailToValidate);
+        Task<IEnumerable<OverlappingEmail>> GetEmailOverlaps(List<EmailToValidate> emailToValidate);
     }
 }
