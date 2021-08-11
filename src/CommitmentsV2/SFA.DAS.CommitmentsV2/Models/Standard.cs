@@ -7,6 +7,8 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         public int Id { get; set; }
         public string Title { get; set; }
+        public string StandardUId { get; set; }
+        public string Version { get; set; }
         public int Level { get; set; }
         public int Duration { get; set; }
         public int MaxFunding { get; set; }

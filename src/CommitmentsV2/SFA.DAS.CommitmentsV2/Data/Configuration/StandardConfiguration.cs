@@ -9,8 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         public void Configure(EntityTypeBuilder<Standard> builder)
         {
             builder.ToTable("Standard");
-            builder.HasKey(x=> x.Id);
+            builder.HasKey(x=> x.StandardUId);
 
+            builder.Property(x => x.StandardUId).HasColumnName("StandardUId").HasColumnType("varchar").HasMaxLength(15).IsRequired();
             builder.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().ValueGeneratedNever();
             builder.Property(x => x.Title).HasColumnName("Title").HasColumnType("varchar").HasMaxLength(500).IsRequired(false);
             builder.Property(x => x.Duration).HasColumnName("Duration").HasColumnType("int").IsRequired();

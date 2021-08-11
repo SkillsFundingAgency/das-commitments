@@ -56,7 +56,29 @@ namespace SFA.DAS.CommitmentsV2.Services
             return new TrainingProgramme(framework.Id, frameworkTitle, ProgrammeType.Framework, framework.EffectiveFrom, framework.EffectiveTo,new List<IFundingPeriod>(framework.FundingPeriods));
                 
         }
-       
+
+        public Task<TrainingProgramme> GetTrainingProgrammeVersion(int courseCode, DateTime startDate)
+        {
+            var standardVersions = _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.Id == courseCode);
+
+            TrainingProgramme trainingProgramme = null;
+
+            if (standardVersions is null)
+            {
+                return Task.FromResult(trainingProgramme);
+            }
+
+            foreach (var version in standardVersions.OrderBy(v => v.Version))
+            {
+                if ((startDate > version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate < version.EffectiveTo.Value )) || version == standardVersions.Last())
+                {
+                    trainingProgramme = new TrainingProgramme(version.Id.ToString(), version.Title, ProgrammeType.Standard, version.EffectiveFrom, version.EffectiveTo);
+                    break;
+                }
+            }
+
+            return Task.FromResult(trainingProgramme);
+        }
         private static string GetTitle(string title, int level)
         {
             return $"{title}, Level: {level}";

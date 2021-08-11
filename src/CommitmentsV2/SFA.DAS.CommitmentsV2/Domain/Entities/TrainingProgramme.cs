@@ -15,6 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         }
         public string CourseCode { get;  }
         public string Name { get; }
+        public string StandarUId { get; }
+        public string Version { get; }
         public ProgrammeType ProgrammeType { get; } 
         public DateTime? EffectiveFrom { get; }
         public DateTime? EffectiveTo { get; }
