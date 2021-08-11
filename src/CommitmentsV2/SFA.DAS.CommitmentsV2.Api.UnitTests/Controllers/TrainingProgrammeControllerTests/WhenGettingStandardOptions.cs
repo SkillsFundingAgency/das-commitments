@@ -31,19 +31,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
         }
 
         [Test, MoqAutoData]
-        public async Task Then_GetStandardOptionsMediatorQueryIsCalled(string standardUId, GetStandardOptionsResult result)
+        public async Task And_MediatorReturnsResult_Then_GetStandardOptionsResultIsReturned(string standardUId, GetStandardOptionsResult result)
         {
-            _mockMediator.Setup(m => m.Send(It.IsAny<GetStandardOptionsQuery>(), CancellationToken.None)).ReturnsAsync(result);
-
-            await _controller.GetStandardOptions(standardUId);
-
-            _mockMediator.Verify(m => m.Send(It.Is<GetStandardOptionsQuery>(q => q.StandardUId == standardUId), It.IsAny<CancellationToken>()), Times.Once());
-        }
-
-        [Test, MoqAutoData]
-        public async Task Then_GetStandardOptionsResultIsReturned(string standardUId, GetStandardOptionsResult result)
-        {
-            _mockMediator.Setup(m => m.Send(It.IsAny<GetStandardOptionsQuery>(), CancellationToken.None)).ReturnsAsync(result);
+            _mockMediator.Setup(m => m.Send(It.Is<GetStandardOptionsQuery>(q => q.StandardUId.Equals(standardUId)), CancellationToken.None)).ReturnsAsync(result);
 
             var controllerResponse = await _controller.GetStandardOptions(standardUId) as OkObjectResult;
 
