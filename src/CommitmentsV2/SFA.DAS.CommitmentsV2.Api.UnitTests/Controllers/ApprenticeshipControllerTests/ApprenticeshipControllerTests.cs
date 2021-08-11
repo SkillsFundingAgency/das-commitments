@@ -21,6 +21,7 @@ using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.Get
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -330,6 +331,30 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Act
            var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult; 
+
+            //Assert
+            Assert.IsNotNull(notFoundResult);
+        }
+
+        [Test, MoqAutoData]
+        public async Task ValidateUlnOverlap(ValidateUlnOverlapRequest request)
+        {
+            //Act
+            await _controller.ValidateUlnOverlap(request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.IsAny<ValidateUlnOverlapCommand>(),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task ValidateUlnOverlapNotFound(ValidateUlnOverlapRequest request)
+        {
+            _mediator.Setup(p => p.Send(It.IsAny<ValidateUlnOverlapCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
+
+            //Act
+            var notFoundResult = await _controller.ValidateUlnOverlap(request) as NotFoundResult;
 
             //Assert
             Assert.IsNotNull(notFoundResult);

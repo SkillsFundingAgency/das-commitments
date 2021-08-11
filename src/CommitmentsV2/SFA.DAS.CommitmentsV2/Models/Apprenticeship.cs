@@ -78,7 +78,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             var update = ApprenticeshipUpdate.First(x => x.Status == ApprenticeshipUpdateStatus.Pending);
             ChangeTrackingSession.TrackUpdate(update);
-
+            ChangeTrackingSession.TrackUpdate(this);
+            
             ApplyApprenticeshipUpdatesToApprenticeship(update);
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Approved;
@@ -195,6 +196,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             var update = ApprenticeshipUpdate.First(x => x.Status == ApprenticeshipUpdateStatus.Pending);
             ChangeTrackingSession.TrackUpdate(update);
+            ChangeTrackingSession.TrackUpdate(this);
 
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Rejected;
@@ -218,6 +220,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             var update = ApprenticeshipUpdate.First(x => x.Status == ApprenticeshipUpdateStatus.Pending);
             ChangeTrackingSession.TrackUpdate(update);
+            ChangeTrackingSession.TrackUpdate(this);
 
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Deleted;

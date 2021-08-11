@@ -122,7 +122,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 IsCompleteForEmployer = result.IsCompleteForEmployer,
                 IsCompleteForProvider = result.IsCompleteForProvider,
                 LevyStatus =  result.LevyStatus,
-                ChangeOfPartyRequestId = result.ChangeOfPartyRequestId
+                ChangeOfPartyRequestId = result.ChangeOfPartyRequestId,
+                LastAction = result.LastAction,
+                TransferApprovalStatus = result.TransferApprovalStatus
             });
         }
 

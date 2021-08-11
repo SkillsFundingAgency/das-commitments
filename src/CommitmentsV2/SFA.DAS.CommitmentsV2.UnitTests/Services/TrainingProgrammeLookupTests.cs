@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             
             //Assert
             actual.CourseCode.Should().Be(standard.Id.ToString());
-            actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level} (Standard)");
+            actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");
             actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
             actual.EffectiveTo.Should().Be(standard.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             
             //Assert
             actual.CourseCode.Should().Be(framework.Id);
-            actual.Name.Should().Be($"{framework.Title}, Level: {framework.Level}");
+            actual.Name.Should().Be($"{framework.Title}, Level: {framework.Level} (Framework)");
             actual.EffectiveFrom.Should().Be(framework.EffectiveFrom);
             actual.EffectiveTo.Should().Be(framework.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Framework);
