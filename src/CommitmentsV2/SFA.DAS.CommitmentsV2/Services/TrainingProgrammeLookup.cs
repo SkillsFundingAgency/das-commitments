@@ -31,14 +31,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             
             if (int.TryParse(courseCode, out var standardId))
             {
-                var standard = await _dbContext.Standards.Include(c=>c.FundingPeriods).FirstOrDefaultAsync(c=>c.Id.Equals(standardId));
+                var standard = await _dbContext.Standards.Include(c=>c.FundingPeriods).FirstOrDefaultAsync(c=>c.LarsCode.Equals(standardId) && c.IsLatestVersion);
 
                 if (standard == null)
                 {
                     throw new Exception($"The course code {standardId} was not found");
                 }
                 
-                return new TrainingProgramme(standard.Id.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
+                return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
             }
 
             var framework = await _dbContext.Frameworks.Include(c=>c.FundingPeriods).FirstOrDefaultAsync(c=>c.Id.Equals(courseCode));
@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task<IEnumerable<TrainingProgramme>> GetAll()
         {
             var frameworksTask = _dbContext.Frameworks.Include(c => c.FundingPeriods).ToListAsync();
-            var standardsTask =  _dbContext.Standards.Include(c => c.FundingPeriods).ToListAsync();
+            var standardsTask =  _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.IsLatestVersion).ToListAsync();
 
             await Task.WhenAll(frameworksTask, standardsTask);
 
@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 )
             );
             trainingProgrammes.AddRange(standardsTask.Result.Select(standard =>
-                new TrainingProgramme(standard.Id.ToString(), GetTitle(standard.Title, standard.Level),
+                new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level),
                     ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                     new List<IFundingPeriod>(standard.FundingPeriods))));
 
@@ -114,11 +114,11 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<IEnumerable<TrainingProgramme>> GetAllStandards()
         {
-            var standards = await  _dbContext.Standards.Include(c => c.FundingPeriods).ToListAsync();
+            var standards = await  _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.IsLatestVersion).ToListAsync();
             
             var trainingProgrammes = new List<TrainingProgramme>();
             trainingProgrammes.AddRange(standards.Select(standard =>
-                new TrainingProgramme(standard.Id.ToString(), GetTitle(standard.Title, standard.Level),
+                new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level),
                     ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                     new List<IFundingPeriod>(standard.FundingPeriods))));
 

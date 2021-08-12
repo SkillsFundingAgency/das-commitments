@@ -11,21 +11,25 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.ToTable("Standard");
             builder.HasKey(x=> x.StandardUId);
 
-            builder.Property(x => x.StandardUId).HasColumnName("StandardUId").HasColumnType("varchar").HasMaxLength(15).IsRequired();
-            builder.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().ValueGeneratedNever();
+            builder.Property(x => x.StandardUId).HasColumnName("StandardUId").HasColumnType("varchar").HasMaxLength(20).IsRequired();
+            builder.Property(x => x.LarsCode).HasColumnName("LarsCode").HasColumnType("int").IsRequired().ValueGeneratedNever();
+            builder.Property(x => x.IFateReferenceNumber).HasColumnName("IFateReferenceNumber").HasColumnType("varchar").HasMaxLength(10).IsRequired(false);
+            builder.Property(x => x.Version).HasColumnName("Version").HasColumnType("varchar").HasMaxLength(10).IsRequired(false);
             builder.Property(x => x.Title).HasColumnName("Title").HasColumnType("varchar").HasMaxLength(500).IsRequired(false);
             builder.Property(x => x.Duration).HasColumnName("Duration").HasColumnType("int").IsRequired();
             builder.Property(x => x.Level).HasColumnName("Level").HasColumnType("tinyint").IsRequired();
             builder.Property(x => x.MaxFunding).HasColumnName("MaxFunding").HasColumnType("int").IsRequired();
             builder.Property(x => x.EffectiveFrom).HasColumnName("EffectiveFrom").HasColumnType("DateTime").IsRequired(false);
             builder.Property(x => x.EffectiveTo).HasColumnName("EffectiveTo").HasColumnType("DateTime").IsRequired(false);
-            
+            builder.Property(x => x.StandardPageUrl).HasColumnName("StandardPageUrl").HasColumnType("varchar").HasMaxLength(500).IsRequired(false);
+            builder.Property(x => x.IsLatestVersion).HasColumnName("IsLatestVersion").HasColumnType("bit");
+
             builder.HasMany(c => c.FundingPeriods)
                 .WithOne(c=>c.Standard)
-                .HasPrincipalKey(c => c.Id)
+                .HasPrincipalKey(c => c.LarsCode)
                 .HasForeignKey(c => c.Id).Metadata.DeleteBehavior = DeleteBehavior.Restrict;
 
-            builder.HasIndex(c => c.Id);
+            builder.HasIndex(c => c.StandardUId);
         }
     }
 }

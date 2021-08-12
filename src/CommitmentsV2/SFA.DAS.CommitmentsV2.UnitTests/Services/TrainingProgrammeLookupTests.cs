@@ -43,10 +43,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
 
             //Act
-            var actual = await service.GetTrainingProgramme(standard.Id.ToString());
+            var actual = await service.GetTrainingProgramme(standard.LarsCode.ToString());
             
             //Assert
-            actual.CourseCode.Should().Be(standard.Id.ToString());
+            actual.CourseCode.Should().Be(standard.LarsCode.ToString());
             actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");
             actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
             actual.EffectiveTo.Should().Be(standard.EffectiveTo);
@@ -112,6 +112,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             TrainingProgrammeLookup service)
         {
             //Arrange
+            standards.ForEach(s => s.IsLatestVersion = true);
             dbContext.Setup(x => x.Frameworks).ReturnsDbSet(frameworks);
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
             
@@ -129,6 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             TrainingProgrammeLookup service)
         {
             //Arrange
+            standards.ForEach(s => s.IsLatestVersion = true);
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
             
             //Act

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Services
@@ -12,10 +10,12 @@ namespace SFA.DAS.CommitmentsV2.Services
     public class OverlapCheckService : IOverlapCheckService
     {
         private readonly IUlnUtilisationService _ulnUtilisationService;
+        private readonly IEmailOverlapService _emailOverlapService;
 
-        public OverlapCheckService(IUlnUtilisationService ulnUtilisationService)
+        public OverlapCheckService(IUlnUtilisationService ulnUtilisationService, IEmailOverlapService emailOverlapService)
         {
             _ulnUtilisationService = ulnUtilisationService;
+            _emailOverlapService = emailOverlapService;
         }
 
         public async Task<OverlapCheckResult> CheckForOverlaps(string uln, DateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
@@ -55,6 +55,20 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             return new OverlapCheckResult(overlapStartDate, overlapEndDate);
+        }
+
+        public async Task<EmailOverlapCheckResult> CheckForEmailOverlaps(string email, DateRange range, long? existingApprenticeshipId, long? cohortId,
+            CancellationToken cancellationToken)
+        {
+            var overlappingEmails = await _emailOverlapService.GetOverlappingEmails(new EmailToValidate(email, range.From, range.To, existingApprenticeshipId), cohortId, cancellationToken);
+
+            if (overlappingEmails.Count == 0)
+            {
+                return null;
+            }
+
+            var overlappingEmail = overlappingEmails.First();
+            return new EmailOverlapCheckResult(overlappingEmail.OverlapStatus, overlappingEmail.IsApproved);
         }
     }
 }

@@ -5,7 +5,10 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class Standard
     {
-        public int Id { get; set; }
+        public string StandardUId { get; set; }
+        public int LarsCode { get; set; }
+        public string IFateReferenceNumber { get; set; }
+        public string Version { get; set; }
         public string Title { get; set; }
         public string StandardUId { get; set; }
         public string Version { get; set; }
@@ -15,6 +18,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? EffectiveFrom { get; set; }
         public DateTime? EffectiveTo { get; set; }
         public virtual List<StandardFundingPeriod> FundingPeriods { get; set; }
+        public bool IsLatestVersion { get; set; }
+        public string StandardPageUrl { get; set; }
     }
 
     public class StandardFundingPeriod : IFundingPeriod

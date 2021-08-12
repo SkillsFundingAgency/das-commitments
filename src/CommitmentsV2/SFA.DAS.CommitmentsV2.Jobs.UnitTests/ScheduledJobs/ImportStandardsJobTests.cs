@@ -39,13 +39,21 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
 
                     importedStandards.AddRange(dataTable.AsEnumerable().Select(r => new StandardSummary
                     {
-                        Id = (int)r[0],
-                        Title = (string)r[1],
-                        Level = (int)r[2],
-                        Duration = (int)r[3],
-                        CurrentFundingCap = (int)r[4],
-                        EffectiveFrom = (DateTime?)r[5],
-                        LastDateForNewStarts = (DateTime?)r[6],
+                        StandardUId = (string)r[0],
+                        LarsCode = (int)r[1],
+                        IFateReferenceNumber = (string)r[2],
+                        Version = (string)r[3],
+                        Title = (string)r[4],
+                        Level = (int)r[5],
+                        Duration = (int)r[6],
+                        CurrentFundingCap = (int)r[7],
+                        EffectiveFrom = (DateTime?)r[8],
+                        LastDateForNewStarts = (DateTime?)r[9],
+                        VersionMajor = (int)r[10],
+                        VersionMinor = (int)r[11],
+                        StandardPageUrl = (string)r[12],
+                        Status = (string)r[13],
+                        IsLatestVersion = (bool)r[14]
                     }));
                 });
             
@@ -90,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             var expectedItems = new List<FundingPeriodItem>();
             foreach (var responseStandard in apiResponse.Standards)
             {
-                var standardId = responseStandard.Id;
+                var standardId = responseStandard.LarsCode;
                 expectedItems.AddRange(responseStandard.FundingPeriods.Select(fundingPeriod => new FundingPeriodItem
                 {
                     StandardId = standardId, 
