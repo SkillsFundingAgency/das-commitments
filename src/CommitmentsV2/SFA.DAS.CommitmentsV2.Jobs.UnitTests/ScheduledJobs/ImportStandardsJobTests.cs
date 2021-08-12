@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             //Arrange
             apiResponse.Standards.ToList().ForEach(s => s.Status = "Approved for delivery");
             apiClient.Setup(x => x.Get<StandardResponse>(It.IsAny<GetStandardsRequest>())).ReturnsAsync(apiResponse);
-            var importedStandards = new List<StandardSummary>(); 
+            var importedStandards = new List<StandardSummary>();
             context.Setup(d => d.ExecuteSqlCommandAsync("EXEC ImportStandards @standards", It.IsAny<SqlParameter>()))
                 .Returns(Task.CompletedTask)
                 .Callback<string, object[]>((s, p) =>
@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                         IsLatestVersion = (bool)r[14]
                     }));
                 });
-            
+
             //Act
             await importStandardsJob.Import(null);
 
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 LastDateForNewStarts = thirdStandard.VersionDetail.LatestStartDate
             }});
         }
-        
+
         [Test, MoqAutoData]
         public async Task Then_The_StandardsFunding_Items_Are_Imported_From_The_Client(
             StandardResponse apiResponse,
@@ -131,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             //Arrange
             apiResponse.Standards.ToList().ForEach(s => s.Status = "Approved for delivery");
             apiClient.Setup(x => x.Get<StandardResponse>(It.IsAny<GetStandardsRequest>())).ReturnsAsync(apiResponse);
-            var importedStandardFunding = new List<FundingPeriodItem>(); 
+            var importedStandardFunding = new List<FundingPeriodItem>();
             context.Setup(d => d.ExecuteSqlCommandAsync("EXEC ImportStandardsFunding @standardsFunding", It.IsAny<SqlParameter>()))
                 .Returns(Task.CompletedTask)
                 .Callback<string, object[]>((s, p) =>
@@ -147,10 +147,10 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                         EffectiveTo = (DateTime?)r[3],
                     }));
                 });
-            
+
             //Act
             await importStandardsJob.Import(null);
-            
+
             //Assert
             var expectedItems = new List<FundingPeriodItem>();
             foreach (var responseStandard in apiResponse.Standards)
@@ -158,13 +158,52 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 var standardId = responseStandard.LarsCode;
                 expectedItems.AddRange(responseStandard.FundingPeriods.Select(fundingPeriod => new FundingPeriodItem
                 {
-                    StandardId = standardId, 
-                    EffectiveFrom = fundingPeriod.EffectiveFrom, 
-                    EffectiveTo = fundingPeriod.EffectiveTo, 
+                    StandardId = standardId,
+                    EffectiveFrom = fundingPeriod.EffectiveFrom,
+                    EffectiveTo = fundingPeriod.EffectiveTo,
                     FundingCap = fundingPeriod.FundingCap
                 }));
             }
             importedStandardFunding.Should().BeEquivalentTo(expectedItems);
+        }
+
+        [Test, MoqAutoData]
+        public async Task Then_The_StandardOptions_Items_Are_Imported_From_The_Client(
+            StandardResponse apiResponse,
+            [Frozen] Mock<IApiClient> apiClient,
+            [Frozen] Mock<IProviderCommitmentsDbContext> context,
+            ImportStandardsJob importStandardsJob
+)
+        {
+            //Arrange
+            apiResponse.Standards.ToList().ForEach(s => s.Status = "Approved for delivery");
+            apiClient.Setup(x => x.Get<StandardResponse>(It.IsAny<GetStandardsRequest>())).ReturnsAsync(apiResponse);
+            var importedStandardOptions = new List<object>();
+            context.Setup(d => d.ExecuteSqlCommandAsync("EXEC ImportStandardOptions @standardOptions", It.IsAny<SqlParameter>()))
+                .Returns(Task.CompletedTask)
+                .Callback<string, object[]>((s, p) =>
+                {
+                    var sqlParameter = (SqlParameter)p[0];
+                    var dataTable = (DataTable)sqlParameter.Value;
+
+                    importedStandardOptions.AddRange(dataTable.AsEnumerable().Select(r => new
+                    {
+                        StandardUId = (string)r[0],
+                        Option = (string)r[1]
+                    }));
+                });
+
+            //Act
+            await importStandardsJob.Import(null);
+
+            //Assert
+            var expectedItems = new List<object>();
+            foreach (var responseStandard in apiResponse.Standards)
+            {
+                var standardId = responseStandard.LarsCode;
+                expectedItems.AddRange(responseStandard.Options.Select(o => new { responseStandard.StandardUId, Option = o }));
+            }
+            importedStandardOptions.Should().BeEquivalentTo(expectedItems);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _db = db;
         }
 
-        public async Task ImportProvidersJob([TimerTrigger("45 10 1 * * *", RunOnStartup = false)] TimerInfo timer)
+        public async Task ImportProvidersJob([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
         {
             _logger.LogInformation("ImportProvidersJob - Started");
 

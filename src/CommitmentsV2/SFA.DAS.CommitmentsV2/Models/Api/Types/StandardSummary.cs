@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Models.Api.Types
         public string StandardPageUrl { get; set; }
         public string Status { get; set; }
         public bool IsLatestVersion { get; set; }
+        public string[] Options { get; set; }
 
         /// <summary>
         /// Property to allow the ToDataTable Extension to function with the Lambda Expression
