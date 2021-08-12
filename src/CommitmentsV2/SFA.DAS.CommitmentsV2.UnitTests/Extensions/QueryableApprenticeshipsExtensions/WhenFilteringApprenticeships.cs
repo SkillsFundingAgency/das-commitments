@@ -795,19 +795,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 // 4 NA
                 new Apprenticeship
                 {
-                    Email = null
+                    Email = null,
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null                        
+                    }
                 },
                 new Apprenticeship
                 {
-                    Email = null
+                    Email = null,
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null
+                    }
                 },
                 new Apprenticeship
                 {
-                    Email = null
+                    Email = null,
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null
+                    }
                 },
                 new Apprenticeship
                 {
-                    Email = null
+                    Email = null,
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null
+                    }
                 }
             }.AsQueryable();
 
