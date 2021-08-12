@@ -57,18 +57,18 @@ namespace SFA.DAS.CommitmentsV2.Services
                 
         }
 
-        public Task<TrainingProgramme> GetTrainingProgrammeVersion(int courseCode, DateTime startDate)
+        public async Task<TrainingProgramme> GetTrainingProgrammeVersion(int courseCode, DateTime startDate)
         {
-            var standardVersions = _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.LarsCode == courseCode);
+            var standardVersions = await _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.LarsCode == courseCode).OrderBy(v => v.Version).ToListAsync();
 
             TrainingProgramme trainingProgramme = null;
 
             if (standardVersions is null)
             {
-                return Task.FromResult(trainingProgramme);
+                return trainingProgramme;
             }
 
-            foreach (var version in standardVersions.OrderBy(v => v.Version))
+            foreach (var version in standardVersions)
             {
                 if ((startDate >= version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate <= version.EffectiveTo.Value )) || version == standardVersions.Last())
                 {
@@ -77,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 }
             }
 
-            return Task.FromResult(trainingProgramme);
+            return trainingProgramme;
         }
         private static string GetTitle(string title, int level)
         {

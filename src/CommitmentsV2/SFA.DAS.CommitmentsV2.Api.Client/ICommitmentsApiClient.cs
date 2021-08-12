@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetAllTrainingProgrammesResponse> GetAllTrainingProgrammes(CancellationToken cancellationToken = default);
         Task<GetAllTrainingProgrammeStandardsResponse> GetAllTrainingProgrammeStandards(CancellationToken cancellationToken = default);
         Task<GetTrainingProgrammeResponse> GetTrainingProgramme(string id, CancellationToken cancellationToken = default);
-        Task<GetTrainingProgrammeResponse> GetTrainingProgrammeVersion(int courseCode, DateTime startDate, CancellationToken cancellationToken = default);
+        Task<GetTrainingProgrammeResponse> GetCalculatedTrainingProgrammeVersion(int courseCode, DateTime startDate, CancellationToken cancellationToken = default);
         Task UpdateApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request, CancellationToken cancellationToken = default);
         Task ValidateApprenticeshipForEdit(ValidateApprenticeshipForEditRequest request, CancellationToken cancellationToken = default);
         Task AcceptApprenticeshipUpdates(long apprenticeshipId, AcceptApprenticeshipUpdatesRequest request, CancellationToken cancellationToken = default);

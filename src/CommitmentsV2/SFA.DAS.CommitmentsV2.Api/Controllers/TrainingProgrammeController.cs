@@ -94,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{courseCode}/version")]
+        [Route("calculate-version/{courseCode}")]
         public async Task<IActionResult> GetTrainingProgrammeVersion(int courseCode, [FromQuery] GetTrainingProgrammeVersionRequest request)
         {
             try
