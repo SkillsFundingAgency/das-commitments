@@ -256,11 +256,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return standards;
         }
 
-        //private List<StandardFundingPeriod> BuildFundingPeriods()
-        //{
-        //    //return new L
-        //}
-
         private EquivalencyAssertionOptions<Standard> TrainingProgrammeEquivalencyAssertionOptions(EquivalencyAssertionOptions<Standard> options)
         {
             return options.Excluding(x => x.LarsCode)
