@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
             mediator.Setup(m => m.Send(It.Is<GetTrainingProgrammeVersionQuery>(q => q.CourseCode == courseCode && q.StartDate == request.StartDate), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(queryResult);
 
-            var response = await controller.GetTrainingProgrammeVersion(courseCode, request) as OkObjectResult;
+            var response = await controller.GetCalculatedTrainingProgrammeVersion(courseCode, request) as OkObjectResult;
 
             var model = response.Value as GetTrainingProgrammeResponse;
 
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
             mediator.Setup(m => m.Send(It.Is<GetTrainingProgrammeVersionQuery>(q => q.CourseCode == courseCode && q.StartDate == request.StartDate), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetTrainingProgrammeVersionQueryResult());
 
-            var response = await controller.GetTrainingProgrammeVersion(courseCode, request) as NotFoundResult;
+            var response = await controller.GetCalculatedTrainingProgrammeVersion(courseCode, request) as NotFoundResult;
 
             response.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
         }
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
             mediator.Setup(m => m.Send(It.IsAny<GetTrainingProgrammeVersionQuery>(), It.IsAny<CancellationToken>()))
                 .Throws<Exception>();
 
-            var response = await controller.GetTrainingProgrammeVersion(1, request) as BadRequestResult;
+            var response = await controller.GetCalculatedTrainingProgrammeVersion(1, request) as BadRequestResult;
 
             response.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
         }
