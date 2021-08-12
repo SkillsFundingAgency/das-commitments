@@ -22,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         [Test, MoqAutoData]
         public async Task Then_The_Standards_Are_Imported_From_The_Client(
             StandardResponse apiResponse,
+            IEnumerable<StandardSummary> invalidStatusStandards,
             [Frozen] Mock<IApiClient> apiClient,
             [Frozen] Mock<IProviderCommitmentsDbContext> context,
             ImportStandardsJob importStandardsJob
@@ -29,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         {
             //Arrange
             apiResponse.Standards.ToList().ForEach(s => s.Status = "Approved for delivery");
+            apiResponse.Standards.ToList().AddRange(invalidStatusStandards);
             apiClient.Setup(x => x.Get<StandardResponse>(It.IsAny<GetStandardsRequest>())).ReturnsAsync(apiResponse);
             var importedStandards = new List<StandardSummary>();
             context.Setup(d => d.ExecuteSqlCommandAsync("EXEC ImportStandards @standards", It.IsAny<SqlParameter>()))
@@ -123,6 +125,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         [Test, MoqAutoData]
         public async Task Then_The_StandardsFunding_Items_Are_Imported_From_The_Client(
             StandardResponse apiResponse,
+            IEnumerable<StandardSummary> invalidStatusStandards,
             [Frozen] Mock<IApiClient> apiClient,
             [Frozen] Mock<IProviderCommitmentsDbContext> context,
             ImportStandardsJob importStandardsJob
@@ -130,6 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         {
             //Arrange
             apiResponse.Standards.ToList().ForEach(s => s.Status = "Approved for delivery");
+            apiResponse.Standards.ToList().AddRange(invalidStatusStandards);
             apiClient.Setup(x => x.Get<StandardResponse>(It.IsAny<GetStandardsRequest>())).ReturnsAsync(apiResponse);
             var importedStandardFunding = new List<FundingPeriodItem>();
             context.Setup(d => d.ExecuteSqlCommandAsync("EXEC ImportStandardsFunding @standardsFunding", It.IsAny<SqlParameter>()))
@@ -170,6 +174,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         [Test, MoqAutoData]
         public async Task Then_The_StandardOptions_Items_Are_Imported_From_The_Client(
             StandardResponse apiResponse,
+            IEnumerable<StandardSummary> invalidStatusStandards,
             [Frozen] Mock<IApiClient> apiClient,
             [Frozen] Mock<IProviderCommitmentsDbContext> context,
             ImportStandardsJob importStandardsJob
@@ -177,6 +182,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         {
             //Arrange
             apiResponse.Standards.ToList().ForEach(s => s.Status = "Approved for delivery");
+            apiResponse.Standards.ToList().AddRange(invalidStatusStandards);
             apiClient.Setup(x => x.Get<StandardResponse>(It.IsAny<GetStandardsRequest>())).ReturnsAsync(apiResponse);
             var importedStandardOptions = new List<object>();
             context.Setup(d => d.ExecuteSqlCommandAsync("EXEC ImportStandardOptions @standardOptions", It.IsAny<SqlParameter>()))
