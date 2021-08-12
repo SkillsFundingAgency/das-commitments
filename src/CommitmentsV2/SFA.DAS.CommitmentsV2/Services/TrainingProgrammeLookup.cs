@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public Task<TrainingProgramme> GetTrainingProgrammeVersion(int courseCode, DateTime startDate)
         {
-            var standardVersions = _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.Id == courseCode);
+            var standardVersions = _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.LarsCode == courseCode);
 
             TrainingProgramme trainingProgramme = null;
 
@@ -72,8 +72,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 if ((startDate > version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate < version.EffectiveTo.Value )) || version == standardVersions.Last())
                 {
-                    trainingProgramme = new TrainingProgramme(version.Id.ToString(), version.Title, ProgrammeType.Standard, version.EffectiveFrom, version.EffectiveTo);
-                    break;
+                    trainingProgramme = new TrainingProgramme(version.LarsCode.ToString(), version.Title, version.Version, version.StandardUId, 
+                        ProgrammeType.Standard, version.EffectiveFrom, version.EffectiveTo, new List<IFundingPeriod>(version.FundingPeriods));
                 }
             }
 

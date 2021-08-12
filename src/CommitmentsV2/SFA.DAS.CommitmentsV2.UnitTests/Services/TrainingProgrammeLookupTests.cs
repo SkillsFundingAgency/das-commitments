@@ -18,6 +18,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
     public class TrainingProgrammeLookupTests
     {
+        private Fixture _fixture;
+
+        [SetUp]
+        public void Arrange()
+        {
+            _fixture = new Fixture();
+        }
+
         [Test, MoqAutoData]
         public async Task Then_If_There_Is_No_Code_Null_Is_Returned(
             [Frozen]Mock<IProviderCommitmentsDbContext> dbContext,
@@ -187,6 +195,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test, MoqAutoData]
+        public async Task When_GettingStandardVersion_And_MoreThanOneVersionStartsInSameMonth_Then_ReturnCorrectTrainingProgramme(
+            DateTime baseDate,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            var standards = GetStandards(baseDate);
+            standards.Add(
+                _fixture.Build<Standard>()
+                    .With(s => s.LarsCode, 1)
+                    .With(s => s.StandardUId, "ST0001_1.2")
+                    .With(s => s.Version, "1.2")
+                    .With(s => s.EffectiveFrom, baseDate)
+                    .With(s => s.EffectiveTo, baseDate.AddYears(1).AddDays(1))
+                    .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
+                .Create());
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            var result = await service.GetTrainingProgrammeVersion(1, baseDate.AddDays(1));
+
+            result.Should().BeEquivalentTo(standards[2], TrainingProgrammeEquivalencyAssertionOptions);
+        }
+
+        [Test, MoqAutoData]
         public async Task When_GettingStandardVersion_And_NoStandardsAreFound_Then_ReturnNull(
             DateTime baseDate,
             [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
@@ -196,43 +228,49 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             var result = await service.GetTrainingProgrammeVersion(5, baseDate.AddDays(1));
 
-            result.Should().BeOfType<TrainingProgramme>().And.BeNull();
+            result.Should().BeNull();
         }
 
         private List<Standard> GetStandards(DateTime baseDate)
         {
-            var fixture = new Fixture();
-
             var standards = new List<Standard>
             {
-                fixture.Build<Standard>()
-                        .With(s => s.Id, 1)
+                _fixture.Build<Standard>()
+                        .With(s => s.LarsCode, 1)
                         .With(s => s.StandardUId, "ST0001_1.0")
                         .With(s => s.Version, "1.0")
                         .With(s => s.EffectiveFrom, baseDate.AddYears(-1))
                         .With(s => s.EffectiveTo, baseDate)
-                        .Without(s => s.FundingPeriods)
+                        .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
                     .Create(),
-                fixture.Build<Standard>()
-                        .With(s => s.Id, 1)
+                _fixture.Build<Standard>()
+                        .With(s => s.LarsCode, 1)
                         .With(s => s.StandardUId, "ST0001_1.1")
                         .With(s => s.Version, "1.1")
                         .With(s => s.EffectiveFrom, baseDate)
                         .With(s => s.EffectiveTo, baseDate.AddYears(1))
-                        .Without(s => s.FundingPeriods)
-                    .Create(),
+                        .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
+                    .Create()                
             };
 
             return standards;
         }
 
+        //private List<StandardFundingPeriod> BuildFundingPeriods()
+        //{
+        //    //return new L
+        //}
+
         private EquivalencyAssertionOptions<Standard> TrainingProgrammeEquivalencyAssertionOptions(EquivalencyAssertionOptions<Standard> options)
         {
-            return options.Excluding(x => x.Id)
+            return options.Excluding(x => x.LarsCode)
                 .Excluding(x => x.Title)
                 .Excluding(x => x.Level)
                 .Excluding(x => x.Duration)
-                .Excluding(x => x.MaxFunding);
+                .Excluding(x => x.MaxFunding)
+                .Excluding(x => x.IFateReferenceNumber)
+                .Excluding(x => x.IsLatestVersion)
+                .Excluding(x => x.StandardPageUrl);
         }
     }
 }

@@ -115,7 +115,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     TrainingProgramme = result.TrainingProgramme
                 });
             }
-            catch
+            catch (Exception )
             {
                 return BadRequest();
             }
