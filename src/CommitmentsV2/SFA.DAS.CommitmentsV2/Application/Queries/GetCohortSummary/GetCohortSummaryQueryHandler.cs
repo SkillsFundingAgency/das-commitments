@@ -71,7 +71,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                                                                         a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null ||
                                                                         a.Uln == null || (apprenticeEmailIsRequired && a.Email == null)),
                     LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
-                    ChangeOfPartyRequestId = c.ChangeOfPartyRequestId
+                    ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
+                    TransferApprovalStatus = c.TransferApprovalStatus
                 })
                 .SingleOrDefaultAsync(cancellationToken);
 
