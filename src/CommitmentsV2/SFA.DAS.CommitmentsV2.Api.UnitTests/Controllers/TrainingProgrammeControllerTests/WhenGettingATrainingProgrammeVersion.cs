@@ -37,14 +37,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
         }
 
         [Test, MoqAutoData]
-        public async Task And_ThereIsAnError_Then_ReturnBadRequest(
+        public async Task And_StandardNotFound_Then_ReturnNotFound(
             int courseCode,
             GetTrainingProgrammeVersionRequest request,
             [Frozen] Mock<IMediator> mediator,
             TrainingProgrammeController controller)
         {
             mediator.Setup(m => m.Send(It.Is<GetTrainingProgrammeVersionQuery>(q => q.CourseCode == courseCode && q.StartDate == request.StartDate), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((GetTrainingProgrammeVersionQueryResult)null);
+                .ReturnsAsync(new GetTrainingProgrammeVersionQueryResult());
 
             var response = await controller.GetTrainingProgrammeVersion(courseCode, request) as NotFoundResult;
 
