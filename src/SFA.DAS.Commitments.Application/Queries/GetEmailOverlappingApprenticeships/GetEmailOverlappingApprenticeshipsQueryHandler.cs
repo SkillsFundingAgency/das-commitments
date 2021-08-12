@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmailOverlappingApprentices
 
         public async Task<GetEmailOverlappingApprenticeshipsResponse> Handle(GetEmailOverlappingApprenticeshipsRequest request)
         {
-            _logger.Info("Performing overlap validation for bulk upload");
+            _logger.Info("Performing email overlap validation for bulk upload");
 
             var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
@@ -58,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmailOverlappingApprentices
             {
                 if (apprenticeshipEmailOverlap.OverlapStatus != OverlapStatus.None)
                 {
-                    _logger.Info($"Validation failed for: {apprenticeshipEmailOverlap.StartDate:MMM yyyy} - {apprenticeshipEmailOverlap.EndDate:MMM yyyy} Reason: {apprenticeshipEmailOverlap.OverlapStatus} " +
+                    _logger.Info($"Validation failed for email overlap: {apprenticeshipEmailOverlap.StartDate:MMM yyyy} - {apprenticeshipEmailOverlap.EndDate:MMM yyyy} Reason: {apprenticeshipEmailOverlap.OverlapStatus} " +
                                     $"with Apprenticeship Id: {apprenticeshipEmailOverlap.Id} {apprenticeshipEmailOverlap.StartDate:MMM yyyy} - {apprenticeshipEmailOverlap.EndDate:MMM yyyy}");
 
                     result.Data.Add(new OverlappingEmail
@@ -72,6 +72,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmailOverlappingApprentices
                         EndDate = apprenticeshipEmailOverlap.EndDate,
                         DateOfBirth = apprenticeshipEmailOverlap.DateOfBirth,
                         CohortId = apprenticeshipEmailOverlap.CohortId,
+                        OverlapStatus = apprenticeshipEmailOverlap.OverlapStatus
                     });
                 }
             }
