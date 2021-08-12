@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             foreach (var version in standardVersions.OrderBy(v => v.Version))
             {
-                if ((startDate > version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate < version.EffectiveTo.Value )) || version == standardVersions.Last())
+                if ((startDate >= version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate <= version.EffectiveTo.Value )) || version == standardVersions.Last())
                 {
                     trainingProgramme = new TrainingProgramme(version.LarsCode.ToString(), version.Title, version.Version, version.StandardUId, 
                         ProgrammeType.Standard, version.EffectiveFrom, version.EffectiveTo, new List<IFundingPeriod>(version.FundingPeriods));
