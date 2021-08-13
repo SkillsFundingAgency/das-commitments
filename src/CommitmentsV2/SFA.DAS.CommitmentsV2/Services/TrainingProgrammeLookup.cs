@@ -65,12 +65,12 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             TrainingProgramme trainingProgramme = null;
 
-            if (standardVersions is null)
+            if (standardVersions.Count() == 0)
             {
                 return trainingProgramme;
             }
 
-            //Overwrite EffectiveFrom of all versions to 1st of each month so that if a version starts in the same month
+            // Overwrite EffectiveFrom of all versions to 1st of each month so that if a version starts in the same month
             // First version doesn't get it's effective from overwritten as that won't have an overlap
             // Last version effective to doesn't matter as it should be null
             // e.g.
@@ -107,15 +107,26 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             foreach (var version in standardVersions)
             {
-                if ((startDate >= version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate <= version.EffectiveTo.Value)) || version == standardVersions.Last())
+                if (startDate >= version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate <= version.EffectiveTo.Value)) 
                 {
                     trainingProgramme = new TrainingProgramme(version.LarsCode.ToString(), version.Title, version.Version, version.StandardUId,
                         ProgrammeType.Standard, version.EffectiveFrom, version.EffectiveTo, new List<IFundingPeriod>(version.FundingPeriods));
                 }
             }
 
+            if (trainingProgramme == null)
+            {
+                var defaultVersion = standardVersions.Last();
+
+                trainingProgramme = new TrainingProgramme(defaultVersion.LarsCode.ToString(), defaultVersion.Title, defaultVersion.Version, defaultVersion.StandardUId,
+                      ProgrammeType.Standard, defaultVersion.EffectiveFrom, defaultVersion.EffectiveTo, new List<IFundingPeriod>(defaultVersion.FundingPeriods));
+            }
+
             return trainingProgramme;
+            
+
         }
+
         private static string GetTitle(string title, int level)
         {
             return $"{title}, Level: {level}";
