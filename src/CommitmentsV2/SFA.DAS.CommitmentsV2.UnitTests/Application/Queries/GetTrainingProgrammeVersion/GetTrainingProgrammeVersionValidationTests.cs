@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetTrainingProgram
         [TestCase("ST0001_1.0", true)]
         public void ValidateQueryContains_StandardUId(string standardUId, bool expectedResult)
         {
-            var validator = new GetTrainingProgrammeVersionValidator();
+            var validator = new GetTrainingProgrammeVersionQueryValidator();
 
             var result = validator.Validate(new GetTrainingProgrammeVersionQuery(standardUId));
 

@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetTrainingProgram
             GetTrainingProgrammeVersionQuery query,
             TrainingProgramme trainingProgrammeResult,
             [Frozen] Mock<ITrainingProgrammeLookup> service,
-            GetTrainingProgrammeVersionHandler handler)
+            GetTrainingProgrammeVersionQueryHandler handler)
         {
             service.Setup(x => x.GetTrainingProgrammeVersionByStandardUId(query.StandardUId)).ReturnsAsync(trainingProgrammeResult);
 
@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetTrainingProgram
         public async Task And_StandardVersionNotFound_Then_ReturnEmptyResponse(
             GetTrainingProgrammeVersionQuery query,
             [Frozen] Mock<ITrainingProgrammeLookup> service,
-            GetTrainingProgrammeVersionHandler handler)
+            GetTrainingProgrammeVersionQueryHandler handler)
         {
             service.Setup(x => x.GetTrainingProgrammeVersionByStandardUId(query.StandardUId)).ThrowsAsync(new Exception("Course not found"));
 

@@ -2,9 +2,9 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
 {
-    public class GetTrainingProgrammeVersionValidator : AbstractValidator<GetTrainingProgrammeVersionQuery>
+    public class GetTrainingProgrammeVersionQueryValidator : AbstractValidator<GetTrainingProgrammeVersionQuery>
     {
-        public GetTrainingProgrammeVersionValidator()
+        public GetTrainingProgrammeVersionQueryValidator()
         {
             RuleFor(q => q.StandardUId).NotEmpty();
         }

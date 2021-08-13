@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeControllerTests
 {
-    public class WhenGettingStandardOptions
+    public class WhenGettingTrainingProgrammeVersionByStandardUId
     {
         private Mock<IMediator> _mockMediator;
 
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
         }
 
         [Test, MoqAutoData]
-        public async Task And_MediatorReturnsResult_Then_GetStandardOptionsResultIsReturned(string standardUId, GetTrainingProgrammeVersionResult result)
+        public async Task And_MediatorReturnsResult_Then_GetStandardOptionsResultIsReturned(string standardUId, GetTrainingProgrammeVersionQueryResult result)
         {
             _mockMediator.Setup(m => m.Send(It.Is<GetTrainingProgrammeVersionQuery>(q => q.StandardUId.Equals(standardUId)), CancellationToken.None)).ReturnsAsync(result);
 
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
 
             controllerResponse.StatusCode.Should().Be((int)HttpStatusCode.OK);
 
-            var model = controllerResponse.Value as GetTrainingProgrammeVersionByStandardUIdResponse;
+            var model = controllerResponse.Value as GetTrainingProgrammeResponse;
 
             model.TrainingProgramme.Should().BeEquivalentTo(result.TrainingProgramme);
         }

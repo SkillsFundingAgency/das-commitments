@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
 {
-    public class GetTrainingProgrammeVersionResult
+    public class GetTrainingProgrammeVersionQueryResult
     {
         public TrainingProgramme TrainingProgramme { get; set; }
     }

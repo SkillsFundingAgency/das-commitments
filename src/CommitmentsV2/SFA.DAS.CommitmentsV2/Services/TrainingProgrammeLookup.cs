@@ -11,11 +11,10 @@ using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramm
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    
+
     public class TrainingProgrammeLookup : ITrainingProgrammeLookup
     {
         private readonly IProviderCommitmentsDbContext _dbContext;
-        
 
         public TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext)
         {
@@ -28,33 +27,93 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 return null;
             }
-            
+
             if (int.TryParse(courseCode, out var standardId))
             {
-                var standard = await _dbContext.Standards.Include(c=>c.FundingPeriods).FirstOrDefaultAsync(c=>c.LarsCode.Equals(standardId) && c.IsLatestVersion);
+                var standard = await _dbContext.Standards.Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.LarsCode.Equals(standardId) && c.IsLatestVersion);
 
                 if (standard == null)
                 {
                     throw new Exception($"The course code {standardId} was not found");
                 }
-                
+
                 return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
             }
 
-            var framework = await _dbContext.Frameworks.Include(c=>c.FundingPeriods).FirstOrDefaultAsync(c=>c.Id.Equals(courseCode));
-            
+            var framework = await _dbContext.Frameworks.Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.Id.Equals(courseCode));
+
             if (framework == null)
             {
                 throw new Exception($"The course code {courseCode} was not found");
             }
-            
+
             var frameworkTitle =
                 GetTitle(
                     string.Equals(framework.FrameworkName.Trim(), framework.PathwayName.Trim(), StringComparison.OrdinalIgnoreCase)
                         ? framework.FrameworkName
                         : framework.Title, framework.Level) + " (Framework)";
-            return new TrainingProgramme(framework.Id, frameworkTitle, ProgrammeType.Framework, framework.EffectiveFrom, framework.EffectiveTo,new List<IFundingPeriod>(framework.FundingPeriods));
-                
+
+            return new TrainingProgramme(framework.Id, frameworkTitle, ProgrammeType.Framework, framework.EffectiveFrom, framework.EffectiveTo, new List<IFundingPeriod>(framework.FundingPeriods));
+        }
+
+        public async Task<TrainingProgramme> GetCalculatedTrainingProgrammeVersion(int courseCode, DateTime startDate)
+        {
+
+            var standardVersions = await _dbContext.Standards.AsNoTracking().Include(c => c.FundingPeriods).Where(s => s.LarsCode == courseCode)
+                .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
+
+            TrainingProgramme trainingProgramme = null;
+
+            if (standardVersions.Count() == 0)
+            {
+                return trainingProgramme;
+            }
+
+            // Overwrite EffectiveFrom of all versions to 1st of each month so that if a version starts in the same month
+            // First version doesn't get it's effective from overwritten as that won't have an overlap
+            // Last version effective to doesn't matter as it should be null
+            // e.g.
+            // 1.0  Effective From 9/12/2019 Effective To 14/7/2020
+            // 1.1  Effective From 15/7/2020 Effective To 19/10/2020
+            // 1.2  Effective From 20/10/2020  Effective To Null
+
+            // Becomes
+            // 1.0  Effective From 9/12/2019 Effective To 31/7/2020
+            // 1.1  Effective From 1/7/2020 Effective To 31/10/2020
+            // 1.2  Effective From 1/10/2020  Effective To Null
+            
+            var first = true;
+            foreach (var version in standardVersions)
+            {
+                if (!first && version.EffectiveFrom.HasValue)
+                {
+                    version.EffectiveFrom = new DateTime(version.EffectiveFrom.Value.Year, version.EffectiveFrom.Value.Month, 1);
+                }
+
+                if (version.EffectiveTo.HasValue)
+                {
+                    var daysInMonth = DateTime.DaysInMonth(version.EffectiveTo.Value.Year, version.EffectiveTo.Value.Month);
+                    version.EffectiveTo = new DateTime(version.EffectiveTo.Value.Year, version.EffectiveTo.Value.Month, daysInMonth);
+                }
+
+                first = false;
+            }
+
+            // Given the above resetting
+            // If an apprentice start date is then 29th October 2020
+            // 29/10/2020 is > 1/7/2020  and it's < 31/10/2020 so it initially creates a 1.1 Training Programme
+            // 29/10/2020 is > 1/10/2020 and Effective To Is null, so then ovewrites with a 1.2 Training Programme
+            Standard selectedVersion = standardVersions.Last();
+            foreach (var version in standardVersions)
+            {
+                if (startDate >= version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate <= version.EffectiveTo.Value)) 
+                {
+                    selectedVersion = version;
+                }
+            }
+
+            return new TrainingProgramme(selectedVersion.LarsCode.ToString(), selectedVersion.Title, selectedVersion.Version, selectedVersion.StandardUId,
+                        ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods), selectedVersion.Options.Select(o => o.Option).ToList());
         }
 
         public async Task<TrainingProgramme> GetTrainingProgrammeVersionByStandardUId(string standardUId)
@@ -66,9 +125,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new Exception($"The standard {standardUId} was not found");
             }
 
-            var options = standard.Options.Select(o => o.Option).OrderBy(o => o).ToList();
-
-            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.StandardPageUrl, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), options);
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options.Select(o => o.Option).ToList());
         }
        
         private static string GetTitle(string title, int level)
@@ -79,19 +136,19 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task<IEnumerable<TrainingProgramme>> GetAll()
         {
             var frameworksTask = _dbContext.Frameworks.Include(c => c.FundingPeriods).ToListAsync();
-            var standardsTask =  _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.IsLatestVersion).ToListAsync();
+            var standardsTask = _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.IsLatestVersion).ToListAsync();
 
             await Task.WhenAll(frameworksTask, standardsTask);
 
             var trainingProgrammes = new List<TrainingProgramme>();
-            trainingProgrammes.AddRange(frameworksTask.Result.Select(framework=>
+            trainingProgrammes.AddRange(frameworksTask.Result.Select(framework =>
                 new TrainingProgramme(
-                    framework.Id, 
+                    framework.Id,
                     GetTitle(string.Equals(framework.FrameworkName.Trim(), framework.PathwayName.Trim(), StringComparison.OrdinalIgnoreCase)
                         ? framework.FrameworkName
-                        : framework.Title, framework.Level) + " (Framework)", 
-                    ProgrammeType.Framework, 
-                    framework.EffectiveFrom, 
+                        : framework.Title, framework.Level) + " (Framework)",
+                    ProgrammeType.Framework,
+                    framework.EffectiveFrom,
                     framework.EffectiveTo,
                     new List<IFundingPeriod>(framework.FundingPeriods))
                 )
@@ -101,20 +158,20 @@ namespace SFA.DAS.CommitmentsV2.Services
                     ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                     new List<IFundingPeriod>(standard.FundingPeriods))));
 
-            return trainingProgrammes.OrderBy(c=>c.Name);
+            return trainingProgrammes.OrderBy(c => c.Name);
         }
 
         public async Task<IEnumerable<TrainingProgramme>> GetAllStandards()
         {
-            var standards = await  _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.IsLatestVersion).ToListAsync();
-            
+            var standards = await _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.IsLatestVersion).ToListAsync();
+
             var trainingProgrammes = new List<TrainingProgramme>();
             trainingProgrammes.AddRange(standards.Select(standard =>
                 new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level),
                     ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                     new List<IFundingPeriod>(standard.FundingPeriods))));
 
-            return trainingProgrammes.OrderBy(c=>c.Name);
+            return trainingProgrammes.OrderBy(c => c.Name);
         }
     }
 }

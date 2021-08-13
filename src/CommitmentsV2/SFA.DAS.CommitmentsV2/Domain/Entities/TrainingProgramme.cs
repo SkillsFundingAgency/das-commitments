@@ -15,6 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         }
         public string CourseCode { get;  }
         public string Name { get; }
+        public string StandardUId { get; }
+        public string Version { get; }
         public ProgrammeType ProgrammeType { get; } 
         public string StandardPageUrl { get; }
         public DateTime? EffectiveFrom { get; }
@@ -30,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             EffectiveFrom = effectiveFrom;
             EffectiveTo = effectiveTo;
         }
-        
+
         public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods)
         {
             CourseCode = courseCode;
@@ -41,10 +43,24 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
         }
 
-        public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, string standardPageUrl, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods, List<string> options)
+        public TrainingProgramme(string courseCode, string name, string version, string standardUId, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods)
         {
             CourseCode = courseCode;
             Name = name;
+            Version = version;
+            StandardUId = standardUId;
+            ProgrammeType = programmeType;
+            EffectiveFrom = effectiveFrom;
+            EffectiveTo = effectiveTo;
+            FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
+        }
+
+        public TrainingProgramme(string courseCode, string name, string version, string standardUId, ProgrammeType programmeType, string standardPageUrl, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods, List<string> options)
+        {
+            CourseCode = courseCode;
+            Name = name;
+            Version = version;
+            StandardUId = standardUId;
             ProgrammeType = programmeType;
             EffectiveFrom = effectiveFrom;
             StandardPageUrl = standardPageUrl;
