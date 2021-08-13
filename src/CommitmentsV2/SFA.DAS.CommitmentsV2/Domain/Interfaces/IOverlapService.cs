@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 
@@ -11,5 +12,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
         Task<EmailOverlapCheckResult> CheckForEmailOverlaps(string email, DateRange range,
             long? existingApprenticeshipId, long? cohortId, CancellationToken cancellationToken);
 
+        Task<List<EmailOverlapCheckResult>> CheckForEmailOverlaps(long cohortId, CancellationToken cancellationToken);
     }
 }

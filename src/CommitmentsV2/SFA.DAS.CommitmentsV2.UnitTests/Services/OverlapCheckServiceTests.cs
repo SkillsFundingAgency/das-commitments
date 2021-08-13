@@ -176,6 +176,93 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyEmailOverlapServiceIsCalledCorrectly();
         }
 
+        [Test]
+        public async Task ThenIfNoOverlappingEmailRecordsFoundInCohortShouldReturnNull()
+        {
+            var result = await _fixture.WithCohort().CheckForEmailOverlapsInCohort();
+
+            Assert.AreEqual(0, result.Count);
+            _fixture.VerifyEmailOverlapServiceIsCalledCorrectlyForCohortCheck();
+        }
+
+        [Test]
+        public async Task ThenIfOneOverlappingEmailRecordFoundInCohortShouldReturnOneResult()
+        {
+            var list = new List<OverlappingEmail>
+            {
+                new OverlappingEmail
+                {
+                    RowId = 1,
+                    IsApproved = true,
+                    OverlapStatus = OverlapStatus.OverlappingEndDate
+                }
+            };
+
+            var result = await _fixture.WithCohort().WithApprovedApprenticeOverlappingEmailForCohort(list).CheckForEmailOverlapsInCohort();
+
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(1, result[0].RowId);
+            Assert.AreEqual(OverlapStatus.OverlappingEndDate, result[0].OverlapStatus);
+            Assert.IsTrue(result[0].FoundOnFullyApprovedApprenticeship);
+        }
+
+        [Test]
+        public async Task ThenIfTwoOverlappingEmailRecordsFoundInCohortShouldReturnFirstIfItWasForTheSameRowId()
+        {
+            var list = new List<OverlappingEmail>
+            {
+                new OverlappingEmail
+                {
+                    RowId = 1,
+                    IsApproved = true,
+                    OverlapStatus = OverlapStatus.OverlappingEndDate
+                },
+                new OverlappingEmail
+                {
+                    RowId = 1,
+                    IsApproved = false,
+                    OverlapStatus = OverlapStatus.DateEmbrace
+                }
+            };
+
+            var result = await _fixture.WithCohort().WithApprovedApprenticeOverlappingEmailForCohort(list).CheckForEmailOverlapsInCohort();
+
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(1, result[0].RowId);
+            Assert.AreEqual(OverlapStatus.OverlappingEndDate, result[0].OverlapStatus);
+            Assert.IsTrue(result[0].FoundOnFullyApprovedApprenticeship);
+        }
+
+        [Test]
+        public async Task ThenIfTwoOverlappingEmailRecordsFoundInCohortShouldReturnBothIfItWasForADifferentRowId()
+        {
+            var list = new List<OverlappingEmail>
+            {
+                new OverlappingEmail
+                {
+                    RowId = 1,
+                    IsApproved = true,
+                    OverlapStatus = OverlapStatus.OverlappingEndDate
+                },
+                new OverlappingEmail
+                {
+                    RowId = 2,
+                    IsApproved = false,
+                    OverlapStatus = OverlapStatus.DateEmbrace
+                }
+            };
+
+            var result = await _fixture.WithCohort().WithApprovedApprenticeOverlappingEmailForCohort(list).CheckForEmailOverlapsInCohort();
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result[0].RowId);
+            Assert.AreEqual(OverlapStatus.OverlappingEndDate, result[0].OverlapStatus);
+            Assert.IsTrue(result[0].FoundOnFullyApprovedApprenticeship);
+            Assert.AreEqual(2, result[1].RowId);
+            Assert.AreEqual(OverlapStatus.DateEmbrace, result[1].OverlapStatus);
+            Assert.IsFalse(result[1].FoundOnFullyApprovedApprenticeship);
+        }
+
         private class OverlapCheckServiceTestFixture
         {
             private readonly OverlapCheckService _overlapCheckService;
@@ -196,6 +283,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _emailOverlapService = new Mock<IEmailOverlapService>();
                 _emailOverlapService.Setup(x => x.GetOverlappingEmails(It.IsAny<EmailToValidate>(), It.IsAny<long?>(),
                         It.IsAny<CancellationToken>())).ReturnsAsync(new List<OverlappingEmail>());
+                _emailOverlapService.Setup(x => x.GetOverlappingEmails(It.IsAny<long>(),
+                    It.IsAny<CancellationToken>())).ReturnsAsync(new List<OverlappingEmail>());
+
                 _email = "any@email.com";
 
                 _overlapCheckService = new OverlapCheckService(_ulnUtilisationService.Object, _emailOverlapService.Object);
@@ -234,7 +324,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 return this;
             }
-
 
             public OverlapCheckServiceTestFixture WithApprovedApprenticeOverlappingEmail()
             {
@@ -275,6 +364,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public OverlapCheckServiceTestFixture WithCohort()
+            {
+                _cohortId = 111;
+                return this;
+            }
+
+            public OverlapCheckServiceTestFixture WithApprovedApprenticeOverlappingEmailForCohort(List<OverlappingEmail> list)
+            {
+                _emailOverlapService
+                    .Setup(x => x.GetOverlappingEmails(It.IsAny<long>(),
+                        It.IsAny<CancellationToken>())).ReturnsAsync(list);
+                return this;
+            }
+
+
             public async Task<OverlapCheckResult> CheckForOverlaps()
             {
                 return await _overlapCheckService.CheckForOverlaps("", _startDate.To(_endDate), _apprenticeshipId, new CancellationToken());
@@ -284,10 +388,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 return await _overlapCheckService.CheckForEmailOverlaps(_email, _startDate.To(_endDate), _apprenticeshipId, _cohortId, new CancellationToken());
             }
+            public async Task<List<EmailOverlapCheckResult>> CheckForEmailOverlapsInCohort()
+            {
+                return await _overlapCheckService.CheckForEmailOverlaps(_cohortId.Value, new CancellationToken());
+            }
 
             public void VerifyEmailOverlapServiceIsCalledCorrectly()
             {
                 _emailOverlapService.Verify(x=>x.GetOverlappingEmails(It.Is<EmailToValidate>(p=>p.Email == _email && p.StartDate == _startDate && p.EndDate == _endDate && p.ApprenticeshipId == _apprenticeshipId), _cohortId, It.IsAny<CancellationToken>()));
+            }
+
+            public void VerifyEmailOverlapServiceIsCalledCorrectlyForCohortCheck()
+            {
+                _emailOverlapService.Verify(x => x.GetOverlappingEmails(_cohortId.Value, It.IsAny<CancellationToken>()));
             }
 
             private static UlnUtilisation[] CreateTestData()
