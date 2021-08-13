@@ -153,6 +153,8 @@
     <Build Include="StoredProcedures\CheckForOverlappingEmails.sql" />
     <Build Include="UserDefinedTypes\EmailCheckTable.sql" />
     <Build Include="Functions\GetEndDateForOverlapChecks.sql" />
+    <Build Include="StoredProcedures\CheckForOverlappingEmailsForTable.sql" />
+    <Build Include="StoredProcedures\CheckForOverlappingEmailsInCohort.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
