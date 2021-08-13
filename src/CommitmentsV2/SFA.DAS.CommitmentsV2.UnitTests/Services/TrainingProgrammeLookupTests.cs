@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoFixture;
 using AutoFixture.NUnit3;
 using FluentAssertions;
+using FluentAssertions.Equivalency;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
@@ -16,6 +18,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
     public class TrainingProgrammeLookupTests
     {
+        private Fixture _fixture;
+
+        [SetUp]
+        public void Arrange()
+        {
+            _fixture = new Fixture();
+        }
+
         [Test, MoqAutoData]
         public async Task Then_If_There_Is_No_Code_Null_Is_Returned(
             [Frozen]Mock<IProviderCommitmentsDbContext> dbContext,
@@ -136,6 +146,134 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             
             //Assert
             actual.Count.Should().Be(standards.Count);
+        }
+
+        [Test, MoqAutoData]
+        public async Task When_GettingStandardVersion_And_StartDateAndCourseCodeAreProvided_Then_ReturnCorrectTrainingProgramme(
+            DateTime baseDate,
+            [Frozen]Mock<IProviderCommitmentsDbContext> dbContext, 
+            TrainingProgrammeLookup service)
+        {
+            var standards = GetStandards(baseDate);
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            var result = await service.GetTrainingProgrammeVersion(1, baseDate.AddDays(1));
+
+            result.Should().BeEquivalentTo(standards[1], TrainingProgrammeEquivalencyAssertionOptions);
+        }
+
+        [Test, MoqAutoData]
+        public async Task When_GettingStandardVersion_And_StartDateIsOutsideOfTheRangeOfVersionsEffectiveRange_Then_ReturnTheLatestVersion(
+            DateTime baseDate,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            var standards = GetStandards(baseDate);
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            var result = await service.GetTrainingProgrammeVersion(1, baseDate.AddYears(1).AddDays(1));
+
+            result.Should().BeEquivalentTo(standards.Last(), TrainingProgrammeEquivalencyAssertionOptions);
+        }
+
+        [Test, MoqAutoData]
+        public async Task When_GettingStandardVersion_And_StartDateAndLatestStandardEffectiveToIsNull_Then_ReturnCorrectTrainingProgramme(
+            DateTime baseDate,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            var standards = GetStandards(baseDate);
+            standards[standards.Count - 1].EffectiveTo = null;
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            var result = await service.GetTrainingProgrammeVersion(1, baseDate.AddDays(1));
+
+            result.Should().BeEquivalentTo(standards[1], TrainingProgrammeEquivalencyAssertionOptions);
+        }
+
+        [Test, MoqAutoData]
+        public async Task When_GettingStandardVersion_And_MoreThanOneVersionStartsInSameMonth_Then_ReturnCorrectTrainingProgramme(
+            DateTime baseDate,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            var standards = GetStandards(baseDate);
+            standards.Add(
+                _fixture.Build<Standard>()
+                    .With(s => s.LarsCode, 1)
+                    .With(s => s.StandardUId, "ST0001_1.2")
+                    .With(s => s.Version, "1.2")
+                    .With(s => s.VersionMajor, 1)
+                    .With(s => s.VersionMinor, 2)
+                    .With(s => s.EffectiveFrom, baseDate)
+                    .With(s => s.EffectiveTo, baseDate.AddYears(1).AddDays(1))
+                    .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
+                .Create());
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            var result = await service.GetTrainingProgrammeVersion(1, baseDate.AddDays(1));
+
+            result.Should().BeEquivalentTo(standards[2], TrainingProgrammeEquivalencyAssertionOptions);
+        }
+
+        [Test, MoqAutoData]
+        public async Task When_GettingStandardVersion_And_NoStandardsAreFound_Then_ReturnNull(
+            DateTime baseDate,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(new List<Standard>());
+
+            var result = await service.GetTrainingProgrammeVersion(5, baseDate.AddDays(1));
+
+            result.Should().BeNull();
+        }
+
+        private List<Standard> GetStandards(DateTime baseDate)
+        {
+            var standards = new List<Standard>
+            {
+                _fixture.Build<Standard>()
+                        .With(s => s.LarsCode, 1)
+                        .With(s => s.StandardUId, "ST0001_1.0")
+                        .With(s => s.Version, "1.0")
+                        .With(s => s.VersionMajor, 1)
+                        .With(s => s.VersionMinor, 0)
+                        .With(s => s.EffectiveFrom, baseDate.AddYears(-1))
+                        .With(s => s.EffectiveTo, baseDate)
+                        .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
+                    .Create(),
+                _fixture.Build<Standard>()
+                        .With(s => s.LarsCode, 1)
+                        .With(s => s.StandardUId, "ST0001_1.1")
+                        .With(s => s.Version, "1.1")
+                        .With(s => s.VersionMajor, 1)
+                        .With(s => s.VersionMinor, 1)
+                        .With(s => s.EffectiveFrom, baseDate)
+                        .With(s => s.EffectiveTo, baseDate.AddYears(1))
+                        .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
+                    .Create()                
+            };
+
+            return standards;
+        }
+
+        private EquivalencyAssertionOptions<Standard> TrainingProgrammeEquivalencyAssertionOptions(EquivalencyAssertionOptions<Standard> options)
+        {
+            return options.Excluding(x => x.LarsCode)
+                .Excluding(x => x.Title)
+                .Excluding(x => x.Level)
+                .Excluding(x => x.Duration)
+                .Excluding(x => x.MaxFunding)
+                .Excluding(x => x.IFateReferenceNumber)
+                .Excluding(x => x.IsLatestVersion)
+                .Excluding(x => x.StandardPageUrl)
+                .Excluding(x => x.VersionMajor)
+                .Excluding(x => x.VersionMinor);
         }
     }
 }

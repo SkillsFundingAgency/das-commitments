@@ -4,10 +4,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammes;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -87,6 +89,34 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error getting training programme {id}");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
+        [Route("calculate-version/{courseCode}")]
+        public async Task<IActionResult> GetCalculatedTrainingProgrammeVersion(int courseCode, [FromQuery] GetTrainingProgrammeVersionRequest request)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery
+                {
+                    CourseCode = courseCode,
+                    StartDate = request.StartDate.Value
+                });
+
+                if (result.TrainingProgramme == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new GetTrainingProgrammeResponse
+                {
+                    TrainingProgramme = result.TrainingProgramme
+                });
+            }
+            catch (Exception )
+            {
                 return BadRequest();
             }
         }

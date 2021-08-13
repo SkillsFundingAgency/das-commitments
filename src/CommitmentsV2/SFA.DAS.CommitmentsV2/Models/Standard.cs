@@ -8,8 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string StandardUId { get; set; }
         public int LarsCode { get; set; }
         public string IFateReferenceNumber { get; set; }
-        public string Version { get; set; }
         public string Title { get; set; }
+        public string Version { get; set; }
         public int Level { get; set; }
         public int Duration { get; set; }
         public int MaxFunding { get; set; }
@@ -17,6 +17,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? EffectiveTo { get; set; }
         public virtual List<StandardFundingPeriod> FundingPeriods { get; set; }
         public bool IsLatestVersion { get; set; }
+        public int VersionMajor { get; set; }
+        public int VersionMinor { get; set; }
         public string StandardPageUrl { get; set; }
     }
 
