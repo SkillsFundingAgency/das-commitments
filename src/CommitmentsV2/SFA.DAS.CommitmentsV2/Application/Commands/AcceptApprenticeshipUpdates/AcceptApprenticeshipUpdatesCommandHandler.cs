@@ -52,17 +52,42 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
 
             var apprenticeshipUpdate = apprenticeship.ApprenticeshipUpdate.First(x => x.Status == ApprenticeshipUpdateStatus.Pending);
 
-           var overlapCheckResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, 
-               new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value), 
-               command.ApprenticeshipId, 
-               cancellationToken);
+            await CheckUlnOverlap(command, cancellationToken, apprenticeship, apprenticeshipUpdate);
+            if (apprenticeshipUpdate.Email != null)
+            {
+                await CheckEmailOverlap(command, cancellationToken, apprenticeship, apprenticeshipUpdate);
+            }
+            apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, _dateTimeService);
+        }
+
+        private async Task CheckUlnOverlap(AcceptApprenticeshipUpdatesCommand command, CancellationToken cancellationToken,
+            Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate)
+        {
+            var overlapCheckResult = await _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, 
+                new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
+                command.ApprenticeshipId,
+                cancellationToken);
 
             if (overlapCheckResult.HasOverlaps)
             {
-                throw new DomainException("StartDate",  "Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
+                throw new DomainException("ApprenticeshipId",
+                    "Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
             }
+        }
 
-            apprenticeship.ApplyApprenticeshipUpdate(party, command.UserInfo, _dateTimeService);
+        private async Task CheckEmailOverlap(AcceptApprenticeshipUpdatesCommand command, CancellationToken cancellationToken,
+            Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate)
+        {
+            var overlapCheckResult = await _overlapCheckService.CheckForEmailOverlaps(apprenticeshipUpdate.Email,
+                new Domain.Entities.DateRange(apprenticeshipUpdate.StartDate ?? apprenticeship.StartDate.Value, apprenticeshipUpdate.EndDate ?? apprenticeship.EndDate.Value),
+                command.ApprenticeshipId,
+                null,
+                cancellationToken);
+
+            if (overlapCheckResult != null)
+            {
+                throw new DomainException("ApprenticeshipId", overlapCheckResult.BuildErrorMessage());
+            }
         }
 
         private void CheckPartyIsValid(Party party, AcceptApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)

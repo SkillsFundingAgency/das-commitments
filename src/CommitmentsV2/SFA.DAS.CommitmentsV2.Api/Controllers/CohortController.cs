@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllCohortAccountIds;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Types;
@@ -125,6 +126,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 LevyStatus =  result.LevyStatus,
                 ChangeOfPartyRequestId = result.ChangeOfPartyRequestId
             });
+        }
+
+        [HttpGet]
+        [Route("{cohortId}/email-overlaps")]
+        public async Task<IActionResult> GetEmailOverlapChecks(long cohortId)
+        {
+            var query = new GetCohortEmailOverlapsQuery(cohortId);
+            var result = await _mediator.Send(query);
+
+            return Ok(new GetEmailOverlapsResponse{ ApprenticeshipEmailOverlaps = result.Overlaps});
         }
 
         [HttpGet]

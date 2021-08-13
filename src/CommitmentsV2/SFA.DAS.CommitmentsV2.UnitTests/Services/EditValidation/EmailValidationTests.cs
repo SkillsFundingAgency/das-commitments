@@ -59,11 +59,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenticeship(email: "a@a.com");
-            var request = fixture.CreateValidationRequest(email: email);
+            var request = fixture.CreateValidationRequest(email: "b@b.com");
 
             var result = await fixture.Validate(request);
 
             Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestCase("emailalready@exists.com")]
+        public async Task When_Valid_Email_Exists_On_Apprenticeship_And_Changes_Email_Then_New_Email_Must_Still_Be_Unique(string email)
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship(email: "a@a.com").SetupOverlapCheckServiceToReturnEmailOverlap(email);
+            var request = fixture.CreateValidationRequest(email: email);
+
+            var result = await fixture.Validate(request);
+
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("This email address is already used for another apprentice", result.Errors[0].ErrorMessage);
         }
     }
 }

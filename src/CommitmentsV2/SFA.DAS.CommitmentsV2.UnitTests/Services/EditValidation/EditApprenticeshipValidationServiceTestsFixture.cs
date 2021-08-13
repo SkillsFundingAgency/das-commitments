@@ -164,6 +164,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
+        public EditApprenticeshipValidationServiceTestsFixture SetupOverlapCheckServiceToReturnEmailOverlap(string email)
+        {
+            var result = new EmailOverlapCheckResult(1, OverlapStatus.DateWithin, true);
+            _overlapCheckService.Setup(x =>
+                x.CheckForEmailOverlaps(email, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(),
+                    It.IsAny<long?>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+            return this;
+        }
+
         public EditApprenticeshipValidationServiceTestsFixture SetupAuthenticationContextAsEmployer()
         {
             _authenticationService.Setup(x => x.GetUserParty()).Returns(Party.Employer);
