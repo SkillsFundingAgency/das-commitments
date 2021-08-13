@@ -89,5 +89,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             DateTime? originalStartDate = new DateTime(2020, 10, 1);
             return AssertPropertySet(input => input.OriginalStartDate, originalStartDate);
         }
+        
+        [Test]
+        public Task Map_StandardUId_ShouldBeSet()
+        {
+            var standardUId = "IdValue";
+            return AssertPropertySet(input => input.StandardUId, standardUId);
+        }
+                
+        [Test]
+        public Task Map_StandardHasOptions_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.HasStandardOptions, true);
+        }
     }
 }

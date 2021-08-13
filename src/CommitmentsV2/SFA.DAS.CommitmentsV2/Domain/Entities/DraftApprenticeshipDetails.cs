@@ -37,5 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
                 return default;
             }
         }
+
+        public string StandardUId { get ; set ; }
     }
 }

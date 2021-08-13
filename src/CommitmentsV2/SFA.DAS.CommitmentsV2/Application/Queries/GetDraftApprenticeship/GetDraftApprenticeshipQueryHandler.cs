@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -47,7 +48,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                         ReservationId = draft.ReservationId,
                         Uln = draft.Uln,
                         IsContinuation = draft.ContinuationOfId.HasValue,
-                        OriginalStartDate = draft.OriginalStartDate
+                        OriginalStartDate = draft.OriginalStartDate,
+                        HasStandardOptions = !string.IsNullOrEmpty(draft.StandardUId) && _dbContext.Value.StandardOptions.Any(c=>c.StandardUId.Equals(draft.StandardUId))
                     },
                     cancellationToken);
 
