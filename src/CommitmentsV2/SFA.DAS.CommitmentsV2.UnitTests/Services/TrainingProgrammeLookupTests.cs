@@ -265,7 +265,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .Excluding(x => x.MaxFunding)
                 .Excluding(x => x.IFateReferenceNumber)
                 .Excluding(x => x.IsLatestVersion)
-                .Excluding(x => x.StandardPageUrl);
+                .Excluding(x => x.StandardPageUrl)
+                .Excluding(x => x.VersionMajor)
+                .Excluding(x => x.VersionMinor);
         }
     }
 }
