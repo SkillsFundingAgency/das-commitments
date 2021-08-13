@@ -68,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var options = standard.Options.Select(o => o.Option).OrderBy(o => o).ToList();
 
-            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), options);
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.StandardPageUrl, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), options);
         }
        
         private static string GetTitle(string title, int level)

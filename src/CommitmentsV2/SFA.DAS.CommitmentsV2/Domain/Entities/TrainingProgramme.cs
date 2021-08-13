@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public string CourseCode { get;  }
         public string Name { get; }
         public ProgrammeType ProgrammeType { get; } 
+        public string StandardPageUrl { get; }
         public DateTime? EffectiveFrom { get; }
         public DateTime? EffectiveTo { get; }
         public List<TrainingProgrammeFundingPeriod> FundingPeriods { get; set; }
@@ -40,12 +41,13 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
         }
 
-        public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods, List<string> options)
+        public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, string standardPageUrl, DateTime? effectiveFrom, DateTime? effectiveTo, List<IFundingPeriod> fundingPeriods, List<string> options)
         {
             CourseCode = courseCode;
             Name = name;
             ProgrammeType = programmeType;
             EffectiveFrom = effectiveFrom;
+            StandardPageUrl = standardPageUrl;
             EffectiveTo = effectiveTo;
             FundingPeriods = fundingPeriods.Select(c => new TrainingProgrammeFundingPeriod().Map(c)).ToList();
             Options = options;

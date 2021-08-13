@@ -36,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
                         EffectiveFrom = result.EffectiveFrom,
                         EffectiveTo = result.EffectiveTo,
                         ProgrammeType = result.ProgrammeType,
+                        StandardPageUrl = result.StandardPageUrl,
                         Options = result.Options,
                         FundingPeriods = result.FundingPeriods.Select(x => new TrainingProgrammeFundingPeriod
                         {

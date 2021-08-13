@@ -153,10 +153,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             actual.CourseCode.Should().Be(standard.LarsCode.ToString());
             actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");
+            actual.StandardPageUrl.Should().Be(standard.StandardPageUrl);
             actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
             actual.EffectiveTo.Should().Be(standard.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
-            actual.Options.Should().BeEquivalentTo(standard.Options);
+            actual.Options.Should().BeEquivalentTo(standard.Options.Select(o => o.Option));
         }
     }
 }
