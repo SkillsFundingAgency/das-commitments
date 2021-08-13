@@ -11,6 +11,6 @@ BEGIN
     INNER JOIN 
         [dbo].[StandardFunding] f 
     ON 
-        s.Id = f.Id 
+        s.LarsCode = f.Id 
 	
 END

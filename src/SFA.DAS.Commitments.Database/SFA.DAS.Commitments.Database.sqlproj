@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -112,7 +112,6 @@
     <Build Include="Views\CommitmentSummaryWithMessages.sql" />
     <Build Include="Tables\CustomProviderPaymentPriority.sql" />
     <Build Include="UserDefinedTypes\ProviderPriorityTable.sql" />
-    <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
     <Build Include="Tables\PriceHistory.sql" />
     <Build Include="StoredProcedures\GetAlertsSummary.sql" />
     <Build Include="StoredProcedures\GetProviderAlertsSummary.sql" />
@@ -154,6 +153,9 @@
     <Build Include="StoredProcedures\CheckForOverlappingEmails.sql" />
     <Build Include="UserDefinedTypes\EmailCheckTable.sql" />
     <Build Include="Functions\GetEndDateForOverlapChecks.sql" />
+    <Build Include="UserDefinedTypes\StandardOptions.sql" />
+    <Build Include="StoredProcedures\ImportStandardOptions.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
