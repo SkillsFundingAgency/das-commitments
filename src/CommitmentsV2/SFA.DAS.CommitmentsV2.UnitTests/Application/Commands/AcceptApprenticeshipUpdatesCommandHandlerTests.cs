@@ -213,6 +213,39 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(priceEpisode[0].ToDate, list[0].PriceEpisodes[0].ToDate);
             Assert.AreEqual(priceEpisode[0].Cost, list[0].PriceEpisodes[0].Cost);
         }
+
+
+        [Test]
+        public async Task Handle_WhenCommandIsHandled_AndEmailIsUpdated_ApprenticeshipUpdatedEmailAddressEvent_IsEmitted()
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.Email = "new@email.com";
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            var list = fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedEmailAddressEvent>().ToList();
+
+            var apprenticeship = fixture.ApprenticeshipFromDb;
+
+            Assert.AreEqual(1, list.Count);
+            Assert.AreEqual(apprenticeship.Id, list[0].ApprenticeshipId);
+            Assert.AreEqual(fixture.proxyCurrentDateTime, list[0].ApprovedOn);
+        }
+
+        [Test]
+        public async Task Handle_WhenCommandIsHandled_AndEmailIsNotUpdated_ApprenticeshipUpdatedEmailAddressEvent_IsNotEmitted()
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.Cost = 192;
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            var list = fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedEmailAddressEvent>().ToList();
+
+            Assert.AreEqual(0, list.Count);
+        }
     }
 
     public class AcceptApprenticeshipUpdatesCommandHandlerTestsFixture

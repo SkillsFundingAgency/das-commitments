@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         public void Configure(EntityTypeBuilder<OverlappingEmail> builder)
         {
             builder.Property(e => e.IsApproved).HasColumnType("bool");
-            builder.Property(e => e.OverlapStatus).HasColumnType("int");
+            builder.Property(e => e.OverlapStatus).HasColumnType("smallint");
         }
     }
 }

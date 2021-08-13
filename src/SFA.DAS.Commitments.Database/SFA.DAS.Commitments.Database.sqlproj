@@ -156,6 +156,8 @@
     <Build Include="UserDefinedTypes\StandardOptions.sql" />
     <Build Include="StoredProcedures\ImportStandardOptions.sql" />
     <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
+    <Build Include="StoredProcedures\CheckForOverlappingEmailsForTable.sql" />
+    <Build Include="StoredProcedures\CheckForOverlappingEmailsInCohort.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

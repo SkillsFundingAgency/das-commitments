@@ -71,3 +71,5 @@ CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_ApprovedNameSearch] ON [dbo].[Appr
 GO
 CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_ApprovedContinuationOf] ON [dbo].[Apprenticeship] ([IsApproved], [ContinuationOfId]) INCLUDE ([CommitmentId])
 GO
+CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_Email] ON [dbo].[Apprenticeship] ([Email])
+GO
