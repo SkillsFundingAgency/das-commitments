@@ -112,10 +112,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                     selectedVersion = version;
                 }
             }
-                
-            return new TrainingProgramme(selectedVersion.LarsCode.ToString(), selectedVersion.Title, selectedVersion.Version, selectedVersion.StandardUId,
-                        ProgrammeType.Standard, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods));           
 
+            return new TrainingProgramme(selectedVersion.LarsCode.ToString(), selectedVersion.Title, selectedVersion.Version, selectedVersion.StandardUId,
+                        ProgrammeType.Standard, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods));
         }
 
         private static string GetTitle(string title, int level)
