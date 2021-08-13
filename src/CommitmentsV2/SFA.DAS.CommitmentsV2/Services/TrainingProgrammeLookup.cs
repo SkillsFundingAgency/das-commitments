@@ -56,6 +56,20 @@ namespace SFA.DAS.CommitmentsV2.Services
             return new TrainingProgramme(framework.Id, frameworkTitle, ProgrammeType.Framework, framework.EffectiveFrom, framework.EffectiveTo,new List<IFundingPeriod>(framework.FundingPeriods));
                 
         }
+
+        public async Task<TrainingProgramme> GetTrainingProgrammeVersionByStandardUId(string standardUId)
+        {
+            var standard = await _dbContext.Standards.Include(c => c.Options).Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.StandardUId.Equals(standardUId));
+
+            if (standard == null)
+            {
+                throw new Exception($"The standard {standardUId} was not found");
+            }
+
+            var options = standard.Options.Select(o => o.Option).OrderBy(o => o).ToList();
+
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), options);
+        }
        
         private static string GetTitle(string title, int level)
         {

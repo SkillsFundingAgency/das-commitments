@@ -402,9 +402,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{id}", null, cancellationToken);
         }
 
-        public Task<GetStandardOptionsResponse> GetStandardOptions(string standardUId, CancellationToken cancellationToken = default)
+        public Task<GetTrainingProgrammeResponse> GetTrainingProgrammeVersionByStandardUId(string standardUId, CancellationToken cancellationToken = default)
         {
-            return _client.Get<GetStandardOptionsResponse>($"api/TrainingProgramme/{standardUId}/options", null, cancellationToken);
+            return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{standardUId}/version", null, cancellationToken);
         }
 
         public Task UpdateApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request, CancellationToken cancellationToken = default)

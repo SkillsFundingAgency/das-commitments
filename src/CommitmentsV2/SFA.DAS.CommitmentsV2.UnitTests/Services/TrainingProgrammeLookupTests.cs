@@ -137,5 +137,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             //Assert
             actual.Count.Should().Be(standards.Count);
         }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task When_GettingTrainingProgrammeVersion_Then_ReturnStandardVersion(
+            List<Standard> standards,
+            Standard standard,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            standards.Add(standard);
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+            
+            var actual = await service.GetTrainingProgrammeVersionByStandardUId(standard.StandardUId);
+
+            actual.CourseCode.Should().Be(standard.LarsCode.ToString());
+            actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");
+            actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
+            actual.EffectiveTo.Should().Be(standard.EffectiveTo);
+            actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
+            actual.Options.Should().BeEquivalentTo(standard.Options);
+        }
     }
 }

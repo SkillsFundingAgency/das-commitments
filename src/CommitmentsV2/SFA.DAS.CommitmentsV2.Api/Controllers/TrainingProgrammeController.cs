@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammes;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetStandardOptions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -93,20 +93,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{standardUId}/options")]
-        public async Task<IActionResult> GetStandardOptions(string standardUId)
+        [Route("{standardUId}/version")]
+        public async Task<IActionResult> GetTrainingProgrammeVersion(string standardUId)
         {
             try
             {
-                var result = await _mediator.Send(new GetStandardOptionsQuery(standardUId));
+                var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(standardUId));
 
-                if (result.Options == null)
+                if (result.TrainingProgramme == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(new GetStandardOptionsResponse {
-                    Options = result.Options
+                return Ok(new GetTrainingProgrammeResponse 
+                {
+                    TrainingProgramme = result.TrainingProgramme
                 });
             }
             catch (Exception e)
