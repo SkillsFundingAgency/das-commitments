@@ -104,26 +104,17 @@ namespace SFA.DAS.CommitmentsV2.Services
             // If an apprentice start date is then 29th October 2020
             // 29/10/2020 is > 1/7/2020  and it's < 31/10/2020 so it initially creates a 1.1 Training Programme
             // 29/10/2020 is > 1/10/2020 and Effective To Is null, so then ovewrites with a 1.2 Training Programme
-
+            Standard selectedVersion = standardVersions.Last();
             foreach (var version in standardVersions)
             {
                 if (startDate >= version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate <= version.EffectiveTo.Value)) 
                 {
-                    trainingProgramme = new TrainingProgramme(version.LarsCode.ToString(), version.Title, version.Version, version.StandardUId,
-                        ProgrammeType.Standard, version.EffectiveFrom, version.EffectiveTo, new List<IFundingPeriod>(version.FundingPeriods));
+                    selectedVersion = version;
                 }
             }
-
-            if (trainingProgramme == null)
-            {
-                var defaultVersion = standardVersions.Last();
-
-                trainingProgramme = new TrainingProgramme(defaultVersion.LarsCode.ToString(), defaultVersion.Title, defaultVersion.Version, defaultVersion.StandardUId,
-                      ProgrammeType.Standard, defaultVersion.EffectiveFrom, defaultVersion.EffectiveTo, new List<IFundingPeriod>(defaultVersion.FundingPeriods));
-            }
-
-            return trainingProgramme;
-            
+                
+            return new TrainingProgramme(selectedVersion.LarsCode.ToString(), selectedVersion.Title, selectedVersion.Version, selectedVersion.StandardUId,
+                        ProgrammeType.Standard, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods));           
 
         }
 
