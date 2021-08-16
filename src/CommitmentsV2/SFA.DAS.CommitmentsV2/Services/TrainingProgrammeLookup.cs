@@ -125,7 +125,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new Exception($"The standard {standardUId} was not found");
             }
 
-            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options.Select(o => o.Option).ToList());
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl, 
+                standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
         }
        
         private static string GetTitle(string title, int level)
