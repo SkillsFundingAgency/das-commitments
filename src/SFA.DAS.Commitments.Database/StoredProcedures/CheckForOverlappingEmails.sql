@@ -2,29 +2,14 @@
 	@Email NVARCHAR(200),
 	@StartDate DATETIME2,
 	@EndDate DATETIME2,
-	@ApprenticeshipId INT,
-	@CohortId INT = NULL
+	@ApprenticeshipId BIGINT,
+	@CohortId BIGINT = NULL
 AS
+BEGIN
+	DECLARE @emails dbo.[EmailCheckTable] 
 
-SELECT 
-	A.Id, 
-	A.FirstName,
-	A.LastName,
-	A.DateOfBirth,
-	A.CommitmentId AS CohortId,
-	A.StartDate,
-	A.EndDate,
-	A.IsApproved,
-	A.Email,
-	dbo.CourseDatesOverlap(A.StartDate, dbo.GetEndDateForOverlapChecks(A.PaymentStatus, A.EndDate, A.StopDate, A.CompletionDate), @StartDate, @EndDate) AS OverlapStatus
-FROM Apprenticeship A
-WHERE 
-	CASE 
-		WHEN @CohortId IS NULL AND A.IsApproved = 1 THEN 1
-		WHEN @CohortId IS NOT NULL AND A.CommitmentId = @CohortId AND A.IsApproved = 0 AND A.StartDate IS NOT NULL AND A.EndDate IS NOT NULL THEN 1
-		WHEN A.IsApproved = 1 THEN 1
-		ELSE 0
-	END = 1
-	AND A.Id != ISNULL(@ApprenticeshipId,0) 
-	AND A.Email = @Email 
-	AND dbo.CourseDatesOverlap(A.StartDate, dbo.GetEndDateForOverlapChecks(A.PaymentStatus, A.EndDate, A.StopDate, A.CompletionDate), @StartDate, @EndDate) >= 1 
+	INSERT INTO @emails (RowId, Email, StartDate, EndDate, ApprenticeshipId)
+	SELECT 1, @Email, @StartDate, @EndDate, @ApprenticeshipId
+
+	EXEC CheckForOverlappingEmailsForTable @emails, @CohortId
+END

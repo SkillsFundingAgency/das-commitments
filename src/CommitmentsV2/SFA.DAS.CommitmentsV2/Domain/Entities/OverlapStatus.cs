@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.CommitmentsV2.Domain.Entities
 {
-    public enum OverlapStatus
+    public enum OverlapStatus : short
     {
         None = 0,
         OverlappingStartDate = 1,

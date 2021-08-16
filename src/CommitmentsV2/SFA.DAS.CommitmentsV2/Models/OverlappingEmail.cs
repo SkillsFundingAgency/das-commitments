@@ -5,6 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class OverlappingEmail
     {
+        public long RowId { get; set; }
         public long? Id { get; set; }
         public long? CohortId { get; set; }
         public string FirstName { get; set; }
