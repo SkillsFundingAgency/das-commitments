@@ -68,6 +68,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             ProgrammeType = source.TrainingProgramme?.ProgrammeType;
             CourseCode = source.TrainingProgramme?.CourseCode;
             CourseName = source.TrainingProgramme?.Name;
+            TrainingCourseVersion = source.TrainingCourseVersion;
+            TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed;
             TrainingCourseOption = source.TrainingCourseOption;
             StandardUId = source.StandardUId;
             Cost = source.Cost;

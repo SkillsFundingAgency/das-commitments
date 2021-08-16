@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
                         CourseCode = result.CourseCode,
                         StandardUId = result.StandardUId,
                         Version = result.Version,
+                        StandardPageUrl = result.StandardPageUrl,
                         EffectiveFrom = result.EffectiveFrom,
                         EffectiveTo = result.EffectiveTo,
                         ProgrammeType = result.ProgrammeType,

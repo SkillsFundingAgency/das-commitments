@@ -113,7 +113,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             return new TrainingProgramme(selectedVersion.LarsCode.ToString(), selectedVersion.Title, selectedVersion.Version, selectedVersion.StandardUId,
-                        ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods), selectedVersion.Options.Select(o => o.Option).ToList());
+                        ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods), selectedVersion.Options?.Select(o => o.Option).ToList());
         }
 
         public async Task<TrainingProgramme> GetTrainingProgrammeVersionByStandardUId(string standardUId)

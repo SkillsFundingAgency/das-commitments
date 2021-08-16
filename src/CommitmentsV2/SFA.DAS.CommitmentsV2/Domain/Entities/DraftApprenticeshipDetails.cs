@@ -1,5 +1,4 @@
 ﻿using System;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Entities
 {
@@ -11,6 +10,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public string Email { get; set; }
         public string Uln { get; set; }
         public TrainingProgramme TrainingProgramme { get; set; }
+        public string TrainingCourseVersion { get; set; }
+        public bool TrainingCourseVersionConfirmed { get; set; }
         public string TrainingCourseOption { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
