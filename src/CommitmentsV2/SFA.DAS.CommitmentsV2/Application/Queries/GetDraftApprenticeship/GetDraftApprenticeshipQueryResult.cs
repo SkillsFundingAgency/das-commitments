@@ -13,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         public string TrainingCourseName { get; set; }
         public string TrainingCourseVersion { get; set; }
         public string TrainingCourseOption { get; set; }
+        public bool TrainingCourseVersionConfirmed { get; set; }
         public string StandardUId { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }

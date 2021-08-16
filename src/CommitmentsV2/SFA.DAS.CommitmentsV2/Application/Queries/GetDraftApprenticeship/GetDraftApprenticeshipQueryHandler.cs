@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                     {
                         CourseCode = draft.CourseCode,
                         TrainingCourseVersion = draft.TrainingCourseVersion,
+                        TrainingCourseVersionConfirmed = draft.TrainingCourseVersionConfirmed,
                         TrainingCourseName = draft.CourseName,
                         TrainingCourseOption = draft.TrainingCourseOption,
                         StandardUId = draft.StandardUId,

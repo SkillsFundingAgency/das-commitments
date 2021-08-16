@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 TrainingCourseVersion = source.TrainingCourseVersion,
                 TrainingCourseName = source.TrainingCourseName,
                 TrainingCourseOption = source.TrainingCourseOption,
+                TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed,
                 StandardUId = source.StandardUId,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
