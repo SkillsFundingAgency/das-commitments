@@ -570,6 +570,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task GetEmailOverlapChecks()
+        {
+            await _fixture.CommitmentsApiClient.GetEmailOverlapChecks(123);
+
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetEmailOverlapsResponse>("api/cohorts/123/email-overlaps", null, CancellationToken.None));
+        }
+
+        [Test]
         public async Task GetAllTrainingProgrammes()
         {
             await _fixture.CommitmentsApiClient.GetAllTrainingProgrammes();

@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(update);
             ChangeTrackingSession.TrackUpdate(this);
             
-            ApplyApprenticeshipUpdatesToApprenticeship(update);
+            ApplyApprenticeshipUpdatesToApprenticeship(update, currentDateTime.UtcNow);
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Approved;
 
@@ -265,7 +265,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return newPriceHistory.ToList();
         }
 
-        private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update)
+        private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update, DateTime approvedOn)
         {
             if (!string.IsNullOrEmpty(update.FirstName))
             {
@@ -280,6 +280,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (!string.IsNullOrEmpty(update.Email))
             {
                 Email = update.Email;
+
+                Publish(() =>
+                    new ApprenticeshipUpdatedEmailAddressEvent
+                    {
+                        ApprenticeshipId = Id,
+                        ApprovedOn = approvedOn,
+                    });
             }
 
             if (update.TrainingType.HasValue)

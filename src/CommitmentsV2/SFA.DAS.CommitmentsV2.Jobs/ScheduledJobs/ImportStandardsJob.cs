@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 
         private async Task ProcessStandardOptions(IEnumerable<StandardSummary> filteredStandards)
         {
-            var options = filteredStandards.SelectMany(s => s.Options, (s, o) => new { s.StandardUId, Option = o });
+            var options = filteredStandards.SelectMany(s => s.Options, (s, o) => new { StandardUId = s.StandardUId.Trim(), Option = o.Trim() });
 
             var optionBatches = options.Batch(1000).Select(b => b.ToDataTable(
                 p => p.StandardUId,
