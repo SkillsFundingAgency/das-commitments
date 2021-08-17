@@ -2,11 +2,13 @@
 {
     public class EmailOverlapCheckResult
     {
+        public long RowId { get; }
         public OverlapStatus OverlapStatus { get; }
         public bool FoundOnFullyApprovedApprenticeship { get; }
 
-        public EmailOverlapCheckResult(OverlapStatus overlapStatus, bool foundOnFullyApprovedApprenticeship)
+        public EmailOverlapCheckResult(long rowId, OverlapStatus overlapStatus, bool foundOnFullyApprovedApprenticeship)
         {
+            RowId = rowId;
             OverlapStatus = overlapStatus;
             FoundOnFullyApprovedApprenticeship = foundOnFullyApprovedApprenticeship;
         }
