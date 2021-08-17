@@ -65,6 +65,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             actual.Options.Should().BeEquivalentTo(standard.Options.Select(c => c.Option).ToList());
             dbContext.Verify(x=>x.Frameworks.FindAsync(It.IsAny<int>()), Times.Never);
         }
+        
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_If_The_Course_Code_Is_Numeric_Then_Standards_With_No_Options_Then_Null_IsMapped(
+            Standard standard,
+            List<Standard> standards,
+            [Frozen]Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service
+        )
+        {
+            //Arrange
+            standards.Add(standard);
+            standard.Options = null;
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            //Act
+            var actual = await service.GetTrainingProgramme(standard.LarsCode.ToString());
+            
+            //Assert
+            actual.CourseCode.Should().Be(standard.LarsCode.ToString());
+            actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");
+            actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
+            actual.EffectiveTo.Should().Be(standard.EffectiveTo);
+            actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
+            actual.StandardUId.Should().Be(standard.StandardUId);
+            actual.Version.Should().Be(standard.Version);
+            actual.StandardPageUrl.Should().Be(standard.StandardPageUrl);
+            actual.Options.Should().BeNullOrEmpty();
+            dbContext.Verify(x=>x.Frameworks.FindAsync(It.IsAny<int>()), Times.Never);
+        }
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_If_It_Is_Not_Numeric_Then_Frameworks_Are_Searched(
