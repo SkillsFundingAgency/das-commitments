@@ -54,6 +54,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)
         {
+            var selectedOption = StandardUId == source.StandardUId ? source.TrainingCourseOption : null;
+
             FirstName = source.FirstName;
             LastName = source.LastName;
             Email = source.Email;
@@ -70,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CourseName = source.TrainingProgramme?.Name;
             TrainingCourseVersion = source.TrainingCourseVersion;
             TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed;
-            TrainingCourseOption = source.TrainingCourseOption;
+            TrainingCourseOption = selectedOption;
             StandardUId = source.StandardUId;
             Cost = source.Cost;
             StartDate = source.StartDate;

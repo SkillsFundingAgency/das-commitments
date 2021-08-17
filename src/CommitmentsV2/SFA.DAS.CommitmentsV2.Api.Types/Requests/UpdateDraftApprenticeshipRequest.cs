@@ -10,9 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? DateOfBirth { get; set; }
         public string Uln { get; set; }
         public string CourseCode { get; set; }
-        public string StandardUId { get; set; }
-        public string CourseVersion { get; set; }
-        public bool CourseVersionConfirmed { get; set; }
         public string CourseOption { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
