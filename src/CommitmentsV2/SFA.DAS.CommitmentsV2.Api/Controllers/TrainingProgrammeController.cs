@@ -95,34 +95,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("calculate-version/{courseCode}")]
-        public async Task<IActionResult> GetCalculatedTrainingProgrammeVersion(int courseCode, [FromQuery] GetTrainingProgrammeVersionRequest request)
-        {
-            try
-            {
-                var result = await _mediator.Send(new GetCalculatedTrainingProgrammeVersionQuery
-                {
-                    CourseCode = courseCode,
-                    StartDate = request.StartDate.Value
-                });
-
-                if (result.TrainingProgramme == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(new GetTrainingProgrammeResponse
-                {
-                    TrainingProgramme = result.TrainingProgramme
-                });
-            }
-            catch (Exception )
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpGet]
         [Route("{standardUId}/version")]
         public async Task<IActionResult> GetTrainingProgrammeVersion(string standardUId)
         {
