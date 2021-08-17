@@ -1,124 +1,130 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AutoFixture;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Testing;
+using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
     [TestFixture]
-    public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTests : OldMapperTester<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails>
+    public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTests : FluentTest<UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTestsFixture>
     {
-        [SetUp]
-        public void SetMapper()
+        [Test]
+        public Task Map_WhenMapping_ThenShouldSetProperties()
         {
-            MapperCreator = () => new UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(Mock.Of<ITrainingProgrammeLookup>());
+            return TestAsync(
+                f => f.MapNoDate(), 
+                (f, r) =>
+                {
+                    r.FirstName.Should().Be(f.Command.FirstName);
+                    r.LastName.Should().Be(f.Command.LastName);
+                    r.Uln.Should().Be(f.Command.Uln);
+                    r.Cost.Should().Be(f.Command.Cost);
+                    r.StartDate.Should().Be(f.Command.StartDate);
+                    r.EndDate.Should().Be(f.Command.EndDate);
+                    r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
+                    r.Reference.Should().Be(f.Command.Reference);
+                    r.TrainingProgramme.Should().Be(f.TrainingProgramme);
+                    r.ReservationId.Should().Be(f.Command.ReservationId);
+                    r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
+                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
+                    r.TrainingCourseVersionConfirmed.Should().BeTrue();
+                });
         }
 
         [Test]
-        public Task Map_ApprenticeshipId_ShouldBeSet()
+        public Task Map_WhenMappingWithDate_Then_UsesCalculatedTrainingProgramme()
         {
-            return AssertPropertySet(from => from.ApprenticeshipId, to => to.Id, 123L);
+            return TestAsync(
+                f => f.Map(), 
+                (f, r) =>
+                {
+                    r.FirstName.Should().Be(f.Command.FirstName);
+                    r.LastName.Should().Be(f.Command.LastName);
+                    r.Uln.Should().Be(f.Command.Uln);
+                    r.Cost.Should().Be(f.Command.Cost);
+                    r.StartDate.Should().Be(f.Command.StartDate);
+                    r.EndDate.Should().Be(f.Command.EndDate);
+                    r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
+                    r.Reference.Should().Be(f.Command.Reference);
+                    r.TrainingProgramme.Should().Be(f.TrainingProgramme2);
+                    r.ReservationId.Should().Be(f.Command.ReservationId);
+                    r.StandardUId.Should().Be(f.TrainingProgramme2.StandardUId);
+                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme2.Version);
+                    r.TrainingCourseVersionConfirmed.Should().BeTrue();
+                });
         }
 
         [Test]
-        public Task Map_FirstName_ShouldBeSet()
+        public Task Map_WhenMappingWithNoCourse_Then_TrainingCourseVersionConfirmedIsFalse()
         {
-            return AssertPropertySet(from => from.FirstName, "Fred");
+            return TestAsync(
+                f => f.MapNoCourse(), 
+                (f, r) =>
+                {
+                    r.FirstName.Should().Be(f.Command.FirstName);
+                    r.LastName.Should().Be(f.Command.LastName);
+                    r.Uln.Should().Be(f.Command.Uln);
+                    r.Cost.Should().Be(f.Command.Cost);
+                    r.StartDate.Should().Be(f.Command.StartDate);
+                    r.EndDate.Should().Be(f.Command.EndDate);
+                    r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
+                    r.Reference.Should().Be(f.Command.Reference);
+                    r.TrainingProgramme.Should().BeNull();
+                    r.ReservationId.Should().Be(f.Command.ReservationId);
+                    r.StandardUId.Should().BeNull();
+                    r.TrainingCourseVersion.Should().BeNull();
+                    r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                });
+        }
+    }
+    
+    public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTestsFixture
+    {
+        public Fixture Fixture { get; set; }
+        public UpdateDraftApprenticeshipCommand Command { get; set; }
+        public TrainingProgramme TrainingProgramme { get; set; }
+        public TrainingProgramme TrainingProgramme2 { get; set; }
+        public Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup { get; set; }
+        public UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper Mapper { get; set; }
+
+        public UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTestsFixture()
+        {
+            Fixture = new Fixture();
+            Command = Fixture.Create<UpdateDraftApprenticeshipCommand>();
+            TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
+            TrainingProgramme2 = new TrainingProgramme("TESTS", "TESTStandard", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
+            TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
+            Mapper = new UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(TrainingProgrammeLookup.Object);
+            
+            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(TrainingProgramme);
+            TrainingProgrammeLookup.Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), It.IsAny<DateTime>())).ReturnsAsync(TrainingProgramme2);
         }
 
-        [Test]
-        public Task Map_LastName_ShouldBeSet()
+        public Task<DraftApprenticeshipDetails> Map()
         {
-            return AssertPropertySet(from => from.LastName, "Flintstone");
+            return Mapper.Map(Command);
         }
 
-        [Test]
-        public Task Map_Email_ShouldBeSet()
+        public Task<DraftApprenticeshipDetails> MapNoDate()
         {
-            return AssertPropertySet(from => from.Email, "Fred@Flintstone");
+            Command.StartDate = null;
+            return Mapper.Map(Command);
         }
 
-        [Test]
-        public Task Map_Uln_ShouldBeSet()
+        public Task<DraftApprenticeshipDetails> MapNoCourse()
         {
-            return AssertPropertySet(from => from.Uln, "1234567890");
-        }
-
-        [Test]
-        public Task Map_CostWithoutValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.Cost, (int?)null);
-        }
-
-        [Test]
-        public Task Map_CostWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.Cost, (int?)1234);
-        }
-
-        [Test]
-        public Task Map_StartDateWithoutValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.StartDate, (DateTime?)null);
-        }
-
-        [Test]
-        public Task Map_StartDateWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.StartDate, (DateTime?)DateTime.Now);
-        }
-
-        [Test]
-        public Task Map_EndDateWithoutValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.EndDate, (DateTime?)null);
-        }
-
-        [Test]
-        public Task Map_EndDateWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.EndDate, (DateTime?)DateTime.Now);
-        }
-
-
-        [Test]
-        public Task Map_DateOfBirthWithoutValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.DateOfBirth, (DateTime?)null);
-        }
-
-        [Test]
-        public Task Map_DateOfBirthWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.DateOfBirth, (DateTime?)DateTime.Now);
-        }
-
-        [Test]
-        public Task Map_ReferenceWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.Reference, "ABC123");
-        }
-
-        [Test]
-        public Task Map_ReferenceWithoutValue_ShouldNotBeSet()
-        {
-            return AssertPropertySet(from => from.Reference, (string)null);
-        }
-
-        [Test]
-        public Task Map_ReservationIdWithValue_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.ReservationId, (Guid?)Guid.NewGuid());
-        }
-
-        [Test]
-        public Task Map_ReservationIdWithoutValue_ShouldNotBeSet()
-        {
-            return AssertPropertySet(from => from.ReservationId, (Guid?)null);
+            Command.StartDate = null;
+            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync((TrainingProgramme)null);
+            return Mapper.Map(Command);
         }
     }
 }

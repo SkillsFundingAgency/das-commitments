@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCalculatedTrain
             TrainingProgramme result,
             GetCalculatedTrainingProgrammeVersionQueryHandler handler)
         {
-            service.Setup(s => s.GetCalculatedTrainingProgrammeVersion(query.CourseCode, query.StartDate))
+            service.Setup(s => s.GetCalculatedTrainingProgrammeVersion(query.CourseCode.ToString(), query.StartDate))
                 .ReturnsAsync(result);
 
             var actual = await handler.Handle(query, CancellationToken.None);
@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCalculatedTrain
             [Frozen] Mock<ITrainingProgrammeLookup> service,
             GetCalculatedTrainingProgrammeVersionQueryHandler handler)
         {
-            service.Setup(s => s.GetCalculatedTrainingProgrammeVersion(query.CourseCode, query.StartDate))
+            service.Setup(s => s.GetCalculatedTrainingProgrammeVersion(query.CourseCode.ToString(), query.StartDate))
                 .ReturnsAsync((TrainingProgramme)null);
 
             var actual = await handler.Handle(query, CancellationToken.None);

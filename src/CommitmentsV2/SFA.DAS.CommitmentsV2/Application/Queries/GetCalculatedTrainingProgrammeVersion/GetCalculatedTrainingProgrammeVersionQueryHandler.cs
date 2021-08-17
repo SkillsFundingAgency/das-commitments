@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgram
         }
         public async Task<GetCalculatedTrainingProgrammeVersionQueryResult> Handle(GetCalculatedTrainingProgrammeVersionQuery request, CancellationToken cancellationToken)
         {
-            var result = await _service.GetCalculatedTrainingProgrammeVersion(request.CourseCode, request.StartDate);
+            var result = await _service.GetCalculatedTrainingProgrammeVersion(request.CourseCode.ToString(), request.StartDate);
 
             if (result == null)
             {
