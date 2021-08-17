@@ -95,7 +95,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
-
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
         }
 
