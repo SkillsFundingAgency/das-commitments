@@ -9,10 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
         public long CohortId { get; set; }
         public long ApprenticeshipId { get; set; }
         public string CourseCode { get; set; }
-        public string StandardUId { get; set; }
         public string CourseOption { get; set; }
-        public string CourseVersion { get; set; }
-        public bool CourseVersionConfirmed { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
