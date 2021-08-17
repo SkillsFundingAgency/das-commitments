@@ -122,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 }
             }
 
-            return new TrainingProgramme(selectedVersion.LarsCode.ToString(), selectedVersion.Title, selectedVersion.Version, selectedVersion.StandardUId,
+            return new TrainingProgramme(selectedVersion.LarsCode.ToString(), GetTitle(selectedVersion.Title, selectedVersion.Level), selectedVersion.Version, selectedVersion.StandardUId,
                         ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods), selectedVersion.Options?.Select(o => o.Option).ToList());
         }
 
