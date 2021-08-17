@@ -318,6 +318,10 @@ namespace SFA.DAS.CommitmentsV2.Models
                     Publish(() => new CohortWithChangeOfPartyFullyApprovedEvent(Id, ChangeOfPartyRequestId.Value, now, modifyingParty, userInfo));
                 }
             }
+            else if (ChangeOfPartyRequestId.HasValue)
+            {
+                Publish(() => new CohortWithChangeOfPartyUpdatedEvent(Id, userInfo));
+            }
 
             ChangeTrackingSession.CompleteTrackingSession();
         }
