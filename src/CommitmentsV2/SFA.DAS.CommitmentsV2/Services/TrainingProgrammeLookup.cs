@@ -56,10 +56,20 @@ namespace SFA.DAS.CommitmentsV2.Services
             return new TrainingProgramme(framework.Id, frameworkTitle, ProgrammeType.Framework, framework.EffectiveFrom, framework.EffectiveTo, new List<IFundingPeriod>(framework.FundingPeriods));
         }
 
-        public async Task<TrainingProgramme> GetCalculatedTrainingProgrammeVersion(int courseCode, DateTime startDate)
+        public async Task<TrainingProgramme> GetCalculatedTrainingProgrammeVersion(string courseCode, DateTime startDate)
         {
 
-            var standardVersions = await _dbContext.Standards.AsNoTracking().Include(c => c.FundingPeriods).Where(s => s.LarsCode == courseCode)
+            if (string.IsNullOrWhiteSpace(courseCode))
+            {
+                return null;
+            }
+
+            if (!int.TryParse(courseCode, out var standardId))
+            {
+                return null;
+            }
+
+            var standardVersions = await _dbContext.Standards.AsNoTracking().Include(c => c.FundingPeriods).Where(s => s.LarsCode == standardId)
                 .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
 
             TrainingProgramme trainingProgramme = null;
