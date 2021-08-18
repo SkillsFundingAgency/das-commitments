@@ -90,6 +90,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             await ValidateUlnOverlap(cohort);
+
+            await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
         }
 
@@ -400,6 +402,15 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (!isSigned)
             {
                 throw new DomainException(nameof(cohort.EmployerAccountId), $"Employer {cohort.EmployerAccountId} cannot approve any cohort because the agreement is not signed");
+            }
+        }
+        private async Task ValidateNoEmailOverlapsExist(Cohort cohort, CancellationToken cancellationToken)
+        {
+            var emailOverlaps = await _overlapCheckService.CheckForEmailOverlaps(cohort.Id, cancellationToken);
+
+            if (emailOverlaps.Any())
+            {
+                throw new DomainException(nameof(cohort.Id), $"Cannot approve this cohort because one or more emails are failing the overlap check");
             }
         }
     }
