@@ -252,6 +252,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 filterQuery += $"&alert={WebUtility.UrlEncode(request.Alert.Value.ToString())}";
             }
 
+            if (request.ApprenticeConfirmationStatus.HasValue)
+            {
+                filterQuery += $"&apprenticeConfirmationStatus={WebUtility.UrlEncode(request.ApprenticeConfirmationStatus.ToString())}";
+            }
+
             return filterQuery;
         }
 
