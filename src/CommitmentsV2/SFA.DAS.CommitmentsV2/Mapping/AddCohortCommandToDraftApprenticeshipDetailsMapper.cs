@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -15,20 +16,22 @@ namespace SFA.DAS.CommitmentsV2.Mapping
         {
             _authorizationService = authorizationService;
             _trainingProgrammeLookup = trainingProgrammeLookup;
-        }
+        }   
 
         public async Task<DraftApprenticeshipDetails> Map(AddCohortCommand source)
         {
-            var trainingProgrammeTask = GetCourse(source.CourseCode);
-            var trainingProgramme = await trainingProgrammeTask;
-
+            var trainingProgram = await GetCourse(source.CourseCode, source.StartDate);
+            
             var result = new DraftApprenticeshipDetails
             {
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 Email = source.Email,
                 Uln = source.Uln,
-                TrainingProgramme = trainingProgramme,
+                TrainingProgramme = trainingProgram,
+                StandardUId = trainingProgram?.StandardUId,
+                TrainingCourseVersion = trainingProgram?.Version,
+                TrainingCourseVersionConfirmed = trainingProgram != null,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
@@ -40,9 +43,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping
             return result;
         }
 
-        private Task<TrainingProgramme> GetCourse(string courseCode)
+        private Task<TrainingProgramme> GetCourse(string courseCode, DateTime? startDate)
         {
-            return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
+            return startDate.HasValue ? _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(courseCode, startDate.Value) : _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
         }
     }
 }
