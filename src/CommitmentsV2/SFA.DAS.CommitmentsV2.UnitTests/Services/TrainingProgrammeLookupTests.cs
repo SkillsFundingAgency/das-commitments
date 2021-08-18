@@ -59,10 +59,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
             actual.EffectiveTo.Should().Be(standard.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
-            actual.StandardUId.Should().Be(standard.StandardUId);
-            actual.Version.Should().Be(standard.Version);
-            actual.StandardPageUrl.Should().Be(standard.StandardPageUrl);
-            actual.Options.Should().BeEquivalentTo(standard.Options.Select(c => c.Option).ToList());
+            actual.StandardUId.Should().BeNull();
+            actual.Version.Should().BeNull();
+            actual.StandardPageUrl.Should().BeNullOrEmpty();
+            actual.Options.Should().BeNullOrEmpty();
             dbContext.Verify(x=>x.Frameworks.FindAsync(It.IsAny<int>()), Times.Never);
         }
         
@@ -88,9 +88,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
             actual.EffectiveTo.Should().Be(standard.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
-            actual.StandardUId.Should().Be(standard.StandardUId);
-            actual.Version.Should().Be(standard.Version);
-            actual.StandardPageUrl.Should().Be(standard.StandardPageUrl);
+            actual.StandardUId.Should().BeNull();
+            actual.Version.Should().BeNull();
+            actual.StandardPageUrl.Should().BeNullOrEmpty();
             actual.Options.Should().BeNullOrEmpty();
             dbContext.Verify(x=>x.Frameworks.FindAsync(It.IsAny<int>()), Times.Never);
         }
