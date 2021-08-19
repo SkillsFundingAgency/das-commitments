@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? EffectiveFrom { get; set; }
         public DateTime? EffectiveTo { get; set; }
         public virtual List<StandardFundingPeriod> FundingPeriods { get; set; }
+        public virtual List<StandardOption> Options { get; set; }
         public bool IsLatestVersion { get; set; }
         public int VersionMajor { get; set; }
         public int VersionMinor { get; set; }

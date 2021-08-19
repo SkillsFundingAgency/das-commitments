@@ -26,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<TransferRequest> TransferRequests { get; set; }
         public virtual DbSet<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public virtual DbSet<Standard> Standards { get; set; }
+        public virtual DbSet<StandardOption> StandardOptions { get; set; }
         public virtual DbSet<Framework> Frameworks { get; set; }
         public virtual DbSet<ApprenticeshipConfirmationStatus> ApprenticeshipConfirmationStatus { get; set; }
         public virtual DbSet<OverlappingEmail> OverlappingEmails { get; set; }
@@ -68,6 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Data
             modelBuilder.ApplyConfiguration(new TransferRequestConfiguration());
             modelBuilder.ApplyConfiguration(new ChangeOfPartyRequestConfiguration());
             modelBuilder.ApplyConfiguration(new StandardConfiguration());
+            modelBuilder.ApplyConfiguration(new StandardOptionConfiguration());
             modelBuilder.ApplyConfiguration(new FrameworkConfiguration());
             modelBuilder.ApplyConfiguration(new FrameworkFundingPeriodConfiguration());
             modelBuilder.ApplyConfiguration(new StandardFundingPeriodConfiguration());

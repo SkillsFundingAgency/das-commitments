@@ -8,8 +8,9 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammes;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -94,29 +95,26 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("calculate-version/{courseCode}")]
-        public async Task<IActionResult> GetCalculatedTrainingProgrammeVersion(int courseCode, [FromQuery] GetTrainingProgrammeVersionRequest request)
+        [Route("{standardUId}/version")]
+        public async Task<IActionResult> GetTrainingProgrammeVersion(string standardUId)
         {
             try
             {
-                var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery
-                {
-                    CourseCode = courseCode,
-                    StartDate = request.StartDate.Value
-                });
+                var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(standardUId));
 
                 if (result.TrainingProgramme == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(new GetTrainingProgrammeResponse
+                return Ok(new GetTrainingProgrammeResponse 
                 {
                     TrainingProgramme = result.TrainingProgramme
                 });
             }
-            catch (Exception )
+            catch (Exception e)
             {
+                _logger.LogError(e, $"Error getting standard options for {standardUId}");
                 return BadRequest();
             }
         }

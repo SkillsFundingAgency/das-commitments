@@ -16,7 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Services
     {
         private readonly IProviderCommitmentsDbContext _dbContext;
 
-
         public TrainingProgrammeLookup(IProviderCommitmentsDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -53,14 +52,24 @@ namespace SFA.DAS.CommitmentsV2.Services
                     string.Equals(framework.FrameworkName.Trim(), framework.PathwayName.Trim(), StringComparison.OrdinalIgnoreCase)
                         ? framework.FrameworkName
                         : framework.Title, framework.Level) + " (Framework)";
-            return new TrainingProgramme(framework.Id, frameworkTitle, ProgrammeType.Framework, framework.EffectiveFrom, framework.EffectiveTo, new List<IFundingPeriod>(framework.FundingPeriods));
 
+            return new TrainingProgramme(framework.Id, frameworkTitle, ProgrammeType.Framework, framework.EffectiveFrom, framework.EffectiveTo, new List<IFundingPeriod>(framework.FundingPeriods));
         }
 
-        public async Task<TrainingProgramme> GetTrainingProgrammeVersion(int courseCode, DateTime startDate)
+        public async Task<TrainingProgramme> GetCalculatedTrainingProgrammeVersion(string courseCode, DateTime startDate)
         {
 
-            var standardVersions = await _dbContext.Standards.AsNoTracking().Include(c => c.FundingPeriods).Where(s => s.LarsCode == courseCode)
+            if (string.IsNullOrWhiteSpace(courseCode))
+            {
+                return null;
+            }
+
+            if (!int.TryParse(courseCode, out var standardId))
+            {
+                return null;
+            }
+
+            var standardVersions = await _dbContext.Standards.AsNoTracking().Include(c => c.FundingPeriods).Where(s => s.LarsCode == standardId)
                 .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
 
             TrainingProgramme trainingProgramme = null;
@@ -113,10 +122,23 @@ namespace SFA.DAS.CommitmentsV2.Services
                 }
             }
 
-            return new TrainingProgramme(selectedVersion.LarsCode.ToString(), selectedVersion.Title, selectedVersion.Version, selectedVersion.StandardUId,
-                        ProgrammeType.Standard, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods));
+            return new TrainingProgramme(selectedVersion.LarsCode.ToString(), GetTitle(selectedVersion.Title, selectedVersion.Level), selectedVersion.Version, selectedVersion.StandardUId,
+                        ProgrammeType.Standard, selectedVersion.StandardPageUrl, selectedVersion.EffectiveFrom, selectedVersion.EffectiveTo, new List<IFundingPeriod>(selectedVersion.FundingPeriods), selectedVersion.Options?.Select(o => o.Option).ToList());
         }
 
+        public async Task<TrainingProgramme> GetTrainingProgrammeVersionByStandardUId(string standardUId)
+        {
+            var standard = await _dbContext.Standards.Include(c => c.Options).Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.StandardUId.Equals(standardUId));
+
+            if (standard == null)
+            {
+                throw new Exception($"The standard {standardUId} was not found");
+            }
+
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl, 
+                standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
+        }
+       
         private static string GetTitle(string title, int level)
         {
             return $"{title}, Level: {level}";

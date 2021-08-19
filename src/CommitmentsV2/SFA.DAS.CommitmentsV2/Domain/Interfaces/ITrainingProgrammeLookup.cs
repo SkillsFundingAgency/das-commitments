@@ -8,9 +8,9 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     public interface ITrainingProgrammeLookup
     {
         Task<TrainingProgramme> GetTrainingProgramme(string courseCode);
-        Task<TrainingProgramme> GetTrainingProgrammeVersion(int courseCode, DateTime startDate);
+        Task<TrainingProgramme> GetCalculatedTrainingProgrammeVersion(string courseCode, DateTime startDate);
+        Task<TrainingProgramme> GetTrainingProgrammeVersionByStandardUId(string standardUId);
         Task<IEnumerable<TrainingProgramme>> GetAll();
         Task<IEnumerable<TrainingProgramme>> GetAllStandards();
-
     }
 }

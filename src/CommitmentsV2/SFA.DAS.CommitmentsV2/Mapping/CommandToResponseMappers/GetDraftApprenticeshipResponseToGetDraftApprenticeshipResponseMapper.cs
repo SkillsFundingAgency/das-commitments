@@ -17,13 +17,19 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 DateOfBirth = source.DateOfBirth,
                 Uln = source.Uln,
                 CourseCode = source.CourseCode,
+                TrainingCourseVersion = source.TrainingCourseVersion,
+                TrainingCourseName = source.TrainingCourseName,
+                TrainingCourseOption = source.TrainingCourseOption,
+                TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed,
+                StandardUId = source.StandardUId,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 Reference = source.Reference,
                 ReservationId = source.ReservationId,
                 IsContinuation = source.IsContinuation,
-                OriginalStartDate = source.OriginalStartDate
+                OriginalStartDate = source.OriginalStartDate,
+                HasStandardOptions = source.HasStandardOptions
             });
         }
     }

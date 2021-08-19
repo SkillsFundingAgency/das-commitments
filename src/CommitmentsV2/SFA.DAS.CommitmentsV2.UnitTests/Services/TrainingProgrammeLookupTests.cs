@@ -59,6 +59,39 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
             actual.EffectiveTo.Should().Be(standard.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
+            actual.StandardUId.Should().BeNull();
+            actual.Version.Should().BeNull();
+            actual.StandardPageUrl.Should().BeNullOrEmpty();
+            actual.Options.Should().BeNullOrEmpty();
+            dbContext.Verify(x=>x.Frameworks.FindAsync(It.IsAny<int>()), Times.Never);
+        }
+        
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_If_The_Course_Code_Is_Numeric_Then_Standards_With_No_Options_Then_Null_IsMapped(
+            Standard standard,
+            List<Standard> standards,
+            [Frozen]Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service
+        )
+        {
+            //Arrange
+            standards.Add(standard);
+            standard.Options = null;
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            //Act
+            var actual = await service.GetTrainingProgramme(standard.LarsCode.ToString());
+            
+            //Assert
+            actual.CourseCode.Should().Be(standard.LarsCode.ToString());
+            actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");
+            actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
+            actual.EffectiveTo.Should().Be(standard.EffectiveTo);
+            actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
+            actual.StandardUId.Should().BeNull();
+            actual.Version.Should().BeNull();
+            actual.StandardPageUrl.Should().BeNullOrEmpty();
+            actual.Options.Should().BeNullOrEmpty();
             dbContext.Verify(x=>x.Frameworks.FindAsync(It.IsAny<int>()), Times.Never);
         }
 
@@ -148,6 +181,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             actual.Count.Should().Be(standards.Count);
         }
 
+        [Test, RecursiveMoqAutoData]
+        public async Task When_GettingTrainingProgrammeVersion_Then_ReturnStandardVersion(
+            List<Standard> standards,
+            Standard standard,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            standards.Add(standard);
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+            
+            var actual = await service.GetTrainingProgrammeVersionByStandardUId(standard.StandardUId);
+
+            actual.CourseCode.Should().Be(standard.LarsCode.ToString());
+            actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");
+            actual.StandardPageUrl.Should().Be(standard.StandardPageUrl);
+            actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
+            actual.EffectiveTo.Should().Be(standard.EffectiveTo);
+            actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
+            actual.Options.Should().BeEquivalentTo(standard.Options.Select(o => o.Option));
+        }
+
         [Test, MoqAutoData]
         public async Task When_GettingStandardVersion_And_StartDateAndCourseCodeAreProvided_Then_ReturnCorrectTrainingProgramme(
             DateTime baseDate,
@@ -158,7 +213,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
 
-            var result = await service.GetTrainingProgrammeVersion(1, baseDate.AddDays(1));
+            var result = await service.GetCalculatedTrainingProgrammeVersion("1", baseDate.AddDays(1));
 
             result.Should().BeEquivalentTo(standards[1], TrainingProgrammeEquivalencyAssertionOptions);
         }
@@ -173,7 +228,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
 
-            var result = await service.GetTrainingProgrammeVersion(1, baseDate.AddYears(1).AddDays(1));
+            var result = await service.GetCalculatedTrainingProgrammeVersion("1", baseDate.AddYears(1).AddDays(1));
 
             result.Should().BeEquivalentTo(standards.Last(), TrainingProgrammeEquivalencyAssertionOptions);
         }
@@ -189,7 +244,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
 
-            var result = await service.GetTrainingProgrammeVersion(1, baseDate.AddDays(1));
+            var result = await service.GetCalculatedTrainingProgrammeVersion("1", baseDate.AddDays(1));
 
             result.Should().BeEquivalentTo(standards[1], TrainingProgrammeEquivalencyAssertionOptions);
         }
@@ -215,7 +270,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
 
-            var result = await service.GetTrainingProgrammeVersion(1, baseDate.AddDays(1));
+            var result = await service.GetCalculatedTrainingProgrammeVersion("1", baseDate.AddDays(1));
 
             result.Should().BeEquivalentTo(standards[2], TrainingProgrammeEquivalencyAssertionOptions);
         }
@@ -228,11 +283,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             dbContext.Setup(x => x.Standards).ReturnsDbSet(new List<Standard>());
 
-            var result = await service.GetTrainingProgrammeVersion(5, baseDate.AddDays(1));
+            var result = await service.GetCalculatedTrainingProgrammeVersion("5", baseDate.AddDays(1));
 
             result.Should().BeNull();
         }
 
+        [Test, MoqAutoData]
+        public async Task When_GettingStandardVersion_And_ItsAFramework_Then_ReturnNull(
+            DateTime baseDate,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(new List<Standard>());
+
+            var result = await service.GetCalculatedTrainingProgrammeVersion("5-132-1", baseDate.AddDays(1));
+
+            result.Should().BeNull();
+        }
         private List<Standard> GetStandards(DateTime baseDate)
         {
             var standards = new List<Standard>
@@ -273,7 +340,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .Excluding(x => x.IsLatestVersion)
                 .Excluding(x => x.StandardPageUrl)
                 .Excluding(x => x.VersionMajor)
-                .Excluding(x => x.VersionMinor);
+                .Excluding(x => x.VersionMinor)
+                .Excluding(x => x.Options);
         }
     }
 }

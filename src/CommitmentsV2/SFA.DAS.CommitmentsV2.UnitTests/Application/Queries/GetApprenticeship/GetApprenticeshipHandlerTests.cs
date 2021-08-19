@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -92,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
 
                 Cohort = new Cohort
                 {
-                    Id = _autoFixture.Create<long>(),
+                    Id = _autoFixture.CreateMany<long>().Last(),
                     AccountLegalEntity = AccountLegalEntity,
                     EmployerAccountId = _autoFixture.Create<long>(),
                     ProviderId = Provider.UkPrn,
