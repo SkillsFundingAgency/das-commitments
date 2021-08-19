@@ -39,7 +39,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     StartDate = a.StartDate,
                     EndDate = a.EndDate,
                     Uln = a.Uln,
-                    OriginalStartDate = a.OriginalStartDate
+                    OriginalStartDate = a.OriginalStartDate,
+                    HasStandardOptions = !string.IsNullOrEmpty(a.StandardUId) && _dbContext.Value.StandardOptions.Any(c=>c.StandardUId.Equals(a.StandardUId))
                 }).ToList()
             });
         }
