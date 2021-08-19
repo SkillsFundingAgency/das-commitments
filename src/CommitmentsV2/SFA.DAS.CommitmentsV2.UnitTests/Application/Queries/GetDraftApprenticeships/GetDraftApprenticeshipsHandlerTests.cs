@@ -91,8 +91,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                     Reference = string.Empty
                 };
 
-                var standardUid = _autoFixture.Create<string>();
-                
                 for (var i = 0; i < 10; i++)
                 {
                     var apprenticeship = new DraftApprenticeship
@@ -109,21 +107,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
                         Uln = _autoFixture.Create<string>(),
-                        OriginalStartDate = _autoFixture.Create<DateTime?>(),
-                        StandardUId = standardUid
+                        OriginalStartDate = _autoFixture.Create<DateTime?>()
                     };
                     _cohort.Apprenticeships.Add(apprenticeship);
                 }
 
-                var standardOption = new StandardOption
-                {
-                    StandardUId = standardUid,
-                    Option = _autoFixture.Create<string>()
-                };
-                _db.StandardOptions.Add(standardOption);
-                
                 _db.Cohorts.Add(_cohort);
-                
                 _db.SaveChanges();
             }
 
@@ -157,7 +146,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.CourseCode, result.CourseCode);
             Assert.AreEqual(source.CourseName, result.CourseName);
             Assert.AreEqual(source.OriginalStartDate, result.OriginalStartDate);
-            Assert.IsTrue(result.HasStandardOptions);
         }
     }
 }
