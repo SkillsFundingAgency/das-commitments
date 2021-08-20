@@ -45,7 +45,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetAllTrainingProgra
             expectedList.AddRange(_standard.Standards.Select(c=> new TrainingProgramme
             {
                 Name = c.Title,
-                CourseCode = c.Id,
+                CourseCode = c.LarsCode,
                 EffectiveFrom = c.EffectiveFrom,
                 EffectiveTo = c.EffectiveTo,
                 ProgrammeType = ProgrammeType.Standard,
@@ -59,7 +59,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetAllTrainingProgra
             expectedList.AddRange(_frameworks.Frameworks.Select(c=> new TrainingProgramme
             {
                 Name = c.Title,
-                CourseCode = c.Id,
+                CourseCode = c.LarsCode,
                 EffectiveFrom = c.EffectiveFrom,
                 EffectiveTo = c.EffectiveTo,
                 ProgrammeType = ProgrammeType.Framework,

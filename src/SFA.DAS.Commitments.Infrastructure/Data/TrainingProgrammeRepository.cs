@@ -27,11 +27,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var results = await connection.QueryAsync(
                     sql: $"[dbo].[GetStandards]",
                     commandType: CommandType.StoredProcedure,
-                    map: mapper.Map(lookup, x => x.Id, x => x.FundingPeriods),
-                    splitOn: "Id"
+                    map: mapper.Map(lookup, x => x.LarsCode, x => x.FundingPeriods),
+                    splitOn: "LarsCode"
                     );
 
-                return results.GroupBy(c => c.Id).Select(item=>item.First()).ToList();
+                return results.GroupBy(c => c.LarsCode).Select(item=>item.First()).ToList();
             });
         }
         
@@ -44,11 +44,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var results = await connection.QueryAsync(
                     sql: $"[dbo].[GetFrameworks]",
                     commandType: CommandType.StoredProcedure,
-                    map: mapper.Map(lookup, x => x.Id, x => x.FundingPeriods),
+                    map: mapper.Map(lookup, x => x.LarsCode, x => x.FundingPeriods),
                     splitOn: "Id"
                     );
 
-                return results.GroupBy(c => c.Id).Select(item=>item.First()).ToList();
+                return results.GroupBy(c => c.LarsCode).Select(item=>item.First()).ToList();
             });
         }
     }

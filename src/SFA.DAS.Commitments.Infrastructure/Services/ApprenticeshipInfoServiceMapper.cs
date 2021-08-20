@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 CreatedDate = DateTime.UtcNow,
                 Frameworks = frameworks.Select(x => new Framework
                 {
-                    Id = x.Id,
+                    LarsCode = x.LarsCode,
                     Title = GetTitle(x.FrameworkName.Trim() == x.PathwayName.Trim() ? x.FrameworkName : x.Title, x.Level) + " (Framework)",
                     FrameworkCode = x.FrameworkCode,
                     FrameworkName = x.FrameworkName,
@@ -40,8 +40,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 CreationDate = DateTime.UtcNow,
                 Standards = standards.Select(x => new Standard
                 {
-                    Id = x.Id.ToString(),
-                    Code = Convert.ToInt64(x.Id),
+                    LarsCode = x.LarsCode.ToString(),
+                    Code = Convert.ToInt64(x.LarsCode),
                     Level = x.Level,
                     Title = GetTitle(x.Title, x.Level),
                     CourseName = x.Title,

@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetAllStandardTraini
             expectedList.AddRange(_standard.Standards.Select(c=> new TrainingProgramme
             {
                 Name = c.Title,
-                CourseCode = c.Id,
+                CourseCode = c.LarsCode,
                 EffectiveFrom = c.EffectiveFrom,
                 EffectiveTo = c.EffectiveTo,
                 ProgrammeType = ProgrammeType.Standard,

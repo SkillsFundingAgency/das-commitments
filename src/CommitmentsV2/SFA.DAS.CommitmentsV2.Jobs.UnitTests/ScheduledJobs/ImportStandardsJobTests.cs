@@ -22,6 +22,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         [Test, MoqAutoData]
         public async Task Then_The_Standards_Are_Imported_From_The_Client(
             StandardResponse apiResponse,
+            StandardSummary approvedStandard,
+            StandardSummary retiredStandard,
             IEnumerable<StandardSummary> invalidStatusStandards,
             [Frozen] Mock<IApiClient> apiClient,
             [Frozen] Mock<IProviderCommitmentsDbContext> context,
@@ -29,7 +31,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             )
         {
             //Arrange
-            apiResponse.Standards.ToList().ForEach(s => s.Status = "Approved for delivery");
+            approvedStandard.Status = "Approved for delivery";
+            retiredStandard.Status = "Retired";
+            apiResponse.Standards = new List<StandardSummary> { approvedStandard, retiredStandard };
             apiResponse.Standards.ToList().AddRange(invalidStatusStandards);
             apiClient.Setup(x => x.Get<StandardResponse>(It.IsAny<GetStandardsRequest>())).ReturnsAsync(apiResponse);
             var importedStandards = new List<StandardSummary>();
@@ -64,61 +68,40 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             await importStandardsJob.Import(null);
 
             //Assert
-            var firstStandard = apiResponse.Standards.First();
-            var secondStandard = apiResponse.Standards.ElementAt(1);
-            var thirdStandard = apiResponse.Standards.Last();
-
             importedStandards.Should().BeEquivalentTo(new object[] {
             new {
-                firstStandard.StandardUId,
-                firstStandard.LarsCode,
-                firstStandard.IFateReferenceNumber,
-                firstStandard.Version,
-                firstStandard.Title,
-                firstStandard.Level,
-                firstStandard.Duration,
-                firstStandard.CurrentFundingCap,
-                firstStandard.VersionMajor,
-                firstStandard.VersionMinor,
-                firstStandard.StandardPageUrl,
-                firstStandard.Status,
-                firstStandard.IsLatestVersion,
-                EffectiveFrom = firstStandard.VersionDetail.EarliestStartDate,
-                LastDateForNewStarts = firstStandard.VersionDetail.LatestStartDate
+                approvedStandard.StandardUId,
+                approvedStandard.LarsCode,
+                approvedStandard.IFateReferenceNumber,
+                approvedStandard.Version,
+                approvedStandard.Title,
+                approvedStandard.Level,
+                approvedStandard.Duration,
+                approvedStandard.CurrentFundingCap,
+                approvedStandard.VersionMajor,
+                approvedStandard.VersionMinor,
+                approvedStandard.StandardPageUrl,
+                approvedStandard.Status,
+                approvedStandard.IsLatestVersion,
+                EffectiveFrom = approvedStandard.VersionDetail.EarliestStartDate,
+                LastDateForNewStarts = approvedStandard.VersionDetail.LatestStartDate
             },
             new {
-                secondStandard.StandardUId,
-                secondStandard.LarsCode,
-                secondStandard.IFateReferenceNumber,
-                secondStandard.Version,
-                secondStandard.Title,
-                secondStandard.Level,
-                secondStandard.Duration,
-                secondStandard.CurrentFundingCap,
-                secondStandard.VersionMajor,
-                secondStandard.VersionMinor,
-                secondStandard.StandardPageUrl,
-                secondStandard.Status,
-                secondStandard.IsLatestVersion,
-                EffectiveFrom = secondStandard.VersionDetail.EarliestStartDate,
-                LastDateForNewStarts = secondStandard.VersionDetail.LatestStartDate
-            },
-            new {
-                thirdStandard.StandardUId,
-                thirdStandard.LarsCode,
-                thirdStandard.IFateReferenceNumber,
-                thirdStandard.Version,
-                thirdStandard.Title,
-                thirdStandard.Level,
-                thirdStandard.Duration,
-                thirdStandard.CurrentFundingCap,
-                thirdStandard.VersionMajor,
-                thirdStandard.VersionMinor,
-                thirdStandard.StandardPageUrl,
-                thirdStandard.Status,
-                thirdStandard.IsLatestVersion,
-                EffectiveFrom = thirdStandard.VersionDetail.EarliestStartDate,
-                LastDateForNewStarts = thirdStandard.VersionDetail.LatestStartDate
+                retiredStandard.StandardUId,
+                retiredStandard.LarsCode,
+                retiredStandard.IFateReferenceNumber,
+                retiredStandard.Version,
+                retiredStandard.Title,
+                retiredStandard.Level,
+                retiredStandard.Duration,
+                retiredStandard.CurrentFundingCap,
+                retiredStandard.VersionMajor,
+                retiredStandard.VersionMinor,
+                retiredStandard.StandardPageUrl,
+                retiredStandard.Status,
+                retiredStandard.IsLatestVersion,
+                EffectiveFrom = retiredStandard.VersionDetail.EarliestStartDate,
+                LastDateForNewStarts = retiredStandard.VersionDetail.LatestStartDate
             }});
         }
 

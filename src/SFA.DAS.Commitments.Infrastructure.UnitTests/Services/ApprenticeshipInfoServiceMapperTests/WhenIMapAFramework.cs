@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
 
             _framework = new Framework
             {
-                Id = "1",
+                LarsCode = "1",
                 Title = "TestTitle",
                 FrameworkName = "TestFrameworkName",
                 PathwayName = "TestPathwayName",

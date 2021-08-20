@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetAllStandardTrainingProgramm
                 TrainingProgrammes = result.Standards.Select(c=> new TrainingProgramme
                 {
                     Name = c.Title,
-                    CourseCode = c.Id,
+                    CourseCode = c.LarsCode,
                     EffectiveFrom = c.EffectiveFrom,
                     EffectiveTo = c.EffectiveTo,
                     ProgrammeType = ProgrammeType.Standard,
