@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
 
             _standard = new Standard
             {
-                LarsCode = "1",
+                Id = "1",
                 Title = "TestTitle",
                 Level = 1,
                 MaxFunding = 1000, //this is to become redundant

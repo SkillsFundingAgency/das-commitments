@@ -4,6 +4,7 @@ AS
 BEGIN
 	
 	SELECT 
+        s.LarsCode as Id,
         s.*,
         f.* 
     FROM 

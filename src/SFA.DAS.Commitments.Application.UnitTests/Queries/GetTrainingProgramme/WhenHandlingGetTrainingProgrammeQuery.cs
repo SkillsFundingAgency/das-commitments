@@ -36,10 +36,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetTrainingProgramme
             var trainingProgramme = new TrainingProgramme
             {
                 Name = _standard.Title,
-                CourseCode = _standard.LarsCode,
+                CourseCode = _standard.Id,
                 EffectiveFrom = _standard.EffectiveFrom,
                 EffectiveTo = _standard.EffectiveTo,
-                ProgrammeType = int.TryParse(_standard.LarsCode, out var result) ?  ProgrammeType.Standard : ProgrammeType.Framework,
+                ProgrammeType = int.TryParse(_standard.Id, out var result) ?  ProgrammeType.Standard : ProgrammeType.Framework,
                 FundingPeriods = _standard.FundingPeriods.Select(x => new TrainingProgrammeFundingPeriod
                 {
                     EffectiveFrom = x.EffectiveFrom,

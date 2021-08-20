@@ -24,10 +24,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetTrainingProgramme
                 TrainingProgramme = new TrainingProgramme
                 {
                     Name = result.Title,
-                    CourseCode = result.LarsCode,
+                    CourseCode = result.Id,
                     EffectiveFrom = result.EffectiveFrom,
                     EffectiveTo = result.EffectiveTo,
-                    ProgrammeType = int.TryParse(result.LarsCode, out var code) ?  ProgrammeType.Standard : ProgrammeType.Framework,
+                    ProgrammeType = int.TryParse(result.Id, out var code) ?  ProgrammeType.Standard : ProgrammeType.Framework,
                     FundingPeriods = result.FundingPeriods.Select(x=>new TrainingProgrammeFundingPeriod
                     {
                         EffectiveFrom = x.EffectiveFrom,

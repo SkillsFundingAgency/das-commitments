@@ -54,11 +54,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             var standardsTask = GetStandards();
             var frameworksTask = GetFrameworks();
 
-            var program = (await standardsTask).Standards.FirstOrDefault(m => m.LarsCode == id);
+            var program = (await standardsTask).Standards.FirstOrDefault(m => m.Id == id);
             if (program != null)
                 return program;
 
-            return (await frameworksTask).Frameworks.FirstOrDefault(m => m.LarsCode == id);
+            return (await frameworksTask).Frameworks.FirstOrDefault(m => m.Id == id);
         }
     }
 }

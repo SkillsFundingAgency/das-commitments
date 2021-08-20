@@ -9,7 +9,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.TrainingProgramme
         {
             FundingPeriods = new List<FundingPeriod>();
         }
-        public string LarsCode { get; set; }
+        public string Id { get; set; }
         public long Code { get; set; }
         public string Title { get; set; }
         public string CourseName { get; set; }

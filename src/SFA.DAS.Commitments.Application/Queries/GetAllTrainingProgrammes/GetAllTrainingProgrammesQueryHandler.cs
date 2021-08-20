@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetAllTrainingProgrammes
             response.AddRange(standardsResult.Result.Standards.Select(c=> new TrainingProgramme
             {
                 Name = c.Title,
-                CourseCode = c.LarsCode,
+                CourseCode = c.Id,
                 EffectiveFrom = c.EffectiveFrom,
                 EffectiveTo = c.EffectiveTo,
                 ProgrammeType = ProgrammeType.Standard,
@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetAllTrainingProgrammes
             response.AddRange(frameworksResult.Result.Frameworks.Select(c=> new TrainingProgramme
             {
                 Name = c.Title,
-                CourseCode = c.LarsCode,
+                CourseCode = c.Id,
                 EffectiveFrom = c.EffectiveFrom,
                 EffectiveTo = c.EffectiveTo,
                 ProgrammeType = ProgrammeType.Framework,
