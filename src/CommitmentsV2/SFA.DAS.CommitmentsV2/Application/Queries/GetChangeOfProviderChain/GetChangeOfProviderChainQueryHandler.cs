@@ -43,9 +43,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
 
                 // after the chain has been built links are removed where the employer account
                 // is different to the initial link as these are not links which are visible
-                // to the employer requesting the provider chain
+                // to the employer requesting the provider chain and any links were the employer
+                // has been deleted as apprenticeships for these removed organisations are not visible
                 changeOfProviderChain = changeOfProviderChain
-                    .Where(r => r.EmployerAccountId == initialLink.EmployerAccountId)
+                    .Where(r => r.EmployerAccountId == initialLink.EmployerAccountId && !r.EmployerIsDeleted)
                     .OrderByDescending(o => o.CreatedOn ?? DateTime.MaxValue)
                     .ToList();
             }
@@ -58,9 +59,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
             if(continuationOfId.HasValue)
             { 
                 var link = await GetChangeOfPartyRequestLink(continuationOfId.Value, cancellationToken);
-                changeOfProviderChain.Add(link);
-
-                await BuildChangeOfPartyRequestBackwardsChain(link.ContinuationOfId, changeOfProviderChain, cancellationToken);
+                if (link != null)
+                {
+                    changeOfProviderChain.Add(link);
+                    await BuildChangeOfPartyRequestBackwardsChain(link.ContinuationOfId, changeOfProviderChain, cancellationToken);
+                }
             }
         }
 
@@ -69,9 +72,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
             if (newApprenticeshipId.HasValue)
             {
                 var link = await GetChangeOfPartyRequestLink(newApprenticeshipId.Value, cancellationToken);
-                changeOfProviderChain.Add(link);
-
-                await BuildChangeOfPartyRequestForwardsChain(link.NewApprenticeshipId, changeOfProviderChain, cancellationToken);
+                if (link != null)
+                {
+                    changeOfProviderChain.Add(link);
+                    await BuildChangeOfPartyRequestForwardsChain(link.NewApprenticeshipId, changeOfProviderChain, cancellationToken);
+                }
             }
         }
 
@@ -80,6 +85,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
             var query = from a in _dbContext.Value.Apprenticeships
                         join c in _dbContext.Value.Cohorts
                             on a.CommitmentId equals c.Id
+                        join ale in _dbContext.Value.AccountLegalEntities.IgnoreQueryFilters() // retrieve soft deleted account legal entities
+                            on c.AccountLegalEntityId equals ale.Id
                         join p in _dbContext.Value.Providers
                             on c.ProviderId equals p.UkPrn
                         join copr in _dbContext.Value.ChangeOfPartyRequests
@@ -90,6 +97,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
                         {
                             ApprenticeshipId = a.Id,
                             EmployerAccountId = c.EmployerAccountId,
+                            EmployerIsDeleted = ale.Deleted.HasValue,
                             ProviderName = p.Name,
                             StartDate = a.StartDate,
                             EndDate = a.EndDate,
@@ -100,10 +108,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
                         };
 
 
-            var results = await query
+            var result = await query
                 .FirstOrDefaultAsync(cancellationToken);
 
-            return results;
+            return result;
         }
     }
 }
