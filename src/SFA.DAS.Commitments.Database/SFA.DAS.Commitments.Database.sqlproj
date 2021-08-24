@@ -158,6 +158,7 @@
     <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
     <Build Include="StoredProcedures\CheckForOverlappingEmailsForTable.sql" />
     <Build Include="StoredProcedures\CheckForOverlappingEmailsInCohort.sql" />
+    <Build Include="StoredProcedures\TruncateStandardOptions.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
