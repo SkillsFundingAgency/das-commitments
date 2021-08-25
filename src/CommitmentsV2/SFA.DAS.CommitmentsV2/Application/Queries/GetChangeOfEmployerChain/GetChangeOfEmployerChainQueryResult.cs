@@ -11,6 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfEmployerChain
         {
             public long ApprenticeshipId { get; set; }
             public long Ukprn { get; set; }
+            public bool EmployerIsDeleted { get; set; }
             public string EmployerName { get; set; }
             public DateTime? StartDate { get; set; }
             public DateTime? EndDate { get; set; }

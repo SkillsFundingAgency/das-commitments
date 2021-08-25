@@ -382,13 +382,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.ThrowsAsync<DomainException>(() => _fixture.ApproveCohort());
         }
 
-        [Test]
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public async Task ApproveCohort_WhenThereIsAOverlap_ShouldThrowException(Party party)
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider).WithParty(party).WithExistingDraftApprenticeship().WithUlnOverlap(true);
+
+            await _fixture.ApproveCohort();
+
+            _fixture.VerifyException<DomainException>();
+        }
+
         public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSignedAndNoEmailOverlaps_ShouldSucceed()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
                 .WithAgreementSignedAs(true)
-                .WithExistingDraftApprenticeship();
+                .WithExistingDraftApprenticeship()
+                .WithUlnOverlap(false);
 
             await _fixture.WithParty(Party.Employer).ApproveCohort();
             _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
@@ -609,7 +620,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .ReturnsAsync(() => new ReservationValidationResult(new ReservationValidationError[0]));
 
                 OverlapCheckService = new Mock<IOverlapCheckService>();
-                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new OverlapCheckResult(false,false));
                 OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new List<EmailOverlapCheckResult>());
 
@@ -881,7 +893,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 return this;
             }
-          
+
             public CohortDomainServiceTestFixture WithExistingDraftApprenticeship()
             {
                 DraftApprenticeshipDetails.Id = DraftApprenticeshipId;
@@ -1051,6 +1063,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
+            public CohortDomainServiceTestFixture WithUlnOverlap(bool hasOverlap)
+            {
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new OverlapCheckResult(hasOverlap, hasOverlap));
+
+                return this;
+            }
+
             public async Task ApproveCohort()
             {
                 Db.SaveChanges();
@@ -1063,6 +1083,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
                 catch (DomainException ex)
                 {
+                    Exception = ex;
                     DomainErrors.AddRange(ex.DomainErrors);
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
@@ -90,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
-                _handler = new CohortWithChangeOfPartyUpdatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _mockDbContext.Object));
+                _handler = new CohortWithChangeOfPartyUpdatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _mockDbContext.Object), Mock.Of<ILogger<CohortWithChangeOfPartyUpdatedEventHandler>>());
             }
 
             public UpdateChangeOfPartyRequestEventHandlerTestsFixture AddChangeOfProviderRequest()
