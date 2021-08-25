@@ -84,6 +84,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
                 p => p.StandardUId,
                 p => p.Option));
 
+            await ClearStandardOptions(_providerContext);
             foreach (var batch in optionBatches)
             {
                 await ImportStandardOptions(_providerContext, batch);
@@ -154,6 +155,11 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             };
 
             return db.ExecuteSqlCommandAsync("EXEC ImportStandardOptions @standardOptions", standardOptions);
+        }
+
+        private static Task ClearStandardOptions(IProviderCommitmentsDbContext db)
+        {
+            return db.ExecuteSqlCommandAsync("EXEC TruncateStandardOptions");
         }
 
         private static Task ImportStandardsFunding(IProviderCommitmentsDbContext db, DataTable standardsFundingDataTable)

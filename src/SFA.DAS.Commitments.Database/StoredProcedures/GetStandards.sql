@@ -4,6 +4,7 @@ AS
 BEGIN
 	
 	SELECT 
+        s.LarsCode as Id,
         s.*,
         f.* 
     FROM 
@@ -12,5 +13,6 @@ BEGIN
         [dbo].[StandardFunding] f 
     ON 
         s.LarsCode = f.Id 
+    WHERE s.IsLatestVersion = 1
 	
 END

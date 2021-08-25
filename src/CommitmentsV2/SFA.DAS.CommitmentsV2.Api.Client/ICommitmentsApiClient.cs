@@ -68,6 +68,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetTransferRequestResponse> GetTransferRequestForReceiver(long transferReceiverId, long transferRequestId, CancellationToken cancellationToken = default);
         Task<ValidateUlnOverlapResult> ValidateUlnOverlap(ValidateUlnOverlapRequest validateUlnOverlapRequest, CancellationToken cancellationToken = default);
         Task TriageDataLocks(long apprenticeshipId, TriageDataLocksRequest request, CancellationToken cancellationToken = default);
+
+        Task<GetAllCohortAccountIdsResponse> GetAllCohortAccountIds(CancellationToken cancellationToken = default);
         Task<GetEmailOverlapsResponse> GetEmailOverlapChecks(long cohortId, CancellationToken cancellationToken = default);
     }
 }
