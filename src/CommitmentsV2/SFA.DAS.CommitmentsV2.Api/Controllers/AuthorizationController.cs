@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -65,6 +66,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             }
             _logger.LogInformation($"Feature 'apprentice-email-required' is off for provider {providerId}");
             return NotFound();
+        }
+
+        [HttpGet]
+        [Route("email-optional/{employerId:long}/{providerId:long}")]
+        public async Task<IActionResult> OptionalEmail(long employerid, long providerId)
+        {
+            var query = new GetEmailOptionalQuery(employerid, providerId);
+
+            bool resp = await _mediator.Send(query);
+
+            return resp ? Ok() : NotFound();
         }
     }
 }

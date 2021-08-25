@@ -12,6 +12,8 @@ using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -112,6 +114,42 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             Assert.IsInstanceOf<NotFoundResult>(retVal);
         }
+
+        [TestCase(123, 321)]
+        [TestCase(456, 654)]
+        public async Task AuthorizationController_email_optional_sends_correct_query(long employerId, long providerId)
+        {
+            await _fixture.AuthorizationController.OptionalEmail(employerId, providerId);
+
+            _fixture.MediatorMock.Verify(x => x.Send(It.Is<GetEmailOptionalQuery>(q => 
+                q.EmployerId == employerId && q.ProviderId == providerId), CancellationToken.None), Times.Once);
+        }
+
+        [TestCase(123, 321)]
+        [TestCase(456, 0)]
+        [TestCase(0, 987)]
+        public void AuthorizationController_email_optional_test_handler_positive(long employerId, long providerId)
+        {
+            var sut = new GetEmailOptionalQueryHandler(new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } });
+            var query = new GetEmailOptionalQuery(employerId, providerId);
+
+            var result = sut.Handle(query, new CancellationToken()).Result;
+
+            Assert.IsTrue(result);
+        }
+
+        [TestCase(78901, 10)]
+        [TestCase(0, 456)]
+        [TestCase(987, 0)]
+        public void AuthorizationController_email_optional_test_handler_negative(long employerId, long providerId)
+        {
+            var sut = new GetEmailOptionalQueryHandler(new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } });
+            var query = new GetEmailOptionalQuery(employerId, providerId);
+
+            var result = sut.Handle(query, new CancellationToken()).Result;
+
+            Assert.IsFalse(result);
+        }
     }
 
     public class AuthorizationControllerTestFixture
@@ -120,13 +158,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             MediatorMock = new Mock<IMediator>();
             ApprenticeEmailFeatureServiceMock = new Mock<IApprenticeEmailFeatureService>();
-
             AuthorizationController = new AuthorizationController(MediatorMock.Object, ApprenticeEmailFeatureServiceMock.Object, Mock.Of<ILogger<AuthorizationController>>());
         }
 
         public Mock<IMediator> MediatorMock { get; }
         public Mock<IApprenticeEmailFeatureService> ApprenticeEmailFeatureServiceMock { get; }
-
         public AuthorizationController AuthorizationController { get; }
 
         public AuthorizationControllerTestFixture SetCanAccessCohortToReturnTrue()
