@@ -76,7 +76,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             bool resp = await _mediator.Send(query);
 
-            return resp ? Ok() : NotFound();
+            if (resp)
+                return Ok();
+                
+            return NotFound();
         }
     }
 }
