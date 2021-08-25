@@ -89,10 +89,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);
             }
 
-            if (party == Party.Provider)
-            {
-                await ValidateUlnOverlap(cohort);
-            }
+            await ValidateUlnOverlap(cohort);
 
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);

@@ -382,10 +382,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.ThrowsAsync<DomainException>(() => _fixture.ApproveCohort());
         }
 
-        [Test]
-        public async Task ApproveCohort_WhenThereIsAOverlap_ShouldThrowException()
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public async Task ApproveCohort_WhenThereIsAOverlap_ShouldThrowException(Party party)
         {
-            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider).WithParty(Party.Provider).WithExistingDraftApprenticeship().WithUlnOverlap(true);
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider).WithParty(party).WithExistingDraftApprenticeship().WithUlnOverlap(true);
 
             await _fixture.ApproveCohort();
 
@@ -398,7 +399,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
                 .WithAgreementSignedAs(true)
-                .WithExistingDraftApprenticeship();
+                .WithExistingDraftApprenticeship()
+                .WithUlnOverlap(false);
 
             await _fixture.WithParty(Party.Employer).ApproveCohort();
             _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
@@ -619,7 +621,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .ReturnsAsync(() => new ReservationValidationResult(new ReservationValidationError[0]));
 
                 OverlapCheckService = new Mock<IOverlapCheckService>();
-                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new OverlapCheckResult(false,false));
                 OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new List<EmailOverlapCheckResult>());
 
