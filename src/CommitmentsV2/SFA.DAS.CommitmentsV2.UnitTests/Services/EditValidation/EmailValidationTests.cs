@@ -78,5 +78,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual("This email address is already used for another apprentice", result.Errors[0].ErrorMessage);
         }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        public async Task When_Valid_Email_Is_Empty_On_Apprenticeship_And_Request_Email_Overlap_check_Should_Not_Be_Called(string email)
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            var request = fixture.CreateValidationRequest(email: email);
+
+            var result = await fixture.Validate(request);
+
+            Assert.IsNull(result);
+            fixture.VerifyCheckForEmailOverlapsIsNotCalled();
+        }
     }
 }

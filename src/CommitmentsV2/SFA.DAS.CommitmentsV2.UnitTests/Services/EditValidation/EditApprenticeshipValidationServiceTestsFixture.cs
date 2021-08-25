@@ -185,6 +185,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
+        public void VerifyCheckForEmailOverlapsIsNotCalled()
+        {
+            var result = new EmailOverlapCheckResult(1, OverlapStatus.DateWithin, true);
+            _overlapCheckService.Verify(x =>
+                x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(),
+                    It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
         private void WithPriceHistoryWithStartDate(decimal cost)
         {
             _apprenticeship.PriceHistory = new List<PriceHistory>
