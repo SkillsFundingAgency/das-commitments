@@ -257,6 +257,9 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             bool NoChangesRequested() => (request.Email == apprenticeshipDetails.Email && request.StartDate == apprenticeshipDetails.StartDate && request.EndDate == apprenticeshipDetails.EndDate);
 
+            if (string.IsNullOrWhiteSpace(request.Email)) 
+                return null;
+
             if (NoChangesRequested())
                 return null;
 
