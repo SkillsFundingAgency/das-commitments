@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Database.IntegrationTests
             TestConnectionString = configuration.GetConnectionString("SqlConnectionStringTest");
         }
 
-        public static void SetupDatabase()
+        public static int SetupDatabase()
         {
             DropDatabase();
 
@@ -38,8 +38,8 @@ namespace SFA.DAS.Commitments.Database.IntegrationTests
                     CommandText =
                         $@"DBCC CLONEDATABASE ('{LIVE_DATABASE_NAME}', '{TEST_DATABASE_NAME}'); ALTER DATABASE [{TEST_DATABASE_NAME}] SET READ_WRITE;"
                 };
-                var reader = comm.ExecuteReader();
-                reader.Close();
+                comm.ExecuteNonQuery();
+                connection.Close();
             }
         }
 
@@ -56,8 +56,8 @@ namespace SFA.DAS.Commitments.Database.IntegrationTests
                     CommandText =
                         $@"IF EXISTS( SELECT* FROM sys.databases WHERE name = '{TEST_DATABASE_NAME}') BEGIN ALTER DATABASE [{TEST_DATABASE_NAME}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;  DROP DATABASE [{TEST_DATABASE_NAME}]; END"
                 };
-                var reader = comm.ExecuteReader();
-                reader.Close();
+                comm.ExecuteNonQuery();
+                connection.Close();
             }
         }
 
