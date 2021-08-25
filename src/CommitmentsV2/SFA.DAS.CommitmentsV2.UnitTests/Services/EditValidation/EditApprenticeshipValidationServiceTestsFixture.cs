@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using TrainingProgramme = SFA.DAS.CommitmentsV2.Types.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
@@ -112,6 +113,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
               .Returns(Task.FromResult(new OverlapCheckResult(startDateOverlaps, endDateOverlaps)));
+            return this;
+        }
+
+        public EditApprenticeshipValidationServiceTestsFixture SetupGetTrainingProgrammeQueryResult()
+        {
+            var result = new GetTrainingProgrammeQueryResult{ TrainingProgramme = new TrainingProgramme { EffectiveFrom =  new DateTime(2017, 04, 01), EffectiveTo = new DateTime(2030, 04, 01)}};
+            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
             return this;
         }
 
