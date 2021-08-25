@@ -128,12 +128,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [TestCase(123, 321)]
         [TestCase(456, 0)]
         [TestCase(0, 987)]
-        public void AuthorizationController_email_optional_test_handler_positive(long employerId, long providerId)
+        public async Task AuthorizationController_email_optional_test_handler_positive(long employerId, long providerId)
         {
             var sut = new GetEmailOptionalQueryHandler(new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } });
             var query = new GetEmailOptionalQuery(employerId, providerId);
 
-            var result = sut.Handle(query, new CancellationToken()).Result;
+            var result = await sut.Handle(query, new CancellationToken());
 
             Assert.IsTrue(result);
         }
@@ -141,12 +141,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [TestCase(78901, 10)]
         [TestCase(0, 456)]
         [TestCase(987, 0)]
-        public void AuthorizationController_email_optional_test_handler_negative(long employerId, long providerId)
+        public async Task AuthorizationController_email_optional_test_handler_negative(long employerId, long providerId)
         {
             var sut = new GetEmailOptionalQueryHandler(new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } });
             var query = new GetEmailOptionalQuery(employerId, providerId);
 
-            var result = sut.Handle(query, new CancellationToken()).Result;
+            var result = await sut.Handle(query, new CancellationToken());
 
             Assert.IsFalse(result);
         }

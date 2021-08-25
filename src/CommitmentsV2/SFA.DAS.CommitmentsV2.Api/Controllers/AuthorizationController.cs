@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("email-optional/{employerId:long}/{providerId:long}")]
+        [Route("email-optional")]
         public async Task<IActionResult> OptionalEmail(long employerid, long providerId)
         {
             var query = new GetEmailOptionalQuery(employerid, providerId);
