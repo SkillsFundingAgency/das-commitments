@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Database.IntegrationTests
             TestConnectionString = configuration.GetConnectionString("SqlConnectionStringTest");
         }
 
-        public static int SetupDatabase()
+        public static void SetupDatabase()
         {
             DropDatabase();
 
