@@ -72,6 +72,7 @@
     <Folder Include="PreDeployment" />
     <Folder Include="AdhocScripts\Manual" />
     <Folder Include="Functions" />
+    <Folder Include="Triggers" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="StoredProcedures\GetFrameworks.sql" />
@@ -176,6 +177,7 @@
     <None Include="AdhocScripts\Manual\CV-684-Update-Account-LevyStatus.sql" />
     <None Include="AdhocScripts\Support\UpdateAccountLevyStatus.sql" />
     <None Include="AdhocScripts\Manual\CON-3410-UpdateApprovalsFlag.sql" />
+    <None Include="Triggers\ApprenticeshipUpdate.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />

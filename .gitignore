@@ -264,3 +264,4 @@ src/Tools/PhantomJS/tools/phantomjs/ChangeLog
 *.DotSettings
 src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/internal-nlog.txt
 src/.learningtransport/
+/src/SFA.DAS.Commitments.Database.IntegrationTests/connectionStrings.Local.json
