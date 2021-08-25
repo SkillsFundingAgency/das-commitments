@@ -44,6 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 
         private static Task ImportProviders(ProviderCommitmentsDbContext db, DataTable providersDataTable)
         {
+            /*
             var providers = new SqlParameter("providers", SqlDbType.Structured)
             {
                 TypeName = "Providers",
@@ -53,6 +54,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             var now = new SqlParameter("now", DateTime.UtcNow);
 
             return db.ExecuteSqlCommandAsync("EXEC ImportProviders @providers, @now", providers, now);
+            */
+            return Task.CompletedTask;
         }
     }
 }
