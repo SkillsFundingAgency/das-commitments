@@ -26,7 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _providerContext = providerContext;
         }
 
-        /*
     public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
     {
         _logger.LogInformation("ImportFrameworksJob - Started");
@@ -79,7 +78,6 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
         }
         _logger.LogInformation("ImportFrameworksJob - Finished");
         }
-        */
 
         private static Task ImportFrameworks(IProviderCommitmentsDbContext db, DataTable frameworksDataTable)
         {
