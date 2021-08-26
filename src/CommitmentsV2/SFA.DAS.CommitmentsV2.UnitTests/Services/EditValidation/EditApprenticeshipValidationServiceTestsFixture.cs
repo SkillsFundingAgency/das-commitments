@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using TrainingProgramme = SFA.DAS.CommitmentsV2.Types.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
@@ -115,6 +116,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
+        public EditApprenticeshipValidationServiceTestsFixture SetupGetTrainingProgrammeQueryResult()
+        {
+            var result = new GetTrainingProgrammeQueryResult{ TrainingProgramme = new TrainingProgramme { EffectiveFrom =  new DateTime(2017, 04, 01), EffectiveTo = new DateTime(2030, 04, 01)}};
+            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+            return this;
+        }
+
         private void WithStartDateInFuture()
         {
             _apprenticeship.StartDate = _currentDateTime.Object.UtcNow.AddMonths(1);
@@ -183,6 +191,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             _authenticationService.Setup(x => x.GetUserParty()).Returns(Party.Provider);
             return this;
+        }
+
+        public void VerifyCheckForEmailOverlapsIsNotCalled()
+        {
+            var result = new EmailOverlapCheckResult(1, OverlapStatus.DateWithin, true);
+            _overlapCheckService.Verify(x =>
+                x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(),
+                    It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         private void WithPriceHistoryWithStartDate(decimal cost)
