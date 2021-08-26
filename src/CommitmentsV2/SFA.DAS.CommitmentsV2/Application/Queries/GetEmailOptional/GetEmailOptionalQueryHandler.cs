@@ -1,25 +1,20 @@
-﻿using System;
-using System.Linq;
+﻿using MediatR;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
-using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Types.Dtos;
-using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional
 {
     public class GetEmailOptionalQueryHandler : IRequestHandler<GetEmailOptionalQuery, bool>
     {
-        private readonly EmailOptionalConfiguration _config;
+        private readonly IEmailOptionalService _emailService;
 
-        public GetEmailOptionalQueryHandler(EmailOptionalConfiguration config)
-            => _config = config;
+        public GetEmailOptionalQueryHandler(IEmailOptionalService emailService)
+            => _emailService = emailService;
 
         public Task<bool> Handle(GetEmailOptionalQuery request, CancellationToken cancellationToken)
         {
-            var res = _config.EmailOptionalEmployers.Any(x => x == request.EmployerId) ||
-                            _config.EmailOptionalProviders.Any(x => x == request.ProviderId);
+            var res = _emailService.ApprenticeEmailIsOptionalFor(request.EmployerId, request.ProviderId);
 
             return Task.FromResult(res);
         }

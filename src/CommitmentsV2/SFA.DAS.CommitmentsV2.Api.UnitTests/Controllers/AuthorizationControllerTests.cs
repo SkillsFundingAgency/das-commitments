@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Castle.Core.Logging;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -14,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional;
+using SFA.DAS.CommitmentsV2.Services;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -124,13 +124,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             _fixture.MediatorMock.Verify(x => x.Send(It.Is<GetEmailOptionalQuery>(q => 
                 q.EmployerId == employerId && q.ProviderId == providerId), CancellationToken.None), Times.Once);
         }
-
+        
         [TestCase(123, 321)]
         [TestCase(456, 0)]
         [TestCase(0, 987)]
         public async Task AuthorizationController_email_optional_test_handler_positive(long employerId, long providerId)
         {
-            var sut = new GetEmailOptionalQueryHandler(new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } });
+            var config = new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } };
+            var service = new EmailOptionalService(config);
+            var sut = new GetEmailOptionalQueryHandler(service);
             var query = new GetEmailOptionalQuery(employerId, providerId);
 
             var result = await sut.Handle(query, new CancellationToken());
@@ -143,7 +145,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [TestCase(987, 0)]
         public async Task AuthorizationController_email_optional_test_handler_negative(long employerId, long providerId)
         {
-            var sut = new GetEmailOptionalQueryHandler(new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } });
+            var config = new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } };
+            var service = new EmailOptionalService(config);
+            var sut = new GetEmailOptionalQueryHandler(service);
             var query = new GetEmailOptionalQuery(employerId, providerId);
 
             var result = await sut.Handle(query, new CancellationToken());
