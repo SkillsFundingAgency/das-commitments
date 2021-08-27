@@ -22,6 +22,7 @@
     [EmployerRef] NVARCHAR(50) NULL, 
     [ProviderRef] NVARCHAR(50) NULL, 
     [CreatedOn] DATETIME NULL, 
+    [UpdatedOn] DATETIME NULL, 
     [AgreedOn] DATETIME NULL, 
     [PaymentOrder] INT NULL, 
     [StopDate] DATE NULL, 
@@ -72,4 +73,6 @@ GO
 CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_ApprovedContinuationOf] ON [dbo].[Apprenticeship] ([IsApproved], [ContinuationOfId]) INCLUDE ([CommitmentId])
 GO
 CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_Email] ON [dbo].[Apprenticeship] ([Email])
+GO
+CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_UpdatedOn] ON [dbo].[Apprenticeship] ([UpdatedOn])
 GO
