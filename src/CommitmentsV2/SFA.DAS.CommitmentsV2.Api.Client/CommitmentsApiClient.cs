@@ -402,6 +402,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{id}", null, cancellationToken);
         }
 
+        public Task<GetTrainingProgrammeVersionsResponse> GetTrainingProgrammeVersions(string id, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTrainingProgrammeVersionsResponse>($"api/TrainingProgramme/{id}/versions", null, cancellationToken);
+        }
+
         public Task<GetTrainingProgrammeResponse> GetTrainingProgrammeVersionByStandardUId(string standardUId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{standardUId}/version", null, cancellationToken);

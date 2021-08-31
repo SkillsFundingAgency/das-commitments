@@ -300,6 +300,38 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             result.Should().BeNull();
         }
+
+        [Test, MoqAutoData]
+        public async Task When_GettingStandardVersions_Then_ReturnListOfTrainingProgrammeVersions(
+            DateTime baseDate,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            var standards = GetStandards(baseDate);
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            var results = await service.GetTrainingProgrammeVersions("1");
+
+            results.Should().BeEquivalentTo(standards, TrainingProgrammeEquivalencyAssertionOptions);
+        }
+
+        [Test, MoqAutoData]
+        public async Task When_GettingStandardVersions_And_CourseCodeIsEmpty_Then_ReturnNull(TrainingProgrammeLookup service)
+        {
+            var results = await service.GetTrainingProgrammeVersions(string.Empty);
+
+            results.Should().BeNull();
+        }
+
+        [Test, MoqAutoData]
+        public async Task When_GettingStandardVersions_And_CourseCodeIsNotInteger_Then_ReturnNull(TrainingProgrammeLookup service)
+        {
+            var results = await service.GetTrainingProgrammeVersions("1a");
+
+            results.Should().BeNull();
+        }
+
         private List<Standard> GetStandards(DateTime baseDate)
         {
             var standards = new List<Standard>

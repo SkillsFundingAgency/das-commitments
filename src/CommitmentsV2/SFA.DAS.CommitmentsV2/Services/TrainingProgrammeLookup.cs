@@ -139,6 +139,41 @@ namespace SFA.DAS.CommitmentsV2.Services
                 standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
         }
        
+        public async Task<IEnumerable<TrainingProgramme>> GetTrainingProgrammeVersions(string courseCode)
+        {
+            if (string.IsNullOrWhiteSpace(courseCode))
+            {
+                return null;
+            }
+
+            if (!int.TryParse(courseCode, out var standardId))
+            {
+                return null;
+            }
+
+            var standardVersions = await _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.LarsCode == standardId)
+                .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
+
+            if (standardVersions == null)
+            {
+                throw new Exception($"No versions for standard {standardId} were found");
+            }
+
+            var trainingProgrammes = standardVersions.Select(version => 
+                new TrainingProgramme(version.LarsCode.ToString(), 
+                    GetTitle(version.Title, version.Level), 
+                    version.Version, version.StandardUId, 
+                    ProgrammeType.Standard, 
+                    version.StandardPageUrl,
+                    version.EffectiveFrom, 
+                    version.EffectiveTo, 
+                    new List<IFundingPeriod>(version.FundingPeriods), 
+                    version.Options?.Select(o => o.Option).ToList())
+                );
+
+            return trainingProgrammes;
+        }
+
         private static string GetTitle(string title, int level)
         {
             return $"{title}, Level: {level}";

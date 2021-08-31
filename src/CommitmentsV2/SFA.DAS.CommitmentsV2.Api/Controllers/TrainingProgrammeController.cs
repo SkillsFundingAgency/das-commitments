@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -115,6 +116,31 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error getting standard options for {standardUId}");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
+        [Route("{id}/versions")]
+        public async Task<IActionResult> GetTrainingProgrammeVersions(string id)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetTrainingProgrammeVersionsQuery(id));
+
+                if (result.TrainingProgrammes == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new GetTrainingProgrammeVersionsResponse 
+                { 
+                    TrainingProgrammeVersions = result.TrainingProgrammes
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error getting standard versions for {id}");
                 return BadRequest();
             }
         }
