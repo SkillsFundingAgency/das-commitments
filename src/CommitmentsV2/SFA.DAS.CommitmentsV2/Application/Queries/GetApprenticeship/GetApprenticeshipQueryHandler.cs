@@ -31,6 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         Id = apprenticeship.Id,
                         CohortId = apprenticeship.CommitmentId,
                         CourseCode = apprenticeship.CourseCode,
+                        StandardUId = apprenticeship.StandardUId,
                         Version = apprenticeship.TrainingCourseVersion,
                         CourseName = apprenticeship.CourseName,
                         EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,

@@ -146,6 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     Cohort = Cohort,
                     AgreedOn = _autoFixture.Create<DateTime>(),
                     CourseCode = _autoFixture.Create<string>(),
+                    StandardUId = "ST0001_1.0",
                     TrainingCourseVersion = "1.0",
                     CourseName = _autoFixture.Create<string>(),
                     FirstName = _autoFixture.Create<string>(),
@@ -203,6 +204,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.CompletionDate, _result.CompletionDate);
                 Assert.AreEqual(Apprenticeship.HasHadDataLockSuccess, _result.HasHadDataLockSuccess);
                 Assert.AreEqual(Apprenticeship.CourseCode, _result.CourseCode);
+                Assert.AreEqual(Apprenticeship.StandardUId, _result.StandardUId);
                 Assert.AreEqual(Apprenticeship.TrainingCourseVersion, _result.Version);
                 Assert.AreEqual(AccountLegalEntityId, _result.AccountLegalEntityId);
                 Assert.AreEqual(Apprenticeship.EmployerRef, _result.EmployerReference);
