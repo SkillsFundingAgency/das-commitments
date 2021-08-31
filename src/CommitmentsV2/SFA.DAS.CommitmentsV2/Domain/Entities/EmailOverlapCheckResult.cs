@@ -20,7 +20,7 @@
                 return "You need to enter a unique email address.";
             }
 
-            return "You need to enter unique email addresses for each apprentice.";
+            return "You need to enter a unique email address for each apprentice.";
         }
     }
 }

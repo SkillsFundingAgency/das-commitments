@@ -1325,7 +1325,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 var expectedErrorMessage = isApproved
                     ? "You need to enter a unique email address."
-                    : "You need to enter unique email addresses for each apprentice.";
+                    : "You need to enter a unique email address for each apprentice.";
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage));
             }
 
