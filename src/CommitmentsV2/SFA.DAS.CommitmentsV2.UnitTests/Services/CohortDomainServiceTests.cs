@@ -393,6 +393,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyException<DomainException>();
         }
 
+
+        [Test]
         public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSignedAndNoEmailOverlaps_ShouldSucceed()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
@@ -1322,8 +1324,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyEmailOverlapExceptionOnApprenticeship(bool isApproved)
             {
                 var expectedErrorMessage = isApproved
-                    ? "This email address is already used for another apprentice"
-                    : "This email address is already used for another apprentice in this cohort";
+                    ? "You need to enter a unique email address."
+                    : "You need to enter a unique email address for each apprentice.";
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage));
             }
 

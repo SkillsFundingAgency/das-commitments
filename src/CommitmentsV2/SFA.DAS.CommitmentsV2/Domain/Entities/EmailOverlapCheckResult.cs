@@ -17,10 +17,10 @@
         {
             if (FoundOnFullyApprovedApprenticeship)
             {
-                return "This email address is already used for another apprentice";
+                return "You need to enter a unique email address.";
             }
 
-            return "This email address is already used for another apprentice in this cohort";
+            return "You need to enter a unique email address for each apprentice.";
         }
     }
 }
