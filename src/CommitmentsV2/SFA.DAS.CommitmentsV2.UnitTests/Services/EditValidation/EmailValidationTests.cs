@@ -59,11 +59,36 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenticeship(email: "a@a.com");
-            var request = fixture.CreateValidationRequest(email: email);
+            var request = fixture.CreateValidationRequest(email: "b@b.com");
 
             var result = await fixture.Validate(request);
 
             Assert.AreEqual(0, result.Errors.Count);
+        }
+
+        [TestCase("emailalready@exists.com")]
+        public async Task When_Valid_Email_Exists_On_Apprenticeship_And_Changes_Email_Then_New_Email_Must_Still_Be_Unique(string email)
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship(email: "a@a.com").SetupOverlapCheckServiceToReturnEmailOverlap(email);
+            var request = fixture.CreateValidationRequest(email: email);
+
+            var result = await fixture.Validate(request);
+
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.AreEqual("You need to enter a unique email address.", result.Errors[0].ErrorMessage);
+        }
+
+        [TestCase(null)]
+        public async Task When_Valid_Email_Is_Empty_On_Apprenticeship_And_Request_Email_Overlap_check_Should_Not_Be_Called(string email)
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            var request = fixture.SetupGetTrainingProgrammeQueryResult().SetupMockContextApprenticeship(email: email).CreateValidationRequest(email: email, startMonth:2, startYear:2023, endMonth:1, endYear:2027);
+
+            var result = await fixture.Validate(request);
+
+            Assert.AreEqual(0, result.Errors.Count);
+            fixture.VerifyCheckForEmailOverlapsIsNotCalled();
         }
     }
 }

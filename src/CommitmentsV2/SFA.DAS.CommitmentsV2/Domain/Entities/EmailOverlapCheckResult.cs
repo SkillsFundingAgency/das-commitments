@@ -2,11 +2,13 @@
 {
     public class EmailOverlapCheckResult
     {
+        public long RowId { get; }
         public OverlapStatus OverlapStatus { get; }
         public bool FoundOnFullyApprovedApprenticeship { get; }
 
-        public EmailOverlapCheckResult(OverlapStatus overlapStatus, bool foundOnFullyApprovedApprenticeship)
+        public EmailOverlapCheckResult(long rowId, OverlapStatus overlapStatus, bool foundOnFullyApprovedApprenticeship)
         {
+            RowId = rowId;
             OverlapStatus = overlapStatus;
             FoundOnFullyApprovedApprenticeship = foundOnFullyApprovedApprenticeship;
         }
@@ -15,10 +17,10 @@
         {
             if (FoundOnFullyApprovedApprenticeship)
             {
-                return "This email address is already used for another apprentice";
+                return "You need to enter a unique email address.";
             }
 
-            return "This email address is already used for another apprentice in this cohort";
+            return "You need to enter a unique email address for each apprentice.";
         }
     }
 }

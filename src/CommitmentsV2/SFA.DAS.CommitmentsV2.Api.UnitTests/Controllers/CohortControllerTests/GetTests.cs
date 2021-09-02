@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -10,6 +11,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Types;
@@ -41,7 +43,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                         v.LatestMessageCreatedByProvider == f.GetCohortResult.LatestMessageCreatedByProvider &&
                         v.IsApprovedByEmployer == f.GetCohortResult.IsApprovedByEmployer &&
                         v.IsApprovedByProvider == f.GetCohortResult.IsApprovedByProvider &&
-                        v.LevyStatus == f.GetCohortResult.LevyStatus));
+                        v.LevyStatus == f.GetCohortResult.LevyStatus &&
+                        v.LastAction == f.GetCohortResult.LastAction &&
+                        v.TransferApprovalStatus == f.GetCohortResult.TransferApprovalStatus));
         }
 
         [Test]
@@ -76,6 +80,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     .And.Match<GetCohortsResponse>(v =>
                         v.Cohorts.Length == 0));
         }
+
+        [Test]
+        public async Task WhenGetCohortEmailOverlaps_ThenShouldReturnOkResponseWithList()
+        {
+            await TestAsync(
+                f => f.GetEmailOverlaps(),
+                (f, r) => r.Should().NotBeNull()
+                    .And.BeOfType<OkObjectResult>()
+                    .Which.Value.Should().NotBeNull()
+                    .And.Match<GetEmailOverlapsResponse>(v =>
+                        v.ApprenticeshipEmailOverlaps.ToList().Count == f.GetCohortEmailOverlapsResult.Overlaps.Count));
+        }
     }
 
     public class GetTestsFixture
@@ -84,6 +100,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         public Mock<IMediator> Mediator { get; }
         public CohortController Controller { get; }
         public GetCohortSummaryQueryResult GetCohortResult { get; }
+        public GetCohortEmailOverlapsQueryResult GetCohortEmailOverlapsResult { get; }
         public GetCohortsRequest GetCohortsRequest { get; }
         public GetCohortsResult GetCohortsResult { get; }
 
@@ -97,7 +114,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             Controller = new CohortController(Mediator.Object);
 
             GetCohortResult = AutoFixture.Create<GetCohortSummaryQueryResult>();
+            GetCohortEmailOverlapsResult = AutoFixture.Create<GetCohortEmailOverlapsQueryResult>();
             Mediator.Setup(m => m.Send(It.Is<GetCohortSummaryQuery>(q => q.CohortId == CohortId), CancellationToken.None)).ReturnsAsync(GetCohortResult);
+            Mediator.Setup(m => m.Send(It.Is<GetCohortEmailOverlapsQuery>(q => q.CohortId == CohortId), CancellationToken.None)).ReturnsAsync(GetCohortEmailOverlapsResult);
 
             GetCohortsRequest = AutoFixture.Build<GetCohortsRequest>().With(x => x.AccountId, AccountId).Create();
             GetCohortsResult = AutoFixture.Create<GetCohortsResult>();
@@ -113,6 +132,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         public Task<IActionResult> GetCohorts()
         {
             return Controller.GetCohorts(GetCohortsRequest);
+        }
+
+        public Task<IActionResult> GetEmailOverlaps()
+        {
+            return Controller.GetEmailOverlapChecks(CohortId);
         }
 
         public GetTestsFixture WithNoCohortsForEmployer()

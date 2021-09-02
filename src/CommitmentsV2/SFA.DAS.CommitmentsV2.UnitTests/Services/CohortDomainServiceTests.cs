@@ -382,16 +382,45 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.ThrowsAsync<DomainException>(() => _fixture.ApproveCohort());
         }
 
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public async Task ApproveCohort_WhenThereIsAOverlap_ShouldThrowException(Party party)
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider).WithParty(party).WithExistingDraftApprenticeship().WithUlnOverlap(true);
+
+            await _fixture.ApproveCohort();
+
+            _fixture.VerifyException<DomainException>();
+        }
+
+
         [Test]
-        public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSigned_ShouldSucceed()
+        public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSignedAndNoEmailOverlaps_ShouldSucceed()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
                 .WithAgreementSignedAs(true)
-                .WithExistingDraftApprenticeship();
+                .WithExistingDraftApprenticeship()
+                .WithUlnOverlap(false);
 
             await _fixture.WithParty(Party.Employer).ApproveCohort();
             _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
+            _fixture.VerifyCheckForEmailOverlapsOnCohortIsCalledCorrectlyWhenApproving();
+        }
+
+        [Test]
+        public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSignedButHasEmailOverlaps_ShouldThrowException()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithAgreementSignedAs(true)
+                .WithExistingDraftApprenticeship()
+                .WithOverlappingEmails();
+
+            await _fixture.WithParty(Party.Employer).ApproveCohort();
+
+            Assert.AreEqual(1, _fixture.DomainErrors.Count);
+            Assert.AreEqual("Cannot approve this cohort because one or more emails are failing the overlap check", _fixture.DomainErrors[0].ErrorMessage);
         }
 
         [Test]
@@ -593,7 +622,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .ReturnsAsync(() => new ReservationValidationResult(new ReservationValidationError[0]));
 
                 OverlapCheckService = new Mock<IOverlapCheckService>();
-                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new OverlapCheckResult(false,false));
+                OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new List<EmailOverlapCheckResult>());
 
                 EmployerAgreementService = new Mock<IEmployerAgreementService>();
                 EncodingService = new Mock<IEncodingService>();
@@ -713,7 +745,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
                 OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new EmailOverlapCheckResult(OverlapStatus.OverlappingEndDate, isApproved));
+                    .ReturnsAsync(new EmailOverlapCheckResult(1, OverlapStatus.OverlappingEndDate, isApproved));
 
                 return this;
             }
@@ -863,12 +895,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 return this;
             }
-          
+
             public CohortDomainServiceTestFixture WithExistingDraftApprenticeship()
             {
                 DraftApprenticeshipDetails.Id = DraftApprenticeshipId;
                 Db.DraftApprenticeships.Add(ExistingDraftApprenticeship);
                 return this;
+            }
+
+            public CohortDomainServiceTestFixture WithOverlappingEmails()
+            {
+                var f = new Fixture();
+                var list = f.CreateMany<EmailOverlapCheckResult>().ToList();
+                OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(list);
+                return this;
+            }
+
+            public void VerifyCheckForEmailOverlapsOnCohortIsCalledCorrectlyWhenApproving()
+            {
+                OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(CohortId, It.IsAny<CancellationToken>()));
             }
 
             public CohortDomainServiceTestFixture WithContinuation(bool overlap)
@@ -1019,6 +1065,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
+            public CohortDomainServiceTestFixture WithUlnOverlap(bool hasOverlap)
+            {
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new OverlapCheckResult(hasOverlap, hasOverlap));
+
+                return this;
+            }
 
             public async Task ApproveCohort()
             {
@@ -1032,6 +1085,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
                 catch (DomainException ex)
                 {
+                    Exception = ex;
                     DomainErrors.AddRange(ex.DomainErrors);
                 }
             }
@@ -1270,8 +1324,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyEmailOverlapExceptionOnApprenticeship(bool isApproved)
             {
                 var expectedErrorMessage = isApproved
-                    ? "This email address is already used for another apprentice"
-                    : "This email address is already used for another apprentice in this cohort";
+                    ? "You need to enter a unique email address."
+                    : "You need to enter a unique email address for each apprentice.";
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage));
             }
 

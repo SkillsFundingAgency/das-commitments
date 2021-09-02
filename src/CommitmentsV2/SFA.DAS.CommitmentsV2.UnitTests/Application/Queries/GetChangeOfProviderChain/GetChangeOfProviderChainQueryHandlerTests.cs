@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                 },
                 new Input[]
                 {
-                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
+                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
                 },
                 new Dictionary<long, ExpectedOutput>
                 {
@@ -77,8 +77,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                 },
                 new Input[]
                 {
-                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = Provider102, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider },
-                    new Input { ApprenticeshipId = 10002, EmployerAccountId = 200, StartDate = Now.AddDays(6), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now.AddDays(1), ContinuationOfId = 10001, CurrentProvider = Provider102, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
+                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = Provider102, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider },
+                    new Input { ApprenticeshipId = 10002, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(6), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now.AddDays(1), ContinuationOfId = 10001, CurrentProvider = Provider102, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
                 },
                 new Dictionary<long, ExpectedOutput>
                 {
@@ -97,9 +97,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                 },
                 new Input[]
                 {
-                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = Provider102, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider },
-                    new Input { ApprenticeshipId = 10002, EmployerAccountId = 200, StartDate = Now.AddDays(6), EndDate = Now.AddDays(25), StopDate = Now.AddDays(6), CreatedOn = Now.AddDays(1), ContinuationOfId = 10001, CurrentProvider = Provider102, NewProvider = Provider103, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider },
-                    new Input { ApprenticeshipId = 10003, EmployerAccountId = 200, StartDate = Now.AddDays(7), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now.AddDays(2), ContinuationOfId = 10002, CurrentProvider = Provider103, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
+                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = Provider102, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider },
+                    new Input { ApprenticeshipId = 10002, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(6), EndDate = Now.AddDays(25), StopDate = Now.AddDays(6), CreatedOn = Now.AddDays(1), ContinuationOfId = 10001, CurrentProvider = Provider102, NewProvider = Provider103, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider },
+                    new Input { ApprenticeshipId = 10003, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(7), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now.AddDays(2), ContinuationOfId = 10002, CurrentProvider = Provider103, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
                 },
                 new Dictionary<long, ExpectedOutput>
                 {
@@ -121,11 +121,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                 },
                 new Input[]
                 {
-                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = Provider102, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
-                    new Input { ApprenticeshipId = 10002, EmployerAccountId = 200, StartDate = Now.AddDays(6), EndDate = Now.AddDays(25), StopDate = Now.AddDays(6), CreatedOn = Now.AddDays(1), ContinuationOfId = 10001, CurrentProvider = Provider102, NewProvider = Provider102, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer},
-                    new Input { ApprenticeshipId = 10003, EmployerAccountId = 300, StartDate = Now.AddDays(7), EndDate = Now.AddDays(25), StopDate = Now.AddDays(7), CreatedOn = Now.AddDays(2), ContinuationOfId = 10002, CurrentProvider = Provider102, NewProvider = Provider103, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
-                    new Input { ApprenticeshipId = 10004, EmployerAccountId = 300, StartDate = Now.AddDays(8), EndDate = Now.AddDays(25), StopDate = Now.AddDays(8), CreatedOn = Now.AddDays(3), ContinuationOfId = 10003, CurrentProvider = Provider103, NewProvider = Provider103, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer},
-                    new Input { ApprenticeshipId = 10005, EmployerAccountId = 200, StartDate = Now.AddDays(9), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now.AddDays(4), ContinuationOfId = 10004, CurrentProvider = Provider103, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
+                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = Provider102, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
+                    new Input { ApprenticeshipId = 10002, EmployerAccountId = 200, AccountLegalEntityId = 201,StartDate = Now.AddDays(6), EndDate = Now.AddDays(25), StopDate = Now.AddDays(6), CreatedOn = Now.AddDays(1), ContinuationOfId = 10001, CurrentProvider = Provider102, NewProvider = Provider102, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer},
+                    new Input { ApprenticeshipId = 10003, EmployerAccountId = 300, AccountLegalEntityId = 301,StartDate = Now.AddDays(7), EndDate = Now.AddDays(25), StopDate = Now.AddDays(7), CreatedOn = Now.AddDays(2), ContinuationOfId = 10002, CurrentProvider = Provider102, NewProvider = Provider103, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
+                    new Input { ApprenticeshipId = 10004, EmployerAccountId = 300, AccountLegalEntityId = 301,StartDate = Now.AddDays(8), EndDate = Now.AddDays(25), StopDate = Now.AddDays(8), CreatedOn = Now.AddDays(3), ContinuationOfId = 10003, CurrentProvider = Provider103, NewProvider = Provider103, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer},
+                    new Input { ApprenticeshipId = 10005, EmployerAccountId = 200, AccountLegalEntityId = 201,StartDate = Now.AddDays(9), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now.AddDays(4), ContinuationOfId = 10004, CurrentProvider = Provider103, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
                 },
                 new Dictionary<long, ExpectedOutput>
                 {
@@ -152,13 +152,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                 },
                 new Input[]
                 {
-                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = Provider102, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
-                    new Input { ApprenticeshipId = 10002, EmployerAccountId = 200, StartDate = Now.AddDays(6), EndDate = Now.AddDays(25), StopDate = Now.AddDays(6), CreatedOn = Now.AddDays(1), ContinuationOfId = 10001, CurrentProvider = Provider102, NewProvider = Provider102, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer},
-                    new Input { ApprenticeshipId = 10003, EmployerAccountId = 300, StartDate = Now.AddDays(7), EndDate = Now.AddDays(25), StopDate = Now.AddDays(7), CreatedOn = Now.AddDays(2), ContinuationOfId = 10002, CurrentProvider = Provider102, NewProvider = Provider103, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
-                    new Input { ApprenticeshipId = 10004, EmployerAccountId = 300, StartDate = Now.AddDays(8), EndDate = Now.AddDays(25), StopDate = Now.AddDays(8), CreatedOn = Now.AddDays(3), ContinuationOfId = 10003, CurrentProvider = Provider103, NewProvider = Provider201, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
-                    new Input { ApprenticeshipId = 10005, EmployerAccountId = 300, StartDate = Now.AddDays(9), EndDate = Now.AddDays(25), StopDate = Now.AddDays(9), CreatedOn = Now.AddDays(4), ContinuationOfId = 10004, CurrentProvider = Provider201, NewProvider = Provider103, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer},
-                    new Input { ApprenticeshipId = 10006, EmployerAccountId = 200, StartDate = Now.AddDays(10), EndDate = Now.AddDays(25), StopDate = Now.AddDays(10), CreatedOn = Now.AddDays(5), ContinuationOfId = 10005, CurrentProvider = Provider201, NewProvider = Provider202, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
-                    new Input { ApprenticeshipId = 10007, EmployerAccountId = 200, StartDate = Now.AddDays(11), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now.AddDays(6), ContinuationOfId = 10006, CurrentProvider = Provider202, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
+                    new Input { ApprenticeshipId = 10001, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(5), EndDate = Now.AddDays(25), StopDate = Now.AddDays(5), CreatedOn = Now, ContinuationOfId = null, CurrentProvider = Provider101, NewProvider = Provider102, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
+                    new Input { ApprenticeshipId = 10002, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(6), EndDate = Now.AddDays(25), StopDate = Now.AddDays(6), CreatedOn = Now.AddDays(1), ContinuationOfId = 10001, CurrentProvider = Provider102, NewProvider = Provider102, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer},
+                    new Input { ApprenticeshipId = 10003, EmployerAccountId = 300, AccountLegalEntityId = 301, StartDate = Now.AddDays(7), EndDate = Now.AddDays(25), StopDate = Now.AddDays(7), CreatedOn = Now.AddDays(2), ContinuationOfId = 10002, CurrentProvider = Provider102, NewProvider = Provider103, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
+                    new Input { ApprenticeshipId = 10004, EmployerAccountId = 300, AccountLegalEntityId = 301, StartDate = Now.AddDays(8), EndDate = Now.AddDays(25), StopDate = Now.AddDays(8), CreatedOn = Now.AddDays(3), ContinuationOfId = 10003, CurrentProvider = Provider103, NewProvider = Provider201, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
+                    new Input { ApprenticeshipId = 10005, EmployerAccountId = 300, AccountLegalEntityId = 301, StartDate = Now.AddDays(9), EndDate = Now.AddDays(25), StopDate = Now.AddDays(9), CreatedOn = Now.AddDays(4), ContinuationOfId = 10004, CurrentProvider = Provider201, NewProvider = Provider103, OriginatingParty = Party.Provider, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeEmployer},
+                    new Input { ApprenticeshipId = 10006, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(10), EndDate = Now.AddDays(25), StopDate = Now.AddDays(10), CreatedOn = Now.AddDays(5), ContinuationOfId = 10005, CurrentProvider = Provider201, NewProvider = Provider202, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider},
+                    new Input { ApprenticeshipId = 10007, EmployerAccountId = 200, AccountLegalEntityId = 201, StartDate = Now.AddDays(11), EndDate = Now.AddDays(25), StopDate = null, CreatedOn = Now.AddDays(6), ContinuationOfId = 10006, CurrentProvider = Provider202, NewProvider = null, OriginatingParty = Party.Employer, ChangeOfPartyRequestType = null},
                 },
                 new Dictionary<long, ExpectedOutput>
                 {
@@ -183,6 +183,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
         {
             public long ApprenticeshipId { get; set; }
             public long EmployerAccountId { get; set; }
+            public long AccountLegalEntityId { get; internal set; }
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
             public DateTime? StopDate { get; set; }
@@ -237,7 +238,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
             var commitment = new Cohort(
                 input.CurrentProvider.ProviderId,
                 input.EmployerAccountId,
-                autoFixture.Create<long>(),
+                input.AccountLegalEntityId,
                 input.OriginatingParty,
                 new UserInfo());
 
@@ -312,6 +313,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                     };
 
                     Db.Providers.Add(provider);
+                    Db.SaveChanges();
+                }
+            }
+
+            if (input.AccountLegalEntityId > 0)
+            {
+                if (!Db.AccountLegalEntities.IgnoreQueryFilters().Any(ale => ale.Id == input.AccountLegalEntityId))
+                {
+                    var employer = new AccountLegalEntity
+                    (
+                        new Account(),
+                        input.AccountLegalEntityId,
+                        autoFixture.Create<long>(),
+                        autoFixture.Create<string>(),
+                        autoFixture.Create<string>(),
+                        input.EmployerAccountId.ToString(),
+                        autoFixture.Create<OrganisationType>(),
+                        autoFixture.Create<string>(),
+                        DateTime.Now
+                    );
+
+                    Db.AccountLegalEntities.Add(employer);
                     Db.SaveChanges();
                 }
             }

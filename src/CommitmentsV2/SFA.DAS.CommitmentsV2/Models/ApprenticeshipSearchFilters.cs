@@ -15,5 +15,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public int? AccountLegalEntityId { get; set; }
         public DateRange StartDateRange { get; set; }
         public Alerts? Alert { get; set; }
+        public ConfirmationStatus? ApprenticeConfirmationStatus { get; set; }
     }
 }

@@ -83,6 +83,16 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.AddRange(BuildEmailValidationFailures(request, apprenticeship));
             }
 
+            if (errors.Count == 0)
+            {
+                var overlapError = await EmailOverlapValidationFailures(request, apprenticeship);
+
+                if (overlapError != null)
+                {
+                    errors.Add(overlapError);
+                }
+            }
+
             return new EditApprenticeshipValidationResult()
             {
                 Errors = errors
@@ -241,6 +251,31 @@ namespace SFA.DAS.CommitmentsV2.Services
                     yield return new DomainError(nameof(request.Email), "Please enter a valid email address");
                 }
             }
+        }
+
+        private async Task<DomainError> EmailOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
+        {
+            bool NoChangesRequested() => (request.Email == apprenticeshipDetails.Email && request.StartDate == apprenticeshipDetails.StartDate && request.EndDate == apprenticeshipDetails.EndDate);
+
+            if (string.IsNullOrWhiteSpace(request.Email)) 
+                return null;
+
+            if (NoChangesRequested())
+                return null;
+
+            var startDate = request.StartDate.Value;
+            var endDate = request.EndDate.Value;
+
+            var range = startDate.To(endDate);
+
+            var overlap = await _overlapCheckService.CheckForEmailOverlaps(request.Email, range, request.ApprenticeshipId, null, CancellationToken.None);
+
+            if (overlap != null)
+            {
+                return new DomainError(nameof(request.Email), overlap.BuildErrorMessage());
+            }
+
+            return null;
         }
 
         private async Task<IEnumerable<DomainError>> BuildReservationValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)

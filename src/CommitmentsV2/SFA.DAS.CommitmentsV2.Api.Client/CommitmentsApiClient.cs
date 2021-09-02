@@ -252,6 +252,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 filterQuery += $"&alert={WebUtility.UrlEncode(request.Alert.Value.ToString())}";
             }
 
+            if (request.ApprenticeConfirmationStatus.HasValue)
+            {
+                filterQuery += $"&apprenticeConfirmationStatus={WebUtility.UrlEncode(request.ApprenticeConfirmationStatus.ToString())}";
+            }
+
             return filterQuery;
         }
 
@@ -448,9 +453,24 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetTransferRequestResponse>($"api/accounts/{transferReceiverId}/receiver/transfers/{transferRequestId}", null, cancellationToken);
         }
 
+        public Task<ValidateUlnOverlapResult> ValidateUlnOverlap(ValidateUlnOverlapRequest validateUlnOverlapRequest, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<ValidateUlnOverlapRequest, ValidateUlnOverlapResult>($"api/apprenticeships/uln/validate", validateUlnOverlapRequest, cancellationToken);
+        }
+
         public Task TriageDataLocks(long apprenticeshipId, TriageDataLocksRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/datalocks/triage", request, cancellationToken);
+        }
+
+        public Task<GetAllCohortAccountIdsResponse> GetAllCohortAccountIds(CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetAllCohortAccountIdsResponse>($"api/cohorts/accountIds");
+        }
+
+        public Task<GetEmailOverlapsResponse> GetEmailOverlapChecks(long cohortId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetEmailOverlapsResponse>($"api/cohorts/{cohortId}/email-overlaps", null, cancellationToken);
         }
     }
 }

@@ -89,7 +89,25 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);
             }
 
+            await ValidateUlnOverlap(cohort);
+
+            await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
+        }
+
+        private async Task ValidateUlnOverlap(Cohort cohort)
+        {
+            foreach (var draftApprenticeship  in cohort.DraftApprenticeships)
+            {
+                if (!string.IsNullOrEmpty(draftApprenticeship.Uln) && draftApprenticeship.StartDate.HasValue && draftApprenticeship.EndDate.HasValue)
+                {
+                   var result = await  _overlapCheckService.CheckForOverlaps(draftApprenticeship.Uln, draftApprenticeship.StartDate.Value.To(draftApprenticeship.EndDate.Value), draftApprenticeship.Id, CancellationToken.None);
+                    if (result.HasOverlaps)
+                    {
+                        throw new DomainException(draftApprenticeship.Uln, "The draft apprenticeship has overlap");
+                    }
+                }
+            }
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -384,6 +402,15 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (!isSigned)
             {
                 throw new DomainException(nameof(cohort.EmployerAccountId), $"Employer {cohort.EmployerAccountId} cannot approve any cohort because the agreement is not signed");
+            }
+        }
+        private async Task ValidateNoEmailOverlapsExist(Cohort cohort, CancellationToken cancellationToken)
+        {
+            var emailOverlaps = await _overlapCheckService.CheckForEmailOverlaps(cohort.Id, cancellationToken);
+
+            if (emailOverlaps.Any())
+            {
+                throw new DomainException(nameof(cohort.Id), $"Cannot approve this cohort because one or more emails are failing the overlap check");
             }
         }
     }
