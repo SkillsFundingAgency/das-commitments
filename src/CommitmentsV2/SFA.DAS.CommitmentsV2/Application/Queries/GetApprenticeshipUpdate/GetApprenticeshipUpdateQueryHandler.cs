@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
                         TrainingType = update.TrainingType,
                         TrainingCode = update.TrainingCode,
                         TrainingName = update.TrainingName,
+                        TrainingCourseVersion = update.TrainingCourseVersion,
                         Cost = update.Cost,
                         StartDate = update.StartDate,
                         EndDate = update.EndDate,
