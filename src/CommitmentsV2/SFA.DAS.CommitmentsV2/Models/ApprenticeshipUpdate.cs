@@ -17,7 +17,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string Email { get; set; }
         public ProgrammeType? TrainingType { get; set; }
         public string TrainingCode { get; set; }
+        public string TrainingCourseVersion { get; set; }
         public string TrainingName { get; set; }
+        public string TrainingCourseOption { get; set; }
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
