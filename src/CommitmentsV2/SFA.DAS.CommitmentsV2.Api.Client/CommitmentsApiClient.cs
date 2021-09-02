@@ -412,6 +412,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{standardUId}/version", null, cancellationToken);
         }
 
+        public Task<GetTrainingProgrammeResponse> GetCalculatedTrainingProgrammeVersion(int courseCode, DateTime startDate, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/calculate-version/{courseCode}?startDate={startDate.ToShortDateString()}");
+        }
+
         public Task UpdateApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PutAsJson($"api/apprenticeships/{apprenticeshipId}/stopdate", request, cancellationToken);
