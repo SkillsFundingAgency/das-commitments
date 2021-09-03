@@ -20,6 +20,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -84,6 +85,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated("New@mail.com", app => app.ApprenticeshipUpdate.First().Email);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenEmailAddressCannotBeChangedWhenConfirmationStatusExists(Party party)
+        {
+            fixture.SetParty(party).SetApprenticeshipConfirmationStatus();
+            fixture.Command.EditApprenticeshipRequest.Email = "New@mail.com";
+
+            try
+            {
+                await fixture.Handle();
+                Assert.Fail();
+            }
+            catch (InvalidOperationException ex)
+            {
+                ex.Message.Should()
+                    .Be(
+                        "Unable to create an ApprenticeshipUpdate with an email change, as the Apprentice has confirmed the email address");
+            }
         }
 
         [TestCase(Party.Provider)]
@@ -294,6 +315,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.Continuation)
              .Without(s => s.PreviousApprenticeship)
              .Without(s => s.CompletionDate)
+             .Without(s => s.ApprenticeshipConfirmationStatus)
              .Create();
 
             Db.Apprenticeships.Add(apprenticeship);
@@ -336,6 +358,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Mock.Of<ILogger<EditApprenticeshipCommandHandler>>());
         }
 
+        public EditApprenticeshipCommandHandlerTestsFixture SetApprenticeshipConfirmationStatus()
+        {
+            var fixture = new Fixture();
+            var confirmationStatus = fixture.Build<ApprenticeshipConfirmationStatus>()
+                .Without(x=>x.Apprenticeship)
+                .With(x => x.ApprenticeshipId, ApprenticeshipId).Create();
+            Db.ApprenticeshipConfirmationStatus.Add(confirmationStatus);
+            Db.SaveChanges();
+            return this;
+        }
+
         public EditApprenticeshipCommandHandlerTestsFixture SetParty(Party party)
         {
             Party = party;
@@ -349,7 +382,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Command.EditApprenticeshipRequest.ProviderId = null;
                 Command.EditApprenticeshipRequest.AccountId = 222;
             }
-            
+
             return this;
         }
 

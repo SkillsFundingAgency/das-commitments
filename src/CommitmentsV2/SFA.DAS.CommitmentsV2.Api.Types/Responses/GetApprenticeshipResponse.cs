@@ -39,5 +39,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
         public bool? MadeRedundant { get; set; }
         public ConfirmationStatus? ConfirmationStatus { get; set; }
+        public bool EmailAddressConfirmedByApprentice { get; set; }
     }
 }
