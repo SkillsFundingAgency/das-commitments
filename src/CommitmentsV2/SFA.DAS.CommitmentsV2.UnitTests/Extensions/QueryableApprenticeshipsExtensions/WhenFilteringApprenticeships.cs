@@ -1,7 +1,7 @@
-﻿using System;
+﻿using FluentAssertions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -727,7 +727,117 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             return apprenticeships;
         }
 
+        [Test]
+        public void ThenShouldFilterApprenticeshipConfirmationStatus()
+        {
+            //Arrange
+            var apprenticeships = new List<Apprenticeship>
+            {
+                // 1 Confirmed
+                new Apprenticeship
+                {
+                    Email = "a@a.com",
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = DateTime.Now
+                    }
+                },
 
+                // 2 Unconfirmed
+                new Apprenticeship
+                {
+                    Email = "a@a.com",
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null,
+                        ConfirmationOverdueOn = null
+                    }
+                },
+                new Apprenticeship
+                {
+                    Email = "a@a.com",
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null,
+                        ConfirmationOverdueOn = DateTime.Now.AddDays(2)
+                    }
+                },
 
+                // 3 overdue
+                new Apprenticeship
+                {
+                    Email = "a@a.com",
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null,
+                        ConfirmationOverdueOn = DateTime.Now.AddDays(-2)
+                    }
+                },
+                new Apprenticeship
+                {
+                    Email = "a@a.com",
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null,
+                        ConfirmationOverdueOn = DateTime.Now.AddDays(-3)
+                    }
+                },
+                new Apprenticeship
+                {
+                    Email = "a@a.com",
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null,
+                        ConfirmationOverdueOn = DateTime.Now.AddDays(-4)
+                    }
+                },
+
+                // 4 NA
+                new Apprenticeship
+                {
+                    Email = null,
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null                        
+                    }
+                },
+                new Apprenticeship
+                {
+                    Email = null,
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null
+                    }
+                },
+                new Apprenticeship
+                {
+                    Email = null,
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null
+                    }
+                },
+                new Apprenticeship
+                {
+                    Email = null,
+                    ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
+                    {
+                        ApprenticeshipConfirmedOn = null
+                    }
+                }
+            }.AsQueryable();
+
+            //Act
+            var resultConfirmed = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Confirmed }).ToList();
+            var resultUnconfirmed = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Unconfirmed }).ToList();            
+            var resultOverdue = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Overdue }).ToList();
+            var resultNA = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.NA }).ToList();
+
+            //Assert 
+            Assert.AreEqual(1, resultConfirmed.Count);
+            Assert.AreEqual(2, resultUnconfirmed.Count);
+            Assert.AreEqual(3, resultOverdue.Count);
+            Assert.AreEqual(4, resultNA.Count);
+        }
     }
 }
