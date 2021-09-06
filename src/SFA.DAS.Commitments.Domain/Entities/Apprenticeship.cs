@@ -27,7 +27,10 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string ULN { get; set; }
         public TrainingType TrainingType { get; set; }
         public string TrainingCode { get; set; }
+        public string StandardUId { get; set; }
         public string TrainingName { get; set; }
+        public string TrainingCourseVersion { get; set; }
+        public string TrainingCourseOption { get; set; }
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
