@@ -301,6 +301,16 @@ namespace SFA.DAS.CommitmentsV2.Models
                 CourseName = update.TrainingName;
             }
 
+            if (!string.IsNullOrEmpty(update.TrainingCourseVersion))
+            {
+                TrainingCourseVersion = update.TrainingCourseVersion;
+            }
+
+            if (!string.IsNullOrEmpty(update.StandardUId))
+            {
+                StandardUId = update.StandardUId;
+            }
+
             if (update.DateOfBirth.HasValue)
             {
                 DateOfBirth = update.DateOfBirth;
