@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using System.Linq;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 {
@@ -68,20 +69,44 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             {
                 var apprenticeshipUpdate = command.MapToApprenticeshipUpdate(apprenticeship, party, _currentDateTime.UtcNow);
 
-                if (!string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCode))
+                if (!string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCode) || !string.IsNullOrWhiteSpace(apprenticeshipUpdate.TrainingCourseVersion))
                 {
-                    var result = await _mediator.Send(new GetTrainingProgrammeQuery
-                    {
-                        Id = apprenticeshipUpdate.TrainingCode
-                    });
+                    var version = command.EditApprenticeshipRequest.Version ?? apprenticeship.TrainingCourseVersion;
+                    var courseCode = command.EditApprenticeshipRequest.CourseCode ?? apprenticeship.CourseCode;
 
-                    if (result == null || result.TrainingProgramme == null)
+                    if (int.TryParse(courseCode, out var standardId))
                     {
-                        throw new InvalidOperationException("Invalid training programme");
+                        var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(courseCode, version));
+
+                        if (result == null)
+                        {
+                            throw new InvalidOperationException("Invalid training programme");
+                        }
+
+                        var standardVersion = result.TrainingProgramme;
+
+                        apprenticeshipUpdate.TrainingName = standardVersion.Name;
+                        apprenticeshipUpdate.TrainingType = standardVersion.ProgrammeType;
+                        apprenticeshipUpdate.StandardUId = standardVersion.StandardUId;
+                        apprenticeshipUpdate.TrainingCourseVersion = standardVersion.Version;
                     }
+                    else
+                    {
+                        var result = await _mediator.Send(new GetTrainingProgrammeQuery
+                        {
+                            Id = apprenticeshipUpdate.TrainingCode
+                        });
 
-                    apprenticeshipUpdate.TrainingName = result?.TrainingProgramme?.Name;
-                    apprenticeshipUpdate.TrainingType = result?.TrainingProgramme?.ProgrammeType;
+                        if (result == null || result.TrainingProgramme == null)
+                        {
+                            throw new InvalidOperationException("Invalid training programme");
+                        }
+
+                        apprenticeshipUpdate.TrainingName = result?.TrainingProgramme?.Name;
+                        apprenticeshipUpdate.TrainingType = result?.TrainingProgramme?.ProgrammeType;
+                        apprenticeshipUpdate.TrainingCourseVersion = null;
+                        apprenticeshipUpdate.StandardUId = null;
+                    }
                 }
 
                 apprenticeship.CreateApprenticeshipUpdate(apprenticeshipUpdate, party);

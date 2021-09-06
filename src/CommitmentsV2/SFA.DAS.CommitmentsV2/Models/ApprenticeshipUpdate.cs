@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string TrainingCourseVersion { get; set; }
         public string TrainingName { get; set; }
         public string TrainingCourseOption { get; set; }
+        public string StandardUId { get; set; }
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
