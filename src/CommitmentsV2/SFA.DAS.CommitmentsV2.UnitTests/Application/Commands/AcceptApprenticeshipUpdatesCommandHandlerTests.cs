@@ -246,6 +246,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Assert.AreEqual(0, list.Count);
         }
+
+        [Test]
+        public async Task ThenEmailAddressCannotBeChangedWhenConfirmationStatusExists()
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            await fixture.SetApprenticeshipConfirmationStatus();
+            fixture.ApprenticeshipUpdate.Email = "test@test.com";
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            Assert.AreEqual((fixture.Exception as DomainException).DomainErrors.First().ErrorMessage, "Unable to approve these changes, as the apprentice has confirmed their email address");
+        }
     }
 
     public class AcceptApprenticeshipUpdatesCommandHandlerTestsFixture
@@ -321,6 +334,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.EpaOrg)
              .Without(s => s.Continuation)
              .Without(s => s.PreviousApprenticeship)
+             .Without(s => s.ApprenticeshipConfirmationStatus)
              .Create();
 
             CancellationToken = new CancellationToken();
@@ -364,6 +378,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 Exception = exception;
             }
+        }
+
+        public async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> SetApprenticeshipConfirmationStatus()
+        {
+            var fixture = new Fixture();
+            var confirmationStatus = fixture.Build<ApprenticeshipConfirmationStatus>()
+                .Without(x => x.Apprenticeship)
+                .With(x => x.ApprenticeshipId, ApprenticeshipId).Create();
+            Db.ApprenticeshipConfirmationStatus.Add(confirmationStatus);
+            await Db.SaveChangesAsync();
+            return this;
         }
 
         public async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()

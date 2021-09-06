@@ -114,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
             if (apprenticeship.ApprenticeshipConfirmationStatus != null && command.EditApprenticeshipRequest.Email != null)
             {
-                throw new InvalidOperationException("Unable to create an ApprenticeshipUpdate with an email change, as the Apprentice has confirmed the email address");
+                throw new DomainException("ConfirmChanges", "Unable to make these changes, as the apprentice has confirmed their email address");
             }
         }
 

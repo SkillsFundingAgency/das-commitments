@@ -21,6 +21,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -99,11 +100,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 await fixture.Handle();
                 Assert.Fail();
             }
-            catch (InvalidOperationException ex)
+            catch (DomainException ex)
             {
-                ex.Message.Should()
+                ex.DomainErrors.First().ErrorMessage.Should()
                     .Be(
-                        "Unable to create an ApprenticeshipUpdate with an email change, as the Apprentice has confirmed the email address");
+                        "Unable to make these changes, as the apprentice has confirmed their email address");
             }
         }
 
