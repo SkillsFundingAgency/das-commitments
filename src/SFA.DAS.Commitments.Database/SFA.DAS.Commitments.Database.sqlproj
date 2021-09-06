@@ -159,7 +159,7 @@
     <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
     <Build Include="StoredProcedures\CheckForOverlappingEmailsForTable.sql" />
     <Build Include="StoredProcedures\CheckForOverlappingEmailsInCohort.sql" />
-    <Build Include="StoredProcedures\TruncateStandardOptions.sql" />
+    <Build Include="Functions\GetLearners.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
@@ -179,6 +179,7 @@
     <None Include="AdhocScripts\Support\UpdateAccountLevyStatus.sql" />
     <None Include="AdhocScripts\Manual\CON-3410-UpdateApprovalsFlag.sql" />
     <None Include="Triggers\ApprenticeshipUpdate.sql" />
+    <Build Include="StoredProcedures\GetLearnersBatch.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
