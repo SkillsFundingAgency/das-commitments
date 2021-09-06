@@ -41,11 +41,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
 
             //Act
-            var actual = await service.GetTrainingProgramme(standard.Id.ToString());
+            var actual = await service.GetTrainingProgramme(standard.LarsCode.ToString());
             
             //Assert
-            actual.CourseCode.Should().Be(standard.Id.ToString());
-            actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level} (Standard)");
+            actual.CourseCode.Should().Be(standard.LarsCode.ToString());
+            actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");
             actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
             actual.EffectiveTo.Should().Be(standard.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             
             //Assert
             actual.CourseCode.Should().Be(framework.Id);
-            actual.Name.Should().Be($"{framework.Title}, Level: {framework.Level}");
+            actual.Name.Should().Be($"{framework.Title}, Level: {framework.Level} (Framework)");
             actual.EffectiveFrom.Should().Be(framework.EffectiveFrom);
             actual.EffectiveTo.Should().Be(framework.EffectiveTo);
             actual.ProgrammeType.Should().Be(ProgrammeType.Framework);
@@ -110,6 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             TrainingProgrammeLookup service)
         {
             //Arrange
+            standards.ForEach(s => s.IsLatestVersion = true);
             dbContext.Setup(x => x.Frameworks).ReturnsDbSet(frameworks);
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
             
@@ -127,6 +128,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             TrainingProgrammeLookup service)
         {
             //Arrange
+            standards.ForEach(s => s.IsLatestVersion = true);
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
             
             //Act

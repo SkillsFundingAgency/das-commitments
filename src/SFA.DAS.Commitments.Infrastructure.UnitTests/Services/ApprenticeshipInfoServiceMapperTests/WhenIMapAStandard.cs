@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
             var result = _mapper.MapFrom(new List<Standard> { TestHelper.Clone(_standard) });
 
             //Assert
-            var expectedTitle = $"{_standard.Title}, Level: {_standard.Level} (Standard)";
+            var expectedTitle = $"{_standard.Title}, Level: {_standard.Level}";
             Assert.AreEqual(expectedTitle, result.Standards[0].Title);
         }
 
