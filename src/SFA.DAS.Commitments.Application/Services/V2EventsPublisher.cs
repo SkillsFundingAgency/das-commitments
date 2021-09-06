@@ -1,7 +1,6 @@
 ﻿using NServiceBus;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -50,52 +49,6 @@ namespace SFA.DAS.Commitments.Application.Services
                 }, GetLogMessage(commitment, apprenticeship));
         }
 
-        public async Task PublishApprenticeshipCreated(IApprenticeshipEvent apprenticeshipEvent)
-        {
-            DateTime GetTransferApprovalOrAgreedOnDate()
-            {
-                if (apprenticeshipEvent.Commitment.TransferApprovalActionedOn.HasValue)
-                {
-                    return apprenticeshipEvent.Commitment.TransferApprovalActionedOn.Value;
-                }
-
-                return apprenticeshipEvent.Apprenticeship.AgreedOn.Value;
-            }
-
-            var logMessage = $"Publish {typeof(ApprenticeshipCreatedEvent).Name} message. {GetLogMessage(apprenticeshipEvent)}";
-
-            try
-            {
-                DoPreChecks<ApprenticeshipCreatedEvent>(ApprenticePreChecks.HasStartAndEndDate, apprenticeshipEvent?.Apprenticeship);
-
-                await _endpointInstance.Publish(new ApprenticeshipCreatedEvent
-                {
-                    ApprenticeshipId = apprenticeshipEvent.Apprenticeship.Id,
-                    AgreedOn = apprenticeshipEvent.Apprenticeship.AgreedOn.Value,
-                    CreatedOn = GetTransferApprovalOrAgreedOnDate(),
-                    Uln = apprenticeshipEvent.Apprenticeship.ULN,
-                    ProviderId = apprenticeshipEvent.Apprenticeship.ProviderId,
-                    AccountId = apprenticeshipEvent.Apprenticeship.EmployerAccountId,
-                    AccountLegalEntityPublicHashedId = apprenticeshipEvent.Apprenticeship.AccountLegalEntityPublicHashedId,
-                    LegalEntityName = apprenticeshipEvent.Commitment.LegalEntityName,
-                    StartDate = apprenticeshipEvent.Apprenticeship.StartDate.Value,
-                    EndDate = apprenticeshipEvent.Apprenticeship.EndDate.Value,
-                    PriceEpisodes = GetPriceEpisodes(apprenticeshipEvent.Apprenticeship),
-                    TrainingType = (CommitmentsV2.Types.ProgrammeType)apprenticeshipEvent.Apprenticeship.TrainingType,
-                    TrainingCode = apprenticeshipEvent.Apprenticeship.TrainingCode,
-                    TransferSenderId = apprenticeshipEvent.Apprenticeship.TransferSenderId,
-                    ApprenticeshipEmployerTypeOnApproval = apprenticeshipEvent.Commitment.ApprenticeshipEmployerTypeOnApproval
-            });
-
-                _logger.Info($"{logMessage} successful");
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, $"{logMessage} failed");
-                throw;
-            }
-        }
-
         public Task PublishApprenticeshipStopped(Commitment commitment, Apprenticeship apprenticeship)
         {
             return PublishWithLog<ApprenticeshipStoppedEvent>(ApprenticePreChecks.HasStopDate, apprenticeship, ev =>
@@ -115,6 +68,8 @@ namespace SFA.DAS.Commitments.Application.Services
                 ev.PriceEpisodes = GetPriceEpisodes(apprenticeshipEvent.Apprenticeship);
                 ev.TrainingType = (CommitmentsV2.Types.ProgrammeType) apprenticeshipEvent.Apprenticeship.TrainingType;
                 ev.TrainingCode = apprenticeshipEvent.Apprenticeship.TrainingCode;
+                ev.StandardUId = apprenticeshipEvent.Apprenticeship.StandardUId;
+                ev.TrainingCourseVersion = apprenticeshipEvent.Apprenticeship.TrainingCourseVersion;
             }, GetLogMessage(apprenticeshipEvent));
         }
 
@@ -129,6 +84,9 @@ namespace SFA.DAS.Commitments.Application.Services
                 ev.PriceEpisodes = GetPriceEpisodes(apprenticeship);
                 ev.TrainingType = (CommitmentsV2.Types.ProgrammeType)apprenticeship.TrainingType;
                 ev.TrainingCode = apprenticeship.TrainingCode;
+                ev.StandardUId = apprenticeship.StandardUId;
+                ev.TrainingCourseVersion = apprenticeship.TrainingCourseVersion;
+                ev.TrainingCourseOption = apprenticeship.TrainingCourseOption;
                 ev.Uln = apprenticeship.ULN;
             }, GetLogMessage(commitment, apprenticeship));
         }

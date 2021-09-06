@@ -103,6 +103,9 @@ namespace SFA.DAS.CommitmentsV2.Models
                 }).ToArray(),
                 TrainingType = (ProgrammeType)ProgrammeType,
                 TrainingCode = CourseCode,
+                StandardUId = StandardUId,
+                TrainingCourseVersion = TrainingCourseVersion,
+                TrainingCourseOption = TrainingCourseOption,
                 Uln = Uln
             });
         }
@@ -457,6 +460,9 @@ namespace SFA.DAS.CommitmentsV2.Models
                 PriceEpisodes = GetPriceEpisodes(),
                 TrainingType = ProgrammeType.Value,
                 TrainingCode = CourseCode,
+                StandardUId = StandardUId,
+                TrainingCourseVersion = TrainingCourseVersion,
+                TrainingCourseOption = TrainingCourseOption,
                 Uln = Uln
             }); 
         }
