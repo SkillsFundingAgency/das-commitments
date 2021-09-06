@@ -121,6 +121,31 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
+        [Route("{courseCode}/version/{version}")]
+        public async Task<IActionResult> GetTrainingProgrammeVersion(string courseCode, string version)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetTrainingProgrammeVersionQuery(courseCode, version));
+
+                if (result.TrainingProgramme == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new GetTrainingProgrammeResponse
+                {
+                    TrainingProgramme = result.TrainingProgramme
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error getting standard version for standard {courseCode} version {version}");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
         [Route("{id}/versions")]
         public async Task<IActionResult> GetTrainingProgrammeVersions(string id)
         {

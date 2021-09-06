@@ -182,7 +182,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test, RecursiveMoqAutoData]
-        public async Task When_GettingTrainingProgrammeVersion_Then_ReturnStandardVersion(
+        public async Task When_GettingTrainingProgrammeVersionByStandardUId_Then_ReturnStandardVersion(
             List<Standard> standards,
             Standard standard,
             [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
@@ -193,6 +193,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
             
             var actual = await service.GetTrainingProgrammeVersionByStandardUId(standard.StandardUId);
+
+            actual.CourseCode.Should().Be(standard.LarsCode.ToString());
+            actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");
+            actual.StandardPageUrl.Should().Be(standard.StandardPageUrl);
+            actual.EffectiveFrom.Should().Be(standard.EffectiveFrom);
+            actual.EffectiveTo.Should().Be(standard.EffectiveTo);
+            actual.ProgrammeType.Should().Be(ProgrammeType.Standard);
+            actual.Options.Should().BeEquivalentTo(standard.Options.Select(o => o.Option));
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task When_GettingTrainingProgrammeVersion_Then_ReturnStandardVersion(
+            List<Standard> standards,
+            Standard standard,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            standards.Add(standard);
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            var actual = await service.GetTrainingProgrammeVersionByCourseCodeAndVersion(standard.LarsCode.ToString(), standard.Version);
 
             actual.CourseCode.Should().Be(standard.LarsCode.ToString());
             actual.Name.Should().Be($"{standard.Title}, Level: {standard.Level}");

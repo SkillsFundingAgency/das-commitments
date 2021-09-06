@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TrainingProgrammeEntity = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
 {
@@ -23,7 +24,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion
         {
             try
             {
-                var result = await _service.GetTrainingProgrammeVersionByStandardUId(request.StandardUId);
+                TrainingProgrammeEntity result;
+
+                if (request.StandardUId != null)
+                {
+                    result = await _service.GetTrainingProgrammeVersionByStandardUId(request.StandardUId);
+                }
+                else
+                {
+                    result = await _service.GetTrainingProgrammeVersionByCourseCodeAndVersion(request.CourseCode, request.Version);
+                }
 
                 if (result == null)
                 {

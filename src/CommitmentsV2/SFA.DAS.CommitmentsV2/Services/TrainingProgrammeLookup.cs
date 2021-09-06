@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Services
@@ -139,6 +139,24 @@ namespace SFA.DAS.CommitmentsV2.Services
                 standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
         }
        
+        public async Task<TrainingProgramme> GetTrainingProgrammeVersionByCourseCodeAndVersion(string courseCode, string version)
+        {
+            if (!int.TryParse(courseCode, out var standardId))
+            {
+                return null;
+            }
+
+            var standard = await _dbContext.Standards.Include(c => c.Options).Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.LarsCode == standardId && c.Version == version);
+
+            if (standard == null)
+            {
+                throw new Exception($"The standard {courseCode} version {version} was not found");
+            }
+
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl,
+                standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
+        }
+
         public async Task<IEnumerable<TrainingProgramme>> GetTrainingProgrammeVersions(string courseCode)
         {
             if (string.IsNullOrWhiteSpace(courseCode))
