@@ -28,12 +28,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners
                 sinceTimeParam.Value = DBNull.Value;
             }
             var batchNumberParam = new SqlParameter("batchNumber", request.BatchNumber);
+            batchNumberParam.Direction = System.Data.ParameterDirection.InputOutput;
             var batchSizeParam = new SqlParameter("batchSize", request.BatchSize);
+            batchSizeParam.Direction = System.Data.ParameterDirection.InputOutput;
             var totalNumberOfBatchesParam = new SqlParameter("totalNumberOfBatches", System.Data.SqlDbType.Int);
             totalNumberOfBatchesParam.Direction = System.Data.ParameterDirection.Output;
 
             var dblearners = _dbContext.Value.Learners
-                                .FromSql("exec GetLearnersBatch @sinceTime, @batchNumber, @batchSize, @totalNumberOfBatches OUTPUT", sinceTimeParam, batchNumberParam, batchSizeParam, totalNumberOfBatchesParam)
+                                .FromSql("exec GetLearnersBatch @sinceTime, @batchNumber OUTPUT, @batchSize OUTPUT, @totalNumberOfBatches OUTPUT", sinceTimeParam, batchNumberParam, batchSizeParam, totalNumberOfBatchesParam)
                                 .ToList();
 
             // @ToDo: can we use AutoMapper?
@@ -66,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners
             }
 
             int totalNumberOfBatches = (DBNull.Value == totalNumberOfBatchesParam.Value) ? 0 : (int)totalNumberOfBatchesParam.Value;
-            return Task.FromResult(new GetAllLearnersQueryResult(learners, request.BatchNumber, request.BatchSize, totalNumberOfBatches));
+            return Task.FromResult(new GetAllLearnersQueryResult(learners, (int)batchNumberParam.Value, (int)batchSizeParam.Value, totalNumberOfBatches));
         }
     }
 }
