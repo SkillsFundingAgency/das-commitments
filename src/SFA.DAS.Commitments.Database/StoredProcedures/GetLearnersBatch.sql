@@ -1,8 +1,8 @@
 ﻿CREATE PROCEDURE [dbo].[GetLearnersBatch]
 	@sinceTime DATETIME,
-	@batchNumber INT,
-	@batchSize INT,
-	@totalNumberOfBatches AS INT OUTPUT
+	@batchNumber INT OUTPUT,
+	@batchSize INT OUTPUT,
+	@totalNumberOfBatches INT OUTPUT
 AS
 BEGIN
 
