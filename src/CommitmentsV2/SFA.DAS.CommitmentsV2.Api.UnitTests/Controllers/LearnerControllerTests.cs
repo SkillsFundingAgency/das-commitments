@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task GetAllLearners_When_NoFilter_Then_ReturnAllLearners()
+        public async Task GetAllLearners_When_NoFilter_Then_ReturnValidResponse()
         {
             // Arrange
 
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                             PaymentStatus = 1
                         }
                     },
-                    1,100, 2));
+                    1,100, 1));
 
             // Act
 
@@ -77,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             getAllLearnersResponse.Learners.Should().HaveCount(1);
             getAllLearnersResponse.BatchNumber.Should().Be(1);
             getAllLearnersResponse.BatchSize.Should().Be(100);
-            getAllLearnersResponse.TotalNumberOfBatches.Should().Be(2);
+            getAllLearnersResponse.TotalNumberOfBatches.Should().Be(1);
         }
     }
 }
