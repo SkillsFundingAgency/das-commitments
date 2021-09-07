@@ -1,0 +1,79 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.ProviderRelationships.Api.Client;
+using SFA.DAS.ProviderRelationships.Types.Dtos;
+using SFA.DAS.ProviderRelationships.Types.Models;
+
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreements
+{
+    public class GetProviderCommitmentAgreementsHandler : IRequestHandler<GetProviderCommitmentAgreementQuery, GetProviderCommitmentAgreementResult>
+    {
+        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        private readonly ILogger<GetProviderCommitmentAgreementsHandler> _logger;
+        private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
+
+        public GetProviderCommitmentAgreementsHandler(Lazy<ProviderCommitmentsDbContext> db,
+            ILogger<GetProviderCommitmentAgreementsHandler> logger,
+            IProviderRelationshipsApiClient providerRelationshipsApiClient)
+        {
+            _db = db;
+            _logger = logger;
+            _providerRelationshipsApiClient = providerRelationshipsApiClient;
+        }
+
+        public async Task<GetProviderCommitmentAgreementResult> Handle(GetProviderCommitmentAgreementQuery command, CancellationToken cancellationToken)
+        {
+            try
+            {
+                List<ProviderCommitmentAgreement> cohortsAgreements = new List<ProviderCommitmentAgreement>();
+
+                List<ProviderCommitmentAgreement> agreements = await (from c in _db.Value.Cohorts
+                                                          join a in _db.Value.AccountLegalEntities on c.AccountLegalEntityId equals a.Id
+                                                          where c.ProviderId == command.ProviderId && !c.IsDeleted
+                                                          select new ProviderCommitmentAgreement
+                                                          {
+                                                              LegalEntityName = c.AccountLegalEntity.Name,
+                                                              AccountLegalEntityPublicHashedId = a.PublicHashedId
+                                                          }).ToListAsync(cancellationToken).ConfigureAwait(false);
+
+                var permissionCheckRequest = new GetAccountProviderLegalEntitiesWithPermissionRequest
+                {
+                    Operation = Operation.CreateCohort,
+                    Ukprn = command.ProviderId
+                };
+
+                var permittedEmployers = await _providerRelationshipsApiClient
+                    .GetAccountProviderLegalEntitiesWithPermission(permissionCheckRequest, CancellationToken.None)
+                    .ConfigureAwait(false);
+                
+                List<ProviderCommitmentAgreement> permittedCohortAgreements = permittedEmployers?.AccountProviderLegalEntities?
+                    .Select(x => new ProviderCommitmentAgreement
+                    {
+                        AccountLegalEntityPublicHashedId = x.AccountLegalEntityPublicHashedId,
+                        LegalEntityName = x.AccountLegalEntityName
+                    }).ToList();
+                
+                if(agreements is not null)
+                    cohortsAgreements.AddRange(agreements);
+
+                if(permittedCohortAgreements is not null)
+                    cohortsAgreements.AddRange(permittedCohortAgreements);
+
+                return new GetProviderCommitmentAgreementResult(cohortsAgreements);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
+        }
+    }
+}
