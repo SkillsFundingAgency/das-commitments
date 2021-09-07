@@ -80,15 +80,16 @@ namespace SFA.DAS.Commitments.Database.IntegrationTests
             }
         }
 
-        public static IEnumerable<T> Query<T>(string sql)
+        public static IEnumerable<T> Query<T>(string sql, DynamicParameters parameters = null, CommandType commandType = CommandType.Text)
         {
             using (var connection = new SqlConnection(TestConnectionString))
             {
                 if (connection.State != ConnectionState.Open)
                     connection.Open();
 
-                var result = connection.Query<T>(sql);
+                var result = connection.Query<T>(sql, parameters, commandType: commandType);
                 connection.Close();
+
                 return result;
             }
         }
