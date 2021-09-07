@@ -4,6 +4,7 @@ AS
 BEGIN
 	
 	SELECT 
+        s.LarsCode as Id,
         s.*,
         f.* 
     FROM 
@@ -11,6 +12,7 @@ BEGIN
     INNER JOIN 
         [dbo].[StandardFunding] f 
     ON 
-        s.Id = f.Id 
+        s.LarsCode = f.Id 
+    WHERE s.IsLatestVersion = 1
 	
 END

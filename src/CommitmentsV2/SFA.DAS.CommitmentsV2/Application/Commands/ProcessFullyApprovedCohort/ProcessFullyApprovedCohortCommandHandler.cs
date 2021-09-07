@@ -61,6 +61,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     Uln = a.Uln,
                     TrainingType = a.ProgrammeType.Value,
                     TrainingCode = a.CourseCode,
+                    StandardUId = a.StandardUId,
+                    TrainingCourseOption = a.TrainingCourseOption,
+                    TrainingCourseVersion = a.TrainingCourseVersion,
                     StartDate = a.StartDate.Value,
                     EndDate = a.EndDate.Value,
                     PriceEpisodes = a.PriceHistory
