@@ -54,12 +54,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreeme
                     .GetAccountProviderLegalEntitiesWithPermission(permissionCheckRequest, CancellationToken.None)
                     .ConfigureAwait(false);
                 
-                List<ProviderCommitmentAgreement> permittedCohortAgreements = permittedEmployers?.AccountProviderLegalEntities?
-                    .Select(x => new ProviderCommitmentAgreement
+                List<ProviderCommitmentAgreement> permittedCohortAgreements = permittedEmployers?
+                    .AccountProviderLegalEntities?.Select(x => new ProviderCommitmentAgreement
                     {
                         AccountLegalEntityPublicHashedId = x.AccountLegalEntityPublicHashedId,
                         LegalEntityName = x.AccountLegalEntityName
-                    }).ToList();
+                    })?.ToList();
                 
                 if(agreements is not null)
                     cohortsAgreements.AddRange(agreements);
@@ -67,7 +67,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreeme
                 if(permittedCohortAgreements is not null)
                     cohortsAgreements.AddRange(permittedCohortAgreements);
 
-                return new GetProviderCommitmentAgreementResult(cohortsAgreements);
+
+                var distinctAgreements = new List<ProviderCommitmentAgreement>();
+
+                foreach (var cohortsAgreement in cohortsAgreements)
+                {
+                    if (!distinctAgreements.Any(x => x.AccountLegalEntityPublicHashedId.Equals(cohortsAgreement.AccountLegalEntityPublicHashedId, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        distinctAgreements.Add(cohortsAgreement);
+                    }
+                }
+
+                return new GetProviderCommitmentAgreementResult(distinctAgreements);
             }
             catch (Exception e)
             {

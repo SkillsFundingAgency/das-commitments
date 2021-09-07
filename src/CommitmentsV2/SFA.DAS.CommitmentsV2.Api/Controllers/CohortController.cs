@@ -147,15 +147,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var result = await _mediator.Send(new GetAllCohortAccountIdsQuery());
             return Ok(new GetAllCohortAccountIdsResponse(result.AccountIds));
         }
-
-        [HttpGet]
-        [Route("{providerId}/commitmentagreements")]
-        public async Task<IActionResult> GetAllCohortAccountIds()
-        {
-            var result = await _mediator.Send(new GetAllCohortAccountIdsQuery());
-            return Ok(new GetAllCohortAccountIdsResponse(result.AccountIds));
-        }
-
+        
         [HttpPost]
         [Route("{cohortId}/send")]
         public async Task<IActionResult> Send(long cohortId, [FromBody]SendCohortRequest request)
