@@ -48,7 +48,7 @@ BEGIN
 		[dbo].[GetLearners] (@sinceTime)
 
 	-- We use the totalcount to calculate the total number of batches.
-	SELECT @totalNumberOfBatches = ROUND(((SELECT MAX(TotalCount) FROM #Results) / @batchSize) + 0.5, 0);
+	SELECT @totalNumberOfBatches = ISNULL( ROUND(((SELECT MAX(TotalCount) FROM #Results) / @batchSize) + 0.5, 0), 0);
 
 	SELECT 
 		[ApprenticeshipId]
