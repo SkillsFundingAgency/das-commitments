@@ -179,7 +179,9 @@
     <None Include="AdhocScripts\Manual\CV-684-Update-Account-LevyStatus.sql" />
     <None Include="AdhocScripts\Support\UpdateAccountLevyStatus.sql" />
     <None Include="AdhocScripts\Manual\CON-3410-UpdateApprovalsFlag.sql" />
-    <None Include="Triggers\ApprenticeshipUpdate.sql" />
+    <Build Include="Triggers\ApprenticeshipUpdate.sql">
+      <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
+    </Build>
     <Build Include="StoredProcedures\GetLearnersBatch.sql" />
   </ItemGroup>
   <ItemGroup>
