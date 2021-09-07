@@ -472,5 +472,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<GetEmailOverlapsResponse>($"api/cohorts/{cohortId}/email-overlaps", null, cancellationToken);
         }
+
+        public Task<GetProviderCommitmentAgreementResponse> GetProviderCommitmentAgreement(long providerId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{providerId}/commitmentagreements", cancellationToken);
+        }
     }
 }
