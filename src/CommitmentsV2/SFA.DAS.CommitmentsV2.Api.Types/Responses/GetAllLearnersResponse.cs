@@ -29,7 +29,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
         public DateTime? CompletionDate { get; set; }
-        public string StandardReference { get; set; }
         public long UKPRN { get; set; }
         public string LearnRefNumber { get; set; }
         public short PaymentStatus { get; set; }

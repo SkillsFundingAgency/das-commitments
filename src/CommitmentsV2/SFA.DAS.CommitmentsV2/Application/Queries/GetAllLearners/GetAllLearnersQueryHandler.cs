@@ -60,7 +60,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners
                     StopDate = dblearner.StopDate,
                     PauseDate = dblearner.PauseDate,
                     CompletionDate = dblearner.CompletionDate,
-                    StandardReference = dblearner.StandardReference,
                     UKPRN = dblearner.UKPRN,
                     LearnRefNumber = dblearner.LearnRefNumber,
                     PaymentStatus = dblearner.PaymentStatus

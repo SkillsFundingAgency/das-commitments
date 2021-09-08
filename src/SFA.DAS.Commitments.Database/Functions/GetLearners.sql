@@ -23,7 +23,6 @@ RETURN
 		,[StopDate]
 		,[PauseDate]
 		,[CompletionDate]
-		,NULL [StandardReference]
 		,ProviderId [UKPRN]
 		,ProviderRef LearnRefNumber
 		,[PaymentStatus]
