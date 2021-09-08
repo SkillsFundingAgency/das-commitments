@@ -66,7 +66,6 @@ BEGIN
 		,[StopDate]
 		,[PauseDate]
 		,[CompletionDate]
-		,[StandardReference]
 		,[UKPRN]
 		,[LearnRefNumber]
 		,[PaymentStatus]
