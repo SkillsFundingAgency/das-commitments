@@ -36,13 +36,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreeme
                 List<ProviderCommitmentAgreement> cohortsAgreements = new List<ProviderCommitmentAgreement>();
 
                 List<ProviderCommitmentAgreement> agreements = await (from c in _db.Value.Cohorts
-                                                          join a in _db.Value.AccountLegalEntities on c.AccountLegalEntityId equals a.Id
-                                                          where c.ProviderId == command.ProviderId && !c.IsDeleted
-                                                          select new ProviderCommitmentAgreement
-                                                          {
-                                                              LegalEntityName = c.AccountLegalEntity.Name,
-                                                              AccountLegalEntityPublicHashedId = a.PublicHashedId
-                                                          }).ToListAsync(cancellationToken).ConfigureAwait(false);
+                                                                      join a in _db.Value.AccountLegalEntities on c.AccountLegalEntityId equals a.Id
+                                                                      where c.ProviderId == command.ProviderId && !c.IsDeleted
+                                                                      select new ProviderCommitmentAgreement
+                                                                      {
+                                                                          LegalEntityName = c.AccountLegalEntity.Name,
+                                                                          AccountLegalEntityPublicHashedId = a.PublicHashedId
+                                                                      }).ToListAsync(cancellationToken).ConfigureAwait(false);
 
                 var permissionCheckRequest = new GetAccountProviderLegalEntitiesWithPermissionRequest
                 {
@@ -53,29 +53,29 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreeme
                 var permittedEmployers = await _providerRelationshipsApiClient
                     .GetAccountProviderLegalEntitiesWithPermission(permissionCheckRequest, CancellationToken.None)
                     .ConfigureAwait(false);
-                
+
                 List<ProviderCommitmentAgreement> permittedCohortAgreements = permittedEmployers?
                     .AccountProviderLegalEntities?.Select(x => new ProviderCommitmentAgreement
                     {
                         AccountLegalEntityPublicHashedId = x.AccountLegalEntityPublicHashedId,
                         LegalEntityName = x.AccountLegalEntityName
                     })?.ToList();
-                
-                if(agreements is not null)
+
+                if (agreements is not null)
                     cohortsAgreements.AddRange(agreements);
 
-                if(permittedCohortAgreements is not null)
+                if (permittedCohortAgreements is not null)
                     cohortsAgreements.AddRange(permittedCohortAgreements);
 
 
                 var distinctAgreements = new List<ProviderCommitmentAgreement>();
 
-                foreach (var cohortsAgreement in cohortsAgreements)
+                foreach (ProviderCommitmentAgreement cohortsAgreement in cohortsAgreements)
                 {
-                    if (!distinctAgreements.Any(x => x.AccountLegalEntityPublicHashedId.Equals(cohortsAgreement.AccountLegalEntityPublicHashedId, StringComparison.InvariantCultureIgnoreCase)))
-                    {
-                        distinctAgreements.Add(cohortsAgreement);
-                    }
+                    if (distinctAgreements.Any(x => x.AccountLegalEntityPublicHashedId.Equals(cohortsAgreement.AccountLegalEntityPublicHashedId, StringComparison.InvariantCultureIgnoreCase)))
+                        continue;
+
+                    distinctAgreements.Add(cohortsAgreement);
                 }
 
                 return new GetProviderCommitmentAgreementResult(distinctAgreements);
@@ -87,4 +87,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreeme
             }
         }
     }
+
+
+
+
 }

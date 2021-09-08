@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreeme
     {
         public GetProviderCommitmentAgreementValidator()
         {
-            RuleFor(model => model.ProviderId).NotNull().WithMessage("Provider Id must be supplied");
+            RuleFor(model => model.ProviderId).GreaterThan(0).WithMessage("Provider Id must be supplied");
         }
     }
 }
