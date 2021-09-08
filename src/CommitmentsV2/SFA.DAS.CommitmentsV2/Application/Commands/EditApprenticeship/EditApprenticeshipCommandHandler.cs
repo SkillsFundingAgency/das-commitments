@@ -85,8 +85,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
                         var standardVersion = result.TrainingProgramme;
 
-                        apprenticeshipUpdate.TrainingName = standardVersion.Name;
-                        apprenticeshipUpdate.TrainingType = standardVersion.ProgrammeType;
+                        apprenticeshipUpdate.TrainingName = apprenticeship.CourseName != standardVersion.Name ? standardVersion.Name : null;
+                        apprenticeshipUpdate.TrainingType = apprenticeship.ProgrammeType != standardVersion.ProgrammeType ? standardVersion.ProgrammeType : null;
                         apprenticeshipUpdate.StandardUId = standardVersion.StandardUId;
                         apprenticeshipUpdate.TrainingCourseVersion = standardVersion.Version;
                     }
