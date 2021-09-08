@@ -475,7 +475,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<GetProviderCommitmentAgreementResponse> GetProviderCommitmentAgreement(long providerId, CancellationToken cancellationToken = default)
         {
-            return _client.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{providerId}/commitmentagreements", cancellationToken);
+            return _client.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{providerId}/commitmentagreements", null, cancellationToken);
         }
     }
 }
