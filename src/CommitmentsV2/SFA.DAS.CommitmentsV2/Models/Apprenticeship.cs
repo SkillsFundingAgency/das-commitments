@@ -292,6 +292,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (update.TrainingType.HasValue)
             {
                 ProgrammeType = update.TrainingType;
+                
+                if (update.TrainingType.Value == Types.ProgrammeType.Framework)
+                {
+                    TrainingCourseVersion = null;
+                    TrainingCourseVersionConfirmed = false;
+                    TrainingCourseOption = null;
+                    StandardUId = null;
+                }
             }
 
             if (!string.IsNullOrEmpty(update.TrainingCode)
@@ -304,6 +312,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (!string.IsNullOrEmpty(update.TrainingCourseVersion))
             {
                 TrainingCourseVersion = update.TrainingCourseVersion;
+                TrainingCourseVersionConfirmed = true;
             }
 
             if (!string.IsNullOrEmpty(update.StandardUId))

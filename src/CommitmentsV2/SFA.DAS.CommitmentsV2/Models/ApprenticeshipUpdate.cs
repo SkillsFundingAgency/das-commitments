@@ -18,6 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public ProgrammeType? TrainingType { get; set; }
         public string TrainingCode { get; set; }
         public string TrainingCourseVersion { get; set; }
+        public bool? TrainingCourseVersionConfirmed { get; set; }
         public string TrainingName { get; set; }
         public string TrainingCourseOption { get; set; }
         public string StandardUId { get; set; }
