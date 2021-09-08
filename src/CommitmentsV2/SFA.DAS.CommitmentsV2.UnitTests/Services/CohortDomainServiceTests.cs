@@ -393,7 +393,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyException<DomainException>();
         }
 
-
         [Test]
         public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSignedAndNoEmailOverlaps_ShouldSucceed()
         {

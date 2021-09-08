@@ -459,6 +459,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 bulkCopy.ColumnMappings.Add("ProviderRef", "ProviderRef");
                 bulkCopy.ColumnMappings.Add("CreatedOn", "CreatedOn");
                 bulkCopy.ColumnMappings.Add("ReservationId", "ReservationId");
+                bulkCopy.ColumnMappings.Add("Email", "Email");
                 bulkCopy.WriteToServer(table);
             }
         }
@@ -521,6 +522,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             apprenticeshipsTable.Columns.Add("ProviderRef", typeof(string));
             apprenticeshipsTable.Columns.Add("CreatedOn", typeof(DateTime));
             apprenticeshipsTable.Columns.Add("ReservationId", typeof(Guid));
+            apprenticeshipsTable.Columns.Add("Email", typeof(string));
             return apprenticeshipsTable;
         }
 
@@ -528,7 +530,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             return apprenticeshipsTable.Rows.Add(commitmentId, a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
                 a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
-                a.EmployerRef, a.ProviderRef, _currentDateTime.Now, a.ReservationId);
+                a.EmployerRef, a.ProviderRef, _currentDateTime.Now, a.ReservationId, a.Email);
         }
 
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)
@@ -728,6 +730,47 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     TotalCount = apprenticeships.Values.Count()
                 };
             });
+        }
+
+        public async Task<IEnumerable<OverlappingEmail>> GetEmailOverlaps(List<EmailToValidate> emailToValidate)
+        {
+            var emailDataTable = BuildEmailCheckTable(emailToValidate);
+
+            return await WithConnection(async c => await c.QueryAsync<OverlappingEmail>(
+                "[dbo].[CheckForOverlappingEmailsForTable]",
+                new { Emails = emailDataTable.AsTableValuedParameter("dbo.EmailCheckTable") },
+                commandType: CommandType.StoredProcedure));
+        }
+
+        private DataTable BuildEmailCheckTable(List<EmailToValidate> emailToValidate)
+        {
+            var apprenticeshipsTable = CreateEmailCheckTable();
+
+            foreach (var apprenticeship in emailToValidate)
+            {
+                AddEmailToValidateToTable(apprenticeshipsTable, apprenticeship);
+            }
+
+            return apprenticeshipsTable;
+        }
+
+
+        private static DataTable CreateEmailCheckTable()
+        {
+            var apprenticeshipsTable = new DataTable();
+
+            apprenticeshipsTable.Columns.Add("RowId", typeof(long));
+            apprenticeshipsTable.Columns.Add("Email", typeof(string));
+            apprenticeshipsTable.Columns.Add("StartDate", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("EndDate", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("ApprenticeshipId", typeof(long));
+
+            return apprenticeshipsTable;
+        }
+
+        private DataRow AddEmailToValidateToTable(DataTable apprenticeshipsTable, EmailToValidate a)
+        {
+            return apprenticeshipsTable.Rows.Add(a.RowId, a.Email, a.StartDate, a.EndDate, a.ApprenticeshipId);
         }
 
     }
