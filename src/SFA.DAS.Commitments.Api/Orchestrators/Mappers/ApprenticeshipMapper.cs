@@ -129,7 +129,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
                 EndDate = apprenticeship.EndDate,
-                PauseDate = apprenticeship.PauseDate
+                PauseDate = apprenticeship.PauseDate,
+                Email = apprenticeship.Email
                 // We do not want to map reservation id as the reservation is not set in V1
             };
 

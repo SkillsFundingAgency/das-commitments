@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[CheckForOverlappingEmailsForTable]
+CREATE PROCEDURE [dbo].[CheckForOverlappingEmailsForTable]
 	@Emails [EmailCheckTable] READONLY,
 	@CohortId BIGINT = NULL
 AS
