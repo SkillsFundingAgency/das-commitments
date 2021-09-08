@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             Assert.IsNotNull(response);
             Assert.AreEqual(2, response.Agreements.Count);
             Assert.AreEqual(testFixture.SeedAccountLegalEntities[0].PublicHashedId, response.Agreements[0].AccountLegalEntityPublicHashedId);
-            Assert.AreEqual(testFixture.SeedAccountLegalEntities[0].PublicHashedId, response.Agreements[1].AccountLegalEntityPublicHashedId);
+            Assert.AreEqual(testFixture.SeedAccountLegalEntities[1].PublicHashedId, response.Agreements[1].AccountLegalEntityPublicHashedId);
           
         }
 
