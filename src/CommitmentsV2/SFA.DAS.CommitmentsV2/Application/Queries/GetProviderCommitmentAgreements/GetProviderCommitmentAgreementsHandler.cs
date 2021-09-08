@@ -61,10 +61,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreeme
                         LegalEntityName = x.AccountLegalEntityName
                     })?.ToList();
 
-                if (agreements is not null)
+                if (agreements != null)
                     cohortsAgreements.AddRange(agreements);
 
-                if (permittedCohortAgreements is not null)
+                if (permittedCohortAgreements != null)
                     cohortsAgreements.AddRange(permittedCohortAgreements);
 
 
