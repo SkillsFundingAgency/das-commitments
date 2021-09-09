@@ -83,8 +83,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 approvedStandard.StandardPageUrl,
                 approvedStandard.Status,
                 approvedStandard.IsLatestVersion,
-                EffectiveFrom = approvedStandard.VersionDetail.EarliestStartDate,
-                LastDateForNewStarts = approvedStandard.VersionDetail.LatestStartDate
+                EffectiveFrom = approvedStandard.EffectiveFrom,
+                LastDateForNewStarts = approvedStandard.LastDateForNewStarts
             },
             new {
                 retiredStandard.StandardUId,
@@ -100,8 +100,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 retiredStandard.StandardPageUrl,
                 retiredStandard.Status,
                 retiredStandard.IsLatestVersion,
-                EffectiveFrom = retiredStandard.VersionDetail.EarliestStartDate,
-                LastDateForNewStarts = retiredStandard.VersionDetail.LatestStartDate
+                EffectiveFrom = retiredStandard.EffectiveFrom,
+                LastDateForNewStarts = retiredStandard.LastDateForNewStarts
             }});
         }
 
