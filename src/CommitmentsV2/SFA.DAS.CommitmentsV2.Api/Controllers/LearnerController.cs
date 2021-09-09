@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -29,13 +30,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                  DateFormatString = "yyyy-MM-dd'T'HH:mm:ss"
             };
 
-            return new JsonResult(new GetAllLearnersResponse()
+            var jsonResult = new JsonResult(new GetAllLearnersResponse()
             {
                 Learners = result.Learners,
                 BatchNumber = result.BatchNumber,
                 BatchSize = result.BatchSize,
                 TotalNumberOfBatches = result.TotalNumberOfBatches
-            },settings);
+            }, settings);
+            jsonResult.StatusCode = (int)HttpStatusCode.OK;
+            jsonResult.ContentType = "application/json";
+
+            return jsonResult;
         }
     }
 }
