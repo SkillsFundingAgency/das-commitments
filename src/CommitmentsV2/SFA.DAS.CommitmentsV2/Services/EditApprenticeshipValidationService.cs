@@ -439,17 +439,17 @@ namespace SFA.DAS.CommitmentsV2.Services
                             yield break;
                         }
 
-                        //if (trainingProgrammeStatus.HasValue && trainingProgrammeStatus.Value != TrainingProgrammeStatus.Active)
-                        //{
-                        //    var suffix = trainingProgrammeStatus == TrainingProgrammeStatus.Pending
-                        //        ? $"after {result.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
-                        //        : $"before {result.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
+                        if (trainingProgrammeStatus.HasValue && trainingProgrammeStatus.Value != TrainingProgrammeStatus.Active)
+                        {
+                            var suffix = trainingProgrammeStatus == TrainingProgrammeStatus.Pending
+                                ? $"after {result.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
+                                : $"before {result.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
 
-                        //    var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
+                            var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
 
-                        //    yield return new DomainError(nameof(request.StartDate), errorMessage);
-                        //    yield break;
-                        //}
+                            yield return new DomainError(nameof(request.StartDate), errorMessage);
+                            yield break;
+                        }
 
                         if (trainingProgrammeStatus.HasValue && apprenticeshipDetails.Cohort.TransferSenderId.HasValue
                             && request.StartDate.Value < Constants.TransferFeatureStartDate)
