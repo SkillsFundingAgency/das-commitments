@@ -59,6 +59,60 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return result;
         }
 
+        public async Task<IEnumerable<ApprenticeshipEmailOverlapValidationResult>> ValidateEmailOverlappingApprenticeships(IEnumerable<SFA.DAS.Commitments.Api.Types.Validation.ApprenticeshipEmailOverlapValidationRequest> apprenticeshipEmailOverlapValidationRequest)
+        {
+            var requests = apprenticeshipEmailOverlapValidationRequest.ToList();
+
+            var command = new Application.Queries.GetEmailOverlappingApprenticeships.GetEmailOverlappingApprenticeshipsRequest
+            {
+                OverlappingEmailApprenticeshipRequests = requests.Select(MapEmailOverlap).ToList()
+            };
+
+            var response = await _mediator.SendAsync(command);
+
+            var result = new List<ApprenticeshipEmailOverlapValidationResult>();
+
+            var requestGroupsEmail = response.Data.GroupBy(x => x.Id).ToList();
+
+            foreach (var group in requestGroupsEmail)
+            {
+                result.Add(new ApprenticeshipEmailOverlapValidationResult
+                {
+                    Self = requests.Single(x => x.ApprenticeshipId == group.Key),
+                    OverlappingApprenticeships =
+                        response.Data
+                        .Select(MapOverlappingEmail)
+                        .Where(x => x.RequestApprenticeshipId == group.Key)
+                });
+            }
+
+            _logger.Info($"Validated {requests.Count} email overlapping validation requests");
+
+            return result;
+        }
+
+        private OverlappingApprenticeship MapOverlappingEmail(OverlappingEmail source)
+        {
+            var result = new OverlappingApprenticeship
+            {
+                Apprenticeship = new Api.Types.Apprenticeship.Apprenticeship
+                {
+                    Id = (long)source.Id,
+                    StartDate = source.StartDate,
+                    EndDate = source.EndDate,
+                    Email = source.Email,
+                    FirstName = source.FirstName,
+                    LastName = source.LastName,
+                    CommitmentId = (long)source.CohortId,
+                    DateOfBirth = source.DateOfBirth
+                },
+                ValidationFailReason = (ValidationFailReason)source.OverlapStatus,
+                RequestApprenticeshipId = source.Id
+            };
+
+            return result;
+        }
+
         private Domain.Entities.ApprenticeshipOverlapValidationRequest Map(ApprenticeshipOverlapValidationRequest requests)
         {
             return new Domain.Entities.ApprenticeshipOverlapValidationRequest
@@ -67,6 +121,17 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 EndDate = requests.EndDate,
                 StartDate = requests.StartDate,
                 Uln = requests.Uln
+            };
+        }
+
+        private Domain.Entities.ApprenticeshipEmailOverlapValidationRequest MapEmailOverlap(SFA.DAS.Commitments.Api.Types.Validation.ApprenticeshipEmailOverlapValidationRequest requests)
+        {
+            return new Domain.Entities.ApprenticeshipEmailOverlapValidationRequest
+            {
+                ApprenticeshipId = requests.ApprenticeshipId,
+                EndDate = requests.EndDate,
+                StartDate = requests.StartDate,
+                Email = requests.Email
             };
         }
 
