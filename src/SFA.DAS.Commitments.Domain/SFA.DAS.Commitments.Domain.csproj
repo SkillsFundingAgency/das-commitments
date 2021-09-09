@@ -105,6 +105,7 @@
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\AlertSummary.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
+    <Compile Include="Entities\ApprenticeshipEmailOverlapValidationRequest.cs" />
     <Compile Include="Entities\ApprenticeshipOverlapValidationRequest.cs" />
     <Compile Include="Entities\ApprenticeshipResult.cs" />
     <Compile Include="Entities\ApprenticeshipsResult.cs" />
@@ -117,6 +118,8 @@
     <Compile Include="Entities\ChangeOfPartyRequestType.cs" />
     <Compile Include="Entities\CommitmentAgreement.cs" />
     <Compile Include="Entities\DataLock\DataLockStatusSummary.cs" />
+    <Compile Include="Entities\EmailToValidate.cs" />
+    <Compile Include="Entities\OverlappingEmail.cs" />
     <Compile Include="Entities\Party.cs" />
     <Compile Include="Entities\Provider.cs" />
     <Compile Include="Entities\Statistics.cs" />
