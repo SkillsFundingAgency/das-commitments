@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Moq;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -30,7 +31,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         private Mock<ICurrentDateTime> _currentDateTime;
         private Mock<IAuthenticationService> _authenticationService;
 
-        public DateTime? StartDate { get
+        public DateTime? StartDate
+        {
+            get
             {
                 return _apprenticeship.StartDate;
             }
@@ -61,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 _authenticationService.Object);
 
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
-                .Returns(Task.FromResult(new OverlapCheckResult(false, false))) ;
+                .Returns(Task.FromResult(new OverlapCheckResult(false, false)));
 
             _currentDateTime.Setup(x => x.UtcNow).Returns(() => new DateTime(2021, 3, 19));
 
@@ -82,23 +85,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         public EditApprenticeshipValidationServiceTestsFixture SetupReservationValidationService()
         {
             _reservationValidationService.Setup(x => x.Validate(It.IsAny<ReservationValidationRequest>(), CancellationToken.None))
-                .Returns(Task.FromResult(new ReservationValidationResult(new ReservationValidationError[1] { 
+                .Returns(Task.FromResult(new ReservationValidationResult(new ReservationValidationError[1] {
                     new ReservationValidationError("CourseCode","Reason")
                 })));
             return this;
         }
 
-        internal EditApprenticeshipValidationServiceTestsFixture CourseIsEffectiveFromDate(DateTime effectiveFrom, int activeForInYears = 5, ProgrammeType programmeType = ProgrammeType.Standard)
+        internal EditApprenticeshipValidationServiceTestsFixture CourseIsEffectiveFromDate(DateTime effectiveFrom, int activeForInYears = 5)
         {
-            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), CancellationToken.None))
-                .Returns(Task.FromResult(new GetTrainingProgrammeQueryResult()
+            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeOverallStartAndEndDatesQuery>(), CancellationToken.None))
+                .Returns(Task.FromResult(new GetTrainingProgrammeOverallStartAndEndDatesQueryResult()
                 {
-                    TrainingProgramme = new Types.TrainingProgramme
-                    {
-                        EffectiveFrom = effectiveFrom,
-                        EffectiveTo = effectiveFrom.AddYears(activeForInYears),
-                        ProgrammeType = programmeType
-                    }
+                    TrainingProgrammeEffectiveFrom = effectiveFrom,
+                    TrainingProgrammeEffectiveTo = effectiveFrom.AddYears(activeForInYears)
                 }));
 
             return this;
@@ -108,7 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             return _apprenticeship.StartDate.Value;
         }
-  
+
         public EditApprenticeshipValidationServiceTestsFixture SetupOverlapService(bool startDateOverlaps, bool endDateOverlaps)
         {
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long>(), CancellationToken.None))
@@ -116,10 +115,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        public EditApprenticeshipValidationServiceTestsFixture SetupGetTrainingProgrammeQueryResult()
+        public EditApprenticeshipValidationServiceTestsFixture SetupGetTrainingProgrammeOverallStartAndEndDatesQueryResult()
         {
-            var result = new GetTrainingProgrammeQueryResult{ TrainingProgramme = new TrainingProgramme { EffectiveFrom =  new DateTime(2017, 04, 01), EffectiveTo = new DateTime(2030, 04, 01)}};
-            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+            var result = new GetTrainingProgrammeOverallStartAndEndDatesQueryResult {  TrainingProgrammeEffectiveFrom = new DateTime(2017, 04, 01), TrainingProgrammeEffectiveTo = new DateTime(2030, 04, 01) };
+            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeOverallStartAndEndDatesQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
             return this;
         }
 
@@ -244,7 +243,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
             bool hasHadDataLockSuccess = false)
         {
-           _apprenticeship = new Apprenticeship
+            _apprenticeship = new Apprenticeship
             {
                 Id = id,
                 CommitmentId = commitmentId,
@@ -337,7 +336,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return request;
         }
 
-         public Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request)
+        public Task<EditApprenticeshipValidationResult> Validate(EditApprenticeshipValidationRequest request)
         {
             return _sut.Validate(request, CancellationToken.None);
         }

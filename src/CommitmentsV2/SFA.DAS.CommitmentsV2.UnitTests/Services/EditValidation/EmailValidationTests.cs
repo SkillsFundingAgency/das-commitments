@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         public async Task When_Valid_Email_Is_Empty_On_Apprenticeship_And_Request_Email_Overlap_check_Should_Not_Be_Called(string email)
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-            var request = fixture.SetupGetTrainingProgrammeQueryResult().SetupMockContextApprenticeship(email: email).CreateValidationRequest(email: email, startMonth:2, startYear:2023, endMonth:1, endYear:2027);
+            var request = fixture.SetupGetTrainingProgrammeOverallStartAndEndDatesQueryResult().SetupMockContextApprenticeship(email: email).CreateValidationRequest(email: email, startMonth:2, startYear:2023, endMonth:1, endYear:2027);
 
             var result = await fixture.Validate(request);
 

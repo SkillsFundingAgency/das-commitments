@@ -22,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Authentication;
 using System.Text.RegularExpressions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -177,7 +178,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> NoChangeValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
         {
-            var referenceNotUpdated = _authenticationService.GetUserParty() == Party.Employer 
+            var referenceNotUpdated = _authenticationService.GetUserParty() == Party.Employer
                  ? request.EmployerReference == apprenticeship.EmployerRef
                  : request.ProviderReference == apprenticeship.ProviderRef;
 
@@ -258,7 +259,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             bool NoChangesRequested() => (request.Email == apprenticeshipDetails.Email && request.StartDate == apprenticeshipDetails.StartDate && request.EndDate == apprenticeshipDetails.EndDate);
 
-            if (string.IsNullOrWhiteSpace(request.Email)) 
+            if (string.IsNullOrWhiteSpace(request.Email))
                 return null;
 
             if (NoChangesRequested())
@@ -422,28 +423,29 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                     if (!string.IsNullOrWhiteSpace(request.CourseCode))
                     {
-                        var result = _mediator.Send(new GetTrainingProgrammeQuery
+                        // Get Earliest Start Date and Latest End Date for a Standard across Versions
+                        var result = _mediator.Send(new GetTrainingProgrammeOverallStartAndEndDatesQuery
                         {
-                            Id = request.CourseCode
+                            CourseCode = request.CourseCode
                         }).Result;
 
-                        var courseStartedBeforeDas = result.TrainingProgramme != null &&
-                                   (!result.TrainingProgramme.EffectiveFrom.HasValue ||
-                                    result.TrainingProgramme.EffectiveFrom.Value < Constants.DasStartDate);
+                        var courseStartedBeforeDas =
+                                   (!result.TrainingProgrammeEffectiveFrom.HasValue ||
+                                    result.TrainingProgrammeEffectiveFrom.Value < Constants.DasStartDate);
 
-                        var trainingProgrammeStatus = GetStatusOn(request.StartDate.Value, result);
+                        var trainingProgrammeStatus = GetStatusOn(request.StartDate.Value, result.TrainingProgrammeEffectiveFrom, result.TrainingProgrammeEffectiveTo);
 
                         if ((request.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
                         {
                             yield return new DomainError(nameof(request.StartDate), "The start date must not be earlier than May 2017");
                             yield break;
                         }
-
+                                                
                         if (trainingProgrammeStatus.HasValue && trainingProgrammeStatus.Value != TrainingProgrammeStatus.Active)
                         {
                             var suffix = trainingProgrammeStatus == TrainingProgrammeStatus.Pending
-                                ? $"after {result.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
-                                : $"before {result.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
+                                ? $"after {result.TrainingProgrammeEffectiveFrom.Value.AddMonths(-1):MM yyyy}"
+                                : $"before {result.TrainingProgrammeEffectiveTo.Value.AddMonths(1):MM yyyy}";
 
                             var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
 
@@ -494,14 +496,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private static TrainingProgrammeStatus? GetStatusOn(DateTime startDate, GetTrainingProgrammeQueryResult result)
+        private static TrainingProgrammeStatus? GetStatusOn(DateTime startDate, DateTime? standardEffectiveFrom, DateTime? standardEffectiveTo)
         {
             var dateOnly = startDate;
 
-            if (result.TrainingProgramme.EffectiveFrom.HasValue && result.TrainingProgramme.EffectiveFrom.Value.FirstOfMonth() > dateOnly)
+            if (standardEffectiveFrom.HasValue && standardEffectiveFrom.Value.FirstOfMonth() > dateOnly)
                 return TrainingProgrammeStatus.Pending;
 
-            if (!result.TrainingProgramme.EffectiveTo.HasValue || result.TrainingProgramme.EffectiveTo.Value >= dateOnly)
+            if (!standardEffectiveTo.HasValue || standardEffectiveTo.Value >= dateOnly)
                 return TrainingProgrammeStatus.Active;
 
             return TrainingProgrammeStatus.Expired;
