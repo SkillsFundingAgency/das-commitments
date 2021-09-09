@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
 
@@ -23,13 +24,18 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             var result = await _mediator.Send(new GetAllLearnersQuery(sinceTime, batch_number, batch_size));
 
-            return Ok(new GetAllLearnersResponse()
+            var settings = new JsonSerializerSettings
+            {
+                 DateFormatString = "yyyy-MM-dd'T'HH:mm:ss"
+            };
+
+            return new JsonResult(new GetAllLearnersResponse()
             {
                 Learners = result.Learners,
                 BatchNumber = result.BatchNumber,
                 BatchSize = result.BatchSize,
                 TotalNumberOfBatches = result.TotalNumberOfBatches
-            });
+            },settings);
         }
     }
 }
