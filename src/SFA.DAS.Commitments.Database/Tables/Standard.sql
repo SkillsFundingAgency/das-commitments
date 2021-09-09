@@ -15,10 +15,12 @@
     [StandardPageUrl] NVARCHAR(500) NULL,
     [Status] NVARCHAR(50) NULL,
     [IsLatestVersion] BIT NOT NULL DEFAULT 0, 
+    [VersionEarliestStartDate] DATETIME NULL,
+    [VersionLatestStartDate] DATETIME NULL,
     CONSTRAINT [PK_Standards] PRIMARY KEY CLUSTERED (StandardUId ASC)
 )
 GO
 CREATE NONCLUSTERED INDEX [IX_Standard_LarsCodeIsLatestVersion] ON [dbo].[Standard] ([LarsCode],[IsLatestVersion])
 INCLUDE ([StandardUId], [IFateReferenceNumber], [Version], [Title], [Level], [Duration], [MaxFunding],
-[EffectiveFrom], [EffectiveTo], [VersionMajor], [VersionMinor], [StandardPageUrl], [Status])
+[EffectiveFrom], [EffectiveTo], [VersionMajor], [VersionMinor], [StandardPageUrl], [Status], [VersionEarliestStartDate], [VersionLatestStartDate])
 GO
