@@ -192,32 +192,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             return trainingProgrammes;
         }
 
-        public async Task<(DateTime? effectiveFrom, DateTime? effectiveTo)> GetTrainingProgrammeOverallStartAndEndDates(string courseCode)
-        {
-            if (string.IsNullOrWhiteSpace(courseCode))
-            {
-                return default;
-            }
-
-            if (!int.TryParse(courseCode, out var standardCode))
-            {
-                return default;
-            }
-
-            var standardVersions = await _dbContext.Standards.Where(s => s.LarsCode == standardCode)
-                .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
-
-            if (standardVersions == null || standardVersions.Count == 0)
-            {
-                throw new Exception($"No versions for standard {courseCode} were found. Unable to calculate date range.");
-            }
-
-            var effectiveFrom = standardVersions.First().EffectiveFrom;
-            var effectiveTo = standardVersions.Last().EffectiveTo;
-
-            return (effectiveFrom, effectiveTo);
-        }
-
         private static string GetTitle(string title, int level)
         {
             return $"{title}, Level: {level}";

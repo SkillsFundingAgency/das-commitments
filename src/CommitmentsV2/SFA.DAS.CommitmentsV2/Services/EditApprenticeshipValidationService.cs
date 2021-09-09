@@ -424,28 +424,28 @@ namespace SFA.DAS.CommitmentsV2.Services
                     if (!string.IsNullOrWhiteSpace(request.CourseCode))
                     {
                         // Get Earliest Start Date and Latest End Date for a Standard across Versions
-                        var result = _mediator.Send(new GetTrainingProgrammeOverallStartAndEndDatesQuery
+                        var result = _mediator.Send(new GetTrainingProgrammeQuery
                         {
-                            CourseCode = request.CourseCode
+                            Id = request.CourseCode
                         }).Result;
 
-                        var courseStartedBeforeDas =
-                                   (!result.TrainingProgrammeEffectiveFrom.HasValue ||
-                                    result.TrainingProgrammeEffectiveFrom.Value < Constants.DasStartDate);
+                        var courseStartedBeforeDas = result.TrainingProgramme != null &&
+                                                           (!result.TrainingProgramme.EffectiveFrom.HasValue ||
+                                                            result.TrainingProgramme.EffectiveFrom.Value < Constants.DasStartDate);
 
-                        var trainingProgrammeStatus = GetStatusOn(request.StartDate.Value, result.TrainingProgrammeEffectiveFrom, result.TrainingProgrammeEffectiveTo);
+                        var trainingProgrammeStatus = GetStatusOn(request.StartDate.Value, result);
 
                         if ((request.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
                         {
                             yield return new DomainError(nameof(request.StartDate), "The start date must not be earlier than May 2017");
                             yield break;
                         }
-                                                
+
                         if (trainingProgrammeStatus.HasValue && trainingProgrammeStatus.Value != TrainingProgrammeStatus.Active)
                         {
                             var suffix = trainingProgrammeStatus == TrainingProgrammeStatus.Pending
-                                ? $"after {result.TrainingProgrammeEffectiveFrom.Value.AddMonths(-1):MM yyyy}"
-                                : $"before {result.TrainingProgrammeEffectiveTo.Value.AddMonths(1):MM yyyy}";
+                                ? $"after {result.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
+                                : $"before {result.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
 
                             var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
 
@@ -496,17 +496,17 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private static TrainingProgrammeStatus? GetStatusOn(DateTime startDate, DateTime? standardEffectiveFrom, DateTime? standardEffectiveTo)
+        private static TrainingProgrammeStatus? GetStatusOn(DateTime startDate, GetTrainingProgrammeQueryResult result)
         {
             var dateOnly = startDate;
 
-            if (standardEffectiveFrom.HasValue && standardEffectiveFrom.Value.FirstOfMonth() > dateOnly)
+            if (result.TrainingProgramme.EffectiveFrom.HasValue && result.TrainingProgramme.EffectiveFrom.Value.FirstOfMonth() > dateOnly)
                 return TrainingProgrammeStatus.Pending;
 
-            if (!standardEffectiveTo.HasValue || standardEffectiveTo.Value >= dateOnly)
+            if (!result.TrainingProgramme.EffectiveTo.HasValue || result.TrainingProgramme.EffectiveTo.Value >= dateOnly)
                 return TrainingProgrammeStatus.Active;
 
-            return TrainingProgrammeStatus.Expired;
+                return TrainingProgrammeStatus.Expired;
         }
 
         public int? AgeOnStartDate(DateTime? dateOfBirth, DateTime? newStartDate)

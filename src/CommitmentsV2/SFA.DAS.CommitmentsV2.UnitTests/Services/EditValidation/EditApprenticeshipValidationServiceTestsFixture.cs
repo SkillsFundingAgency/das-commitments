@@ -91,13 +91,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        internal EditApprenticeshipValidationServiceTestsFixture CourseIsEffectiveFromDate(DateTime effectiveFrom, int activeForInYears = 5)
+        internal EditApprenticeshipValidationServiceTestsFixture CourseIsEffectiveFromDate(DateTime effectiveFrom, int activeForInYears = 5, ProgrammeType programmeType = ProgrammeType.Standard)
         {
-            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeOverallStartAndEndDatesQuery>(), CancellationToken.None))
-                .Returns(Task.FromResult(new GetTrainingProgrammeOverallStartAndEndDatesQueryResult()
+            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), CancellationToken.None))
+                .Returns(Task.FromResult(new GetTrainingProgrammeQueryResult()
                 {
-                    TrainingProgrammeEffectiveFrom = effectiveFrom,
-                    TrainingProgrammeEffectiveTo = effectiveFrom.AddYears(activeForInYears)
+                    TrainingProgramme = new Types.TrainingProgramme
+                    {
+                        EffectiveFrom = effectiveFrom,
+                        EffectiveTo = effectiveFrom.AddYears(activeForInYears),
+                        ProgrammeType = programmeType
+                    }
                 }));
 
             return this;
@@ -115,10 +119,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        public EditApprenticeshipValidationServiceTestsFixture SetupGetTrainingProgrammeOverallStartAndEndDatesQueryResult()
+        public EditApprenticeshipValidationServiceTestsFixture SetupGetTrainingProgrammeQueryResult()
         {
-            var result = new GetTrainingProgrammeOverallStartAndEndDatesQueryResult {  TrainingProgrammeEffectiveFrom = new DateTime(2017, 04, 01), TrainingProgrammeEffectiveTo = new DateTime(2030, 04, 01) };
-            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeOverallStartAndEndDatesQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+            var result = new GetTrainingProgrammeQueryResult { TrainingProgramme = new TrainingProgramme { EffectiveFrom = new DateTime(2017, 04, 01), EffectiveTo = new DateTime(2030, 04, 01) } };
+            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
             return this;
         }
 

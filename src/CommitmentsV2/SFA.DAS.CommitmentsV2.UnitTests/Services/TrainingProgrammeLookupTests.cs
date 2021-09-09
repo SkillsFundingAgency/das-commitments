@@ -354,61 +354,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             results.Should().BeNull();
         }
 
-        [Test]
-        [MoqInlineAutoData("")]
-        [MoqInlineAutoData(" ")]
-        [MoqInlineAutoData(null)]
-        public async Task When_GettingOverallStandardStartAndEndDates_AndCourseCodeEmptyOrNull_Then_ReturnEmptyResult(
-            string courseCode,
-            TrainingProgrammeLookup service)
-        {
-            // Arrange
-            
-            // Act
-            var (effectiveFrom, effectiveTo) = await service.GetTrainingProgrammeOverallStartAndEndDates(courseCode);
-
-            // Assert
-            effectiveFrom.Should().BeNull();
-            effectiveTo.Should().BeNull();
-        }
-
-        [Test, MoqAutoData]
-        public void When_GettingOverallStandardStartAndEndDates_AndVersionsNotFound_Then_ThrowException(
-            DateTime baseDate,
-            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
-            TrainingProgrammeLookup service)
-        {
-            // Arrange
-            var courseCode = "-100";
-            var standards = GetStandards(baseDate);
-            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
-
-            // Act
-            Func<Task> action = async () => await service.GetTrainingProgrammeOverallStartAndEndDates(courseCode);
-
-            // Assert
-            action.Should().Throw<Exception>().WithMessage($"No versions for standard {courseCode} were found. Unable to calculate date range.");
-        }
-
-        [Test, MoqAutoData]
-        public async Task When_GettingOverallStandardStartAndEndDates_Then_ReturnStandardDateRange(
-            DateTime baseDate,
-            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
-            TrainingProgrammeLookup service)
-        {
-            // Arrange
-            var standards = GetStandards(baseDate);
-            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
-
-            // Act
-            var (effectiveFrom, effectiveTo) = await service.GetTrainingProgrammeOverallStartAndEndDates("1");
-
-
-            // Assert
-            effectiveFrom.Should().Be(baseDate.AddYears(-1));
-            effectiveTo.Should().Be(baseDate.AddYears(1));
-        }
-
         private List<Standard> GetStandards(DateTime baseDate)
         {
             var standards = new List<Standard>
