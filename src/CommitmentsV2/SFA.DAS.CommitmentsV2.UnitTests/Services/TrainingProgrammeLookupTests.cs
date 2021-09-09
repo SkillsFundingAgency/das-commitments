@@ -240,7 +240,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             TrainingProgrammeLookup service)
         {
             var standards = GetStandards(baseDate);
-            standards[standards.Count - 1].EffectiveTo = null;
+            standards[standards.Count - 1].VersionLatestStartDate = null;
 
             dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
 
@@ -263,8 +263,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .With(s => s.Version, "1.2")
                     .With(s => s.VersionMajor, 1)
                     .With(s => s.VersionMinor, 2)
-                    .With(s => s.EffectiveFrom, baseDate)
-                    .With(s => s.EffectiveTo, baseDate.AddYears(1).AddDays(1))
+                    .With(s => s.VersionEarliestStartDate, baseDate)
+                    .With(s => s.VersionLatestStartDate, baseDate.AddYears(1).AddDays(1))
                     .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
                 .Create());
 
@@ -312,6 +312,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         .With(s => s.VersionMinor, 0)
                         .With(s => s.EffectiveFrom, baseDate.AddYears(-1))
                         .With(s => s.EffectiveTo, baseDate)
+                        .With(s => s.VersionEarliestStartDate, baseDate.AddYears(-1))
+                        .With(s => s.VersionLatestStartDate, baseDate)
                         .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
                     .Create(),
                 _fixture.Build<Standard>()
@@ -322,6 +324,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         .With(s => s.VersionMinor, 1)
                         .With(s => s.EffectiveFrom, baseDate)
                         .With(s => s.EffectiveTo, baseDate.AddYears(1))
+                        .With(s => s.VersionEarliestStartDate, baseDate)
+                        .With(s => s.VersionLatestStartDate, baseDate.AddYears(1))
                         .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
                     .Create()                
             };
@@ -341,7 +345,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .Excluding(x => x.StandardPageUrl)
                 .Excluding(x => x.VersionMajor)
                 .Excluding(x => x.VersionMinor)
-                .Excluding(x => x.Options);
+                .Excluding(x => x.Options)
+                .Excluding(x => x.VersionEarliestStartDate)
+                .Excluding(x => x.VersionLatestStartDate);
         }
     }
 }
