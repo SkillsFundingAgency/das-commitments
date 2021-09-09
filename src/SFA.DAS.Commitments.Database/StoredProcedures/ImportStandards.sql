@@ -16,7 +16,9 @@ AS
                   VersionMinor,
                   StandardPageUrl,
                   [Status],
-                  IsLatestVersion
+                  IsLatestVersion,
+                  VersionEarliestStartDate,
+                  VersionLatestStartDate
            FROM @standards) AS source
     ON target.StandardUId = source.StandardUId
     WHEN MATCHED
@@ -36,9 +38,11 @@ AS
             target.VersionMinor  = source.VersionMinor,
             target.StandardPageUrl = source.StandardPageUrl,
             target.[Status]        = source.[Status],
-            target.IsLatestVersion = source.IsLatestVersion           
+            target.IsLatestVersion = source.IsLatestVersion,
+            target.VersionEarliestStartDate = source.VersionEarliestStartDate,
+            target.VersionLatestStartDate = source.VersionLatestStartDate
             
     WHEN NOT MATCHED BY TARGET then
-        INSERT (StandardUId, LarsCode, IFateReferenceNumber, [Version], Title, [Level], Duration, MaxFunding, EffectiveFrom, EffectiveTo, VersionMajor, VersionMinor, StandardPageUrl, [Status], IsLatestVersion)
+        INSERT (StandardUId, LarsCode, IFateReferenceNumber, [Version], Title, [Level], Duration, MaxFunding, EffectiveFrom, EffectiveTo, VersionMajor, VersionMinor, StandardPageUrl, [Status], IsLatestVersion, VersionEarliestStartDate, VersionLatestStartDate)
         VALUES (source.StandardUId, source.LarsCode, source.IFateReferenceNumber, source.[Version], source.Title, source.[Level], source.Duration, source.MaxFunding,
-                source.EffectiveFrom, source.EffectiveTo, source.VersionMajor, source.VersionMinor, source.StandardPageUrl, source.[Status], source.IsLatestVersion );
+                source.EffectiveFrom, source.EffectiveTo, source.VersionMajor, source.VersionMinor, source.StandardPageUrl, source.[Status], source.IsLatestVersion, source.VersionEarliestStartDate, source.VersionLatestStartDate );
