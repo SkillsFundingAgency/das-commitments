@@ -95,15 +95,15 @@ namespace SFA.DAS.CommitmentsV2.Services
             var first = true;
             foreach (var version in standardVersions)
             {
-                if (!first && version.EffectiveFrom.HasValue)
+                if (!first && version.VersionEarliestStartDate.HasValue)
                 {
-                    version.EffectiveFrom = new DateTime(version.EffectiveFrom.Value.Year, version.EffectiveFrom.Value.Month, 1);
+                    version.VersionEarliestStartDate = new DateTime(version.VersionEarliestStartDate.Value.Year, version.VersionEarliestStartDate.Value.Month, 1);
                 }
 
-                if (version.EffectiveTo.HasValue)
+                if (version.VersionLatestStartDate.HasValue)
                 {
-                    var daysInMonth = DateTime.DaysInMonth(version.EffectiveTo.Value.Year, version.EffectiveTo.Value.Month);
-                    version.EffectiveTo = new DateTime(version.EffectiveTo.Value.Year, version.EffectiveTo.Value.Month, daysInMonth);
+                    var daysInMonth = DateTime.DaysInMonth(version.VersionLatestStartDate.Value.Year, version.VersionLatestStartDate.Value.Month);
+                    version.VersionLatestStartDate = new DateTime(version.VersionLatestStartDate.Value.Year, version.VersionLatestStartDate.Value.Month, daysInMonth);
                 }
 
                 first = false;
@@ -116,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             Standard selectedVersion = standardVersions.Last();
             foreach (var version in standardVersions)
             {
-                if (startDate >= version.EffectiveFrom && (version.EffectiveTo.HasValue == false || startDate <= version.EffectiveTo.Value)) 
+                if (startDate >= version.VersionEarliestStartDate && (version.VersionLatestStartDate.HasValue == false || startDate <= version.VersionLatestStartDate.Value)) 
                 {
                     selectedVersion = version;
                 }
