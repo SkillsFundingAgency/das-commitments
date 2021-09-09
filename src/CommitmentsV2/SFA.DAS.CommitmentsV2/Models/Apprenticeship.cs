@@ -302,10 +302,13 @@ namespace SFA.DAS.CommitmentsV2.Models
                 }
             }
 
-            if (!string.IsNullOrEmpty(update.TrainingCode)
-                && !string.IsNullOrEmpty(update.TrainingName))
+            if (!string.IsNullOrEmpty(update.TrainingCode))
             {
                 CourseCode = update.TrainingCode;
+            }
+
+            if (!string.IsNullOrEmpty(update.TrainingName))
+            {
                 CourseName = update.TrainingName;
             }
 
