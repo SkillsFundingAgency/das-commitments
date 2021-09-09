@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             // 1.0  Effective From 9/12/2019 Effective To 31/7/2020
             // 1.1  Effective From 1/7/2020 Effective To 31/10/2020
             // 1.2  Effective From 1/10/2020  Effective To Null
-            
+
             var first = true;
             foreach (var version in standardVersions)
             {
@@ -135,10 +135,10 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new Exception($"The standard {standardUId} was not found");
             }
 
-            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl, 
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl,
                 standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
         }
-       
+
         public async Task<TrainingProgramme> GetTrainingProgrammeVersionByCourseCodeAndVersion(string courseCode, string version)
         {
             if (!int.TryParse(courseCode, out var standardId))
@@ -177,15 +177,15 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new Exception($"No versions for standard {standardId} were found");
             }
 
-            var trainingProgrammes = standardVersions.Select(version => 
-                new TrainingProgramme(version.LarsCode.ToString(), 
-                    GetTitle(version.Title, version.Level), 
-                    version.Version, version.StandardUId, 
-                    ProgrammeType.Standard, 
+            var trainingProgrammes = standardVersions.Select(version =>
+                new TrainingProgramme(version.LarsCode.ToString(),
+                    GetTitle(version.Title, version.Level),
+                    version.Version, version.StandardUId,
+                    ProgrammeType.Standard,
                     version.StandardPageUrl,
-                    version.EffectiveFrom, 
-                    version.EffectiveTo, 
-                    new List<IFundingPeriod>(version.FundingPeriods), 
+                    version.EffectiveFrom,
+                    version.EffectiveTo,
+                    new List<IFundingPeriod>(version.FundingPeriods),
                     version.Options?.Select(o => o.Option).ToList())
                 );
 

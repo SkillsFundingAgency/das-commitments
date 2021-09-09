@@ -22,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Authentication;
 using System.Text.RegularExpressions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -177,7 +178,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> NoChangeValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
         {
-            var referenceNotUpdated = _authenticationService.GetUserParty() == Party.Employer 
+            var referenceNotUpdated = _authenticationService.GetUserParty() == Party.Employer
                  ? request.EmployerReference == apprenticeship.EmployerRef
                  : request.ProviderReference == apprenticeship.ProviderRef;
 
@@ -258,7 +259,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             bool NoChangesRequested() => (request.Email == apprenticeshipDetails.Email && request.StartDate == apprenticeshipDetails.StartDate && request.EndDate == apprenticeshipDetails.EndDate);
 
-            if (string.IsNullOrWhiteSpace(request.Email)) 
+            if (string.IsNullOrWhiteSpace(request.Email))
                 return null;
 
             if (NoChangesRequested())
@@ -422,14 +423,15 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                     if (!string.IsNullOrWhiteSpace(request.CourseCode))
                     {
+                        // Get Earliest Start Date and Latest End Date for a Standard across Versions
                         var result = _mediator.Send(new GetTrainingProgrammeQuery
                         {
                             Id = request.CourseCode
                         }).Result;
 
                         var courseStartedBeforeDas = result.TrainingProgramme != null &&
-                                   (!result.TrainingProgramme.EffectiveFrom.HasValue ||
-                                    result.TrainingProgramme.EffectiveFrom.Value < Constants.DasStartDate);
+                                                           (!result.TrainingProgramme.EffectiveFrom.HasValue ||
+                                                            result.TrainingProgramme.EffectiveFrom.Value < Constants.DasStartDate);
 
                         var trainingProgrammeStatus = GetStatusOn(request.StartDate.Value, result);
 
@@ -504,7 +506,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (!result.TrainingProgramme.EffectiveTo.HasValue || result.TrainingProgramme.EffectiveTo.Value >= dateOnly)
                 return TrainingProgrammeStatus.Active;
 
-            return TrainingProgrammeStatus.Expired;
+                return TrainingProgrammeStatus.Expired;
         }
 
         public int? AgeOnStartDate(DateTime? dateOfBirth, DateTime? newStartDate)
