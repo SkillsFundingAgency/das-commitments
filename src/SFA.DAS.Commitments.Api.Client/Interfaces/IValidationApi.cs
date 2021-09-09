@@ -10,5 +10,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<ApprenticeshipOverlapValidationResult> ValidateOverlapping(ApprenticeshipOverlapValidationRequest apprenticeshipOverlapValidation);
 
         Task<IEnumerable<ApprenticeshipOverlapValidationResult>> ValidateOverlapping(IEnumerable<ApprenticeshipOverlapValidationRequest> apprenticeshipOverlapValidation);
+
+        Task<IEnumerable<ApprenticeshipEmailOverlapValidationResult>> ValidateEmailOverlapping(IEnumerable<ApprenticeshipEmailOverlapValidationRequest> apprenticeshipOverlapValidation);
     }
 }

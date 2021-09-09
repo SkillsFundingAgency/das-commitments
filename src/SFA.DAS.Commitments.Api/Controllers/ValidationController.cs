@@ -30,5 +30,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
             var result = await _validationOrchestrator.ValidateOverlappingApprenticeships(request);
             return Ok(result);
         }
+
+        [Route("apprenticeships/emailoverlapping")]
+        public async Task<IHttpActionResult> ValidateEmailOverlappingApprenticeships([FromBody] IEnumerable<ApprenticeshipEmailOverlapValidationRequest> request)
+        {
+            var result = await _validationOrchestrator.ValidateEmailOverlappingApprenticeships(request);
+            return Ok(result);
+        }
     }
 }
