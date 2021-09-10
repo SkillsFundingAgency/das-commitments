@@ -14,5 +14,7 @@
     [VersionMinor] INT NOT NULL DEFAULT 0, 
     [StandardPageUrl] NVARCHAR(500) NULL,
     [Status] NVARCHAR(50) NULL,
-    [IsLatestVersion] BIT NOT NULL DEFAULT 0
+    [IsLatestVersion] BIT NOT NULL DEFAULT 0,
+    [VersionEarliestStartDate] DATETIME NULL,
+    [VersionLatestStartDate] DATETIME NULL
 )
