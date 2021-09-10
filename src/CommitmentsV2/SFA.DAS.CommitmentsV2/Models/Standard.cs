@@ -21,6 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public int VersionMajor { get; set; }
         public int VersionMinor { get; set; }
         public string StandardPageUrl { get; set; }
+        public DateTime? VersionEarliestStartDate { get; set; }
+        public DateTime? VersionLatestStartDate { get; set; }
     }
 
     public class StandardFundingPeriod : IFundingPeriod

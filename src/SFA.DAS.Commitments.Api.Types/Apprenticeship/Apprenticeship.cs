@@ -52,5 +52,6 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public bool? MadeRedundant { get; set; }
         public IEnumerable<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public bool IsChangeOfProviderContinuation { get; set; }
+        public string Email { get; set; }
     }
 }
