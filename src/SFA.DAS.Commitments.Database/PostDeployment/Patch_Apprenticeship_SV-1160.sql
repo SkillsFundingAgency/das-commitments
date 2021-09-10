@@ -4,6 +4,27 @@
 
 -- where there could have only been one version can confirm version
 -- NOTE version based on LarsCode to handle multi-lars code standards, where only one version per lars code
+DECLARE 
+@trigger_enabled varchar(10) = 'disable';
+
+PRINT N'Patch historical Version in Apprenticeship - Started.';
+
+-- disable the UpdateOn trigger, if it exists and is enabled
+IF EXISTS ( SELECT  *
+            FROM    sys.triggers
+            WHERE   name = 'Trg_Apprenticeship_Update'
+			AND is_disabled = 0 ) 
+BEGIN
+	PRINT N'Disabling trigger Trg_Apprenticeship_Update.';
+    SET @trigger_enabled = 'enable';
+	EXEC('ALTER TABLE [dbo].[Apprenticeship] DISABLE TRIGGER Trg_Apprenticeship_Update');
+END
+
+SELECT @trigger_enabled 
+
+
+-- where there could have only been one version can confirm version
+-- NOTE version based on LarsCode to handle multi-lars code standards, where only one version per lars code
 MERGE INTO Apprenticeship apmaster
 USING (
     SELECT ap1.id, st3.Version TrainingCourseVersion, 1 TrainingCourseVersionConfirmed, st3.StandardUId 
@@ -51,4 +72,13 @@ SET apmaster.TrainingCourseVersion =upd.TrainingCourseVersion
    ,apmaster.TrainingCourseVersionConfirmed = upd.TrainingCourseVersionConfirmed
    ,apmaster.StandardUId = upd.StandardUId;
 
+-- reset the UpdateOn trigger, if it exists and is enabled
+IF @trigger_enabled = 'enable' 
+BEGIN
+	PRINT N'Enabling trigger Trg_Apprenticeship_Update.';
+	EXEC('ALTER TABLE [dbo].[Apprenticeship] ENABLE TRIGGER Trg_Apprenticeship_Update');
+END
 
+PRINT N'Patch historical Version in Apprenticeship - Completed.';
+
+GO
