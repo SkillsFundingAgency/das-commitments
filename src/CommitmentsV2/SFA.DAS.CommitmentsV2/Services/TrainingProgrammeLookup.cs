@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     throw new Exception($"The course code {standardId} was not found");
                 }
 
-                return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
+                return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
             }
 
             var framework = await _dbContext.Frameworks.Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.Id.Equals(courseCode));
