@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
 using System;
@@ -29,7 +30,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             var settings = new JsonSerializerSettings
             {
-                 DateFormatString = "yyyy-MM-dd'T'HH:mm:ss"
+                 DateFormatString = "yyyy-MM-dd'T'HH:mm:ss",
+                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
 
             var jsonResult = new JsonResult(new GetAllLearnersResponse()
