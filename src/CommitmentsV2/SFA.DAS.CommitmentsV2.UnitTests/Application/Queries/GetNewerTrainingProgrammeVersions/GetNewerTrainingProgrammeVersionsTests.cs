@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetNewerTrainingPr
         [Test]
         public async Task Then_ReturnTrainingProgrammeVersions()
         {
-            _mockTrainingProgrammeService.Setup(x => x.GetTrainingProgrammeVersions(_query.StandardUId))
+            _mockTrainingProgrammeService.Setup(x => x.GetNewerTrainingProgrammeVersions(_query.StandardUId))
                 .ReturnsAsync(_newVersions);
 
             var result = await _handler.Handle(_query, CancellationToken.None);
@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetNewerTrainingPr
         [Test]
         public async Task And_LookupServiceThrowsException_Then_ReturnEmptyResponse()
         {
-            _mockTrainingProgrammeService.Setup(x => x.GetTrainingProgrammeVersions(_query.StandardUId))
+            _mockTrainingProgrammeService.Setup(x => x.GetNewerTrainingProgrammeVersions(_query.StandardUId))
                 .Throws(new Exception());
 
             var result = await _handler.Handle(_query, CancellationToken.None);
