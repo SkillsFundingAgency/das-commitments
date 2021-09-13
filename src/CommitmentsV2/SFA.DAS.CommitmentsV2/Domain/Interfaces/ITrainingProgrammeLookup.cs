@@ -12,6 +12,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
         Task<TrainingProgramme> GetTrainingProgrammeVersionByStandardUId(string standardUId);
         Task<TrainingProgramme> GetTrainingProgrammeVersionByCourseCodeAndVersion(string courseCode, string version);
         Task<IEnumerable<TrainingProgramme>> GetTrainingProgrammeVersions(string courseCode);
+        Task<IEnumerable<TrainingProgramme>> GetNewerTrainingProgrammeVersions(string standardUId);
+
         Task<IEnumerable<TrainingProgramme>> GetAll();
         Task<IEnumerable<TrainingProgramme>> GetAllStandards();
     }

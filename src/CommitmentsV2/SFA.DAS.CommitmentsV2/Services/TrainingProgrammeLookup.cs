@@ -192,6 +192,40 @@ namespace SFA.DAS.CommitmentsV2.Services
             return trainingProgrammes;
         }
 
+        public async Task<IEnumerable<TrainingProgramme>> GetNewerTrainingProgrammeVersions(string standardUId)
+        {
+            var standard = await _dbContext.Standards.FirstOrDefaultAsync(s => s.StandardUId == standardUId);
+
+            if (standard == null)
+            {
+                throw new Exception($"Standard {standardUId} was not found");
+            }
+
+            var standardVersions = await _dbContext.Standards.Include(c => c.FundingPeriods)
+                .Where(v => v.IFateReferenceNumber == standard.IFateReferenceNumber)
+                .Where(v => v.VersionMajor > standard.VersionMajor || (v.VersionMajor == standard.VersionMajor && v.VersionMinor > standard.VersionMinor))
+                .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
+
+            if (standardVersions.Count == 0)
+            {
+                return null;
+            }
+
+            var newTrainingProgrammeVersions = standardVersions.Select(version =>
+                new TrainingProgramme(version.LarsCode.ToString(),
+                    GetTitle(version.Title, version.Level),
+                    version.Version, version.StandardUId,
+                    ProgrammeType.Standard,
+                    version.StandardPageUrl,
+                    version.EffectiveFrom,
+                    version.EffectiveTo,
+                    new List<IFundingPeriod>(version.FundingPeriods),
+                    version.Options?.Select(o => o.Option).ToList())
+                );
+
+            return newTrainingProgrammeVersions;
+        }
+
         private static string GetTitle(string title, int level)
         {
             return $"{title}, Level: {level}";

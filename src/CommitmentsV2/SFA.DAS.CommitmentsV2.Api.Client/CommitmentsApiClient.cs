@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Http;
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.Http;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
@@ -410,6 +409,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<GetTrainingProgrammeVersionsResponse> GetTrainingProgrammeVersions(string id, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetTrainingProgrammeVersionsResponse>($"api/TrainingProgramme/{id}/versions", null, cancellationToken);
+        }
+
+        public Task<GetNewerTrainingProgrammeVersionsResponse> GetNewerTrainingProgrammeVersions(string standardUId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetNewerTrainingProgrammeVersionsResponse>($"api/TrainingProgramme/{standardUId}/newer-versions", null, cancellationToken);
         }
 
         public Task<GetTrainingProgrammeResponse> GetTrainingProgrammeVersionByStandardUId(string standardUId, CancellationToken cancellationToken = default)

@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetNewerTrainingProgrammeVersions;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -171,6 +172,29 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
+        [Route("{standardUId}/newer-versions")]
+        public async Task<IActionResult> GetNewerTrainingProgrammeVersions(string standardUId)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetNewerTrainingProgrammeVersionsQuery { StandardUId = standardUId });
+
+                if (result.NewerVersions == null)
+                    return NotFound();
+
+                return Ok(new GetNewerTrainingProgrammeVersionsResponse
+                {
+                    NewerVersions = result.NewerVersions
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error getting newer versions for standardUId {standardUId}");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
         [Route("calculate-version/{courseCode}")]
         public async Task<IActionResult> GetCalculatedTrainingProgrammeVersion(int courseCode, [FromQuery] GetTrainingProgrammeVersionRequest request)
         {
@@ -197,5 +221,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return BadRequest();
             }
         }
+
     }
 }

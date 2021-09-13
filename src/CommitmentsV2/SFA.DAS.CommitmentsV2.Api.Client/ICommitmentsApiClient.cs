@@ -57,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetAllTrainingProgrammeStandardsResponse> GetAllTrainingProgrammeStandards(CancellationToken cancellationToken = default);
         Task<GetTrainingProgrammeResponse> GetTrainingProgramme(string id, CancellationToken cancellationToken = default);
         Task<GetTrainingProgrammeVersionsResponse> GetTrainingProgrammeVersions(string id, CancellationToken cancellationToken = default);
+        Task<GetNewerTrainingProgrammeVersionsResponse> GetNewerTrainingProgrammeVersions(string standardUId, CancellationToken cancellationToken = default);
         Task<GetTrainingProgrammeResponse> GetTrainingProgrammeVersionByStandardUId(string standardUId, CancellationToken cancellationToken = default);
         Task<GetTrainingProgrammeResponse> GetTrainingProgrammeVersionByCourseCodeAndVersion(string courseCode, string version, CancellationToken cancellationToken = default);
         Task<GetTrainingProgrammeResponse> GetCalculatedTrainingProgrammeVersion(int courseCode, DateTime startDate, CancellationToken cancellationToken = default);

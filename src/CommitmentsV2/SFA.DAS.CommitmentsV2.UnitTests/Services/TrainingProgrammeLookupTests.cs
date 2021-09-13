@@ -354,6 +354,62 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             results.Should().BeNull();
         }
 
+        [Test, MoqAutoData]
+        public async Task When_GettingNewerStandardVersions_Then_ReturnListOfNewerVersions(
+             DateTime baseDate,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            var standards = GetStandards(baseDate);
+            standards.Add(
+                _fixture.Build<Standard>()
+                    .With(s => s.LarsCode, 1)
+                    .With(s => s.StandardUId, "ST0001_2.0")
+                    .With(s => s.IFateReferenceNumber, "ST0001")
+                    .With(s => s.Version, "2.0")
+                    .With(s => s.VersionMajor, 2)
+                    .With(s => s.VersionMinor, 0)
+                    .With(s => s.VersionEarliestStartDate, baseDate)
+                    .With(s => s.VersionLatestStartDate, baseDate.AddYears(1).AddDays(1))
+                    .With(s => s.FundingPeriods, new List<StandardFundingPeriod>())
+                .Create());
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            var result = await service.GetNewerTrainingProgrammeVersions("ST0001_1.0");
+
+            result.Count().Should().Be(2);
+            result.Should().Contain(v => v.Version == "1.1");
+            result.Should().Contain(v => v.Version == "2.0");
+        }
+
+        [Test, MoqAutoData]
+        public void When_GettingNewerStandardVersions_And_StandardNotFound_Then_ThrowException(
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service,
+            string standardUId)
+        {
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(new List<Standard>());
+
+            Assert.ThrowsAsync<Exception>(() => service.GetNewerTrainingProgrammeVersions(standardUId), $"Standard {standardUId} was not found");
+
+        }
+
+        [Test, MoqAutoData]
+        public async Task When_GettingNewerStandardVersions_And_NoNewerVersions_Then_ReturnNull(
+            DateTime baseDate,
+            [Frozen] Mock<IProviderCommitmentsDbContext> dbContext,
+            TrainingProgrammeLookup service)
+        {
+            var standards = GetStandards(baseDate);
+
+            dbContext.Setup(x => x.Standards).ReturnsDbSet(standards);
+
+            var result = await service.GetNewerTrainingProgrammeVersions("ST0001_1.1");
+
+            result.Should().BeNull();
+        }
+
         private List<Standard> GetStandards(DateTime baseDate)
         {
             var standards = new List<Standard>
@@ -361,6 +417,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _fixture.Build<Standard>()
                         .With(s => s.LarsCode, 1)
                         .With(s => s.StandardUId, "ST0001_1.0")
+                        .With(s => s.IFateReferenceNumber, "ST0001")
                         .With(s => s.Version, "1.0")
                         .With(s => s.VersionMajor, 1)
                         .With(s => s.VersionMinor, 0)
@@ -373,6 +430,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _fixture.Build<Standard>()
                         .With(s => s.LarsCode, 1)
                         .With(s => s.StandardUId, "ST0001_1.1")
+                        .With(s => s.IFateReferenceNumber, "ST0001")
                         .With(s => s.Version, "1.1")
                         .With(s => s.VersionMajor, 1)
                         .With(s => s.VersionMinor, 1)
