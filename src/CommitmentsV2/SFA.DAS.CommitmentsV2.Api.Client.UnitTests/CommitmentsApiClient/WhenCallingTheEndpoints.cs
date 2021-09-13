@@ -594,6 +594,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task GetTrainingProgrammeVersions()
+        {
+            await _fixture.CommitmentsApiClient.GetTrainingProgrammeVersions("123");
+
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetTrainingProgrammeVersionsResponse>("api/TrainingProgramme/123/versions", null, CancellationToken.None));
+        }
+
+        [Test]
         public async Task EditApprenticeship_VerifyUrl()
         {
             var request = new EditApprenticeshipApiRequest();

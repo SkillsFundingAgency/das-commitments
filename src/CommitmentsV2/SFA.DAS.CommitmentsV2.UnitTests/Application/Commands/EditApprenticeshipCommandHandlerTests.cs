@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -220,11 +221,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task EffectiveToDate_Is_Set_To_Null(Party party)
         {
             fixture.SetParty(party);
-            fixture.Command.EditApprenticeshipRequest.CourseCode = "NewCourse";
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "123";
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated(null,
                 app => app.ApprenticeshipUpdate.First().EffectiveToDate);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task When_NewStandardIsSelected_Then_SetStandardUIdAndVersion(Party party)
+        {
+            fixture.SetParty(party);
+            fixture.Command.EditApprenticeshipRequest.CourseCode = "123";
+
+            await fixture.Handle();
+            fixture.VerifyApprenticeshipUpdateCreated("123",
+                app => app.ApprenticeshipUpdate.First().TrainingCode);
+            fixture.VerifyApprenticeshipUpdateCreated("ST0123_1.0",
+                app => app.ApprenticeshipUpdate.First().StandardUId);
+            fixture.VerifyApprenticeshipUpdateCreated("1.0",
+                app => app.ApprenticeshipUpdate.First().TrainingCourseVersion);
         }
 
         [TestCase(Party.Provider)]
@@ -327,6 +344,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Returns(() => Task.FromResult(new GetTrainingProgrammeQueryResult {
                     TrainingProgramme = new Types.TrainingProgramme { Name = "CourseName" , ProgrammeType = Types.ProgrammeType.Standard }
                 }));
+
+            mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeVersionQuery>(), It.IsAny<CancellationToken>()))
+               .Returns(() => Task.FromResult(new GetTrainingProgrammeVersionQueryResult
+               {
+                   TrainingProgramme = new Types.TrainingProgramme { Name = "CourseName", ProgrammeType = Types.ProgrammeType.Standard, Version = "1.0", StandardUId = "ST0123_1.0" }
+               }));
 
             Handler = new EditApprenticeshipCommandHandler(editApprenticeshipValidationService.Object,
                 lazyProviderDbContext,

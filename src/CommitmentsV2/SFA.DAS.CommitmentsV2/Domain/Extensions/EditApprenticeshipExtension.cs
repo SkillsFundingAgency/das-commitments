@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
                 ProviderId = apprenticeship.Cohort.ProviderId,
                 CourseCode = GetValue(source.CourseCode, apprenticeship.CourseCode),
+                Version = GetValue(source.Version, apprenticeship.TrainingCourseVersion),
                 FirstName = GetValue(source.FirstName, apprenticeship.FirstName),
                 LastName = GetValue(source.LastName, apprenticeship.LastName),
                 Email = GetValue(source.Email, apprenticeship.Email),
@@ -46,6 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         {
             var apprenticeshipUpdate = new ApprenticeshipUpdate();
             apprenticeshipUpdate.TrainingCode = command.EditApprenticeshipRequest.CourseCode;
+            apprenticeshipUpdate.TrainingCourseVersion = command.EditApprenticeshipRequest.Version;
             apprenticeshipUpdate.DateOfBirth = command.EditApprenticeshipRequest.DateOfBirth;
             apprenticeshipUpdate.EndDate = command.EditApprenticeshipRequest.EndDate;
             apprenticeshipUpdate.StartDate = command.EditApprenticeshipRequest.StartDate;
@@ -68,6 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 || !string.IsNullOrWhiteSpace(request.LastName)
                 || !string.IsNullOrWhiteSpace(request.Email)
                 || !string.IsNullOrWhiteSpace(request.CourseCode)
+                || !string.IsNullOrWhiteSpace(request.Version)
                 || request.DateOfBirth != null
                 || request.StartDate != null
                 || request.EndDate != null
