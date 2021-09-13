@@ -17,5 +17,6 @@ namespace SFA.DAS.CommitmentsV2.Types
         public DateTime CreatedOn { get; set; }
         public long? TransferSenderId { get; set; }
         public string TransferSenderName { get; set; }
+        public string AccountLegalEntityPublicHashedId { get; set; }
     }
 }
