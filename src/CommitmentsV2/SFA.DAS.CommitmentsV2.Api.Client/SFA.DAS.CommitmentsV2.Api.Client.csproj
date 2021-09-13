@@ -15,7 +15,6 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>We have now moved to Managed Identities authorisation headers instead of Azure Active Directory</PackageReleaseNotes>
-    <Version>7.6.5</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -179,9 +179,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 var result = await _mediator.Send(new GetNewerTrainingProgrammeVersionsQuery { StandardUId = standardUId });
 
-                if (result.NewerVersions == null)
-                    return NotFound();
-
                 return Ok(new GetNewerTrainingProgrammeVersionsResponse
                 {
                     NewerVersions = result.NewerVersions
