@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentValidation;
+using FluentValidation.Internal;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -191,6 +192,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 apprenticeDetails, arrange);
         }
 
+        [TestCase(false, null, false)]
+        [TestCase(true, null, true)]
+        [TestCase(true, 101, true)]
+        public async Task Handle_WithApprenticeEmailAndAContinuationOfId_ShouldReturnExpectedEmployerCanApprove(bool emailPresent, long? continuationOfId, bool expectedCanApprove)
+        {
+            var fieldToSet = emailPresent ? 0 : 8;
+            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
+            {
+                f.ApprenticeEmailFeatureServiceMock.Setup(x => x.IsEnabled).Returns(true);
+                f.ApprenticeEmailFeatureServiceMock
+                    .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            });
+
+            var apprenticeDetails = SetApprenticeDetails(fieldToSet);
+
+            await CheckQueryResponse(response =>
+                {
+                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForEmployer);
+                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForProvider);
+                },
+                apprenticeDetails, arrange, continuationOfId);
+        }
+
+
         [TestCase(0, true)]
         [TestCase(1, false)]
         [TestCase(2, false)]
@@ -239,7 +264,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(response => Assert.AreEqual(value, response.ChangeOfPartyRequestId));
         }
 		
-        private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert, DraftApprenticeshipDetails apprenticeshipDetails = null, Action<GetCohortSummaryHandlerTestFixtures> arrange = null)
+        private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert, DraftApprenticeshipDetails apprenticeshipDetails = null, Action<GetCohortSummaryHandlerTestFixtures> arrange = null, long? continuationOfId = null)
         {
             var autoFixture = new Fixture();
 
@@ -264,7 +289,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             
             if (apprenticeshipDetails != null)
             {
-                Cohort.Apprenticeships.Add(new DraftApprenticeship(apprenticeshipDetails, Cohort.WithParty));
+                var draftApprenticeship = new DraftApprenticeship(apprenticeshipDetails, Cohort.WithParty);
+                draftApprenticeship.ContinuationOfId = continuationOfId;
+                Cohort.Apprenticeships.Add(draftApprenticeship);
             }
 
             // arrange
