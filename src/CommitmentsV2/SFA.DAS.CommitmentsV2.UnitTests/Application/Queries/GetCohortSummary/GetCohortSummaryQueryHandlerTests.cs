@@ -165,30 +165,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(response => Assert.AreEqual(expectedEmployerCanApprove, response.IsCompleteForEmployer),
                 apprenticeDetails);
         }
-
-        [TestCase(false, true, true, false)]
-        [TestCase(false, true, false,true)]
-        [TestCase(true, true, true, true)]
-        [TestCase(true, true, false, true)]
-        [TestCase(false, false, false, true)]
-        [TestCase(true, false, false, true)]
-        public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(bool emailPresent, bool apprenticeEmailRequired, bool onPrivateBetaList, bool expectedCanApprove)
+         
+        [TestCase(true, true, true)]
+        [TestCase(false, true, false)]
+        [TestCase(true, false, true)]
+        [TestCase(false, false, true)]        
+        public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(bool emailPresent, bool apprenticeEmailRequired, bool expectedCanApprove)
         {
             var fieldToSet = emailPresent ? 0 : 8;
             Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
-                f.ApprenticeEmailFeatureServiceMock.Setup(x => x.IsEnabled).Returns(apprenticeEmailRequired);
-                f.ApprenticeEmailFeatureServiceMock
-                    .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(onPrivateBetaList);
+                f.EmailOptionalService
+                 .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>()))
+                 .Returns(apprenticeEmailRequired);
             });
 
             var apprenticeDetails = SetApprenticeDetails(fieldToSet);
 
             await CheckQueryResponse(response =>
-                {
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForEmployer);
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForProvider);
-                },
+            {
+                Assert.AreEqual(expectedCanApprove, response.IsCompleteForEmployer);
+                Assert.AreEqual(expectedCanApprove, response.IsCompleteForProvider);
+            },
                 apprenticeDetails, arrange);
         }
 
@@ -200,9 +198,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             var fieldToSet = emailPresent ? 0 : 8;
             Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
-                f.ApprenticeEmailFeatureServiceMock.Setup(x => x.IsEnabled).Returns(true);
-                f.ApprenticeEmailFeatureServiceMock
-                    .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+                f.EmailOptionalService.Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             });
 
             var apprenticeDetails = SetApprenticeDetails(fieldToSet);
@@ -214,7 +210,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 },
                 apprenticeDetails, arrange, continuationOfId);
         }
-
 
         [TestCase(0, true)]
         [TestCase(1, false)]
@@ -363,8 +358,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public GetCohortSummaryHandlerTestFixtures()
         {
             HandlerMock = new Mock<IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>>();    
-            ValidatorMock = new Mock<IValidator<GetCohortSummaryQuery>>();
-            ApprenticeEmailFeatureServiceMock = new Mock<IApprenticeEmailFeatureService>();
+            ValidatorMock = new Mock<IValidator<GetCohortSummaryQuery>>();            
+            EmailOptionalService = new Mock<IEmailOptionalService>();
             SeedCohorts = new List<Cohort>();
         }
 
@@ -372,8 +367,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
         public IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult> Handler => HandlerMock.Object;
 
-        public Mock<IValidator<GetCohortSummaryQuery>> ValidatorMock { get; set; }
-        public Mock<IApprenticeEmailFeatureService> ApprenticeEmailFeatureServiceMock { get; set; }
+        public Mock<IValidator<GetCohortSummaryQuery>> ValidatorMock { get; set; }        
+        public Mock<IEmailOptionalService> EmailOptionalService { get; set; }
         public IValidator<GetCohortSummaryQuery> Validator => ValidatorMock.Object;
 
         public List<Cohort> SeedCohorts { get; }
@@ -424,7 +419,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetCohortSummaryQueryHandler(lazy, ApprenticeEmailFeatureServiceMock.Object);
+                var handler = new GetCohortSummaryQueryHandler(lazy, EmailOptionalService.Object);
 
                 return handler.Handle(query, CancellationToken.None);
             });
