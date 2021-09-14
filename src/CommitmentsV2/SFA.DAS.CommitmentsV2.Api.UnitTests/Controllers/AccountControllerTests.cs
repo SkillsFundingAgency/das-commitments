@@ -10,6 +10,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -35,6 +36,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
 
         [Test]
+        public async Task GetAccountTransferStatus_Should_Return_Valid_Result()
+        {
+            await _fixture.GetAccountTransferStatus();
+            _fixture.VerifyTransferStatusResponse();
+        }
+
+        [Test]
         public async Task GetApprovedProviders_Should_Return_Valid_Result()
         {
             await _fixture.GetApprovedProviders();
@@ -56,6 +64,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             private long AccountId { get; }
             private GetAccountSummaryQueryResult MediatorQueryResult { get; }
 
+            private GetTransferStatusQueryResult TransferStatusQueryResult { get; }
+
             private GetApprovedProvidersQueryResult ApprovedProviderQueryResult { get; }
 
             private GetProviderPaymentsPriorityQueryResult ProviderPaymentsPriorityQueryResult { get; }
@@ -71,6 +81,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 Mediator = new Mock<IMediator>();
                 Mediator.Setup(x => x.Send(It.IsAny<GetAccountSummaryQuery>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(MediatorQueryResult);
+
+                TransferStatusQueryResult = autoFixture.Create<GetTransferStatusQueryResult>();
+                Mediator.Setup(x => x.Send(It.IsAny<GetAccountTransferStatusQuery>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(TransferStatusQueryResult);
 
                 ApprovedProviderQueryResult = autoFixture.Create<GetApprovedProvidersQueryResult>();
                 Mediator.Setup(x => x.Send(It.IsAny<GetApprovedProvidersQuery>(), It.IsAny<CancellationToken>()))
@@ -112,6 +126,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 Result = await Controller.GetAccount(AccountId);
             }
 
+            public async Task GetAccountTransferStatus()
+            {
+                Result = await Controller.GetAccountTransferStatus(AccountId);
+            }
+
             public async Task GetApprovedProviders()
             {
                 Result = await Controller.GetApprovedProviders(AccountId);
@@ -134,6 +153,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
                 Assert.AreEqual(MediatorQueryResult.AccountId, response.AccountId);
                 Assert.AreEqual(MediatorQueryResult.LevyStatus, response.LevyStatus);
+            }
+
+            public void VerifyTransferStatusResponse()
+            {
+                Assert.AreEqual(typeof(OkObjectResult), Result.GetType());
+                var objectResult = (OkObjectResult)Result;
+                Assert.AreEqual(200, objectResult.StatusCode);
+
+                var response = (AccountTransferStatusResponse)objectResult.Value;
+
+                Assert.AreEqual(TransferStatusQueryResult.IsTransferSender, response.IsTransferSender);
+                Assert.AreEqual(TransferStatusQueryResult.IsTransferReceiver, response.IsTransferReceiver);
             }
 
             public void VerifyApprovedProviderResponse()
