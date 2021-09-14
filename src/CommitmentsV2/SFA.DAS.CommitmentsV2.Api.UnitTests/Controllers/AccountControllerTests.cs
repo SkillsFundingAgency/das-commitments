@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             private long AccountId { get; }
             private GetAccountSummaryQueryResult MediatorQueryResult { get; }
 
-            private GetTransferStatusQueryResult TransferStatusQueryResult { get; }
+            private GetAccountTransferStatusQueryResult AccountTransferStatusQueryResult { get; }
 
             private GetApprovedProvidersQueryResult ApprovedProviderQueryResult { get; }
 
@@ -82,9 +82,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 Mediator.Setup(x => x.Send(It.IsAny<GetAccountSummaryQuery>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(MediatorQueryResult);
 
-                TransferStatusQueryResult = autoFixture.Create<GetTransferStatusQueryResult>();
+                AccountTransferStatusQueryResult = autoFixture.Create<GetAccountTransferStatusQueryResult>();
                 Mediator.Setup(x => x.Send(It.IsAny<GetAccountTransferStatusQuery>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(TransferStatusQueryResult);
+                    .ReturnsAsync(AccountTransferStatusQueryResult);
 
                 ApprovedProviderQueryResult = autoFixture.Create<GetApprovedProvidersQueryResult>();
                 Mediator.Setup(x => x.Send(It.IsAny<GetApprovedProvidersQuery>(), It.IsAny<CancellationToken>()))
@@ -163,8 +163,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
                 var response = (AccountTransferStatusResponse)objectResult.Value;
 
-                Assert.AreEqual(TransferStatusQueryResult.IsTransferSender, response.IsTransferSender);
-                Assert.AreEqual(TransferStatusQueryResult.IsTransferReceiver, response.IsTransferReceiver);
+                Assert.AreEqual(AccountTransferStatusQueryResult.IsTransferSender, response.IsTransferSender);
+                Assert.AreEqual(AccountTransferStatusQueryResult.IsTransferReceiver, response.IsTransferReceiver);
             }
 
             public void VerifyApprovedProviderResponse()
