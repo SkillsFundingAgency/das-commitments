@@ -59,11 +59,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     IsCompleteForEmployer = c.Apprenticeships.Any() &&
                                             !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
                                                                         a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null ||
-                                                                        (apprenticeEmailIsRequired && a.Email == null)),
+                                                                        (apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)),
                     IsCompleteForProvider = c.Apprenticeships.Any() &&
                                             !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
                                                                         a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null ||
-                                                                        a.Uln == null || (apprenticeEmailIsRequired && a.Email == null)),
+                                                                        a.Uln == null || (apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)),
                     LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
                     ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
                     TransferApprovalStatus = c.TransferApprovalStatus
