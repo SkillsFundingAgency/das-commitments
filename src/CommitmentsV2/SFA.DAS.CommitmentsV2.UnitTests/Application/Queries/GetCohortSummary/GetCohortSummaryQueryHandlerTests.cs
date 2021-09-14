@@ -198,9 +198,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             var fieldToSet = emailPresent ? 0 : 8;
             Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
-                f.ApprenticeEmailFeatureServiceMock.Setup(x => x.IsEnabled).Returns(true);
-                f.ApprenticeEmailFeatureServiceMock
-                    .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+                f.EmailOptionalService.Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             });
 
             var apprenticeDetails = SetApprenticeDetails(fieldToSet);
@@ -212,7 +210,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 },
                 apprenticeDetails, arrange, continuationOfId);
         }
-
 
         [TestCase(0, true)]
         [TestCase(1, false)]
