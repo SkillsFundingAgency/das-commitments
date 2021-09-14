@@ -11,3 +11,12 @@ Post-Deployment Script Template
 */
 
 EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
+
+/* Reporter Role Access */
+
+IF DATABASE_PRINCIPAL_ID('Reporter') IS NULL
+BEGIN
+    CREATE ROLE [Reporter]
+END
+
+GRANT SELECT ON [DashboardReporting].ApprenticeshipsWithNoEmail TO Reporter
