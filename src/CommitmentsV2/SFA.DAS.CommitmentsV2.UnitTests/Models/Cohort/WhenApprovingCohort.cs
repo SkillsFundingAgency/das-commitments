@@ -450,6 +450,37 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.VerifyCohortWithChangeOfPartyRequestFullyApprovedEventIsEmitted(modifyingParty);
         }
 
+        [TestCase(Party.Employer, true, null,  false)]
+        [TestCase(Party.Employer, false, null, true)]
+        [TestCase(Party.Employer, false, 1011, true)]
+        [TestCase(Party.Employer, true, 1011, true)]
+        [TestCase(Party.Provider, true, null, false)]
+        [TestCase(Party.Provider, false, null, true)]
+        [TestCase(Party.Provider, false, 1011, true)]
+        [TestCase(Party.Provider, true, 1011, true)]
+        public void ThenIfTheDraftApprenticeshipIsCompleteWithOrWithoutaContinuationId(Party modifyingParty, bool isMissingEmail, long? continuationOfId, bool isApproved)
+        {
+            _fixture
+                .SetChangeOfPartyRequestId()
+                .SetModifyingParty(modifyingParty)
+                .SetWithParty(modifyingParty)
+                .SetApprovals(modifyingParty == Party.TransferSender ? (Party.Employer | Party.Provider) : modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship(isMissingApprenticeEmail:isMissingEmail, continuationId: continuationOfId);
+
+            bool? wasApproved = null;
+            try
+            {
+                _fixture.Approve(true);
+                wasApproved = true;
+            }
+            catch (DomainException)
+            {
+                wasApproved = false;
+            }
+
+            wasApproved.Should().Be(isApproved);
+        }
+
         [Test]
         public void AndChangeOfProviderRequestedAndCohortSetWithTransferSenderIdThenShouldNotPublishCohortTransferApprovalRequestedEvent()
         {
@@ -498,7 +529,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Cohort.Approve(Party, Message, UserInfo, Now, apprenticeEmailRequired);
         }
 
-        public WhenApprovingCohortFixture AddDraftApprenticeship(bool isIncompleteForEmployer = false, bool isIncompleteForProvider = false, bool isMissingApprenticeEmail = false)
+        public WhenApprovingCohortFixture AddDraftApprenticeship(bool isIncompleteForEmployer = false, bool isIncompleteForProvider = false, bool isMissingApprenticeEmail = false, long? continuationId = null)
         {
             var draftApprenticeshipDetailsComposer = AutoFixture.Build<DraftApprenticeshipDetails>().WithAutoProperties();
             
@@ -518,6 +549,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             }
 
             ApprenticeshipBase apprenticeship = new DraftApprenticeship(draftApprenticeshipDetailsComposer.Create(), Party.Provider);
+            apprenticeship.ContinuationOfId = continuationId;
             Cohort.Add(c => c.Apprenticeships, apprenticeship);
             return this;
         }
