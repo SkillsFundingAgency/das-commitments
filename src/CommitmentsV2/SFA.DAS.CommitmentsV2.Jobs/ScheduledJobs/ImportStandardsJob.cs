@@ -102,13 +102,15 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
                 p => p.Level,
                 p => p.Duration,
                 p => p.CurrentFundingCap,
-                p => p.VersionEarliestStartDate,
-                p => p.VersionLatestStartDate,
+                p => p.EffectiveFrom,
+                p => p.LastDateForNewStarts,
                 p => p.VersionMajor,
                 p => p.VersionMinor,
                 p => p.StandardPageUrl,
                 p => p.Status,
-                p => p.IsLatestVersion
+                p => p.IsLatestVersion,
+                p => p.VersionEarliestStartDate,
+                p => p.VersionLatestStartDate
                 ));
 
             foreach (var batch in batches)
