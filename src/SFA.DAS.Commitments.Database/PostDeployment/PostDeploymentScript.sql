@@ -14,9 +14,9 @@ EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
 
 /* Reporter Role Access */
 
-IF DATABASE_PRINCIPAL_ID('Reporter') IS NULL
+IF DATABASE_PRINCIPAL_ID('DashboardReporting') IS NULL
 BEGIN
-    CREATE ROLE [Reporter]
+    CREATE ROLE [DashboardReporting]
 END
 
-GRANT SELECT ON [DashboardReporting].ApprenticeshipsWithNoEmail TO Reporter
+GRANT SELECT ON SCHEMA :: DashboardReporting TO DashboardReporting
