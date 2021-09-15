@@ -8,8 +8,17 @@ namespace SFA.DAS.CommitmentsV2.Services
     {
         private readonly EmailOptionalConfiguration _config;
 
-        public EmailOptionalService(EmailOptionalConfiguration config) 
-            => _config = config;
+        public EmailOptionalService(EmailOptionalConfiguration config)
+        {
+            if (config == null)
+            {
+                _config = new EmailOptionalConfiguration {EmailOptionalEmployers = new long[0], EmailOptionalProviders  = new long[0]};
+            }
+            else
+            {
+                _config = config;
+            }
+        }
 
         public bool ApprenticeEmailIsOptionalFor(long employerId, long providerId)        
             => _config.EmailOptionalEmployers.Any(x => x == employerId) || _config.EmailOptionalProviders.Any(x => x == providerId);

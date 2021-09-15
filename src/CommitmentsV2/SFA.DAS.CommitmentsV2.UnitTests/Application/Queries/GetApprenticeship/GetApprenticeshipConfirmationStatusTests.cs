@@ -30,6 +30,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
         }
 
         [Test]
+        public async Task WhenEmailIsNull_ThenEmailAddressConfirmedByApprenticeShouldBeFalse()
+        {
+            // Arrange
+            Setup(null, null, null);
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            Assert.AreEqual(response.EmailAddressConfirmedByApprentice, false);
+        }
+
+        [Test]
+        public async Task WhenEmailIsNotNull_ThenEmailAddressConfirmedByApprenticeShouldBeTrue()
+        {
+            // Arrange
+            Setup("test@test.com", null, null);
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            Assert.AreEqual(response.EmailAddressConfirmedByApprentice, true);
+        }
+
+        [Test]
         public async Task WhenEmailIsNull_ThenConfirmationStatusShouldBeNull()
         {
             // Arrange
@@ -103,6 +129,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .Without(x => x.PriceHistory)
                 .Without(x => x.DataLockStatus)
                 .Without(x => x.PreviousApprenticeship)
+                .Without(x => x.ApprenticeshipConfirmationStatus)
                 .Create();
 
             var conf = _fixture.Build<ApprenticeshipConfirmationStatus>()
@@ -115,7 +142,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var _db = new ProviderCommitmentsDbContext(options);
 
             _db.Apprenticeships.Add(appr);
-            _db.ApprenticeshipConfirmationStatus.Add(conf);
+            if (email != null)
+            {
+                _db.ApprenticeshipConfirmationStatus.Add(conf);
+            }
+
             _db.SaveChanges();
 
             _sut = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), new Mock<IAuthenticationService>().Object);
