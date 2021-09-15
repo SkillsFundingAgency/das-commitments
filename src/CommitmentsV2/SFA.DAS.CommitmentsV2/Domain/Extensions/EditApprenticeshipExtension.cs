@@ -48,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             var apprenticeshipUpdate = new ApprenticeshipUpdate();
             apprenticeshipUpdate.TrainingCode = command.EditApprenticeshipRequest.CourseCode;
             apprenticeshipUpdate.TrainingCourseVersion = command.EditApprenticeshipRequest.Version;
+            apprenticeshipUpdate.TrainingCourseOption = command.EditApprenticeshipRequest.Option;
             apprenticeshipUpdate.DateOfBirth = command.EditApprenticeshipRequest.DateOfBirth;
             apprenticeshipUpdate.EndDate = command.EditApprenticeshipRequest.EndDate;
             apprenticeshipUpdate.StartDate = command.EditApprenticeshipRequest.StartDate;

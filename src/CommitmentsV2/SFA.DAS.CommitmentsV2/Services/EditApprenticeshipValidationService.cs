@@ -82,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.AddRange(await BuildReservationValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildTrainingProgramValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildEmailValidationFailures(request, apprenticeship));
+
             }
 
             if (errors.Count == 0)
@@ -290,6 +291,13 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                 errors = validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
             }
+
+            return errors;
+        }
+
+        private IEnumerable<DomainError> BuildOptionValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
+        {
+            List<DomainError> errors = new List<DomainError>();
 
             return errors;
         }

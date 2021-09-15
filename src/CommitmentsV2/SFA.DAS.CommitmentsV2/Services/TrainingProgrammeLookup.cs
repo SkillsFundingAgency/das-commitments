@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return null;
             }
 
-            var standardVersions = await _dbContext.Standards.AsNoTracking().Include(c => c.FundingPeriods).Where(s => s.LarsCode == standardId)
+            var standardVersions = await _dbContext.Standards.AsNoTracking().Include(c => c.FundingPeriods).Include(c => c.Options).Where(s => s.LarsCode == standardId)
                 .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
 
             TrainingProgramme trainingProgramme = null;

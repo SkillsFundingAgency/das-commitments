@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 CourseCode = source.CourseCode,
                 StandardUId = source.StandardUId,
                 Version = source.Version,
+                Option = source.Option,
                 CourseName = source.CourseName,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
