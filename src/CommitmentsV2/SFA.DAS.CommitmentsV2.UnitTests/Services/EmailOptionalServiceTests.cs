@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional;
+﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Services;
-using Moq;
 using NUnit.Framework;
-using System.Threading;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -108,6 +101,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void EmailOptionalService_ApprenticeEmailIsRequiredForProvider_Negative(long providerId)
         {
             Assert.IsFalse(_sut.ApprenticeEmailIsRequiredForProvider(providerId));
+        }
+
+        [TestCase(654, 1234)]
+        public void EmailOptionalService_ApprenticeEmailIsRequiredForProviderOrEmployer_OnNullList(long providerId, long employerId)
+        {
+            ArrangeConfigToBeNullArray();
+            Assert.IsFalse(_sut.ApprenticeEmailIsOptionalFor(employerId, providerId));
+        }
+
+        [TestCase(654)]
+        public void EmailOptionalService_ApprenticeEmailIsRequiredForProvider_OnNullList(long providerId)
+        {
+            ArrangeConfigToBeNullArray();
+            Assert.IsFalse(_sut.ApprenticeEmailIsOptionalForProvider(providerId));
+        }
+
+        [TestCase(1234)]
+        public void EmailOptionalService_ApprenticeEmailIsRequiredEmployer_OnNullList(long employerId)
+        {
+            ArrangeConfigToBeNullArray();
+            Assert.IsFalse(_sut.ApprenticeEmailIsOptionalForEmployer(employerId));
+        }
+
+        private void ArrangeConfigToBeNullArray()
+        {
+            _config = new EmailOptionalConfiguration { EmailOptionalEmployers = null, EmailOptionalProviders = null };
+            _sut = new EmailOptionalService(_config);
         }
     }
 }
