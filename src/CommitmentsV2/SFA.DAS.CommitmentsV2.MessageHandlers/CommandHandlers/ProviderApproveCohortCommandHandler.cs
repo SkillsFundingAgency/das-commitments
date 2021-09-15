@@ -14,16 +14,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
     {
         private readonly ILogger<ProviderApproveCohortCommandHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IApprenticeEmailFeatureService _apprenticeEmailFeatureService;
+        private readonly IEmailOptionalService _emailService;
 
         public ProviderApproveCohortCommandHandler(
             ILogger<ProviderApproveCohortCommandHandler> logger,
             Lazy<ProviderCommitmentsDbContext> dbContext,
-            IApprenticeEmailFeatureService apprenticeEmailFeatureService)
+            IEmailOptionalService emailService)
         {
             _logger = logger;
             _dbContext = dbContext;
-            _apprenticeEmailFeatureService = apprenticeEmailFeatureService;
+            _emailService = emailService;
         }
 
         public async Task Handle(ProviderApproveCohortCommand message, IMessageHandlerContext context)
@@ -33,8 +33,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                 _logger.LogInformation($"Handling {nameof(ProviderApproveCohortCommand)} with MessageId '{context.MessageId}'");
 
                 var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
-                var apprenticeEmailIsRequired = _apprenticeEmailFeatureService.IsEnabled &&
-                                                _apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
+                var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
+
                 if (cohort.Approvals.HasFlag(Party.Provider))
                 {
                     _logger.LogWarning($"Cohort {message.CohortId} has already been approved by the Provider");
