@@ -108,6 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var config = new EmailOptionalConfiguration { EmailOptionalEmployers = null, EmailOptionalProviders = null };
             var sut = new EmailOptionalService(config);
+
             Assert.IsFalse(sut.ApprenticeEmailIsOptionalFor(employerId, providerId));
         }
 
