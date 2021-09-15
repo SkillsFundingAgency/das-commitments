@@ -106,28 +106,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(654, 1234)]
         public void EmailOptionalService_ApprenticeEmailIsRequiredForProviderOrEmployer_OnNullList(long providerId, long employerId)
         {
-            ArrangeConfigToBeNullArray();
-            Assert.IsFalse(_sut.ApprenticeEmailIsOptionalFor(employerId, providerId));
+            var config = new EmailOptionalConfiguration { EmailOptionalEmployers = null, EmailOptionalProviders = null };
+            var sut = new EmailOptionalService(config);
+            Assert.IsFalse(sut.ApprenticeEmailIsOptionalFor(employerId, providerId));
         }
 
         [TestCase(654)]
         public void EmailOptionalService_ApprenticeEmailIsRequiredForProvider_OnNullList(long providerId)
         {
-            ArrangeConfigToBeNullArray();
-            Assert.IsFalse(_sut.ApprenticeEmailIsOptionalForProvider(providerId));
+            var config = new EmailOptionalConfiguration { EmailOptionalEmployers = null, EmailOptionalProviders = null };
+            var sut = new EmailOptionalService(config);
+
+            Assert.IsFalse(sut.ApprenticeEmailIsOptionalForProvider(providerId));
         }
 
         [TestCase(1234)]
         public void EmailOptionalService_ApprenticeEmailIsRequiredEmployer_OnNullList(long employerId)
         {
-            ArrangeConfigToBeNullArray();
-            Assert.IsFalse(_sut.ApprenticeEmailIsOptionalForEmployer(employerId));
-        }
+            var config = new EmailOptionalConfiguration { EmailOptionalEmployers = null, EmailOptionalProviders = null };
+            var sut = new EmailOptionalService(config);
 
-        private void ArrangeConfigToBeNullArray()
-        {
-            _config = new EmailOptionalConfiguration { EmailOptionalEmployers = null, EmailOptionalProviders = null };
-            _sut = new EmailOptionalService(_config);
+            Assert.IsFalse(sut.ApprenticeEmailIsOptionalForEmployer(employerId));
         }
     }
 }
