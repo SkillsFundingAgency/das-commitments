@@ -3,12 +3,16 @@
 
 -- the view determines the chronologically latest Apprenticeship record for all ULN & TrainingCode combinations
 -- and set IsLatest = 1 or 0.
--- if there is no ULN or TrainingCode on the Apprenteicship record then IsLatest will be NULL.
+-- if there is no ULN or TrainingCode on the Apprenticeship record then IsLatest will be NULL.
+-- In addiiton to IsLatest the sequence in reverse order is provided as LearningOrder (where 1 is also the latest)
+-- and if an Apprenticeship record was Cancelled - IsCancelled = 1 or 0
 
 WITH LatestApprenticeship
 AS (
-	SELECT id
-		  ,CASE WHEN ROW_NUMBER() OVER (PARTITION BY ULN, TrainingCode ORDER BY 
+	SELECT Id, CASE WHEN LearningOrder = 1 THEN 1 ELSE 0 END IsLatest, LearningOrder
+    FROM (
+		SELECT id,
+		  ROW_NUMBER() OVER (PARTITION BY ULN, TrainingCode ORDER BY 
 				CASE 
 				-- cancelled, not started, effectively deleted
 				WHEN (StopDate IS NOT NULL AND EOMONTH(StopDate) = EOMONTH(StartDate) AND PaymentStatus = 3) THEN 10
@@ -25,7 +29,7 @@ AS (
 					(CASE WHEN StartDate < StartDate_1 AND EndDate < Enddate_1 THEN 1 ELSE 0 END)
 				-- same Provider or only one record, so use latest CreatedOn unless	
 				ELSE 0 END 
-				,CreatedOn DESC ) = 1 THEN 1 ELSE 0 END IsLatest
+				,CreatedOn DESC ) LearningOrder
 			FROM (
 			-- inner query gets all records for each Apprenticeship, ORDER BY CreatedOn desc - there can be many but two iterations should be sufficient
 				SELECT ap1.Id
@@ -45,9 +49,13 @@ AS (
 				JOIN Commitment cm1 on cm1.Id = ap1.CommitmentId
 				WHERE ULN IS NOT NULL
 					AND TrainingCode IS NOT NULL
-				) ordered_apprenticeships
+				) OrderedApprenticeships
+		) ApprenticeshipStatuses
 )
-SELECT Apprenticeship.*, IsLatest FROM Apprenticeship 
+SELECT Apprenticeship.*, IsLatest, LearningOrder,
+       -- cancelled, not started, effectively deleted
+	   CASE WHEN (StopDate IS NOT NULL AND EOMONTH(StopDate) = EOMONTH(StartDate) AND PaymentStatus = 3) THEN 1 ELSE 0 END IsCancelled  
+FROM Apprenticeship 
 LEFT JOIN LatestApprenticeship ON LatestApprenticeship.Id = Apprenticeship.Id
 
 GO
