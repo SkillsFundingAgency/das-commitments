@@ -29,9 +29,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
 
         public Party GetUserParty()
         {
-            var isEmployer = true; // IsUserInRole(Role.Employer);
-            var isProvider = false; // IsUserInRole(Role.Provider);
- 
+            var isEmployer = IsUserInRole(Role.Employer);
+            var isProvider = IsUserInRole(Role.Provider);
+
             // The client app should be one _or_ the other (not both, not neither).
             if (isEmployer ^ isProvider)
             {
