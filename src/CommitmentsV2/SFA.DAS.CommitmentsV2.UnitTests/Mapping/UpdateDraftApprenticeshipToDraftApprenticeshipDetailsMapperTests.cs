@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.ReservationId.Should().Be(f.Command.ReservationId);
                     r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
-                    r.TrainingCourseVersionConfirmed.Should().BeTrue();
+                    r.TrainingCourseVersionConfirmed.Should().BeFalse();
                 });
         }
 
@@ -78,10 +78,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.Reference);
-                    r.TrainingProgramme.Should().Be(f.TrainingProgramme2);
+                    r.TrainingProgramme.Should().Be(f.TrainingProgramme);
                     r.ReservationId.Should().Be(f.Command.ReservationId);
-                    r.StandardUId.Should().Be(f.TrainingProgramme2.StandardUId);
-                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme2.Version);
+                    r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
+                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
                 });
         }
@@ -140,6 +140,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> MapNoDate()
         {
             Command.StartDate = null;
+            return Mapper.Map(Command);
+        }
+        
+        public Task<DraftApprenticeshipDetails> MapWithDate()
+        {
+            Command.StartDate = DateTime.Now;
             return Mapper.Map(Command);
         }
 

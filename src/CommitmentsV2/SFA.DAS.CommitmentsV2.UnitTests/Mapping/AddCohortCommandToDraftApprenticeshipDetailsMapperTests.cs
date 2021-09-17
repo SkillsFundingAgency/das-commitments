@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
@@ -8,6 +9,8 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Types;
+using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
@@ -99,11 +102,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture()
         {
             AutoFixture = new Fixture();
-            TrainingProgramme = AutoFixture.Create<TrainingProgramme>();
-            TrainingProgramme2 = AutoFixture.Create<TrainingProgramme>();
-            Command = AutoFixture.Build<AddCohortCommand>()
-                //.With(x => x.CourseCode, AutoFixture.Create<int>().ToString())
-            .Create();
+            var courseCode = AutoFixture.Create<long>().ToString();
+            TrainingProgramme = new TrainingProgramme(courseCode, AutoFixture.Create<string>(),
+                ProgrammeType.Standard, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>());
+            TrainingProgramme2  = new TrainingProgramme(AutoFixture.Create<long>().ToString(), AutoFixture.Create<string>(),
+                ProgrammeType.Standard, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>());
+            
+            var command =AutoFixture.Build<AddCohortCommand>()
+                .Create();
+            Command = new AddCohortCommand(command.AccountId, command.AccountLegalEntityId, command.ProviderId,
+                courseCode, command.Cost, command.StartDate, command.EndDate, command.OriginatorReference,
+                command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
+                command.Uln, command.TransferSenderId, command.UserInfo); 
+            
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
             Mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object, TrainingProgrammeLookup.Object);

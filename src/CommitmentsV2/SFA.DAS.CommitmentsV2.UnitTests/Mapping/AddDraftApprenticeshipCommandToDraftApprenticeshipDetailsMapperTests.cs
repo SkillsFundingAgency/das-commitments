@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.ReservationId.Should().Be(f.Command.ReservationId);
                     r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
-                    r.TrainingCourseVersionConfirmed.Should().BeTrue();
+                    r.TrainingCourseVersionConfirmed.Should().BeFalse();
                 });
         }
 
@@ -79,10 +79,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
-                    r.TrainingProgramme.Should().Be(f.TrainingProgramme2);
+                    r.TrainingProgramme.Should().Be(f.TrainingProgramme);
                     r.ReservationId.Should().Be(f.Command.ReservationId);
-                    r.StandardUId.Should().Be(f.TrainingProgramme2.StandardUId);
-                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme2.Version);
+                    r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
+                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
                 });
         }
@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command = Fixture.Create<AddDraftApprenticeshipCommand>();
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
-            TrainingProgramme2 = new TrainingProgramme("TESTS", "TESTStandard", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
+            TrainingProgramme2 = new TrainingProgramme("12345", "TESTStandard", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
             Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object, TrainingProgrammeLookup.Object);
             
@@ -145,7 +145,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command.StartDate = null;
             return Mapper.Map(Command);
         }
-
+        
         public Task<DraftApprenticeshipDetails> MapNoCourse()
         {
             Command.StartDate = null;
