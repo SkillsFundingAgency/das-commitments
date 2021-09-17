@@ -19,5 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string ProviderReference { get; set; }
         public string Email { get; set; }
         public string Version { get; set; }
+        public string Option { get; set; }
     }
 }
