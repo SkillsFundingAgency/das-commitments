@@ -13,26 +13,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
     public class GetCohortSummaryQueryHandler : IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
-        private readonly IApprenticeEmailFeatureService _apprenticeEmailFeatureService;
+        private readonly IEmailOptionalService _emailService;
 
-        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IApprenticeEmailFeatureService apprenticeEmailFeatureService)
-        {
-            _db = db;
-            _apprenticeEmailFeatureService = apprenticeEmailFeatureService;
-        }
+        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEmailOptionalService emailService)
+            => (_db, _emailService) = (db, emailService);
 
         public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
         {
             var db = _db.Value;
             var apprenticeEmailIsRequired = false;
 
-            if (_apprenticeEmailFeatureService.IsEnabled)
+            var parties = await db.Cohorts.Select(x => new { x.Id, x.EmployerAccountId, x.ProviderId }).FirstOrDefaultAsync(c => c.Id == request.CohortId, cancellationToken);
+            if (parties != null)
             {
-                var parties = await db.Cohorts.Select(x=> new { x.Id, x.EmployerAccountId, x.ProviderId }).FirstOrDefaultAsync(c=>c.Id == request.CohortId, cancellationToken);
-                if (parties != null)
-                {
-                    apprenticeEmailIsRequired = _apprenticeEmailFeatureService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
-                }
+                apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
             }
 
             var result = await (
@@ -62,14 +56,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     Approvals = c.Approvals,
                     IsApprovedByEmployer = c.Approvals.HasFlag(Party.Employer), //redundant
                     IsApprovedByProvider = c.Approvals.HasFlag(Party.Provider), //redundant
-                    IsCompleteForEmployer = c.Apprenticeships.Any() && 
-                                            !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null || 
+                    IsCompleteForEmployer = c.Apprenticeships.Any() &&
+                                            !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
                                                                         a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null ||
-                                                                        (apprenticeEmailIsRequired && a.Email == null)),
+                                                                        (apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)),
                     IsCompleteForProvider = c.Apprenticeships.Any() &&
                                             !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
                                                                         a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null ||
-                                                                        a.Uln == null || (apprenticeEmailIsRequired && a.Email == null)),
+                                                                        a.Uln == null || (apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)),
                     LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
                     ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
                     TransferApprovalStatus = c.TransferApprovalStatus
