@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
-            Assert.AreEqual(fixture.TrainingProgramme2, draftApprenticeshipDetails.TrainingProgramme);
+            Assert.AreEqual(fixture.TrainingProgramme, draftApprenticeshipDetails.TrainingProgramme);
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
@@ -104,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             AutoFixture = new Fixture();
             var courseCode = AutoFixture.Create<long>().ToString();
             TrainingProgramme = new TrainingProgramme(courseCode, AutoFixture.Create<string>(),
-                ProgrammeType.Standard, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>());
+                ProgrammeType.Framework, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>());
             TrainingProgramme2  = new TrainingProgramme(AutoFixture.Create<long>().ToString(), AutoFixture.Create<string>(),
                 ProgrammeType.Standard, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>());
             
@@ -130,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> MapNoDate()
         {
             Command = AddCohortCommandNoDate();
-            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(Command.CourseCode)).ReturnsAsync(TrainingProgramme2);
+            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(Command.CourseCode)).ReturnsAsync(TrainingProgramme);
             return Mapper.Map(Command);
         }
 
