@@ -42,10 +42,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
 
         [Test]
-        public Task Map_WhenMappingWithDate_Then_UsesCalculatedTrainingProgramme()
+        public Task Map_WhenMappingStandardWithDate_Then_UsesCalculatedTrainingProgramme()
         {
             return TestAsync(
-                f => f.Map(), 
+                f => f.MapWithStandard(), 
                 (f, r) =>
                 {
                     r.FirstName.Should().Be(f.Command.FirstName);
@@ -61,6 +61,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().Be(f.TrainingProgramme2.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme2.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeTrue();
+                });
+        }
+
+        [Test]
+        public Task Map_WhenMappingFramework_Then_VersionConfirmedIsFalse()
+        {
+            return TestAsync(
+                f => f.Map(),
+                (f, r) =>
+                {
+                    r.FirstName.Should().Be(f.Command.FirstName);
+                    r.LastName.Should().Be(f.Command.LastName);
+                    r.Uln.Should().Be(f.Command.Uln);
+                    r.Cost.Should().Be(f.Command.Cost);
+                    r.StartDate.Should().Be(f.Command.StartDate);
+                    r.EndDate.Should().Be(f.Command.EndDate);
+                    r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
+                    r.Reference.Should().Be(f.Command.OriginatorReference);
+                    r.TrainingProgramme.Should().Be(f.TrainingProgramme2);
+                    r.ReservationId.Should().Be(f.Command.ReservationId);
+                    r.StandardUId.Should().Be(f.TrainingProgramme2.StandardUId);
+                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme2.Version);
+                    r.TrainingCourseVersionConfirmed.Should().BeFalse();
                 });
         }
 
@@ -127,6 +150,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         {
             Command.StartDate = null;
             TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync((TrainingProgramme)null);
+            return Mapper.Map(Command);
+        }
+
+        public Task<DraftApprenticeshipDetails> MapWithStandard()
+        {
+            Command.CourseCode = Fixture.Create<int>().ToString();
             return Mapper.Map(Command);
         }
     }

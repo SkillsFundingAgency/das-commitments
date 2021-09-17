@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
     {
         [Test]
-        public async Task WhenMapping_ThenShouldSetProperties()
+        public async Task WhenMappingStandard_ThenShouldSetProperties()
         {
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.Map();
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
         
         [Test]
-        public async Task WhenMapping_And_StartDate_ThenShouldSetPropertiesAndNoStandardUIdOrVersion()
+        public async Task WhenMappingFramework_ThenShouldSetPropertiesAndNoStandardUIdOrVersion()
         {
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.MapNoDate();
@@ -62,6 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.TrainingProgramme2, draftApprenticeshipDetails.TrainingProgramme);
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
+            draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
         }
         
         [Test]
@@ -100,7 +101,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             AutoFixture = new Fixture();
             TrainingProgramme = AutoFixture.Create<TrainingProgramme>();
             TrainingProgramme2 = AutoFixture.Create<TrainingProgramme>();
-            Command = AutoFixture.Create<AddCohortCommand>();
+            Command = AutoFixture.Build<AddCohortCommand>()
+                //.With(x => x.CourseCode, AutoFixture.Create<int>().ToString())
+            .Create();
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
             Mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object, TrainingProgrammeLookup.Object);
@@ -131,6 +134,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         {
             return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
                 Command.CourseCode, Command.Cost, null, null, Command.OriginatorReference, Command.ReservationId,
+                Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
+                Command.TransferSenderId, Command.UserInfo);
+        }
+
+        private AddCohortCommand CommandWithStandard()
+        {
+            var standardId = AutoFixture.Create<int>().ToString();
+
+            return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
+                standardId, Command.Cost, Command.StartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
                 Command.TransferSenderId, Command.UserInfo);
         }

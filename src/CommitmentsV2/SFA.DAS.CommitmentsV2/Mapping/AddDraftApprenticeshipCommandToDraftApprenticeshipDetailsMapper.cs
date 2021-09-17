@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 TrainingProgramme = trainingProgramme,
                 StandardUId = trainingProgramme?.StandardUId,
                 TrainingCourseVersion = trainingProgramme?.Version,
-                TrainingCourseVersionConfirmed = trainingProgramme != null,
+                TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
@@ -46,7 +46,12 @@ namespace SFA.DAS.CommitmentsV2.Mapping
 
         private Task<TrainingProgramme> GetCourse(string courseCode, DateTime? startDate)
         {
-            return startDate.HasValue ? _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(courseCode, startDate.Value) :_trainingProgrammeLookup.GetTrainingProgramme(courseCode);
+            if (startDate.HasValue && int.TryParse(courseCode, out _))
+            {
+                return _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(courseCode, startDate.Value);
+            }
+
+            return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
         }
     }
 }
