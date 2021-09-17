@@ -171,8 +171,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             Assert.AreEqual(source.TrainingType, result.TrainingType);
             Assert.AreEqual(source.TrainingCode, result.TrainingCode);
             Assert.AreEqual(source.TrainingName, result.TrainingName);
-            Assert.AreEqual(source.TrainingCourseVersion, result.TrainingCourseVersion);
-            Assert.AreEqual(source.TrainingCourseOption, result.TrainingCourseOption);
             Assert.AreEqual(source.Cost, result.Cost);
             Assert.AreEqual(source.StartDate, result.StartDate);
             Assert.AreEqual(source.EndDate, result.EndDate);

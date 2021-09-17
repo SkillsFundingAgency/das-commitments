@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Moq;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -126,21 +126,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return this;
         }
 
-        public EditApprenticeshipValidationServiceTestsFixture SetUpGetTrainingProgrammeVersionByCourseCodeAndVersion(bool hasOptions)
-        {
-            var trainingProgramme = new TrainingProgramme { Options = new List<string>() };
-
-            if (hasOptions)
-            {
-                trainingProgramme.Options.Add("Option 1");
-                trainingProgramme.Options.Add("Option 2");
-            }
-
-            var result = new GetTrainingProgrammeVersionQueryResult { TrainingProgramme = trainingProgramme };
-            _mediator.Setup(x => x.Send(It.IsAny<GetTrainingProgrammeVersionQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
-            return this;
-        }
-
         private void WithStartDateInFuture()
         {
             _apprenticeship.StartDate = _currentDateTime.Object.UtcNow.AddMonths(1);
@@ -170,8 +155,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             string employerRef = "employerRef",
             string uln = "XYZ123",
             string courseCode = "12",
-            string version = "1.0",
-            string option = "Option",
             Types.ProgrammeType programmeType = Types.ProgrammeType.Standard,
             int? transferSenderId = null,
             decimal cost = 200,
@@ -180,7 +163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             bool hasHadDataLockSuccess = false
             )
         {
-            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, version, option, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess);
+            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess);
 
             WithStartDateInFuture();
 
@@ -257,8 +240,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             string employerRef = "employerRef",
             string uln = "XYZ123",
             string courseCode = "12",
-            string version = "1.0",
-            string option = "Option",
             Types.ProgrammeType programmeType = Types.ProgrammeType.Standard,
             int? transferSenderId = null,
             decimal cost = 200,
@@ -278,8 +259,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 EmployerRef = employerRef,
                 ProgrammeType = programmeType,
                 CourseCode = courseCode,
-                TrainingCourseVersion = version,
-                TrainingCourseOption = option,
                 ReservationId = Guid.Parse(reservationId),
                 Cohort = new Cohort
                 {
@@ -310,8 +289,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
            string employerRef = "",
            string uln = "",
            string courseCode = "",
-           string version = "",
-           string option = null,
            decimal? cost = null,
            string providerRef = ""
            )
@@ -330,8 +307,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 EmployerReference = string.IsNullOrEmpty(employerRef) ? _apprenticeship.EmployerRef : employerRef,
                 ProviderReference = string.IsNullOrEmpty(providerRef) ? _apprenticeship.ProviderRef : providerRef,
                 CourseCode = string.IsNullOrEmpty(courseCode) ? _apprenticeship.CourseCode : courseCode,
-                Version = string.IsNullOrEmpty(version) ? _apprenticeship.TrainingCourseVersion : version,
-                Option = string.IsNullOrEmpty(option) ? _apprenticeship.TrainingCourseOption : option,
                 ULN = string.IsNullOrEmpty(uln) ? _apprenticeship.Uln : uln,
             };
 
