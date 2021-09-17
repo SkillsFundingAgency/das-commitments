@@ -17,10 +17,8 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
                 // check it contains a top level domain
                 var parts = email.Address.Split('@');
-                if (!parts[1].Contains(".") || parts[1].EndsWith("."))
-                {
-                    return false;
-                }
+                if (!ContainsTopLevelDomain(parts[1])) return false;
+                if (!IsValidDomain(parts[1])) return false;
 
                 return email.Address == emailAsString;
             }
@@ -28,6 +26,28 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             {
                 return false;
             }
+        }
+
+        private static bool ContainsTopLevelDomain(string domainName)
+        {
+            if (!domainName.Contains(".") || domainName.EndsWith("."))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsValidDomain(string domainName)
+        {
+            var check = Uri.CheckHostName(domainName);
+
+            if (check == UriHostNameType.Dns)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
