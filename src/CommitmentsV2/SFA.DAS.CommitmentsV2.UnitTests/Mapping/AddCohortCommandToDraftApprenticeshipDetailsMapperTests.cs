@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
     {
         [Test]
-        public async Task WhenMappingStandard_ThenShouldSetProperties()
+        public async Task WhenMappingStandardWithDate_ThenShouldSetProperties()
         {
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.Map();
@@ -36,9 +36,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
-            Assert.AreEqual(fixture.TrainingProgramme2, draftApprenticeshipDetails.TrainingProgramme);
-            Assert.AreEqual(fixture.TrainingProgramme2.StandardUId, draftApprenticeshipDetails.StandardUId);
-            Assert.AreEqual(fixture.TrainingProgramme2.Version, draftApprenticeshipDetails.TrainingCourseVersion);
+            Assert.AreEqual(fixture.TrainingProgrammeStandard, draftApprenticeshipDetails.TrainingProgramme);
+            Assert.AreEqual(fixture.TrainingProgrammeStandard.StandardUId, draftApprenticeshipDetails.StandardUId);
+            Assert.AreEqual(fixture.TrainingProgrammeStandard.Version, draftApprenticeshipDetails.TrainingCourseVersion);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public async Task WhenMappingFramework_ThenShouldSetPropertiesAndNoStandardUIdOrVersion()
         {
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
-            var draftApprenticeshipDetails = await fixture.MapNoDate();
+            var draftApprenticeshipDetails = await fixture.MapWithFramework();
 
             Assert.AreEqual(fixture.Command.FirstName, draftApprenticeshipDetails.FirstName);
             Assert.AreEqual(fixture.Command.LastName, draftApprenticeshipDetails.LastName);
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
-            Assert.AreEqual(fixture.TrainingProgramme, draftApprenticeshipDetails.TrainingProgramme);
+            Assert.AreEqual(fixture.TrainingProgrammeFramework, draftApprenticeshipDetails.TrainingProgramme);
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
@@ -92,27 +92,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
 
         [Test]
-        public async Task WhenMappingWithStandard_ThenShouldSetProperties()
-        {
-            var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
-            var draftApprenticeshipDetails = await fixture.MapWithStandard();
-
-            Assert.AreEqual(fixture.Command.FirstName, draftApprenticeshipDetails.FirstName);
-            Assert.AreEqual(fixture.Command.LastName, draftApprenticeshipDetails.LastName);
-            Assert.AreEqual(fixture.Command.Email, draftApprenticeshipDetails.Email);
-            Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
-            Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
-            Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
-            Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
-            Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
-            Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
-            Assert.AreEqual(fixture.TrainingProgramme2, draftApprenticeshipDetails.TrainingProgramme);
-            Assert.AreEqual(fixture.TrainingProgramme2.StandardUId, draftApprenticeshipDetails.StandardUId);
-            Assert.AreEqual(fixture.TrainingProgramme2.Version, draftApprenticeshipDetails.TrainingCourseVersion);
-        }
-
-        [Test]
-        public async Task WhenMapping_And_NoStartDate_ThenShouldSetPropertiesAndNoVersioningInformation()
+        public async Task WhenMappingStandard_And_NoStartDate_ThenShouldSetPropertiesAndNoVersioningInformation()
         {
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.MapNoStartDate();
@@ -126,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
-            Assert.AreEqual(fixture.TrainingProgramme2, draftApprenticeshipDetails.TrainingProgramme);
+            Assert.AreEqual(fixture.TrainingProgrammeStandard, draftApprenticeshipDetails.TrainingProgramme);
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
@@ -137,8 +117,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     {
         public IFixture AutoFixture { get; }
         public AddCohortCommand Command { get; set; }
-        public TrainingProgramme TrainingProgramme { get; }
-        public TrainingProgramme TrainingProgramme2 { get; }
+        public TrainingProgramme TrainingProgrammeFramework { get; }
+        public TrainingProgramme TrainingProgrammeStandard { get; }
         public Mock<IAuthorizationService> AuthorizationService { get; }
         public Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup { get; }
         public IOldMapper<AddCohortCommand, DraftApprenticeshipDetails> Mapper { get; }
@@ -151,15 +131,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                .ToList()
                .ForEach(b => AutoFixture.Behaviors.Remove(b));
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior(recursionDepth: 2));
+
             var courseCode = AutoFixture.Create<long>().ToString();
-            TrainingProgramme = new TrainingProgramme(courseCode, AutoFixture.Create<string>(),
-                ProgrammeType.Framework, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>());
-            TrainingProgramme2 = new TrainingProgramme(AutoFixture.Create<long>().ToString(), AutoFixture.Create<string>(), 
+          
+            TrainingProgrammeStandard = new TrainingProgramme(AutoFixture.Create<long>().ToString(), AutoFixture.Create<string>(), 
                 AutoFixture.Create<string>(), AutoFixture.Create<string>(), ProgrammeType.Standard, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>(),
                 new List<IFundingPeriod>(AutoFixture.CreateMany<StandardFundingPeriod>()));
 
+            TrainingProgrammeFramework = new TrainingProgramme(courseCode, AutoFixture.Create<string>(),
+              ProgrammeType.Framework, AutoFixture.Create<DateTime?>(), AutoFixture.Create<DateTime?>());
+
             var command = AutoFixture.Build<AddCohortCommand>()
                 .Create();
+
             Command = new AddCohortCommand(command.AccountId, command.AccountLegalEntityId, command.ProviderId,
                 courseCode, command.Cost, command.StartDate, command.EndDate, command.OriginatorReference,
                 command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
@@ -170,11 +154,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object, TrainingProgrammeLookup.Object);
 
             TrainingProgrammeLookup.Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), Command.StartDate.Value))
-                .ReturnsAsync(TrainingProgramme2);
+                .ReturnsAsync(TrainingProgrammeStandard);
 
             int standardCodeOut;
-            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == true))).ReturnsAsync(TrainingProgramme2);
-            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == false))).ReturnsAsync(TrainingProgramme);
+            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == true))).ReturnsAsync(TrainingProgrammeStandard);
+            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == false))).ReturnsAsync(TrainingProgrammeFramework);
         }
         public Task<DraftApprenticeshipDetails> Map()
         {
@@ -184,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> MapNoDate()
         {
             Command = AddCohortCommandNoDate();
-            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(Command.CourseCode)).ReturnsAsync(TrainingProgramme);
+            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(Command.CourseCode)).ReturnsAsync(TrainingProgrammeFramework);
             return Mapper.Map(Command);
         }
 
@@ -203,9 +187,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                 Command.TransferSenderId, Command.UserInfo);
         }
 
-        public Task<DraftApprenticeshipDetails> MapWithStandard()
+        public Task<DraftApprenticeshipDetails> MapWithFramework()
         {
-            Command = CommandWithStandard();
+            Command = CommandWithFramework();
+            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(Command.CourseCode)).ReturnsAsync(TrainingProgrammeFramework);
             return Mapper.Map(Command);
         }
 
@@ -215,12 +200,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return Mapper.Map(Command);
         }
 
-        private AddCohortCommand CommandWithStandard()
+        private AddCohortCommand CommandWithFramework()
         {
-            var standardId = AutoFixture.Create<int>().ToString();
+            var frameworkId = AutoFixture.Create<string>();
 
             return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
-                standardId, Command.Cost, Command.StartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
+                frameworkId, Command.Cost, Command.StartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
                 Command.TransferSenderId, Command.UserInfo);
         }
