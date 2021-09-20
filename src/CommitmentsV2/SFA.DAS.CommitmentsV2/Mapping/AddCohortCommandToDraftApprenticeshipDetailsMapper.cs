@@ -29,9 +29,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 Email = source.Email,
                 Uln = source.Uln,
                 TrainingProgramme = trainingProgramme,
-                StandardUId = trainingProgramme?.StandardUId,
-                TrainingCourseVersion = trainingProgramme?.Version,
-                TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
@@ -39,6 +36,16 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 Reference = source.OriginatorReference,
                 ReservationId = source.ReservationId
             };
+
+            // Only populate standard version specific items if start is specified.
+            // The course is returned as latest version if no start date is specified
+            // Which is fine for setting the training programmer.
+            if (source.StartDate.HasValue)
+            {
+                result.TrainingCourseVersion = trainingProgramme?.Version;
+                result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;
+                result.StandardUId = trainingProgramme?.StandardUId;
+            }
 
             return result;
         }
