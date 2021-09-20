@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Castle.Core.Logging;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -10,8 +9,10 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional;
+using SFA.DAS.CommitmentsV2.Services;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -79,38 +80,54 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
 
         [Test]
-        public void AuthorizationController_ApprenticeEmailRequired_ShouldReturnOk()
+        public async Task AuthorizationController_ApprenticeEmailRequired_ShouldSendCorrectQuery()
         {
             var providerId = 123456;
-            
-            var retVal = _fixture
-                .SetApprenticeEmailFeatureOnOff(true)
-                .SetApprenticeEmailRequiredForProviderToReturnTrue(providerId).AuthorizationController.ApprenticeEmailRequired(providerId);
 
-            Assert.IsInstanceOf<OkResult>(retVal);
+            await _fixture.AuthorizationController.OptionalEmail(0, providerId);
+
+            _fixture.MediatorMock.Verify(x => x.Send(It.Is<GetEmailOptionalQuery>(q =>
+                q.EmployerId == 0 && q.ProviderId == providerId), CancellationToken.None), Times.Once);
         }
 
-        [Test]
-        public void AuthorizationController_ApprenticeEmailRequired_ShouldReturnNotFound()
+        [TestCase(123, 321)]
+        [TestCase(456, 654)]
+        public async Task AuthorizationController_email_optional_sends_correct_query(long employerId, long providerId)
         {
-            var providerId = 123456;
+            await _fixture.AuthorizationController.OptionalEmail(employerId, providerId);
 
-            var retVal = _fixture.AuthorizationController.ApprenticeEmailRequired(providerId);
+            _fixture.MediatorMock.Verify(x => x.Send(It.Is<GetEmailOptionalQuery>(q => 
+                q.EmployerId == employerId && q.ProviderId == providerId), CancellationToken.None), Times.Once);
+        }
+        
+        [TestCase(123, 321)]
+        [TestCase(456, 0)]
+        [TestCase(0, 987)]
+        public async Task AuthorizationController_email_optional_test_handler_positive(long employerId, long providerId)
+        {
+            var config = new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } };
+            var service = new EmailOptionalService(config);
+            var sut = new GetEmailOptionalQueryHandler(service);
+            var query = new GetEmailOptionalQuery(employerId, providerId);
 
-            Assert.IsInstanceOf<NotFoundResult>(retVal);
+            var result = await sut.Handle(query, new CancellationToken());
+
+            Assert.IsTrue(result);
         }
 
-        [Test]
-        public void AuthorizationController_WhenFeatureIsOff_ApprenticeEmailRequired_ShouldReturnNotFound()
+        [TestCase(78901, 10)]
+        [TestCase(0, 456)]
+        [TestCase(987, 0)]
+        public async Task AuthorizationController_email_optional_test_handler_negative(long employerId, long providerId)
         {
-            var providerId = 123456;
+            var config = new EmailOptionalConfiguration { EmailOptionalEmployers = new long[] { 123, 456, 789 }, EmailOptionalProviders = new long[] { 321, 654, 987 } };
+            var service = new EmailOptionalService(config);
+            var sut = new GetEmailOptionalQueryHandler(service);
+            var query = new GetEmailOptionalQuery(employerId, providerId);
 
-            _fixture.SetApprenticeEmailFeatureOnOff(false);
-            _fixture.SetApprenticeEmailRequiredForProviderToReturnTrue(providerId);
+            var result = await sut.Handle(query, new CancellationToken());
 
-            var retVal = _fixture.AuthorizationController.ApprenticeEmailRequired(providerId);
-
-            Assert.IsInstanceOf<NotFoundResult>(retVal);
+            Assert.IsFalse(result);
         }
     }
 
@@ -118,15 +135,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
     {
         public AuthorizationControllerTestFixture()
         {
-            MediatorMock = new Mock<IMediator>();
-            ApprenticeEmailFeatureServiceMock = new Mock<IApprenticeEmailFeatureService>();
-
-            AuthorizationController = new AuthorizationController(MediatorMock.Object, ApprenticeEmailFeatureServiceMock.Object, Mock.Of<ILogger<AuthorizationController>>());
+            MediatorMock = new Mock<IMediator>();            
+            AuthorizationController = new AuthorizationController(MediatorMock.Object, Mock.Of<ILogger<AuthorizationController>>());
         }
 
-        public Mock<IMediator> MediatorMock { get; }
-        public Mock<IApprenticeEmailFeatureService> ApprenticeEmailFeatureServiceMock { get; }
-
+        public Mock<IMediator> MediatorMock { get; }        
         public AuthorizationController AuthorizationController { get; }
 
         public AuthorizationControllerTestFixture SetCanAccessCohortToReturnTrue()
@@ -139,20 +152,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public AuthorizationControllerTestFixture SetCanAccessApprenticeshipToReturnTrue()
         {
             MediatorMock.Setup(x => x.Send(It.IsAny<CanAccessApprenticeshipQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-
-            return this;
-        }
-
-        public AuthorizationControllerTestFixture SetApprenticeEmailRequiredForProviderToReturnTrue(long providerId)
-        {
-            ApprenticeEmailFeatureServiceMock.Setup(x => x.ApprenticeEmailIsRequiredFor(providerId)).Returns(true);
-
-            return this;
-        }
-
-        public AuthorizationControllerTestFixture SetApprenticeEmailFeatureOnOff(bool onOff)
-        {
-            ApprenticeEmailFeatureServiceMock.Setup(x => x.IsEnabled).Returns(onOff);
 
             return this;
         }

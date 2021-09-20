@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 Frameworks = frameworks.Select(x => new Framework
                 {
                     Id = x.Id,
-                    Title = GetTitle(x.FrameworkName.Trim() == x.PathwayName.Trim() ? x.FrameworkName : x.Title, x.Level),
+                    Title = GetTitle(x.FrameworkName.Trim() == x.PathwayName.Trim() ? x.FrameworkName : x.Title, x.Level) + " (Framework)",
                     FrameworkCode = x.FrameworkCode,
                     FrameworkName = x.FrameworkName,
                     ProgrammeType = x.ProgrammeType,
@@ -43,7 +43,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                     Id = x.Id.ToString(),
                     Code = Convert.ToInt64(x.Id),
                     Level = x.Level,
-                    Title = GetTitle(x.Title, x.Level) + " (Standard)",
+                    Title = GetTitle(x.Title, x.Level),
                     CourseName = x.Title,
                     Duration = x.Duration,
                     MaxFunding = x.MaxFunding,

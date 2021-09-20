@@ -33,17 +33,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _fixture.VerifyCohortApproval();
         }
 
-        [TestCase(true, true, true)]
-        [TestCase(true, false, false)]
-        [TestCase(false, true, false)]
-        [TestCase(false, false, false)]
-        public async Task When_HandlingCommand_ApproveCohort_ShouldHaveApprenticeEmailFeatureSwitchSet(bool enabled, bool isInBetaList, bool expectedValue)
+        [TestCase(true, true)]
+        [TestCase(false, false)]
+        public async Task When_HandlingCommand_ApproveCohort_ShouldHaveApprenticeEmailRequiredSet(bool emailRequired, bool expectedValue)
         {
-            _fixture.ApprenticeEmailFeatureService.Setup(x => x.IsEnabled).Returns(enabled);
-
-            _fixture.ApprenticeEmailFeatureService
+            _fixture._emailService
                 .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>()))
-                .Returns(isInBetaList);
+                .Returns(emailRequired);
 
             await _fixture.Handle();
             _fixture.VerifyCohortApproval(expectedValue);
@@ -60,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         [Test]
         public void Handle_WhenHandlingCommandAndItFails_ThenItShouldThrowAnExceptionAndLogIt()
         {
-            Assert.ThrowsAsync<NullReferenceException>( () =>_fixture.SetupNullMessage().Handle());
+            Assert.ThrowsAsync<NullReferenceException>(() => _fixture.SetupNullMessage().Handle());
             _fixture.VerifyHasError();
         }
 
@@ -69,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             private ProviderApproveCohortCommandHandler _handler;
             private ProviderApproveCohortCommand _command;
             public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
-            public Mock<IApprenticeEmailFeatureService> ApprenticeEmailFeatureService { get; set; }
+            public Mock<IEmailOptionalService> _emailService { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<ProviderApproveCohortCommandHandler> _logger;
             private Mock<Cohort> _cohort;
@@ -80,10 +76,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
                 _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
                 _logger = new FakeLogger<ProviderApproveCohortCommandHandler>();
-                ApprenticeEmailFeatureService = new Mock<IApprenticeEmailFeatureService>();
+                _emailService = new Mock<IEmailOptionalService>();
 
                 _handler = new ProviderApproveCohortCommandHandler(_logger,
-                    new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), ApprenticeEmailFeatureService.Object);
+                    new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _emailService.Object);
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
@@ -96,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
                 _cohort.Setup(x =>
                     x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), It.IsAny<bool>()));
-               
+
                 _dbContext.Object.Cohorts.Add(_cohort.Object);
                 _dbContext.Object.SaveChanges();
             }
@@ -120,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             public void VerifyCohortApproval()
             {
-                _cohort.Verify(x=> x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), It.IsAny<bool>()), Times.Once);
+                _cohort.Verify(x => x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), It.IsAny<bool>()), Times.Once);
             }
 
             public void VerifyCohortApproval(bool apprenticeEmailFeatureSwitch)

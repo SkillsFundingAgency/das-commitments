@@ -28,53 +28,113 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
         }
 
         public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
-        { 
+        {
             _logger.LogInformation("ImportStandardsJob - Started");
 
             var response = await _apiClient.Get<StandardResponse>(new GetStandardsRequest());
-            var batches = response.Standards.Batch(1000).Select(b => b.ToDataTable(
-                p => p.Id, 
+
+            var filteredStandards = FilterResponse(response);
+
+            await ProcessStandards(filteredStandards);
+
+            await ProcessStandardOptions(filteredStandards);
+
+            await ProcessFunding(filteredStandards);
+
+            _logger.LogInformation("ImportStandardsJob - Finished");
+        }
+
+        private async Task ProcessFunding(IEnumerable<StandardSummary> filteredStandards)
+        {
+            var fundingPeriodItems = new List<FundingPeriodItem>();
+
+            var uniqueLarsCodes = filteredStandards.GroupBy(s => s.LarsCode).
+                                Select(t => t.OrderByDescending(x => x.VersionMajor).ThenByDescending(y => y.VersionMinor).FirstOrDefault());
+
+            foreach (var responseStandard in uniqueLarsCodes)
+            {
+                var larsCode = responseStandard.LarsCode;
+                fundingPeriodItems.AddRange(responseStandard.FundingPeriods.Select(fundingPeriod => new FundingPeriodItem
+                {
+                    StandardId = larsCode,
+                    EffectiveFrom = fundingPeriod.EffectiveFrom,
+                    EffectiveTo = fundingPeriod.EffectiveTo,
+                    FundingCap = fundingPeriod.FundingCap
+                }));
+            }
+
+            var fundingBatches = fundingPeriodItems.Batch(1000).Select(b =>
+                b.ToDataTable(
+                    p => p.StandardId,
+                    p => p.FundingCap,
+                    p => p.EffectiveFrom,
+                    p => p.EffectiveTo
+                ));
+            foreach (var batch in fundingBatches)
+            {
+                await ImportStandardsFunding(_providerContext, batch);
+            }
+        }
+
+        private async Task ProcessStandardOptions(IEnumerable<StandardSummary> filteredStandards)
+        {
+            var options = filteredStandards.SelectMany(s => s.Options, (s, o) => new { StandardUId = s.StandardUId.Trim(), Option = o.Trim() });
+
+            var optionBatches = options.Batch(1000).Select(b => b.ToDataTable(
+                p => p.StandardUId,
+                p => p.Option));
+
+            await ClearStandardOptions(_providerContext);
+            foreach (var batch in optionBatches)
+            {
+                await ImportStandardOptions(_providerContext, batch);
+            }
+        }
+
+        private async Task ProcessStandards(IEnumerable<StandardSummary> filteredStandards)
+        {
+            var batches = filteredStandards.Batch(1000).Select(b => b.ToDataTable(
+                p => p.StandardUId,
+                p => p.LarsCode,
+                p => p.IFateReferenceNumber,
+                p => p.Version,
                 p => p.Title,
-                p=>p.Level,
-                p=>p.Duration,
-                p=>p.CurrentFundingCap,
-                p=>p.EffectiveFrom,
-                p=>p.LastDateForNewStarts
+                p => p.Level,
+                p => p.Duration,
+                p => p.CurrentFundingCap,
+                p => p.EffectiveFrom,
+                p => p.LastDateForNewStarts,
+                p => p.VersionMajor,
+                p => p.VersionMinor,
+                p => p.StandardPageUrl,
+                p => p.Status,
+                p => p.IsLatestVersion,
+                p => p.VersionEarliestStartDate,
+                p => p.VersionLatestStartDate
                 ));
 
             foreach (var batch in batches)
             {
                 await ImportStandards(_providerContext, batch);
             }
+        }
+        private IEnumerable<StandardSummary> FilterResponse(StandardResponse response)
+        {
+            var statusList = new string[] { "Approved for delivery", "Retired" };
+            var filteredStandards = response.Standards.Where(s => statusList.Contains(s.Status));
 
+            var latestVersionsOfStandards = filteredStandards.
+                GroupBy(s => s.LarsCode).
+                Select(c => c.OrderByDescending(x => x.VersionMajor).ThenByDescending(y => y.VersionMinor).FirstOrDefault());
 
-            var fundingPeriodItems = new List<FundingPeriodItem>();
+            var latestVersionsStandardUIds = latestVersionsOfStandards.Select(s => s.StandardUId);
 
-            foreach (var responseStandard in response.Standards)
+            foreach (var latestStandard in filteredStandards.Where(s => latestVersionsStandardUIds.Contains(s.StandardUId)))
             {
-                var standardId = responseStandard.Id;
-                fundingPeriodItems.AddRange(responseStandard.FundingPeriods.Select(fundingPeriod => new FundingPeriodItem
-                {
-                    StandardId = standardId, 
-                    EffectiveFrom = fundingPeriod.EffectiveFrom, 
-                    EffectiveTo = fundingPeriod.EffectiveTo, 
-                    FundingCap = fundingPeriod.FundingCap
-                }));
-            }
-            
-            var fundingBatches = fundingPeriodItems.Batch(1000).Select(b =>
-                b.ToDataTable(
-                    p=> p.StandardId,
-                    p=>p.FundingCap,
-                    p => p.EffectiveFrom,
-                    p=>p.EffectiveTo
-                ));
-            foreach (var batch in fundingBatches)
-            {
-                await ImportStandardsFunding(_providerContext, batch);
+                latestStandard.IsLatestVersion = true;
             }
 
-            _logger.LogInformation("ImportStandardsJob - Finished");
+            return filteredStandards;
         }
 
         private static Task ImportStandards(IProviderCommitmentsDbContext db, DataTable standardsDataTable)
@@ -86,6 +146,22 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             };
 
             return db.ExecuteSqlCommandAsync("EXEC ImportStandards @standards", standards);
+        }
+
+        private static Task ImportStandardOptions(IProviderCommitmentsDbContext db, DataTable standardOptionsDataTable)
+        {
+            var standardOptions = new SqlParameter("standardOptions", SqlDbType.Structured)
+            {
+                TypeName = "StandardOptions",
+                Value = standardOptionsDataTable
+            };
+
+            return db.ExecuteSqlCommandAsync("EXEC ImportStandardOptions @standardOptions", standardOptions);
+        }
+
+        private static Task ClearStandardOptions(IProviderCommitmentsDbContext db)
+        {
+            return db.ExecuteSqlCommandAsync("EXEC TruncateStandardOptions");
         }
 
         private static Task ImportStandardsFunding(IProviderCommitmentsDbContext db, DataTable standardsFundingDataTable)
