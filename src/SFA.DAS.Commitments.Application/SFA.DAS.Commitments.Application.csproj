@@ -267,6 +267,10 @@
     <Compile Include="Queries\GetAllTrainingProgrammes\GetAllTrainingProgrammesQuery.cs" />
     <Compile Include="Queries\GetAllTrainingProgrammes\GetAllTrainingProgrammesQueryHandler.cs" />
     <Compile Include="Queries\GetAllTrainingProgrammes\GetAllTrainingProgrammesQueryResponse.cs" />
+    <Compile Include="Queries\GetEmailOverlappingApprenticeships\GetEmailOverlappingApprenticeshipsQueryHandler.cs" />
+    <Compile Include="Queries\GetEmailOverlappingApprenticeships\GetEmailOverlappingApprenticeshipsRequest.cs" />
+    <Compile Include="Queries\GetEmailOverlappingApprenticeships\GetEmailOverlappingApprenticeshipsResponse.cs" />
+    <Compile Include="Queries\GetEmailOverlappingApprenticeships\GetEmailOverlappingApprenticeshipsValidator.cs" />
     <Compile Include="Queries\GetProviders\GetProvidersQuery.cs" />
     <Compile Include="Queries\GetProviders\GetProvidersQueryHandler.cs" />
     <Compile Include="Queries\GetProviders\GetProvidersQueryResponse.cs" />
@@ -436,7 +440,6 @@
     <Compile Include="Queries\QueryResponse{T}.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules.cs" />
     <Compile Include="Rules\ICommitmentRules.cs" />
-    <Compile Include="Services\ApprenticeshipEventsService.cs" />
     <Compile Include="Services\HistoryService.cs" />
     <Compile Include="Services\InMemoryCache.cs" />
     <Compile Include="Services\OverlappingApprenticeshipService.cs" />

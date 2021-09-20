@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             AddConfiguration<CustomisedFeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
             AddConfiguration<EncodingConfig>(CommitmentsConfigurationKeys.EncodingConfiguration);
             AddConfiguration<ApprovalsOuterApiConfiguration>(CommitmentsConfigurationKeys.ApprovalsOuterApiConfiguration);
+            AddConfiguration<EmailOptionalConfiguration>(CommitmentsConfigurationKeys.EmailOptionalConfiguration);
         }
 
         private void AddConfiguration<T>(string name) where T : class

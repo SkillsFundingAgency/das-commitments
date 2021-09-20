@@ -44,5 +44,13 @@ namespace SFA.DAS.Commitments.Api.Client
             var result = await PostAsync(url, data);
             return JsonConvert.DeserializeObject<IEnumerable<ApprenticeshipOverlapValidationResult>>(result);
         }
+
+        public async Task<IEnumerable<ApprenticeshipEmailOverlapValidationResult>> ValidateEmailOverlapping(IEnumerable<ApprenticeshipEmailOverlapValidationRequest> requests)
+        {
+            var url = $"{_configuration.BaseUrl}api/validation/apprenticeships/emailoverlapping";
+            var data = JsonConvert.SerializeObject(requests);
+            var result = await PostAsync(url, data);
+            return JsonConvert.DeserializeObject<IEnumerable<ApprenticeshipEmailOverlapValidationResult>>(result);
+        }
     }
 }
