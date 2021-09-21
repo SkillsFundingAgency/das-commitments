@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
 
         private async Task<bool> CreateIntermediateUpdate(EditApprenticeshipCommand command, Party party, Apprenticeship apprenticeship)
         {
-            if (command.EditApprenticeshipRequest.IntermediateApprenticeshipUpdateRequired())
+            if (command.EditApprenticeshipRequest.IntermediateApprenticeshipUpdateRequired(apprenticeship))
             {
                 var apprenticeshipUpdate = command.MapToApprenticeshipUpdate(apprenticeship, party, _currentDateTime.UtcNow);
 

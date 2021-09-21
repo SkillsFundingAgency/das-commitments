@@ -65,13 +65,14 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return apprenticeshipUpdate;
         }
 
-        public static bool IntermediateApprenticeshipUpdateRequired(this EditApprenticeshipApiRequest request)
+        public static bool IntermediateApprenticeshipUpdateRequired(this EditApprenticeshipApiRequest request, Apprenticeship apprenticeship)
         {
             return !string.IsNullOrWhiteSpace(request.FirstName)
                 || !string.IsNullOrWhiteSpace(request.LastName)
                 || !string.IsNullOrWhiteSpace(request.Email)
                 || !string.IsNullOrWhiteSpace(request.CourseCode)
                 || !string.IsNullOrWhiteSpace(request.Version)
+                || request.Option != apprenticeship.TrainingCourseOption
                 || request.DateOfBirth != null
                 || request.StartDate != null
                 || request.EndDate != null
