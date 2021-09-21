@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.Services
@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     throw new Exception($"The course code {standardId} was not found");
                 }
 
-                return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
+                return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods));
             }
 
             var framework = await _dbContext.Frameworks.Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.Id.Equals(courseCode));
@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             // 1.0  Effective From 9/12/2019 Effective To 31/7/2020
             // 1.1  Effective From 1/7/2020 Effective To 31/10/2020
             // 1.2  Effective From 1/10/2020  Effective To Null
-            
+
             var first = true;
             foreach (var version in standardVersions)
             {
@@ -135,10 +135,97 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new Exception($"The standard {standardUId} was not found");
             }
 
-            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl, 
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl,
                 standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
         }
-       
+
+        public async Task<TrainingProgramme> GetTrainingProgrammeVersionByCourseCodeAndVersion(string courseCode, string version)
+        {
+            if (!int.TryParse(courseCode, out var standardId))
+            {
+                return null;
+            }
+
+            var standard = await _dbContext.Standards.Include(c => c.Options).Include(c => c.FundingPeriods).FirstOrDefaultAsync(c => c.LarsCode == standardId && c.Version == version);
+
+            if (standard == null)
+            {
+                throw new Exception($"The standard {courseCode} version {version} was not found");
+            }
+
+            return new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level), standard.Version, standard.StandardUId, ProgrammeType.Standard, standard.StandardPageUrl,
+                standard.EffectiveFrom, standard.EffectiveTo, new List<IFundingPeriod>(standard.FundingPeriods), standard.Options?.Select(o => o.Option).ToList());
+        }
+
+        public async Task<IEnumerable<TrainingProgramme>> GetTrainingProgrammeVersions(string courseCode)
+        {
+            if (string.IsNullOrWhiteSpace(courseCode))
+            {
+                return null;
+            }
+
+            if (!int.TryParse(courseCode, out var standardId))
+            {
+                return null;
+            }
+
+            var standardVersions = await _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.LarsCode == standardId)
+                .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
+
+            if (standardVersions == null)
+            {
+                throw new Exception($"No versions for standard {standardId} were found");
+            }
+
+            var trainingProgrammes = standardVersions.Select(version =>
+                new TrainingProgramme(version.LarsCode.ToString(),
+                    GetTitle(version.Title, version.Level),
+                    version.Version, version.StandardUId,
+                    ProgrammeType.Standard,
+                    version.StandardPageUrl,
+                    version.EffectiveFrom,
+                    version.EffectiveTo,
+                    new List<IFundingPeriod>(version.FundingPeriods),
+                    version.Options?.Select(o => o.Option).ToList())
+                );
+
+            return trainingProgrammes;
+        }
+
+        public async Task<IEnumerable<TrainingProgramme>> GetNewerTrainingProgrammeVersions(string standardUId)
+        {
+            var standard = await _dbContext.Standards.FirstOrDefaultAsync(s => s.StandardUId == standardUId);
+
+            if (standard == null)
+            {
+                throw new Exception($"Standard {standardUId} was not found");
+            }
+
+            var standardVersions = await _dbContext.Standards.Include(c => c.FundingPeriods)
+                .Where(v => v.IFateReferenceNumber == standard.IFateReferenceNumber)
+                .Where(v => v.VersionMajor > standard.VersionMajor || (v.VersionMajor == standard.VersionMajor && v.VersionMinor > standard.VersionMinor))
+                .OrderBy(s => s.VersionMajor).ThenBy(t => t.VersionMinor).ToListAsync();
+
+            if (standardVersions.Count == 0)
+            {
+                return null;
+            }
+
+            var newTrainingProgrammeVersions = standardVersions.Select(version =>
+                new TrainingProgramme(version.LarsCode.ToString(),
+                    GetTitle(version.Title, version.Level),
+                    version.Version, version.StandardUId,
+                    ProgrammeType.Standard,
+                    version.StandardPageUrl,
+                    version.EffectiveFrom,
+                    version.EffectiveTo,
+                    new List<IFundingPeriod>(version.FundingPeriods),
+                    version.Options?.Select(o => o.Option).ToList())
+                );
+
+            return newTrainingProgrammeVersions;
+        }
+
         private static string GetTitle(string title, int level)
         {
             return $"{title}, Level: {level}";

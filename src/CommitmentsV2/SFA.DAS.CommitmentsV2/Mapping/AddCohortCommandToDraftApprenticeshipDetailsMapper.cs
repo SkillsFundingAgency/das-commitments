@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
 
         public async Task<DraftApprenticeshipDetails> Map(AddCohortCommand source)
         {
-            var trainingProgram = await GetCourse(source.CourseCode, source.StartDate);
+            var trainingProgramme = await GetCourse(source.CourseCode, source.StartDate);
             
             var result = new DraftApprenticeshipDetails
             {
@@ -28,10 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 LastName = source.LastName,
                 Email = source.Email,
                 Uln = source.Uln,
-                TrainingProgramme = trainingProgram,
-                StandardUId = trainingProgram?.StandardUId,
-                TrainingCourseVersion = trainingProgram?.Version,
-                TrainingCourseVersionConfirmed = trainingProgram != null,
+                TrainingProgramme = trainingProgramme,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
@@ -40,12 +37,27 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 ReservationId = source.ReservationId
             };
 
+            // Only populate standard version specific items if start is specified.
+            // The course is returned as latest version if no start date is specified
+            // Which is fine for setting the training programmer.
+            if (source.StartDate.HasValue)
+            {
+                result.TrainingCourseVersion = trainingProgramme?.Version;
+                result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;
+                result.StandardUId = trainingProgramme?.StandardUId;
+            }
+
             return result;
         }
 
         private Task<TrainingProgramme> GetCourse(string courseCode, DateTime? startDate)
         {
-            return startDate.HasValue ? _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(courseCode, startDate.Value) : _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
+            if (startDate.HasValue && int.TryParse(courseCode, out _))
+            {
+                return _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(courseCode, startDate.Value);
+            }
+
+            return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
         }
     }
 }

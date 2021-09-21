@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetEmailOptional;
@@ -81,38 +80,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
 
         [Test]
-        public void AuthorizationController_ApprenticeEmailRequired_ShouldReturnOk()
-        {
-            var providerId = 123456;
-            
-            var retVal = _fixture
-                .SetApprenticeEmailFeatureOnOff(true)
-                .SetApprenticeEmailRequiredForProviderToReturnTrue(providerId).AuthorizationController.ApprenticeEmailRequired(providerId);
-
-            Assert.IsInstanceOf<OkResult>(retVal);
-        }
-
-        [Test]
-        public void AuthorizationController_ApprenticeEmailRequired_ShouldReturnNotFound()
+        public async Task AuthorizationController_ApprenticeEmailRequired_ShouldSendCorrectQuery()
         {
             var providerId = 123456;
 
-            var retVal = _fixture.AuthorizationController.ApprenticeEmailRequired(providerId);
+            await _fixture.AuthorizationController.OptionalEmail(0, providerId);
 
-            Assert.IsInstanceOf<NotFoundResult>(retVal);
-        }
-
-        [Test]
-        public void AuthorizationController_WhenFeatureIsOff_ApprenticeEmailRequired_ShouldReturnNotFound()
-        {
-            var providerId = 123456;
-
-            _fixture.SetApprenticeEmailFeatureOnOff(false);
-            _fixture.SetApprenticeEmailRequiredForProviderToReturnTrue(providerId);
-
-            var retVal = _fixture.AuthorizationController.ApprenticeEmailRequired(providerId);
-
-            Assert.IsInstanceOf<NotFoundResult>(retVal);
+            _fixture.MediatorMock.Verify(x => x.Send(It.Is<GetEmailOptionalQuery>(q =>
+                q.EmployerId == 0 && q.ProviderId == providerId), CancellationToken.None), Times.Once);
         }
 
         [TestCase(123, 321)]
@@ -160,13 +135,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
     {
         public AuthorizationControllerTestFixture()
         {
-            MediatorMock = new Mock<IMediator>();
-            ApprenticeEmailFeatureServiceMock = new Mock<IApprenticeEmailFeatureService>();
-            AuthorizationController = new AuthorizationController(MediatorMock.Object, ApprenticeEmailFeatureServiceMock.Object, Mock.Of<ILogger<AuthorizationController>>());
+            MediatorMock = new Mock<IMediator>();            
+            AuthorizationController = new AuthorizationController(MediatorMock.Object, Mock.Of<ILogger<AuthorizationController>>());
         }
 
-        public Mock<IMediator> MediatorMock { get; }
-        public Mock<IApprenticeEmailFeatureService> ApprenticeEmailFeatureServiceMock { get; }
+        public Mock<IMediator> MediatorMock { get; }        
         public AuthorizationController AuthorizationController { get; }
 
         public AuthorizationControllerTestFixture SetCanAccessCohortToReturnTrue()
@@ -179,20 +152,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public AuthorizationControllerTestFixture SetCanAccessApprenticeshipToReturnTrue()
         {
             MediatorMock.Setup(x => x.Send(It.IsAny<CanAccessApprenticeshipQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-
-            return this;
-        }
-
-        public AuthorizationControllerTestFixture SetApprenticeEmailRequiredForProviderToReturnTrue(long providerId)
-        {
-            ApprenticeEmailFeatureServiceMock.Setup(x => x.ApprenticeEmailIsRequiredFor(providerId)).Returns(true);
-
-            return this;
-        }
-
-        public AuthorizationControllerTestFixture SetApprenticeEmailFeatureOnOff(bool onOff)
-        {
-            ApprenticeEmailFeatureServiceMock.Setup(x => x.IsEnabled).Returns(onOff);
 
             return this;
         }

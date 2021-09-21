@@ -23,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                     Email = source.Email,
                     TrainingType = source.TrainingType,
                     TrainingCode = source.TrainingCode,
+                    Version = source.TrainingCourseVersion,
                     TrainingName = source.TrainingName,
                     Cost = source.Cost,
                     StartDate = source.StartDate,

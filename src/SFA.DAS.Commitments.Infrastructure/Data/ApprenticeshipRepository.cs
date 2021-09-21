@@ -530,7 +530,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             return apprenticeshipsTable.Rows.Add(commitmentId, a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
                 a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
-                a.EmployerRef, a.ProviderRef, _currentDateTime.Now, a.ReservationId, a.Email);
+                a.EmployerRef, a.ProviderRef, _currentDateTime.Now, a.ReservationId, string.IsNullOrWhiteSpace(a.Email) ? null : a.Email);
         }
 
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)
