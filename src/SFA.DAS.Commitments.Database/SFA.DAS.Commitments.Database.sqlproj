@@ -159,6 +159,7 @@
     <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
     <Build Include="StoredProcedures\CheckForOverlappingEmailsForTable.sql" />
     <Build Include="StoredProcedures\CheckForOverlappingEmailsInCohort.sql" />
+    <Build Include="Functions\GetLearners.sql" />
     <Build Include="StoredProcedures\TruncateStandardOptions.sql" />
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +181,7 @@
     <None Include="AdhocScripts\Manual\CON-3410-UpdateApprovalsFlag.sql" />
     <None Include="Triggers\ApprenticeshipUpdate.sql" />
     <None Include="PostDeployment\Patch_Apprenticeship_SV-1160.sql" />
+    <Build Include="StoredProcedures\GetLearnersBatch.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
