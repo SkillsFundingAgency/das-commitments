@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             // Assert
 
             result.Should().NotBeNull();
-            var jsonResult = result as JsonResult;
+            var jsonResult = result as OkObjectResult;
             var getAllLearnersResponse = jsonResult?.Value as GetAllLearnersResponse;
             getAllLearnersResponse.Learners.Should().HaveCount(1);
             getAllLearnersResponse.BatchNumber.Should().Be(1);

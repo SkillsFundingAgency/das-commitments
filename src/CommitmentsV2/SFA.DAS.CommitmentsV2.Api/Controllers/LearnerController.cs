@@ -1,12 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
 using System;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -28,23 +25,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             var result = await _mediator.Send(new GetAllLearnersQuery(sinceTime, batch_number, batch_size));
 
-            var settings = new JsonSerializerSettings
-            {
-                 DateFormatString = "yyyy-MM-dd'T'HH:mm:ss",
-                 ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            var jsonResult = new JsonResult(new GetAllLearnersResponse()
+            return Ok(new GetAllLearnersResponse()
             {
                 Learners = result.Learners,
                 BatchNumber = result.BatchNumber,
                 BatchSize = result.BatchSize,
                 TotalNumberOfBatches = result.TotalNumberOfBatches
-            }, settings);
-            jsonResult.StatusCode = (int)HttpStatusCode.OK;
-            jsonResult.ContentType = "application/json";
-
-            return jsonResult;
+            });
         }
     }
 }
