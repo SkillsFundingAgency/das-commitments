@@ -21,7 +21,8 @@ using SFA.DAS.CommitmentsV2.Types;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Authentication;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
+using System.Text.RegularExpressions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -81,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.AddRange(await BuildReservationValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildTrainingProgramValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildEmailValidationFailures(request, apprenticeship));
-                errors.AddRange(BuildOptionValidationFailures(request, apprenticeship));
+
             }
 
             if (errors.Count == 0)
@@ -192,7 +193,6 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.CourseCode == apprenticeship.CourseCode
                 && request.ULN == apprenticeship.Uln
                 && request.Version == apprenticeship.TrainingCourseVersion
-                && request.Option == apprenticeship.TrainingCourseOption
                 && referenceNotUpdated)
             {
                 yield return new DomainError("ApprenticeshipId", "No change made: you need to amend details or cancel");
@@ -297,25 +297,9 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> BuildOptionValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
         {
-            if (request.Option != null && request.Option != apprenticeship.TrainingCourseOption)
-            {
-                var version = _mediator.Send(new GetTrainingProgrammeVersionQuery(request.CourseCode, request.Version)).Result.TrainingProgramme;
+            List<DomainError> errors = new List<DomainError>();
 
-                if (version.Options.Any())
-                {
-                    if (!version.Options.Contains(request.Option))
-                    {
-                        yield return new DomainError(nameof(request.Option), "The chosen option is not available for this standard version");
-                    }
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(request.Option))
-                    {
-                        yield return new DomainError(nameof(request.Option), "An option cannot be selected for this standard version");
-                    }
-                }
-            }
+            return errors;
         }
 
         private IEnumerable<DomainError> BuildOverlapValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeship)
