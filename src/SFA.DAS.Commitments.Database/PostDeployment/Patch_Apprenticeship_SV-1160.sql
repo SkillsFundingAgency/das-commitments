@@ -41,7 +41,7 @@ USING (
 ) upd
 ON ( apmaster.Id = upd.Id )
 WHEN MATCHED THEN UPDATE
-SET apmaster.TrainingCourseVersion =upd.TrainingCourseVersion 
+SET apmaster.TrainingCourseVersion = upd.TrainingCourseVersion 
    ,apmaster.TrainingCourseVersionConfirmed = upd.TrainingCourseVersionConfirmed
    ,apmaster.StandardUId = upd.StandardUId;
 
@@ -53,22 +53,23 @@ USING (
     SELECT ap1.id,
         (SELECT StandardUid FROM (
              SELECT row_number() OVER (PARTITION BY Ifatereferencenumber ORDER BY VersionMajor, VersionMinor) seq, StandardUid FROM Standard WHERE CONVERT(varchar,LarsCode) = ap1.TrainingCode
-                AND (VersionLatestStartDate IS NULL OR EOMONTH(VersionLatestStartDate) >= EOMONTH(ap1.StartDate) )
+                AND (VersionLatestStartDate IS NULL OR EOMONTH(VersionLatestStartDate) >= EOMONTH(ISNULL(ap1.StartDate,ap1.createdOn) ) )
             ) st1 WHERE seq = 1
         ) AS StandardUID,
         (SELECT Version FROM (
              SELECT row_number() OVER (PARTITION BY Ifatereferencenumber ORDER BY VersionMajor, VersionMinor) seq, Version FROM Standard WHERE CONVERT(varchar,LarsCode) = ap1.TrainingCode
-                AND (VersionLatestStartDate IS NULL OR EOMONTH(VersionLatestStartDate) >= EOMONTH(ap1.StartDate) )
+                AND (VersionLatestStartDate IS NULL OR EOMONTH(VersionLatestStartDate) >= EOMONTH(ISNULL(ap1.StartDate,ap1.createdOn) ) )
             ) st1 WHERE seq = 1
         ) AS TrainingCourseVersion,
         0 TrainingCourseVersionConfirmed
     FROM Apprenticeship ap1
     WHERE ap1.TrainingType = 0
       AND ap1.StandardUID IS NULL
+      AND ap1.TrainingCode IS NOT NULL
  ) upd
 ON ( apmaster.Id = upd.Id )
-WHEN MATCHED THEN UPDATE
-SET apmaster.TrainingCourseVersion =upd.TrainingCourseVersion 
+WHEN MATCHED AND upd.StandardUId IS NOT NULL THEN UPDATE
+SET apmaster.TrainingCourseVersion = upd.TrainingCourseVersion 
    ,apmaster.TrainingCourseVersionConfirmed = upd.TrainingCourseVersionConfirmed
    ,apmaster.StandardUId = upd.StandardUId;
 
