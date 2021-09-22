@@ -318,6 +318,19 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseVersionConfirmed = true;
             }
 
+            // ApprenticeshipUpdate.TrainingCourseOption can be null when 
+            // a - the option hasn't changed
+            // b - the new course doesn't have any options
+            // If the training course or version has changed then the option can be set to the chosen option, string.Empty (Choose later) or null 
+            // If the training course and version has not changed then the option can only be updated to the chosen option or string.Empty
+            // Else the course has not changed and the option is null then the option should not be changed
+            var shouldUpdateOption = !string.IsNullOrEmpty(update.TrainingCode) || !string.IsNullOrEmpty(update.TrainingCourseVersion) || update.TrainingCourseOption != null;
+            
+            if (shouldUpdateOption)
+            { 
+                TrainingCourseOption = update.TrainingCourseOption;
+            }
+
             if (!string.IsNullOrEmpty(update.StandardUId))
             {
                 StandardUId = update.StandardUId;

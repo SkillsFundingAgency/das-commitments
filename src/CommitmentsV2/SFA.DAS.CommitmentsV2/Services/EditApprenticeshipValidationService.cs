@@ -192,6 +192,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.CourseCode == apprenticeship.CourseCode
                 && request.ULN == apprenticeship.Uln
                 && request.Version == apprenticeship.TrainingCourseVersion
+                && request.Option == apprenticeship.TrainingCourseOption
                 && referenceNotUpdated)
             {
                 yield return new DomainError("ApprenticeshipId", "No change made: you need to amend details or cancel");

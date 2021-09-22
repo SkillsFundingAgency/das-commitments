@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
 {
@@ -42,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
                         TrainingCode = update.TrainingCode,
                         TrainingName = update.TrainingName,
                         TrainingCourseVersion = update.TrainingCourseVersion,
+                        TrainingCourseOption = update.TrainingCourseOption,
                         Cost = update.Cost,
                         StartDate = update.StartDate,
                         EndDate = update.EndDate,

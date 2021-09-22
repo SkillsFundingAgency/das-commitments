@@ -206,6 +206,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.CourseCode, _result.CourseCode);
                 Assert.AreEqual(Apprenticeship.StandardUId, _result.StandardUId);
                 Assert.AreEqual(Apprenticeship.TrainingCourseVersion, _result.Version);
+                Assert.AreEqual(Apprenticeship.TrainingCourseOption, _result.Option);
                 Assert.AreEqual(AccountLegalEntityId, _result.AccountLegalEntityId);
                 Assert.AreEqual(Apprenticeship.EmployerRef, _result.EmployerReference);
                 Assert.AreEqual(Apprenticeship.Cohort.ProviderId, _result.ProviderId);

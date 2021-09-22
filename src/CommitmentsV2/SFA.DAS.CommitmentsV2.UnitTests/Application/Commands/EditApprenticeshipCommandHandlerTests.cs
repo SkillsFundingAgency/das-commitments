@@ -332,7 +332,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 {
                    ApprenticeshipId = ApprenticeshipId,
                    AccountId = 222,
-                   UserInfo = new UserInfo { UserId = 122.ToString()}
+                   UserInfo = new UserInfo { UserId = 122.ToString()},
+                   Option = apprenticeship.TrainingCourseOption
                 }
             };
 

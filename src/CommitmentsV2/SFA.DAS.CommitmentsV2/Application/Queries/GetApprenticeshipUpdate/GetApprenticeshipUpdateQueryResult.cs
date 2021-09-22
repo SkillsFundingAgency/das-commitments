@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
             public ProgrammeType? TrainingType { get; set; }
             public string TrainingCode { get; set; }
             public string TrainingCourseVersion { get; set; }
+            public string TrainingCourseOption { get; set; }
             public string TrainingName { get; set; }
             public decimal? Cost { get; set; }
             public DateTime? StartDate { get; set; }
