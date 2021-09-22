@@ -442,7 +442,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                 ProviderRef = changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider ? string.Empty : this.ProviderRef,
                 ReservationId = reservationId,
                 ContinuationOfId = Id,
-                OriginalStartDate = OriginalStartDate ?? StartDate
+                OriginalStartDate = OriginalStartDate ?? StartDate,
+                StandardUId = this.StandardUId,
+                TrainingCourseVersion = this.TrainingCourseVersion,
+                TrainingCourseVersionConfirmed = this.TrainingCourseVersionConfirmed,
+                TrainingCourseOption = this.TrainingCourseOption
             };
 
             return result;
