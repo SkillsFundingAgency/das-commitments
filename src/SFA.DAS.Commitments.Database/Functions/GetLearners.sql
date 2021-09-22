@@ -33,7 +33,7 @@ RETURN
 
 	WHERE [TrainingType] = 0
 	  AND [TrainingCode] is not null
-	  and ISNUMERIC(TrainingCode) = 1
+	  AND ISNUMERIC(TrainingCode) = 1
 	  AND [StartDate] is not null  
 	  AND [EndDate] is not null  
 	  AND [ULN] is not null  
