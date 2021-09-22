@@ -13,11 +13,11 @@ PRINT N'Patch historical Version in Apprenticeship - Started.';
 IF EXISTS ( SELECT  *
             FROM    sys.triggers
             WHERE   name = 'Trg_Apprenticeship_Update'
-			AND is_disabled = 0 ) 
+            AND is_disabled = 0 ) 
 BEGIN
-	PRINT N'Disabling trigger Trg_Apprenticeship_Update.';
+    PRINT N'Disabling trigger Trg_Apprenticeship_Update.';
     SET @trigger_enabled = 'enable';
-	EXEC('ALTER TABLE [dbo].[Apprenticeship] DISABLE TRIGGER Trg_Apprenticeship_Update');
+    EXEC('ALTER TABLE [dbo].[Apprenticeship] DISABLE TRIGGER Trg_Apprenticeship_Update');
 END
 
 SELECT @trigger_enabled 
@@ -53,12 +53,18 @@ USING (
     SELECT ap1.id,
         (SELECT StandardUid FROM (
              SELECT row_number() OVER (PARTITION BY Ifatereferencenumber ORDER BY VersionMajor, VersionMinor) seq, StandardUid FROM Standard WHERE CONVERT(varchar,LarsCode) = ap1.TrainingCode
-                AND (VersionLatestStartDate IS NULL OR EOMONTH(VersionLatestStartDate) >= EOMONTH(ISNULL(ap1.StartDate,ap1.createdOn) ) )
+                AND (
+                    VersionLatestStartDate IS NULL OR EOMONTH(VersionLatestStartDate) >= EOMONTH(ISNULL(ap1.StartDate,ap1.createdOn) ) 
+                    OR (IsLatestVersion = 1 AND EOMONTH(VersionLatestStartDate) < EOMONTH(ISNULL(ap1.StartDate,ap1.createdOn)) )
+                )
             ) st1 WHERE seq = 1
         ) AS StandardUID,
         (SELECT Version FROM (
              SELECT row_number() OVER (PARTITION BY Ifatereferencenumber ORDER BY VersionMajor, VersionMinor) seq, Version FROM Standard WHERE CONVERT(varchar,LarsCode) = ap1.TrainingCode
-                AND (VersionLatestStartDate IS NULL OR EOMONTH(VersionLatestStartDate) >= EOMONTH(ISNULL(ap1.StartDate,ap1.createdOn) ) )
+                AND (
+                    VersionLatestStartDate IS NULL OR EOMONTH(VersionLatestStartDate) >= EOMONTH(ISNULL(ap1.StartDate,ap1.createdOn) ) 
+                    OR (IsLatestVersion = 1 AND EOMONTH(VersionLatestStartDate) < EOMONTH(ISNULL(ap1.StartDate,ap1.createdOn)) )
+                )
             ) st1 WHERE seq = 1
         ) AS TrainingCourseVersion,
         0 TrainingCourseVersionConfirmed
@@ -76,8 +82,8 @@ SET apmaster.TrainingCourseVersion = upd.TrainingCourseVersion
 -- reset the UpdateOn trigger, if it exists and is enabled
 IF @trigger_enabled = 'enable' 
 BEGIN
-	PRINT N'Enabling trigger Trg_Apprenticeship_Update.';
-	EXEC('ALTER TABLE [dbo].[Apprenticeship] ENABLE TRIGGER Trg_Apprenticeship_Update');
+    PRINT N'Enabling trigger Trg_Apprenticeship_Update.';
+    EXEC('ALTER TABLE [dbo].[Apprenticeship] ENABLE TRIGGER Trg_Apprenticeship_Update');
 END
 
 PRINT N'Patch historical Version in Apprenticeship - Completed.';
