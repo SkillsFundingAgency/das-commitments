@@ -2,11 +2,11 @@ using System;
 
 namespace SFA.DAS.CommitmentsV2.Models.Api
 {
-    public class GetApprentice : IGetApiRequest
+    public class GetApprenticeRequest : IGetApiRequest
     {
         private readonly Guid _apprenticeId;
 
-        public GetApprentice(Guid apprenticeId)
+        public GetApprenticeRequest(Guid apprenticeId)
         {
             _apprenticeId = apprenticeId;
         }

@@ -517,7 +517,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void ConfirmEmailAddress(string email)
         {
-            if (StopDate.HasValue || CompletionDate.HasValue)
+            if (EmailAddressConfirmed == true)
                 return;
 
             if (!Email.Equals(email, StringComparison.InvariantCultureIgnoreCase))
