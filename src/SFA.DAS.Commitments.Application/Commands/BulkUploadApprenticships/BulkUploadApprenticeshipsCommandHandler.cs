@@ -77,11 +77,11 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command)).ToList();
 
-            await CalculateApprenticehipVersions(apprenticeships);
-
             await ValidateOverlaps(apprenticeships);
 
             await ValidateEmailOverlaps(apprenticeships);
+
+            await CalculateApprenticehipVersions(apprenticeships);
 
             var apprenticeshipsWithReservationIds = await MergeBulkCreatedReservationIdsOnToApprenticeships(apprenticeships, commitment);
 
@@ -98,19 +98,19 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         {
             void ShiftStandardVersionDatesToBeDividedByMonth(IEnumerable<StandardVersion> standardVersions)
             {
-                // Overwrite EffectiveFrom of all versions to 1st of each month so that if a version starts in the same month the latest version
+                // Overwrite VersionEarliestStart of all versions to 1st of each month so that if a version starts in the same month the latest version
                 // is always chosen in that instances
-                // First version doesn't get it's effective from overwritten as that won't have an overlap
-                // Last version effective to doesn't matter as it should be null
+                // First version doesn't get it's VersionEarliestStart overwritten as that won't have an overlap
+                // Last version LatestStartDate doesn't matter as it should be null
                 // e.g.
-                // 1.0  Effective From 9/12/2019 Effective To 14/7/2020
-                // 1.1  Effective From 15/7/2020 Effective To 19/10/2020
-                // 1.2  Effective From 20/10/2020  Effective To Null
+                // 1.0  VersionEarliestStart 9/12/2019 VersionLatestStartDate 14/7/2020
+                // 1.1  VersionEarliestStart 15/7/2020 VersionLatestStartDate 19/10/2020
+                // 1.2  VersionEarliestStart 20/10/2020 VersionLatestStartDate Null
 
                 // Becomes
-                // 1.0  Effective From 9/12/2019 Effective To 31/7/2020
-                // 1.1  Effective From 1/7/2020 Effective To 31/10/2020
-                // 1.2  Effective From 1/10/2020  Effective To Null
+                // 1.0  VersionEarliestStart 9/12/2019 VersionLatestStartDate 31/7/2020
+                // 1.1  VersionEarliestStart 1/7/2020 VersionLatestStartDate 31/10/2020
+                // 1.2  VersionEarliestStart 1/10/2020  VersionLatestStartDate Null
 
                 var first = true;
                 foreach (var version in standardVersions)
@@ -135,7 +135,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 // Given the resetting of dates in the ShiftStandardVersionDatesMethod
                 // If an apprentice start date is then 29th October 2020
                 // 29/10/2020 is > 1/7/2020  and it's < 31/10/2020 so it initially creates a 1.1 Training Programme
-                // 29/10/2020 is > 1/10/2020 and Effective To Is null, so then ovewrites with a 1.2 Training Programme
+                // 29/10/2020 is > 1/10/2020 and VersionLatestStartDate Is null, so then ovewrites with a 1.2 Training Programme
 
                 // Default to Latest Version to start with then override
                 var selectedVersion = standardVersions.Last();
@@ -175,7 +175,8 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 if(!versions.Any())
                 {
                     // Lars code not recognised.
-                    continue;
+                    _logger.Info($"Found unknown Lars Code");
+                    throw new ValidationException(new[] { new ValidationFailure("StdCode", $"Unknown StdCode or No Versions found {larsCode}") });
                 }
 
                 if(versions.Count == 1)
