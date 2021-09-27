@@ -124,6 +124,7 @@
     <Compile Include="Entities\Provider.cs" />
     <Compile Include="Entities\Statistics.cs" />
     <Compile Include="Entities\TrainingProgramme\FundingPeriod.cs" />
+    <Compile Include="Entities\TrainingProgramme\StandardVersion.cs" />
     <Compile Include="Entities\TrainingProgramme\TrainingProgrammeStatus.cs" />
     <Compile Include="Entities\TransferRequest.cs" />
     <Compile Include="Entities\TransferRequestSummary.cs" />
