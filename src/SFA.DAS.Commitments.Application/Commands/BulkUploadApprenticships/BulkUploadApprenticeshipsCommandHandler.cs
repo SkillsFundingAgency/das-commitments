@@ -133,7 +133,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             StandardVersion GetCalculatedVersionBasedOnStartDate(List<StandardVersion> standardVersions, DateTime startDate)
             {
                 // Given the resetting of dates in the ShiftStandardVersionDatesMethod
-                // If an apprentice start date is then 29th October 2020
+                // If an apprentice start date is the 29th October 2020
                 // 29/10/2020 is > 1/7/2020  and it's < 31/10/2020 so it initially creates a 1.1 Training Programme
                 // 29/10/2020 is > 1/10/2020 and VersionLatestStartDate Is null, so then ovewrites with a 1.2 Training Programme
 
@@ -159,6 +159,11 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             }
 
             var standardVersions = await _trainingProgrammeRepository.GetAllStandardVersions();
+
+            if(standardVersions == null)
+            {
+                throw new ValidationException("Unable to retrieve Standards to pollinate bulk upload data");
+            }
 
             foreach(var apprenticeship in apprenticeships)
             {

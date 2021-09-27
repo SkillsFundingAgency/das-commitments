@@ -230,30 +230,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             _mockV2EventsPublisher.Verify(x => x.PublishBulkUploadIntoCohortCompleted(_existingCommitment.ProviderId.Value, _existingCommitment.Id, 1), Times.Once);
         }
 
-        [Test]
-        public async Task ShouldCalculateStandardVersionInformationForApprenticeship()
+        [TestCase("1234567890", "ST0101_1.0", "1.0")]
+        [TestCase("1122334455", "ST0101_1.1", "1.1")]
+        public async Task ShouldCalculateStandardVersionInformationForApprenticeship(string uln, string standardUId, string version)
         {
             var insertedApprenticeships = new List<Apprenticeship> { new Apprenticeship() };
             _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>()))
                 .Callback<long, IEnumerable<Apprenticeship>>((commitmentId, apprenticeships) =>
                  {
-                     foreach (var a in apprenticeships)
-                     {
-                         if (a.ULN == "1234567890")
-                         {
-                             a.StandardUId.Should().Be("ST0101_1.0");
-                             a.TrainingCourseVersion.Should().Be("1.0");
-                             a.TrainingCourseVersionConfirmed.Should().BeTrue();
-                         }
+                     var apprenticeship = apprenticeships.First(a => a.ULN == uln);
 
-                         if (a.ULN == "1122334455")
-                         {
-                             a.StandardUId.Should().Be("ST0101_1.1");
-                             a.TrainingCourseVersion.Should().Be("1.1");
-                             a.TrainingCourseVersionConfirmed.Should().BeTrue();
-                         }
+                     apprenticeship.StandardUId.Should().Be(standardUId);
+                     apprenticeship.TrainingCourseVersion.Should().Be(version);
+                     apprenticeship.TrainingCourseVersionConfirmed.Should().BeTrue();
 
-                     }
                  }).ReturnsAsync(insertedApprenticeships);
 
             await _handler.Handle(_exampleValidRequest);
