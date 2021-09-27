@@ -37,6 +37,6 @@ RETURN
 	  AND [StartDate] is not null  
 	  AND [EndDate] is not null  
 	  AND [ULN] is not null  
-	  AND (ISNULL(ap1.UpdatedOn,ap1.CreatedOn) > @sinceTime OR @sinceTime IS NULL)
+	  AND ([LastUpdated] > @sinceTime OR @sinceTime IS NULL)
 )
 
