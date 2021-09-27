@@ -8,5 +8,6 @@ namespace SFA.DAS.Commitments.Domain.Data
     {
         Task<List<Standard>> GetAllStandards();
         Task<List<Framework>> GetAllFrameworks();
+        Task<List<StandardVersion>> GetAllStandardVersions();
     }
 }
