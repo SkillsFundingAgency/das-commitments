@@ -78,6 +78,11 @@ WHEN MATCHED AND upd.StandardUId IS NOT NULL THEN UPDATE
 SET apmaster.TrainingCourseVersion = upd.TrainingCourseVersion 
    ,apmaster.TrainingCourseVersionConfirmed = upd.TrainingCourseVersionConfirmed
    ,apmaster.StandardUId = upd.StandardUId;
+   
+-- Seed the UpdateOn value
+UPDATE Apprenticeship
+SET UpdatedOn = CreatedOn
+WHERE UpdatedOn IS NULL
 
 -- reset the UpdateOn trigger, if it exists and is enabled
 IF @trigger_enabled = 'enable' 
