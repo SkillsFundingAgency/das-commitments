@@ -1,8 +1,9 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public partial class PriceHistory
+    public partial class PriceHistory :ITrackableEntity
     {
         public long Id { get; set; }
         public long ApprenticeshipId { get; set; }

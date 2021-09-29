@@ -9,9 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         protected IChangeTrackingSession ChangeTrackingSession { get; private set; }
 
-        protected void StartTrackingSession(UserAction userAction, Party party, long employerAccountId, long providerId, UserInfo userInfo)
+        protected void StartTrackingSession(UserAction userAction, Party party, long employerAccountId, long providerId, UserInfo userInfo, long? apprenticeshipId = default(long?))
         {
-            ChangeTrackingSession = new ChangeTrackingSession(new StateService(), userAction, party, employerAccountId, providerId, userInfo);
+            ChangeTrackingSession = new ChangeTrackingSession(new StateService(), userAction, party, employerAccountId, providerId, userInfo, apprenticeshipId);
         }
     }
 }
