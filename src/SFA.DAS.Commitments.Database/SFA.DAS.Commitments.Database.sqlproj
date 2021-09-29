@@ -72,6 +72,7 @@
     <Folder Include="PreDeployment" />
     <Folder Include="AdhocScripts\Manual" />
     <Folder Include="Functions" />
+    <Folder Include="Triggers" />
     <Folder Include="Schemas" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
     <Build Include="StoredProcedures\CheckForOverlappingEmailsForTable.sql" />
     <Build Include="StoredProcedures\CheckForOverlappingEmailsInCohort.sql" />
+    <Build Include="Functions\GetLearners.sql" />
     <Build Include="StoredProcedures\TruncateStandardOptions.sql" />
     <Build Include="Views\ApprenticeshipsWithNoEmail.sql" />
     <Build Include="Schemas\DashboardReporting.sql" />
@@ -180,6 +182,9 @@
     <None Include="AdhocScripts\Manual\CV-684-Update-Account-LevyStatus.sql" />
     <None Include="AdhocScripts\Support\UpdateAccountLevyStatus.sql" />
     <None Include="AdhocScripts\Manual\CON-3410-UpdateApprovalsFlag.sql" />
+    <Build Include="Triggers\ApprenticeshipUpdate.sql" />
+    <None Include="PostDeployment\Patch_Apprenticeship_SV-1160.sql" />
+    <Build Include="StoredProcedures\GetLearnersBatch.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />

@@ -150,6 +150,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Exter
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.ExternalHandlers", "CommitmentsV2\SFA.DAS.CommitmentsV2.ExternalHandlers\SFA.DAS.CommitmentsV2.ExternalHandlers.csproj", "{99496856-DC05-415D-980F-9F1D6B49BC1D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Database.IntegrationTests", "SFA.DAS.Commitments.Database.IntegrationTests\SFA.DAS.Commitments.Database.IntegrationTests.csproj", "{6B404E03-5F6A-467A-AAF7-3D49F13725B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -369,6 +371,10 @@ Global
 		{99496856-DC05-415D-980F-9F1D6B49BC1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99496856-DC05-415D-980F-9F1D6B49BC1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99496856-DC05-415D-980F-9F1D6B49BC1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B404E03-5F6A-467A-AAF7-3D49F13725B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B404E03-5F6A-467A-AAF7-3D49F13725B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B404E03-5F6A-467A-AAF7-3D49F13725B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B404E03-5F6A-467A-AAF7-3D49F13725B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -421,6 +427,7 @@ Global
 		{03AFF74E-D0F7-4A38-8CA6-746F8F47EBC4} = {46E55DE2-FF6C-4D97-8651-A62F62820290}
 		{65BB1121-B505-45EE-B9BB-E178BC7838C3} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{99496856-DC05-415D-980F-9F1D6B49BC1D} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
+		{6B404E03-5F6A-467A-AAF7-3D49F13725B5} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}
