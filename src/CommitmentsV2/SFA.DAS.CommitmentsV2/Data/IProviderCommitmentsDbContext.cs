@@ -29,6 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         DbSet<PriceHistory> PriceHistory { get; set; }
         DbSet<TransferRequest> TransferRequests { get; set; }
         DbSet<Standard> Standards { get; set; }
+        DbSet<StandardOption> StandardOptions { get; set; }
         DbSet<Framework> Frameworks { get; set; }
         Task ExecuteSqlCommandAsync(string sql, params object[] parameters);
     }

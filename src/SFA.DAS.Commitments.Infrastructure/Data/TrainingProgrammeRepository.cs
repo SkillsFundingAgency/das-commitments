@@ -51,5 +51,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 return results.GroupBy(c => c.Id).Select(item=>item.First()).ToList();
             });
         }
+
+        public async Task<List<StandardVersion>> GetAllStandardVersions()
+        {
+            return await WithConnection(async c =>
+            {
+                var results = await c.QueryAsync<StandardVersion>(
+                    $@"SELECT StandardUId, LarsCode, IFateReferenceNumber, Version, Title, 
+                        Level, Duration, MaxFunding, EffectiveFrom, EffectiveTo, VersionMajor, 
+                        VersionMinor, VersionEarliestStartDate, VersionLatestStartDate
+                    FROM [dbo].[Standard]");
+                return results.AsList();
+            });
+        }
     }
 }
