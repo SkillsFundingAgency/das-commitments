@@ -22,6 +22,7 @@
     [EmployerRef] NVARCHAR(50) NULL, 
     [ProviderRef] NVARCHAR(50) NULL, 
     [CreatedOn] DATETIME NULL, 
+    [UpdatedOn] DATETIME NULL, 
     [AgreedOn] DATETIME NULL, 
     [PaymentOrder] INT NULL, 
     [StopDate] DATE NULL, 
@@ -42,6 +43,7 @@
 	[OriginalStartDate] DATETIME NULL,
     [Email] NVARCHAR(200) NULL, 
     [EmailAddressConfirmed] BIT NULL,
+    [LastUpdated] AS ISNULL([UpdatedOn],[CreatedOn]),
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
@@ -73,4 +75,8 @@ GO
 CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_ApprovedContinuationOf] ON [dbo].[Apprenticeship] ([IsApproved], [ContinuationOfId]) INCLUDE ([CommitmentId])
 GO
 CREATE NONCLUSTERED INDEX [IDX_Apprenticeship_Email] ON [dbo].[Apprenticeship] ([Email])
+GO
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Extract]
+ON [dbo].[Apprenticeship] ([TrainingType],[ULN],[TrainingCode],[StartDate],[EndDate], [LastUpdated])
+INCLUDE ([CommitmentId],[FirstName],[LastName],[TrainingCourseVersion],[TrainingCourseVersionConfirmed],[TrainingCourseOption],[StandardUId],[PaymentStatus],[ProviderRef],[CreatedOn],[StopDate],[PauseDate],[CompletionDate],[UpdatedOn])
 GO

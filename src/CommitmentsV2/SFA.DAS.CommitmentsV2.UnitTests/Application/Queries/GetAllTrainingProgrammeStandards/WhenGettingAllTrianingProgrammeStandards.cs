@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllTrainingProg
             
             var actual = await handler.Handle(query, CancellationToken.None);
 
-            actual.TrainingProgrammes.Should().BeEquivalentTo(result);
+            actual.TrainingProgrammes.Should().BeEquivalentTo(result, opt => opt.Excluding(x => x.Options));
         }
     }
 }
