@@ -159,6 +159,7 @@
     <Build Include="StoredProcedures\CheckForOverlappingEmailsForTable.sql" />
     <Build Include="StoredProcedures\CheckForOverlappingEmailsInCohort.sql" />
     <Build Include="StoredProcedures\TruncateStandardOptions.sql" />
+    <Build Include="AdhocScripts\Manual\CS-1026-UpdateEmailsToMatchEmailsInCMAD.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
