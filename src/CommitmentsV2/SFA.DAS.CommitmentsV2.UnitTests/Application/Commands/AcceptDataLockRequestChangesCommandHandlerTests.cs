@@ -342,6 +342,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
+        public async Task ShouldPublishStateChanged_WhenNotHasHadDataLockSuccessAndNewDataLocksHasDifferentPrice()
+        {
+            // Arrange
+            _fixture.SeedData(true)
+                .WithHasHadDataLockSuccess(false)
+                .WithDataLock(TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1500, false, TriageStatus.Change, EventStatus.New, true, Status.Fail, DataLockErrorCode.Dlock07)
+                .WithDataLock(TestsFixture.ApprenticeshipId, 41, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime.AddDays(20), 2500, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
+
+            // Act
+            await _fixture.Handle();
+
+            // Assert
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.DeletePriceHistory, Times.Once);
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdatePriceHistory, () => Times.Exactly(2));
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdateCourse, Times.Once);
+        }
+        
+        [Test]
         public async Task ShouldPublishDataLockTriage_WhenNotHasHadDataLockSuccessAndNewDataLocksHasDifferentCourse()
         {
             // Arrange
@@ -713,20 +731,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Db.Cohorts.Add(cohortDetails);
 
-            if (withPriceHistory)
-            {
-                var priceHistoryDetails = new List<PriceHistory>()
-                {
-                    new PriceHistory
-                    {
-                        FromDate = DateTime.Now,
-                        ToDate = null,
-                        Cost = 10000,
-                    }
-                };
-
-                Db.PriceHistory.AddRange(priceHistoryDetails);
-            }
+          
 
             var apprenticeshipDetails = AutoFixture.Build<CommitmentsV2.Models.Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
@@ -750,6 +755,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             apprenticeshipDetails.CommitmentId = cohortDetails.Id;
 
             Db.Apprenticeships.Add(apprenticeshipDetails);
+            Db.SaveChanges();
+
+            if (withPriceHistory)
+            {
+                var priceHistoryDetails = new List<PriceHistory>()
+                {
+                    new PriceHistory
+                    {
+                        FromDate = DateTime.Now,
+                        ToDate = null,
+                        Cost = 10000,
+                        ApprenticeshipId = apprenticeshipDetails.Id
+                    }
+                };
+
+                Db.PriceHistory.AddRange(priceHistoryDetails);
+            }
+            
             Db.SaveChanges();
 
             return this;

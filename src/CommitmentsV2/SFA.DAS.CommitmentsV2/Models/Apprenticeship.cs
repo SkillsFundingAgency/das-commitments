@@ -170,12 +170,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public void ReplacePriceHistory(Party party,  List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
+        public void ReplacePriceHistory(Party party, List<PriceHistory> currentPriceHistory, List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
         {
            
             StartTrackingSession(UserAction.DeletePriceHistory, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
 
-            foreach (var priceHistory in PriceHistory)
+            foreach (var priceHistory in currentPriceHistory)
             {
                 if (updatedPriceHistory.All(x => x.Cost != priceHistory.Cost))
                 {
@@ -190,7 +190,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             foreach (var priceHistory in updatedPriceHistory)
             {
-                var changedPriceHistory = PriceHistory.FirstOrDefault(x =>   x.Cost == priceHistory.Cost && x.FromDate == priceHistory.FromDate);
+                var changedPriceHistory = currentPriceHistory.FirstOrDefault(x =>   x.Cost == priceHistory.Cost && x.FromDate == priceHistory.FromDate);
 
                 if (changedPriceHistory != null)
                 {
