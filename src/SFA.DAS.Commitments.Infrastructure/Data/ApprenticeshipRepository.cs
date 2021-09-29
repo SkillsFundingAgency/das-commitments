@@ -460,6 +460,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 bulkCopy.ColumnMappings.Add("CreatedOn", "CreatedOn");
                 bulkCopy.ColumnMappings.Add("ReservationId", "ReservationId");
                 bulkCopy.ColumnMappings.Add("Email", "Email");
+                bulkCopy.ColumnMappings.Add("StandardUId", "StandardUId");
+                bulkCopy.ColumnMappings.Add("TrainingCourseVersion", "TrainingCourseVersion");
+                bulkCopy.ColumnMappings.Add("TrainingCourseVersionConfirmed", "TrainingCourseVersionConfirmed");
                 bulkCopy.WriteToServer(table);
             }
         }
@@ -523,6 +526,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             apprenticeshipsTable.Columns.Add("CreatedOn", typeof(DateTime));
             apprenticeshipsTable.Columns.Add("ReservationId", typeof(Guid));
             apprenticeshipsTable.Columns.Add("Email", typeof(string));
+            apprenticeshipsTable.Columns.Add("StandardUId", typeof(string));
+            apprenticeshipsTable.Columns.Add("TrainingCourseVersion", typeof(string));
+            apprenticeshipsTable.Columns.Add("TrainingCourseVersionConfirmed", typeof(bool));
             return apprenticeshipsTable;
         }
 
@@ -530,7 +536,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             return apprenticeshipsTable.Rows.Add(commitmentId, a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
                 a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
-                a.EmployerRef, a.ProviderRef, _currentDateTime.Now, a.ReservationId, string.IsNullOrWhiteSpace(a.Email) ? null : a.Email);
+                a.EmployerRef, a.ProviderRef, _currentDateTime.Now, a.ReservationId, string.IsNullOrWhiteSpace(a.Email) ? null : a.Email,
+                a.StandardUId, a.TrainingCourseVersion, a.TrainingCourseVersionConfirmed);
         }
 
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)

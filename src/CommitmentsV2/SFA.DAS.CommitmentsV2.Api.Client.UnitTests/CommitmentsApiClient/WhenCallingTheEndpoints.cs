@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task AddDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.AddDraftApprenticeship(_fixture.CohortId, _fixture.AddDraftApprenticeshipRequest, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<AddDraftApprenticeshipRequest>($"api/cohorts/{_fixture.CohortId}/draft-apprenticeships", _fixture.AddDraftApprenticeshipRequest, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<AddDraftApprenticeshipRequest, AddDraftApprenticeshipResponse>($"api/cohorts/{_fixture.CohortId}/draft-apprenticeships", _fixture.AddDraftApprenticeshipRequest, CancellationToken.None));
         }
 
         [Test]
@@ -594,6 +594,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task GetTrainingProgrammeVersions()
+        {
+            await _fixture.CommitmentsApiClient.GetTrainingProgrammeVersions("123");
+
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetTrainingProgrammeVersionsResponse>("api/TrainingProgramme/123/versions", null, CancellationToken.None));
+        }
+
+        [Test]
         public async Task EditApprenticeship_VerifyUrl()
         {
             var request = new EditApprenticeshipApiRequest();
@@ -653,6 +661,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
 
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/{apprenticeshipId}/updates/undo-apprenticeship-update", request, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetProviderCommitmentAgreement_VerifyUrlAndDataIsCorrectlyPassedIn()
+        {
+            //Arrange
+            var providerId = 11;
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetProviderCommitmentAgreement(providerId,  CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{ providerId}/commitmentagreements", null, CancellationToken.None));
         }
     }
 

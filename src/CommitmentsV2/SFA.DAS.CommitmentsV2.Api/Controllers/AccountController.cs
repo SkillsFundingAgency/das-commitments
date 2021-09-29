@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -42,6 +43,23 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 LevyStatus = employer.LevyStatus
             });
         }
+
+        [HttpGet]
+        [Route("{accountId}/transfer-status")]
+        public async Task<IActionResult> GetAccountTransferStatus(long accountId)
+        {
+            var status = await _mediator.Send(new GetAccountTransferStatusQuery
+            {
+                AccountId = accountId
+            });
+
+            return Ok(new AccountTransferStatusResponse
+            {
+                IsTransferReceiver = status.IsTransferReceiver,
+                IsTransferSender = status.IsTransferSender
+            });
+        }
+
 
         [HttpGet]
         [Route("{AccountId}/providers/approved")]
