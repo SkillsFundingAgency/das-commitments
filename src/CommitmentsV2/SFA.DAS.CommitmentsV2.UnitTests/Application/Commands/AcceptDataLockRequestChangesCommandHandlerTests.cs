@@ -337,7 +337,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _fixture.Handle();
 
             // Assert
-            _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdatePriceHistory, Times.Once);
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdatePriceHistory, ()=> Times.Exactly(2));
             _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdateCourse, Times.Once);
         }
 
