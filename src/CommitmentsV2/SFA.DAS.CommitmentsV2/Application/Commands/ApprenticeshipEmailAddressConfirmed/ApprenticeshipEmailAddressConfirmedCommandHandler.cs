@@ -1,5 +1,4 @@
 using System;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -33,13 +32,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressC
                 var apprenticeshipTask = _db.Value.Apprenticeships.SingleAsync(a => a.Id == request.ApprenticeshipId, cancellationToken);
                 var apprenticeTask = _apimClient.Get<ApprenticeResponse>(new GetApprenticeRequest(request.ApprenticeId));
 
-                //await Task.WhenAll(apprenticeTask, apprenticeshipTask);
+                await Task.WhenAll(apprenticeTask, apprenticeshipTask);
 
                 var apprenticeship = await apprenticeshipTask;
                 var apprentice = await apprenticeTask;
 
                 var status = apprenticeship.GetApprenticeshipStatus(DateTime.Now);
-
 
                 if (status != ApprenticeshipStatus.Stopped && status != ApprenticeshipStatus.Completed)
                 {
