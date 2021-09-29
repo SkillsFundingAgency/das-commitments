@@ -4,7 +4,6 @@ using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services.Shared;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -170,6 +169,72 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.AssertValidationForProperty(
                 () => _fixture.WithEmail(email),
+                nameof(_fixture.DraftApprenticeshipDetails.Email),
+                passes);
+        }
+
+        [TestCase("!", true)]
+        [TestCase("#", true)]
+        [TestCase("$", true)]
+        [TestCase("%", true)]
+        [TestCase("&", true)]
+        [TestCase("'", true)]
+        [TestCase("`", true)]
+        [TestCase("*", true)]
+        [TestCase("+", true)]
+        [TestCase("-", true)]
+        [TestCase("/", true)]
+        [TestCase("=", true)]
+        [TestCase("?", true)]
+        [TestCase("^", true)]
+        [TestCase("_", true)]
+        [TestCase("{", true)]
+        [TestCase("|", true)]
+        [TestCase("}", true)]
+        [TestCase("~", true)]
+        [TestCase(" ", false)]
+        [TestCase("[", false)]
+        [TestCase("]", false)]
+        [TestCase("(", false)]
+        [TestCase(")", false)]
+        [TestCase(";", false)]
+        public void Email_CheckLocalEmailCharacterIfPresent_Validation(string emailChar, bool passes)
+        {
+            _fixture.AssertValidationForProperty(
+                () => _fixture.WithEmail($"a{emailChar}email@test.com"),
+                nameof(_fixture.DraftApprenticeshipDetails.Email),
+                passes);
+        }
+
+        [TestCase("!", false)]
+        [TestCase("#", false)]
+        [TestCase("$", false)]
+        [TestCase("%", false)]
+        [TestCase("&", false)]
+        [TestCase("'", false)]
+        [TestCase("`", false)]
+        [TestCase("*", false)]
+        [TestCase("+", false)]
+        [TestCase("-", true)]
+        [TestCase("/", false)]
+        [TestCase("=", false)]
+        [TestCase("?", false)]
+        [TestCase("^", false)]
+        [TestCase("_", true)]
+        [TestCase("{", false)]
+        [TestCase("|", false)]
+        [TestCase("}", false)]
+        [TestCase("~", false)]
+        [TestCase(" ", false)]
+        [TestCase("[", false)]
+        [TestCase("]", false)]
+        [TestCase("(", false)]
+        [TestCase(")", false)]
+        [TestCase(";", false)]
+        public void Email_CheckDomainEmailCharacterIfPresent_Validation(string emailChar, bool passes)
+        {
+            _fixture.AssertValidationForProperty(
+                () => _fixture.WithEmail($"aemail@te{emailChar}st.com"),
                 nameof(_fixture.DraftApprenticeshipDetails.Email),
                 passes);
         }

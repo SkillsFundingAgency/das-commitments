@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithOne(c=>c.Standard)
                 .HasPrincipalKey(c => c.LarsCode)
                 .HasForeignKey(c => c.Id).Metadata.DeleteBehavior = DeleteBehavior.Restrict;
+            builder.HasMany(c => c.Options);
 
             builder.HasIndex(c => c.StandardUId);
         }
