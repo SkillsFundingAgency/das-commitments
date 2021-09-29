@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models.Api;
 using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressConfirmed
@@ -45,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressC
                 }
                 else
                 {
-                    _logger.LogInformation($"ApprenticeshipEmailAddressConfirmed not recorded as apprenticeshipId {request.ApprenticeshipId}, is stopped or has completed");
+                    _logger.LogInformation($"ApprenticeshipEmailAddressConfirmed not recorded as apprenticeshipId {request.ApprenticeshipId}, has ApprenticeshipStatus of {status.GetDescription()}");
                 }
             }
             catch (Exception e)
