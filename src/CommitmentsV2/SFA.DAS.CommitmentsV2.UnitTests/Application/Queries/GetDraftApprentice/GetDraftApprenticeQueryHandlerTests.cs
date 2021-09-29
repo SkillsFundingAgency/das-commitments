@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using FluentAssertions;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
@@ -33,6 +34,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             var result = await fixture.Handle(); 
             
             Assert.AreEqual(expectedReference, result.Reference);
+            result.HasStandardOptions.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task Then_If_There_Options_With_The_Standard_Property_Is_True()
+        {
+            var fixture = new GetDraftApprenticeHandlerTestFixtures()
+                .SetApprentice(Party.Employer, "EMPREF123", true)
+                .SetRequestingParty(Party.Employer);
+
+            var result = await fixture.Handle();
+
+            result.HasStandardOptions.Should().BeTrue();
         }
     }
 
@@ -69,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             return this;
         }
 
-        public GetDraftApprenticeHandlerTestFixtures SetApprentice(Party creatingParty, string reference)
+        public GetDraftApprenticeHandlerTestFixtures SetApprentice(Party creatingParty, string reference, bool hasOptions = false)
         {
             // This line is required.
             // ReSharper disable once ObjectCreationAsStatement
@@ -85,6 +99,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 LastName = "ALastName"
             };
 
+            if (hasOptions)
+            {
+                draftApprenticeshipDetails.StandardUId = "ST1.01";
+
+                Db.StandardOptions.Add(new StandardOption
+                {
+                    StandardUId = "ST1.01",
+                    Option = "An option"
+                });
+            }
+
             var commitment = new Cohort(
                 autoFixture.Create<long>(),
                 autoFixture.Create<long>(),
@@ -99,6 +124,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Db.SaveChanges();
 
             ApprenticeshipId = commitment.Apprenticeships.First().Id;
+            
             CohortId = commitment.Id;
 
             return this;

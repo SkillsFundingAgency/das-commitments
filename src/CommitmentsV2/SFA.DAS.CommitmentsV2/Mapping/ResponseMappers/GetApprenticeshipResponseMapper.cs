@@ -23,6 +23,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 Email = source.Email,
                 Uln = source.Uln,
                 CourseCode = source.CourseCode,
+                StandardUId = source.StandardUId,
+                Version = source.Version,
+                Option = source.Option,
                 CourseName = source.CourseName,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
@@ -43,8 +46,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 ApprenticeshipEmployerTypeOnApproval = source.ApprenticeshipEmployerTypeOnApproval,
                 MadeRedundant = source.MadeRedundant,
                 ConfirmationStatus = source.ConfirmationStatus,
-                EmailAddressConfirmedByApprentice = source.EmailAddressConfirmedByApprentice,
-                EmailShouldBePresent = source.EmailShouldBePresent
             });
         }
     }

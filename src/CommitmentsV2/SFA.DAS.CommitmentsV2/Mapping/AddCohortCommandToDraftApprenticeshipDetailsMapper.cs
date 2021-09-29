@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -15,13 +16,12 @@ namespace SFA.DAS.CommitmentsV2.Mapping
         {
             _authorizationService = authorizationService;
             _trainingProgrammeLookup = trainingProgrammeLookup;
-        }
+        }   
 
         public async Task<DraftApprenticeshipDetails> Map(AddCohortCommand source)
         {
-            var trainingProgrammeTask = GetCourse(source.CourseCode);
-            var trainingProgramme = await trainingProgrammeTask;
-
+            var trainingProgramme = await GetCourse(source.CourseCode, source.StartDate);
+            
             var result = new DraftApprenticeshipDetails
             {
                 FirstName = source.FirstName,
@@ -37,11 +37,26 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 ReservationId = source.ReservationId
             };
 
+            // Only populate standard version specific items if start is specified.
+            // The course is returned as latest version if no start date is specified
+            // Which is fine for setting the training programmer.
+            if (source.StartDate.HasValue)
+            {
+                result.TrainingCourseVersion = trainingProgramme?.Version;
+                result.TrainingCourseVersionConfirmed = trainingProgramme?.ProgrammeType == Types.ProgrammeType.Standard;
+                result.StandardUId = trainingProgramme?.StandardUId;
+            }
+
             return result;
         }
 
-        private Task<TrainingProgramme> GetCourse(string courseCode)
+        private Task<TrainingProgramme> GetCourse(string courseCode, DateTime? startDate)
         {
+            if (startDate.HasValue && int.TryParse(courseCode, out _))
+            {
+                return _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(courseCode, startDate.Value);
+            }
+
             return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
         }
     }

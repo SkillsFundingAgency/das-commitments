@@ -133,6 +133,57 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(195, fixture.PriceHistoryFromDb.Cost);
         }
 
+        [TestCase("Option")]
+        [TestCase("")]
+        public async Task Handle_WhenOptionIsNotNull_OptionIsUpdated(string option)
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.TrainingCourseOption = option;
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            Assert.AreEqual(option, fixture.ApprenticeshipFromDb.TrainingCourseOption);
+        }
+
+        [Test]
+        public async Task Handle_WhenCourseHasChanged_And_OptionIsNull_Then_OptionIsUpdated()
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.TrainingCode = "123";
+            fixture.ApprenticeshipUpdate.TrainingCourseOption = null;
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            Assert.IsNull(fixture.ApprenticeshipFromDb.TrainingCourseOption);
+        }
+
+        [Test]
+        public async Task Handle_WhenVersionHasChanged_And_OptionIsNull_Then_OptionIsUpdated()
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.TrainingCourseVersion = "2.0";
+            fixture.ApprenticeshipUpdate.TrainingCourseOption = null;
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            Assert.IsNull(fixture.ApprenticeshipFromDb.TrainingCourseOption);
+        }
+
+        [Test]
+        public async Task Handle_WhenCourseAndVersionHasNotChanged_And_OptionIsNull_Then_OptionIsNotUpdated()
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.TrainingCourseOption = null;
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            Assert.AreEqual(fixture.ApprenticeshipDetails.TrainingCourseOption, fixture.ApprenticeshipFromDb.TrainingCourseOption);
+        }
+
         [Test]
         public async Task Handle_WhenCommandIsHandled_PendingOriginatorIsNULL()
         {
@@ -143,7 +194,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await fixture.Handle();
 
             Assert.AreEqual(null, fixture.ApprenticeshipFromDb.PendingUpdateOriginator);
-            
         }
 
         [Test]
@@ -157,7 +207,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Assert.AreEqual(ApprenticeshipUpdateStatus.Approved, fixture.ApprenticeshipUpdate.Status);
         }
-
 
         [Test]
         public async Task Handle_WhenNoApprenticeshipUpdate_AndCommandIsHandled_ExceptionIsThrown()
