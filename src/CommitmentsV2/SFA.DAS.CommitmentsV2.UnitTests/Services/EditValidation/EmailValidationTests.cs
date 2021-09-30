@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
@@ -17,6 +18,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Assert.AreEqual(1, result.Errors.Count);
             Assert.AreEqual(result.Errors[0].ErrorMessage, "Email update cannot be requested");
             Assert.AreEqual("Email", result.Errors[0].PropertyName);
+        }
+
+        [Test]
+        public async Task When_Email_Does_Not_Exist_On_Apprenticeship_Then_A_Change_Can_Be_Requested_When_Cohort_Approved_After_2021_09_09()
+        {
+            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
+            fixture.SetupMockContextApprenticeship(employerProviderApprovedOn:new DateTime(2021,09,10));
+            var request = fixture.CreateValidationRequest(email: "a@a.com");
+
+            var result = await fixture.Validate(request);
+
+            Assert.AreEqual(0, result.Errors.Count);
         }
 
         [TestCase(null)]

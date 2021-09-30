@@ -67,6 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         ApprenticeshipEmployerTypeOnApproval = apprenticeship.Cohort.ApprenticeshipEmployerTypeOnApproval,
                         MadeRedundant = apprenticeship.MadeRedundant,
                         EmailAddressConfirmedByApprentice = (apprenticeship.ApprenticeshipConfirmationStatus != null),
+                        EmailShouldBePresent = (apprenticeship.Cohort.EmployerAndProviderApprovedOn >= new DateTime(2021,9,10) && apprenticeship.ContinuationOfId == null),
                         ConfirmationStatus = apprenticeship.DisplayConfirmationStatus(
                             apprenticeship.Email,
                             apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn : null,

@@ -160,10 +160,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             decimal cost = 200,
             string reservationId = "134463EF-0088-4828-8775-EBD1223486AF",
             Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
-            bool hasHadDataLockSuccess = false
+            bool hasHadDataLockSuccess = false,
+            DateTime employerProviderApprovedOn = default
             )
         {
-            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess);
+            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn);
 
             WithStartDateInFuture();
 
@@ -245,7 +246,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             decimal cost = 200,
             string reservationId = "134463EF-0088-4828-8775-EBD1223486AF",
             Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
-            bool hasHadDataLockSuccess = false)
+            bool hasHadDataLockSuccess = false,
+            DateTime employerProviderApprovedOn = default
+            )
         {
             _apprenticeship = new Apprenticeship
             {
@@ -263,7 +266,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 Cohort = new Cohort
                 {
                     Id = commitmentId,
-                    TransferSenderId = transferSenderId
+                    TransferSenderId = transferSenderId,
+                    EmployerAndProviderApprovedOn = employerProviderApprovedOn
                 },
                 Uln = uln,
                 PaymentStatus = paymentStatus,
