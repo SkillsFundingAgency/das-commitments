@@ -10,6 +10,8 @@
     [TrainingCode] NVARCHAR(20) NULL, 
     [TrainingName] NVARCHAR(126) NULL, 
     [TrainingCourseVersion] NVARCHAR(10) NULL,
+    [TrainingCourseVersionConfirmed] BIT NULL,
+    [StandardUId] NVARCHAR(20) NULL,
     [TrainingCourseOption] NVARCHAR(126) NULL,
     [Cost] DECIMAL NULL, 
     [StartDate] DATETIME NULL, 
