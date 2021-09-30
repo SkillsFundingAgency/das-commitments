@@ -172,9 +172,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void ReplacePriceHistory(Party party, List<PriceHistory> currentPriceHistory, List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
         {
-           
             StartTrackingSession(UserAction.DeletePriceHistory, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
-
             foreach (var priceHistory in currentPriceHistory)
             {
                 if (updatedPriceHistory.All(x => x.Cost != priceHistory.Cost))
@@ -182,15 +180,12 @@ namespace SFA.DAS.CommitmentsV2.Models
                     ChangeTrackingSession.TrackDelete(priceHistory);
                 }
             }
-
             ChangeTrackingSession.CompleteTrackingSession();
 
-
             StartTrackingSession(UserAction.UpdatePriceHistory, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
-
             foreach (var priceHistory in updatedPriceHistory)
             {
-                var changedPriceHistory = currentPriceHistory.FirstOrDefault(x =>   x.Cost == priceHistory.Cost && x.FromDate == priceHistory.FromDate);
+                var changedPriceHistory = currentPriceHistory.FirstOrDefault(x => x.Cost == priceHistory.Cost && x.FromDate == priceHistory.FromDate);
 
                 if (changedPriceHistory != null)
                 {
@@ -205,11 +200,9 @@ namespace SFA.DAS.CommitmentsV2.Models
                     ChangeTrackingSession.TrackInsert(priceHistory);
                 }
             }
-
             ChangeTrackingSession.CompleteTrackingSession();
 
             this.PriceHistory = updatedPriceHistory;
-
         }
 
         public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo)
@@ -326,7 +319,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (update.TrainingType.HasValue)
             {
                 ProgrammeType = update.TrainingType;
-                
+
                 if (update.TrainingType.Value == Types.ProgrammeType.Framework)
                 {
                     TrainingCourseVersion = null;
@@ -359,9 +352,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             // If the training course and version has not changed then the option can only be updated to the chosen option or string.Empty
             // Else the course has not changed and the option is null then the option should not be changed
             var shouldUpdateOption = !string.IsNullOrEmpty(update.TrainingCode) || !string.IsNullOrEmpty(update.TrainingCourseVersion) || update.TrainingCourseOption != null;
-            
+
             if (shouldUpdateOption)
-            { 
+            {
                 TrainingCourseOption = update.TrainingCourseOption;
             }
 
