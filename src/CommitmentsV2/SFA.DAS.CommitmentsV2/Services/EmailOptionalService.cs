@@ -21,13 +21,17 @@ namespace SFA.DAS.CommitmentsV2.Services
         }
 
         public bool ApprenticeEmailIsOptionalFor(long employerId, long providerId)        
-            => _config.EmailOptionalEmployers.Any(x => x == employerId) || _config.EmailOptionalProviders.Any(x => x == providerId);
+            => ApprenticeEmailIsOptionalForEmployer(employerId) || ApprenticeEmailIsOptionalForProvider(providerId);
 
         public bool ApprenticeEmailIsOptionalForEmployer(long employerId)
-            => _config.EmailOptionalEmployers.Any(x => x == employerId);
+        {
+            return _config.EmailOptionalEmployers != null && _config.EmailOptionalEmployers.Any(x => x == employerId);
+        }
 
         public bool ApprenticeEmailIsOptionalForProvider(long providerId)
-            => _config.EmailOptionalProviders.Any(x => x == providerId);
+        {
+            return _config.EmailOptionalProviders != null && _config.EmailOptionalProviders.Any(x => x == providerId);
+        }
 
         public bool ApprenticeEmailIsRequiredFor(long employerId, long providerId)
             => !ApprenticeEmailIsOptionalFor(employerId, providerId);
