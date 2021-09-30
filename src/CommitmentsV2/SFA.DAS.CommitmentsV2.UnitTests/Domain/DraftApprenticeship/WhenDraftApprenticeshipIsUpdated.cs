@@ -120,7 +120,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         {
             var result = _fixture.WithModifyingParty(Party.Employer).ApplyUpdate();
             Assert.AreEqual(_fixture.DraftApprenticeshipDetails.Reference, result.EmployerRef);
+        }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void And_StandardUIdIsNotUpdated_Then_SelectedOptionIsResetToNull(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).WithReferenceUpdateOnly().ApplyUpdate();
+            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.TrainingCourseOption, result.TrainingCourseOption);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void And_NewStandardOrStandardVersionIsSelected_Then_SelectedOptionIsResetToNull(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).WithNewStandardUId().ApplyUpdate();
+            Assert.IsNull(result.TrainingCourseOption);
         }
 
         private class DraftApprenticeshipUpdateTestFixture
@@ -159,6 +174,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
                 return this;
             }
 
+            public DraftApprenticeshipUpdateTestFixture WithNewStandardUId()
+            {
+                DraftApprenticeshipDetails = CreateUpdateFromOriginal();
+                DraftApprenticeshipDetails.StandardUId = _autoFixture.Create<string>(); ;
+                return this;
+            }
+
             public DraftApprenticeshipUpdateTestFixture WithModifyingParty(Party party)
             {
                 _modifyingParty = party;
@@ -186,6 +208,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
                         _draftApprenticeship.ProgrammeType.Value,
                         null,
                         null),
+                    StandardUId = _draftApprenticeship.StandardUId,
+                    TrainingCourseOption = _draftApprenticeship.TrainingCourseOption,
                     DateOfBirth = _draftApprenticeship.DateOfBirth,
                     StartDate = _draftApprenticeship.StartDate,
                     EndDate = _draftApprenticeship.EndDate,

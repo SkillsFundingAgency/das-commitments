@@ -1,7 +1,7 @@
 ﻿CREATE PROCEDURE [dbo].[InsertHistory]
 	@entityType NVARCHAR(50) = NULL,
 	@entityId BIGINT = NULL, 
-	@commitmentId BIGINT NULL = NULL, 
+	@commitmentId BIGINT = NULL, 
 	@apprenticeshipId BIGINT = NULL, 
     @userId NVARCHAR(50), 
     @updatedByRole NVARCHAR(50), 

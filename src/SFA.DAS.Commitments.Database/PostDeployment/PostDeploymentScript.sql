@@ -11,3 +11,7 @@ Post-Deployment Script Template
 */
 
 EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]
+
+-- SV-1160 Patch (historical) Apprenticeship records with version - i.e. they will not have StandardUId set.
+-- this can be rerun
+:r .\Patch_Apprenticeship_SV-1160.sql
