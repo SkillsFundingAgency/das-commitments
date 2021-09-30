@@ -38,8 +38,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
             var apprenticeship = await _db.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
             IReadOnlyList<PriceHistory> currentPriceHistory = new List<PriceHistory>(apprenticeship.PriceHistory);
-
-
             var dataLocksToBeAccepted = apprenticeship.DataLockStatus
                 .Where(DataLockStatusExtensions.UnHandled)
                 .Where(m => m.TriageStatus == TriageStatus.Change);
