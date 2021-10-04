@@ -24,13 +24,26 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             using (var db = _dbContextFactory.CreateDbContext())
             {
-                var result = await db.Apprenticeships
+                var liveApprenticeships = await db.Apprenticeships
                     .Where(ca => ca.Uln == uln)
                     .Select(x => new UlnUtilisation(x.Id,
                         x.Uln,
                         x.StartDate.Value,
-                        CalculateOverlapApprenticeshipEndDate(x)))
-                    .ToArrayAsync(cancellationToken);
+                        CalculateOverlapApprenticeshipEndDate(x))).ToArrayAsync(cancellationToken);
+
+               var draftApprenticeshipWithTransferSender =  await  db.DraftApprenticeships.Include(y => y.Cohort)
+                         .Where(da => da.Uln == uln
+                             && da.StartDate.HasValue
+                             && da.EndDate.HasValue
+                             && da.Cohort.TransferSenderId.HasValue
+                             && da.Cohort.WithParty == Party.TransferSender)
+                             .Select(x => new UlnUtilisation(x.Id,
+                                 x.Uln,
+                                 x.StartDate.Value,
+                                 x.EndDate.Value))
+                                .ToArrayAsync(cancellationToken);
+
+                var result = liveApprenticeships.Union(draftApprenticeshipWithTransferSender).ToArray();
 
                 return result;
             }
