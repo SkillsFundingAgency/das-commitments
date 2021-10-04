@@ -10,6 +10,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string Email { get; set; }
         public string Uln { get; set; }
         public string CourseCode { get; set; }
+        public string TrainingCourseName { get; set; }
+        public string TrainingCourseVersion { get; set; }
+        public string TrainingCourseOption { get; set; }
+        public bool TrainingCourseVersionConfirmed { get; set; }
+        public string StandardUId { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
@@ -18,5 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public Guid? ReservationId { get; set; }
         public bool IsContinuation { get; set; }
         public DateTime? OriginalStartDate { get; set; }
+        public bool HasStandardOptions { get; set; }
     }
 }

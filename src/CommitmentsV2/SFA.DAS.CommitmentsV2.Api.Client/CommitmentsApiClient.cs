@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Http;
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.Http;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
@@ -28,9 +27,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<WhoAmIResponse>("api/whoami");
         }
 
-        public Task AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
+        public Task<AddDraftApprenticeshipResponse> AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships", request, cancellationToken);
+            return _client.PostAsJson<AddDraftApprenticeshipRequest, AddDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-apprenticeships", request, cancellationToken);
         }
 
         public Task ApproveCohort(long cohortId, ApproveCohortRequest request, CancellationToken cancellationToken = default)
@@ -405,6 +404,31 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<GetTrainingProgrammeResponse> GetTrainingProgramme(string id, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{id}", null, cancellationToken);
+        }
+
+        public Task<GetTrainingProgrammeVersionsResponse> GetTrainingProgrammeVersions(string id, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTrainingProgrammeVersionsResponse>($"api/TrainingProgramme/{id}/versions", null, cancellationToken);
+        }
+
+        public Task<GetNewerTrainingProgrammeVersionsResponse> GetNewerTrainingProgrammeVersions(string standardUId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetNewerTrainingProgrammeVersionsResponse>($"api/TrainingProgramme/{standardUId}/newer-versions", null, cancellationToken);
+        }
+
+        public Task<GetTrainingProgrammeResponse> GetTrainingProgrammeVersionByStandardUId(string standardUId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{standardUId}/version", null, cancellationToken);
+        }
+
+        public Task<GetTrainingProgrammeResponse> GetTrainingProgrammeVersionByCourseCodeAndVersion(string courseCode, string version, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/{courseCode}/version/{version}", null, cancellationToken);
+        }
+
+        public Task<GetTrainingProgrammeResponse> GetCalculatedTrainingProgrammeVersion(int courseCode, DateTime startDate, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetTrainingProgrammeResponse>($"api/TrainingProgramme/calculate-version/{courseCode}?startDate={startDate.ToString("O", System.Globalization.CultureInfo.InvariantCulture)}");
         }
 
         public Task UpdateApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request, CancellationToken cancellationToken = default)
