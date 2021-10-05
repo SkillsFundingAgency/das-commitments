@@ -187,7 +187,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _fixture.Handle();
 
             // Assert
-            _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdatePriceHistory, Times.Once);
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.TriageDataLocks,()=> Times.Exactly(2));
         }
 
         [Test]
@@ -254,7 +254,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _fixture.Handle();
 
             // Assert
-            _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdatePriceHistory, () => Times.Exactly(expectedOutput.OutputPriceHistories.Length));
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.TriageDataLocks, () => Times.Exactly(expectedOutput.OutputPriceHistories.Length + 1));
         }
 
         [TestCaseSource(typeof(ShouldUpdatePriceHistoryDataCases))]
@@ -337,7 +337,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _fixture.Handle();
 
             // Assert
-            _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdatePriceHistory, ()=> Times.Exactly(2));
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.TriageDataLocks, ()=> Times.Exactly(3));
             _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdateCourse, Times.Once);
         }
 
@@ -354,8 +354,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _fixture.Handle();
 
             // Assert
-            _fixture.VerifyEntityStateChangedEventPublished(UserAction.DeletePriceHistory, Times.Once);
-            _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdatePriceHistory, () => Times.Exactly(2));
+            _fixture.VerifyEntityStateChangedEventPublished(UserAction.TriageDataLocks, () => Times.Exactly(3));
             _fixture.VerifyEntityStateChangedEventPublished(UserAction.UpdateCourse, Times.Once);
         }
         

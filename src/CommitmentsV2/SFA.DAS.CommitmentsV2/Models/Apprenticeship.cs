@@ -172,7 +172,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void ReplacePriceHistory(Party party, List<PriceHistory> currentPriceHistory, List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
         {
-            StartTrackingSession(UserAction.DeletePriceHistory, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
+            StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
             foreach (var priceHistory in currentPriceHistory)
             {
                 if (updatedPriceHistory.All(x => x.Cost != priceHistory.Cost))
@@ -182,7 +182,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             ChangeTrackingSession.CompleteTrackingSession();
 
-            StartTrackingSession(UserAction.UpdatePriceHistory, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
+            StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
             foreach (var priceHistory in updatedPriceHistory)
             {
                 var changedPriceHistory = currentPriceHistory.FirstOrDefault(x => x.Cost == priceHistory.Cost && x.FromDate == priceHistory.FromDate);
