@@ -24,14 +24,14 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             using (var db = _dbContextFactory.CreateDbContext())
             {
-                var liveApprenticeships = await db.Apprenticeships
+                var liveApprenticeshipsTask = db.Apprenticeships
                     .Where(ca => ca.Uln == uln)
                     .Select(x => new UlnUtilisation(x.Id,
                         x.Uln,
                         x.StartDate.Value,
-                        CalculateOverlapApprenticeshipEndDate(x))).ToArrayAsync(cancellationToken);
+                        CalculateOverlapApprenticeshipEndDate(x))).ToListAsync(cancellationToken);
 
-               var draftApprenticeshipWithTransferSender =  await  db.DraftApprenticeships.Include(y => y.Cohort)
+               var draftApprenticeshipWithTransferSenderTask = db.DraftApprenticeships.Include(y => y.Cohort)
                          .Where(da => da.Uln == uln
                              && da.StartDate.HasValue
                              && da.EndDate.HasValue
@@ -40,10 +40,14 @@ namespace SFA.DAS.CommitmentsV2.Services
                              .Select(x => new UlnUtilisation(x.Id,
                                  x.Uln,
                                  x.StartDate.Value,
-                                 x.EndDate.Value))
-                                .ToArrayAsync(cancellationToken);
+                                 x.EndDate.Value)).ToListAsync(cancellationToken);
 
-                var result = liveApprenticeships.Union(draftApprenticeshipWithTransferSender).ToArray();
+                await Task.WhenAll(liveApprenticeshipsTask, draftApprenticeshipWithTransferSenderTask);
+
+                var liveApprenticeships = await liveApprenticeshipsTask;
+                var draftApprenticeshipWithTransferSender = await draftApprenticeshipWithTransferSenderTask;
+
+               var result = liveApprenticeships.Union(draftApprenticeshipWithTransferSender).ToArray();
 
                 return result;
             }
