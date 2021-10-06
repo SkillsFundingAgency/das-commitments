@@ -43,10 +43,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
         }
 
         [Test]
-        public async Task WhenEmailIsNotNull_ThenEmailAddressConfirmedByApprenticeShouldBeTrue()
+        public async Task WhenEmailIsNotNullAndItsConfirmedByApprentice_ThenEmailAddressConfirmedByApprenticeShouldBeTrue()
         {
             // Arrange
-            Setup("test@test.com", null, null);
+            Setup("test@test.com", null, null, emailAddressConfirmed: true);
 
             // Act
             var response = await _sut.Handle(_query, new CancellationToken());
@@ -146,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             Assert.AreEqual(response.ConfirmationStatus, ConfirmationStatus.Overdue);
         }
 
-        private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate, DateTime? newApprovedOnDate = null, long? continuationOfId = null)
+        private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate, DateTime? newApprovedOnDate = null, long? continuationOfId = null, bool? emailAddressConfirmed = null)
         {
             var approvedOnDate = newApprovedOnDate ?? new DateTime(2021,9,10);
 
@@ -181,6 +181,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .With(x => x.EpaOrg, new AssessmentOrganisation() { EpaOrgId = "991" })
                 .With(x => x.EpaOrgId, "991")
                 .With(x => x.Email, email)
+                .With(x => x.EmailAddressConfirmed, emailAddressConfirmed)
                 .With(x=>x.ContinuationOfId, continuationOfId)
                 .With(x=>x.Continuation, continuationOfId == null ? null : continuationApp)
                 .Without(x => x.PaymentStatus)
