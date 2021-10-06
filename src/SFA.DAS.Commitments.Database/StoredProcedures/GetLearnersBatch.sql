@@ -16,38 +16,15 @@ BEGIN
 		SET @batchSize = 1000;
 	END
 
-	DECLARE @skip INT = (@batchNumber - 1) * @batchSize
+	DECLARE @skip INT = (@batchNumber - 1) * @batchSize,
+			@TotalCount INT;
 
-	SELECT 
-		[ApprenticeshipId]
-		,[FirstName]
-		,[LastName]
-		,[ULN]
-		,[TrainingCode]
-		,[TrainingCourseVersion]
-		,[TrainingCourseVersionConfirmed]
-		,[TrainingCourseOption]
-		,[StandardUId]
-		,[StartDate]
-		,[EndDate]
-		,[CreatedOn]
-		,[UpdatedOn]
-		,[StopDate]
-		,[PauseDate]
-		,[CompletionDate]
-		,[UKPRN]
-		,[LearnRefNumber]
-		,[PaymentStatus]
-		,TotalCount
-	
-	INTO
-		#Results
-
-	FROM
-		[dbo].[GetLearners] (@sinceTime)
+	SELECT COUNT(*)
+	INTO @TotalCount
+	FROM [dbo].[GetLearners] (@sinceTime)
 
 	-- We use the totalcount to calculate the total number of batches.
-	SELECT @totalNumberOfBatches = ISNULL( CEILING( (SELECT MAX(TotalCount) FROM #Results) / CAST(@batchSize AS DECIMAL)), 0);
+	SELECT @totalNumberOfBatches = ISNULL( CEILING( (@TotalCount) / CAST(@batchSize AS DECIMAL)), 0);
 
 	SELECT 
 		[ApprenticeshipId]
@@ -70,10 +47,9 @@ BEGIN
 		,[LearnRefNumber]
 		,[PaymentStatus]
 	
-	FROM
-		#Results
+	FROM [dbo].[GetLearners] (@sinceTime)
 
-	ORDER BY ISNULL(UpdatedOn,CreatedOn)
+	ORDER BY [LastUpdated]
 	OFFSET @skip ROWS
 	FETCH NEXT @batchSize ROWS ONLY
 
