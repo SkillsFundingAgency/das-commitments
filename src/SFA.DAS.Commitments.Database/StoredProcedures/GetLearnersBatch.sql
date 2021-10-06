@@ -19,12 +19,10 @@ BEGIN
 	DECLARE @skip INT = (@batchNumber - 1) * @batchSize,
 			@TotalCount INT;
 
-	SELECT COUNT(*)
-	INTO @TotalCount
-	FROM [dbo].[GetLearners] (@sinceTime)
+	SET @TotalCount = (SELECT TOP 1 TotalCount FROM [dbo].[GetLearners] (@sinceTime))
 
 	-- We use the totalcount to calculate the total number of batches.
-	SELECT @totalNumberOfBatches = ISNULL( CEILING( (@TotalCount) / CAST(@batchSize AS DECIMAL)), 0);
+	SET @totalNumberOfBatches = ISNULL( CEILING( (@TotalCount) / CAST(@batchSize AS DECIMAL)), 0);
 
 	SELECT 
 		[ApprenticeshipId]
@@ -49,7 +47,7 @@ BEGIN
 	
 	FROM [dbo].[GetLearners] (@sinceTime)
 
-	ORDER BY [LastUpdated]
+	ORDER BY Seq
 	OFFSET @skip ROWS
 	FETCH NEXT @batchSize ROWS ONLY
 
