@@ -46,7 +46,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 ApprenticeshipEmployerTypeOnApproval = source.ApprenticeshipEmployerTypeOnApproval,
                 MadeRedundant = source.MadeRedundant,
                 ConfirmationStatus = source.ConfirmationStatus,
-                EmailAddressConfirmedByApprentice = source.EmailAddressConfirmedByApprentice
+                EmailAddressConfirmedByApprentice = source.EmailAddressConfirmedByApprentice,
+                EmailShouldBePresent = source.EmailShouldBePresent
             });
         }
     }
