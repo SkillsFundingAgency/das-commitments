@@ -242,7 +242,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 yield return new DomainError(nameof(request.Email), "Email address cannot be blank");
             }
 
-            if (apprenticeshipDetails.Email == null && !string.IsNullOrWhiteSpace(request.Email))
+            if (apprenticeshipDetails.Email == null && !string.IsNullOrWhiteSpace(request.Email) && apprenticeshipDetails.Cohort.EmployerAndProviderApprovedOn < new DateTime(2021,09,10))
             {
                 yield return new DomainError(nameof(request.Email), "Email update cannot be requested");
             }

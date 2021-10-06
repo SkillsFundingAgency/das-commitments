@@ -56,6 +56,5 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
         {
             return source.Select(sourceItem => new ErrorDetail(sourceItem.PropertyName, sourceItem.ErrorMessage)).ToList();
         }
-
     }
 }
