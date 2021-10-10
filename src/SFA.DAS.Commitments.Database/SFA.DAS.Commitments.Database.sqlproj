@@ -72,6 +72,7 @@
     <Folder Include="PreDeployment" />
     <Folder Include="AdhocScripts\Manual" />
     <Folder Include="Functions" />
+    <Folder Include="Schemas" />
     <Folder Include="Triggers" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +162,8 @@
     <Build Include="StoredProcedures\CheckForOverlappingEmailsInCohort.sql" />
     <Build Include="Functions\GetLearners.sql" />
     <Build Include="StoredProcedures\TruncateStandardOptions.sql" />
+    <Build Include="Views\ApprenticeshipsWithNoEmail.sql" />
+    <Build Include="Schemas\DashboardReporting.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

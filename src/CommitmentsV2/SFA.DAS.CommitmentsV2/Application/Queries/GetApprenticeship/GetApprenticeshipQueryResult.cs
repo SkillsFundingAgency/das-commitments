@@ -40,5 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
         public bool? MadeRedundant { get; set; }
         public ConfirmationStatus? ConfirmationStatus { get; set; }
+        public bool EmailAddressConfirmedByApprentice { get; set; }
+        public bool EmailShouldBePresent { get; set; }
     }
 }
