@@ -8,6 +8,7 @@ AS
 SELECT 
 	A.Email,
 	CASE 
+		WHEN A.IsApproved != 1 THEN NULL
 		WHEN A.Email IS NULL THEN 'N/A'
 		WHEN ACS.CommitmentsApprovedOn IS NULL THEN 'Unconfirmed'
 		WHEN ACS.ApprenticeshipConfirmedOn IS NOT NULL THEN 'Confirmed'
