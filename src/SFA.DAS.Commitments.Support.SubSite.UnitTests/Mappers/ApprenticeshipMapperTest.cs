@@ -32,7 +32,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             _mockedApprenticeship = new Apprenticeship
             {
                 FirstName = "Test",
-                LastName = "Me"
+                LastName = "Me",
+                Email = "test@test.com",
+                ConfirmationStatusDescription =  "Confirmed"
             };
 
             _mapper = new ApprenticeshipMapper(_hashingService.Object);
@@ -63,6 +65,20 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeship);
             result.Should().NotBeNull();
             result.Should().BeOfType<ApprenticeshipViewModel>();
+        }
+
+        [Test]
+        public void ShouldMapApprenticeshipEmailToApprenticeshipViewModelEmail()
+        {
+            var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeship);
+            result.Email.Should().Be(_mockedApprenticeship.Email);
+        }
+
+        [Test]
+        public void ShouldMapConfirmationStatusToApprenticeshipViewModelConfirmationStatus()
+        {
+            var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeship);
+            result.ConfirmationStatusDescription.Should().Be(_mockedApprenticeship.ConfirmationStatusDescription);
         }
 
     }

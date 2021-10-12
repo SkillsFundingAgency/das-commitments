@@ -6,6 +6,14 @@
 AS 
 
 SELECT 
+	A.Email,
+	CASE 
+		WHEN A.Email IS NULL THEN 'N/A'
+		WHEN ACS.CommitmentsApprovedOn IS NULL THEN 'Unconfirmed'
+		WHEN ACS.ApprenticeshipConfirmedOn IS NOT NULL THEN 'Confirmed'
+		WHEN ACS.ConfirmationOverdueOn < @now THEN 'Overdue'
+		ELSE 'Unconfirmed'
+	END AS ConfirmationStatusDescription,
 	s.*,
 	CASE
 		WHEN
@@ -31,6 +39,8 @@ SELECT
 	END AS 'Cost',
 	p.*
 	FROM ApprenticeshipSummary s
+	join Apprenticeship A ON A.Id = s.Id
+	left join ApprenticeshipConfirmationStatus ACS ON ACS.ApprenticeshipId = A.Id
 	left join PriceHistory p on p.ApprenticeshipId = s.Id
 	WHERE
 	s.Id = @id
