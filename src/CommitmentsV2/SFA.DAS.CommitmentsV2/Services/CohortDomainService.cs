@@ -295,7 +295,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, long? cohortId, CancellationToken cancellationToken)
         {
-            ValidateStartDate(draftApprenticeshipDetails);
+            ValidateApprenticeshipDate(draftApprenticeshipDetails);
             ValidateUln(draftApprenticeshipDetails);
             await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
             await ValidateEmailOverlaps(draftApprenticeshipDetails, cohortId, cancellationToken);
@@ -315,7 +315,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private void ValidateStartDate(DraftApprenticeshipDetails details)
+        private void ValidateApprenticeshipDate(DraftApprenticeshipDetails details)
         {
             if (!details.StartDate.HasValue) return;
 
@@ -324,6 +324,19 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new DomainException(nameof(details.StartDate),
                     "The start date must be no later than one year after the end of the current teaching year");
             }
+
+            if (details.StartDate.Value < Domain.Constants.DasStartDate)
+            {
+                throw new DomainException(nameof(details.StartDate), "The start date must not be earlier than May 2017");
+            }
+
+            if (!details.EndDate.HasValue) return;
+
+            if (details.EndDate.Value < Domain.Constants.DasStartDate)
+            {
+                throw new DomainException(nameof(details.EndDate), "The end date must not be earlier than May 2017");
+            }
+
         }
 
         private async Task ValidateReservation(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
@@ -338,7 +351,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var errors = validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
             errors.ThrowIfAny();
         }
-
+         
         private async Task ValidateOverlaps(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(details.Uln) || !details.StartDate.HasValue || !details.EndDate.HasValue) return;
