@@ -3,7 +3,7 @@ AS
 
 SELECT 
 	a.Id,a.CommitmentId,a.FirstName,a.LastName, a.Cost,a.ULN,a.TrainingType, a.TrainingName, a.TrainingCode,
-	a.StandardUId, a.TrainingCourseVersion, a.TrainingCourseOption, a.StartDate,a.EndDate,	
+	a.StandardUId, a.TrainingCourseVersion, a.TrainingCourseVersionConfirmed, a.TrainingCourseOption, a.StartDate,a.EndDate,	
 	CASE
 		WHEN c.Approvals & 3 = 3 THEN 3  --Both agreed
 		WHEN c.Approvals & 1 = 1 THEN 1  -- Employer only agreed
