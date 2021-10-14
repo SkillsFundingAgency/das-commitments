@@ -66,6 +66,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 fixture.Create<long>(),
                 fixture.Create<long>(),
                 null,
+                null,
                 Party.Employer,
                 "",
                 new UserInfo()) {EmployerAccountId = 100, TransferSenderId = 99};

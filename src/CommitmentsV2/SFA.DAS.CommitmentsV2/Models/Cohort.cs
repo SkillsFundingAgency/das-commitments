@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             long accountId,
             long accountLegalEntityId,
             long? transferSenderId,
+            int? pledgeApplicationId,
             Party originatingParty, UserInfo userInfo) : this()
         {
             CheckIsEmployerOrProvider(originatingParty);
@@ -36,6 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             AccountLegalEntityId = accountLegalEntityId;
             ProviderId = providerId;
             TransferSenderId = transferSenderId;
+            PledgeApplicationId = pledgeApplicationId;
             IsDraft = true;
 
             // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
@@ -55,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             long accountId,
             long accountLegalEntityId,
             Party originatingParty,
-            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, null, originatingParty, userInfo)
+            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, null, null, originatingParty, userInfo)
         {
             WithParty = originatingParty;
             EditStatus = originatingParty.ToEditStatus();
@@ -73,9 +75,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             long accountId,
             long accountLegalEntityId,
             long? transferSenderId,
+            int? pledgeApplicationId,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             Party originatingParty,
-            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, transferSenderId, originatingParty, userInfo)
+            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId, originatingParty, userInfo)
         {
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, false);
@@ -101,9 +104,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             long accountId,
             long accountLegalEntityId,
             long? transferSenderId,
+            int? pledgeApplicationId,
             Party originatingParty,
             string message,
-            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, transferSenderId, originatingParty, userInfo)
+            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId, originatingParty, userInfo)
         {
             CheckIsEmployer(originatingParty);
             IsDraft = false;
@@ -136,6 +140,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             : this(providerId,
             accountId,
             accountLegalEntityId,
+            null,
             null,
             changeOfPartyRequest.OriginatingParty,
             userInfo)
@@ -194,6 +199,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string LastUpdatedByProviderName { get; set; }
         public string LastUpdatedByProviderEmail { get; set; }
         public long? TransferSenderId { get; set; }
+        public int? PledgeApplicationId { get; set; }
         public TransferApprovalStatus? TransferApprovalStatus { get; set; }
         public string TransferApprovalActionedByEmployerName { get; set; }
         public string TransferApprovalActionedByEmployerEmail { get; set; }

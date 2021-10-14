@@ -82,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     _fixture.Create<long>(),
                     _fixture.Create<long>(),
                     null,
+                    null,
                     Party.Employer,
                     "",
                     new UserInfo())

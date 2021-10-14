@@ -19,5 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string OriginatorReference { get; set; }
         public Guid? ReservationId { get; set; }
         public long? TransferSenderId { get; set; }
+        public int? PledgeApplicationId { get; set; }
     }
 }

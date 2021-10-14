@@ -109,6 +109,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _fixture.VerifyCohortCreationWithOtherParty_WithTransferSender();
         }
+
+        [Test]
+        public async Task CreateCohortWithOtherParty_WithPledgeApplicationId_Creates_Cohort()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .CreateCohortWithOtherParty(_fixture.TransferSenderId, _fixture.PledgeApplicationId);
+
+            _fixture.VerifyCohortCreationWithOtherParty_WithPledgeApplicationId();
+        }
+
+
+
         [Test]
         public async Task CreateCohortWithOtherParty_WithAnInvalidTransferSenderId_ThrowsBadRequestException()
         {
@@ -484,6 +497,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public long AccountId { get; }
             public long TransferSenderId { get; }
             public string TransferSenderName { get; }
+            public int? PledgeApplicationId { get; }
             public long AccountLegalEntityId { get; }
             public long CohortId { get; }
             public string AccountLegalEntityPublicHashedId { get; }
@@ -554,10 +568,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Db.Accounts.Add(EmployerAccount);
                 AccountLegalEntity = new Mock<AccountLegalEntity>(()=>
                     new AccountLegalEntity(EmployerAccount,AccountLegalEntityId,MaLegalEntityId,"test","ABC","Test",OrganisationType.CompaniesHouse,"test",DateTime.UtcNow));
-                AccountLegalEntity.Setup(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), null,
+                AccountLegalEntity.Setup(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
                         It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
-                AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(ProviderId, It.IsAny<AccountLegalEntity>(), null, 
+                AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
                         It.IsAny<string>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
 
@@ -570,6 +584,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 TransferSenderName = fixture.Create<string>();
                 TransferSenderAccount = new Account(TransferSenderId, "XXXX", "ZZZZ", TransferSenderName, new DateTime());
                 Db.Accounts.Add(TransferSenderAccount);
+
+                PledgeApplicationId = fixture.Create<int>();
 
                 TransferConnections = new List<TransferConnectionViewModel>
                     {new TransferConnectionViewModel {FundingEmployerAccountId = TransferSenderId}};
@@ -983,7 +999,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId,
+                    var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, null,
                         DraftApprenticeshipDetails, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
@@ -1002,14 +1018,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
-            public async Task<Cohort> CreateCohortWithOtherParty(long? transferSenderId = null)
+            public async Task<Cohort> CreateCohortWithOtherParty(long? transferSenderId = null, int? pledgeApplicationId = null)
             {
                 Db.SaveChanges();
                 DomainErrors.Clear();
 
                 try
                 {
-                    var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountId, AccountLegalEntityId, transferSenderId, Message, UserInfo, new CancellationToken());
+                    var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountId, AccountLegalEntityId, transferSenderId, pledgeApplicationId, Message, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
@@ -1147,13 +1163,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p=>p == AccountLegalEntity.Object), null,
+                    Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p=>p == AccountLegalEntity.Object), null, null,
                         DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null,
+                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
@@ -1175,7 +1191,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
+                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName), It.IsAny<int?>(),
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
@@ -1184,20 +1200,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null),
+                    Provider.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
                         DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null),
+                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
 
             public void VerifyCohortCreationWithOtherParty_WithoutTransferSender()
             {
-                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), It.Is<Account>(t => t == null), Message, UserInfo));
+                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), It.Is<Account>(t => t == null), It.Is<int?>(p => p == null), Message, UserInfo));
             }
 
             public void VerifyCohortCreationWithOtherParty_WithTransferSender()
@@ -1205,6 +1221,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(ProviderId,
                     It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object),
                     It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
+                    It.IsAny<int?>(),
+                    Message,
+                    UserInfo));
+            }
+
+            public void VerifyCohortCreationWithOtherParty_WithPledgeApplicationId()
+            {
+                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(ProviderId,
+                    It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object),
+                    It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
+                    It.Is<int?>(p => p == PledgeApplicationId),
                     Message,
                     UserInfo));
             }

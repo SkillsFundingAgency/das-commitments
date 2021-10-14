@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
             var db = _dbContext.Value;
@@ -121,10 +121,10 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, null, cancellationToken);
 
-            return originator.CreateCohort(providerId, accountLegalEntity, transferSender, draftApprenticeshipDetails, userInfo);
+            return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo);
         }
 
-        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
 
@@ -138,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
             var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
-            return accountLegalEntity.CreateCohortWithOtherParty(provider.UkPrn, accountLegalEntity, transferSender, message, userInfo);
+            return accountLegalEntity.CreateCohortWithOtherParty(provider.UkPrn, accountLegalEntity, transferSender, pledgeApplicationId, message, userInfo);
         }
 
         public async Task<Cohort> CreateEmptyCohort(long providerId, long accountId, long accountLegalEntityId, UserInfo userInfo, CancellationToken cancellationToken)

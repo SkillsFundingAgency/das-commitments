@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public UnitOfWorkContext UnitOfWorkContext { get; private set; }
         public UserInfo UserInfo { get; }
         public long? TransferSenderId { get; }
+        public int? PledgeApplicationId { get; }
         public string TransferSenderName { get; }
 
         public CohortCreationTestFixture()
@@ -51,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             TransferSenderId = _autoFixture.Create<long>();
             TransferSenderName = _autoFixture.Create<string>();
             TransferSender = new Account(TransferSenderId.Value, "XXX", "ZZZ", TransferSenderName, new DateTime());
+            PledgeApplicationId = _autoFixture.Create<int?>();
         }
 
         public CohortCreationTestFixture WithCreatingParty(Party creatingParty)
@@ -88,6 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                     AccountLegalEntity.AccountId,
                     AccountLegalEntity.Id,
                     TransferSender?.Id,
+                    PledgeApplicationId,
                     DraftApprenticeshipDetails,
                     CreatingParty,
                     UserInfo);
@@ -167,6 +170,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         {
             Assert.IsNull(Cohort.TransferSenderId);
             Assert.IsNull(Cohort.TransferSender);
+        }
+
+        public void VerifyCohortHasPledgeApplicationId()
+        {
+            Assert.AreEqual(PledgeApplicationId, Cohort.PledgeApplicationId);
         }
 
         public void VerifyCohortBelongsToProvider()
