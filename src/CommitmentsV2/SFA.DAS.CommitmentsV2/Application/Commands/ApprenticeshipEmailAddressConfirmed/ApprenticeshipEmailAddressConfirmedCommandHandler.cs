@@ -31,17 +31,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressC
             try
             {
                 var apprenticeshipTask = _db.Value.Apprenticeships.SingleAsync(a => a.Id == request.ApprenticeshipId, cancellationToken);
+
                 var apprenticeTask = _apimClient.Get<ApprenticeResponse>(new GetApprenticeRequest(request.ApprenticeId));
 
-                await Task.WhenAll(apprenticeTask, apprenticeshipTask);
+                //await Task.WhenAll(apprenticeTask, apprenticeshipTask);
 
+                _logger.LogInformation("Getting Apprenticeship {0}", request.ApprenticeshipId);
                 var apprenticeship = await apprenticeshipTask;
+                _logger.LogInformation("Getting Apprentice details for apprentice {0}", request.ApprenticeId);
                 var apprentice = await apprenticeTask;
 
                 var status = apprenticeship.GetApprenticeshipStatus(DateTime.Now);
 
                 if (status != ApprenticeshipStatus.Stopped && status != ApprenticeshipStatus.Completed)
                 {
+                    _logger.LogInformation("Setting Email Address for apprenticeship {0}", request.ApprenticeshipId);
                     apprenticeship.ConfirmEmailAddress(apprentice.Email);
                 }
                 else
