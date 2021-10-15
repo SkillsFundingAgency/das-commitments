@@ -30,6 +30,71 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
         }
 
         [Test]
+        public async Task WhenEmailIsNull_ThenEmailAddressConfirmedByApprenticeShouldBeFalse()
+        {
+            // Arrange
+            Setup(null, null, null);
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            Assert.AreEqual(response.EmailAddressConfirmedByApprentice, false);
+        }
+
+        [Test]
+        public async Task WhenEmailIsNotNull_ThenEmailAddressConfirmedByApprenticeShouldBeTrue()
+        {
+            // Arrange
+            Setup("test@test.com", null, null);
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            Assert.AreEqual(response.EmailAddressConfirmedByApprentice, true);
+        }
+
+        [Test]
+        public async Task WhenCohortIsApprovedAfter9Sept21_ThenEmailShouldBePresentShouldBeTrue()
+        {
+            // Arrange
+            Setup(null, null, null);
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            Assert.AreEqual(response.EmailShouldBePresent, true);
+        }
+
+        [Test]
+        public async Task WhenCohortIsApprovedAfter9Sept21ButIsAContinuationApprenticeship_ThenEmailShouldBePresentShouldBeTrue()
+        {
+            // Arrange
+            Setup(null, null, null, null, 10890);
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            Assert.AreEqual(response.EmailShouldBePresent, false);
+        }
+
+        [Test]
+        public async Task WhenCohortIsApprovedBefore9Sept21_ThenEmailShouldBePresentShouldBeFalse()
+        {
+            // Arrange
+            Setup(null, null, null, new DateTime(2021, 09, 08));
+
+            // Act
+            var response = await _sut.Handle(_query, new CancellationToken());
+
+            //Assert
+            Assert.AreEqual(response.EmailShouldBePresent, false);
+        }
+
+        [Test]
         public async Task WhenEmailIsNull_ThenConfirmationStatusShouldBeNull()
         {
             // Arrange
@@ -81,17 +146,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             Assert.AreEqual(response.ConfirmationStatus, ConfirmationStatus.Overdue);
         }
 
-        private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate)
+        private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate, DateTime? newApprovedOnDate = null, long? continuationOfId = null)
         {
+            var approvedOnDate = newApprovedOnDate ?? new DateTime(2021,9,10);
+
             var cort = new Cohort()
               .Set(x => x.Id, 123)
               .Set(x => x.EmployerAccountId, 456)
               .Set(x => x.ProviderId, 789)
               .Set(x => x.AccountLegalEntity, new AccountLegalEntity())
+              .Set(x => x.EmployerAndProviderApprovedOn, approvedOnDate)
               .Set(x => x.Provider, new Provider());
 
-            var appr = _fixture.Build<Apprenticeship>()
-                .With(x => x.Id, _apprenticeshipID)
+            var continuationApp = _fixture.Build<Apprenticeship>()
+                .With(x => x.Id, continuationOfId)
                 .With(x => x.Cohort, cort)
                 .With(x => x.EpaOrg, new AssessmentOrganisation() { EpaOrgId = "991" })
                 .With(x => x.EpaOrgId, "991")
@@ -103,6 +171,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .Without(x => x.PriceHistory)
                 .Without(x => x.DataLockStatus)
                 .Without(x => x.PreviousApprenticeship)
+                .Without(x => x.ApprenticeshipConfirmationStatus)
+                .Create();
+
+            var appr = _fixture.Build<Apprenticeship>()
+                .With(x => x.Id, _apprenticeshipID)
+                .With(x => x.Cohort, cort)
+                .With(x => x.CommitmentId, cort.Id)
+                .With(x => x.EpaOrg, new AssessmentOrganisation() { EpaOrgId = "991" })
+                .With(x => x.EpaOrgId, "991")
+                .With(x => x.Email, email)
+                .With(x=>x.ContinuationOfId, continuationOfId)
+                .With(x=>x.Continuation, continuationOfId == null ? null : continuationApp)
+                .Without(x => x.PaymentStatus)
+                .Without(x => x.ApprenticeshipUpdate)
+                .Without(x => x.PriceHistory)
+                .Without(x => x.DataLockStatus)
+                .Without(x => x.PreviousApprenticeship)
+                .Without(x => x.ApprenticeshipConfirmationStatus)
                 .Create();
 
             var conf = _fixture.Build<ApprenticeshipConfirmationStatus>()
@@ -115,7 +201,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var _db = new ProviderCommitmentsDbContext(options);
 
             _db.Apprenticeships.Add(appr);
-            _db.ApprenticeshipConfirmationStatus.Add(conf);
+            _db.Apprenticeships.Add(continuationApp);
+            _db.Cohorts.Add(cort);
+            if (email != null)
+            {
+                _db.ApprenticeshipConfirmationStatus.Add(conf);
+            }
+
             _db.SaveChanges();
 
             _sut = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), new Mock<IAuthenticationService>().Object);

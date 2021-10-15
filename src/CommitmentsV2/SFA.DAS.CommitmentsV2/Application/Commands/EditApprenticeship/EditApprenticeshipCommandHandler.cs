@@ -142,6 +142,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship
             {
                 throw new InvalidOperationException("Unable to create an ApprenticeshipUpdate for an Apprenticeship with a pending update");
             }
+
+            if (apprenticeship.ApprenticeshipConfirmationStatus != null && command.EditApprenticeshipRequest.Email != null)
+            {
+                throw new DomainException("ConfirmChanges", "Unable to make these changes, as the apprentice has confirmed their email address");
+            }
         }
 
         private void CheckPartyIsValid(Party party)
