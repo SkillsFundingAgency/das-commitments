@@ -389,7 +389,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var returnCode = await conn.ExecuteAsync(
                     sql:
                     "UPDATE [dbo].[Apprenticeship] SET HasHadDataLockSuccess = @hasHadDataLockSuccess " +
-                    "WHERE Id = @apprenticeshipId;",
+                    "WHERE Id = @apprenticeshipId AND HasHadDataLockSuccess != @hasHadDataLockSuccess;",
                     transaction: tran,
                     param: parameters,
                     commandType: CommandType.Text);
