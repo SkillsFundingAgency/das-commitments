@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public Originator? PendingUpdateOriginator { get; set; }
         public DateTime? CompletionDate { get; set; }
         public bool? MadeRedundant { get; set; }
+        public bool? EmailAddressConfirmed { get; set; }
 
         [NotMapped]
         public string ApprenticeName => string.Concat(FirstName, " ", LastName);
@@ -578,6 +579,16 @@ namespace SFA.DAS.CommitmentsV2.Models
                 ApprenticeshipId = Id,
                 ResumedOn = resumedDate
             });
+        }
+
+        public void ConfirmEmailAddress(string email)
+        {
+            if (EmailAddressConfirmed == true)
+                return;
+
+            if (!Email.Equals(email, StringComparison.InvariantCultureIgnoreCase))
+                Email = email;
+            EmailAddressConfirmed = true;
         }
 
         private PriceEpisode[] GetPriceEpisodes()
