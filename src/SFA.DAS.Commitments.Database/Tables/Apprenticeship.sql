@@ -40,10 +40,11 @@
     [CompletionDate] DATETIME NULL,
 	[ContinuationOfId] BIGINT NULL,
 	[MadeRedundant] BIT NULL, 
-	[OriginalStartDate] DATETIME NULL
-    CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
+	[OriginalStartDate] DATETIME NULL,
     [Email] NVARCHAR(200) NULL, 
+    [EmailAddressConfirmed] BIT NULL,
     [LastUpdated] AS ISNULL([UpdatedOn],[CreatedOn]),
+    CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
 GO
