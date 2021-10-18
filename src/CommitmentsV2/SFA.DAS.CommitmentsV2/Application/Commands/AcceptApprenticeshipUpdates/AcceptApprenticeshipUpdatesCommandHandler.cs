@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
             await CheckUlnOverlap(command, cancellationToken, apprenticeship, apprenticeshipUpdate);
             if (apprenticeshipUpdate.Email != null)
             {
-                if (apprenticeship.ApprenticeshipConfirmationStatus != null)
+                if (apprenticeship.EmailAddressConfirmed == true)
                 {
                     throw new DomainException("ApproveChanges", "Unable to approve these changes, as the apprentice has confirmed their email address");
                 }

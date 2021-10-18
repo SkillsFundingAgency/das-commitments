@@ -5,7 +5,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
+using Castle.Core.Logging;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -34,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
             };
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, config);
+            var apiClient = new ApiClient(client, config, Mock.Of<ILogger<ApiClient>>());
 
             //Act
             var actual = await apiClient.Get<List<string>>(getTestRequest);
@@ -58,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
             
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, config);
+            var apiClient = new ApiClient(client, config, Mock.Of<ILogger<ApiClient>>());
             
             //Act Assert
             Assert.ThrowsAsync<HttpRequestException>(() => apiClient.Get<List<string>>(getTestRequest));
@@ -80,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
             
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, config);
+            var apiClient = new ApiClient(client, config, Mock.Of<ILogger<ApiClient>>());
             
             //Act Assert
             var actual = await apiClient.Get<List<string>>(getTestRequest);
