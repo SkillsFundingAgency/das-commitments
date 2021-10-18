@@ -117,6 +117,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 LegalEntityName = result.LegalEntityName,
                 ProviderName = result.ProviderName,
                 TransferSenderId = result.TransferSenderId,
+                PledgeApplicationId = result.PledgeApplicationId,
                 WithParty = result.WithParty,
                 LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
                 LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider,

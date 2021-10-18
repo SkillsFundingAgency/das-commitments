@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string ProviderName { get; set; }
         public bool IsFundedByTransfer => TransferSenderId != null;
         public long? TransferSenderId { get; set; }
+        public int? PledgeApplicationId { get; set; }
         public Party WithParty { get; set; }
         public string LatestMessageCreatedByEmployer { get; set; }
         public string LatestMessageCreatedByProvider { get; set; }

@@ -116,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var db = _dbContext.Value;
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
-            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
+            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, pledgeApplicationId, db, cancellationToken) : null;
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, null, cancellationToken);
@@ -137,7 +137,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
-            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
+            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, pledgeApplicationId, db, cancellationToken) : null;
             return accountLegalEntity.CreateCohortWithOtherParty(provider.UkPrn, accountLegalEntity, transferSender, pledgeApplicationId, message, userInfo);
         }
 
@@ -248,9 +248,17 @@ namespace SFA.DAS.CommitmentsV2.Services
             return account;
         }
 
-        private async Task<Account> GetTransferSender(long employerAccountId, long transferSenderId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private async Task<Account> GetTransferSender(long employerAccountId, long transferSenderId, int? pledgeApplicationId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
-            await ValidateTransferSenderIdIsAFundingConnection(employerAccountId, transferSenderId);
+            if (pledgeApplicationId.HasValue)
+            {
+                //todo: validate pledge application
+            }
+            else
+            {
+                await ValidateTransferSenderIdIsAFundingConnection(employerAccountId, transferSenderId);
+            }
+            
             return await GetAccount(transferSenderId, db, cancellationToken);
         }
 
