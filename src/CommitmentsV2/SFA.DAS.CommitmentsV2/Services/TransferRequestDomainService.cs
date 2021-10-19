@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             return await _dbContext.Value.TransferRequests
                     .Include(c => c.Cohort)
-                    .Include(c => c.Cohort.Apprenticeships)
+                    .ThenInclude(c => c.Apprenticeships)
                     .SingleAsync(x => x.Id == id, cancellationToken);
         }
     }
