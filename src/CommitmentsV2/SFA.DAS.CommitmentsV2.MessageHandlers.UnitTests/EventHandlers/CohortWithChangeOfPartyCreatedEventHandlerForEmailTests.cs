@@ -134,7 +134,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _expectedApprenticeName = _apprenticeship.LastName.EndsWith("s") ? $"{_apprenticeship.FirstName} {_apprenticeship.LastName}'" : $"{_apprenticeship.FirstName} {_apprenticeship.LastName}'s";
                 _expectedSubjectDetailsRequired = $"{_cohortSummary.LegalEntityName} has requested that you add details on their behalf";
                 _expectedSubjectForReview = $"{_cohortSummary.LegalEntityName} has added details for you to review";
-                _expectedRequestUrl = $"{_cohortSummary.ProviderId}/apprentices/{_cohortSummary.CohortReference}/details";
+                _expectedRequestUrl = $"{_cohortSummary.ProviderId}/unapproved/{_cohortSummary.CohortReference}/details";
 
                 _cohortReference = _autoFixture.Create<string>();
                 _employerEncodedAccountId = _autoFixture.Create<string>();
