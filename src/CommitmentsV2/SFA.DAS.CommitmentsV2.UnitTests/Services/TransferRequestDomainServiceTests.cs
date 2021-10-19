@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -255,11 +256,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             ExistingApprenticeshipDetails = new DraftApprenticeship(Fixture.Build<DraftApprenticeshipDetails>().Create(), Party.Provider);
             Cohort.Apprenticeships.Add(ExistingApprenticeshipDetails);
-
             Cohort.EditStatus = EditStatus.Both;
             Cohort.TransferApprovalStatus = TransferApprovalStatus.Pending;
             Cohort.TransferSenderId = 10900;
-
+            
             TransferSenderUserInfo = Fixture.Create<UserInfo>();
             TransferRequest = new TransferRequest
             { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort };

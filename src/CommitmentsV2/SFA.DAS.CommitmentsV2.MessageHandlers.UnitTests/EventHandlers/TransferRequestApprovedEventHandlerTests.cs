@@ -71,7 +71,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 .Options);
 
             TransferSenderUserInfo = _fixture.Create<UserInfo>();
-            TransferRequestApprovedEvent = new TransferRequestApprovedEvent(_fixture.Create<long>(), _fixture.Create<long>(), _fixture.Create<DateTime>(), TransferSenderUserInfo);
+            TransferRequestApprovedEvent = new TransferRequestApprovedEvent(_fixture.Create<long>(),
+                _fixture.Create<long>(),
+                _fixture.Create<DateTime>(),
+                TransferSenderUserInfo,
+                _fixture.Create<int>(),
+                _fixture.Create<decimal>(),
+                _fixture.Create<int?>());
 
             Logger = new FakeLogger<TransferRequestApprovedEvent>();
             LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
