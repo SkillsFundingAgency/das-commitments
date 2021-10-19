@@ -84,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     { "TrainingProviderName" , cohortSummary.ProviderName},
                     { "EmployerName" , cohortSummary.LegalEntityName},
                     { "ApprenticeNamePossessive" , apprenticeNamePossessive },
-                    { "RequestUrl", $"{cohortSummary.ProviderId}/apprentices/{cohortSummary.CohortReference}/details" }
+                    { "RequestUrl", $"{cohortSummary.ProviderId}/unapproved/{cohortSummary.CohortReference}/details" }
                 };
 
             await context.Send(new SendEmailToProviderCommand(cohortSummary.ProviderId.Value, "ProviderApprenticeshipChangeOfProviderRequested", tokens));
