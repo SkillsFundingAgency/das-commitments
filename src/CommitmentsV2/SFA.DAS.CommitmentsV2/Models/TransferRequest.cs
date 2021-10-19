@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferApprovalActionedOn = now;
             ChangeTrackingSession.CompleteTrackingSession();
 
-            Publish(() => new TransferRequestApprovedEvent(Id, Cohort.Id, now, userInfo, Cohort.PledgeApplicationId));
+            Publish(() => new TransferRequestApprovedEvent(Id, Cohort.Id, now, userInfo, Cohort.DraftApprenticeshipCount, FundingCap, Cohort.PledgeApplicationId));
         }
 
         public void Reject(UserInfo userInfo, DateTime rejectedOn)
