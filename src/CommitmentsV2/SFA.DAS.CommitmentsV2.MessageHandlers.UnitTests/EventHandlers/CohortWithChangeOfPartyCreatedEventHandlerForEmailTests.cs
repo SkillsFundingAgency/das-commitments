@@ -12,6 +12,7 @@ using NServiceBus.Testing;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -96,12 +97,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private readonly string _employerEncodedAccountId;
             private Fixture _autoFixture;
             public UnitOfWorkContext UnitOfWorkContext { get; set; }
+            private static CommitmentsV2Configuration commitmentsV2Configuration;
 
             public CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture()
             {
                 _autoFixture = new Fixture();
                 _mediator = new Mock<IMediator>();
                 UnitOfWorkContext = new UnitOfWorkContext();
+
+                commitmentsV2Configuration = new CommitmentsV2Configuration()
+                {
+                    ProviderCommitmentsBaseUrl = "https://approvals.environmentname-pas.apprenticeships.education.gov.uk/"
+                };
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -134,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _expectedApprenticeName = _apprenticeship.LastName.EndsWith("s") ? $"{_apprenticeship.FirstName} {_apprenticeship.LastName}'" : $"{_apprenticeship.FirstName} {_apprenticeship.LastName}'s";
                 _expectedSubjectDetailsRequired = $"{_cohortSummary.LegalEntityName} has requested that you add details on their behalf";
                 _expectedSubjectForReview = $"{_cohortSummary.LegalEntityName} has added details for you to review";
-                _expectedRequestUrl = $"{_cohortSummary.ProviderId}/unapproved/{_cohortSummary.CohortReference}/details";
+                _expectedRequestUrl = $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{_cohortSummary.ProviderId}/unapproved/{_cohortSummary.CohortReference}/details";
 
                 _cohortReference = _autoFixture.Create<string>();
                 _employerEncodedAccountId = _autoFixture.Create<string>();
@@ -147,7 +154,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _handler = new CohortWithChangeOfPartyCreatedEventHandlerForEmail(new Lazy<ProviderCommitmentsDbContext>(() => _db),
                     _mediator.Object,
                     _encodingService.Object,
-                    Mock.Of<ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail>>());
+                    Mock.Of<ILogger<CohortWithChangeOfPartyCreatedEventHandlerForEmail>>(),
+                    commitmentsV2Configuration);
 
                 _messageHandlerContext = new TestableMessageHandlerContext();
 
