@@ -18,8 +18,6 @@ using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
 using SFA.DAS.CommitmentsV2.Api.NServiceBus;
 using SFA.DAS.CommitmentsV2.Caching;
-using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.UnitOfWork.Mvc.Extensions;
 using StructureMap;
@@ -73,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Api
             services.AddDasHealthChecks(Configuration);
             services.AddMemoryCache();
             services.AddNServiceBus();
-            services.AddTransient<ILevyTransferMatchingApiClient, LevyTransferMatchingClient>();
+            services.AddApiClients(Configuration);
         }
 
         public void ConfigureContainer(Registry registry)
