@@ -1,7 +1,9 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {
     public interface IAccessTokenProvider
     {
-        string GetAccessToken();
+        Task<string> GetAccessToken();
     }
 }

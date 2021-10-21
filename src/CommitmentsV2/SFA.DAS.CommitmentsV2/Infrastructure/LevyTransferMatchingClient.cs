@@ -10,18 +10,22 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
     public class LevyTransferMatchingClient : ILevyTransferMatchingApiClient
     {
         private readonly HttpClient _httpClient;
+        private readonly IAccessTokenProvider _accessTokenProvider;
 
         public LevyTransferMatchingClient(HttpClient httpClient, IAccessTokenProvider accessTokenProvider)
         {
             _httpClient = httpClient;
-            if (!_httpClient.BaseAddress.IsLoopback)
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessTokenProvider.GetAccessToken());
-            }
+            _accessTokenProvider = accessTokenProvider;
         }
         
         public async Task<PledgeApplication> GetPledgeApplication(int id)
         {
+            if (!_httpClient.BaseAddress.IsLoopback)
+            {
+                var token = await _accessTokenProvider.GetAccessToken();
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await _httpClient.GetAsync($"applications/{id}").ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();

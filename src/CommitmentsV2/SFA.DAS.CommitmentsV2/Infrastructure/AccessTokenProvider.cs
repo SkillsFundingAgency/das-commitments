@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Services.AppAuthentication;
+﻿using System.Threading.Tasks;
+using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
@@ -13,11 +14,10 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
             _configuration = configuration;
         }
 
-        public string GetAccessToken()
+        public async Task<string> GetAccessToken()
         {
             var tokenProvider = new AzureServiceTokenProvider();
-            var getTokenTask = tokenProvider.GetAccessTokenAsync(_configuration.Identifier);
-            return getTokenTask.GetAwaiter().GetResult();
+            return await tokenProvider.GetAccessTokenAsync(_configuration.Identifier);
         }
     }
 }
