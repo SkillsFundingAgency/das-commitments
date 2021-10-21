@@ -20,6 +20,7 @@ using System.Linq;
 using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Infrastructure;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -37,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IEncodingService _encodingService;
         private readonly IAccountApiClient _accountApiClient;        
         private readonly IEmailOptionalService _emailService;
+        private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -49,7 +51,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             IEmployerAgreementService employerAgreementService,
             IEncodingService encodingService,
             IAccountApiClient accountApiClient,            
-            IEmailOptionalService emailOptionalService)
+            IEmailOptionalService emailOptionalService,
+            ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -63,6 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _encodingService = encodingService;
             _accountApiClient = accountApiClient;
             _emailService = emailOptionalService;
+            _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
         }
 
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -252,7 +256,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (pledgeApplicationId.HasValue)
             {
-                //todo: validate pledge application
+                await ValidatePledgeApplicationId(employerAccountId, transferSenderId, pledgeApplicationId.Value);
             }
             else
             {
@@ -260,6 +264,32 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
             
             return await GetAccount(transferSenderId, db, cancellationToken);
+        }
+
+
+        private async Task ValidatePledgeApplicationId(long accountId, long transferSenderId, int pledgeApplicationId)
+        {
+            var pledgeApplication = await _levyTransferMatchingApiClient.GetPledgeApplication(pledgeApplicationId);
+
+            if (pledgeApplication == null)
+            {
+                throw new BadRequestException($"PledgeApplication {pledgeApplicationId} was not found");
+            }
+
+            if (pledgeApplication.ReceiverEmployerAccountId != accountId)
+            {
+                throw new BadRequestException($"PledgeApplication {pledgeApplicationId} does not belong to {accountId}");
+            }
+
+            if (pledgeApplication.SenderEmployerAccountId != transferSenderId)
+            {
+                throw new BadRequestException($"PledgeApplication {pledgeApplicationId} creator {pledgeApplication.SenderEmployerAccountId} does not match supplied Transfer Sender {transferSenderId}");
+            }
+
+            if (pledgeApplication.Status != PledgeApplication.ApplicationStatus.Accepted)
+            {
+                throw new BadRequestException($"PledgeApplication {pledgeApplicationId} has a status of {pledgeApplication.Status}, which is invalid for use");
+            }
         }
 
         private async Task ValidateTransferSenderIdIsAFundingConnection(long accountId, long transferSenderId)

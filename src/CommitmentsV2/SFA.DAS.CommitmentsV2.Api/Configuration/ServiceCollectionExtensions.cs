@@ -14,6 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Configuration
             services.Configure<AzureActiveDirectoryApiConfiguration>(configuration.GetSection($"{CommitmentsConfigurationKeys.CommitmentsV2}:AzureADApiAuthentication"));
             services.Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2));
             services.Configure<EncodingConfig>(configuration.GetSection(CommitmentsConfigurationKeys.EncodingConfiguration));
+            services.Configure<LevyTransferMatchingApiConfiguration>(configuration.GetSection(CommitmentsConfigurationKeys.LevyTransferMatchingApiConfiguration));
             return services;
         }
     }

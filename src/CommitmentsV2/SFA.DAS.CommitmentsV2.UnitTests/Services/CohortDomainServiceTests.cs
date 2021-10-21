@@ -19,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -61,13 +62,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyCohortCreation(party);
         }
 
-        [TestCase(Party.Employer)]
-        public async Task CreateCohort_CreatingPartyWithTransferSenderId_Creates_Cohort(Party party)
+        [Test]
+        public async Task CreateCohort_Employer_WithTransferSenderId_Creates_Cohort()
         {
             await _fixture
-                .WithParty(party)
-                .CreateCohort(null, null, _fixture.TransferSenderId);
-            _fixture.VerifyCohortCreationWithTransferSender(party);
+                .WithParty(Party.Employer)
+                .CreateCohort(null, null, _fixture.TransferSenderId, null);
+            _fixture.VerifyCohortCreationWithTransferSender(Party.Employer, null);
+        }
+
+        [Test]
+        public async Task CreateCohort_Employer_WithPledgeApplicationId_Creates_Cohort()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .CreateCohort(null, null, _fixture.TransferSenderId, _fixture.PledgeApplicationId);
+            _fixture.VerifyCohortCreationWithTransferSender(Party.Employer, _fixture.PledgeApplicationId);
         }
 
         [Test]
@@ -120,8 +130,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyCohortCreationWithOtherParty_WithPledgeApplicationId();
         }
 
-
-
         [Test]
         public async Task CreateCohortWithOtherParty_WithAnInvalidTransferSenderId_ThrowsBadRequestException()
         {
@@ -167,6 +175,42 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _fixture
                 .WithParty(Party.Employer)
                 .CreateCohortWithOtherParty(-1);
+
+            _fixture.VerifyException<BadRequestException>();
+        }
+
+        [Test]
+        public async Task CreateCohort_ThrowsBadRequest_WhenPledgeApplicationNotFound()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .CreateCohort(null, null, _fixture.TransferSenderId, _fixture.PledgeApplicationId + 1);
+
+            _fixture.VerifyException<BadRequestException>();
+        }
+
+        [TestCase(PledgeApplication.ApplicationStatus.Declined)]
+        [TestCase(PledgeApplication.ApplicationStatus.Pending)]
+        [TestCase(PledgeApplication.ApplicationStatus.Rejected)]
+        [TestCase(PledgeApplication.ApplicationStatus.Pending)]
+        public async Task CreateCohort_ThrowsBadRequest_WhenPledgeApplication_Status_Is_Invalid(PledgeApplication.ApplicationStatus status)
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .WithPledgeApplicationStatus(status)
+                .CreateCohort(null, null, _fixture.TransferSenderId, _fixture.PledgeApplicationId);
+
+            _fixture.VerifyException<BadRequestException>();
+        }
+
+
+
+        [Test]
+        public async Task CreateCohortWithOtherParty_ThrowsBadRequest_WhenPledgeApplicationNotFound()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .CreateCohortWithOtherParty(_fixture.TransferSenderId, _fixture.PledgeApplicationId + 1);
 
             _fixture.VerifyException<BadRequestException>();
         }
@@ -524,6 +568,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IAuthenticationService> AuthenticationService { get; }
             public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
             public Mock<IAccountApiClient> AccountApiClient { get; set; }
+            public Mock<ILevyTransferMatchingApiClient> LevyTransferMatchingApiClient { get; set; }
+            public PledgeApplication PledgeApplication { get; set; }
             public List<TransferConnectionViewModel> TransferConnections { get; }
 
             public Exception Exception { get; private set; }
@@ -586,6 +632,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Db.Accounts.Add(TransferSenderAccount);
 
                 PledgeApplicationId = fixture.Create<int>();
+                PledgeApplication = new PledgeApplication
+                {
+                    ReceiverEmployerAccountId = AccountId,
+                    SenderEmployerAccountId = TransferSenderId,
+                    Status = PledgeApplication.ApplicationStatus.Accepted
+                };
+
+                LevyTransferMatchingApiClient = new Mock<ILevyTransferMatchingApiClient>();
+                LevyTransferMatchingApiClient.Setup(x => x.GetPledgeApplication(PledgeApplicationId.Value))
+                    .ReturnsAsync(PledgeApplication);
 
                 TransferConnections = new List<TransferConnectionViewModel>
                     {new TransferConnectionViewModel {FundingEmployerAccountId = TransferSenderId}};
@@ -671,7 +727,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     EmployerAgreementService.Object,
                     EncodingService.Object,
                     AccountApiClient.Object,
-                    EmailOptionalService.Object);
+                    EmailOptionalService.Object,
+                    LevyTransferMatchingApiClient.Object);
 
                 Db.SaveChanges();
             }
@@ -989,7 +1046,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-            public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null, long? transferSenderId = null)
+            public CohortDomainServiceTestFixture WithPledgeApplicationStatus(PledgeApplication.ApplicationStatus status)
+            {
+                PledgeApplication.Status = status;
+                return this;
+            }
+
+            public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null, long? transferSenderId = null, int? pledgeApplicationId = null)
             {
                 Db.SaveChanges();
                 DomainErrors.Clear();
@@ -999,7 +1062,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, null,
+                    var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
                         DraftApprenticeshipDetails, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
@@ -1182,7 +1245,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
-            public void VerifyCohortCreationWithTransferSender(Party party)
+            public void VerifyCohortCreationWithTransferSender(Party party, int? pledgeApplicationId)
             {
                 if (party == Party.Provider)
                 {
@@ -1191,7 +1254,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName), It.IsAny<int?>(),
+                    AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName), It.Is<int?>(p => p == pledgeApplicationId),
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
