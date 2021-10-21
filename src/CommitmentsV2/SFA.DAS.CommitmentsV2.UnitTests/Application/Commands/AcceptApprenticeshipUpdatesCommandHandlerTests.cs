@@ -297,10 +297,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task ThenEmailAddressCannotBeChangedWhenConfirmationStatusExists()
+        public async Task ThenEmailAddressCannotBeChangedWhenEmailAddressIsConfirmed()
         {
             fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            await fixture.SetApprenticeshipConfirmationStatus();
+            await fixture.SetEmailAddressConfirmedByApprentice();
             fixture.ApprenticeshipUpdate.Email = "test@test.com";
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -383,6 +383,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.EpaOrg)
              .Without(s => s.Continuation)
              .Without(s => s.PreviousApprenticeship)
+             .Without(s => s.EmailAddressConfirmed)
              .Without(s => s.ApprenticeshipConfirmationStatus)
              .Create();
 
@@ -429,13 +430,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
         }
 
-        public async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> SetApprenticeshipConfirmationStatus()
+        public async Task<AcceptApprenticeshipUpdatesCommandHandlerTestsFixture> SetEmailAddressConfirmedByApprentice()
         {
-            var fixture = new Fixture();
-            var confirmationStatus = fixture.Build<ApprenticeshipConfirmationStatus>()
-                .Without(x => x.Apprenticeship)
-                .With(x => x.ApprenticeshipId, ApprenticeshipId).Create();
-            Db.ApprenticeshipConfirmationStatus.Add(confirmationStatus);
+            var first = Db.Apprenticeships.First();
+            first.EmailAddressConfirmed = true;
             await Db.SaveChangesAsync();
             return this;
         }
