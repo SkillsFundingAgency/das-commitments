@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 EmployerAccountId = message.EmployerAccountId,
                 ProviderId = message.ProviderId,
                 EntityType = message.EntityType,
+                ApprenticeshipId = message.ApprenticeshipId,
                 Diff = JsonConvert.SerializeObject(diff)
             });
         }

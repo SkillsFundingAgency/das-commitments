@@ -65,9 +65,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         }
 
         private void CheckStartDateForChangeOfParty(DateTime? startDate, ChangeOfPartyRequestType changeOfPartyType, Party originatingParty)
-        {            
+        {
             if (changeOfPartyType == ChangeOfPartyRequestType.ChangeProvider && originatingParty == Party.Employer) return;
-            if (startDate == null ||  StopDate > startDate)
+            if (startDate == null || StopDate > startDate)
             {
                 throw new DomainException(nameof(StopDate), $"Change of Party requires that Stop Date of Apprenticeship {Id} ({StopDate}) be before or same as new Start Date of {startDate}");
             }
@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             var update = ApprenticeshipUpdate.First(x => x.Status == ApprenticeshipUpdateStatus.Pending);
             ChangeTrackingSession.TrackUpdate(update);
             ChangeTrackingSession.TrackUpdate(this);
-            
+
             ApplyApprenticeshipUpdatesToApprenticeship(update, currentDateTime.UtcNow);
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Approved;
@@ -127,18 +127,18 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             Publish(() => new
                 DataLockTriageApprovedEvent
+            {
+                ApprenticeshipId = Id,
+                ApprovedOn = acceptedOn,
+                PriceEpisodes = PriceHistory.Select(x => new PriceEpisode
                 {
-                    ApprenticeshipId = Id,
-                    ApprovedOn = acceptedOn,
-                    PriceEpisodes = PriceHistory.Select(x => new PriceEpisode
-                    {
-                        FromDate = x.FromDate,
-                        ToDate = x.ToDate,
-                        Cost = x.Cost
-                    }).ToArray(),
-                    TrainingCode = CourseCode,
-                    TrainingType = ProgrammeType.Value
-                });
+                    FromDate = x.FromDate,
+                    ToDate = x.ToDate,
+                    Cost = x.Cost
+                }).ToArray(),
+                TrainingCode = CourseCode,
+                TrainingType = ProgrammeType.Value
+            });
         }
 
         public void RejectDataLocks(Party party, List<long> dataLockEventIds, UserInfo userInfo)
@@ -157,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         }
 
         public void TriageDataLocks(Party party, List<long> dataLockEventIds, TriageStatus triageStatus, UserInfo userInfo)
-        {            
+        {
             StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             foreach (var dataLockEventId in dataLockEventIds)
             {
@@ -171,12 +171,39 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public void ReplacePriceHistory(Party party, List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
+        public void ReplacePriceHistory(Party party, List<PriceHistory> currentPriceHistory, List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
         {
-            StartTrackingSession(UserAction.UpdatePriceHistory, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
-            this.PriceHistory = updatedPriceHistory;
-            ChangeTrackingSession.TrackUpdate(this);
+            StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
+            foreach (var priceHistory in currentPriceHistory)
+            {
+                if (updatedPriceHistory.All(x => x.Cost != priceHistory.Cost))
+                {
+                    ChangeTrackingSession.TrackDelete(priceHistory);
+                }
+            }
             ChangeTrackingSession.CompleteTrackingSession();
+
+            StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
+            foreach (var priceHistory in updatedPriceHistory)
+            {
+                var changedPriceHistory = currentPriceHistory.FirstOrDefault(x => x.Cost == priceHistory.Cost && x.FromDate == priceHistory.FromDate);
+
+                if (changedPriceHistory != null)
+                {
+                    ChangeTrackingSession.TrackUpdate(changedPriceHistory);
+
+                    changedPriceHistory.FromDate = priceHistory.FromDate;
+                    changedPriceHistory.ToDate = priceHistory.ToDate;
+                    changedPriceHistory.Cost = priceHistory.Cost;
+                }
+                else
+                {
+                    ChangeTrackingSession.TrackInsert(priceHistory);
+                }
+            }
+            ChangeTrackingSession.CompleteTrackingSession();
+
+            this.PriceHistory = updatedPriceHistory;
         }
 
         public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo)
@@ -201,7 +228,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             PendingUpdateOriginator = null;
             update.Status = ApprenticeshipUpdateStatus.Rejected;
-            
+
             update.ResetDataLocks();
 
             ChangeTrackingSession.CompleteTrackingSession();
@@ -262,7 +289,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 newPriceHistory[i].ToDate = newPriceHistory[i + 1].FromDate.AddDays(-1);
             }
-            
+
             return newPriceHistory.ToList();
         }
 
@@ -293,7 +320,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (update.TrainingType.HasValue)
             {
                 ProgrammeType = update.TrainingType;
-                
+
                 if (update.TrainingType.Value == Types.ProgrammeType.Framework)
                 {
                     TrainingCourseVersion = null;
@@ -326,9 +353,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             // If the training course and version has not changed then the option can only be updated to the chosen option or string.Empty
             // Else the course has not changed and the option is null then the option should not be changed
             var shouldUpdateOption = !string.IsNullOrEmpty(update.TrainingCode) || !string.IsNullOrEmpty(update.TrainingCourseVersion) || update.TrainingCourseOption != null;
-            
+
             if (shouldUpdateOption)
-            { 
+            {
                 TrainingCourseOption = update.TrainingCourseOption;
             }
 
@@ -504,7 +531,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
                 Uln = Uln
-            }); 
+            });
         }
 
         public void PauseApprenticeship(ICurrentDateTime currentDateTime, Party party, UserInfo userInfo)
@@ -574,7 +601,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     Cost = x.Cost
                 }).ToArray();
         }
-                
+
 
         private void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
         {
@@ -689,13 +716,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             Uln = uln;
             ChangeTrackingSession.CompleteTrackingSession();
 
-            Publish(() => new ApprenticeshipUlnUpdatedEvent (Id, uln, currentDateTime ));
+            Publish(() => new ApprenticeshipUlnUpdatedEvent(Id, uln, currentDateTime));
         }
 
-        public void ApprenticeshipStopDate(UpdateApprenticeshipStopDateCommand command,ICurrentDateTime currentDate, Party party)
+        public void ApprenticeshipStopDate(UpdateApprenticeshipStopDateCommand command, ICurrentDateTime currentDate, Party party)
         {
             StartTrackingSession(UserAction.UpdateApprenticeshipStopDate, party, Cohort.EmployerAccountId, Cohort.ProviderId, command.UserInfo);
-            
+
             ChangeTrackingSession.TrackUpdate(this);
             if (PaymentStatus != PaymentStatus.Completed)
             {
@@ -705,7 +732,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ResolveDatalocks(command.StopDate);
 
             ChangeTrackingSession.CompleteTrackingSession();
-            
+
             Publish(() => new ApprenticeshipStopDateChangedEvent
             {
                 StopDate = command.StopDate,
@@ -729,7 +756,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     && x.WithCourseError()).ToList();
             }
 
-            foreach(var dataLock in dataLocks)
+            foreach (var dataLock in dataLocks)
             {
                 ChangeTrackingSession.TrackUpdate(dataLock);
                 dataLock.Resolve();
