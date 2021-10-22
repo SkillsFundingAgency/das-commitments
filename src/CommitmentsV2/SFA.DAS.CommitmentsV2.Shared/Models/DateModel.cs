@@ -75,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Models
 
         private bool IsValidYear(int? year)
         {
-            return year.HasValue && year >= DateTime.MinValue.Year && year <= DateTime.MaxValue.Year;
+            return year.HasValue && year >= 1000 && year >= DateTime.MinValue.Year && year <= DateTime.MaxValue.Year;
         }
 
         private void SetIfDifferent(int? currentValue, int? newValue, Action<int?> change)
