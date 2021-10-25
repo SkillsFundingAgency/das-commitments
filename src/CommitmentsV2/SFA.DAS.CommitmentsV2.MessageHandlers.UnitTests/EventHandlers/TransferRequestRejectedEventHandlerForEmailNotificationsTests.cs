@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
@@ -54,6 +55,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 private readonly string _cohortReference;
                 private readonly string _employerEncodedAccountId;
                 private readonly long _providerId;
+                private static CommitmentsV2Configuration commitmentsV2Configuration;
 
                 public TransferRequestRejectedEventHandlerForEmailNotificationsTestsFixture()
                 {
@@ -80,8 +82,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     _mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(),
                             It.IsAny<CancellationToken>()))
                         .ReturnsAsync(_cohortSummary);
+                    
+                    commitmentsV2Configuration = new CommitmentsV2Configuration()
+                    {
+                        ProviderCommitmentsBaseUrl = "https://approvals.environmentname-pas.apprenticeships.education.gov.uk/"
+                    };
 
-                    _handler = new TransferRequestRejectedEventHandlerForEmailNotifications(_mediator.Object, _encodingService.Object);
+                    _handler = new TransferRequestRejectedEventHandlerForEmailNotifications(_mediator.Object, _encodingService.Object, commitmentsV2Configuration);
 
                     _event = new TransferRequestRejectedEvent(_autoFixture.Create<long>(),
                         _autoFixture.Create<long>(),
@@ -103,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         c.Tokens["cohort_reference"] == _cohortReference &&
                         c.Tokens["employer_name"] == _cohortSummary.LegalEntityName &&
                         c.Tokens["sender_name"] == _cohortSummary.TransferSenderName &&
-                        c.Tokens["employer_hashed_account"] == _employerEncodedAccountId
+                        c.Tokens["RequestUrl"] == $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{_employerEncodedAccountId}/unapproved/{_cohortReference}"
                     ), It.IsAny<SendOptions>()));
                 }
 
