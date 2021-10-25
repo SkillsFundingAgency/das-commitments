@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddHistory
             {
                 EntityId = request.EntityId,
                 CommitmentId = request.EntityType == nameof(Cohort) ? request.EntityId : default(long?),
-                ApprenticeshipId = (request.EntityType == nameof(DraftApprenticeship) || request.EntityType == nameof(Apprenticeship)) ? request.EntityId : default(long?),
+                ApprenticeshipId = GetApprenticeshipId(request),
                 OriginalState = request.InitialState,
                 UpdatedState = request.UpdatedState,
                 ChangeType = request.StateChangeType.ToString(),
@@ -32,13 +32,25 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddHistory
                 UpdatedByRole = request.UpdatingParty.ToString(),
                 EmployerAccountId = request.EmployerAccountId,
                 ProviderId = request.ProviderId,
-                EntityType =  request.EntityType,
+                EntityType = request.EntityType,
                 Diff = request.Diff,
                 CorrelationId = request.CorrelationId
             };
-            
+
             _dbContext.History.Add(history);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+
+        private long? GetApprenticeshipId(AddHistoryCommand request)
+        {
+            if (request.ApprenticeshipId.HasValue)
+                return request.ApprenticeshipId;
+
+            if (request.EntityType == nameof(DraftApprenticeship) || request.EntityType == nameof(Apprenticeship))
+                return request.EntityId;
+
+            return default(long?);
+        }
+
     }
 }

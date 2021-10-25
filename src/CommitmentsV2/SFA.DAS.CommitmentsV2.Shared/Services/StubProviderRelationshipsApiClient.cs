@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public StubProviderRelationshipsApiClient()
         {
-            _httpClient = new HttpClient { BaseAddress = new System.Uri("https://sfa-stub-providerrelationships.herokuapp.com/api/data") };
+            _httpClient = new HttpClient { BaseAddress = new System.Uri("https://das-commitments-stub-prel.herokuapp.com/api/data") };
         }
 
         private async Task<IList<AccountProviderLegalEntityDto>> GetPermissionsForProvider(long providerId, Operation operation, CancellationToken cancellationToken)

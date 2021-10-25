@@ -79,6 +79,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _fixture.Assert_CorrectEndDateWasUsed(result, expectedUln, expectedEndDate);
         }
+
+        [Test]
+        public async Task WhenGettingApprenticeship_ForOverlap_DraftApprenticeship_With_TransferSender_Are_Included()
+        {
+            var expectedUln = _fixture.DraftApprenticeshipWithTransferSender.Uln;
+            var expectedEndDate = _fixture.DraftApprenticeshipWithTransferSender.EndDate.Value;
+
+            _fixture
+                .WithApprenticeshipsInDb();
+
+            var result = await _fixture.Act(expectedUln);
+
+            _fixture.Assert_CorrectEndDateWasUsed(result, expectedUln, expectedEndDate);
+        }
     }
 
     public class UlnUtilisationServiceFixture
@@ -87,6 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public Apprenticeship CompletedApprenticeshipAfterEndDate { get; }
         public Apprenticeship WithdrawnApprenticeship { get; }
         public Apprenticeship LiveApprenticeship { get; }
+        public DraftApprenticeship DraftApprenticeshipWithTransferSender { get; }
 
         private readonly ProviderCommitmentsDbContext _dbContext;
         private readonly Mock<IDbContextFactory> _iDbContextFactoryMock;
@@ -133,6 +148,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 EndDate = DateTime.UtcNow
             };
 
+            DraftApprenticeshipWithTransferSender = new DraftApprenticeship
+            {
+                Id = 500,
+                Uln = Guid.NewGuid().ToString(),
+                PaymentStatus = 0,
+                StartDate = DateTime.UtcNow.AddYears(-1),
+                Cohort = new Cohort {TransferSenderId = 1, WithParty = Party.TransferSender  },
+                EndDate = DateTime.UtcNow
+            };
+
             _dbContext = TestHelper.GetInMemoryDatabase();
 
             _iDbContextFactoryMock = new Mock<IDbContextFactory>();
@@ -151,6 +176,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _dbContext.Apprenticeships.Add(CompletedApprenticeshipAfterEndDate);
             _dbContext.Apprenticeships.Add(WithdrawnApprenticeship);
             _dbContext.Apprenticeships.Add(LiveApprenticeship);
+            _dbContext.DraftApprenticeships.Add(DraftApprenticeshipWithTransferSender);
             _dbContext.SaveChanges();
             return this;
         }

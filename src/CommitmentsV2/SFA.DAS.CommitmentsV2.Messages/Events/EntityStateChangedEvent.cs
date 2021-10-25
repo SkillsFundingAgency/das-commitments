@@ -17,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public string UpdatingUserName { get; set; }
         public Party UpdatingParty { get; set; }
         public DateTime UpdatedOn { get; set; }
+        public long? ApprenticeshipId { get; set; }
     }
 
     public enum UserAction
