@@ -38,7 +38,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     {"employer_name", cohortSummary.LegalEntityName},
                     {"cohort_reference", cohortReference},
                     {"sender_name", cohortSummary.TransferSenderName},
-                    //{"employer_hashed_account", _encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId)},
                     {"RequestUrl", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{_encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId)}/unapproved/{cohortReference}" }
                 },
                 cohortSummary.LastUpdatedByEmployerEmail);
