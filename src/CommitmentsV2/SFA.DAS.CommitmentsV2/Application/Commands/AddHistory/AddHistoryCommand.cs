@@ -20,5 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddHistory
         public string UpdatingUserName { get; set; }
         public Party UpdatingParty { get; set; }
         public DateTime UpdatedOn { get; set; }
+        public long? ApprenticeshipId { get; set; }
     }
 }
