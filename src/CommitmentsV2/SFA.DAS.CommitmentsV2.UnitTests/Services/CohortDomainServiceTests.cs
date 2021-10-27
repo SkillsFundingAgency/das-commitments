@@ -421,7 +421,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.AreEqual(1, _fixture.DomainErrors.Count);
             Assert.AreEqual("Cannot approve this cohort because one or more emails are failing the overlap check", _fixture.DomainErrors[0].ErrorMessage);
         }
-
+         
         [Test]
         public async Task DeleteDraftApprenticeship_WhenCohortIsWithEmployer()
         {
@@ -461,6 +461,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _fixture.AddDraftApprenticeship();
 
             _fixture.VerifyStartDateException(pass);
+        }
+
+        [TestCase("0022-01-01", false)]
+        [TestCase("1300-01-01", false)]
+        [TestCase("2000-12-01", false)]
+        public async Task AddDraftApprenticeship_Verify_StartDate_IsNot_Earlier_Than_May_2017(DateTime startDate, bool pass)
+        {
+            _fixture.WithParty(Party.Employer)
+                .WithStartDate(startDate)
+                .WithTrainingProgramme();
+
+            await _fixture.CreateCohort();
+
+            _fixture.VerifyStartDateException(pass);
+        }
+
+        [TestCase("0022-01-01", false)]
+        [TestCase("1300-01-01", false)]
+        [TestCase("2000-12-01", false)]
+        public async Task AddDraftApprenticeship_Verify_EndDate_IsNot_Earlier_Than_May_2017(DateTime endDate, bool pass)
+        {
+            _fixture.WithParty(Party.Employer)
+                .WithEndDate(endDate)
+                .WithStartDate(DateTime.Now)
+                .WithTrainingProgramme();
+
+            await _fixture.CreateCohort();
+
+            _fixture.VerifyEndDateException(pass);
         }
 
         [TestCase(ProgrammeType.Framework, false)]
@@ -773,6 +802,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     : default(DateTime?);
 
                 DraftApprenticeshipDetails.StartDate = utcStartDate;
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithEndDate(DateTime? endDate)
+            {
+                var utcEndDate = endDate.HasValue
+                    ? DateTime.SpecifyKind(endDate.Value, DateTimeKind.Utc)
+                    : default(DateTime?);
+
+                DraftApprenticeshipDetails.EndDate = utcEndDate;
                 return this;
             }
 
@@ -1257,6 +1296,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate"));
+            }
+
+            public void VerifyEndDateException(bool passes)
+            {
+                if (passes)
+                {
+                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    return;
+                }
+
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate"));
             }
 
             public void VerifyUlnException(bool passes)

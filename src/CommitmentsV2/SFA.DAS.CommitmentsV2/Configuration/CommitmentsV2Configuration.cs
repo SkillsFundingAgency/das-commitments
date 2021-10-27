@@ -20,5 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Configuration
         /// </summary>
         public string CurrentDateTime { get; set; }
         public string ReadOnlyDatabaseConnectionString { get; set; }
+
+        public string ProviderCommitmentsBaseUrl { get; set; }
     }
 }

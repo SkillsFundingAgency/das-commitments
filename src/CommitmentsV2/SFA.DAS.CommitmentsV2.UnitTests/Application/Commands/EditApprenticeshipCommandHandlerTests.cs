@@ -148,6 +148,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public async Task AndEmailAddressConfirmedThenEndDateIsChanged(Party party)
+        {
+            fixture.SetParty(party).SetEmailAddressConfirmedByApprentice();
+            fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
+
+            await fixture.Handle();
+            fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.EndDate.Value,
+                app => app.ApprenticeshipUpdate.First().EndDate.Value);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public async Task ThenCourseCodeIsChanged(Party party)
         {
             fixture.SetParty(party);

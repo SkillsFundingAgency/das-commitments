@@ -34,9 +34,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
         protected override async Task Handle(AcceptDataLocksRequestChangesCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Accepting Data Locks for apprenticeship {request.ApprenticeshipId}");
- 
+
             var apprenticeship = await _db.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
+            IReadOnlyList<PriceHistory> currentPriceHistory = new List<PriceHistory>(apprenticeship.PriceHistory);
             var dataLocksToBeAccepted = apprenticeship.DataLockStatus
                 .Where(DataLockStatusExtensions.UnHandled)
                 .Where(m => m.TriageStatus == TriageStatus.Change);
@@ -52,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
             var dataLockPasses = apprenticeship.DataLockStatus.Where(x => x.Status == Status.Pass || x.PreviousResolvedPriceDataLocks());
 
             var updatedPriceHistory = apprenticeship.CreatePriceHistory(dataLocksToBeAccepted, dataLockPasses);
-            ReplacePriceHistory(apprenticeship, updatedPriceHistory, request.UserInfo);
+            ReplacePriceHistory(apprenticeship, updatedPriceHistory, request.UserInfo, currentPriceHistory.ToList());
 
             if (!apprenticeship.HasHadDataLockSuccess)
             {
@@ -62,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
                     var training = await _trainingProgrammeLookup.GetTrainingProgramme(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
 
                     _logger.LogInformation($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.CourseCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
-                    
+
                     apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo);
                 }
             }
@@ -75,12 +76,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
         private void ReplacePriceHistory(
             Apprenticeship apprenticeship,
             List<PriceHistory> updatedPriceHistory,
-            UserInfo userInfo)
+            UserInfo userInfo,
+            List<PriceHistory> currentPriceHistory)
         {
             // price history entries are only identified for a given apprenticeship by thier from date and to date; 
             // therefore it would be difficult to replace only the ones that have changed when there can be duplicate
             // entries with the same from date and to date
-            foreach(var item in apprenticeship.PriceHistory)
+            foreach (var item in apprenticeship.PriceHistory)
             {
                 _db.Value.PriceHistory.Remove(item);
             }
@@ -90,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
                 _db.Value.PriceHistory.Add(item);
             }
 
-            apprenticeship.ReplacePriceHistory(Party.Employer, updatedPriceHistory, userInfo);
+            apprenticeship.ReplacePriceHistory(Party.Employer, currentPriceHistory,  updatedPriceHistory, userInfo);
         }
     }
 }

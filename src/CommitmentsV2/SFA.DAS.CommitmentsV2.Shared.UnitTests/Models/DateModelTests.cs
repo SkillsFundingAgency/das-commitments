@@ -45,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
         [TestCase(2019, 12, 31, true)]
         [TestCase(2019, 02, 29, false)]
         [TestCase(2019, 06, 31, false)]
+        [TestCase(22, 1, 1, false)]
         public void IsValid_WithSpecifiedYearMonthDay_ShouldSetIsValidCorrectly(int year, int month, int day, bool expectedIsValid)
         {
             // arrange
