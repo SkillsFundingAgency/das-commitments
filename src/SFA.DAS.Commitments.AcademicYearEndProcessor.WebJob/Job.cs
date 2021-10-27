@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob
         {
             if (_currentDateTime.Now < _academicYearProvider.LastAcademicYearFundingPeriod)
             {
-                _logger.Info($"The {nameof(AcademicYearEndExpiryProcessor)} job cannot run before last academic year funding period. ({_academicYearProvider.LastAcademicYearFundingPeriod}) , JobId: {_jobId}");
+                _logger.Info($"The {nameof(AcademicYearEndExpiryProcessor)} job cannot run before last academic year funding period. ({_academicYearProvider.LastAcademicYearFundingPeriod}) - current date time {_currentDateTime.Now} , JobId: {_jobId}");
                 return;
             }
 
