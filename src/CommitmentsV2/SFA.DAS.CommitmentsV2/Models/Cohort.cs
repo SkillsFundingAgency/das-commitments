@@ -155,7 +155,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
             {                  
-                TransferSenderId = apprenticeship.Cohort.TransferSenderId;               
+                TransferSenderId = apprenticeship.Cohort.TransferSenderId;
+                PledgeApplicationId = apprenticeship.Cohort.PledgeApplicationId;
             }
 
             var draftApprenticeship = apprenticeship.CreateCopyForChangeOfParty(changeOfPartyRequest, reservationId);
