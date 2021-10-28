@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 "SenderRejectedCommitmentProviderNotification",
                 new Dictionary<string, string>
                 {
-                    {"cohort_reference", cohortReference},                    
+                    {"cohort_reference", cohortReference},
                     {"RequestUrl", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{cohortSummary.ProviderId.Value}/unapproved/{cohortReference}/details" }
                 },
                 cohortSummary.LastUpdatedByProviderEmail);
