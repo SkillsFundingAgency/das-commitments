@@ -221,7 +221,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
         public static IQueryable<Apprenticeship> FilterApprenticeshipByAlert(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
         {
-            // Doing this becuase we can't use extension method for LINQ to SQL query
+            // Doing this because we can't use extension method for LINQ to SQL query
             switch (alert)
             {
                 case Alerts.IlrDataMismatch:
@@ -249,14 +249,14 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
                                            || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)) &&
                                           x.TriageStatus == TriageStatus.Unknown &&
-                                          !x.IsResolved)
+                                          !x.IsResolved && !x.IsExpired)
                                   ) ||
                                   (
                                       //Has Only PriceDataLock
                                       a.DataLockStatus.Any(x =>
                                           ((int)x.ErrorCode == (int)DataLockErrorCode.Dlock07) &&
                                           x.TriageStatus == TriageStatus.Unknown &&
-                                          !x.IsResolved)
+                                          !x.IsResolved && !x.IsExpired)
                                   )
                               );
         }
@@ -276,7 +276,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                 || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
                             ) &&
                             x.TriageStatus == TriageStatus.Change &&
-                            !x.IsResolved)
+                            !x.IsResolved && !x.IsExpired)
                     )
                     ||
                     (
@@ -286,7 +286,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                 (int)x.ErrorCode == (int)DataLockErrorCode.Dlock07
                             ) &&
                             x.TriageStatus == TriageStatus.Change &&
-                            !x.IsResolved)
+                            !x.IsResolved && !x.IsExpired)
                     )
                     ||
                     (
@@ -310,7 +310,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                     || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
                                 ) &&
                                 x.TriageStatus == TriageStatus.Change &&
-                                !x.IsResolved)
+                                !x.IsResolved && !x.IsExpired)
                         )
                         ||
                         (
@@ -320,7 +320,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                     (int)x.ErrorCode == (int)DataLockErrorCode.Dlock07
                                 ) &&
                                 x.TriageStatus == TriageStatus.Change &&
-                                !x.IsResolved)
+                                !x.IsResolved && !x.IsExpired)
                         )
                         ||
                         (
@@ -345,7 +345,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                         || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
                         || x.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
 
-                    ) && x.TriageStatus == TriageStatus.Restart && !x.IsResolved)
+                    ) && x.TriageStatus == TriageStatus.Restart && !x.IsResolved && !x.IsExpired)
                 ));
             }
             else
@@ -356,7 +356,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     a.DataLockStatus.Any(x =>
                         x.Status == Status.Fail &&
                         (x.TriageStatus != TriageStatus.Unknown && x.TriageStatus != TriageStatus.Change) &&
-                        !x.IsResolved)
+                        !x.IsResolved && !x.IsExpired)
                 ));
             }
         }
