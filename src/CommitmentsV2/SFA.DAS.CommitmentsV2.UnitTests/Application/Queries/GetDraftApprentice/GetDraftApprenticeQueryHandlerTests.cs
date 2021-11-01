@@ -115,6 +115,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 autoFixture.Create<long>(),
                 autoFixture.Create<long>(),
                 null,
+                null,
                 draftApprenticeshipDetails,
                 creatingParty,
                 new UserInfo());

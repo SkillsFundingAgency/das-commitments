@@ -26,7 +26,8 @@
 	[LastUpdatedOn] DATETIME2 DEFAULT GETDATE() NOT NULL,
 	[Approvals] SMALLINT NOT NULL DEFAULT 0,
 	[EmployerAndProviderApprovedOn] DATETIME2 NULL,
-	[ChangeOfPartyRequestId] BIGINT NULL
+	[ChangeOfPartyRequestId] BIGINT NULL,
+	[PledgeApplicationId] INT NULL
 )
 GO
 

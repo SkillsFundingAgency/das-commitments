@@ -64,6 +64,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             _fixture.VerifyCohortHasNoTransferInformation();
         }
 
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void TheCohortHasCorrectPledgeApplicationInformation(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortHasPledgeApplicationId();
+        }
+
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public void TheCohortBelongsToTheGivenAccountLegalEntity(Party creatingParty)

@@ -20,6 +20,7 @@ using System.Linq;
 using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Infrastructure;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -37,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IEncodingService _encodingService;
         private readonly IAccountApiClient _accountApiClient;        
         private readonly IEmailOptionalService _emailService;
+        private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -49,7 +51,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             IEmployerAgreementService employerAgreementService,
             IEncodingService encodingService,
             IAccountApiClient accountApiClient,            
-            IEmailOptionalService emailOptionalService)
+            IEmailOptionalService emailOptionalService,
+            ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -63,6 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _encodingService = encodingService;
             _accountApiClient = accountApiClient;
             _emailService = emailOptionalService;
+            _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
         }
 
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -110,21 +114,21 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
             var db = _dbContext.Value;
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
-            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
+            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, pledgeApplicationId, db, cancellationToken) : null;
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, null, cancellationToken);
 
-            return originator.CreateCohort(providerId, accountLegalEntity, transferSender, draftApprenticeshipDetails, userInfo);
+            return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo);
         }
 
-        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
 
@@ -137,8 +141,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
-            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
-            return accountLegalEntity.CreateCohortWithOtherParty(provider.UkPrn, accountLegalEntity, transferSender, message, userInfo);
+            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, pledgeApplicationId, db, cancellationToken) : null;
+            return accountLegalEntity.CreateCohortWithOtherParty(provider.UkPrn, accountLegalEntity, transferSender, pledgeApplicationId, message, userInfo);
         }
 
         public async Task<Cohort> CreateEmptyCohort(long providerId, long accountId, long accountLegalEntityId, UserInfo userInfo, CancellationToken cancellationToken)
@@ -248,10 +252,44 @@ namespace SFA.DAS.CommitmentsV2.Services
             return account;
         }
 
-        private async Task<Account> GetTransferSender(long employerAccountId, long transferSenderId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private async Task<Account> GetTransferSender(long employerAccountId, long transferSenderId, int? pledgeApplicationId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
-            await ValidateTransferSenderIdIsAFundingConnection(employerAccountId, transferSenderId);
+            if (pledgeApplicationId.HasValue)
+            {
+                await ValidatePledgeApplicationId(employerAccountId, transferSenderId, pledgeApplicationId.Value);
+            }
+            else
+            {
+                await ValidateTransferSenderIdIsAFundingConnection(employerAccountId, transferSenderId);
+            }
+            
             return await GetAccount(transferSenderId, db, cancellationToken);
+        }
+
+
+        private async Task ValidatePledgeApplicationId(long accountId, long transferSenderId, int pledgeApplicationId)
+        {
+            var pledgeApplication = await _levyTransferMatchingApiClient.GetPledgeApplication(pledgeApplicationId);
+
+            if (pledgeApplication == null)
+            {
+                throw new BadRequestException($"PledgeApplication {pledgeApplicationId} was not found");
+            }
+
+            if (pledgeApplication.ReceiverEmployerAccountId != accountId)
+            {
+                throw new BadRequestException($"PledgeApplication {pledgeApplicationId} does not belong to {accountId}");
+            }
+
+            if (pledgeApplication.SenderEmployerAccountId != transferSenderId)
+            {
+                throw new BadRequestException($"PledgeApplication {pledgeApplicationId} creator {pledgeApplication.SenderEmployerAccountId} does not match supplied Transfer Sender {transferSenderId}");
+            }
+
+            if (pledgeApplication.Status != PledgeApplication.ApplicationStatus.Accepted)
+            {
+                throw new BadRequestException($"PledgeApplication {pledgeApplicationId} has a status of {pledgeApplication.Status}, which is invalid for use");
+            }
         }
 
         private async Task ValidateTransferSenderIdIsAFundingConnection(long accountId, long transferSenderId)

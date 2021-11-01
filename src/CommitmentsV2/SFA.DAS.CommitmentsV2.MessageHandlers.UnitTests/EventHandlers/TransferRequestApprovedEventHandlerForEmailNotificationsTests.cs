@@ -83,7 +83,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     _event = new TransferRequestApprovedEvent(_autoFixture.Create<long>(),
                         _autoFixture.Create<long>(),
                         _autoFixture.Create<DateTime>(),
-                        _autoFixture.Create<UserInfo>()
+                        _autoFixture.Create<UserInfo>(),
+                        _autoFixture.Create<int>(),
+                        _autoFixture.Create<decimal>(),
+                        _autoFixture.Create<int?>()
                         );
                 }
 

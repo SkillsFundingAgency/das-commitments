@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public bool IsFundedByTransfer => TransferSenderId != null;
         public long? TransferSenderId { get; set; }
         public string TransferSenderName { get; set; }
-
+        public int? PledgeApplicationId { get; set; }
         public Party WithParty { get; set; }
         public string LatestMessageCreatedByEmployer { get; set; }
         public string LatestMessageCreatedByProvider { get; set; }
