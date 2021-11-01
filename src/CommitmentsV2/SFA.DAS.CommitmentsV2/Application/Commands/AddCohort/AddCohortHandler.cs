@@ -46,6 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 command.AccountId,
                 command.AccountLegalEntityId,
                 command.TransferSenderId,
+                command.PledgeApplicationId,
                 draftApprenticeshipDetails,
                 command.UserInfo,
                 cancellationToken);

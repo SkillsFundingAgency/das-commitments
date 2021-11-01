@@ -71,6 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Api
             services.AddDasHealthChecks(Configuration);
             services.AddMemoryCache();
             services.AddNServiceBus();
+            services.AddApiClients(Configuration);
         }
 
         public void ConfigureContainer(Registry registry)

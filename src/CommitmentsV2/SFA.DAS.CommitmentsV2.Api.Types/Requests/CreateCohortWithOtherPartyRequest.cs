@@ -7,5 +7,6 @@
         public long ProviderId { get; set; }
         public string Message { get; set; }
         public long? TransferSenderId { get; set; }
+        public int? PledgeApplicationId { get; set; }
     }
 }
