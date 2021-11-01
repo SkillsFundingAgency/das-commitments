@@ -195,8 +195,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string LastUpdatedByProviderEmail { get; set; }
         public long? TransferSenderId { get; set; }
         public TransferApprovalStatus? TransferApprovalStatus { get; set; }
-        public string TransferApprovalActionedByEmployerName { get; set; }
-        public string TransferApprovalActionedByEmployerEmail { get; set; }
         public DateTime? TransferApprovalActionedOn { get; set; }
         public Originator Originator { get; set; }
         public bool IsDeleted { get; set; }

@@ -32,7 +32,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
                 TransferSenderName = "Transfer Sender Org",
                 TransferApprovalStatus = transferStatus,
                 TransferApprovalActionedOn = new DateTime(2018, 09, 09),
-                TransferApprovalActionedByEmployerName = "Name",
                 ProviderCanApproveCommitment = canProviderApprove,
                 EmployerCanApproveCommitment = canEmployerApprove,
             };
@@ -43,7 +42,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             Assert.AreEqual("Transfer Sender Org", result.TransferSender.Name);
             Assert.AreEqual(transferStatus, (TransferApprovalStatus)result.TransferSender.TransferApprovalStatus);
             Assert.AreEqual(new DateTime(2018, 09, 09), result.TransferSender.TransferApprovalSetOn);
-            Assert.AreEqual("Name", result.TransferSender.TransferApprovalSetBy);
             Assert.AreEqual(true, result.CanBeApproved);
         }
     }

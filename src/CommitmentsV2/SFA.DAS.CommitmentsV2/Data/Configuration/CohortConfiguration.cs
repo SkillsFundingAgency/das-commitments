@@ -36,8 +36,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasForeignKey(c => c.AccountLegalEntityId)
                 .HasPrincipalKey(c => c.Id);
 
-            builder.Property(e => e.TransferApprovalActionedByEmployerEmail).HasMaxLength(255);
-            builder.Property(e => e.TransferApprovalActionedByEmployerName).HasMaxLength(255);
             builder.Property(e => e.Originator).IsRequired().HasColumnType("tinyint");
             builder.Ignore(e => e.DraftApprenticeships);
 

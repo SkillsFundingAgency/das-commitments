@@ -39,8 +39,7 @@ SELECT
 	ale.[OrganisationType] as 'LegalEntityOrganisationType',
 	c.TransferSenderId,
 	ts.[Name] as 'TransferSenderName',
-	c.TransferApprovalStatus, c.TransferApprovalActionedByEmployerEmail,
-	c.TransferApprovalActionedByEmployerName, c.TransferApprovalActionedOn, ale.PublicHashedId as 'AccountLegalEntityPublicHashedId', c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
+	c.TransferApprovalStatus, c.TransferApprovalActionedOn, ale.PublicHashedId as 'AccountLegalEntityPublicHashedId', c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
 	c.IsFullApprovalProcessed, c.IsDeleted, c.AccountLegalEntityId, c.IsDraft, c.WithParty, c.RowVersion, c.LastUpdatedOn, c.Approvals, c.EmployerAndProviderApprovedOn,
 	c.ChangeOfPartyRequestId,
 	COUNT(a.Id) AS ApprenticeshipCount,
@@ -76,7 +75,6 @@ GROUP BY
 	ale.[OrganisationType],
 	c.TransferSenderId,
 	ts.[Name],
-	c.TransferApprovalStatus, c.TransferApprovalActionedByEmployerEmail,
-	c.TransferApprovalActionedByEmployerName, c.TransferApprovalActionedOn, ale.PublicHashedId, c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
+	c.TransferApprovalStatus, c.TransferApprovalActionedOn, ale.PublicHashedId, c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
 	c.IsFullApprovalProcessed, c.IsDeleted, c.AccountLegalEntityId, c.IsDraft, c.WithParty, c.RowVersion, c.LastUpdatedOn, c.Approvals, c.EmployerAndProviderApprovedOn,
 	c.ChangeOfPartyRequestId

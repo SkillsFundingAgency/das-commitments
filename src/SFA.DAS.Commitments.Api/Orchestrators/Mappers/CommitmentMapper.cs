@@ -121,7 +121,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 Id = commitment.TransferSenderId,
                 Name = commitment.TransferSenderName,
                 TransferApprovalStatus = (Types.TransferApprovalStatus?)commitment.TransferApprovalStatus,
-                TransferApprovalSetBy = commitment.TransferApprovalActionedByEmployerName,
                 TransferApprovalSetOn = commitment.TransferApprovalActionedOn
             };
         }
