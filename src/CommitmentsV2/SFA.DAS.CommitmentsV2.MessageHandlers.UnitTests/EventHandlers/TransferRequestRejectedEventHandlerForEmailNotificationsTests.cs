@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         c.Tokens["cohort_reference"] == _cohortReference &&
                         c.Tokens["employer_name"] == _cohortSummary.LegalEntityName &&
                         c.Tokens["sender_name"] == _cohortSummary.TransferSenderName &&
-                        c.Tokens["RequestUrl"] == $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{_employerEncodedAccountId}/unapproved/{_cohortReference}"
+                        c.Tokens["RequestUrl"] == $"{commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{_employerEncodedAccountId}/unapproved/{_cohortReference}"
                     ), It.IsAny<SendOptions>()));
                 }
 

@@ -22,5 +22,6 @@ namespace SFA.DAS.CommitmentsV2.Configuration
         public string ReadOnlyDatabaseConnectionString { get; set; }
 
         public string ProviderCommitmentsBaseUrl { get; set; }
+        public string EmployerCommitmentsBaseUrl { get; set; }
     }
 }

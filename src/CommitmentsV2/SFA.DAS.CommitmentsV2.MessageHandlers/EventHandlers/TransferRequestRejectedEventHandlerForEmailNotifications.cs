@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     {"employer_name", cohortSummary.LegalEntityName},
                     {"cohort_reference", cohortReference},
                     {"sender_name", cohortSummary.TransferSenderName},
-                    {"RequestUrl", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{employerEncodedAccountId}/unapproved/{cohortReference}" }
+                    {"RequestUrl", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{employerEncodedAccountId}/unapproved/{cohortReference}" }
                 },
                 cohortSummary.LastUpdatedByEmployerEmail);
 
