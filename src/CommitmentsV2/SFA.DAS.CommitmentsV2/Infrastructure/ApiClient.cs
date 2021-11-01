@@ -22,13 +22,12 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
             _logger = logger;
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri(_config.BaseUrl);
-            
+
+            AddHeaders();
         }
-        
+
         public async Task<TResponse> Get<TResponse>(IGetApiRequest request) 
         {
-            
-            AddHeaders();
 
             _logger.LogInformation("Calling Outer API base {0}, url {1}", _config.BaseUrl, request.GetUrl);
             var response = await _httpClient.GetAsync(request.GetUrl).ConfigureAwait(false);

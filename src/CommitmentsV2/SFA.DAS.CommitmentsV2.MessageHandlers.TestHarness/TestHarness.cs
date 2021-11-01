@@ -53,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("O - CohortDeletedEvent");
                 Console.WriteLine("P - ApproveTransferRequestCommand");
                 Console.WriteLine("Q - RejectTransferRequestCommand");
+                Console.WriteLine("R - ApprenticeshipEmailAddressConfirmedEvent Event");
                 Console.WriteLine("S - LevyAddedToAccount");
                 Console.WriteLine("T - CohortWithChangeOfPartyCreatedEvent Event");
                 Console.WriteLine("U - ApprenticeshipPausedEvent Event");
@@ -154,6 +155,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(RejectTransferRequestCommand)}");
                             break;
+
+                        case ConsoleKey.R:
+                            await _publisher.Publish(new ApprenticeshipEmailAddressConfirmedEvent()
+                            {
+                                ApprenticeId = Guid.NewGuid(),
+                                CommitmentsApprenticeshipId = 40002,
+                            });
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(ApprenticeshipConfirmationCommencedEvent)}");
+                            break;
+
                         case ConsoleKey.S:
                             await _publisher.Publish(new LevyAddedToAccount { AccountId = accountId, Amount = 10, Created = DateTime.UtcNow });
                             Console.WriteLine();
