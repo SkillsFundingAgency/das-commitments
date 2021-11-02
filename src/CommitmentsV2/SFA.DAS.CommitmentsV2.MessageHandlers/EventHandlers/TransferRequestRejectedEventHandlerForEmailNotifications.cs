@@ -32,13 +32,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var cohortReference = _encodingService.Encode(cohortSummary.CohortId, EncodingType.CohortReference);
 
+            var employerEncodedAccountId = _encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId);
+
             var sendEmailToEmployerCommand = new SendEmailToEmployerCommand(cohortSummary.AccountId,
                 "SenderRejectedCommitmentEmployerNotification", new Dictionary<string, string>
                 {
                     {"employer_name", cohortSummary.LegalEntityName},
                     {"cohort_reference", cohortReference},
                     {"sender_name", cohortSummary.TransferSenderName},
-                    {"employer_hashed_account", _encodingService.Encode(cohortSummary.AccountId, EncodingType.AccountId)},
+                    {"RequestUrl", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}{employerEncodedAccountId}/unapproved/{cohortReference}" }
                 },
                 cohortSummary.LastUpdatedByEmployerEmail);
 
