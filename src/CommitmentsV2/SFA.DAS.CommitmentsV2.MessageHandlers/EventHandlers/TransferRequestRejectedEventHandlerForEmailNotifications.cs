@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 new Dictionary<string, string>
                 {
                     {"cohort_reference", cohortReference},
-                    {"ukprn", cohortSummary.ProviderId.Value.ToString()},
+                    {"RequestUrl", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{cohortSummary.ProviderId.Value}/unapproved/{cohortReference}/details" }
                 },
                 cohortSummary.LastUpdatedByProviderEmail);
 

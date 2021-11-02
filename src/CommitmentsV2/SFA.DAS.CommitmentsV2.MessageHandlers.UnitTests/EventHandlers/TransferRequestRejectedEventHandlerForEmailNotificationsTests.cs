@@ -89,6 +89,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     };
 
                     _handler = new TransferRequestRejectedEventHandlerForEmailNotifications(_mediator.Object, _encodingService.Object, commitmentsV2Configuration);
+                    commitmentsV2Configuration = new CommitmentsV2Configuration()
+                    {
+                        ProviderCommitmentsBaseUrl = "https://approvals.environmentname-pas.apprenticeships.education.gov.uk/"
+                    };
+
+                     _handler = new TransferRequestRejectedEventHandlerForEmailNotifications(_mediator.Object, _encodingService.Object, commitmentsV2Configuration);
 
                     _event = new TransferRequestRejectedEvent(_autoFixture.Create<long>(),
                         _autoFixture.Create<long>(),
@@ -120,7 +126,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         c.EmailAddress == _cohortSummary.LastUpdatedByProviderEmail &&
                         c.Template == "SenderRejectedCommitmentProviderNotification" &&
                         c.Tokens["cohort_reference"] == _cohortReference &&
-                        c.Tokens["ukprn"] == _providerId.ToString()
+                        c.Tokens["RequestUrl"] == $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{_providerId}/unapproved/{_cohortReference}/details"
                     ), It.IsAny<SendOptions>()));
                 }
             }
