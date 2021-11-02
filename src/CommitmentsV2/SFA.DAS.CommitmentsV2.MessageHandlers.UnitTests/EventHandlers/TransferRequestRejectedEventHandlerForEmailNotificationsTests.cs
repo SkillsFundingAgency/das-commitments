@@ -81,17 +81,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     _cohortSummary.ProviderId = _providerId;
                     _mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(),
                             It.IsAny<CancellationToken>()))
-                        .ReturnsAsync(_cohortSummary);
-                    
+                        .ReturnsAsync(_cohortSummary);                    
+                  
                     commitmentsV2Configuration = new CommitmentsV2Configuration()
                     {
-                        ProviderCommitmentsBaseUrl = "https://approvals.environmentname-pas.apprenticeships.education.gov.uk/"
-                    };
-
-                    _handler = new TransferRequestRejectedEventHandlerForEmailNotifications(_mediator.Object, _encodingService.Object, commitmentsV2Configuration);
-                    commitmentsV2Configuration = new CommitmentsV2Configuration()
-                    {
-                        ProviderCommitmentsBaseUrl = "https://approvals.environmentname-pas.apprenticeships.education.gov.uk/"
+                        ProviderCommitmentsBaseUrl = "https://approvals.environmentname-pas.apprenticeships.education.gov.uk/",
+                        EmployerCommitmentsBaseUrl = "https://approvals.environmentname-eas.apprenticeships.education.gov.uk/"
                     };
 
                      _handler = new TransferRequestRejectedEventHandlerForEmailNotifications(_mediator.Object, _encodingService.Object, commitmentsV2Configuration);
