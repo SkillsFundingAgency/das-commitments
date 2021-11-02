@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         Cohort CreateCohort(long providerId,
             AccountLegalEntity accountLegalEntity,
             Account transferSender,
+            int? pledgeApplicationId,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             UserInfo userInfo);
 

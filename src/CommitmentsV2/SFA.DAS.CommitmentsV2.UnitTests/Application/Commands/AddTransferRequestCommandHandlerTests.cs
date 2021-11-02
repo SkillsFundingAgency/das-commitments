@@ -111,6 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Fixture.Create<long>(),
                 Fixture.Create<long>(),
                 null,
+                null,
                 Party.Employer,
                 "",
                 new UserInfo());
