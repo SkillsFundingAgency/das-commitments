@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.Encoding;
@@ -14,12 +15,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     {
         private readonly IMediator _mediator;
         private readonly IEncodingService _encodingService;
+        private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
 
         public TransferRequestRejectedEventHandlerForEmailNotifications(IMediator mediator,
-            IEncodingService encodingService)
+            IEncodingService encodingService,
+            CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _mediator = mediator;
             _encodingService = encodingService;
+            _commitmentsV2Configuration = commitmentsV2Configuration;
         }
 
         public async Task Handle(TransferRequestRejectedEvent message, IMessageHandlerContext context)
@@ -43,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 new Dictionary<string, string>
                 {
                     {"cohort_reference", cohortReference},
-                    {"ukprn", cohortSummary.ProviderId.Value.ToString()},
+                    {"RequestUrl", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{cohortSummary.ProviderId.Value}/unapproved/{cohortReference}/details" }
                 },
                 cohortSummary.LastUpdatedByProviderEmail);
 
