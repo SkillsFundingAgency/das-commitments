@@ -78,15 +78,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             return name != Name;
         }
 
-        public virtual Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender,
+        public virtual Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender, int? pledgeApplicationId,
             DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo)
         {
-            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, draftApprenticeshipDetails, Party.Employer,userInfo);
+            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Employer,userInfo);
        }
 
-        public virtual Cohort CreateCohortWithOtherParty(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender, string message, UserInfo userInfo)
+        public virtual Cohort CreateCohortWithOtherParty(long providerId, AccountLegalEntity accountLegalEntity, Account transferSender, int? pledgeApplicationId, string message, UserInfo userInfo)
         {
-            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, Party.Employer, message, userInfo);
+            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, Party.Employer, message, userInfo);
         }
 
         public Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, UserInfo userInfo)

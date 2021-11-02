@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
         public UserInfo UserInfo { get; }
         public long? TransferSenderId { get; }
         public string TransferSenderName { get; }
-
+        public int? PledgeApplicationId { get; }
 
         public CohortCreationWithOtherPartyTestFixture()
         {
@@ -50,6 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
             TransferSenderId = _autoFixture.Create<long>();
             TransferSenderName = _autoFixture.Create<string>();
             TransferSender = new Account(TransferSenderId.Value, "XXX", "ZZZ", TransferSenderName, new DateTime());
+            PledgeApplicationId = _autoFixture.Create<int?>();
         }
 
         public CohortCreationWithOtherPartyTestFixture WithCreatingParty(Party creatingParty)
@@ -80,6 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
                     AccountLegalEntity.AccountId,
                     AccountLegalEntity.Id,
                     TransferSender?.Id,
+                    PledgeApplicationId,
                     CreatingParty,
                     Message,
                     UserInfo);

@@ -13,5 +13,6 @@
         public static string PasAccountApiClient => PAS.Account.Api.ClientV2.Configuration.ConfigurationKeys.PasAccountApiClient;
         public static string ApprovalsOuterApiConfiguration => $"{CommitmentsV2}:ApprovalsOuterApiConfiguration";
         public static string EmailOptionalConfiguration => $"{CommitmentsV2}:EmailOptionalConfiguration";
+        public static string LevyTransferMatchingApiConfiguration => $"{CommitmentsV2}:LevyTransferMatchingInnerApiConfiguration";
     }
 }
