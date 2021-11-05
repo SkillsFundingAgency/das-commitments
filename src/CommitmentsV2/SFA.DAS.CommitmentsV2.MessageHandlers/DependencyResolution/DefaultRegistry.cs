@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Configuration;
+﻿using SFA.DAS.AutoConfiguration;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;

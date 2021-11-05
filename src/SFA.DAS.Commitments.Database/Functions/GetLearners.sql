@@ -26,7 +26,8 @@ RETURN
 		,ProviderId [UKPRN]
 		,ProviderRef LearnRefNumber
 		,[PaymentStatus]
-		,TotalCount = COUNT(1) OVER()
+		,COUNT(1) OVER() TotalCount
+		,ROW_NUMBER() OVER (ORDER BY [LastUpdated], ap1.Id ) Seq        
 
 	FROM [dbo].[Apprenticeship] ap1
 		JOIN [dbo].[Commitment] cm1 ON cm1.Id = ap1.CommitmentId

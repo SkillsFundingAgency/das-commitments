@@ -91,9 +91,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
-        public async Task ThenEmailAddressCannotBeChangedWhenConfirmationStatusExists(Party party)
+        public async Task ThenEmailAddressCannotBeChangedWhenEmailAddressConfirmedByApprentice(Party party)
         {
-            fixture.SetParty(party).SetApprenticeshipConfirmationStatus();
+            fixture.SetParty(party).SetEmailAddressConfirmedByApprentice();
             fixture.Command.EditApprenticeshipRequest.Email = "New@mail.com";
 
             try
@@ -141,6 +141,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
          
+            await fixture.Handle();
+            fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.EndDate.Value,
+                app => app.ApprenticeshipUpdate.First().EndDate.Value);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task AndEmailAddressConfirmedThenEndDateIsChanged(Party party)
+        {
+            fixture.SetParty(party).SetEmailAddressConfirmedByApprentice();
+            fixture.Command.EditApprenticeshipRequest.EndDate = DateTime.UtcNow;
+
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.EndDate.Value,
                 app => app.ApprenticeshipUpdate.First().EndDate.Value);
@@ -333,6 +345,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.Continuation)
              .Without(s => s.PreviousApprenticeship)
              .Without(s => s.CompletionDate)
+             .Without(s => s.EmailAddressConfirmed)
              .Without(s => s.ApprenticeshipConfirmationStatus)
              .Create();
 
@@ -390,6 +403,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Without(x=>x.Apprenticeship)
                 .With(x => x.ApprenticeshipId, ApprenticeshipId).Create();
             Db.ApprenticeshipConfirmationStatus.Add(confirmationStatus);
+            Db.SaveChanges();
+            return this;
+        }
+
+        public EditApprenticeshipCommandHandlerTestsFixture SetEmailAddressConfirmedByApprentice()
+        {
+            var first = Db.Apprenticeships.First();
+            first.EmailAddressConfirmed = true;
             Db.SaveChanges();
             return this;
         }

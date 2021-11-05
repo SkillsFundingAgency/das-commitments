@@ -20,8 +20,9 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly long _providerId;
         private readonly Party _party;
         private readonly UserInfo _userInfo;
+        private readonly long? _apprenticeshipId;
 
-        public ChangeTrackingSession(IStateService stateService, UserAction userAction, Party party, long employerAccountId, long providerId, UserInfo userInfo)
+        public ChangeTrackingSession(IStateService stateService, UserAction userAction, Party party, long employerAccountId, long providerId, UserInfo userInfo, long? apprenticeshipId = default(long?))
         {
             _stateService = stateService;
             _userAction = userAction;
@@ -31,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _userInfo = userInfo;
             _correlationId = Guid.NewGuid();
             _trackedItems = new List<TrackedItem>();
+            _apprenticeshipId = apprenticeshipId;
         }
 
         public IReadOnlyList<TrackedItem> TrackedItems => _trackedItems.AsReadOnly();
@@ -73,7 +75,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                         UpdatedOn = DateTime.UtcNow,
                         UpdatingParty = _party,
                         UpdatingUserId = _userInfo?.UserId ?? "Unknown",
-                        UpdatingUserName = _userInfo?.UserDisplayName ?? "Unknown"
+                        UpdatingUserName = _userInfo?.UserDisplayName ?? "Unknown",
+                        ApprenticeshipId = _apprenticeshipId
                     };
 
                     return result;

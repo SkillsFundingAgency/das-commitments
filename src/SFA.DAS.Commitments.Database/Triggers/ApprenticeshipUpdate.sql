@@ -5,7 +5,10 @@ AS
 BEGIN
     UPDATE Apprenticeship
     SET UpdatedOn = GETUTCDATE()  
-    FROM Inserted i
+    FROM (
+       SELECT * FROM Inserted
+       EXCEPT
+       SELECT * FROM Deleted) i
     WHERE i.Id = Apprenticeship.Id
 END
 GO

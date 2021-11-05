@@ -21,11 +21,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public DateTime? DateOfBirth { get; }
         public string Uln { get; }
         public long? TransferSenderId { get; }
+        public int? PledgeApplicationId { get; }
         public UserInfo UserInfo { get; }
 
         public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode, int? cost, DateTime? startDate, DateTime? endDate, 
             string originatorReference, Guid? reservationId, string firstName, 
-            string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId, UserInfo userInfo)
+            string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId, int? pledgeApplicationId, UserInfo userInfo)
         {
             AccountId = accountId;
             AccountLegalEntityId = accountLegalEntityId;
@@ -42,6 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             DateOfBirth = dateOfBirth;
             Uln = uln;
             TransferSenderId = transferSenderId;
+            PledgeApplicationId = pledgeApplicationId;
+            
             UserInfo = userInfo ?? throw new ArgumentNullException(nameof(userInfo));
         }
     }
