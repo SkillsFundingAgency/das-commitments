@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
@@ -28,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.NServiceBus
                 .AddSingleton(p =>
                 {
                     var container = p.GetService<IContainer>();
-                    var hostingEnvironment = p.GetService<IHostingEnvironment>();
+                    var hostingEnvironment = p.GetService<IWebHostEnvironment>();
                     var configuration = p.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
                     var isDevelopment = hostingEnvironment.IsDevelopment();
 

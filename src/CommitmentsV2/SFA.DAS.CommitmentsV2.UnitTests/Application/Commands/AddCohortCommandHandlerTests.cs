@@ -82,7 +82,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                                                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                                                     .Options);
 
             EncodingServiceMock = new Mock<IEncodingService>();
