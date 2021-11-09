@@ -148,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
 
         private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate, DateTime? newApprovedOnDate = null, long? continuationOfId = null, bool? emailAddressConfirmed = null)
         {
-            var approvedOnDate = newApprovedOnDate ?? new DateTime(2021,9,10);
+            var approvedOnDate = newApprovedOnDate ?? new DateTime(2021, 9, 10);
 
             var cort = new Cohort()
               .Set(x => x.Id, 123)
@@ -158,10 +158,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
               .Set(x => x.EmployerAndProviderApprovedOn, approvedOnDate)
               .Set(x => x.Provider, new Provider());
 
+            var epao = new AssessmentOrganisation { EpaOrgId = "991" };
             var continuationApp = _fixture.Build<Apprenticeship>()
                 .With(x => x.Id, continuationOfId)
                 .With(x => x.Cohort, cort)
-                .With(x => x.EpaOrg, new AssessmentOrganisation() { EpaOrgId = "991" })
+                .With(x => x.EpaOrg, epao)
                 .With(x => x.EpaOrgId, "991")
                 .With(x => x.Email, email)
                 .Without(x => x.Continuation)
@@ -178,12 +179,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .With(x => x.Id, _apprenticeshipID)
                 .With(x => x.Cohort, cort)
                 .With(x => x.CommitmentId, cort.Id)
-                .With(x => x.EpaOrg, new AssessmentOrganisation() { EpaOrgId = "991" })
+                .With(x => x.EpaOrg, epao)
                 .With(x => x.EpaOrgId, "991")
                 .With(x => x.Email, email)
                 .With(x => x.EmailAddressConfirmed, emailAddressConfirmed)
-                .With(x=>x.ContinuationOfId, continuationOfId)
-                .With(x=>x.Continuation, continuationOfId == null ? null : continuationApp)
+                .With(x => x.ContinuationOfId, continuationOfId)
+                .With(x => x.Continuation, continuationOfId == null ? null : continuationApp)
                 .Without(x => x.PaymentStatus)
                 .Without(x => x.ApprenticeshipUpdate)
                 .Without(x => x.PriceHistory)

@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Servic
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.UnitTests.DatabaseMock;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships.SearchTests
