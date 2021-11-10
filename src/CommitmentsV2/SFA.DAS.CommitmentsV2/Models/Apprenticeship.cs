@@ -586,9 +586,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (EmailAddressConfirmed == true)
                 return;
 
+            ChangeEmailAddress(email);
+
+            EmailAddressConfirmed = true;
+        }
+
+        public void ChangeEmailAddress(string email)
+        {
             if (!Email.Equals(email, StringComparison.InvariantCultureIgnoreCase))
                 Email = email;
-            EmailAddressConfirmed = true;
         }
 
         private PriceEpisode[] GetPriceEpisodes()
