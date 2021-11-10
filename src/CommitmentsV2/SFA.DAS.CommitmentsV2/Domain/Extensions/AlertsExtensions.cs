@@ -56,7 +56,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
                 x.TriageStatus == TriageStatus.Unknown &&
-                !x.IsResolved);
+                !x.IsResolved &&
+                !x.IsExpired);
         }
 
         private static bool HasPriceDataLock(Apprenticeship source)
@@ -64,7 +65,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return source.IsProviderSearch && source.DataLockStatus.Any(x =>
                 x.IsPriceOnly() &&
                 x.TriageStatus == TriageStatus.Unknown &&
-                !x.IsResolved);
+                !x.IsResolved &&
+                !x.IsExpired);
         }
 
         private static bool HasCourseDataLockPendingChanges(Apprenticeship source)
@@ -72,7 +74,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
                 x.TriageStatus == TriageStatus.Change &&
-                !x.IsResolved);
+                !x.IsResolved &&
+                !x.IsExpired);
         }
 
         private static bool HasPriceDataLockPendingChanges(Apprenticeship source)
@@ -80,7 +83,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return source.DataLockStatus.Any(x =>
                 x.IsPriceOnly() &&
                 x.TriageStatus == TriageStatus.Change &&
-                !x.IsResolved);
+                !x.IsResolved &&
+                !x.IsExpired);
         }
 
         private static bool HasCourseDataLockChangesRequested(Apprenticeship source)
@@ -88,7 +92,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return source.DataLockStatus.Any(x =>
                 x.WithCourseError() &&
                 x.TriageStatus == TriageStatus.Restart &&
-                !x.IsResolved);
+                !x.IsResolved &&
+                !x.IsExpired);
         }
 
 
@@ -97,7 +102,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return !source.IsProviderSearch && source.DataLockStatus.Any(x =>
                 x.Status == Status.Fail &&
                 (x.TriageStatus != TriageStatus.Unknown && x.TriageStatus != TriageStatus.Change) &&
-                !x.IsResolved);
+                !x.IsResolved &&
+                !x.IsExpired);
         }
     }
 }
