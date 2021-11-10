@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.DatabaseMock
+namespace SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock
 {
     public class TestExpressionVisitor : ExpressionVisitor
     {

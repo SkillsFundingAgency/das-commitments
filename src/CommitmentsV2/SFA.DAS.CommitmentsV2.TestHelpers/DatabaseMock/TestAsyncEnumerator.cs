@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.DatabaseMock
+namespace SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock
 {
     public class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
     {

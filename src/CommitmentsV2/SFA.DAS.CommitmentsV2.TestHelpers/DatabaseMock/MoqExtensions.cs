@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Moq;
-using Moq.Language.Flow;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using Moq.Language.Flow;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.DatabaseMock
+namespace SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock
 {
 	public static class MoqExtensions
     {

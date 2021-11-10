@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.DatabaseMock
+namespace SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock
 {
     public class TestAsyncEnumerableEfCore<T>: TestQueryProvider<T>, IAsyncEnumerable<T>, IAsyncQueryProvider
     {

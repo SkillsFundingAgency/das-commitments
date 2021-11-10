@@ -25,9 +25,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 f => f.Logger.Verify(l => l.Log(
                     LogLevel.Information,
                     It.IsAny<EventId>(),
-                    It.IsAny<object>(),
+                    It.IsAny<It.IsAnyType>(),
                     It.IsAny<Exception>(),
-                    It.IsAny<Func<object, Exception, string>>())));
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>())));
         }
         
         [Test]

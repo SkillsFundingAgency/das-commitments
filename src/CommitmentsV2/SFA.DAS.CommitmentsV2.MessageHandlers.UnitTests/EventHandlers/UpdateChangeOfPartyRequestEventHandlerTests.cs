@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -85,9 +86,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 
                 _mockDbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
 
-                _mockDbContext.Object.Cohorts.Add(_cohort);
-                _mockDbContext.Object.ChangeOfPartyRequests.Add(_changeOfPartyRequest.Object);
-                _mockDbContext.Object.SaveChanges();
+                _mockDbContext
+                    .Setup(context => context.Cohorts)
+                    .ReturnsDbSet(new List<Cohort> { _cohort });
+
+                _mockDbContext
+                    .Setup(context => context.ChangeOfPartyRequests)
+                    .ReturnsDbSet(new List<ChangeOfPartyRequest> { _changeOfPartyRequest.Object });
+
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 

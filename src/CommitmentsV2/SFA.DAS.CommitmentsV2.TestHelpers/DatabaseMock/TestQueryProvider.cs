@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.DatabaseMock
+namespace SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock
 {
     public abstract class TestQueryProvider<T> : IOrderedQueryable<T>, IQueryProvider
     {

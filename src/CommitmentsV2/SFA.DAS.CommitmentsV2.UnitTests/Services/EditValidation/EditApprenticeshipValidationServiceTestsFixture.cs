@@ -14,8 +14,8 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.UnitTests.DatabaseMock;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Types.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
