@@ -340,5 +340,51 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             //Assert
             result.Alerts.Should().BeNullOrEmpty();
         }
+
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_ErrorCode_DLock07_And_TriageStatus_Unknown_And_DataLock_HasExpired_Then_No_Alert(
+            Apprenticeship source,
+            DataLockStatus dataLockStatus,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.IsProviderSearch = true;
+            dataLockStatus.ErrorCode = DataLockErrorCode.Dlock07;
+            dataLockStatus.TriageStatus = TriageStatus.Unknown;
+            dataLockStatus.IsResolved = false;
+            dataLockStatus.IsExpired = true;
+
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeNullOrEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_ErrorCode_DLock03_And_TriageStatus_Change_And_DataLock_HasExpired_Then_No_Alert(
+            Apprenticeship source,
+            DataLockStatus dataLockStatus,
+            PriceHistory priceHistory,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            dataLockStatus.ErrorCode = DataLockErrorCode.Dlock03;
+            dataLockStatus.TriageStatus = TriageStatus.Change;
+            dataLockStatus.IsResolved = false;
+            dataLockStatus.IsExpired = true;
+
+            source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeNullOrEmpty();
+        }
+
     }
 }

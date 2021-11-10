@@ -562,7 +562,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             Assert.IsTrue(result.All(a => a.StartDate.Value.Date <= filterValue));
         }
 
-
         [TestCase(Alerts.IlrDataMismatch, "1", true)]
         [TestCase(Alerts.ChangesPending, "2", true)]
         [TestCase(Alerts.ChangesRequested, "3", true)]
@@ -645,86 +644,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.AreEqual(3, result.Count);
-        }
-
-        private AccountLegalEntity CreateAccountLegalEntity(string name)
-        {
-            var account = new Account(1, "", "", name, DateTime.UtcNow);
-            return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",
-                DateTime.UtcNow);
-        }
-
-        private IQueryable<Apprenticeship> CreateApprenticeships()
-        {
-            var apprenticeships = new List<Apprenticeship>
-            {
-                new Apprenticeship
-                {
-                    Uln =  "1",
-                    DataLockStatus = new List<DataLockStatus>
-                    {
-                        new DataLockStatus
-                        {
-                            ErrorCode = DataLockErrorCode.Dlock03,
-                            TriageStatus = TriageStatus.Unknown,
-                            IsResolved = false
-                        },
-                    }
-                },
-                new Apprenticeship
-                {
-
-                    Uln =  "2",
-                    DataLockStatus = new List<DataLockStatus>
-                    {
-                        new DataLockStatus
-                        {
-                            ErrorCode = DataLockErrorCode.Dlock03,
-                            TriageStatus = TriageStatus.Change,
-                            IsResolved = false
-                        },
-                        new DataLockStatus
-                        {
-                            ErrorCode = DataLockErrorCode.Dlock07,
-                            TriageStatus = TriageStatus.Change,
-                            IsResolved = false
-                        },
-                    }
-                },
-                new Apprenticeship
-                {
-
-                    Uln =  "3",
-                    DataLockStatus = new List<DataLockStatus>
-                    {
-                        new DataLockStatus
-                        {
-                            ErrorCode = DataLockErrorCode.Dlock03,
-                            TriageStatus = TriageStatus.Restart,
-                            IsResolved = false
-                        },
-                    }
-                },
-                 new Apprenticeship
-                {
-                    Uln =  "4",
-                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>{
-
-                            new ApprenticeshipUpdate {
-
-                                    Originator = Originator.Employer,
-                                    Status = ApprenticeshipUpdateStatus.Pending
-                            }
-
-                    }
-                },
-                new Apprenticeship
-                {
-                    Uln =  "100"
-                }
-            }.AsQueryable();
-
-            return apprenticeships;
         }
 
         [Test]
@@ -839,5 +758,150 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             Assert.AreEqual(3, resultOverdue.Count);
             Assert.AreEqual(4, resultNA.Count);
         }
+
+        [Test]
+        public void ThenShouldNotReturnExpiredDataLock()
+        {
+            //Arrange
+             var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Uln =  "1",
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock03,
+                            TriageStatus = TriageStatus.Change,
+                            IsResolved = false,
+                            IsExpired = true
+                        },
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock07,
+                            TriageStatus = TriageStatus.Change,
+                            IsResolved = false,
+                            IsExpired = true
+                        },
+                    }
+                },
+                new Apprenticeship
+                {
+
+                    Uln =  "2",
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock03,
+                            TriageStatus = TriageStatus.Change,
+                            IsResolved = false,
+                            IsExpired = false
+                        },
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock07,
+                            TriageStatus = TriageStatus.Change,
+                            IsResolved = false,
+                            IsExpired = true
+                        },
+                    }
+                }
+            }.AsQueryable();
+
+            var filterValues = new ApprenticeshipSearchFilters
+            {
+                Alert = Alerts.ChangesPending
+            };
+
+            //Act
+            var result = apprenticeships.Filter(filterValues, true).ToList();
+
+            //Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.All(a => a.Uln == "2" && a.DataLockStatus.Any(x => !x.IsExpired)));
+        }
+
+        private AccountLegalEntity CreateAccountLegalEntity(string name)
+        {
+            var account = new Account(1, "", "", name, DateTime.UtcNow);
+            return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",
+                DateTime.UtcNow);
+        }
+
+        private IQueryable<Apprenticeship> CreateApprenticeships()
+        {
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    Uln =  "1",
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock03,
+                            TriageStatus = TriageStatus.Unknown,
+                            IsResolved = false
+                        },
+                    }
+                },
+                new Apprenticeship
+                {
+
+                    Uln =  "2",
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock03,
+                            TriageStatus = TriageStatus.Change,
+                            IsResolved = false
+                        },
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock07,
+                            TriageStatus = TriageStatus.Change,
+                            IsResolved = false
+                        },
+                    }
+                },
+                new Apprenticeship
+                {
+
+                    Uln =  "3",
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus
+                        {
+                            ErrorCode = DataLockErrorCode.Dlock03,
+                            TriageStatus = TriageStatus.Restart,
+                            IsResolved = false
+                        },
+                    }
+                },
+                 new Apprenticeship
+                {
+                    Uln =  "4",
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>{
+
+                            new ApprenticeshipUpdate {
+
+                                    Originator = Originator.Employer,
+                                    Status = ApprenticeshipUpdateStatus.Pending
+                            }
+
+                    }
+                },
+                new Apprenticeship
+                {
+                    Uln =  "100"
+                }
+            }.AsQueryable();
+
+            return apprenticeships;
+        }
+
     }
 }

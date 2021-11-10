@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-           
+
             searchParameters.ReverseSort = false;
             searchParameters.PageNumber = 1;
             searchParameters.PageItemCount = 10;
@@ -199,7 +199,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            
+
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
@@ -230,7 +230,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            
+
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
@@ -257,7 +257,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            
+
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
@@ -378,7 +378,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Assert
             Assert.AreEqual(5, actual.TotalAvailableApprenticeships);
         }
-        
+
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_With_Alerts_Total_Found_Are_Return_With_Page_Data(
@@ -416,7 +416,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             searchParameters.PageItemCount = 0;
             searchParameters.ReverseSort = false;
             searchParameters.Filters = new ApprenticeshipSearchFilters();
-            
+
 
             var apprenticeships = new List<Apprenticeship>
             {
@@ -477,7 +477,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
-            
+
             var service = new ApprenticeshipSearchService(mockContext.Object);
 
             //Act
@@ -517,7 +517,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             Assert.IsNotEmpty(actual.Apprenticeships);
         }
 
-        
+
         [Test, MoqAutoData]
         public async Task Then_Will_Return_Page_Number_If_All_Apprenticeships_Are_With_Alerts(
             ApprenticeshipSearchParameters searchParameters,
@@ -542,8 +542,102 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual( searchParameters.PageNumber, actual.PageNumber);
+            Assert.AreEqual(searchParameters.PageNumber, actual.PageNumber);
             Assert.IsNotEmpty(actual.Apprenticeships);
         }
+
+        [Test, MoqAutoData]
+        public async Task Then_Only_Apprentices_With_Active_DataLock_Alerts_Total_Found_Are_Return_With_Page_Data(
+            ApprenticeshipSearchParameters searchParameters,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+        {
+            //Arrange
+            searchParameters.PageNumber = 2;
+            searchParameters.PageItemCount = 2;
+            searchParameters.Filters = new ApprenticeshipSearchFilters();
+
+            var apprenticeships = GetTestApprenticeshipsWithAlerts(searchParameters);
+
+            var withExpiredDataLock = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    FirstName = "A",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(12),
+                    ProviderRef = searchParameters.ProviderId.ToString(),
+                    EmployerRef = searchParameters.EmployerAccountId.ToString(),
+                    Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus {IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New, IsExpired = true}
+                    }
+                },
+                new Apprenticeship
+                {
+                    FirstName = "B",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(12),
+                    ProviderRef = searchParameters.ProviderId.ToString(),
+                    EmployerRef = searchParameters.EmployerAccountId.ToString(),
+                    Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus{IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New, IsExpired = true}
+                    }
+                },
+                new Apprenticeship
+                {
+                    FirstName = "C",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddMonths(12),
+                    ProviderRef = searchParameters.ProviderId.ToString(),
+                    EmployerRef = searchParameters.EmployerAccountId.ToString(),
+                    Cohort = new Cohort {AccountLegalEntity = CreateAccountLegalEntity("Employer")},
+                    ApprenticeshipUpdate = new List<ApprenticeshipUpdate>(),
+                    DataLockStatus = new List<DataLockStatus>
+                    {
+                        new DataLockStatus {IsResolved = false, Status = Status.Fail, EventStatus = EventStatus.New, TriageStatus = TriageStatus.Change, IsExpired = true}
+                    }
+                },
+            };
+
+           apprenticeships.AddRange(withExpiredDataLock);
+
+           if (searchParameters.ProviderId.HasValue)
+           {
+               AssignProviderToApprenticeships(searchParameters.ProviderId.Value, apprenticeships);
+           }
+
+           if (searchParameters.EmployerAccountId.HasValue)
+           {
+               AssignEmployerToApprenticeships(searchParameters.EmployerAccountId.Value, apprenticeships);
+           }
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+
+            var service = new ApprenticeshipSearchService(mockContext.Object);
+
+            //Act
+            var actual = await service.Find(searchParameters);
+
+            //Assert
+            Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);
+        }
+
+
     }
 }
