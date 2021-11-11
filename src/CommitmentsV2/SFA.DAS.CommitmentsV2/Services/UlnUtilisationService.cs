@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         /// <summary>
         /// Calculates what date should be used as the overlap end date for an apprenticeship when validating start date / end date overlaps.
         /// </summary>
-        private DateTime CalculateOverlapApprenticeshipEndDate(Apprenticeship apprenticeship)
+        private static DateTime CalculateOverlapApprenticeshipEndDate(Apprenticeship apprenticeship)
         {
             switch (apprenticeship.PaymentStatus)
             {

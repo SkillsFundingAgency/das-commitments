@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.Kernel;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipUpdate
 {
@@ -77,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         public class GetApprenticeshipUpdateHandlerTests_fixture
         {
             private readonly GetApprenticeshipUpdateQueryHandler _handler;
-            private readonly ProviderCommitmentsDbContext _db;
+            private readonly Mock<ProviderCommitmentsDbContext> _db;
             private GetApprenticeshipUpdateQuery _request;
             private GetApprenticeshipUpdateQueryResult _result;
             private readonly Fixture _autofixture;
@@ -91,9 +93,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
                 _apprenticeshipId = 1;
                 _request = new GetApprenticeshipUpdateQuery(_apprenticeshipId, Types.ApprenticeshipUpdateStatus.Pending);
 
-                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).EnableSensitiveDataLogging().Options);
-                _handler = new GetApprenticeshipUpdateQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
+                _db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString()).EnableSensitiveDataLogging().Options)
+                    {CallBase = true};
+
+                _handler = new GetApprenticeshipUpdateQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db.Object));
             }
 
             public async Task<GetApprenticeshipUpdateQueryResult> Handle()
@@ -107,13 +111,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
                 _autofixture.Customizations.Add(new ApprenticeshipUpdateSpecimenBuilder());
                 _apprenticeshipUpdate = _autofixture.Create<List<ApprenticeshipUpdate>>();
                 _apprenticeshipUpdate.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.Status = Types.ApprenticeshipUpdateStatus.Pending;  z.Apprenticeship.Id = _apprenticeshipId; });
-                _db.ApprenticeshipUpdates.AddRange(_apprenticeshipUpdate);
+             
+                _db
+                    .Setup(context => context.ApprenticeshipUpdates)
+                    .ReturnsDbSet(_apprenticeshipUpdate);
 
                 var additionalRecord = _autofixture.Create<List<ApprenticeshipUpdate>>();
                 additionalRecord.ForEach(z => { z.ApprenticeshipId = ++count; z.Apprenticeship.Id = z.ApprenticeshipId; }) ;
-                _db.ApprenticeshipUpdates.AddRange(additionalRecord);
+                _apprenticeshipUpdate.AddRange(additionalRecord);
 
-                _db.SaveChanges();
                 return this;
             }
 
@@ -143,9 +149,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
             public GetApprenticeshipUpdateHandlerTests_fixture SetStatusRejectedForTheFirstApprenticeshipUpdate()
             {
-                var apprenticeship = _db.ApprenticeshipUpdates.First(x => x.ApprenticeshipId == _apprenticeshipId && x.Status == Types.ApprenticeshipUpdateStatus.Pending);
+                var apprenticeship = _db.Object.ApprenticeshipUpdates.First(x => x.ApprenticeshipId == _apprenticeshipId && x.Status == Types.ApprenticeshipUpdateStatus.Pending);
                 apprenticeship.Status = Types.ApprenticeshipUpdateStatus.Rejected;
-                _db.SaveChanges();
                 return this;
             }
 
