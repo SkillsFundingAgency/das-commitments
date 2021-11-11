@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Authentication;
@@ -13,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.ProviderRelationships.Api.Client;
 using SFA.DAS.ProviderRelationships.Types.Dtos;
@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     {
         private readonly ChangeOfPartyRequestDomainService _domainService;
         private readonly Fixture Fixture = new Fixture();
-        public ProviderCommitmentsDbContext Db { get; private set; }
+        public Mock<ProviderCommitmentsDbContext> Db { get; private set; }
         public Exception Exception { get; private set; }
         public Mock<IAuthenticationService> AuthenticationService { get; }
         public Mock<ICurrentDateTime> CurrentDateTime { get; }
@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             UserInfo = Fixture.Create<UserInfo>();
 
             _domainService = new ChangeOfPartyRequestDomainService(
-                new Lazy<ProviderCommitmentsDbContext>(() => Db),
+                new Lazy<ProviderCommitmentsDbContext>(() => Db.Object),
                 AuthenticationService.Object,
                 CurrentDateTime.Object,
                 ProviderRelationshipsApiClient.Object);
@@ -88,10 +88,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         private void SetupTestData()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .EnableSensitiveDataLogging()
-                .Options);
+                .Options) {CallBase = true};
 
             ApprenticeshipId = Fixture.Create<long>();
             ApprenticeshipChangeOfPartyRequestResult = Fixture.Create<ChangeOfPartyRequest>();
@@ -110,9 +110,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     It.IsAny<DateTime?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
                 .Returns(ApprenticeshipChangeOfPartyRequestResult);
 
-            Db.Apprenticeships.Add(Apprenticeship.Object);
-            Db.Cohorts.Add(Cohort);
-            Db.SaveChanges();
+            Db
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(new List<Apprenticeship> { Apprenticeship.Object });
+
+            Db
+                .Setup(context => context.Cohorts)
+                .ReturnsDbSet(new List<Cohort> { Cohort });
         }
 
         public ChangeOfPartyRequestDomainServiceTestsFixture WithOriginatingParty(Party party)
@@ -158,7 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Result = await _domainService.CreateChangeOfPartyRequest(ApprenticeshipId,
                     ChangeOfPartyRequestType, NewPartyId, Price, StartDate, EndDate, UserInfo, new CancellationToken());
 
-                Db.SaveChanges();
+                Db.Object.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -190,7 +194,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public void VerifyResultAddedToDbContext()
         {
-            Assert.Contains(Result, Db.ChangeOfPartyRequests.ToList());
+            Assert.Contains(Result, Db.Object.ChangeOfPartyRequests.ToList());
         }
 
         public void VerifyException<T>()

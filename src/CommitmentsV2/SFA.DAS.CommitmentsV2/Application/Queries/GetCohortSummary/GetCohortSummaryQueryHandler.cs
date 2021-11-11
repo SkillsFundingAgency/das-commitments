@@ -18,24 +18,25 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEmailOptionalService emailService)
             => (_db, _emailService) = (db, emailService);
 
-        public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
+        public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request,
+            CancellationToken cancellationToken)
         {
             var db = _db.Value;
             var apprenticeEmailIsRequired = false;
 
-            var parties = await db.Cohorts.Select(x => new { x.Id, x.EmployerAccountId, x.ProviderId }).FirstOrDefaultAsync(c => c.Id == request.CohortId, cancellationToken);
+            var parties = await db.Cohorts
+                .Select(x => new {x.Id, x.EmployerAccountId, x.ProviderId})
+                .FirstOrDefaultAsync(c => c.Id == request.CohortId, cancellationToken);
+          
             if (parties != null)
             {
                 apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
             }
 
-            var result = await (
-                from c in db.Cohorts
-                where c.Id == request.CohortId
-                let messages = c.Messages.OrderByDescending(m => m.CreatedDateTime)
-                let latestMessageCreatedByEmployer = messages.Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefault()
-                let latestMessageCreatedByProvider = messages.Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefault()
-                select new GetCohortSummaryQueryResult
+            var latestMessageCreatedByEmployer = await db.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefaultAsync(cancellationToken);
+            var latestMessageCreatedByProvider = await db.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefaultAsync(cancellationToken);
+
+            var result = await db.Cohorts.Select(c => new GetCohortSummaryQueryResult
                 {
                     CohortId = c.Id,
                     AccountId = c.EmployerAccountId,
@@ -58,13 +59,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     IsApprovedByEmployer = c.Approvals.HasFlag(Party.Employer), //redundant
                     IsApprovedByProvider = c.Approvals.HasFlag(Party.Provider), //redundant
                     IsCompleteForEmployer = c.Apprenticeships.Any() &&
-                                            !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
-                                                                        a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null ||
-                                                                        (apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)),
+                                            !c.Apprenticeships.Any(a =>
+                                                a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
+                                                a.CourseName == null || a.StartDate == null || a.EndDate == null ||
+                                                a.Cost == null ||
+                                                (apprenticeEmailIsRequired && a.Email == null &&
+                                                 a.ContinuationOfId == null)),
                     IsCompleteForProvider = c.Apprenticeships.Any() &&
-                                            !c.Apprenticeships.Any(a => a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
-                                                                        a.CourseName == null || a.StartDate == null || a.EndDate == null || a.Cost == null ||
-                                                                        a.Uln == null || (apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)),
+                                            !c.Apprenticeships.Any(a =>
+                                                a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
+                                                a.CourseName == null || a.StartDate == null || a.EndDate == null ||
+                                                a.Cost == null ||
+                                                a.Uln == null ||
+                                                (apprenticeEmailIsRequired && a.Email == null &&
+                                                 a.ContinuationOfId == null)),
                     LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
                     ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
                     TransferApprovalStatus = c.TransferApprovalStatus
