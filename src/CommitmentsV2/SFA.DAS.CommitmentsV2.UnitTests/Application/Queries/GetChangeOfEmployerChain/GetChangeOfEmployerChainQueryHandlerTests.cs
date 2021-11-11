@@ -316,7 +316,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                 {
                     var employer = new AccountLegalEntity
                     (
-                        new Account(),
+                        new Account(input.CurrentEmployer.EmployerId, "ABC123", "ABC123", "Test", DateTime.Now),
                         input.CurrentEmployer.EmployerId,
                         autoFixture.Create<long>(),
                         autoFixture.Create<string>(),
@@ -338,7 +338,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                 {
                     var employer = new AccountLegalEntity
                     (
-                        new Account(),
+                        new Account(input.NewEmployer.EmployerId, "ABC123", "ABC123", "Test", DateTime.Now),
                         input.NewEmployer.EmployerId,
                         autoFixture.Create<long>(),
                         autoFixture.Create<string>(),
