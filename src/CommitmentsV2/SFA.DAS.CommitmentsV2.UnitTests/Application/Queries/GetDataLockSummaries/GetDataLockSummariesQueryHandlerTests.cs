@@ -70,13 +70,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
             private readonly ProviderCommitmentsDbContext _db;
             private GetDataLockSummariesQuery _request;
             private GetDataLockSummariesQueryResult _result;
-            private readonly Fixture _autofixture;
+            private readonly IFixture _autofixture;
             private List<DataLockStatus> _dataLocks;
             private readonly long _apprenticeshipId;
 
             public GetDataLockSummariesQueryHandlerTestsFixture()
             {
-                _autofixture = new Fixture();
+                _autofixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
 
                 _apprenticeshipId = 1;
                 _request = new GetDataLockSummariesQuery(_apprenticeshipId);
@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
                 _dataLocks.Skip(3).Take(3).ToList().ForEach(d => { d.ApprenticeshipId = ++count; });
                 
                 // all are unhandled new data locks
-                _dataLocks.ToList().ForEach(d => { d.Apprenticeship.Id = d.ApprenticeshipId; d.IsExpired = false; d.EventStatus = Types.EventStatus.New; d.IsResolved = false; d.Status = Status.Unknown; });
+                _dataLocks.ToList().ForEach(d => { d.ApprenticeshipId = d.ApprenticeshipId; d.IsExpired = false; d.EventStatus = EventStatus.New; d.IsResolved = false; d.Status = Status.Unknown; });
                 
                 _db.DataLocks.AddRange(_dataLocks);
                 _db.SaveChanges();

@@ -308,6 +308,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
 
             var apprenticeship = new Apprenticeship
             {
+                Id = autoFixture.Create<long>(),
                 CommitmentId = commitment.Id,
                 AgreedOn = agreedOn
             };
