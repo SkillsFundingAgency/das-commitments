@@ -66,15 +66,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             private readonly ProviderCommitmentsDbContext _db;
             private GetDataLocksQuery _request;
             private GetDataLocksQueryResult _result;
-            private readonly Fixture _autofixture;
+            private readonly IFixture _autofixture;
             private List<DataLockStatus> _dataLocks;
-            private readonly long _apprenticeshipId;
+            private long _apprenticeshipId;
 
             public GetDataLocksQueryHandlerTestsFixture()
             {
-                _autofixture = new Fixture();
-
-                _apprenticeshipId = 1;
+                _autofixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
                 _request = new GetDataLocksQuery(_apprenticeshipId);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
@@ -91,13 +89,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             public GetDataLocksQueryHandlerTestsFixture SeedData(short count = 1)
             {
                 _autofixture.Customizations.Add(new ModelSpecimenBuilder());
-                _dataLocks = _autofixture.Create<List<DataLockStatus>>();
-                _dataLocks.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.IsExpired = false; z.EventStatus = Types.EventStatus.New; z.Apprenticeship.Id = z.ApprenticeshipId; });
+                var apprenticeship = _autofixture.Create<Apprenticeship>();
+                _apprenticeshipId = apprenticeship.Id;
+                _dataLocks = _autofixture
+                    .Build<DataLockStatus>()
+                    .With(x => x.ApprenticeshipId, _apprenticeshipId)
+                    .With(x => x.IsExpired, false)
+                    .With(x => x.EventStatus, EventStatus.New)
+                    .CreateMany(3)
+                    .ToList();
+
+                _dataLocks.ForEach(z => { z.ApprenticeshipId = _apprenticeshipId; z.IsExpired = false; z.EventStatus = EventStatus.New; });
                 _db.DataLocks.AddRange(_dataLocks);
 
-                var additionalRecord = _autofixture.Create<List<DataLockStatus>>();
-                additionalRecord.ForEach(z => { z.ApprenticeshipId = ++count; z.Apprenticeship.Id = z.ApprenticeshipId; z.IsExpired = false; z.EventStatus = Types.EventStatus.New; });
-                _db.DataLocks.AddRange(additionalRecord);
+                var apprenticeship2 = _autofixture
+                    .Build<Apprenticeship>()
+                    .With(x => x.Id, ++count)
+                    .Create();
+
+                var additionalRecord = _autofixture
+                    .Build<DataLockStatus>()
+                    .With(x => x.ApprenticeshipId, apprenticeship2.Id)
+                    .With(x => x.Apprenticeship, apprenticeship2)
+                    .With(x => x.IsExpired, false)
+                    .With(x => x.EventStatus, EventStatus.New)
+                    .Create();
+               
+                _db.DataLocks.Add(additionalRecord);
 
                 _db.SaveChanges();
                 return this;
