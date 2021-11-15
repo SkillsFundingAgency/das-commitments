@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
                 if (cohort.PledgeApplicationId.HasValue)
                 {
                     var pledgeApplication = await _levyTransferMatchingApiClient.GetPledgeApplication(cohort.PledgeApplicationId.Value);
-                    autoApproval = pledgeApplication.AllowAutoApproval;
+                    autoApproval = pledgeApplication.AllowTransferRequestAutoApproval;
                 }
 
                 var fundingCapSummary = await _fundingCapService.FundingCourseSummary(cohort.Apprenticeships);
