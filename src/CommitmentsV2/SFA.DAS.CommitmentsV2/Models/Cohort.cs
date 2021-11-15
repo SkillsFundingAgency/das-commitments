@@ -432,6 +432,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests.Add(transferRequest);
             TransferApprovalStatus = Types.TransferApprovalStatus.Pending;
             Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow, lastApprovedByParty));
+            if (autoApproval)
+            {
+                Publish(() => new TransferRequestWithAutoApprovalCreatedEvent(transferRequest.Id, PledgeApplicationId.Value, DateTime.UtcNow));
+            }
         }
 
 		public void Delete(Party modifyingParty, UserInfo userInfo)

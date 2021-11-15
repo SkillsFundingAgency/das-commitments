@@ -6,6 +6,10 @@
         public long ReceiverEmployerAccountId { get; set; }
         public ApplicationStatus Status { get; set; }
         public bool AllowTransferRequestAutoApproval { get; set; }
+        public int TotalAmount { get; set; }
+        public int AmountUsed { get; set; }
+
+        public int AmountRemaining => TotalAmount - AmountUsed;
 
         public enum ApplicationStatus : byte
         {
