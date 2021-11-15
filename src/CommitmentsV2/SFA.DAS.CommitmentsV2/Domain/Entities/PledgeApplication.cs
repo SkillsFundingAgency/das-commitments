@@ -5,6 +5,7 @@
         public long SenderEmployerAccountId { get; set; }
         public long ReceiverEmployerAccountId { get; set; }
         public ApplicationStatus Status { get; set; }
+        public bool AllowAutoApproval { get; set; }
 
         public enum ApplicationStatus : byte
         {

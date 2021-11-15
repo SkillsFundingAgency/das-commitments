@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Data;
@@ -17,15 +16,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IFundingCapService _fundingCapService;
         private readonly ILogger<AddTransferRequestCommandHandler> _logger;
+        private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
 
         public AddTransferRequestCommandHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IFundingCapService fundingCapService,
-            ILogger<AddTransferRequestCommandHandler> logger)
+            ILogger<AddTransferRequestCommandHandler> logger,
+            ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
         {
             _dbContext = dbContext;
             _fundingCapService = fundingCapService;
             _logger = logger;
+            _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
         }
 
         protected override async Task Handle(AddTransferRequestCommand request, CancellationToken cancellationToken)
@@ -36,13 +38,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
 
                 var cohort = await db.GetCohortAggregate(request.CohortId, cancellationToken: cancellationToken);
 
+                var autoApproval = false;
+                if (cohort.PledgeApplicationId.HasValue)
+                {
+                    var pledgeApplication = await _levyTransferMatchingApiClient.GetPledgeApplication(cohort.PledgeApplicationId.Value);
+                    autoApproval = pledgeApplication.AllowAutoApproval;
+                }
+
                 var fundingCapSummary = await _fundingCapService.FundingCourseSummary(cohort.Apprenticeships);
 
                 cohort.AddTransferRequest(
                     JsonConvert.SerializeObject(fundingCapSummary.Select(x => new {x.CourseTitle, x.ApprenticeshipCount})),
                     fundingCapSummary.Sum(x => x.CappedCost), 
                     fundingCapSummary.Sum(x => x.ActualCap),
-                    request.LastApprovedByParty);
+                    request.LastApprovedByParty,
+                    autoApproval);
 
                 await db.SaveChangesAsync(cancellationToken);
             }

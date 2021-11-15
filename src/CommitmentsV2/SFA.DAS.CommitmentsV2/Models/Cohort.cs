@@ -425,15 +425,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.CompleteTrackingSession();
         }
 
-        public void AddTransferRequest(string jsonSummary, decimal cost, decimal fundingCap, Party lastApprovedByParty)
+        public void AddTransferRequest(string jsonSummary, decimal cost, decimal fundingCap, Party lastApprovedByParty, bool autoApproval)
         {
             CheckThereIsNoPendingTransferRequest();
-            var transferRequest = new TransferRequest();
-            transferRequest.Status = (byte) Types.TransferApprovalStatus.Pending;
-            transferRequest.TrainingCourses = jsonSummary;
-            transferRequest.Cost = cost;
-            transferRequest.FundingCap = fundingCap;
-
+            var transferRequest = new TransferRequest(jsonSummary, cost, fundingCap, autoApproval);
             TransferRequests.Add(transferRequest);
             TransferApprovalStatus = Types.TransferApprovalStatus.Pending;
             Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow, lastApprovedByParty));
