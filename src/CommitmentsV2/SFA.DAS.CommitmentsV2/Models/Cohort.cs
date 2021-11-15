@@ -202,8 +202,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public long? TransferSenderId { get; set; }
         public int? PledgeApplicationId { get; set; }
         public TransferApprovalStatus? TransferApprovalStatus { get; set; }
-        public string TransferApprovalActionedByEmployerName { get; set; }
-        public string TransferApprovalActionedByEmployerEmail { get; set; }
         public DateTime? TransferApprovalActionedOn { get; set; }
         public Originator Originator { get; set; }
         public bool IsDeleted { get; set; }

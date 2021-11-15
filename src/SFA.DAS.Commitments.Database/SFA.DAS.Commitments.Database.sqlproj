@@ -187,6 +187,7 @@
     <Build Include="Triggers\ApprenticeshipUpdate.sql" />
     <None Include="PostDeployment\Patch_Apprenticeship_SV-1160.sql" />
     <Build Include="StoredProcedures\GetLearnersBatch.sql" />
+    <None Include="AdhocScripts\Manual\CS-1214-update-apprenticeship-email-addresses-which-have-changed-recently-by-the-apprentice.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
