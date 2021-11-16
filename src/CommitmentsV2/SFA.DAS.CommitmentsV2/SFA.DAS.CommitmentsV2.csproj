@@ -28,7 +28,7 @@
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21" />
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.2" />
-    <PackageReference Include="SFA.DAS.UnitOfWork" Version="9.0.8" />
+    <PackageReference Include="SFA.DAS.UnitOfWork" Version="9.0.28" />
     <PackageReference Include="SFA.DAS.PAS.Account.Api.ClientV2" Version="1.1.1043" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.77" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
