@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             var validator = new GetCohortsRequestValidator();
 
             var result = validator.TestValidate(request);
-            Assert.AreEqual(expectedValid, result.Result.IsValid);
+            Assert.AreEqual(expectedValid, result.IsValid);
         }
     }
 }

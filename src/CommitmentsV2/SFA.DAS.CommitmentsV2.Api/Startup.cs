@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using FluentValidation.AspNetCore;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using SFA.DAS.Authorization.Mvc.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
@@ -55,13 +57,11 @@ namespace SFA.DAS.CommitmentsV2.Api
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
                     Title = "Commitments v2 API"
                 });
-
-                c.DescribeAllEnumsAsStrings();
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -98,16 +98,15 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseDasHealthChecks()
                 .UseAuthentication()
                 .UseUnitOfWork()
+                .UseRouting()
+                .UseAuthorization()
                 .UseEndpoints(builder =>
                 {
                     builder.MapControllerRoute(
                         name: "default",
                         pattern: "{controller=Home}/{action=Index}/{id?}");
                 })
-                .UseSwagger(c =>
-                {
-                    c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
-                })
+                .UseSwagger()
                 .UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Commitments v2 API");

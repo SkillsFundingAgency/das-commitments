@@ -28,7 +28,7 @@
     <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.10" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
     <PackageReference Include="StructureMap.AspNetCore" Version="1.4.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
   <ItemGroup>

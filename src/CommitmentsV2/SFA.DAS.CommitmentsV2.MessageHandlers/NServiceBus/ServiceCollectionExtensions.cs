@@ -23,11 +23,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
 
         public static IServiceCollection AddNServiceBus(this IServiceCollection services)
         {
+            
             return services
                 .AddSingleton(p =>
                 {
                     var container = p.GetService<IContainer>();
-                    var hostingEnvironment = p.GetService<IWebHostEnvironment>();
+                    var hostingEnvironment = p.GetService<IHostEnvironment>();
                     var configuration = p.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
                     var isDevelopment = hostingEnvironment.IsDevelopment();
 
