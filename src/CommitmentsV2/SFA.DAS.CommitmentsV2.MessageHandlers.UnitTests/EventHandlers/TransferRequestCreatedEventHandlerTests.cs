@@ -24,14 +24,26 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     {
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
-        public void Handle_WhenHandlingTransferRequestCreatedEvent_ThenShouldRelayMessageToAzureServiceBus(Party lastParty)
+        public void Handle_WhenHandlingTransferRequestCreatedEventWithoutAutoApproval_ThenShouldRelayMessageToAzureServiceBus(Party lastParty)
         {
-            var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
+            var fixture = new TransferRequestCreatedEventHandlerTestsFixture(false);
             fixture.SetupTransfer().SetupTransferCreatedEvent(lastParty);
 
             fixture.Handle();
 
             fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void Handle_WhenHandlingTransferRequestCreatedEventWithAutoApproval_ThenShouldNotRelayMessageToAzureServiceBus(Party lastParty)
+        {
+            var fixture = new TransferRequestCreatedEventHandlerTestsFixture(true);
+            fixture.SetupTransfer().SetupTransferCreatedEvent(lastParty);
+
+            fixture.Handle();
+
+            fixture.VerifyMessageNotRelayed();
         }
     }
 
@@ -46,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public TransferRequest TransferRequest { get; set; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
-        public TransferRequestCreatedEventHandlerTestsFixture()
+        public TransferRequestCreatedEventHandlerTestsFixture(bool autoApproval)
         {
             var fixture = new Fixture();
 
@@ -72,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 new UserInfo()) {EmployerAccountId = 100, TransferSenderId = 99};
 
             TransferRequest = new TransferRequest
-                { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort};
+                { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort, AutoApproval = autoApproval };
         }
 
         public TransferRequestCreatedEventHandlerTestsFixture SetupTransferCreatedEvent(Party lastApprovedParty)
