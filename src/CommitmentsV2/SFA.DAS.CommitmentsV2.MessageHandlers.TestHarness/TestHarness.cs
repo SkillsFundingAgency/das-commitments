@@ -59,6 +59,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("U - ApprenticeshipPausedEvent Event");
                 Console.WriteLine("V - ApprenticeshipConfirmationCommencedEvent Event");
                 Console.WriteLine("W - ApprenticeshipConfirmedEvent Event");
+                Console.WriteLine("Y - ApprenticeshipEmailAddressChangedEvent Event");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -163,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                                 CommitmentsApprenticeshipId = 40002,
                             });
                             Console.WriteLine();
-                            Console.WriteLine($"Sent {nameof(ApprenticeshipConfirmationCommencedEvent)}");
+                            Console.WriteLine($"Sent {nameof(ApprenticeshipEmailAddressConfirmedEvent)}");
                             break;
 
                         case ConsoleKey.S:
@@ -203,6 +204,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ApprenticeshipConfirmationCommencedEvent)}");
                             break;
+                        case ConsoleKey.Y:
+                            await _publisher.Publish(new ApprenticeshipEmailAddressChangedEvent()
+                            {
+                                ApprenticeId = Guid.NewGuid(),
+                                CommitmentsApprenticeshipId = 40002,
+                            });
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(ApprenticeshipEmailAddressChangedEvent)}");
+                            break;
+
                     }
                 }
                 catch (Exception e)

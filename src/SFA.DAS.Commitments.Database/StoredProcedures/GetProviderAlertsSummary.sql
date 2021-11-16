@@ -16,7 +16,7 @@ SELECT
 				, ProviderId
 			FROM [dbo].[ApprenticeshipSummary]
 			WHERE PaymentStatus > 0
-			AND (DataLockCourse = 1 OR DataLockPrice = 1 OR DataLockCourseChangeTriaged = 1 OR UpdateOriginator = 0)
+			AND (DataLockCourse = 1 OR DataLockPrice = 1 OR  UpdateOriginator = 0)
 		) a
 	INNER JOIN (
 		SELECT ProviderId, ProviderName FROM 
