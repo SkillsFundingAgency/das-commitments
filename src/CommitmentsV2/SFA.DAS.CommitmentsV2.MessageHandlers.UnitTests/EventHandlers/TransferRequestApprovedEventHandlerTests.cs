@@ -27,32 +27,46 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(false)]
         public async Task Handle_WhenHandlingTransferRequestApprovedEvent_ThenShouldFindCohortAndSetTransferApprovalProperties(bool autoApproval)
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture(autoApproval).AddTransferRequestAndCohortToMemoryDb();
+            var f = new TransferRequestApprovedEventHandlerTestsFixture()
+                .AddCohortToMemoryDb()
+                .AddTransferRequest(autoApproval);
+
             await f.Handle();
+
             f.VerifyCohortApprovalPropertiesAreSet();
         }
 
         [Test]
         public async Task Handle_WhenHandlingTransferRequestApprovedEventAndAutoApprovalIsFalse_ThenShouldSendLegacyEventCohortApprovedByTransferSender()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture(false).AddTransferRequestAndCohortToMemoryDb();
+            var f = new TransferRequestApprovedEventHandlerTestsFixture()
+                .AddCohortToMemoryDb()
+                .AddTransferRequest(false);
+
             await f.Handle();
+
             f.VerifyLegacyEventCohortApprovedByTransferSenderIsPublished();
         }
 
         [Test]
         public async Task Handle_WhenHandlingTransferRequestApprovedEventAndAutoApprovalIsTrue_ThenShouldNotSendLegacyEventCohortApprovedByTransferSender()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture(true).AddTransferRequestAndCohortToMemoryDb();
+            var f = new TransferRequestApprovedEventHandlerTestsFixture()
+                .AddCohortToMemoryDb()
+                .AddTransferRequest(true);
+
             await f.Handle();
+
             f.VerifyMessageNotRelayed();
         }
 
         [Test]
         public void Handle_WhenHandlingTransferRequestApprovedEventAndItThrowsException_ThenWelogErrorAndRethrowError()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture(false);
+            var f = new TransferRequestApprovedEventHandlerTestsFixture();
+
             Assert.ThrowsAsync<InvalidOperationException>(() => f.Handle());
+
             Assert.IsTrue(f.Logger.HasErrors);
         }
     }
@@ -71,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public TransferRequestApprovedEvent TransferRequestApprovedEvent { get; set; } 
         public TransferRequestApprovedEventHandler Handler { get; set; } 
 
-        public TransferRequestApprovedEventHandlerTestsFixture(bool autoApproval)
+        public TransferRequestApprovedEventHandlerTestsFixture()
         {
             _fixture = new Fixture();
             UnitOfWorkContext = new UnitOfWorkContext();
@@ -94,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             Handler = new TransferRequestApprovedEventHandler(new Lazy<ProviderCommitmentsDbContext>(()=>Db), LegacyTopicMessagePublisher.Object, Logger);
 
             TransferRequest = new TransferRequest
-                { Id = TransferRequestApprovedEvent.TransferRequestId, Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort, AutoApproval = autoApproval };
+                { Id = TransferRequestApprovedEvent.TransferRequestId, Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort };
 
             Cohort = new Cohort(
                     _fixture.Create<long>(),
@@ -118,14 +132,24 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             return Handler.Handle(TransferRequestApprovedEvent, Mock.Of<IMessageHandlerContext>());
         }
 
-        public TransferRequestApprovedEventHandlerTestsFixture AddTransferRequestAndCohortToMemoryDb()
+        public TransferRequestApprovedEventHandlerTestsFixture AddCohortToMemoryDb()
         {
-            Db.TransferRequests.Add(TransferRequest);
             Db.Cohorts.Add(Cohort);
             Db.SaveChanges();
 
             return this;
         }
+
+        public TransferRequestApprovedEventHandlerTestsFixture AddTransferRequest(bool autoApproval)
+        {
+            TransferRequest.AutoApproval = autoApproval;
+
+            Db.TransferRequests.Add(TransferRequest);
+            Db.SaveChanges();
+
+            return this;
+        }
+
         public void VerifyCohortApprovalPropertiesAreSet()
         {
             Assert.AreEqual(Cohort.TransferApprovalStatus, TransferApprovalStatus.Approved);

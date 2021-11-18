@@ -26,8 +26,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(Party.Provider)]
         public void Handle_WhenHandlingTransferRequestCreatedEventWithoutAutoApproval_ThenShouldRelayMessageToAzureServiceBus(Party lastParty)
         {
-            var fixture = new TransferRequestCreatedEventHandlerTestsFixture(false);
-            fixture.SetupTransfer().SetupTransferCreatedEvent(lastParty);
+            var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
+            fixture.SetupTransfer(false).SetupTransferCreatedEvent(lastParty);
 
             fixture.Handle();
 
@@ -38,8 +38,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(Party.Provider)]
         public void Handle_WhenHandlingTransferRequestCreatedEventWithAutoApproval_ThenShouldNotRelayMessageToAzureServiceBus(Party lastParty)
         {
-            var fixture = new TransferRequestCreatedEventHandlerTestsFixture(true);
-            fixture.SetupTransfer().SetupTransferCreatedEvent(lastParty);
+            var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
+            fixture.SetupTransfer(true).SetupTransferCreatedEvent(lastParty);
 
             fixture.Handle();
 
@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public TransferRequest TransferRequest { get; set; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
-        public TransferRequestCreatedEventHandlerTestsFixture(bool autoApproval)
+        public TransferRequestCreatedEventHandlerTestsFixture()
         {
             var fixture = new Fixture();
 
@@ -84,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 new UserInfo()) {EmployerAccountId = 100, TransferSenderId = 99};
 
             TransferRequest = new TransferRequest
-                { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort, AutoApproval = autoApproval };
+                { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort };
         }
 
         public TransferRequestCreatedEventHandlerTestsFixture SetupTransferCreatedEvent(Party lastApprovedParty)
@@ -94,8 +94,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             return this;
         }
 
-        public TransferRequestCreatedEventHandlerTestsFixture SetupTransfer()
+        public TransferRequestCreatedEventHandlerTestsFixture SetupTransfer(bool autoApproval)
         {
+            TransferRequest.AutoApproval = autoApproval;
+
             Db.TransferRequests.Add(TransferRequest);
             Db.SaveChanges();
 
