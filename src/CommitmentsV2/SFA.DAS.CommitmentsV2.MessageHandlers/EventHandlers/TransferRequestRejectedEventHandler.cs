@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
                 if (transferRequest.AutoApproval)
                 {
-                    _logger.LogInformation($"AutoApproval set to true - not publishing CohortApprovedByTransferSender");
+                    _logger.LogInformation($"AutoApproval set to true - not publishing CohortRejectedByTransferSender");
 
                     return;
                 }
