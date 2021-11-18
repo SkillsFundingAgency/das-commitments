@@ -130,15 +130,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UnitOfWorkContext = new UnitOfWorkContext();
 
             var cohort = new CommitmentsV2.Models.Cohort()
-              .Set(c => c.Id, 111)
-              .Set(c => c.EmployerAccountId, 222)
-              .Set(c => c.ProviderId, 333)
-              .Set(c => c.AccountLegalEntity, new AccountLegalEntity());
+                .Set(c => c.Id, 111)
+                .Set(c => c.EmployerAccountId, 222)
+                .Set(c => c.ProviderId, 333)
+                .Set(c => c.AccountLegalEntity, new AccountLegalEntity());
 
             ApprenticeshipUpdate = new ApprenticeshipUpdate()
-            .Set(c => c.Id, 555)
-            .Set(c => c.ApprenticeshipId, ApprenticeshipId)
-            .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending); 
+                .Set(c => c.ApprenticeshipId, ApprenticeshipId)
+                .Set(c => c.Status, ApprenticeshipUpdateStatus.Pending); 
 
             var priceHistory = new List<PriceHistory>()
             {

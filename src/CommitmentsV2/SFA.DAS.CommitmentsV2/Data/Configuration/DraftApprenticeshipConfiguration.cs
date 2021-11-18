@@ -9,7 +9,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         public void Configure(EntityTypeBuilder<DraftApprenticeship> builder)
         {
             builder.HasBaseType<ApprenticeshipBase>();
-            builder.Property(e => e.Id).ValueGeneratedNever();
         }
     }
 }

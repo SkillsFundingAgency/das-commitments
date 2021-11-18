@@ -138,7 +138,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             DraftApprenticeship = new DraftApprenticeship
             {
-                Id = _autoFixture.Create<long>(),
                 FirstName = "Test",
                 LastName = "Test",
                 ReservationId = _autoFixture.Create<Guid>()
