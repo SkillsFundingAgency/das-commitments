@@ -24,30 +24,25 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             using (var db = _dbContextFactory.CreateDbContext())
             {
-                var liveApprenticeshipsTask = db.Apprenticeships
+                var liveApprenticeships = await db.Apprenticeships
                     .Where(ca => ca.Uln == uln)
                     .Select(x => new UlnUtilisation(x.Id,
                         x.Uln,
                         x.StartDate.Value,
                         CalculateOverlapApprenticeshipEndDate(x))).ToListAsync(cancellationToken);
 
-               var draftApprenticeshipWithTransferSenderTask = db.DraftApprenticeships.Include(y => y.Cohort)
-                         .Where(da => da.Uln == uln
-                             && da.StartDate.HasValue
-                             && da.EndDate.HasValue
-                             && da.Cohort.TransferSenderId.HasValue
-                             && da.Cohort.WithParty == Party.TransferSender)
-                             .Select(x => new UlnUtilisation(x.Id,
-                                 x.Uln,
-                                 x.StartDate.Value,
-                                 x.EndDate.Value)).ToListAsync(cancellationToken);
+                var draftApprenticeshipWithTransferSender = await db.DraftApprenticeships.Include(y => y.Cohort)
+                    .Where(da => da.Uln == uln
+                                 && da.StartDate.HasValue
+                                 && da.EndDate.HasValue
+                                 && da.Cohort.TransferSenderId.HasValue
+                                 && da.Cohort.WithParty == Party.TransferSender)
+                    .Select(x => new UlnUtilisation(x.Id,
+                        x.Uln,
+                        x.StartDate.Value,
+                        x.EndDate.Value)).ToListAsync(cancellationToken);
 
-                await Task.WhenAll(liveApprenticeshipsTask, draftApprenticeshipWithTransferSenderTask);
-
-                var liveApprenticeships = await liveApprenticeshipsTask;
-                var draftApprenticeshipWithTransferSender = await draftApprenticeshipWithTransferSenderTask;
-
-               var result = liveApprenticeships.Union(draftApprenticeshipWithTransferSender).ToArray();
+                var result = liveApprenticeships.Union(draftApprenticeshipWithTransferSender).ToArray();
 
                 return result;
             }
