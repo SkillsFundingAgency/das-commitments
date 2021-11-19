@@ -38,8 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
 
             if (!string.IsNullOrWhiteSpace(cacheKey))
             {
-                var result =
-                    await _cacheStorageService.RetrieveFromCache<GetApprenticeshipsFilterValuesQueryResult>(cacheKey);
+                var result = await _cacheStorageService.RetrieveFromCache<GetApprenticeshipsFilterValuesQueryResult>(cacheKey);
 
                 if (result != null)
                 {
@@ -47,50 +46,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
                 }
             }
 
-            var stringDbTasks = new List<Task<List<string>>>();
-            
-            if (query.ProviderId.HasValue)
+            var queryResult = new GetApprenticeshipsFilterValuesQueryResult
             {
-                stringDbTasks.Add(GetDistinctEmployerNames(query, cancellationToken));
-            }
-
-            if (query.EmployerAccountId.HasValue)
-            {
-                stringDbTasks.Add(GetDistinctProviderNames(query, cancellationToken));
-            }
-
-            stringDbTasks.Add( GetDistinctCourseNames(query, cancellationToken));
-
-            var dateDbTasks = new[]{
-               GetDistinctStartDates(query, cancellationToken),
-               GetDistinctEndDates(query, cancellationToken)
+                StartDates = await GetDistinctStartDates(query, cancellationToken),
+                EndDates = await GetDistinctEndDates(query, cancellationToken),
+                CourseNames = await GetDistinctCourseNames(query, cancellationToken)
             };
 
-            var dbTasks = new List<Task>();
-            dbTasks.AddRange(stringDbTasks);
-            dbTasks.AddRange(dateDbTasks);
-
-            Task.WaitAll(dbTasks.ToArray<Task>());
-
-            var queryResult = await Task.FromResult(new GetApprenticeshipsFilterValuesQueryResult
-            {
-                StartDates = dateDbTasks[0].Result,
-                EndDates = dateDbTasks[1].Result
-            });
-
             if (query.ProviderId.HasValue)
             {
-                queryResult.EmployerNames = stringDbTasks[0].Result;
-                queryResult.CourseNames = stringDbTasks[1].Result;
+                queryResult.EmployerNames = await GetDistinctEmployerNames(query, cancellationToken);
             }
             else if (query.EmployerAccountId.HasValue)
             {
-                queryResult.ProviderNames = stringDbTasks[0].Result;
-                queryResult.CourseNames = stringDbTasks[1].Result;
-            }
-            else
-            {
-                queryResult.CourseNames = stringDbTasks[1].Result;
+                queryResult.ProviderNames = await GetDistinctProviderNames(query, cancellationToken);
             }
 
             await _cacheStorageService.SaveToCache(cacheKey, queryResult, 1);
@@ -98,9 +67,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             return queryResult;
         }
 
-        private Task<List<string>> GetDistinctEmployerNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        private async Task<List<string>> GetDistinctEmployerNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
-            return _dbContext.Apprenticeships
+            return await _dbContext.Apprenticeships
                 .WithProviderOrEmployerId(request)
 				.OrderBy(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
                 .Select(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
@@ -108,9 +77,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
                 .ToListAsync(cancellationToken);
         }
                 
-        private Task<List<string>> GetDistinctProviderNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        private async Task<List<string>> GetDistinctProviderNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
-            return _dbContext.Apprenticeships
+            return await _dbContext.Apprenticeships
                 .WithProviderOrEmployerId(request)
 				.OrderBy(apprenticeship => apprenticeship.Cohort.Provider.Name)
                 .Select(apprenticeship => apprenticeship.Cohort.Provider.Name)
@@ -118,9 +87,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
                 .ToListAsync(cancellationToken);
         }
 
-        private Task<List<string>> GetDistinctCourseNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        private async Task<List<string>> GetDistinctCourseNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
-            return _dbContext.Apprenticeships
+            return await _dbContext.Apprenticeships
                 .WithProviderOrEmployerId(request)
                 .OrderBy(apprenticeship => apprenticeship.CourseName)
                 .Select(apprenticeship => apprenticeship.CourseName)
@@ -128,9 +97,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
                 .ToListAsync(cancellationToken);
         }
 
-        private Task<List<DateTime>> GetDistinctStartDates(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        private async Task<List<DateTime>> GetDistinctStartDates(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
-            return _dbContext.Apprenticeships
+            return await _dbContext.Apprenticeships
                 .WithProviderOrEmployerId(request)
                 .Where(apprenticeship => apprenticeship.StartDate.HasValue)
                 .OrderBy(apprenticeship => apprenticeship.StartDate)
@@ -139,9 +108,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
                 .ToListAsync(cancellationToken);
         }
 
-        private Task<List<DateTime>> GetDistinctEndDates(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        private async Task<List<DateTime>> GetDistinctEndDates(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
-            return _dbContext.Apprenticeships
+            return await _dbContext.Apprenticeships
                 .WithProviderOrEmployerId(request)
                 .Where(apprenticeship => apprenticeship.EndDate.HasValue)
                 .OrderBy(apprenticeship => apprenticeship.EndDate)
