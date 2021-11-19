@@ -18,8 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEmailOptionalService emailService)
             => (_db, _emailService) = (db, emailService);
 
-        public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request,
-            CancellationToken cancellationToken)
+        public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
         {
             var db = _db.Value;
             var apprenticeEmailIsRequired = false;
@@ -33,9 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
             }
 
-            var result = await db.Cohorts
-                .Where(c => c.Id == request.CohortId)
-                .Select(c => new GetCohortSummaryQueryResult
+            var result = await db.Cohorts.Select(c => new GetCohortSummaryQueryResult
                 {
                     CohortId = c.Id,
                     AccountId = c.EmployerAccountId,
@@ -76,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
                     TransferApprovalStatus = c.TransferApprovalStatus
                 })
-                .SingleOrDefaultAsync(cancellationToken);
+                .SingleOrDefaultAsync(c => c.CohortId == request.CohortId, cancellationToken);
 
             return result;
         }
