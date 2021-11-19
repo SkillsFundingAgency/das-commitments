@@ -33,10 +33,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
             }
 
-            var latestMessageCreatedByEmployer = await db.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefaultAsync(cancellationToken);
-            var latestMessageCreatedByProvider = await db.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefaultAsync(cancellationToken);
-
-            var result = await db.Cohorts.Select(c => new GetCohortSummaryQueryResult
+            var result = await db.Cohorts
+                .Where(c => c.Id == request.CohortId)
+                .Select(c => new GetCohortSummaryQueryResult
                 {
                     CohortId = c.Id,
                     AccountId = c.EmployerAccountId,
@@ -49,8 +48,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     TransferSenderName = c.TransferSender.Name,
                     PledgeApplicationId = c.PledgeApplicationId,
                     WithParty = c.WithParty,
-                    LatestMessageCreatedByEmployer = latestMessageCreatedByEmployer,
-                    LatestMessageCreatedByProvider = latestMessageCreatedByProvider,
+                    LatestMessageCreatedByEmployer = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefault(),
+                    LatestMessageCreatedByProvider = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefault(),
                     ProviderId = c.ProviderId,
                     LastAction = c.LastAction,
                     LastUpdatedByEmployerEmail = c.LastUpdatedByEmployerEmail,
