@@ -106,15 +106,15 @@
 
         <table class="responsive twoColumn">
             <tbody>
-                <tr >
+                <tr>
                     <th class="tw-50">Legal entity</th>
                     <td>@Model.LegalEntity</td>
                 </tr>
-                <tr >
+                <tr>
                     <th>Training provider</th>
                     <td>@Model.TrainingProvider</td>
                 </tr>
-                <tr >
+                <tr>
                     <th>UKPRN</th>
                     <td>@Model.UKPRN</td>
                 </tr>
@@ -123,6 +123,20 @@
                     <th>Apprenticeship training course</th>
                     <td>@Model.Trainingcourse</td>
                 </tr>
+                @if (!string.IsNullOrWhiteSpace(Model.Version))
+                {
+                    <tr>
+                        <th>Version</th>
+                        <td>@Model.Version</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Option))
+                {
+                    <tr>
+                        <th>Option</th>
+                        <td>@Model.Option</td>
+                    </tr>
+                }
                 <tr>
                     <th>Apprenticeship code</th>
                     <td>@Model.ApprenticeshipCode</td>
