@@ -27,8 +27,17 @@ AS (
 				WHEN ProviderId_1 != 0 AND ProviderId != ProviderId_1 THEN
 				-- different provider, watch-out for retro-Approvals for earlier training period
 					(CASE WHEN StartDate < StartDate_1 AND EndDate < Enddate_1 THEN 1 ELSE 0 END)
+				ELSE
 				-- same Provider or only one record, so use latest CreatedOn unless	
-				ELSE 0 END 
+				-- ... possibly have same Provider with duplicated data (see PRB0041207 )
+				-- Prefer the record with Active, Paused or Completed payment status, over Awaiting Approval or Cancelled
+					(CASE PaymentStatus WHEN 0 THEN 1 /* Awaiting Approval */
+										WHEN 1 THEN 0 /* Active */
+										WHEN 2 THEN 0 /* Paused */
+										WHEN 3 THEN 1 /* Cancelled */
+										WHEN 4 THEN 0 /* Completed */ 
+										ELSE 1 END)   /* N/A */
+				END
 				,CreatedOn DESC ) LearningOrder
 			FROM (
 			-- inner query gets all records for each Apprenticeship, ORDER BY CreatedOn desc - there can be many but two iterations should be sufficient
