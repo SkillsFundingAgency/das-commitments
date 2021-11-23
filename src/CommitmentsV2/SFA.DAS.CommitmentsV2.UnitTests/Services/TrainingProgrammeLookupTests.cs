@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void Arrange()
         {
             _fixture = new Fixture();
+            _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         }
 
         [Test, MoqAutoData]
