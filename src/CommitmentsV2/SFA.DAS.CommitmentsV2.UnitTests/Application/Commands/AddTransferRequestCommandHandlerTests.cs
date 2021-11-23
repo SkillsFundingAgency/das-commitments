@@ -161,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Cohort.PledgeApplicationId = Fixture.Create<int>();
 
             LevyTransferMatchingApiClient.Setup(x => x.GetPledgeApplication(Cohort.PledgeApplicationId.Value))
-                .ReturnsAsync(new PledgeApplication {AllowTransferRequestAutoApproval = autoApproval});
+                .ReturnsAsync(new PledgeApplication { AutomaticApproval = autoApproval});
 
             return this;
         }

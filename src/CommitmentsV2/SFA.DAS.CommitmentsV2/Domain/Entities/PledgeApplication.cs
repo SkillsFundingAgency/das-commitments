@@ -5,7 +5,7 @@
         public long SenderEmployerAccountId { get; set; }
         public long ReceiverEmployerAccountId { get; set; }
         public ApplicationStatus Status { get; set; }
-        public bool AllowTransferRequestAutoApproval { get; set; }
+        public bool AutomaticApproval { get; set; }
         public int TotalAmount { get; set; }
         public int AmountUsed { get; set; }
 
