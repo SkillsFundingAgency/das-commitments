@@ -13,9 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             var waitingToStart = source.StartDate.HasValue && source.StartDate.Value > now;
 
             switch (source.PaymentStatus)
-            {
-                case PaymentStatus.PendingApproval: //TODO : Need to Check
-                    return ApprenticeshipStatus.WaitingToStart;
+            {               
                 case PaymentStatus.Active:
                     return waitingToStart ? ApprenticeshipStatus.WaitingToStart : ApprenticeshipStatus.Live;
                 case PaymentStatus.Paused:
