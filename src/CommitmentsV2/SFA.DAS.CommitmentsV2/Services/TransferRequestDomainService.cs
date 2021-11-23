@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -109,5 +112,82 @@ namespace SFA.DAS.CommitmentsV2.Services
                     .ThenInclude(c => c.Apprenticeships)
                     .SingleAsync(x => x.Id == id, cancellationToken);
         }
+
+        public async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestSummary(long accountId, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"Getting Transfer Request Summary for employer account {accountId}");
+
+            var receiverRequests = await GetTransferRequestsForReceiver(accountId);
+            var senderTransfers = await GetTransferRequestsForSender(accountId);
+            var result = Concatenate(receiverRequests.TransferRequestsSummaryQueryResult, senderTransfers.TransferRequestsSummaryQueryResult);
+
+            if (result != null)
+            {
+                _logger.LogInformation($"Retrieved Transfer Request Summary for employer account {accountId}");
+            }
+            else
+            {
+                _logger.LogInformation($"Cannot find Transfer Request Summary for employer account {accountId}");
+            }
+
+            return new GetTransferRequestsSummaryQueryResult
+            {
+                TransferRequestsSummaryQueryResult = result
+            };
+        }
+
+        private async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestsForReceiver(long accountId)
+        {
+            var receiverEmployerAccountIdParam = new SqlParameter("@receiverEmployerAccountId", accountId);
+
+            var results = await _dbContext.Value.TransferRequestSummary
+                             .FromSql("exec GetTransferRequestsForReceiver @receiverEmployerAccountId", receiverEmployerAccountIdParam)
+                             .ToListAsync();
+            
+            return new GetTransferRequestsSummaryQueryResult
+            {
+                TransferRequestsSummaryQueryResult = results.Select(x => MapFrom(x, TransferType.AsReceiver))
+            };
+        }
+
+        private async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestsForSender(long accountId)
+        {
+            var senderEmployerAccountIdParam = new SqlParameter("@senderEmployerAccountId", accountId);
+
+            var results = await _dbContext.Value.TransferRequestSummary
+                             .FromSql("exec GetTransferRequestsForSender @senderEmployerAccountId", senderEmployerAccountIdParam)
+                             .ToListAsync();
+            
+            return new GetTransferRequestsSummaryQueryResult
+            {
+                TransferRequestsSummaryQueryResult = results.Select(x => MapFrom(x, TransferType.AsSender))
+            };
+        }
+        public static IEnumerable<T> Concatenate<T>(params IEnumerable<T>[] lists)
+        {
+            return lists.SelectMany(x => x);
+        }
+
+        public TransferRequestsSummaryQueryResult MapFrom(TransferRequestSummary source, TransferType transferType)
+        {
+            if (source == null)
+                return null;
+
+            return new TransferRequestsSummaryQueryResult
+            {
+                TransferRequestId = source.TransferRequestId,
+                ReceivingEmployerAccountId = source.ReceivingEmployerAccountId,
+                CommitmentId = source.CommitmentId,
+                SendingEmployerAccountId = source.SendingEmployerAccountId,
+                CohortReference = source.CohortReference,
+                TransferCost = source.TransferCost,
+                TransferType = transferType,
+                Status = (TransferApprovalStatus)source.Status,
+                ApprovedOrRejectedByUserName = source.ApprovedOrRejectedByUserName,
+                ApprovedOrRejectedByUserEmail = source.ApprovedOrRejectedByUserEmail,
+                ApprovedOrRejectedOn = source.ApprovedOrRejectedOn,
+                FundingCap = source.FundingCap
+            };
+        }       
     }
 }

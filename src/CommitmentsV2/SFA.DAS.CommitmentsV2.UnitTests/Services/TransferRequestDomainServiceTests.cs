@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -12,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.UnitTests.Extensions;
 using SFA.DAS.UnitOfWork.Context;
 using System;
 using System.Collections.Generic;
@@ -214,6 +216,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             // Assert
             _fixture.VerifyTransferRequestRejectedEventIsPublished();
         }
+
+        [Test]
+        public async Task GetTransferRequestSummary()
+        {
+            //Arrange            
+            _fixture.WithTransferRequestSummaryContext();
+
+            //Act
+             await _fixture.GetTransferRequestSummary();
+
+            //Assert            
+            _fixture.VerifyTransferRequestSummary();
+        }
+
     }
 
     public class TransferRequestDomainServiceTestsFixture
@@ -223,8 +239,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public DateTime Now { get; }
         public TransferRequestDomainService Sut { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
+        public ProviderCommitmentsDbContext DbContext { get; set; }
         public Cohort Cohort { get; set; }
         public TransferRequest TransferRequest { get; set; }
+        public GetTransferRequestsSummaryQueryResult getTransferRequestsSummaryQueryResult { get; set; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
         public Fixture Fixture { get; set; }
         public Mock<ILogger<TransferRequestDomainService>> Logger { get; set; }
@@ -283,6 +301,46 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             return Sut.ApproveTransferRequest(transferRequestId, TransferSenderUserInfo, Now, default);
         }
+
+
+        public Task GetTransferRequestSummary()
+        {
+            var accountId = Fixture.Create<long>();
+            Sut = new TransferRequestDomainService(new Lazy<ProviderCommitmentsDbContext>(() => DbContext), Logger.Object);
+            return Sut.GetTransferRequestSummary(accountId, default);
+        }
+
+        public void WithTransferRequestSummaryContext()
+        {
+            var transferStatusSummaries = new SpAsyncEnumerableQueryable<TransferRequestSummary>(
+            new TransferRequestSummary() {  ApprovedOrRejectedByUserEmail = TransferSenderUserInfo.UserEmail },
+            new TransferRequestSummary()  { ApprovedOrRejectedByUserEmail = "test456@yahoo.com" });
+            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
+            DbContext = new ProviderCommitmentsDbContext(options);
+            DbContext.TransferRequestSummary = DbContext.TransferRequestSummary.MockFromSql(transferStatusSummaries);
+
+            getTransferRequestsSummaryQueryResult = new GetTransferRequestsSummaryQueryResult
+            {
+                TransferRequestsSummaryQueryResult = new List<TransferRequestsSummaryQueryResult>()
+                {
+                    new TransferRequestsSummaryQueryResult() {
+                        ApprovedOrRejectedByUserEmail = TransferSenderUserInfo.UserEmail
+                    },
+                    new TransferRequestsSummaryQueryResult()
+                    {
+                         ApprovedOrRejectedByUserEmail = "test@yahoo.com"
+                    }
+                }
+            };
+
+        }
+
+        public void VerifyTransferRequestSummary()
+        {
+            Assert.AreEqual(2, getTransferRequestsSummaryQueryResult.TransferRequestsSummaryQueryResult.Count());
+            Assert.AreEqual(TransferSenderUserInfo.UserEmail, getTransferRequestsSummaryQueryResult.TransferRequestsSummaryQueryResult.FirstOrDefault().ApprovedOrRejectedByUserEmail);
+        }
+
 
         public void VerifyTransferRequestApprovalPropertiesAreSet()
         {

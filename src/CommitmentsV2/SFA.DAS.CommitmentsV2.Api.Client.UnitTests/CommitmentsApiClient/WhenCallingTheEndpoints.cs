@@ -675,6 +675,32 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{ providerId}/commitmentagreements", null, CancellationToken.None));
         }
+
+        [Test]
+        public async Task GetEmployerAccountSummary_VerifyUrlAndDataIsCorrectlyPassedIn()
+        {
+            //Arrange
+            var employerAccountId = 123;
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetEmployerAccountSummary(employerAccountId, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipStatusSummaryResponse>($"api/accounts/{employerAccountId}/employer-account-summary", CancellationToken.None, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetTransferRequests_VerifyUrlAndDataIsCorrectlyPassedIn()
+        {
+            //Arrange
+            var employerAccountId = 123;
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetTransferRequests(employerAccountId, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetTransferRequestSummaryResponse>($"api/accounts/{employerAccountId}/transfers", CancellationToken.None, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture

@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -79,6 +80,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var result = await _mediator.Send(new GetProviderPaymentsPriorityQuery(accountId));
             var response = await _modelMapper.Map<GetProviderPaymentsPriorityResponse>(result);
 
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("{employerAccountId}/employer-account-summary")]
+        public async Task<IActionResult> GetEmployerAccountSummary(long employerAccountId)
+        {
+            var query = new GetApprenticeshipStatusSummaryQuery(employerAccountId);
+            var result = await _mediator.Send(query);
+
+            if (result == null) { return NotFound(); }
+
+            var response = await _modelMapper.Map<GetApprenticeshipStatusSummaryResponse>(result);
             return Ok(response);
         }
 
