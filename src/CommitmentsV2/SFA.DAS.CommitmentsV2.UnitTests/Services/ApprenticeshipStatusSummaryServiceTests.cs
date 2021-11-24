@@ -29,24 +29,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public async Task TestHandler()
+        public async Task GetApprenticeshipStatusSummary()
         {
             //Arrange            
-            var apprenticeshipStatusSummaries = new SpAsyncEnumerableQueryable<ApprenticeshipStatusSummary>(new ApprenticeshipStatusSummary()
-            {
-                LegalEntityId = "SC171417",
-                LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
-                PaymentStatus = Types.PaymentStatus.Paused,
-                Count = 1
-            },
-            new ApprenticeshipStatusSummary()
-            {
-                LegalEntityId = "SC171417",
-                LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
-                PaymentStatus = Types.PaymentStatus.Active,
-                Count = 2402
-            });
-
+            SpAsyncEnumerableQueryable<ApprenticeshipStatusSummary> apprenticeshipStatusSummaries = SeedData();
             //https://nodogmablog.bryanhogan.net/2017/11/unit-testing-entity-framework-core-stored-procedures/           
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
             ProviderCommitmentsDbContext context = new ProviderCommitmentsDbContext(options);
@@ -61,9 +47,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             //Assert
             Assert.IsNotNull(_result);
             Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityIdentifier, "SC171417");
-            Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityOrganisationType, Api.Types.Responses.OrganisationType.CompaniesHouse);
+            Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityOrganisationType, (Common.Domain.Types.OrganisationType)OrganisationType.CompaniesHouse);
             Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().ActiveCount, 2402);
-            Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().PausedCount, 1);            
+            Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().PausedCount, 1);
+        }       
+
+        private static SpAsyncEnumerableQueryable<ApprenticeshipStatusSummary> SeedData()
+        {
+            return new SpAsyncEnumerableQueryable<ApprenticeshipStatusSummary>(new ApprenticeshipStatusSummary()
+            {
+                LegalEntityId = "SC171417",
+                LegalEntityOrganisationType = (Common.Domain.Types.OrganisationType)OrganisationType.CompaniesHouse,
+                PaymentStatus = Types.PaymentStatus.Paused,
+                Count = 1
+            },
+            new ApprenticeshipStatusSummary()
+            {
+                LegalEntityId = "SC171417",
+                LegalEntityOrganisationType = (Common.Domain.Types.OrganisationType)OrganisationType.CompaniesHouse,
+                PaymentStatus = Types.PaymentStatus.Active,
+                Count = 2402
+            });
         }
     }   
 }

@@ -22,8 +22,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
     [TestFixture]
     public class GetAccountLegalEntityHandlerTests
     {
-        //[TestCase(123,456,987, ApprenticeshipEmployerType.Levy)]
-        //[TestCase(1234, 4567, 9870, ApprenticeshipEmployerType.NonLevy)]
+        [TestCase(123,456,987, ApprenticeshipEmployerType.Levy)]
+        [TestCase(1234, 4567, 9870, ApprenticeshipEmployerType.NonLevy)]
         public async Task Handle_WithSpecifiedId_ShouldSetIsValidCorrectly(long accountId, long accountLegalEntityId, long maLegalEntityId, ApprenticeshipEmployerType levyStatus)
         {
             // arrange

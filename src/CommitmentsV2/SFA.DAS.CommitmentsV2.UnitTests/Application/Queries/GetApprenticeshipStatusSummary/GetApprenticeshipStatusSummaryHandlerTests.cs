@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipS
         private Mock<IApprenticeshipStatusSummaryService> _mockApprenticeshipStatusSummaryService;
 
         [Test]
-        public async Task TestService()
+        public async Task Handle_ThenShouldReturnResultWithValues()
         {
             //Arrange            
             _mockApprenticeshipStatusSummaryService = new Mock<IApprenticeshipStatusSummaryService>();

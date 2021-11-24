@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     apprenticeshipsStatusSummaries.Add(legalEntityId, new GetApprenticeshipStatusSummaryQueryResult
                     {
                         LegalEntityIdentifier = legalEntityId,
-                        LegalEntityOrganisationType = (Api.Types.Responses.OrganisationType)organisationType
+                        LegalEntityOrganisationType = organisationType
                     });
                 }
 

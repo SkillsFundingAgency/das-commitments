@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<TransferRequestSummary> builder)
         {
-            builder.HasKey(x => x.CommitmentId);
+            builder.HasKey(x => new { x.CommitmentId, x.TransferRequestId });
             builder.Property(x => x.CommitmentId).HasColumnType("long");
             builder.Property(x => x.FundingCap).HasColumnType("money");
             builder.Property(x => x.ApprovedOrRejectedByUserEmail).HasMaxLength(255);

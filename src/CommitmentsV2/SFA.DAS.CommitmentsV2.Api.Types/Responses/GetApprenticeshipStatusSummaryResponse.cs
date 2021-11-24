@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using SFA.DAS.Common.Domain.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
@@ -17,14 +18,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public int PausedCount { get; set; }
         public int WithdrawnCount { get; set; }
         public int CompletedCount { get; set; }
-    }
-
-    public enum OrganisationType : short
-    {
-        CompaniesHouse = 1,
-        Charities = 2,
-        PublicBodies = 3,
-        Other = 4,
-        PensionsRegulator = 5
-    }
+    }   
 }

@@ -8,9 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<ApprenticeshipStatusSummary> builder)
         {
-            //builder.HasKey(e => e.LegalEntityId);
-            builder.HasKey(e => e.Count);
-            builder.Property(x => x.LegalEntityId).HasColumnName("LegalEntityId").HasColumnType("varchar").HasMaxLength(100).IsRequired();
+            builder.HasKey(x => new { x.LegalEntityId, x.PaymentStatus });
+            builder.Property(e => e.LegalEntityId).HasColumnName("LegalEntityId").HasColumnType("varchar").HasMaxLength(100).IsRequired();
             builder.Property(e => e.PaymentStatus).IsRequired().HasColumnType("smallint");
             builder.Property(e => e.LegalEntityOrganisationType).IsRequired().HasColumnType("smallint");
             builder.Property(e => e.Count).HasColumnType("int").IsRequired();
