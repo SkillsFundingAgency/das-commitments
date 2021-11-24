@@ -778,6 +778,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckIsWithParty(Party.TransferSender);
             StartTrackingSession(UserAction.RejectTransferRequest, Party.TransferSender, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
+            TransferApprovalStatus = Types.TransferApprovalStatus.Rejected;
             EditStatus = EditStatus.EmployerOnly;
             WithParty = Party.Employer;
             LastUpdatedOn = DateTime.UtcNow;
