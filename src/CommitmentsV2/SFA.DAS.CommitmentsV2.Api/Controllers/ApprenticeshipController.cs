@@ -57,6 +57,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetApprenticeships([FromQuery] GetApprenticeshipsRequest request)
         {
+            var logText = request.AccountId != null ? "Employer account Id :" + (request.AccountId ?? 0) : ", Provider Id :" + (request.ProviderId ?? 0);
+            _logger.LogInformation("Get apprenticeships for : " +  logText);
             try
             {
                 var filterValues = new ApprenticeshipSearchFilters
