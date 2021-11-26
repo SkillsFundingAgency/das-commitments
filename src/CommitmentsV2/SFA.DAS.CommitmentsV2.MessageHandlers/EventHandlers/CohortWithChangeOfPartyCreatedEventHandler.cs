@@ -26,19 +26,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             try
             {
-                var changeOfPartyRequestTask =
-                    _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
-                var cohortTask = _dbContext.Value.GetCohortAggregate(message.CohortId, default);
-
-                await Task.WhenAll(changeOfPartyRequestTask, cohortTask);
-
-                var changeOfPartyRequest = await changeOfPartyRequestTask;
-                var cohort = await cohortTask;
+                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+                var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
 
                 if (changeOfPartyRequest.CohortId.HasValue)
                 {
-                    _logger.LogWarning(
-                        $"ChangeOfPartyRequest {changeOfPartyRequest.Id} already has CohortId {changeOfPartyRequest.CohortId} - {nameof(CohortWithChangeOfPartyCreatedEvent)} with CohortId {message.CohortId} will be ignored");
+                    _logger.LogWarning($"ChangeOfPartyRequest {changeOfPartyRequest.Id} already has CohortId {changeOfPartyRequest.CohortId} - {nameof(CohortWithChangeOfPartyCreatedEvent)} with CohortId {message.CohortId} will be ignored");
                     return;
                 }
 
