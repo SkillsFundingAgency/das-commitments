@@ -51,7 +51,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 ApprenticeshipCode = apprenticeship.TrainingCode,
                 DasTrainingStartDate = apprenticeship.StartDate,
                 DasTrainingEndDate = apprenticeship.EndDate,
-                TrainingCost = apprenticeship.Cost
+                TrainingCost = apprenticeship.Cost,
+                Version = apprenticeship.TrainingCourseVersionConfirmed ? apprenticeship.TrainingCourseVersion : null,
+                Option = apprenticeship.TrainingCourseOption == string.Empty ? "To be confirmed" : apprenticeship.TrainingCourseOption
             };
         }
 
