@@ -40,5 +40,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
 
         public Decimal? TrainingCost { get; set; }
 
+        public string Version { get; set; }
+        public string Option { get; set; }
+
     }
 }

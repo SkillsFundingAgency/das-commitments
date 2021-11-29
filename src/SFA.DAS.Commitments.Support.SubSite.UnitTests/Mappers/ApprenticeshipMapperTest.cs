@@ -23,6 +23,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
     {
         private Mock<IHashingService> _hashingService;
         private Apprenticeship _mockedApprenticeship;
+        private Apprenticeship _mockedApprenticeshipNotConfirmedVersion;
+        private Apprenticeship _mockedApprenticeshipNotConfirmedOption;
         private ApprenticeshipMapper _mapper;
 
         [SetUp]
@@ -33,8 +35,28 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             {
                 FirstName = "Test",
                 LastName = "Me",
+                TrainingCourseVersionConfirmed = true,
+                TrainingCourseVersion = "1.1",
+                TrainingCourseOption = "English",
                 Email = "test@test.com",
                 ConfirmationStatusDescription =  "Confirmed"
+            };
+
+            _mockedApprenticeshipNotConfirmedVersion = new Apprenticeship
+            {
+                FirstName = "Test",
+                LastName = "Test2",
+                TrainingCourseVersionConfirmed = false,
+                TrainingCourseVersion = "1.1"
+            };
+
+            _mockedApprenticeshipNotConfirmedOption = new Apprenticeship
+            {
+                FirstName = "Test",
+                LastName = "Test2",
+                TrainingCourseVersionConfirmed = true,
+                TrainingCourseVersion = "1.1",
+                TrainingCourseOption = ""
             };
 
             _mapper = new ApprenticeshipMapper(_hashingService.Object);
@@ -65,6 +87,33 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeship);
             result.Should().NotBeNull();
             result.Should().BeOfType<ApprenticeshipViewModel>();
+        }
+
+        [Test]
+        public void ShouldMapApprenticeshipVersionToViewModelVersion()
+        {
+            var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeship);
+            result.Version.Should().Be(_mockedApprenticeship.TrainingCourseVersion);
+        }
+
+        [Test]
+        public void ShouldMapApprenticeshipOptionToViewModelOption()
+        {
+            var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeship);
+            result.Option.Should().Be(_mockedApprenticeship.TrainingCourseOption);
+        }
+
+        public void ShouldMapApprenticeshipVersionNotConfirmedToViewModelVersionEmpty()
+        {
+            var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeshipNotConfirmedVersion);
+            result.Version.Should().BeNullOrEmpty();
+        }
+
+        [Test]
+        public void ShouldMapApprenticeshipNotYetConfirmedOptionToViewModelOptionToBeConfirmed()
+        {
+            var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeshipNotConfirmedOption);
+            result.Option.Should().Be("To be confirmed");
         }
 
         [Test]
