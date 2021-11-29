@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.EmailValidationService;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
