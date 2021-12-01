@@ -17,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.Logging
                     CaptureMessageTemplates = true,
                     CaptureMessageProperties = true
                 });
+                options.AddConsole();
 
                 NLogConfiguration.ConfigureNLog();
             });
