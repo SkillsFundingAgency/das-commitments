@@ -25,12 +25,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                     .ConfigureDasAppConfiguration(args)
                     .ConfigureAppConfiguration(c => c.AddAzureTableStorage(Reservations.Api.Types.Configuration.ConfigurationKeys.ReservationsClientApiConfiguration))
                     .UseConsoleLifetime()
+                    .ConfigureLogging(b => b.AddNLog())
                     .UseStructureMap()
                     .ConfigureServices((c, s) => s
                         .AddDasDistributedMemoryCache(c.Configuration, c.HostingEnvironment.IsDevelopment())
                         .AddMemoryCache()
-                        .AddNServiceBus()
-                        .AddNLog())
+                        .AddNServiceBus())
                     .ConfigureContainer<Registry>(IoC.Initialize);
 
                 using (var host = hostBuilder.Build())
