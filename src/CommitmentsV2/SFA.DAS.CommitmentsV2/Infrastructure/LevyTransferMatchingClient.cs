@@ -33,13 +33,9 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
 
             if (!_httpClient.BaseAddress.IsLoopback)
             {
-                _logger.LogInformation($"Obtaining access token");
                 var token = await _accessTokenProvider.GetAccessToken();
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                _logger.LogInformation($"Obtained access token");
             }
-
-            _logger.LogInformation($"Getting {_httpClient.BaseAddress}/applications/{id}");
 
             var response = await _httpClient.GetAsync($"applications/{id}").ConfigureAwait(false);
 

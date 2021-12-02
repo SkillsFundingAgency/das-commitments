@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models.Api;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -13,14 +15,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     public class TransferRequestWithAutoApprovalCreatedEventHandler : IHandleMessages<TransferRequestWithAutoApprovalCreatedEvent>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
+        private readonly IApiClient _apiClient;
         private readonly ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> _logger;
 
-        public TransferRequestWithAutoApprovalCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> logger, ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
+        public TransferRequestWithAutoApprovalCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> logger, IApiClient apiClient)
         {
             _dbContext = dbContext;
             _logger = logger;
-            _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
+            _apiClient = apiClient;
         }
 
         public async Task Handle(TransferRequestWithAutoApprovalCreatedEvent message, IMessageHandlerContext context)
@@ -32,7 +34,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             var transferRequest = await db.TransferRequests.Include(c => c.Cohort)
                 .SingleAsync(x => x.Id == message.TransferRequestId);
 
-            var pledgeApplication = await _levyTransferMatchingApiClient.GetPledgeApplication(message.PledgeApplicationId);
+            var apiRequest = new GetPledgeApplicationRequest(message.PledgeApplicationId);
+
+            var pledgeApplication = await _apiClient.Get<PledgeApplication>(apiRequest);
 
             if (transferRequest.FundingCap.Value <= pledgeApplication.AmountRemaining)
             {

@@ -5,7 +5,6 @@ using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
-using SFA.DAS.CommitmentsV2.MessageHandlers.Logging;
 using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
 using SFA.DAS.CommitmentsV2.Startup;
 using SFA.DAS.Configuration.AzureTableStorage;

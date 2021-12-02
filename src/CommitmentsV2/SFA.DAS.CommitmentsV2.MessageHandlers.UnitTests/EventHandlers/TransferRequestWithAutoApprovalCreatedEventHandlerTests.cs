@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Models.Api;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -51,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public TransferRequestWithAutoApprovalCreatedEvent _event;
             public TransferRequest TransferRequest { get; private set; }
             public PledgeApplication PledgeApplication { get; private set; }
-            public Mock<ILevyTransferMatchingApiClient> LevyTransferMatchingApiClient { get; private set; }
+            public Mock<IApiClient> LevyTransferMatchingApiClient { get; private set; }
             public ProviderCommitmentsDbContext Db { get; set; }
             public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
@@ -67,8 +68,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 var pledgeApplicationId = Fixture.Create<int>();
                 _event = new TransferRequestWithAutoApprovalCreatedEvent(1, pledgeApplicationId, DateTime.UtcNow);
                 PledgeApplication = new PledgeApplication();
-                LevyTransferMatchingApiClient = new Mock<ILevyTransferMatchingApiClient>();
-                LevyTransferMatchingApiClient.Setup(x => x.GetPledgeApplication(pledgeApplicationId)).ReturnsAsync(PledgeApplication);
+                LevyTransferMatchingApiClient = new Mock<IApiClient>();
+                LevyTransferMatchingApiClient.Setup(x => x.Get<PledgeApplication>(It.IsAny<GetPledgeApplicationRequest>())).ReturnsAsync(PledgeApplication);
 
                 _handler = new TransferRequestWithAutoApprovalCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                     Mock.Of<ILogger<TransferRequestWithAutoApprovalCreatedEventHandler>>(),
@@ -89,6 +90,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public TransferRequestWithAutoApprovalCreatedEventHandlerTestsFixture WithPledgeApplication(int fundsRemaining)
             {
+                PledgeApplication.AmountRemaining = fundsRemaining;
                 PledgeApplication.TotalAmount = fundsRemaining;
                 PledgeApplication.AmountUsed = 0;
                 return this;
