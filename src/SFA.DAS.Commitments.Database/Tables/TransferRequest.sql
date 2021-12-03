@@ -11,6 +11,7 @@
 
     [CreatedOn] DATETIME2 NOT NULL DEFAULT GETDATE(), 
     [FundingCap] MONEY NULL, 
+    [AutoApproval] BIT NOT NULL DEFAULT 0, 
     CONSTRAINT [FK_TransferRequest_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id])
 
 )
