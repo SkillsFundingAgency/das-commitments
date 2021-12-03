@@ -11,12 +11,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
        
         public string PaymentStatus { get; set; }
         public string AgreementStatus { get; set; }
+        public string ConfirmationStatusDescription { get; set; }
         public IEnumerable<string> Alerts { get; set; }
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Name => $"{FirstName} {LastName}";
 
+        public string Email { get; set; }
         public string Uln { get; set; }
         public string UlnText => string.IsNullOrEmpty(Uln) ? "Pending" : Uln;
         public DateTime? DateOfBirth { get; set; }

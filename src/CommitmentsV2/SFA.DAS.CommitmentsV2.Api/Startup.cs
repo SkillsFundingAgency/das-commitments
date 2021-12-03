@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApiConfigurationSections(Configuration)
-                .AddApiAuthentication(Configuration)
+                .AddApiAuthentication(Configuration, _env.IsDevelopment())
                 .AddApiAuthorization(_env)
                 .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
                 .AddMvc(o =>
