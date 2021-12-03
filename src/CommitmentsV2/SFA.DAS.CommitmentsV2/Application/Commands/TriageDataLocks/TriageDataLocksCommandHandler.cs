@@ -63,8 +63,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.TriageDataLocks
         {
             var courseAndPriceOrOnlyCourse = dataLocksToBeUpdated.All(DataLockStatusExtensions.WithCourseError)
                                           || dataLocksToBeUpdated.Any(DataLockStatusExtensions.WithCourseAndPriceError);
+
+            var IsResolved = apprenticeship.DataLockStatus.All(d => d.IsResolved && !d.IsExpired);
+
             if (courseAndPriceOrOnlyCourse
                 && apprenticeship.HasHadDataLockSuccess
+                && IsResolved
                 && command.TriageStatus == TriageStatus.Change)
             {                
                 throw new InvalidOperationException($"Trying to update data lock for apprenticeship: {command.ApprenticeshipId} with triage status ({command.TriageStatus}) and datalock with course and price when Successful DataLock already received");
