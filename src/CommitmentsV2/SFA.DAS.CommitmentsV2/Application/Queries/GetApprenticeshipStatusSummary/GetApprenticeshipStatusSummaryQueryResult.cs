@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSumma
     public class GetApprenticeshipStatusSummaryQueryResult
     {
         public string LegalEntityIdentifier { get; set; }
-        public OrganisationType LegalEntityOrganisationType { get; set; }
+        public SFA.DAS.CommitmentsV2.Models.OrganisationType LegalEntityOrganisationType { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public int Count { get; set; }
         public int PendingApprovalCount { get; set; }

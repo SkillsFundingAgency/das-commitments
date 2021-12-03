@@ -57,14 +57,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return new SpAsyncEnumerableQueryable<ApprenticeshipStatusSummary>(new ApprenticeshipStatusSummary()
             {
                 LegalEntityId = "SC171417",
-                LegalEntityOrganisationType = (Common.Domain.Types.OrganisationType)OrganisationType.CompaniesHouse,
+                LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
                 PaymentStatus = Types.PaymentStatus.Paused,
                 Count = 1
             },
             new ApprenticeshipStatusSummary()
             {
                 LegalEntityId = "SC171417",
-                LegalEntityOrganisationType = (Common.Domain.Types.OrganisationType)OrganisationType.CompaniesHouse,
+                LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
                 PaymentStatus = Types.PaymentStatus.Active,
                 Count = 2402
             });

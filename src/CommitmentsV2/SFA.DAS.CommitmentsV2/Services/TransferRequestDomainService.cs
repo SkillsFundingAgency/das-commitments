@@ -138,30 +138,91 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestsForReceiver(long accountId)
         {
-            var receiverEmployerAccountIdParam = new SqlParameter("@receiverEmployerAccountId", accountId);
+            /*var receiverEmployerAccountIdParam = new SqlParameter("@receiverEmployerAccountId", accountId);
 
             var results = await _dbContext.Value.TransferRequestSummary
                              .FromSql("exec GetTransferRequestsForReceiver @receiverEmployerAccountId", receiverEmployerAccountIdParam)
-                             .ToListAsync();
-            
+                             .ToListAsync();*/
+
+            var transferRequestsForReceiverSummary = await (from tran in _dbContext.Value.TransferRequests
+                                                            join coh in _dbContext.Value.Cohorts on tran.CommitmentId equals coh.Id
+                                               join ale in _dbContext.Value.AccountLegalEntities on coh.AccountLegalEntityId equals ale.Id
+                                               where coh.EmployerAccountId == accountId
+                                               select new TransferRequestSummary
+                                               {
+                                                    ApprovedOrRejectedByUserName = tran.TransferApprovalActionedByEmployerName,
+                                                    ApprovedOrRejectedByUserEmail = tran.TransferApprovalActionedByEmployerEmail,
+                                                    ApprovedOrRejectedOn = tran.TransferApprovalActionedOn,
+                                                    CohortReference = coh.Reference,
+                                                    CommitmentId = tran.CommitmentId,
+                                                    CreatedOn = tran.CreatedOn,
+                                                    FundingCap = (int)tran.FundingCap, //TODO : change the model to decimal
+                                                    ReceivingEmployerAccountId = coh.EmployerAccountId,
+                                                    SendingEmployerAccountId = (long)coh.TransferSenderId,
+                                                    Status = tran.Status,
+                                                    TransferCost = tran.Cost,
+                                                    TransferRequestId = tran.Id
+                                                   
+                                               }).ToListAsync();
+
+
+            var finaloutcome = transferRequestsForReceiverSummary.Where(x => x.ReceivingEmployerAccountId == accountId)
+                 .OrderBy(o => o.CommitmentId)
+                 .ThenBy(t => t.CreatedOn);
+
+
             return new GetTransferRequestsSummaryQueryResult
             {
-                TransferRequestsSummaryQueryResult = results.Select(x => MapFrom(x, TransferType.AsReceiver))
+                TransferRequestsSummaryQueryResult = finaloutcome.Select(x => MapFrom(x, TransferType.AsReceiver))
+                //TransferRequestsSummaryQueryResult =  results.Select(x => MapFrom(x, TransferType.AsReceiver))                
             };
         }
 
         private async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestsForSender(long accountId)
         {
-            var senderEmployerAccountIdParam = new SqlParameter("@senderEmployerAccountId", accountId);
+           /* var senderEmployerAccountIdParam = new SqlParameter("@senderEmployerAccountId", accountId);
 
             var results = await _dbContext.Value.TransferRequestSummary
                              .FromSql("exec GetTransferRequestsForSender @senderEmployerAccountId", senderEmployerAccountIdParam)
-                             .ToListAsync();
-            
+                             .ToListAsync();*/
+
+
+            var transferRequestsForReceiverSummary = await (from tran in _dbContext.Value.TransferRequests
+                                                            join coh in _dbContext.Value.Cohorts on tran.CommitmentId equals coh.Id
+                                                            join ale in _dbContext.Value.AccountLegalEntities on coh.AccountLegalEntityId equals ale.Id
+                                                            where coh.EmployerAccountId == accountId
+                                                            select new TransferRequestSummary
+                                                            {
+                                                                ApprovedOrRejectedByUserName = tran.TransferApprovalActionedByEmployerName,
+                                                                ApprovedOrRejectedByUserEmail = tran.TransferApprovalActionedByEmployerEmail,
+                                                                ApprovedOrRejectedOn = tran.TransferApprovalActionedOn,
+                                                                CohortReference = coh.Reference,
+                                                                CommitmentId = tran.CommitmentId,
+                                                                CreatedOn = tran.CreatedOn,
+                                                                FundingCap = (int)tran.FundingCap, //TODO : change the model to decimal
+                                                                ReceivingEmployerAccountId = coh.EmployerAccountId,
+                                                                SendingEmployerAccountId = (long)coh.TransferSenderId,
+                                                                Status = tran.Status,
+                                                                TransferCost = tran.Cost,
+                                                                TransferRequestId = tran.Id
+
+                                                            }).ToListAsync();
+
+
+            var finaloutcome = transferRequestsForReceiverSummary.Where(x => x.SendingEmployerAccountId == accountId)
+                 .OrderBy(o => o.CommitmentId)
+                 .ThenBy(t => t.CreatedOn);
+
+
             return new GetTransferRequestsSummaryQueryResult
             {
-                TransferRequestsSummaryQueryResult = results.Select(x => MapFrom(x, TransferType.AsSender))
+                TransferRequestsSummaryQueryResult = finaloutcome.Select(x => MapFrom(x, TransferType.AsSender))                              
             };
+
+            //return new GetTransferRequestsSummaryQueryResult
+            //{
+            //    TransferRequestsSummaryQueryResult = results.Select(x => MapFrom(x, TransferType.AsSender))
+            //};
         }
         public static IEnumerable<T> Concatenate<T>(params IEnumerable<T>[] lists)
         {

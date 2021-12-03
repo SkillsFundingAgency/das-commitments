@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Models
     public class ApprenticeshipStatusSummary
     {        
         public string LegalEntityId { get; set; }
-        public Common.Domain.Types.OrganisationType LegalEntityOrganisationType { get; set; }
+        public SFA.DAS.CommitmentsV2.Models.OrganisationType LegalEntityOrganisationType { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public int Count { get; set; }
     }
