@@ -19,5 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string ApprovedOrRejectedByUserEmail { get; set; }
         public DateTime? ApprovedOrRejectedOn { get; set; }
         public int FundingCap { get; set; }
+        public bool AutoApproval { get; set; }
+        public int PledgeApplicationId { get; set; }
     }
 }

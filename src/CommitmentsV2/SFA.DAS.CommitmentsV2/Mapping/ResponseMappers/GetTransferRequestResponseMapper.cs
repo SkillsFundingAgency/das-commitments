@@ -26,7 +26,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 ApprovedOrRejectedByUserName = source.ApprovedOrRejectedByUserName,
                 ApprovedOrRejectedByUserEmail = source.ApprovedOrRejectedByUserEmail,
                 ApprovedOrRejectedOn = source.ApprovedOrRejectedOn,
-                FundingCap = source.FundingCap
+                FundingCap = source.FundingCap,
+                AutoApproval = source.AutoApproval,
+                PledgeApplicationId = source.PledgeApplicationId
             });
         }
     }
