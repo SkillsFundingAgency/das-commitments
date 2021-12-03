@@ -31,11 +31,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             _logger.LogInformation($"Processing auto-approval for Transfer Request {message.TransferRequestId} Pledge Application {message.PledgeApplicationId}");
 
-            var transferRequest = await db.TransferRequests.Include(c => c.Cohort)
+            var transferRequest = await db.TransferRequests.Include(c => c.Cohort).ThenInclude(c => c.Apprenticeships)
                 .SingleAsync(x => x.Id == message.TransferRequestId);
 
-            var apiRequest = new GetPledgeApplicationRequest(message.PledgeApplicationId);
+            if(transferRequest.Cohort.PledgeApplicationId.Value != message.PledgeApplicationId)
+            {
+                _logger.LogError($"Cohort PledgeApplicationId {transferRequest.Cohort.PledgeApplicationId.Value} does not match message {message.PledgeApplicationId}");
+                return;
+            }
 
+            if(!transferRequest.AutoApproval)
+            {
+                _logger.LogError($"Transfer Request {message.TransferRequestId} is not marked for auto-approval");
+                return;
+            }
+
+            var apiRequest = new GetPledgeApplicationRequest(message.PledgeApplicationId);
             var pledgeApplication = await _apiClient.Get<PledgeApplication>(apiRequest);
 
             if (transferRequest.FundingCap.Value <= pledgeApplication.AmountRemaining)
