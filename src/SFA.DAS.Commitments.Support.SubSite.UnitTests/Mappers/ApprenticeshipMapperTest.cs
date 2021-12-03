@@ -37,7 +37,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                 LastName = "Me",
                 TrainingCourseVersionConfirmed = true,
                 TrainingCourseVersion = "1.1",
-                TrainingCourseOption = "English"
+                TrainingCourseOption = "English",
+                Email = "test@test.com",
+                ConfirmationStatusDescription =  "Confirmed"
             };
 
             _mockedApprenticeshipNotConfirmedVersion = new Apprenticeship
@@ -112,6 +114,20 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         {
             var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeshipNotConfirmedOption);
             result.Option.Should().Be("To be confirmed");
+        }
+
+        [Test]
+        public void ShouldMapApprenticeshipEmailToApprenticeshipViewModelEmail()
+        {
+            var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeship);
+            result.Email.Should().Be(_mockedApprenticeship.Email);
+        }
+
+        [Test]
+        public void ShouldMapConfirmationStatusToApprenticeshipViewModelConfirmationStatus()
+        {
+            var result = _mapper.MapToApprenticeshipViewModel(_mockedApprenticeship);
+            result.ConfirmationStatusDescription.Should().Be(_mockedApprenticeship.ConfirmationStatusDescription);
         }
 
     }

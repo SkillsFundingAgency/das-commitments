@@ -218,6 +218,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             return identifier.EmployerAccountId.HasValue ?
                 apprenticeships
                     .Include(app => app.ApprenticeshipConfirmationStatus)
+                    .Include(app => app.Cohort)
                     .Where(app => app.Cohort.EmployerAccountId == identifier.EmployerAccountId)
                      : apprenticeships;
         }

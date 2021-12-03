@@ -68,6 +68,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public IEnumerable<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public bool IsChangeOfProviderContinuation { get; set; }
         public string Email { get; set; }
+        public string ConfirmationStatusDescription { get; set; }
 
         public Apprenticeship Clone()
         {

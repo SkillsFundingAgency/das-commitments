@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Servic
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Data.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services
 {
