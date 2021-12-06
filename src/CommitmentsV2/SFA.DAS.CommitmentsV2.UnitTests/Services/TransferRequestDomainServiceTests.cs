@@ -13,10 +13,9 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.UnitTests.Extensions;
+using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -220,16 +219,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task GetTransferRequestSummary()
         {
-            //Arrange            
-            _fixture.WithTransferRequestSummaryContext();
+            //Arrange          
+            _fixture.WithTransferRequestSummary();
 
             //Act
-             await _fixture.GetTransferRequestSummary();
+            await _fixture.GetTransferRequestSummary();
 
             //Assert            
-            _fixture.VerifyTransferRequestSummary();
+            _fixture.VerifyTransferRequestSummary();            
         }
-
     }
 
     public class TransferRequestDomainServiceTestsFixture
@@ -239,7 +237,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public DateTime Now { get; }
         public TransferRequestDomainService Sut { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
-        public ProviderCommitmentsDbContext DbContext { get; set; }
         public Cohort Cohort { get; set; }
         public TransferRequest TransferRequest { get; set; }
         public GetTransferRequestsSummaryQueryResult getTransferRequestsSummaryQueryResult { get; set; }
@@ -261,6 +258,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Logger = new Mock<ILogger<TransferRequestDomainService>>();
             Sut = new TransferRequestDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger.Object);
 
+            var accountLegalEntity = new AccountLegalEntity()
+             .Set(a => a.LegalEntityId, Fixture.Create<string>())
+             .Set(a => a.OrganisationType, OrganisationType.CompaniesHouse)
+             .Set(a => a.Id, 444);
+
             Cohort = new Cohort(
                 Fixture.Create<long>(),
                 Fixture.Create<long>(),
@@ -268,7 +270,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 null,
                 null,
                 Party.Employer,
-                "",
+                "",                
                 new UserInfo())
             { EmployerAccountId = 100, TransferSenderId = 99 };
 
@@ -277,6 +279,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Cohort.EditStatus = EditStatus.Both;
             Cohort.TransferApprovalStatus = TransferApprovalStatus.Pending;
             Cohort.TransferSenderId = 10900;
+            Cohort.AccountLegalEntity = accountLegalEntity;
+            Cohort.EmployerAccountId = 222;
             
             TransferSenderUserInfo = Fixture.Create<UserInfo>();
             TransferRequest = new TransferRequest
@@ -286,6 +290,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public TransferRequestDomainServiceTestsFixture WithTransferRequest(TransferApprovalStatus status)
         {
             TransferRequest.Status = status;
+            Db.TransferRequests.Add(TransferRequest);
+            Db.SaveChanges();
+
+            return this;
+        }
+
+        public TransferRequestDomainServiceTestsFixture WithTransferRequestSummary()
+        {
+            TransferRequest.Status = TransferApprovalStatus.Pending;
+            TransferRequest.FundingCap = 2;
+            TransferRequest.CreatedOn = DateTime.UtcNow;
+            TransferRequest.TransferApprovalActionedOn = DateTime.UtcNow;
+            TransferRequest.TransferApprovalActionedByEmployerName = TransferSenderUserInfo.UserDisplayName;
+            TransferRequest.TransferApprovalActionedByEmployerEmail = TransferSenderUserInfo.UserEmail;             
             Db.TransferRequests.Add(TransferRequest);
             Db.SaveChanges();
 
@@ -302,45 +320,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return Sut.ApproveTransferRequest(transferRequestId, TransferSenderUserInfo, Now, default);
         }
 
-
         public Task GetTransferRequestSummary()
         {
-            var accountId = Fixture.Create<long>();
-            Sut = new TransferRequestDomainService(new Lazy<ProviderCommitmentsDbContext>(() => DbContext), Logger.Object);
-            return Sut.GetTransferRequestSummary(accountId, default);
+            return Sut.GetTransferRequestSummary(222, default);
         }
-
-        public void WithTransferRequestSummaryContext()
-        {
-            var transferStatusSummaries = new SpAsyncEnumerableQueryable<TransferRequestSummary>(
-            new TransferRequestSummary() {  ApprovedOrRejectedByUserEmail = TransferSenderUserInfo.UserEmail },
-            new TransferRequestSummary()  { ApprovedOrRejectedByUserEmail = "test456@yahoo.com" });
-            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
-            DbContext = new ProviderCommitmentsDbContext(options);
-            DbContext.TransferRequestSummary = DbContext.TransferRequestSummary.MockFromSql(transferStatusSummaries);
-
-            getTransferRequestsSummaryQueryResult = new GetTransferRequestsSummaryQueryResult
-            {
-                TransferRequestsSummaryQueryResult = new List<TransferRequestsSummaryQueryResult>()
-                {
-                    new TransferRequestsSummaryQueryResult() {
-                        ApprovedOrRejectedByUserEmail = TransferSenderUserInfo.UserEmail
-                    },
-                    new TransferRequestsSummaryQueryResult()
-                    {
-                         ApprovedOrRejectedByUserEmail = "test@yahoo.com"
-                    }
-                }
-            };
-
-        }
-
+        
         public void VerifyTransferRequestSummary()
         {
-            Assert.AreEqual(2, getTransferRequestsSummaryQueryResult.TransferRequestsSummaryQueryResult.Count());
-            Assert.AreEqual(TransferSenderUserInfo.UserEmail, getTransferRequestsSummaryQueryResult.TransferRequestsSummaryQueryResult.FirstOrDefault().ApprovedOrRejectedByUserEmail);
+            var transferSummary = Db.TransferRequests.Where(x => x.Cohort.EmployerAccountId == 222).First();
+            if (transferSummary == null) Assert.Fail("TransferRequest not in database.");
+            Assert.AreEqual(transferSummary.Cost, 1000);
+            Assert.AreEqual(transferSummary.Status, TransferApprovalStatus.Pending);
+            Assert.AreEqual(transferSummary.TransferApprovalActionedByEmployerName, TransferSenderUserInfo.UserDisplayName);
+            Assert.AreEqual(transferSummary.TransferApprovalActionedByEmployerEmail, TransferSenderUserInfo.UserEmail);
         }
-
 
         public void VerifyTransferRequestApprovalPropertiesAreSet()
         {
@@ -427,7 +420,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.AreEqual(TransferSenderUserInfo.UserId, list[0].UpdatingUserId);
             Assert.AreEqual(TransferSenderUserInfo.UserDisplayName, list[0].UpdatingUserName);
             Assert.AreEqual(Party.TransferSender, list[0].UpdatingParty);
-        }
+        }        
 
         public void TearDown()
         {

@@ -680,13 +680,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetEmployerAccountSummary_VerifyUrlAndDataIsCorrectlyPassedIn()
         {
             //Arrange
-            var employerAccountId = 123;
+            var accountId = 123;
 
             //Act
-            await _fixture.CommitmentsApiClient.GetEmployerAccountSummary(employerAccountId, CancellationToken.None);
+            await _fixture.CommitmentsApiClient.GetEmployerAccountSummary(accountId, CancellationToken.None);
 
             //Assert
-            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipStatusSummaryResponse>($"api/accounts/{employerAccountId}/employer-account-summary", CancellationToken.None, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipStatusSummaryResponse>($"api/accounts/{accountId}/summary", CancellationToken.None, CancellationToken.None));
         }
 
         [Test]

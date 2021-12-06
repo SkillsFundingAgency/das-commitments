@@ -119,6 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var receiverRequests = await GetTransferRequestsForReceiver(accountId);
             var senderTransfers = await GetTransferRequestsForSender(accountId);
+
             var result = Concatenate(receiverRequests.TransferRequestsSummaryQueryResult, senderTransfers.TransferRequestsSummaryQueryResult);
 
             if (result != null)
@@ -138,117 +139,85 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestsForReceiver(long accountId)
         {
-            /*var receiverEmployerAccountIdParam = new SqlParameter("@receiverEmployerAccountId", accountId);
+            var result = await _dbContext.Value.TransferRequests
+                            .Include(t => t.Cohort)
+                            .ThenInclude(c => c.AccountLegalEntity)
+                            .Where(w => w.Cohort.EmployerAccountId == accountId)
+                            .Select(t => new TransferRequestsSummaryQueryResult
+                            {
+                                ApprovedOrRejectedByUserName = t.TransferApprovalActionedByEmployerName,
+                                ApprovedOrRejectedByUserEmail = t.TransferApprovalActionedByEmployerEmail,
+                                ApprovedOrRejectedOn = t.TransferApprovalActionedOn,
+                                CohortReference = t.Cohort.Reference,
+                                CommitmentId = t.CommitmentId,
+                                CreatedOn = t.CreatedOn,
+                                FundingCap = (int)t.FundingCap,
+                                ReceivingEmployerAccountId = t.Cohort.EmployerAccountId,
+                                SendingEmployerAccountId = t.Cohort.TransferSenderId.Value,
+                                Status = t.Status,
+                                TransferCost = t.Cost,
+                                TransferRequestId = t.Id,
+                                TransferType = TransferType.AsReceiver
 
-            var results = await _dbContext.Value.TransferRequestSummary
-                             .FromSql("exec GetTransferRequestsForReceiver @receiverEmployerAccountId", receiverEmployerAccountIdParam)
-                             .ToListAsync();*/
+                            }).ToListAsync();
 
-            var transferRequestsForReceiverSummary = await (from tran in _dbContext.Value.TransferRequests
-                                                            join coh in _dbContext.Value.Cohorts on tran.CommitmentId equals coh.Id
-                                               join ale in _dbContext.Value.AccountLegalEntities on coh.AccountLegalEntityId equals ale.Id
-                                               where coh.EmployerAccountId == accountId
-                                               select new TransferRequestSummary
-                                               {
-                                                    ApprovedOrRejectedByUserName = tran.TransferApprovalActionedByEmployerName,
-                                                    ApprovedOrRejectedByUserEmail = tran.TransferApprovalActionedByEmployerEmail,
-                                                    ApprovedOrRejectedOn = tran.TransferApprovalActionedOn,
-                                                    CohortReference = coh.Reference,
-                                                    CommitmentId = tran.CommitmentId,
-                                                    CreatedOn = tran.CreatedOn,
-                                                    FundingCap = (int)tran.FundingCap, //TODO : change the model to decimal
-                                                    ReceivingEmployerAccountId = coh.EmployerAccountId,
-                                                    SendingEmployerAccountId = (long)coh.TransferSenderId,
-                                                    Status = tran.Status,
-                                                    TransferCost = tran.Cost,
-                                                    TransferRequestId = tran.Id
-                                                   
-                                               }).ToListAsync();
-
-
-            var finaloutcome = transferRequestsForReceiverSummary.Where(x => x.ReceivingEmployerAccountId == accountId)
-                 .OrderBy(o => o.CommitmentId)
-                 .ThenBy(t => t.CreatedOn);
-
+            if (result != null)
+            {
+                _logger.LogInformation($"Retrieved Transfer Requests for Receiver for employer account {accountId}");
+            }
+            else
+            {
+                _logger.LogInformation($"Cannot Retrieved Transfer Requests for Receiver for employer account {accountId}");
+            }
 
             return new GetTransferRequestsSummaryQueryResult
             {
-                TransferRequestsSummaryQueryResult = finaloutcome.Select(x => MapFrom(x, TransferType.AsReceiver))
-                //TransferRequestsSummaryQueryResult =  results.Select(x => MapFrom(x, TransferType.AsReceiver))                
+                TransferRequestsSummaryQueryResult = result.OrderBy(o => o.CommitmentId).ThenBy(t => t.CreatedOn)
             };
-        }
+        }      
 
         private async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestsForSender(long accountId)
         {
-           /* var senderEmployerAccountIdParam = new SqlParameter("@senderEmployerAccountId", accountId);
+            var result = await _dbContext.Value.TransferRequests
+                            .Include(t => t.Cohort)
+                            .ThenInclude(c => c.AccountLegalEntity)
+                            .Where(w => w.Cohort.TransferSenderId.Value == accountId)
+                            .Select(t => new TransferRequestsSummaryQueryResult
+                            {
+                                ApprovedOrRejectedByUserName = t.TransferApprovalActionedByEmployerName,
+                                ApprovedOrRejectedByUserEmail = t.TransferApprovalActionedByEmployerEmail,
+                                ApprovedOrRejectedOn = t.TransferApprovalActionedOn,
+                                CohortReference = t.Cohort.Reference,
+                                CommitmentId = t.CommitmentId,
+                                CreatedOn = t.CreatedOn,
+                                FundingCap = (int)t.FundingCap,
+                                ReceivingEmployerAccountId = t.Cohort.EmployerAccountId,
+                                SendingEmployerAccountId = t.Cohort.TransferSenderId.Value,
+                                Status = t.Status,
+                                TransferCost = t.Cost,
+                                TransferRequestId = t.Id,
+                                TransferType = TransferType.AsSender
 
-            var results = await _dbContext.Value.TransferRequestSummary
-                             .FromSql("exec GetTransferRequestsForSender @senderEmployerAccountId", senderEmployerAccountIdParam)
-                             .ToListAsync();*/
+                            }).ToListAsync();
 
-
-            var transferRequestsForReceiverSummary = await (from tran in _dbContext.Value.TransferRequests
-                                                            join coh in _dbContext.Value.Cohorts on tran.CommitmentId equals coh.Id
-                                                            join ale in _dbContext.Value.AccountLegalEntities on coh.AccountLegalEntityId equals ale.Id
-                                                            where coh.EmployerAccountId == accountId
-                                                            select new TransferRequestSummary
-                                                            {
-                                                                ApprovedOrRejectedByUserName = tran.TransferApprovalActionedByEmployerName,
-                                                                ApprovedOrRejectedByUserEmail = tran.TransferApprovalActionedByEmployerEmail,
-                                                                ApprovedOrRejectedOn = tran.TransferApprovalActionedOn,
-                                                                CohortReference = coh.Reference,
-                                                                CommitmentId = tran.CommitmentId,
-                                                                CreatedOn = tran.CreatedOn,
-                                                                FundingCap = (int)tran.FundingCap, //TODO : change the model to decimal
-                                                                ReceivingEmployerAccountId = coh.EmployerAccountId,
-                                                                SendingEmployerAccountId = (long)coh.TransferSenderId,
-                                                                Status = tran.Status,
-                                                                TransferCost = tran.Cost,
-                                                                TransferRequestId = tran.Id
-
-                                                            }).ToListAsync();
-
-
-            var finaloutcome = transferRequestsForReceiverSummary.Where(x => x.SendingEmployerAccountId == accountId)
-                 .OrderBy(o => o.CommitmentId)
-                 .ThenBy(t => t.CreatedOn);
-
+            if (result != null)
+            {
+                _logger.LogInformation($"Retrieved Transfer Request  summary for employer account {accountId}");
+            }
+            else
+            {
+                _logger.LogInformation($"Cannot find Transfer Request summary for employer account {accountId}");
+            }
 
             return new GetTransferRequestsSummaryQueryResult
             {
-                TransferRequestsSummaryQueryResult = finaloutcome.Select(x => MapFrom(x, TransferType.AsSender))                              
+                TransferRequestsSummaryQueryResult = result.OrderBy(o => o.CommitmentId).ThenBy(t => t.CreatedOn)
             };
+        }        
 
-            //return new GetTransferRequestsSummaryQueryResult
-            //{
-            //    TransferRequestsSummaryQueryResult = results.Select(x => MapFrom(x, TransferType.AsSender))
-            //};
-        }
         public static IEnumerable<T> Concatenate<T>(params IEnumerable<T>[] lists)
         {
             return lists.SelectMany(x => x);
-        }
-
-        public TransferRequestsSummaryQueryResult MapFrom(TransferRequestSummary source, TransferType transferType)
-        {
-            if (source == null)
-                return null;
-
-            return new TransferRequestsSummaryQueryResult
-            {
-                TransferRequestId = source.TransferRequestId,
-                ReceivingEmployerAccountId = source.ReceivingEmployerAccountId,
-                CommitmentId = source.CommitmentId,
-                SendingEmployerAccountId = source.SendingEmployerAccountId,
-                CohortReference = source.CohortReference,
-                TransferCost = source.TransferCost,
-                TransferType = transferType,
-                Status = (TransferApprovalStatus)source.Status,
-                ApprovedOrRejectedByUserName = source.ApprovedOrRejectedByUserName,
-                ApprovedOrRejectedByUserEmail = source.ApprovedOrRejectedByUserEmail,
-                ApprovedOrRejectedOn = source.ApprovedOrRejectedOn,
-                FundingCap = source.FundingCap
-            };
         }       
     }
 }

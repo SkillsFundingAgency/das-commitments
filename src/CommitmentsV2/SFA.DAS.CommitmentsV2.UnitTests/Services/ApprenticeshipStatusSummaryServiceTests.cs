@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -7,67 +8,139 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
-using SFA.DAS.CommitmentsV2.UnitTests.Extensions;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Testing.Builders;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
+    [TestFixture]
+    [Parallelizable(ParallelScope.None)]
     public class ApprenticeshipStatusSummaryServiceTests
     {
-        private Fixture _autoFixture;
-        private ApprenticeshipStatusSummaryService _Sut;
-        private GetApprenticeshipStatusSummaryQueryResults _result;
-        private long EmployerAccountId;        
-        public Mock<ILogger<ApprenticeshipStatusSummaryService>> Logger { get; set; }
+        private ApprenticeshipStatusSummaryServiceTestFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _autoFixture = new Fixture();
-        }
+            _fixture = new ApprenticeshipStatusSummaryServiceTestFixture();
+        }        
 
-        [Test]
-        public async Task GetApprenticeshipStatusSummary()
+        [TestCase(PaymentStatus.Active)]
+        [TestCase(PaymentStatus.Completed)]
+        [TestCase(PaymentStatus.Paused)]
+        [TestCase(PaymentStatus.Withdrawn)]
+        public async Task ApprenticeshipStatusSummary(PaymentStatus paymentStatus)
         {
-            //Arrange            
-            SpAsyncEnumerableQueryable<ApprenticeshipStatusSummary> apprenticeshipStatusSummaries = SeedData();
-            //https://nodogmablog.bryanhogan.net/2017/11/unit-testing-entity-framework-core-stored-procedures/           
-            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
-            ProviderCommitmentsDbContext context = new ProviderCommitmentsDbContext(options);
-            context.ApprenticeshipStatusSummary = context.ApprenticeshipStatusSummary.MockFromSql(apprenticeshipStatusSummaries);
-            Logger = new Mock<ILogger<ApprenticeshipStatusSummaryService>>();
-            _Sut = new ApprenticeshipStatusSummaryService(new Lazy<ProviderCommitmentsDbContext>(() => context), Logger.Object);
-            EmployerAccountId = _autoFixture.Create<long>();
+            //Arrange          
+            _fixture.AddApprenticeship(222, paymentStatus);            
 
             //Act
-            _result = await _Sut.GetApprenticeshipStatusSummary(EmployerAccountId, default);
+            var response = await _fixture.GetResponse(222);
 
-            //Assert
-            Assert.IsNotNull(_result);
-            Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityIdentifier, "SC171417");
-            Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityOrganisationType, (Common.Domain.Types.OrganisationType)OrganisationType.CompaniesHouse);
-            Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().ActiveCount, 2402);
-            Assert.AreEqual(_result.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().PausedCount, 1);
-        }       
+            //Assert            
+            Assert.IsNotNull(response);
+            Assert.AreEqual(_fixture.LegalEntityIdentifier, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityIdentifier);
+            Assert.AreEqual(_fixture.organisationType, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityOrganisationType);
+            if (paymentStatus == PaymentStatus.Active)
+                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().ActiveCount);
+            if (paymentStatus == PaymentStatus.Completed)
+                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().CompletedCount);
+            if (paymentStatus == PaymentStatus.Paused)
+                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().PausedCount);
+            if (paymentStatus == PaymentStatus.Withdrawn)
+                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().WithdrawnCount);
+        }
+    }
+    
+    public class ApprenticeshipStatusSummaryServiceTestFixture
+    {
+        private Fixture _autoFixture;       
 
-        private static SpAsyncEnumerableQueryable<ApprenticeshipStatusSummary> SeedData()
+        public string LegalEntityIdentifier { get; }
+        public OrganisationType organisationType { get; }       
+        public List<Apprenticeship> SeedApprenticeships { get; }
+        public ProviderCommitmentsDbContext Db { get; set; }
+
+        public ApprenticeshipStatusSummaryServiceTestFixture()
         {
-            return new SpAsyncEnumerableQueryable<ApprenticeshipStatusSummary>(new ApprenticeshipStatusSummary()
+            LegalEntityIdentifier = "SC171417";
+            organisationType = OrganisationType.CompaniesHouse;
+            SeedApprenticeships = new List<Apprenticeship>();
+            _autoFixture = new Fixture();      
+            _autoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+              .UseInMemoryDatabase(Guid.NewGuid().ToString())
+              .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
+              .Options);
+        }
+
+        public Task<GetApprenticeshipStatusSummaryQueryResults> GetResponse(long accountId)
+        {
+            return RunWithDbContext(dbContext =>
             {
-                LegalEntityId = "SC171417",
-                LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
-                PaymentStatus = Types.PaymentStatus.Paused,
-                Count = 1
-            },
-            new ApprenticeshipStatusSummary()
-            {
-                LegalEntityId = "SC171417",
-                LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
-                PaymentStatus = Types.PaymentStatus.Active,
-                Count = 2402
+                var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
+                var service = new ApprenticeshipStatusSummaryService(lazy, Mock.Of<ILogger<ApprenticeshipStatusSummaryService>>());
+
+                return service.GetApprenticeshipStatusSummary(accountId, CancellationToken.None);
             });
         }
-    }   
+
+        public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
+        {
+            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            using (var dbContext = new ProviderCommitmentsDbContext(options))
+            {
+                dbContext.Database.EnsureCreated();
+                SeedData(dbContext);
+                return action(dbContext);
+            }
+        }
+
+        private void SeedData(ProviderCommitmentsDbContext dbContext)
+        {
+            dbContext.Apprenticeships.AddRange(SeedApprenticeships);
+            dbContext.SaveChanges(true);
+        }
+
+        public ApprenticeshipStatusSummaryServiceTestFixture AddApprenticeship(long accountId, PaymentStatus paymentStatus)
+        {
+            var accountLegalEntity = new AccountLegalEntity()
+               .Set(a => a.LegalEntityId, LegalEntityIdentifier)
+               .Set(a => a.OrganisationType, OrganisationType.CompaniesHouse)
+               .Set(a => a.Id, 444);
+
+            var cohort = new Cohort()
+              .Set(c => c.Id, 111)
+              .Set(c => c.EmployerAccountId, accountId)
+              .Set(c => c.ProviderId, 333)
+              .Set(c => c.AccountLegalEntity, accountLegalEntity);
+
+            var apprenticeship = _autoFixture.Build<Apprenticeship>()
+             .With(s => s.Cohort, cohort)
+             .With(s => s.PaymentStatus, paymentStatus)
+             .With(s => s.EndDate, DateTime.UtcNow.AddYears(1))
+             .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+             .Without(s => s.DataLockStatus)
+             .Without(s => s.EpaOrg)
+             .Without(s => s.ApprenticeshipUpdate)
+             .Without(s => s.Continuation)
+             .Without(s => s.PreviousApprenticeship)
+             .Without(s => s.CompletionDate)
+             .Without(s => s.EmailAddressConfirmed)
+             .Without(s => s.ApprenticeshipConfirmationStatus)
+             .Create();
+
+            SeedApprenticeships.Add(apprenticeship);
+            return this;
+        }       
+    }
 }
