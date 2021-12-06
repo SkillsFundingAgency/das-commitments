@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                               }).ToListAsync();
 
-            if (result != null)
+            if (result.Count() > 0)
             {
                 _logger.LogInformation($"Retrieved Apprenticeship Status Summary for employer account {accountId}");
             }
