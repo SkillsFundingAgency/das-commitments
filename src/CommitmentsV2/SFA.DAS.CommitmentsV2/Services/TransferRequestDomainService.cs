@@ -122,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var result = Concatenate(receiverRequests.TransferRequestsSummaryQueryResult, senderTransfers.TransferRequestsSummaryQueryResult);
 
-            if (result.Count() > 0)
+            if (result.Any())
             {
                 _logger.LogInformation($"Retrieved Transfer Request Summary for employer account {accountId}");
             }
@@ -161,7 +161,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                             }).ToListAsync();
 
-            if (result.Count() > 0)
+            if (result.Any())
             {
                 _logger.LogInformation($"Retrieved Transfer Requests for Receiver for employer account {accountId}");
             }
@@ -200,7 +200,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                             }).ToListAsync();
 
-            if (result.Count() > 0)
+            if (result.Any())
             {
                 _logger.LogInformation($"Retrieved Transfer Request  summary for employer account {accountId}");
             }
