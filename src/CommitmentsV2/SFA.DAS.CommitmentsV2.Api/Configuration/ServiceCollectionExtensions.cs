@@ -24,16 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Configuration
         public static IServiceCollection AddApiClients(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<IAccessTokenProvider, AccessTokenProvider>();
-
-            var ltmConfig = configuration.GetSection(CommitmentsConfigurationKeys.LevyTransferMatchingApiConfiguration).Get<LevyTransferMatchingApiConfiguration>();
-
-            services.AddHttpClient<ILevyTransferMatchingApiClient, LevyTransferMatchingClient>(
-                config =>
-                {
-                    config.BaseAddress = new Uri(ltmConfig.BaseUrl);
-                    config.DefaultRequestHeaders.Add("X-Version", "1.0");
-                });
-
+            services.AddHttpClient<ILevyTransferMatchingApiClient, LevyTransferMatchingClient>();
             return services;
         }
     }
