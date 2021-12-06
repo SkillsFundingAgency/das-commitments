@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj" />
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Types\SFA.DAS.CommitmentsV2.Types.csproj" />
   </ItemGroup>
 
 
