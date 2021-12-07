@@ -34,6 +34,12 @@
                         <td>@Model.PaymentStatus</td>
 
                     </tr>
+                    <tr>
+                        <th>Apprentice confirmation</th>
+                        <td>
+                            @Model.ConfirmationStatusDescription
+                        </td>
+                    </tr>
 
                     @if (Model.Alerts != null && Model.Alerts.Any())
                     {
@@ -69,6 +75,12 @@
                     <tr>
                         <th class="tw-50">Name</th>
                         <td>@Model.Name</td>
+                    </tr>
+                    <tr>
+                        <th>Email address</th>
+                        <td>
+                            @Model.Email
+                        </td>
                     </tr>
                     <tr >
                         <th>Unique learner number</th>

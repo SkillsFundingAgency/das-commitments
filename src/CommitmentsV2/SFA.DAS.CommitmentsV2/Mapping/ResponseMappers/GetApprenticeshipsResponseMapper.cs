@@ -46,7 +46,11 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 Alerts = source.Alerts,
                 TotalAgreedPrice = source.TotalAgreedPrice,
                 AccountLegalEntityId = source.AccountLegalEntityId,
-                ConfirmationStatus = source.ConfirmationStatus
+                ConfirmationStatus = source.ConfirmationStatus,
+                TransferSenderId = source.TransferSenderId,
+                HasHadDataLockSuccess = source.HasHadDataLockSuccess,
+                CourseCode = source.CourseCode,
+                Cost = source.Cost
             };
         }
     }

@@ -17,7 +17,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Models.Api;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -60,12 +60,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort().SetupPendingTransferRequest();
             Assert.ThrowsAsync<DomainException>(() => fixture.Handle());
         }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task Handle_WhenCommandIsHandledAndCohortIsLinkedToPledgeApplication_ThenAutoApprovalFlagIsDeterminedFromApplication(bool autoApproval)
+        {
+            var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort()
+                .SetupPledgeApplication(autoApproval);
+
+            await fixture.Handle();
+
+            fixture.AssertTransferRequestAutoApprovalEquals(autoApproval);
+        }
+
+        [Test]
+        public async Task Handle_WhenCommandIsHandledAndCohortIsNotLinkedToPledgeApplication_ThenAutoApprovalFlagIsFalse()
+        {
+            var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
+            await fixture.Handle();
+            fixture.AssertTransferRequestAutoApprovalEquals(false);
+        }
     }
 
     public class AddTransferRequestCommandHandlerTestFixture
     {
         public Fixture Fixture { get; set; }
         public long CohortId { get; set; }
+        public Cohort Cohort { get; set; }
         public FundingCapCourseSummary FundingCapCourseSummary1 { get; set; }
         public FundingCapCourseSummary FundingCapCourseSummary2 { get; set; }
         public CancellationToken CancellationToken { get; set; }
@@ -73,6 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public ProviderCommitmentsDbContext Db { get; set; }
 
         public Mock<IFundingCapService> FundingService { get; set; }
+        public Mock<IApiClient> LevyTransferMatchingApiClient { get; set; }
         public IRequestHandler<AddTransferRequestCommand> Handler { get; set; }
 
         public Party LastApprovedByParty { get; set; }
@@ -90,6 +112,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             FundingService.Setup(x => x.FundingCourseSummary(It.IsAny<IEnumerable<ApprenticeshipBase>>()))
                 .ReturnsAsync(new List<FundingCapCourseSummary> {FundingCapCourseSummary1, FundingCapCourseSummary2});
 
+            LevyTransferMatchingApiClient = new Mock<IApiClient>();
+
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
@@ -98,7 +122,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Handler = new AddTransferRequestCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 FundingService.Object,
-                Mock.Of<ILogger<AddTransferRequestCommandHandler>>());
+                Mock.Of<ILogger<AddTransferRequestCommandHandler>>(),
+                LevyTransferMatchingApiClient.Object);
 
             UnitOfWorkContext = new UnitOfWorkContext();
             LastApprovedByParty = Party.Employer;
@@ -106,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public AddTransferRequestCommandHandlerTestFixture SetupCohort()
         {
-            var cohort = new Cohort(
+            Cohort = new Cohort(
                 Fixture.Create<long>(),
                 Fixture.Create<long>(),
                 Fixture.Create<long>(),
@@ -116,10 +141,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 "",
                 new UserInfo());
 
-            Db.Cohorts.Add(cohort);
+            Db.Cohorts.Add(Cohort);
             Db.SaveChanges();
 
-            CohortId = cohort.Id;
+            CohortId = Cohort.Id;
 
             return this;
         }
@@ -128,6 +153,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Db.TransferRequests.Add(new TransferRequest
                 { CommitmentId = CohortId, Status = (byte)TransferApprovalStatus.Pending, });
+
+            return this;
+        }
+
+        public AddTransferRequestCommandHandlerTestFixture SetupPledgeApplication(bool autoApproval)
+        {
+            Cohort.PledgeApplicationId = Fixture.Create<int>();
+
+            LevyTransferMatchingApiClient.Setup(x => x.Get<PledgeApplication>(It.IsAny<GetPledgeApplicationRequest>()))
+                .ReturnsAsync(new PledgeApplication { AutomaticApproval = autoApproval});
 
             return this;
         }
@@ -160,6 +195,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(CohortId, @event.CohortId);
             Assert.AreEqual(LastApprovedByParty, @event.LastApprovedByParty);
             Assert.IsNotNull(@event.TransferRequestId);
+        }
+
+        public void AssertTransferRequestAutoApprovalEquals(bool autoApproval)
+        {
+            var transferRequest = Db.TransferRequests.FirstOrDefault();
+            Assert.AreEqual(autoApproval, transferRequest.AutoApproval);
         }
     }
 }
