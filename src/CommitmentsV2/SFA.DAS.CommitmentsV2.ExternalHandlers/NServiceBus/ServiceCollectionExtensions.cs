@@ -29,7 +29,9 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.NServiceBus
                 .AddSingleton(p =>
                 {
                     var container = p.GetService<IContainer>();
-                    var hostingEnvironment = p.GetService<IHostingEnvironment>();
+#pragma warning disable CS0618 // Type or member is obsolete
+                    var hostingEnvironment = p.GetService<Microsoft.Extensions.Hosting.IHostingEnvironment>();
+#pragma warning restore CS0618 // Type or member is obsolete
                     var configuration = p.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
                     var isDevelopment = hostingEnvironment.IsDevelopment();
 
