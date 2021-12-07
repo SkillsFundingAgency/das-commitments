@@ -11,6 +11,15 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
         }
 
+        public TransferRequest(string jsonSummary, decimal cost, decimal fundingCap, bool autoApproval)
+        {
+            TrainingCourses = jsonSummary;
+            Cost = cost;
+            FundingCap = fundingCap;
+            AutoApproval = autoApproval;
+            Status = (byte)TransferApprovalStatus.Pending;
+        }
+
         public long Id { get; set; }
         public long CommitmentId { get; set; }
         public string TrainingCourses { get; set; }
@@ -21,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? TransferApprovalActionedOn { get; set; }
         public DateTime CreatedOn { get; set; }
         public decimal? FundingCap { get; set; }
+        public bool AutoApproval { get; set; }
         public virtual Cohort Cohort { get; set; }
 
         public void Approve(UserInfo userInfo, DateTime now)

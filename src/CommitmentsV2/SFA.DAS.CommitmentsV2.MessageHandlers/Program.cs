@@ -23,8 +23,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                     .UseDasEnvironment()
                     .ConfigureDasAppConfiguration(args)
                     .ConfigureAppConfiguration(c => c.AddAzureTableStorage(Reservations.Api.Types.Configuration.ConfigurationKeys.ReservationsClientApiConfiguration))
-                    .ConfigureLogging(b => b.AddNLog())
                     .UseConsoleLifetime()
+                    .ConfigureLogging(b => b.AddNLog())
                     .UseStructureMap()
                     .ConfigureServices((c, s) => s
                         .AddDasDistributedMemoryCache(c.Configuration, c.HostingEnvironment.IsDevelopment())
