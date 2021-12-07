@@ -27,7 +27,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
             registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
             registry.IncludeRegistry<ApprovalsOuterApiServiceRegistry>();
-            registry.IncludeRegistry<LevyTransferMatchingApiClientRegistry>();
         }
     }
 }

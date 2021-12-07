@@ -17,6 +17,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Models.Api;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -93,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public ProviderCommitmentsDbContext Db { get; set; }
 
         public Mock<IFundingCapService> FundingService { get; set; }
-        public Mock<ILevyTransferMatchingApiClient> LevyTransferMatchingApiClient { get; set; }
+        public Mock<IApiClient> LevyTransferMatchingApiClient { get; set; }
         public IRequestHandler<AddTransferRequestCommand> Handler { get; set; }
 
         public Party LastApprovedByParty { get; set; }
@@ -111,7 +112,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             FundingService.Setup(x => x.FundingCourseSummary(It.IsAny<IEnumerable<ApprenticeshipBase>>()))
                 .ReturnsAsync(new List<FundingCapCourseSummary> {FundingCapCourseSummary1, FundingCapCourseSummary2});
 
-            LevyTransferMatchingApiClient = new Mock<ILevyTransferMatchingApiClient>();
+            LevyTransferMatchingApiClient = new Mock<IApiClient>();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -160,8 +161,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Cohort.PledgeApplicationId = Fixture.Create<int>();
 
-            LevyTransferMatchingApiClient.Setup(x => x.GetPledgeApplication(Cohort.PledgeApplicationId.Value))
-                .ReturnsAsync(new PledgeApplication {AllowTransferRequestAutoApproval = autoApproval});
+            LevyTransferMatchingApiClient.Setup(x => x.Get<PledgeApplication>(It.IsAny<GetPledgeApplicationRequest>()))
+                .ReturnsAsync(new PledgeApplication { AutomaticApproval = autoApproval});
 
             return this;
         }

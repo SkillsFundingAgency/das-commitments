@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllCohortAccountIds;
@@ -48,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccoun
             AuthenticationServiceMock = new Mock<IAuthenticationService>();
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             Handler = new GetAllCohortAccountIdsQueryHandler(
-                new Lazy<ProviderCommitmentsDbContext>(() => Db));
+                new Lazy<ProviderCommitmentsDbContext>(() => Db), Mock.Of<ILogger<GetAllCohortAccountIdsQueryHandler>>());
         }
 
         public Task<GetAllCohortAccountIdsQueryResult> Handle()

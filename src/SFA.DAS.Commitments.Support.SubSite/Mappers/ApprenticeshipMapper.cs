@@ -37,6 +37,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             {
                 FirstName = apprenticeship.FirstName,
                 LastName = apprenticeship.LastName,
+                Email = apprenticeship.Email ?? "",
+                ConfirmationStatusDescription = apprenticeship.ConfirmationStatusDescription ?? "",
                 AgreementStatus = apprenticeship.AgreementStatus.GetEnumDescription(),
                 PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate),
                 Alerts = MapRecordStatus(apprenticeship.UpdateOriginator, apprenticeship.DataLockCourseTriaged, changeRequested),
@@ -51,7 +53,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 ApprenticeshipCode = apprenticeship.TrainingCode,
                 DasTrainingStartDate = apprenticeship.StartDate,
                 DasTrainingEndDate = apprenticeship.EndDate,
-                TrainingCost = apprenticeship.Cost
+                TrainingCost = apprenticeship.Cost,
+                Version = apprenticeship.TrainingCourseVersionConfirmed ? apprenticeship.TrainingCourseVersion : null,
+                Option = apprenticeship.TrainingCourseOption == string.Empty ? "To be confirmed" : apprenticeship.TrainingCourseOption
             };
         }
 

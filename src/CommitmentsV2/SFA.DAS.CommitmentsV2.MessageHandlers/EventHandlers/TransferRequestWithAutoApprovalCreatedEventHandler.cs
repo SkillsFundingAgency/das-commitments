@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models.Api;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -13,14 +15,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     public class TransferRequestWithAutoApprovalCreatedEventHandler : IHandleMessages<TransferRequestWithAutoApprovalCreatedEvent>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
+        private readonly IApiClient _apiClient;
         private readonly ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> _logger;
 
-        public TransferRequestWithAutoApprovalCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> logger, ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
+        public TransferRequestWithAutoApprovalCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> logger, IApiClient apiClient)
         {
             _dbContext = dbContext;
             _logger = logger;
-            _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
+            _apiClient = apiClient;
         }
 
         public async Task Handle(TransferRequestWithAutoApprovalCreatedEvent message, IMessageHandlerContext context)
@@ -29,10 +31,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             _logger.LogInformation($"Processing auto-approval for Transfer Request {message.TransferRequestId} Pledge Application {message.PledgeApplicationId}");
 
-            var transferRequest = await db.TransferRequests.Include(c => c.Cohort)
+            var transferRequest = await db.TransferRequests.Include(c => c.Cohort).ThenInclude(c => c.Apprenticeships)
                 .SingleAsync(x => x.Id == message.TransferRequestId);
 
-            var pledgeApplication = await _levyTransferMatchingApiClient.GetPledgeApplication(message.PledgeApplicationId);
+            if(transferRequest.Cohort.PledgeApplicationId.Value != message.PledgeApplicationId)
+            {
+                _logger.LogError($"Cohort PledgeApplicationId {transferRequest.Cohort.PledgeApplicationId.Value} does not match message {message.PledgeApplicationId}");
+                return;
+            }
+
+            if(!transferRequest.AutoApproval)
+            {
+                _logger.LogError($"Transfer Request {message.TransferRequestId} is not marked for auto-approval");
+                return;
+            }
+
+            var apiRequest = new GetPledgeApplicationRequest(message.PledgeApplicationId);
+            var pledgeApplication = await _apiClient.Get<PledgeApplication>(apiRequest);
 
             if (transferRequest.FundingCap.Value <= pledgeApplication.AmountRemaining)
             {

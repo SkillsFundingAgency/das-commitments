@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -14,18 +15,22 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
         private readonly HttpClient _httpClient;
         private readonly IAccessTokenProvider _accessTokenProvider;
         private readonly LevyTransferMatchingApiConfiguration _config;
+        private readonly ILogger<LevyTransferMatchingClient> _logger;
 
-        public LevyTransferMatchingClient(HttpClient httpClient, IAccessTokenProvider accessTokenProvider, LevyTransferMatchingApiConfiguration config)
+        public LevyTransferMatchingClient(HttpClient httpClient, IAccessTokenProvider accessTokenProvider, LevyTransferMatchingApiConfiguration config, ILogger<LevyTransferMatchingClient> logger)
         {
             _httpClient = httpClient;
             _accessTokenProvider = accessTokenProvider;
             _config = config;
+            _logger = logger;
 
             AddHeaders();
         }
 
         public async Task<PledgeApplication> GetPledgeApplication(int id)
         {
+            _logger.LogInformation($"Getting pledge application {id}");
+
             if (!_httpClient.BaseAddress.IsLoopback)
             {
                 var token = await _accessTokenProvider.GetAccessToken();

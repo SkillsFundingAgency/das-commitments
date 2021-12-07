@@ -7,7 +7,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models.Api;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
 {
@@ -16,18 +18,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IFundingCapService _fundingCapService;
         private readonly ILogger<AddTransferRequestCommandHandler> _logger;
-        private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
+        private readonly IApiClient _apiClient;
 
         public AddTransferRequestCommandHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IFundingCapService fundingCapService,
             ILogger<AddTransferRequestCommandHandler> logger,
-            ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
+            IApiClient apiClient)
         {
             _dbContext = dbContext;
             _fundingCapService = fundingCapService;
             _logger = logger;
-            _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
+            _apiClient = apiClient;
         }
 
         protected override async Task Handle(AddTransferRequestCommand request, CancellationToken cancellationToken)
@@ -41,8 +43,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
                 var autoApproval = false;
                 if (cohort.PledgeApplicationId.HasValue)
                 {
-                    var pledgeApplication = await _levyTransferMatchingApiClient.GetPledgeApplication(cohort.PledgeApplicationId.Value);
-                    autoApproval = pledgeApplication.AllowTransferRequestAutoApproval;
+                    var apiRequest = new GetPledgeApplicationRequest(cohort.PledgeApplicationId.Value);
+                    var pledgeApplication = await _apiClient.Get<PledgeApplication>(apiRequest);
+                    autoApproval = pledgeApplication.AutomaticApproval;
                 }
 
                 var fundingCapSummary = await _fundingCapService.FundingCourseSummary(cohort.Apprenticeships);
