@@ -79,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     Name = _autoFixture.Create<string>()
                 };
 
-                var account = new Account(0, "", "", "", DateTime.UtcNow);
+                var account = new Account(1, "", "", "", DateTime.UtcNow);
 
                 AccountLegalEntity = new AccountLegalEntity(account,
                     AccountLegalEntityId,

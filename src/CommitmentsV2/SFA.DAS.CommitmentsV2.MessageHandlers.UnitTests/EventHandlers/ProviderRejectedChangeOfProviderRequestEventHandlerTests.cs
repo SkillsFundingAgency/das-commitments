@@ -12,7 +12,9 @@ using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -62,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         private Mock<IMessageHandlerContext> _mockMessageHandlerContext { get; set; }
         public Mock<IPipelineContext> _mockPipelineContext { get; set; }
 
-        private readonly ProviderCommitmentsDbContext _db;
+        private readonly Mock<ProviderCommitmentsDbContext> _db;
         private readonly Cohort _cohort;
         public ProviderRejectedChangeOfPartyRequestEvent _event { get; set; }
 
@@ -88,15 +90,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _changeOfPartyRequest.Setup(x => x.Id).Returns(_event.ChangeOfPartyRequestId);
             _changeOfPartyRequest.Setup(x => x.ApprenticeshipId).Returns(ApprenticeshipId);
 
-            _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options);
+            _db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
 
-            _db.Cohorts.Add(_cohort);
-            _db.ChangeOfPartyRequests.Add(_changeOfPartyRequest.Object);
-            _db.SaveChanges();
+            _db
+                .Setup(context => context.Cohorts)
+                .ReturnsDbSet(new List<Cohort> { _cohort });
 
-            _handler = new ProviderRejectedChangeOfPartyRequestEventHandler(_mockEncodingService.Object, new Lazy<ProviderCommitmentsDbContext>(() => _db));
+            _db
+                .Setup(context => context.ChangeOfPartyRequests)
+                .ReturnsDbSet(new List<ChangeOfPartyRequest> { _changeOfPartyRequest.Object });
+
+
+            _handler = new ProviderRejectedChangeOfPartyRequestEventHandler(_mockEncodingService.Object, new Lazy<ProviderCommitmentsDbContext>(() => _db.Object));
         }
         public Task Handle()
         {

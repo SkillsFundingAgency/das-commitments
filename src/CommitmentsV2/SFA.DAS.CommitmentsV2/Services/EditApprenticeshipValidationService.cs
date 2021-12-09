@@ -23,6 +23,7 @@ using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Authentication;
 using System.Text.RegularExpressions;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
+using SFA.DAS.EmailValidationService;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {

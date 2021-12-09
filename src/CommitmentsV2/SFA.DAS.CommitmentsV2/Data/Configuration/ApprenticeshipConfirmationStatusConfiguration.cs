@@ -15,8 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.ConfirmationOverdueOn).HasColumnType("datetime");
             builder.Property(e => e.ApprenticeshipConfirmedOn).HasColumnType("datetime");
             var sortCol = builder.Property(e => e.ConfirmationStatusSort).HasColumnType("varchar(1)");
-            sortCol.Metadata.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-            sortCol.Metadata.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+            sortCol.Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            sortCol.Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.HasOne(d => d.Apprenticeship)
                 .WithOne(p => p.ApprenticeshipConfirmationStatus);

@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                 var cohortIds = cohortFiltered.Select(x => x.CohortId);
 
                 //Get apprentices count for cohorts.
-                var apprenticesTask = _db.Value.DraftApprenticeships.Where(y => cohortIds.Contains(y.CommitmentId))
+                var apprentices = await _db.Value.DraftApprenticeships.Where(y => cohortIds.Contains(y.CommitmentId))
                     .GroupBy(x => x.CommitmentId).Select(z => new
                     {
                         CohortId = z.Key,
@@ -63,16 +63,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                 var filteredMessages = _db.Value.Messages.Where(y => cohortIds.Contains(y.CommitmentId))
                     .GroupBy(x => new { x.CreatedBy, x.CommitmentId })
                     .Select(z => z.Max(x => x.Id));
-                var messagesTask = _db.Value.Messages.Where(m => filteredMessages.Contains(m.Id)).Select(y => new
+                var messages = await _db.Value.Messages.Where(m => filteredMessages.Contains(m.Id)).Select(y => new
                 {
                     y.CommitmentId,
                     y.CreatedBy,
                     y.CreatedDateTime,
                     y.Text,
                 }).ToArrayAsync(cancellationToken);
-
-                var apprentices = await apprenticesTask;
-                var messages = await messagesTask;
 
                 // update CohortSummary with apprentices and messages.
                 var cohorts = cohortFiltered.GroupJoin(apprentices, c => c.CohortId, a => a.CohortId,

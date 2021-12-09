@@ -123,14 +123,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
             account.LevyStatus = ApprenticeshipEmployerType.Levy;
         }
 
-        public static readonly LoggerFactory MyLoggerFactory
-            = new LoggerFactory(new[]
-            {
-#pragma warning disable 618
-                new ConsoleLoggerProvider((category, level)
-#pragma warning restore 618
-                    => category == DbLoggerCategory.Database.Command.Name
-                       && level == LogLevel.Debug, true)
-            });
+        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Debug);
+        });
     }
 }

@@ -149,9 +149,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             SeedCohorts.Add(cohort);
             return this;
         }
+        
         public GetProviderCommitmentAgreementsHandlerTestFixtures AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices()
         {
-
             var cohort = _autoFixture.Build<Cohort>()
                 .With(o => o.EmployerAccountId, Account.Id)
                 .With(o => o.EditStatus, EditStatus.Neither)
@@ -164,8 +164,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
                 .Without(o => o.Messages)
                 .Create();
 
-            cohort.Apprenticeships.Add(new DraftApprenticeship());
-            cohort.Apprenticeships.Add(new DraftApprenticeship());
+            cohort.Apprenticeships.Add(new DraftApprenticeship { Id = _autoFixture.Create<long>() });
+            cohort.Apprenticeships.Add(new DraftApprenticeship { Id = _autoFixture.Create<long>() });
 
             cohort.Messages.Add(new Message(cohort, Party.Employer, "XXX", "NotLast"));
             cohort.Messages.Add(new Message(cohort, Party.Provider, "XXX", "NotLast"));

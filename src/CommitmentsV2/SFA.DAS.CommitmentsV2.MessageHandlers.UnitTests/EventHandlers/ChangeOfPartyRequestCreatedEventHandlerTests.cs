@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
@@ -15,6 +14,7 @@ using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Reservations.Api.Types;
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public Mock<IMessageHandlerContext> MessageHandlerContext { get; private set; }
             public Mock<IReservationsApiClient> ReservationsApiClient { get; private set; }
             public Mock<IEncodingService> EncodingService { get; }
-            public ProviderCommitmentsDbContext Db { get; set; }
+            public Mock<ProviderCommitmentsDbContext> Db { get; set; }
             public Guid ChangeOfPartyReservationId { get; set; }
             public string CohortReference { get; set; }
             public Mock<ChangeOfPartyRequest> ChangeOfPartyRequest { get; private set; }
@@ -89,10 +89,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 Event = autoFixture.Create<ChangeOfPartyRequestCreatedEvent>();
 
-                Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
-                    .Options);
+                Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
 
                 Cohort = new Cohort();
                 Cohort.SetValue(x => x.Id, autoFixture.Create<long>());
@@ -119,9 +116,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 };
                 ChangeOfPartyRequest.Setup(x => x.Apprenticeship).Returns(Apprenticeship);
 
-                Db.ChangeOfPartyRequests.Add(ChangeOfPartyRequest.Object);
-                Db.Apprenticeships.Add(Apprenticeship);
-                Db.SaveChanges();
+                Db
+                    .Setup(context => context.Apprenticeships)
+                    .ReturnsDbSet(new List<Apprenticeship> { Apprenticeship });
+
+                Db
+                    .Setup(context => context.ChangeOfPartyRequests)
+                    .ReturnsDbSet(new List<ChangeOfPartyRequest> { ChangeOfPartyRequest.Object });
+
 
                 MessageHandlerContext = new Mock<IMessageHandlerContext>();
                 ReservationsApiClient = new Mock<IReservationsApiClient>();
@@ -136,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 CohortReference = autoFixture.Create<string>();
                 EncodingService.Setup(x => x.Encode(Cohort.Id, EncodingType.CohortReference)).Returns(CohortReference);
 
-                Handler = new ChangeOfPartyRequestCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), ReservationsApiClient.Object, Mock.Of<ILogger<ChangeOfPartyRequestCreatedEventHandler>>(), EncodingService.Object);
+                Handler = new ChangeOfPartyRequestCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), ReservationsApiClient.Object, Mock.Of<ILogger<ChangeOfPartyRequestCreatedEventHandler>>(), EncodingService.Object);
             }
 
             public ChangeOfPartyRequestCreatedEventHandlerTestsFixture WithNoReservationId()
@@ -148,7 +150,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public async Task Handle()
             {
                 await Handler.Handle(Event, MessageHandlerContext.Object);
-                Db.SaveChanges();
+                Db.Object.SaveChanges();
             }
 
             public void VerifyReservation()
@@ -173,7 +175,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyCohortCreated()
             {
-                Assert.Contains(Cohort, Db.Cohorts.ToList());
+                Assert.Contains(Cohort, Db.Object.Cohorts.ToList());
             }
 
             public void VerifyCohortReference()

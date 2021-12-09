@@ -9,7 +9,6 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
@@ -89,8 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             return RunWithConnection(connection =>
             {
                 var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseSqlite(connection)
-                    .UseLoggerFactory(MyLoggerFactory)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .Options;
 
                 using (var dbContext = new ProviderCommitmentsDbContext(options))
@@ -125,14 +123,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             }
         }
 
-        public static readonly LoggerFactory MyLoggerFactory
-            = new LoggerFactory(new[]
-            {
-#pragma warning disable 618
-                new ConsoleLoggerProvider((category, level)
-#pragma warning restore 618
-                    => category == DbLoggerCategory.Database.Command.Name
-                       && level == LogLevel.Debug, true)
-            });
+        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Debug);
+        });
     }
 }

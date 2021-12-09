@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners
             totalNumberOfBatchesParam.Direction = System.Data.ParameterDirection.Output;
 
             var dblearners = _dbContext.Value.Learners
-                                .FromSql("exec GetLearnersBatch @sinceTime, @batchNumber OUTPUT, @batchSize OUTPUT, @totalNumberOfBatches OUTPUT", sinceTimeParam, batchNumberParam, batchSizeParam, totalNumberOfBatchesParam)
+                                .FromSqlRaw("exec GetLearnersBatch @sinceTime, @batchNumber OUTPUT, @batchSize OUTPUT, @totalNumberOfBatches OUTPUT", sinceTimeParam, batchNumberParam, batchSizeParam, totalNumberOfBatchesParam)
                                 .ToList();
 
             // @ToDo: can we use AutoMapper?
