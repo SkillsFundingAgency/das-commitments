@@ -323,7 +323,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                 {
                     var employer = new AccountLegalEntity
                     (
-                        new Account(),
+                        new Account(input.AccountLegalEntityId, "ABC123", "ABC123", "TEST", DateTime.Now),
                         input.AccountLegalEntityId,
                         autoFixture.Create<long>(),
                         autoFixture.Create<string>(),

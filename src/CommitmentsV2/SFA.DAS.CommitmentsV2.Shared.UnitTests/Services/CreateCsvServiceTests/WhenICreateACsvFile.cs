@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
             Assert.IsFalse(getterMemoryStream.CanWrite);
             Assert.IsNull(getterCsvWriter.Context);
-            Assert.IsNull(getterStream.BaseStream);
+            Assert.IsFalse(getterStream.BaseStream.CanWrite);
         }
 
 

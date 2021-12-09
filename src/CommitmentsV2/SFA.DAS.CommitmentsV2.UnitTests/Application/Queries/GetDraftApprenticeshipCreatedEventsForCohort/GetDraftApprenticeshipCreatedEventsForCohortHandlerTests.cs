@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort;
 using SFA.DAS.CommitmentsV2.Data;
@@ -158,14 +157,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             dbContext.SaveChanges(true);
         }
 
-        public static readonly LoggerFactory MyLoggerFactory
-            = new LoggerFactory(new[]
-            {
-#pragma warning disable 618
-                new ConsoleLoggerProvider((category, level)
-#pragma warning restore 618
-                    => category == DbLoggerCategory.Database.Command.Name
-                       && level == LogLevel.Debug, true)
-            });
+        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Debug);
+        });
     }
 }

@@ -233,13 +233,11 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<IEnumerable<TrainingProgramme>> GetAll()
         {
-            var frameworksTask = _dbContext.Frameworks.Include(c => c.FundingPeriods).ToListAsync();
-            var standardsTask = _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.IsLatestVersion).ToListAsync();
-
-            await Task.WhenAll(frameworksTask, standardsTask);
+            var frameworks = await _dbContext.Frameworks.Include(c => c.FundingPeriods).ToListAsync();
+            var standards = await _dbContext.Standards.Include(c => c.FundingPeriods).Where(s => s.IsLatestVersion).ToListAsync();
 
             var trainingProgrammes = new List<TrainingProgramme>();
-            trainingProgrammes.AddRange(frameworksTask.Result.Select(framework =>
+            trainingProgrammes.AddRange(frameworks.Select(framework =>
                 new TrainingProgramme(
                     framework.Id,
                     GetTitle(string.Equals(framework.FrameworkName.Trim(), framework.PathwayName.Trim(), StringComparison.OrdinalIgnoreCase)
@@ -251,7 +249,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     new List<IFundingPeriod>(framework.FundingPeriods))
                 )
             );
-            trainingProgrammes.AddRange(standardsTask.Result.Select(standard =>
+            trainingProgrammes.AddRange(standards.Select(standard =>
                 new TrainingProgramme(standard.LarsCode.ToString(), GetTitle(standard.Title, standard.Level),
                     ProgrammeType.Standard, standard.EffectiveFrom, standard.EffectiveTo,
                     new List<IFundingPeriod>(standard.FundingPeriods))));
