@@ -618,8 +618,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString(), new InMemoryDatabaseRoot())
-                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                     .EnableSensitiveDataLogging()
+                    .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
                     .Options);
 
                 ProviderId = 1;

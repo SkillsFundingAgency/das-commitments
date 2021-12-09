@@ -131,15 +131,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Command = new DeleteCohortCommand { CohortId = CohortId, UserInfo = UserInfo} ;
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings =>
-                    warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
+                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
             Sut = new DeleteCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger.Object, AuthenticationService.Object);
             UnitOfWorkContext = new UnitOfWorkContext();
 
             DraftApprenticeship = new DraftApprenticeship
             {
-                Id = _autoFixture.Create<long>(),
                 FirstName = "Test",
                 LastName = "Test",
                 ReservationId = _autoFixture.Create<Guid>()

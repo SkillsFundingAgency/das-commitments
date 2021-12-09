@@ -91,7 +91,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                 .Options);
 
             _db.Apprenticeships.Add(_apprenticeship);

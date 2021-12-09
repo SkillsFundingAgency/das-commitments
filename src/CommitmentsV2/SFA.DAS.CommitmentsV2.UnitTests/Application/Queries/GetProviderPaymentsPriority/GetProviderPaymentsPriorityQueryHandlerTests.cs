@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
             var fixture = new GetProviderPaymentsPriorityQueryHandlerTestFixtures();
             foreach(var input in inputs)
             {
-                fixture.SetCohort(input.AccountId, input.ProviderId, input.ProviderName, input.ApprenticeshipAgreedOn, input.CohortApprovedOn, input.CohortFullyApproved, input.PriorityOrder);
+                fixture.SetCohort(input.ApprenticeshipId, input.AccountId, input.ProviderId, input.ProviderName, input.ApprenticeshipAgreedOn, input.CohortApprovedOn, input.CohortFullyApproved, input.PriorityOrder);
             }
 
             var results = await fixture.Handle(accountId);
@@ -48,9 +48,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 111111,
                 new Input[]
                 {
-                    new Input { AccountId = 111111, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
-                    new Input { AccountId = 111111, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 111111, PriorityOrder = 3, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true}
+                    new Input { ApprenticeshipId = 1, AccountId = 111111, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 2, AccountId = 111111, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 3, AccountId = 111111, PriorityOrder = 3, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true}
                 },
                 new ExpectedOutput[]
                 {
@@ -65,9 +65,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 222222,
                 new Input[]
                 {
-                    new Input { AccountId = 222222, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true, PriorityOrder = null},
-                    new Input { AccountId = 222222, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true, PriorityOrder = null},
-                    new Input { AccountId = 222222, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 4, AccountId = 222222, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 5, AccountId = 222222, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 6, AccountId = 222222, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true, PriorityOrder = null},
                 },
                 new ExpectedOutput[]
                 {
@@ -82,9 +82,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 333333,
                 new Input[]
                 {
-                    new Input { AccountId = 333333, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true, PriorityOrder = null},
-                    new Input { AccountId = 333333, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true, PriorityOrder = null},
-                    new Input { AccountId = 333333, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 7, AccountId = 333333, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 8, AccountId = 333333, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 9, AccountId = 333333, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true, PriorityOrder = null},
                 },
                 new ExpectedOutput[]
                 {
@@ -99,9 +99,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 444444,
                 new Input[]
                 {
-                    new Input { AccountId = 444444, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = DateTime.Now.AddMonths(-2), CohortApprovedOn = null, CohortFullyApproved = true, PriorityOrder = null},
-                    new Input { AccountId = 444444, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true, PriorityOrder = null},
-                    new Input { AccountId = 444444, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = DateTime.Now.AddMonths(-1), CohortApprovedOn = null, CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 10, AccountId = 444444, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = DateTime.Now.AddMonths(-2), CohortApprovedOn = null, CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 11, AccountId = 444444, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 12, AccountId = 444444, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = DateTime.Now.AddMonths(-1), CohortApprovedOn = null, CohortFullyApproved = true, PriorityOrder = null},
                 },
                 new ExpectedOutput[]
                 {
@@ -116,9 +116,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 555555,
                 new Input[]
                 {
-                    new Input { AccountId = 555555, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true, PriorityOrder = null},
-                    new Input { AccountId = 555555, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = false, PriorityOrder = null},
-                    new Input { AccountId = 555555, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 13, AccountId = 555555, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 14, AccountId = 555555, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = false, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 15, AccountId = 555555, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true, PriorityOrder = null},
                 },
                 new ExpectedOutput[]
                 {
@@ -132,9 +132,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 666666,
                 new Input[]
                 {
-                    new Input { AccountId = 666666, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true, PriorityOrder = null},
-                    new Input { AccountId = 666666, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true, PriorityOrder = null},
-                    new Input { AccountId = 666666, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true, PriorityOrder = 1},
+                    new Input { ApprenticeshipId = 16, AccountId = 666666, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 17, AccountId = 666666, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true, PriorityOrder = null},
+                    new Input { ApprenticeshipId = 18, AccountId = 666666, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true, PriorityOrder = 1},
                 },
                 new ExpectedOutput[]
                 {
@@ -149,13 +149,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 777777,
                 new Input[]
                 {
-                    new Input { AccountId = 777777, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
-                    new Input { AccountId = 777777, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 777777, PriorityOrder = 3, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 777777, PriorityOrder = 3, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-4), CohortFullyApproved = true},
-                    new Input { AccountId = 888888, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 888888, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 999999, PriorityOrder = 1, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 19, AccountId = 777777, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 20, AccountId = 777777, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 21, AccountId = 777777, PriorityOrder = 3, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 22, AccountId = 777777, PriorityOrder = 3, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-4), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 23, AccountId = 888888, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 24, AccountId = 888888, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 25, AccountId = 999999, PriorityOrder = 1, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
                 },
                 new ExpectedOutput[]
                 {
@@ -170,13 +170,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 888888,
                 new Input[]
                 {
-                    new Input { AccountId = 888888, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
-                    new Input { AccountId = 888888, PriorityOrder = null, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 888888, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 888888, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-4), CohortFullyApproved = true},
-                    new Input { AccountId = 999999, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 999999, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 111111, PriorityOrder = 1, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 26, AccountId = 888888, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 27, AccountId = 888888, PriorityOrder = null, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 28, AccountId = 888888, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 29, AccountId = 888888, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-4), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 30, AccountId = 999999, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 31, AccountId = 999999, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 32, AccountId = 111111, PriorityOrder = 1, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
                 },
                 new ExpectedOutput[]
                 {
@@ -191,14 +191,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 999999,
                 new Input[]
                 {
-                    new Input { AccountId = 999999, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
-                    new Input { AccountId = 999999, PriorityOrder = 1, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 999999, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 999999, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-4), CohortFullyApproved = true},
-                    new Input { AccountId = 999999, PriorityOrder = 2, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 111111, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 111111, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 222222, PriorityOrder = 1, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 33, AccountId = 999999, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 34, AccountId = 999999, PriorityOrder = 1, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 35, AccountId = 999999, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 36, AccountId = 999999, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-4), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 37, AccountId = 999999, PriorityOrder = 2, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 38, AccountId = 111111, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 39, AccountId = 111111, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 40, AccountId = 222222, PriorityOrder = 1, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
                 },
                 new ExpectedOutput[]
                 {
@@ -214,20 +214,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                 111222,
                 new Input[]
                 {
-                    new Input { AccountId = 111222, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = 1, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-4), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = 2, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = 2, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 111222, PriorityOrder = 2, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
-                    new Input { AccountId = 888888, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
-                    new Input { AccountId = 888888, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
-                    new Input { AccountId = 999999, PriorityOrder = 1, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 41, AccountId = 111222, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 42, AccountId = 111222, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 43, AccountId = 111222, PriorityOrder = null, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 44, AccountId = 111222, PriorityOrder = 1, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 45, AccountId = 111222, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 46, AccountId = 111222, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-4), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 47, AccountId = 111222, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 48, AccountId = 111222, PriorityOrder = null, ProviderId = provider103.ProviderId, ProviderName = provider103.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 49, AccountId = 111222, PriorityOrder = 2, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 50, AccountId = 111222, PriorityOrder = 2, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 51, AccountId = 111222, PriorityOrder = 2, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 52, AccountId = 888888, PriorityOrder = 1, ProviderId = provider101.ProviderId, ProviderName = provider101.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-1), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 53, AccountId = 888888, PriorityOrder = 2, ProviderId = provider102.ProviderId, ProviderName = provider102.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-2), CohortFullyApproved = true},
+                    new Input { ApprenticeshipId = 54, AccountId = 999999, PriorityOrder = 1, ProviderId = provider201.ProviderId, ProviderName = provider201.ProviderName, ApprenticeshipAgreedOn = null, CohortApprovedOn = DateTime.Now.AddMonths(-3), CohortFullyApproved = true},
                 },
                 new ExpectedOutput[]
                 {
@@ -241,6 +241,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
 
         public class Input
         {
+            public long ApprenticeshipId { get; set; }
             public long AccountId { get; set; }
             public long ProviderId { get; set; }
             public string ProviderName { get; set; }
@@ -278,7 +279,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
             return Handler.Handle(query, CancellationToken.None);
         }
 
-        public void SetCohort(long accountId, long providerId, string providerName, DateTime? agreedOn, DateTime? approvedOn, bool cohortApproved, int? priorityOrder)
+        public void SetCohort(long apprenticeshipId, long accountId, long providerId, string providerName, DateTime? agreedOn, DateTime? approvedOn, bool cohortApproved, int? priorityOrder)
         {
             // This line is required.
             // ReSharper disable once ObjectCreationAsStatement
@@ -308,6 +309,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
 
             var apprenticeship = new Apprenticeship
             {
+                Id = apprenticeshipId,
                 CommitmentId = commitment.Id,
                 AgreedOn = agreedOn
             };

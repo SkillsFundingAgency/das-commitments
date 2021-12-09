@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
             GetTrainingProgrammeVersionRequest request,
             [Frozen] Mock<IMediator> mediator,
             GetCalculatedTrainingProgrammeVersionQueryResult queryResult,
-            TrainingProgrammeController controller)
+            [Greedy] TrainingProgrammeController controller)
         {
             mediator.Setup(m => m.Send(It.Is<GetCalculatedTrainingProgrammeVersionQuery>(q => q.CourseCode == courseCode && q.StartDate == request.StartDate), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(queryResult);
@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
             int courseCode,
             GetTrainingProgrammeVersionRequest request,
             [Frozen] Mock<IMediator> mediator,
-            TrainingProgrammeController controller)
+            [Greedy] TrainingProgrammeController controller)
         {
             mediator.Setup(m => m.Send(It.Is<GetCalculatedTrainingProgrammeVersionQuery>(q => q.CourseCode == courseCode && q.StartDate == request.StartDate), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetCalculatedTrainingProgrammeVersionQueryResult());
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
         public async Task And_ThereIsAnError_Then_ReturnBadRequest(
           GetTrainingProgrammeVersionRequest request,
           [Frozen] Mock<IMediator> mediator,
-          TrainingProgrammeController controller)
+          [Greedy] TrainingProgrammeController controller)
         {
             mediator.Setup(m => m.Send(It.IsAny<GetCalculatedTrainingProgrammeVersionQuery>(), It.IsAny<CancellationToken>()))
                 .Throws<Exception>();

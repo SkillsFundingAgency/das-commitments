@@ -45,13 +45,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             private readonly ProviderCommitmentsDbContext _db;
             private GetDraftApprenticeshipsQuery _query;
             private GetDraftApprenticeshipsQueryResult _queryResult;
-            private readonly Fixture _autoFixture;
+            private readonly IFixture _autoFixture;
             private Cohort _cohort;
             private long _cohortId;
 
             public GetDraftApprenticeshipsHandlerTestsFixture()
             {
-                _autoFixture = new Fixture();
+                _autoFixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
 
                 _cohortId = _autoFixture.Create<long>();
                 _query = new GetDraftApprenticeshipsQuery(_cohortId);
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             public GetDraftApprenticeshipsHandlerTestsFixture WithNonExistentCohort()
             {
-                _query = new GetDraftApprenticeshipsQuery(_cohortId+1);
+                _query = new GetDraftApprenticeshipsQuery(_cohortId + 1);
                 return this;
             }
 
@@ -93,22 +93,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
                 for (var i = 0; i < 10; i++)
                 {
-                    var apprenticeship = new DraftApprenticeship
-                    {
-                        CommitmentId = _cohortId,
-                        Cohort = _cohort,
-                        FirstName = _autoFixture.Create<string>(),
-                        LastName = _autoFixture.Create<string>(),
-                        Email = _autoFixture.Create<string>(),
-                        Cost = _autoFixture.Create<int?>(),
-                        DateOfBirth = _autoFixture.Create<DateTime?>(),
-                        StartDate = _autoFixture.Create<DateTime?>(),
-                        EndDate = _autoFixture.Create<DateTime?>(),
-                        CourseCode = _autoFixture.Create<string>(),
-                        CourseName = _autoFixture.Create<string>(),
-                        Uln = _autoFixture.Create<string>(),
-                        OriginalStartDate = _autoFixture.Create<DateTime?>()
-                    };
+                    var apprenticeship = _autoFixture
+                        .Build<DraftApprenticeship>()
+                        .With(x => x.Id, _autoFixture.Create<long>)
+                        .With(x => x.CommitmentId, _cohortId)
+                        .Create();
+
                     _cohort.Apprenticeships.Add(apprenticeship);
                 }
 

@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
 using Moq;
 using NServiceBus;
 using NServiceBus.Testing;
@@ -26,9 +25,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 f => f.Logger.Verify(l => l.Log(
                     LogLevel.Information,
                     It.IsAny<EventId>(),
-                    It.Is<FormattedLogValues>(v => v.ToString().Equals($"Handled {nameof(RunHealthCheckCommand)} with MessageId '{f.MessageId}'")),
+                    It.IsAny<It.IsAnyType>(),
                     It.IsAny<Exception>(),
-                    It.IsAny<Func<object, Exception, string>>())));
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>())));
         }
         
         [Test]
