@@ -71,7 +71,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                                                  a.ContinuationOfId == null)),
                     LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
                     ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
-                    TransferApprovalStatus = c.TransferApprovalStatus
+                    TransferApprovalStatus = c.TransferApprovalStatus,
+                    ApprenticeEmailIsRequired = apprenticeEmailIsRequired
                 })
                 .SingleOrDefaultAsync(c => c.CohortId == request.CohortId, cancellationToken);
 
