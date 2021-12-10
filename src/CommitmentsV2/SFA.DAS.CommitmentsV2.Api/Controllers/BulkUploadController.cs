@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("api/bulkupload")]
+    [Route("api/{providerId}/bulkupload")]
     public class BulkUploadController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
-        [Route("add")]
+        [Route("")]
         public async Task<IActionResult> AddDraftApprenticeships(BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
             var command = await _modelMapper.Map<BulkUploadAddDraftApprenticeshipsCommand>(request);

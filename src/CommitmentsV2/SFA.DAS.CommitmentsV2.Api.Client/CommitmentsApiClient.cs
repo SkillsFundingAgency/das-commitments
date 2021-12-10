@@ -501,5 +501,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{providerId}/commitmentagreements", null, cancellationToken);
         }
+
+        public Task BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/{providerId}/bulkupload", request, cancellationToken);
+        }
     }
 }
