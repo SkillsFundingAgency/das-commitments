@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
             foreach (var legalEntity in legalEntities)
             {
                 var draftApprenticeshipForThisLegalEntity = requests.DraftApprenticeships.Where(x => x.LegalEntityId == legalEntity.Id);
-                var reservationIds = await _reservationApiClient.BulkCreateReservations(legalEntity.Id, new BulkCreateReservationsRequest { Count = UInt16.Parse(legalEntity.NumberOfApprentices.ToString()) }, cancellationToken);
+                var reservationIds = await _reservationApiClient.BulkCreateReservations(legalEntity.Id, new BulkCreateReservationsRequest { Count = ushort.Parse(legalEntity.NumberOfApprentices.ToString()) }, cancellationToken);
 
                 reservationIds.ReservationIds.Zip(draftApprenticeshipForThisLegalEntity, (reservationId, d) => d.ReservationId = reservationId);
             }
