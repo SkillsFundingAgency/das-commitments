@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,19 +11,17 @@
     <PackageReference Include="CompareNETObjects" Version="4.59.0" />
     <PackageReference Include="EfCore.TestSupport" Version="1.6.1" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="2.2.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.21" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.21" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="3.1.21" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
-    <PackageReference Include="Moq" Version="4.13.1" />
+    <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="morelinq" Version="3.1.0" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.61" />
     <PackageReference Include="SFA.DAS.Testing" Version="3.0.169" />
     <PackageReference Include="SFA.DAS.Testing.AutoFixture" Version="3.0.169" />
-    <PackageReference Include="SFA.DAS.Testing.EntityFrameworkCore" Version="3.0.169" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.109.2" />
   </ItemGroup>
 
@@ -34,5 +31,4 @@
     <ProjectReference Include="..\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />
   </ItemGroup>
-
 </Project>

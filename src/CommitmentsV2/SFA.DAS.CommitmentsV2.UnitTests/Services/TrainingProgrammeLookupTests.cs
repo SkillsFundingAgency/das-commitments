@@ -11,6 +11,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -24,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void Arrange()
         {
             _fixture = new Fixture();
+            _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         }
 
         [Test, MoqAutoData]

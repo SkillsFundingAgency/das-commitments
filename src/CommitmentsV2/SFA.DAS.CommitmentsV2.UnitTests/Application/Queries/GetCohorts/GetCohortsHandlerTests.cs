@@ -312,8 +312,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(o => o.Messages)
                 .Create();
 
-            cohort.Apprenticeships.Add(new DraftApprenticeship());
-            cohort.Apprenticeships.Add(new DraftApprenticeship());
+            var apprenticeships = _autoFixture.Build<DraftApprenticeship>()
+                .Without(a => a.Cohort)
+                .Without(a => a.EpaOrg)
+                .Without(a => a.ApprenticeshipUpdate)
+                .Without(a => a.PreviousApprenticeship)
+                .CreateMany(2);
+
+            foreach (var app in apprenticeships)
+            {
+                cohort.Apprenticeships.Add(app);
+            }
 
             cohort.Messages.Add(new Message(cohort, Party.Employer, "XXX", "NotLast"));
             cohort.Messages.Add(new Message(cohort, Party.Provider, "XXX", "NotLast"));

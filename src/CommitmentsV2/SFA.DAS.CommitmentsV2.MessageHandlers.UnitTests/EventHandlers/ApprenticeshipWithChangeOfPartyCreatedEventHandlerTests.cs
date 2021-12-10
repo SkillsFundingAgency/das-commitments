@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
@@ -45,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         private class ApprenticeshipWithChangeOfPartyCreatedEventHandlerTestsFixture
         {
             private readonly ApprenticeshipWithChangeOfPartyCreatedEventHandler _handler;
-            private readonly ProviderCommitmentsDbContext _db;
+            private readonly Mock<ProviderCommitmentsDbContext> _db;
             private readonly ApprenticeshipWithChangeOfPartyCreatedEvent _event;
             private readonly Apprenticeship _apprenticeship;
             private readonly Mock<IMessageHandlerContext> _messageHandlerContext;
@@ -68,19 +69,20 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _changeOfPartyRequest.Setup(x => x.Id).Returns(_event.ChangeOfPartyRequestId);
                 _changeOfPartyRequest.Setup(x => x.SetNewApprenticeship(_apprenticeship, _event.UserInfo, Party.Employer));
 
-                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
-                    .Options);
+                _db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
 
-                _db.Apprenticeships.Add(_apprenticeship);
-                _db.ChangeOfPartyRequests.Add(_changeOfPartyRequest.Object);
-                _db.SaveChanges();
+                _db
+                    .Setup(context => context.Apprenticeships)
+                    .ReturnsDbSet(new List<Apprenticeship> { _apprenticeship });
+
+                _db
+                    .Setup(context => context.ChangeOfPartyRequests)
+                    .ReturnsDbSet(new List<ChangeOfPartyRequest> { _changeOfPartyRequest.Object });
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
                 _handler = new ApprenticeshipWithChangeOfPartyCreatedEventHandler(
-                    new Lazy<ProviderCommitmentsDbContext>(() => _db), Mock.Of<ILogger<ApprenticeshipWithChangeOfPartyCreatedEventHandler>>());
+                    new Lazy<ProviderCommitmentsDbContext>(() => _db.Object), Mock.Of<ILogger<ApprenticeshipWithChangeOfPartyCreatedEventHandler>>());
             }
 
             public ApprenticeshipWithChangeOfPartyCreatedEventHandlerTestsFixture WithNewApprenticeshipIdAlreadySet()
@@ -92,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public async Task Handle()
             {
                 await _handler.Handle(_event, _messageHandlerContext.Object);
-                _db.SaveChanges();
+                _db.Object.SaveChanges();
             }
 
             public void VerifyNewApprenticeshipIsSet()

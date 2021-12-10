@@ -36,6 +36,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             public string CohortReference { get; set; }
             public long AccountLegalEntityId { get; set; }
             public ConfirmationStatus? ConfirmationStatus { get; set; }
+            public long? TransferSenderId { get; set; }
+            public bool HasHadDataLockSuccess { get; set; }
+            public string CourseCode { get; set; }
+            public decimal? Cost { get; set; }
         }
     }
 }

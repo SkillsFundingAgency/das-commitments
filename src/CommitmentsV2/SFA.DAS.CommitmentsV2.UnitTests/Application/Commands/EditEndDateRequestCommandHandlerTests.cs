@@ -61,7 +61,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UnitOfWorkContext = new UnitOfWorkContext();
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                                  .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                                                 .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                                                  .Options);
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());

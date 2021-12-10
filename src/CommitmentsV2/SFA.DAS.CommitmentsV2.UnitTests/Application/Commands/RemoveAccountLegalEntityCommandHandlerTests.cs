@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Account = ObjectActivator.CreateInstance<Account>().Set(a => a.Id, 1);
             AccountLegalEntity = ObjectActivator.CreateInstance<AccountLegalEntity>().Set(ale => ale.Id, 2).Set(ale => ale.AccountId, Account.Id);
             Command = new RemoveAccountLegalEntityCommand(Account.Id, AccountLegalEntity.Id, Now.AddHours(-1));
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
             Db.Accounts.Add(Account);
             Db.AccountLegalEntities.Add(AccountLegalEntity);

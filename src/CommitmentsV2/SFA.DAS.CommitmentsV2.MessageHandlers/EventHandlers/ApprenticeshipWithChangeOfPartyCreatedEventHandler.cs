@@ -25,19 +25,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             try
             {
-                var changeOfPartyRequestTask =
-                    _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
-                var apprenticeshipTask = _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-
-                await Task.WhenAll(changeOfPartyRequestTask, apprenticeshipTask);
-
-                var changeOfPartyRequest = await changeOfPartyRequestTask;
-                var apprenticeship = await apprenticeshipTask;
+                var changeOfPartyRequest = await _dbContext.Value.GetChangeOfPartyRequestAggregate(message.ChangeOfPartyRequestId, default);
+                var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
                 if (changeOfPartyRequest.NewApprenticeshipId.HasValue)
                 {
-                    _logger.LogWarning(
-                        $"ChangeOfPartyRequest {changeOfPartyRequest.Id} already has NewApprenticeshipId {changeOfPartyRequest.CohortId} - {nameof(ApprenticeshipWithChangeOfPartyCreatedEvent)} with new ApprenticeshipId {message.ApprenticeshipId} will be ignored");
+                    _logger.LogWarning($"ChangeOfPartyRequest {changeOfPartyRequest.Id} already has NewApprenticeshipId {changeOfPartyRequest.CohortId} - {nameof(ApprenticeshipWithChangeOfPartyCreatedEvent)} with new ApprenticeshipId {message.ApprenticeshipId} will be ignored");
                     return;
                 }
 

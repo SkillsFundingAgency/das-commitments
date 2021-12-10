@@ -1,6 +1,9 @@
-﻿using MediatR;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
 using Moq;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
@@ -11,11 +14,8 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Types.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation

@@ -46,7 +46,11 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 ConfirmationStatus = source.DisplayConfirmationStatus(
                             source.Email,
                             source.ApprenticeshipConfirmationStatus?.ApprenticeshipConfirmedOn,
-                            source.ApprenticeshipConfirmationStatus?.ConfirmationOverdueOn)
+                            source.ApprenticeshipConfirmationStatus?.ConfirmationOverdueOn),
+                TransferSenderId = source.Cohort.TransferSenderId,
+                HasHadDataLockSuccess = source.HasHadDataLockSuccess,
+                CourseCode = source.CourseCode,
+                Cost = source.Cost
             });
         }
 
