@@ -62,7 +62,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners
                     CompletionDate = dblearner.CompletionDate,
                     UKPRN = dblearner.UKPRN,
                     LearnRefNumber = dblearner.LearnRefNumber,
-                    PaymentStatus = dblearner.PaymentStatus
+                    PaymentStatus = dblearner.PaymentStatus,
+                    EmployerAccountId = dblearner.EmployerAccountId,
+                    EmployerName = dblearner.EmployerName,
                 });
             }
 
