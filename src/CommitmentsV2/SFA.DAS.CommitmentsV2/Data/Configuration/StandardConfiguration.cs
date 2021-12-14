@@ -25,9 +25,10 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(x => x.IsLatestVersion).HasColumnName("IsLatestVersion").HasColumnType("bit");
 
             builder.HasMany(c => c.FundingPeriods)
-                .WithOne(c=>c.Standard)
+                .WithOne(c => c.Standard)
                 .HasPrincipalKey(c => c.LarsCode)
                 .HasForeignKey(c => c.Id).Metadata.DeleteBehavior = DeleteBehavior.Restrict;
+
             builder.HasMany(c => c.Options);
 
             builder.HasIndex(c => c.StandardUId);

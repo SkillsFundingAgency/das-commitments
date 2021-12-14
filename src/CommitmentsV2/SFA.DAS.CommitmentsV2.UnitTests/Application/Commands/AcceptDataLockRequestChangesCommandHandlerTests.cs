@@ -702,7 +702,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                 .Options);
 
             AuthenticationService = new Mock<IAuthenticationService>();
@@ -836,8 +835,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Db.PriceHistory
                 .Where(ph => ph.ApprenticeshipId == apprenticeshipId)
-                .GroupBy(ph => new { ph.Cost, ph.FromDate })
-                .Any(grp => grp.Count() > 1)
+                .GroupBy(ph => new {ph.Cost, ph.FromDate})
+                .Select(grp => grp.Count())
+                .Any(grp => grp > 1)
                 .Should()
                 .BeFalse();
         }

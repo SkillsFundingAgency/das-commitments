@@ -20,8 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseSqlServer(_dbConnection)
-                .UseLoggerFactory(_loggerFactory)
-                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning));
+                .UseLoggerFactory(_loggerFactory);
 
             var dbContext = new ProviderCommitmentsDbContext(optionsBuilder.Options);
 

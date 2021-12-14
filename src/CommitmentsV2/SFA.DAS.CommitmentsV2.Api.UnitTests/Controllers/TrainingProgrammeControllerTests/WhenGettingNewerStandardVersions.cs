@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
             string standardUId,
             GetNewerTrainingProgrammeVersionsQueryResult queryResult,
             [Frozen] Mock<IMediator> mediator,
-            TrainingProgrammeController controller)
+            [Greedy] TrainingProgrammeController controller)
         {
             mediator.Setup(x => x.Send(It.IsAny<GetNewerTrainingProgrammeVersionsQuery>(), CancellationToken.None))
                 .ReturnsAsync(queryResult);
@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
         public async Task And_ThereIsAnError_Then_ReturnBadRequest(
             string standardUId,
             [Frozen] Mock<IMediator> mediator,
-            TrainingProgrammeController controller)
+            [Greedy] TrainingProgrammeController controller)
         {
             mediator
                 .Setup(mediator => mediator.Send(

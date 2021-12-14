@@ -44,12 +44,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _apprenticeshipId = 10082;
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                         .UseInMemoryDatabase(databaseGuid)
-                                        .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                                         .Options);           
 
             _confirmationDbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                             .UseInMemoryDatabase(databaseGuid)
-                            .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                             .Options);
 
             _unitOfWorkContext = new UnitOfWorkContext();

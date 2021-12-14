@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
             string id,
             GetTrainingProgrammeQueryResult result,
             [Frozen] Mock<IMediator> mediator,
-            TrainingProgrammeController controller)
+            [Greedy] TrainingProgrammeController controller)
         {
             mediator.Setup(x => x.Send(It.Is<GetTrainingProgrammeQuery>(c=>c.Id.Equals(id)), CancellationToken.None)).ReturnsAsync(result);
 
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
         [Test, MoqAutoData]
         public async Task Then_If_There_Is_An_Error_A_Bad_Request_Is_Returned(
             [Frozen] Mock<IMediator> mediator,
-            TrainingProgrammeController controller)
+            [Greedy] TrainingProgrammeController controller)
         {
             mediator
                 .Setup(mediator => mediator.Send(
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.TrainingProgrammeContr
         [Test, MoqAutoData]
         public async Task Then_If_The_Course_Is_Not_Found_Then_A_NotFound_Result_Is_Returned(
             [Frozen] Mock<IMediator> mediator,
-            TrainingProgrammeController controller)
+            [Greedy] TrainingProgrammeController controller)
         {
             mediator
                 .Setup(mediator => mediator.Send(

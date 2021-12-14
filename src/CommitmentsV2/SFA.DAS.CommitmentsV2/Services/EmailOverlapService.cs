@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             try
             {
 
-                var query = db.OverlappingEmails.FromSql(
+                var query = db.OverlappingEmails.FromSqlRaw(
                     "EXEC CheckForOverlappingEmails @Email, @StartDate, @EndDate, @ApprenticeshipId, @CohortId", emailParam, startDateParam, endDateParam, apprenticeshipIdParam, cohortIdParam);
 
                 return await query.ToListAsync(cancellationToken);
@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             try
             {
-                var query = db.OverlappingEmails.FromSql(
+                var query = db.OverlappingEmails.FromSqlRaw(
                     "EXEC CheckForOverlappingEmailsInCohort @CohortId", cohortIdParam);
 
                 return await query.ToListAsync(cancellationToken);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Fakes;
 
@@ -93,8 +95,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _cohort.Setup(x =>
                     x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), It.IsAny<bool>()));
 
-                _dbContext.Object.Cohorts.Add(_cohort.Object);
-                _dbContext.Object.SaveChanges();
+                _dbContext
+                    .Setup(context => context.Cohorts)
+                    .ReturnsDbSet(new List<Cohort> {_cohort.Object});
             }
 
             public ProviderApproveCohortCommandHandlerTestsFixture AddAlreadyApprovedByProvider()

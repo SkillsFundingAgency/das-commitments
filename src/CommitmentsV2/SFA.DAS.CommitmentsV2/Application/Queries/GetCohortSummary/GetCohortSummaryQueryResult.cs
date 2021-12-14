@@ -36,5 +36,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public ApprenticeshipEmployerType LevyStatus { get; set; }
         public long? ChangeOfPartyRequestId { get; set; }
         public TransferApprovalStatus? TransferApprovalStatus { get; set; }
+        public bool ApprenticeEmailIsRequired { get; set; }
     }
 }

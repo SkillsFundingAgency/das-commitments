@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
 
         [TestCase("CorrectEmail@here.com", true)]
         [TestCase("IncorrectEmail", false)]
-        [TestCase("IncorrectEmail@nowhere", false)]
+        [TestCase("IncorrectEmail@nowhere", true)]
         [TestCase("", false)]
         [TestCase(null, false)]
         public void Validate_UserEmail_ShouldBeValidated(string value, bool expectedValid)

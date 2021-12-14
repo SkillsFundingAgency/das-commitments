@@ -42,7 +42,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _authenticationService = new Mock<IAuthenticationService>();
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                 .Options);
 
             _currentDateTime = new Mock<ICurrentDateTime>();
