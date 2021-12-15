@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -56,10 +58,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
             var legalEntities = requests.DraftApprenticeships.GroupBy(x => x.LegalEntityId).Select(y => new { Id = y.Key, NumberOfApprentices = y.Count() });
             foreach (var legalEntity in legalEntities)
             {
-                var draftApprenticeshipForThisLegalEntity = requests.DraftApprenticeships.Where(x => x.LegalEntityId == legalEntity.Id);
-                var reservationIds = await _reservationApiClient.BulkCreateReservations(legalEntity.Id, new BulkCreateReservationsRequest { Count = ushort.Parse(legalEntity.NumberOfApprentices.ToString()) }, cancellationToken);
+                 var draftApprenticeshipForThisLegalEntity = requests.DraftApprenticeships.Where(x => x.LegalEntityId == legalEntity.Id).ToList();
+                 var reservationIds = await _reservationApiClient.BulkCreateReservations(legalEntity.Id, new BulkCreateReservationsRequest { Count = ushort.Parse(legalEntity.NumberOfApprentices.ToString()) }, cancellationToken);
 
-                reservationIds.ReservationIds.Zip(draftApprenticeshipForThisLegalEntity, (reservationId, d) => d.ReservationId = reservationId);
+                for (int counter = 0; counter < legalEntity.NumberOfApprentices; counter++)
+                {
+                    draftApprenticeshipForThisLegalEntity[counter].ReservationId = reservationIds.ReservationIds[counter];
+                }
+                //reservationIds.ReservationIds.Zip<Guid, BulkUploadAddDraftApprenticeshipRequest>(draftApprenticeshipForThisLegalEntity, (reservationId, d) =>
+                //{
+                //    d.ReservationId = reservationId;
+                // });
+                //await Task.FromResult(0);
+                //var reservationIds = new List<Guid>();
+                //for(var i =0; i< legalEntity.NumberOfApprentices; i++)
+                //{
+                //    reservationIds.Add(Guid.NewGuid());
+                //}
+                //reservationIds.Zip(draftApprenticeshipForThisLegalEntity, (reservationId, d) => d.ReservationId = reservationId);
             }
         }
     }

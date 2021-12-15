@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
-                Reference = source.OriginatorReference,
+                Reference = source.ProviderRef,
                 ReservationId = source.ReservationId
             };
 

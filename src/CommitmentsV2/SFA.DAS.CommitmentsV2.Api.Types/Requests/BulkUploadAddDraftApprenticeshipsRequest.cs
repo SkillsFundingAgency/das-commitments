@@ -25,5 +25,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string Email { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string Uln { get; set; }
+        public string ProviderRef { get; set; }
     }
 }
