@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                                             from transferSender in account.DefaultIfEmpty()
                                             where c.EmployerAccountId == (command.AccountId ?? c.EmployerAccountId) && c.ProviderId == (command.ProviderId ?? c.ProviderId) &&
                                                 (c.EditStatus != EditStatus.Both ||
-                                                (c.TransferSenderId != null && c.TransferApprovalStatus != TransferApprovalStatus.Approved))
+                                                (c.TransferSenderId != null && c.TransferApprovalStatus == TransferApprovalStatus.Pending))
                                             select new CohortSummary
                                             {
                                                 AccountId = c.EmployerAccountId,
