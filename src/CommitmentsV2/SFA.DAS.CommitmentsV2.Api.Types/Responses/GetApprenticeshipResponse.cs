@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Uln { get; set; }
+        public string NINumber { get; set; }
         public string CourseCode { get; set; }
         public string StandardUId { get; set; }
         public string Version { get; set; }

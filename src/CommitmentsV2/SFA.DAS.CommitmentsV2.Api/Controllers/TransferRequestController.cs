@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateTransferApprovalForSender;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Threading.Tasks;
 
@@ -62,6 +63,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             }
 
             var response = await _modelMapper.Map<GetTransferRequestResponse>(result);
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("{accountId}/transfers", Name = "GetTransferRequests")]        
+        public async Task<IActionResult> GetTransferRequests(long accountId)
+        {
+
+            var result = await _mediator.Send(new GetTransferRequestsSummaryQuery(accountId));
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            var response = await _modelMapper.Map<GetTransferRequestSummaryResponse>(result);
+            
             return Ok(response);
         }
     }
