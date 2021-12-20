@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public abstract class ApprenticeshipBase : Aggregate
     {
-        public ApprenticeshipBase()
+        protected ApprenticeshipBase()
         {
             ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
         }
