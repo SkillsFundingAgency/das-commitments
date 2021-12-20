@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         {
             For<DbConnection>().Use(c => new SqlConnection(c.GetInstance<CommitmentsV2Configuration>().DatabaseConnectionString));
             For<ProviderCommitmentsDbContext>().Use(c => c.GetInstance<IDbContextFactory>().CreateDbContext());
-            For<IProviderCommitmentsDbContext>().Use<ProviderCommitmentsDbContext>();
+            For<IProviderCommitmentsDbContext>().Use(c => c.GetInstance<IDbContextFactory>().CreateDbContext());
         }
     }
 }
