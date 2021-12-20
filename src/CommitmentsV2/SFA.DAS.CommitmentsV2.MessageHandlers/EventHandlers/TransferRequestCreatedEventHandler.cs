@@ -33,6 +33,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 var transferRequest = await db.TransferRequests.Include(c => c.Cohort)
                     .SingleAsync(x => x.Id == message.TransferRequestId);
 
+                if (transferRequest.AutoApproval)
+                {
+                    _logger.LogInformation($"AutoApproval set to true - not publishing CohortApprovalByTransferSenderRequested");
+
+                    return;
+                }
+
+                _logger.LogInformation($"AutoApproval set to false - publishing CohortApprovalByTransferSenderRequested");
+
                 await _legacyTopicMessagePublisher.PublishAsync(new CohortApprovalByTransferSenderRequested
                 {
                     TransferRequestId = message.TransferRequestId,

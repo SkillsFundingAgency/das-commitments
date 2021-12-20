@@ -1,16 +1,13 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Messages.Events;
-using System;
-using System.Threading;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Types;
+using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.Commitments.Events;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -33,8 +30,21 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             {
                 _logger.LogInformation($"TransferRequestApprovedEvent received for CohortId : {message.CohortId}, TransferRequestId : { message.TransferRequestId}");
 
-                var cohort = await _dbContext.Value.Cohorts.Include(c=>c.Apprenticeships).SingleAsync(c => c.Id == message.CohortId);
+                var db = _dbContext.Value;
+
+                var cohort = await db.Cohorts.Include(c=>c.Apprenticeships).SingleAsync(c => c.Id == message.CohortId);
                 cohort.Approve(Party.TransferSender, null, message.UserInfo, message.ApprovedOn);
+
+                var transferRequest = await db.TransferRequests.SingleAsync(x => x.Id == message.TransferRequestId);
+
+                if (transferRequest.AutoApproval)
+                {
+                    _logger.LogInformation($"AutoApproval set to true - not publishing CohortApprovedByTransferSender");
+
+                    return;
+                }
+
+                _logger.LogInformation($"AutoApproval set to false - publishing CohortApprovedByTransferSender");
 
                 // Publish legacy event so Tasks can decrement it's counter
                 await _legacyTopicMessagePublisher.PublishAsync(new CohortApprovedByTransferSender(message.TransferRequestId,

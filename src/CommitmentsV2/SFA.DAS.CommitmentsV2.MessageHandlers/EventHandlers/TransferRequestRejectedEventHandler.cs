@@ -29,8 +29,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             {
                 _logger.LogInformation($"TransferRequestRejectedEvent received for CohortId : {message.CohortId}, TransferRequestId : { message.TransferRequestId}");
 
+                var db = _dbContext.Value;
+
                 var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Id == message.CohortId);
                 cohort.RejectTransferRequest(message.UserInfo);
+
+                var transferRequest = await db.TransferRequests.SingleAsync(x => x.Id == message.TransferRequestId);
+
+                if (transferRequest.AutoApproval)
+                {
+                    _logger.LogInformation($"AutoApproval set to true - not publishing CohortRejectedByTransferSender");
+
+                    return;
+                }
 
                 // Publish legacy event so Tasks can decrement it's counter
                 await _legacyTopicMessagePublisher.PublishAsync(new CohortRejectedByTransferSender(
