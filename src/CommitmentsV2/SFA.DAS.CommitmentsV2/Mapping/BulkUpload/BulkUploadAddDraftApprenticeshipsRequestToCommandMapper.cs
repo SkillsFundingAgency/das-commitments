@@ -12,8 +12,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
         {
             return Task.FromResult(new BulkUploadAddDraftApprenticeshipsCommand
             {
-                DraftApprenticeships = source.DraftApprenticeshipRequest.ToList(),
-                UserInfo = source.UserInfo
+                BulkUploadDraftApprenticeships = source.BulkUploadDraftApprenticeships.ToList(),
+                UserInfo = source.UserInfo,
+                ProviderId = source.ProviderId
             });
         }
     }

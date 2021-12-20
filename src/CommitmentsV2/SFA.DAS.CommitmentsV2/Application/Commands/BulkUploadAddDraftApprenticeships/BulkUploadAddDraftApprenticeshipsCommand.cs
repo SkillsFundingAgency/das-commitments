@@ -7,7 +7,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
 {
     public class BulkUploadAddDraftApprenticeshipsCommand : IRequest
     {
-        public List<BulkUploadAddDraftApprenticeshipRequest> DraftApprenticeships { get; set; }
+        public List<BulkUploadAddDraftApprenticeshipRequest> BulkUploadDraftApprenticeships { get; set; }
+        public long ProviderId { get; set; }
         public UserInfo UserInfo { get; set; }
     }
 }
