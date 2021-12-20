@@ -29,6 +29,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             fixture.VerifyMapperIsCalled();
         }
+
+        [Test]
+        public async Task DraftApprenticeshipDetailAreAdded()
+        {
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture();
+            await fixture.Handle();
+
+            fixture.VerifyDraftApprenticeshipsAreAdded();
+        }
     }
 
     public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture
@@ -40,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public CancellationToken CancellationToken { get; set; }
         public Mock<IReservationsApiClient> ReservationApiClient { get; set; }
         public Mock<IModelMapper> ModelMapper { get; }
+        public List<DraftApprenticeshipDetails> DraftApprenticeshipDetails { get; set; }
 
         public BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture()
         {
@@ -49,10 +59,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             ModelMapper = new Mock<IModelMapper>();
             Command = AutoFixture.Create<BulkUploadAddDraftApprenticeshipsCommand>();
 
-            var draftApprenticeshipDetails = AutoFixture.Create<List<DraftApprenticeshipDetails>>();
-            draftApprenticeshipDetails = draftApprenticeshipDetails.Zip(Command.BulkUploadDraftApprenticeships, (x, y) => { x.Uln = y.Uln; return x; }).ToList();
+            DraftApprenticeshipDetails = AutoFixture.Create<List<DraftApprenticeshipDetails>>();
+            DraftApprenticeshipDetails = DraftApprenticeshipDetails.Zip(Command.BulkUploadDraftApprenticeships, (x, y) => { x.Uln = y.Uln; return x; }).ToList();
 
-            ModelMapper.Setup(x => x.Map<List<DraftApprenticeshipDetails>>(It.IsAny<BulkUploadAddDraftApprenticeshipsCommand>())).ReturnsAsync(() => draftApprenticeshipDetails);
+            ModelMapper.Setup(x => x.Map<List<DraftApprenticeshipDetails>>(It.IsAny<BulkUploadAddDraftApprenticeshipsCommand>())).ReturnsAsync(() => DraftApprenticeshipDetails);
             CohortDomainService.Setup(x => x.AddDraftApprenticeship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()));
 
             Handler = new BulkUploadAddDraftApprenticeshipCommandHandler(Mock.Of<ILogger<BulkUploadAddDraftApprenticeshipCommandHandler>>(), ModelMapper.Object, CohortDomainService.Object, ReservationApiClient.Object);
@@ -67,6 +77,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         internal void VerifyMapperIsCalled()
         {
             ModelMapper.Verify(x => x.Map<List<DraftApprenticeshipDetails>>(Command), Times.Once);
+        }
+
+        internal void VerifyDraftApprenticeshipsAreAdded()
+        {
+            foreach (var draftApp in DraftApprenticeshipDetails)
+            {
+                CohortDomainService.Verify(x => x.AddDraftApprenticeship(Command.ProviderId, It.IsAny<long>(), draftApp, Command.UserInfo, It.IsAny<CancellationToken>()), Times.Once);
+            }
         }
     }
 }
