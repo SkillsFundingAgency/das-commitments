@@ -40,12 +40,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             Assert.AreEqual(_result.ProviderId, _source.ProviderId);
         }
 
-        [Test]
-        public void UserInfoIsMappedCorrectly()
-        {
-            var compare = new CompareLogic();
-            var compareResult = compare.Compare(_source.UserInfo, _result.UserInfo);
-            Assert.IsTrue(compareResult.AreEqual);
-        }
+        //[Test]
+        //public void UserInfoIsMappedCorrectly()
+        //{
+        //    var compare = new CompareLogic();
+        //    var compareResult = compare.Compare(_source.UserInfo, _result.UserInfo);
+        //    Assert.IsTrue(compareResult.AreEqual);
+        //}
     }
 }

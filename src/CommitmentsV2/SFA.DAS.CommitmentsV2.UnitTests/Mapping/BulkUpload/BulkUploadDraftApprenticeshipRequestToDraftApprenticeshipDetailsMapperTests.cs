@@ -190,15 +190,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             });
         }
 
-        [Test]
-        public void TrainingProgrammeIsMappedCorrectly()
-        {
-            for (var counter = 0; counter < _result.Count; counter++)
-            {
-                var compare = new CompareLogic();
-                var compareResult = compare.Compare(_trainingProgramme, _result[counter].TrainingProgramme);
-                Assert.IsTrue(compareResult.AreEqual);
-            }
-        }
+        //[Test]
+        //public void TrainingProgrammeIsMappedCorrectly()
+        //{
+        //    for (var counter = 0; counter < _result.Count; counter++)
+        //    {
+        //        var compare = new CompareLogic();
+        //        var compareResult = compare.Compare(_trainingProgramme, _result[counter].TrainingProgramme);
+        //        Assert.IsTrue(compareResult.AreEqual);
+        //    }
+        //}
     }
 }
