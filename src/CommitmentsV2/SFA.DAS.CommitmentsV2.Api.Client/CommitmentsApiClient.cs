@@ -502,9 +502,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{providerId}/commitmentagreements", null, cancellationToken);
         }
 
+
         public Task BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/{providerId}/bulkupload", request, cancellationToken);
+        }
+
+        public Task<GetApprenticeshipStatusSummaryResponse> GetEmployerAccountSummary(long accountId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetApprenticeshipStatusSummaryResponse>($"api/accounts/{accountId}/summary", cancellationToken);
+        }
+
+        public Task<GetTransferRequestSummaryResponse> GetTransferRequests(long accountId, CancellationToken cancellationToken = default)
+        {            
+            return _client.Get<GetTransferRequestSummaryResponse>($"api/accounts/{accountId}/transfers", cancellationToken);
         }
     }
 }

@@ -11,10 +11,11 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
-    [Route("api/accounts")]
+    [Route("api/accounts/{accountId}")]
     [ApiController]
     [Authorize]
     public class AccountController : ControllerBase
@@ -29,7 +30,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{AccountId}")]
         public async Task<IActionResult> GetAccount(long accountId)
         {
             var employer = await _mediator.Send(new GetAccountSummaryQuery
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{accountId}/transfer-status")]
+        [Route("transfer-status")]
         public async Task<IActionResult> GetAccountTransferStatus(long accountId)
         {
             var status = await _mediator.Send(new GetAccountTransferStatusQuery
@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
 
         [HttpGet]
-        [Route("{AccountId}/providers/approved")]
+        [Route("providers/approved")]
         public async Task<IActionResult> GetApprovedProviders(long accountId)
         {
             var query = new GetApprovedProvidersQuery(accountId);
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{accountId}/provider-payments-priority")]
+        [Route("provider-payments-priority")]
         public async Task<IActionResult> GetProviderPaymentsPriority(long accountId)
         {
             var result = await _mediator.Send(new GetProviderPaymentsPriorityQuery(accountId));
@@ -82,8 +82,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(response);
         }
 
+        [HttpGet]
+        [Route("summary")]
+        public async Task<IActionResult> GetEmployerAccountSummary(long accountId)
+        {
+            var query = new GetApprenticeshipStatusSummaryQuery(accountId);
+            var result = await _mediator.Send(query);
+
+            if (result == null) { return NotFound(); }
+
+            var response = await _modelMapper.Map<GetApprenticeshipStatusSummaryResponse>(result);
+            return Ok(response);
+        }
+
         [HttpPost]
-        [Route("{accountId}/update-provider-payments-priority")]
+        [Route("update-provider-payments-priority")]
         public async Task<IActionResult> UpdateProviderPaymentsPriority(long accountId, [FromBody] UpdateProviderPaymentsPriorityRequest request)
         {
             await _mediator.Send(new UpdateProviderPaymentsPriorityCommand(

@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -109,5 +112,112 @@ namespace SFA.DAS.CommitmentsV2.Services
                     .ThenInclude(c => c.Apprenticeships)
                     .SingleAsync(x => x.Id == id, cancellationToken);
         }
+
+        public async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestSummary(long accountId, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"Getting Transfer Request Summary for employer account {accountId}");
+
+            var receiverRequests = await GetTransferRequestsForReceiver(accountId);
+            var senderTransfers = await GetTransferRequestsForSender(accountId);
+
+            var result = Concatenate(receiverRequests.TransferRequestsSummaryQueryResult, senderTransfers.TransferRequestsSummaryQueryResult);
+
+            if (result.Any())
+            {
+                _logger.LogInformation($"Retrieved Transfer Request Summary for employer account {accountId}");
+            }
+            else
+            {
+                _logger.LogInformation($"Cannot find Transfer Request Summary for employer account {accountId}");
+            }
+
+            return new GetTransferRequestsSummaryQueryResult
+            {
+                TransferRequestsSummaryQueryResult = result
+            };
+        }
+
+        private async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestsForReceiver(long accountId)
+        {
+            var result = await _dbContext.Value.TransferRequests
+                            .Include(t => t.Cohort)
+                            .ThenInclude(c => c.AccountLegalEntity)
+                            .Where(w => w.Cohort.EmployerAccountId == accountId)
+                            .Select(t => new TransferRequestsSummaryQueryResult
+                            {
+                                ApprovedOrRejectedByUserName = t.TransferApprovalActionedByEmployerName,
+                                ApprovedOrRejectedByUserEmail = t.TransferApprovalActionedByEmployerEmail,
+                                ApprovedOrRejectedOn = t.TransferApprovalActionedOn,
+                                CohortReference = t.Cohort.Reference,
+                                CommitmentId = t.CommitmentId,
+                                CreatedOn = t.CreatedOn,
+                                FundingCap = (int)t.FundingCap,
+                                ReceivingEmployerAccountId = t.Cohort.EmployerAccountId,
+                                SendingEmployerAccountId = t.Cohort.TransferSenderId.Value,
+                                Status = t.Status,
+                                TransferCost = t.Cost,
+                                TransferRequestId = t.Id,
+                                TransferType = TransferType.AsReceiver
+
+                            }).ToListAsync();
+
+            if (result.Any())
+            {
+                _logger.LogInformation($"Retrieved Transfer Requests for Receiver for employer account {accountId}");
+            }
+            else
+            {
+                _logger.LogInformation($"Cannot Retrieved Transfer Requests for Receiver for employer account {accountId}");
+            }
+
+            return new GetTransferRequestsSummaryQueryResult
+            {
+                TransferRequestsSummaryQueryResult = result.OrderBy(o => o.CommitmentId).ThenBy(t => t.CreatedOn)
+            };
+        }      
+
+        private async Task<GetTransferRequestsSummaryQueryResult> GetTransferRequestsForSender(long accountId)
+        {
+            var result = await _dbContext.Value.TransferRequests
+                            .Include(t => t.Cohort)
+                            .ThenInclude(c => c.AccountLegalEntity)
+                            .Where(w => w.Cohort.TransferSenderId.Value == accountId)
+                            .Select(t => new TransferRequestsSummaryQueryResult
+                            {
+                                ApprovedOrRejectedByUserName = t.TransferApprovalActionedByEmployerName,
+                                ApprovedOrRejectedByUserEmail = t.TransferApprovalActionedByEmployerEmail,
+                                ApprovedOrRejectedOn = t.TransferApprovalActionedOn,
+                                CohortReference = t.Cohort.Reference,
+                                CommitmentId = t.CommitmentId,
+                                CreatedOn = t.CreatedOn,
+                                FundingCap = (int)t.FundingCap,
+                                ReceivingEmployerAccountId = t.Cohort.EmployerAccountId,
+                                SendingEmployerAccountId = t.Cohort.TransferSenderId.Value,
+                                Status = t.Status,
+                                TransferCost = t.Cost,
+                                TransferRequestId = t.Id,
+                                TransferType = TransferType.AsSender
+
+                            }).ToListAsync();
+
+            if (result.Any())
+            {
+                _logger.LogInformation($"Retrieved Transfer Request  summary for employer account {accountId}");
+            }
+            else
+            {
+                _logger.LogInformation($"Cannot find Transfer Request summary for employer account {accountId}");
+            }
+
+            return new GetTransferRequestsSummaryQueryResult
+            {
+                TransferRequestsSummaryQueryResult = result.OrderBy(o => o.CommitmentId).ThenBy(t => t.CreatedOn)
+            };
+        }        
+
+        public static IEnumerable<T> Concatenate<T>(params IEnumerable<T>[] lists)
+        {
+            return lists.SelectMany(x => x);
+        }       
     }
 }

@@ -449,6 +449,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             switch (PaymentStatus)
             {
+                //case PaymentStatus.PendingApproval: //TODO : Need to Check -- REMOVE LATER
+                //    return ApprenticeshipStatus.WaitingToStart;
                 case PaymentStatus.Active:
                     return (effectiveDate ?? DateTime.UtcNow) < StartDate
                         ? ApprenticeshipStatus.WaitingToStart

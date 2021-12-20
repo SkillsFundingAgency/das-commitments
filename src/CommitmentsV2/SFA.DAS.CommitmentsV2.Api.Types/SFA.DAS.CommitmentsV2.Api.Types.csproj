@@ -19,6 +19,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.272" />
   </ItemGroup>
 
   <ItemGroup>
