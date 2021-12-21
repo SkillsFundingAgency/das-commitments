@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     ApprovedOrRejectedByUserEmail = t.TransferApprovalActionedByEmployerEmail,
                     ApprovedOrRejectedOn = t.TransferApprovalActionedOn,
                     AutoApproval = t.AutoApproval,
-                    PledgeApplicationId = t.Cohort.PledgeApplicationId.GetValueOrDefault()
+                    PledgeApplicationId = t.Cohort.PledgeApplicationId
                 })
                 .FirstOrDefaultAsync(t => t.TransferRequestId == transferRequestId, cancellationToken);
 
