@@ -45,7 +45,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                                                 CreatedOn = c.CreatedOn.Value,
                                                 TransferSenderName = transferSender.Name,
                                                 TransferSenderId = c.TransferSenderId,
-                                                IsLinkedToChangeOfPartyRequest = c.IsLinkedToChangeOfPartyRequest
+                                                IsLinkedToChangeOfPartyRequest = c.IsLinkedToChangeOfPartyRequest,
+                                                CommitmentStatus = c.CommitmentStatus
                                             }).ToArrayAsync(cancellationToken);
 
                 var cohortIds = cohortFiltered.Select(x => x.CohortId);
