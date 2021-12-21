@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using KellermanSoftware.CompareNetObjects;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
@@ -190,15 +189,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             });
         }
 
-        //[Test]
-        //public void TrainingProgrammeIsMappedCorrectly()
-        //{
-        //    for (var counter = 0; counter < _result.Count; counter++)
-        //    {
-        //        var compare = new CompareLogic();
-        //        var compareResult = compare.Compare(_trainingProgramme, _result[counter].TrainingProgramme);
-        //        Assert.IsTrue(compareResult.AreEqual);
-        //    }
-        //}
+        [Test]
+        public void TrainingProgrammeIsMappedCorrectly()
+        {
+            foreach (var rs in _result)
+            {
+                Assert.AreEqual(_trainingProgramme.CourseCode, rs.TrainingProgramme.CourseCode);
+                Assert.AreEqual(_trainingProgramme.EffectiveFrom, rs.TrainingProgramme.EffectiveFrom);
+                Assert.AreEqual(_trainingProgramme.EffectiveTo, rs.TrainingProgramme.EffectiveTo);
+            }
+        }
     }
 }
