@@ -20,6 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest
         public string ApprovedOrRejectedByUserEmail { get; set; }
         public DateTime? ApprovedOrRejectedOn { get; set; }
         public bool AutoApproval { get; set; }
-        public int PledgeApplicationId { get; set; }
+        public int? PledgeApplicationId { get; set; }
     }
 }
