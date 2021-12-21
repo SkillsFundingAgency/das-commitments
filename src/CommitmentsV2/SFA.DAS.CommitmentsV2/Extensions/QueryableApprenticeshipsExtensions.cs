@@ -177,8 +177,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
             return apprenticeships.Where(apprenticeship =>
                 !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed && !c.IsExpired) &&
-                (apprenticeship.ApprenticeshipUpdate == null ||
-                apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
+                (apprenticeship.ApprenticeshipUpdate.Any() || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
         }
         private static IQueryable<Apprenticeship> WithAlertsEmployer(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
         {

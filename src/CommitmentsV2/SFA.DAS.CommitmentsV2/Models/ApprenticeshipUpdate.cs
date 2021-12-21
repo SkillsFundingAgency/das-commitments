@@ -8,11 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class ApprenticeshipUpdate : Aggregate, ITrackableEntity
     {
-        public ApprenticeshipUpdate()
-        {
-            DataLockStatus = new List<DataLockStatus>();
-        }
-
         public long Id { get; set; }
         public long ApprenticeshipId { get; set; }
         public Originator Originator { get; set; }

@@ -6,11 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public abstract class ApprenticeshipBase : Aggregate
     {
-        protected ApprenticeshipBase()
-        {
-            ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
-        }
-
         public bool IsApproved { get; set; }
 
         public virtual long Id { get; set; }
