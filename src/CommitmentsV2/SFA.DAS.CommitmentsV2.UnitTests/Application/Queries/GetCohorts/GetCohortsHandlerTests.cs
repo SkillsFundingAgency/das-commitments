@@ -83,6 +83,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         }
 
         [Test]
+        public async Task Handle_WithAccountIdWithTransferRejectedCohort_ShouldReturnEmptyList()
+        {
+            var f = new GetCohortsHandlerTestFixtures();
+            f.AddTransferCohortForEmployerAndRejectedByAll(f.AccountId);
+
+            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+
+            Assert.IsNotNull(response);
+            Assert.AreEqual(0, response.Cohorts.Length);
+        }
+
+        [Test]
         public async Task Handle_WithAccountId_CohortWithTransferSender_ShouldReturnTransferSenderDetails()
         {
             var f = new GetCohortsHandlerTestFixtures();
@@ -284,6 +296,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.TransferSenderId, TransferSenderId)
                 .With(o => o.EditStatus, EditStatus.Both)
                 .With(o => o.TransferApprovalStatus, TransferApprovalStatus.Pending)
+                .With(o => o.IsDeleted, false)
+                .With(o => o.AccountLegalEntity, AccountLegalEntity)
+                .With(o => o.Provider, Provider)
+                .With(o => o.TransferSender, TransferSender)
+                .Without(o => o.Apprenticeships)
+                .Without(o => o.TransferRequests)
+                .Without(o => o.Messages)
+                .Create();
+
+            SeedCohorts.Add(cohort);
+            return this;
+        }
+
+        public GetCohortsHandlerTestFixtures AddTransferCohortForEmployerAndRejectedByAll(long accountId)
+        {
+            var cohort = _autoFixture.Build<Cohort>()
+                .With(o => o.EmployerAccountId, accountId)
+                .With(o => o.TransferSenderId, TransferSenderId)
+                .With(o => o.EditStatus, EditStatus.Both)
+                .With(o => o.TransferApprovalStatus, TransferApprovalStatus.Rejected)
                 .With(o => o.IsDeleted, false)
                 .With(o => o.AccountLegalEntity, AccountLegalEntity)
                 .With(o => o.Provider, Provider)

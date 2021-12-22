@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 Email = source.Email,
-                Uln = source.Uln,
+                Uln = source.Uln,                
                 CourseCode = source.CourseCode,
                 StandardUId = source.StandardUId,
                 Version = source.Version,
