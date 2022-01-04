@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Authorization.Mvc.Attributes;
@@ -33,6 +32,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("")]
         public async Task<IActionResult> AddDraftApprenticeships(BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
+            foreach (var df in request.BulkUploadDraftApprenticeships)
+            {
+                _logger.LogInformation($"Received Bulk upload request for ULN : {df.Uln} with start date : {df.StartDate.Value.ToString("dd/MM/yyyy")}");
+            }
             _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.BulkUploadDraftApprenticeships?.Count() ?? 0}");
             var command = await _modelMapper.Map<BulkUploadAddDraftApprenticeshipsCommand>(request);
             var result = await _mediator.Send(command, cancellationToken);
