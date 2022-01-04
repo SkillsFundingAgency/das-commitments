@@ -19,5 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Types
         public string TransferSenderName { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public bool IsLinkedToChangeOfPartyRequest { get; set; }
+        public CommitmentStatus CommitmentStatus { get; set; }
     }
 }

@@ -29,16 +29,32 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return 0;
             }
 
-            var fundingBandCapForApprentice = await Task.WhenAll(apprenticeships.Select(async x => new
+            async Task<Dictionary<long, int>> GetFundingBandCaps(IEnumerable<ApprenticeshipBase> apprenticeships)
+            {
+                var result = new Dictionary<long, int>();
+                foreach (var apprenticeship in apprenticeships)
+                {
+                    var fundingBandCap = (await _trainingProgrammeLookup.GetTrainingProgramme(apprenticeship.CourseCode))
+                            .FundingCapOn(apprenticeship.StartDate ?? throw new InvalidOperationException("Start Date cannot be null"));
+
+                    result.Add(apprenticeship.Id, fundingBandCap);
+                }
+
+                return result;
+            }
+
+            var fundingBandCapForApprentice = await GetFundingBandCaps(apprenticeships);
+
+            var apprenticeWithFundingBandCap = apprenticeships.Select(x => new
             {
                 x.Id,
                 x.CourseCode,
                 x.CourseName,
                 x.Cost,
-                Cap = (await _trainingProgrammeLookup.GetTrainingProgramme(x.CourseCode)).FundingCapOn(x.StartDate ?? throw new InvalidOperationException("Start Date cannot be null")) 
-            }));
-            
-            var courseSummary = fundingBandCapForApprentice.GroupBy(a => new {a.CourseCode, a.CourseName})
+                Cap = fundingBandCapForApprentice[x.Id]
+            });
+
+            var courseSummary = apprenticeWithFundingBandCap.GroupBy(a => new { a.CourseCode, a.CourseName })
                 .OrderBy(course => course.Key.CourseName)
                 .Select(course => new FundingCapCourseSummary
                 {

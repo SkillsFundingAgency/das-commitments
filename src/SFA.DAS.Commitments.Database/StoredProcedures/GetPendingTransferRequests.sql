@@ -15,5 +15,5 @@ SELECT
     ,ApprovedOrRejectedOn
 	,CreatedOn
 FROM [dbo].[TransferRequestSummary]
-WHERE [Status] = 0
+WHERE [Status] = 0 AND AutoApproval = 0
 ORDER BY CommitmentId

@@ -3,7 +3,6 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using StructureMap;
 using SFA.DAS.CommitmentsV2.Configuration;
-using StructureMap.Pipeline;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
 {

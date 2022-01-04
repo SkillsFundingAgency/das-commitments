@@ -15,6 +15,7 @@ SELECT
     ,TR.TransferApprovalActionedByEmployerEmail AS ApprovedOrRejectedByUserEmail
     ,TR.TransferApprovalActionedOn AS ApprovedOrRejectedOn
 	,TR.CreatedOn
+	,TR.AutoApproval
 FROM [dbo].[TransferRequest] TR
 JOIN [dbo].[Commitment] C ON TR.CommitmentId = C.Id
 INNER JOIN [AccountLegalEntities] ale on ale.Id = c.AccountLegalEntityId

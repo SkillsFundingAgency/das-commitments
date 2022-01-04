@@ -87,6 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 var apprenticeA = new DraftApprenticeship  
                 {
+                    Id = 1,
                     StartDate = _breakDate.AddMonths(-1),
                     Cost = _firstCap,
                     CourseName = "C1Name",
@@ -94,6 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 };
                 var apprenticeB = new DraftApprenticeship
                 {
+                    Id = 2,
                     StartDate = _breakDate.AddMonths(2),
                     Cost = _firstCap,
                     CourseName = "C1Name",
@@ -101,6 +103,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 };
                 var apprenticeC = new DraftApprenticeship
                 {
+                    Id = 3,
                     StartDate = _breakDate,
                     Cost = _firstCap,
                     CourseName = "C2Name",
@@ -108,6 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 };
                 var apprenticeD = new DraftApprenticeship
                 {
+                    Id = 4,
                     StartDate = _breakDate,
                     Cost = _secondCap,
                     CourseName = "C2Name",
