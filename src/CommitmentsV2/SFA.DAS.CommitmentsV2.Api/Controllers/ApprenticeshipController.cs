@@ -211,7 +211,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpPost]
         [Route("{apprenticeshipId}/resendinvitation")]
-        public async Task<IActionResult> ResendInvitation(long apprenticeshipId, SaveDataRequest request)
+        public async Task<IActionResult> ResendInvitation(long apprenticeshipId, [FromBody] SaveDataRequest request)
         {
             _logger.LogInformation("Resend invitation email for : " + apprenticeshipId);
             await _mediator.Send(new ResendInvitationCommand(apprenticeshipId, request.UserInfo));

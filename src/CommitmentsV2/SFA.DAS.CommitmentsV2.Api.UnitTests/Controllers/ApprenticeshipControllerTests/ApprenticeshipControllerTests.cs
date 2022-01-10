@@ -21,6 +21,7 @@ using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.Get
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
@@ -238,6 +239,20 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Verify(m => m.Send(
                 It.Is<ResumeApprenticeshipCommand>(c =>
                     c.ApprenticeshipId == request.ApprenticeshipId &&
+                    c.UserInfo == request.UserInfo),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task ResendInvitation(long apprenticeshipId, SaveDataRequest request)
+        {
+            //Act
+            await _controller.ResendInvitation(apprenticeshipId, request);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<ResendInvitationCommand>(c =>
+                    c.ApprenticeshipId == apprenticeshipId &&
                     c.UserInfo == request.UserInfo),
                 It.IsAny<CancellationToken>()), Times.Once);
         }

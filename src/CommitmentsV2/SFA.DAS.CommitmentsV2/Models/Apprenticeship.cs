@@ -590,6 +590,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(Email), "Invitation cannot be sent as there is no email associated with apprenticeship");
             }
 
+            if (EmailAddressConfirmed == true)
+            {
+                throw new DomainException(nameof(Email), "Email address has been confirmed");
+            }
+
             Publish(() => new ApprenticeshipResendInvitationEvent
             {
                 ApprenticeshipId = Id,
