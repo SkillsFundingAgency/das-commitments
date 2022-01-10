@@ -244,7 +244,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test, MoqAutoData]
-        public async Task ResendInvitation(long apprenticeshipId, SaveDataRequest request)
+        public async Task WhenPostingResendInviation_ThenResendInvitation(long apprenticeshipId, SaveDataRequest request)
         {
             //Act
             await _controller.ResendInvitation(apprenticeshipId, request);
