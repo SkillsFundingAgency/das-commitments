@@ -89,7 +89,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> GetApprenticeships(long accountId, [FromUri] ApprenticeshipSearchQuery query)
         {
             var response = await _employerOrchestrator.GetApprenticeships(accountId, query);
-
             return Ok(response);
         }
 
