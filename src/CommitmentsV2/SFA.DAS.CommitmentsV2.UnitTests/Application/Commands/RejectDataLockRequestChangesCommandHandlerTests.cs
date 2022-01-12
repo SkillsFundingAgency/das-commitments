@@ -93,6 +93,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture.VerifyDataLockTriage(40, TriageStatus.Change, "Should not update course/price datalocks when apprenticeship HasHadDataLockSuccess");
         }
 
+       [Test]
+        public async Task ShouldResolveDataLock_WhenHasHadDataLockSuccessAndNewDataLocksArePriceOnlyAndNotExpired()
+        {
+            // Arrange
+            _fixture.SeedData()
+                .WithHasHadDataLockSuccess(true)
+                .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+                .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
+                .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+                .WithDataLock(
+                    TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false,
+                    TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
+
+            // Act
+            await _fixture.Handle();
+
+            // Assert
+            _fixture.VerifyDataLockTriage(40, TriageStatus.Unknown, "Should not update course/price datalocks when apprenticeship HasHadDataLockSuccess");
+        }
+
         [Test]
         public async Task ShouldNotPublishStateChanged_WhenHasHadDataLockSuccessAndNewDataLocksAreNotPriceOnly()
         {

@@ -115,6 +115,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
+        public async Task ShouldResolveDataLock_WhenHasHadDataLockSuccessAndNewDataLocksAreNotPriceOnlyAndNotExpired()
+        {
+            // Arrange
+            _fixture.SeedData()
+                .WithHasHadDataLockSuccess(true)
+                .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Unknown, EventStatus.Updated, false, Status.Pass, DataLockErrorCode.Dlock07)
+                .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Unknown, EventStatus.Removed, false, Status.Fail, DataLockErrorCode.Dlock03)
+                .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07)
+                .WithDataLock(
+                    TestsFixture.ApprenticeshipId,     40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false,
+                    TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
+
+            // Act
+            await _fixture.Handle();
+
+            // Assert
+            _fixture.VerifyDataLockResolved(40, true, "Should accept Data Locks for apprenticeship When Data Lock is not expired");
+        }
+
+        [Test]
         public async Task ShouldNotPublishStateChanged_WhenHasHadDataLockSuccessAndNewDataLocksAreNotPriceOnly()
         {
             // Arrange
