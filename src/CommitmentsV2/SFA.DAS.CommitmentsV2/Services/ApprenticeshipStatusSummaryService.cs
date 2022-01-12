@@ -29,43 +29,34 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             _logger.LogInformation($"Getting Apprenticeship Status Summary for employer account {accountId}");
 
-            var result = await _dbContext.Value.Apprenticeships
-                              .Include(t => t.Cohort)
-                              .ThenInclude(c => c.AccountLegalEntity)
-                              .Where(w => w.Cohort.EmployerAccountId == accountId) 
-                              .Select(x => new ApprenticeshipSummary
-                              {
-                                AccountLegalEntityId = x.Cohort.AccountLegalEntity.LegalEntityId,
-                                OrganisationType = x.Cohort.AccountLegalEntity.OrganisationType,
-                                PaymentStatus = x.PaymentStatus
+            var results = await _dbContext.Value.AccountLegalEntities
+                              .Include(t => t.Cohorts)
+                              .ThenInclude(c => c.Apprenticeships)
+                              .Where(w => w.AccountId == accountId) 
+                              .ToListAsync();
 
-                              }).ToListAsync();
-
-            if (result.Any())
+            if (results.Any())
             {
                 _logger.LogInformation($"Retrieved Apprenticeship Status Summary for employer account {accountId}");
             }
             else
             {
-                _logger.LogInformation($"Cannot find Apprenticeship Status Summary for employer account {accountId}");
-            }
+                _logger.LogInformation($"Cannot find Apprenticeship Status Summary for employer account {accountId}");                
+            }           
 
             return new GetApprenticeshipStatusSummaryQueryResults
             {
-               GetApprenticeshipStatusSummaryQueryResult = new List<GetApprenticeshipStatusSummaryQueryResult>
-               {
-                   new GetApprenticeshipStatusSummaryQueryResult
-                   {
-                       LegalEntityIdentifier = result.FirstOrDefault().AccountLegalEntityId,
-                       LegalEntityOrganisationType = result.FirstOrDefault().OrganisationType,
-                       ActiveCount = result.Where(x => x.PaymentStatus == PaymentStatus.Active).Count(),
-                       WithdrawnCount = result.Where(x => x.PaymentStatus == PaymentStatus.Withdrawn).Count(),
-                       CompletedCount = result.Where(x => x.PaymentStatus == PaymentStatus.Completed).Count(),
-                       PausedCount = result.Where(x => x.PaymentStatus == PaymentStatus.Paused).Count()
-                   }
-               }
-              
-            };            
+                GetApprenticeshipStatusSummaryQueryResult = results.Select(x => new GetApprenticeshipStatusSummaryQueryResult
+                {
+                    LegalEntityIdentifier = x.LegalEntityId,
+                    LegalEntityOrganisationType = x.OrganisationType,
+                    ActiveCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Active).Count(),
+                    WithdrawnCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Withdrawn).Count(),
+                    CompletedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Completed).Count(),
+                    PausedCount = x.Cohorts.SelectMany(c => c.Apprenticeships).Where(x => x.PaymentStatus == PaymentStatus.Paused).Count()
+                })
+               
+            };  
         }
     }
 
