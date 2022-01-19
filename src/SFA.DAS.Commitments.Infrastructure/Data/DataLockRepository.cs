@@ -2,14 +2,11 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Dapper;
-
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Sql.Client;
 using System.Data.SqlClient;
 using SFA.DAS.Commitments.Domain.Exceptions;
 using System;

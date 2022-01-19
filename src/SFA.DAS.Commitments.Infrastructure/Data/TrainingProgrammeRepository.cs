@@ -6,7 +6,6 @@ using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.NLog.Logger;
-using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
