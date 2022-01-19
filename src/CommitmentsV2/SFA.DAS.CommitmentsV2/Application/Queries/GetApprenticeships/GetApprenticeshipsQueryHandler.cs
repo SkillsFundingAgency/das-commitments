@@ -7,7 +7,6 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 {

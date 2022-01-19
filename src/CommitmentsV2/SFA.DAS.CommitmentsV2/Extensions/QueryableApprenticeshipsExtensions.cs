@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -168,8 +166,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             if (hasAlerts)
             {
                 return apprenticeships.Where(apprenticeship => apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed && !c.IsExpired) ||
-                                                                   apprenticeship.ApprenticeshipUpdate != null &&
-                                                                   apprenticeship.ApprenticeshipUpdate.Any(
+                                                               apprenticeship.ApprenticeshipUpdate.Any(
                                                                        c => c.Status == ApprenticeshipUpdateStatus.Pending
                                                                             && (c.Originator == Originator.Employer
                                                                                 || c.Originator == Originator.Provider)));
@@ -177,8 +174,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
             return apprenticeships.Where(apprenticeship =>
                 !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed && !c.IsExpired) &&
-                (apprenticeship.ApprenticeshipUpdate == null ||
-                apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
+                (!apprenticeship.ApprenticeshipUpdate.Any() || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
         }
         private static IQueryable<Apprenticeship> WithAlertsEmployer(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
         {
@@ -189,7 +185,6 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                                                                                       && c.EventStatus != EventStatus.Removed
                                                                                                       && c.TriageStatus != TriageStatus.Unknown
                                                                                                       && !c.IsExpired) ||
-                                                               apprenticeship.ApprenticeshipUpdate != null &&
                                                                apprenticeship.ApprenticeshipUpdate.Any(
                                                                    c => c.Status == ApprenticeshipUpdateStatus.Pending
                                                                         && (c.Originator == Originator.Employer
@@ -202,8 +197,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                                         && c.TriageStatus != TriageStatus.Unknown
                                                         && !c.IsExpired) &&
 
-                (apprenticeship.ApprenticeshipUpdate == null ||
-                 apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
+                (!apprenticeship.ApprenticeshipUpdate.Any() || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
         }
 
         public static IQueryable<Apprenticeship> WithProviderOrEmployerId(this IQueryable<Apprenticeship> apprenticeships, IEmployerProviderIdentifier identifier)
@@ -294,8 +288,6 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     )
                     ||
                     (
-
-                        a.ApprenticeshipUpdate != null &&
                         a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending)
 
                     ));
@@ -328,9 +320,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                         )
                         ||
                         (
-                            a.ApprenticeshipUpdate != null &&
                             a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending)
-
                         ));
             }
         }
@@ -371,18 +361,13 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             if (isProvider)
             {
                 return apprenticeships.Where(a =>
-                    a.ApprenticeshipUpdate != null &&
                     a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending)
                 );
             }
 
             return apprenticeships.Where(a =>
-                a.ApprenticeshipUpdate != null &&
                 a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending)
             );
-
         }
-
     }
-
 }
