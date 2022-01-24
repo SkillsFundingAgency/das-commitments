@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace SFA.DAS.CommitmentsV2.Messages.Events
+namespace SFA.DAS.CommitmentsV2.Messages.Commands
 {
-    public class ApprenticeshipResendInvitationEvent
+    public class ApprenticeshipResendInvitationCommand
     {
         public long ApprenticeshipId { get; set; }
         public DateTime ResendOn { get; set; }

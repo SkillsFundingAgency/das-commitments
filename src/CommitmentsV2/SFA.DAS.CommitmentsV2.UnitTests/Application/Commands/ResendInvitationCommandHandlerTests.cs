@@ -1,24 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using AutoFixture.NUnit3;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Newtonsoft.Json;
+using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
-using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
@@ -35,7 +30,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<ICurrentDateTime> _currentDateTime;
         public IRequestHandler<ResendInvitationCommand> _handler;
         public UserInfo UserInfo { get; }
-        private UnitOfWorkContext _unitOfWorkContext { get; set; }
+        private UnitOfWorkContext _unitOfWorkContext;
+        private Mock<IMessageSession> _messageSession;
 
         [SetUp]
         public void Init()
@@ -44,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options);
+            _messageSession = new Mock<IMessageSession>();
 
             _currentDateTime = new Mock<ICurrentDateTime>();
             _unitOfWorkContext = new UnitOfWorkContext();
@@ -51,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
                 _currentDateTime.Object,
                 _authenticationService.Object,
+                _messageSession.Object,
                 Mock.Of<ILogger<ResendInvitationCommandHandler>>());
         }
 
@@ -70,10 +68,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await _dbContext.SaveChangesAsync();
 
             // Assert
-            var @event = _unitOfWorkContext.GetEvents().OfType<ApprenticeshipResendInvitationEvent>()
-                .First(e => e.ApprenticeshipId == apprenticeship.Id);
-            @event.ApprenticeshipId.Should().Be(apprenticeship.Id);
-            @event.ResendOn.Should().Be(_currentDateTime.Object.UtcNow);
+            _messageSession.Verify(x => x.Send(It.Is<ApprenticeshipResendInvitationCommand>(p =>
+                p.ApprenticeshipId == apprenticeship.Id && p.ResendOn == _currentDateTime.Object.UtcNow), It.IsAny<SendOptions>()));
         }
 
         [Test]
