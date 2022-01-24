@@ -693,6 +693,24 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task BulkUploadDraftApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var providerId = 11;
+            var request = new BulkUploadAddDraftApprenticeshipsRequest
+            {
+                ProviderId = providerId,
+                BulkUploadDraftApprenticeships = new List<BulkUploadAddDraftApprenticeshipRequest>(),
+                UserInfo = new UserInfo()
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.BulkUploadDraftApprenticeships(providerId, request, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/{providerId}/bulkupload", request, CancellationToken.None));
+        }
+
         public async Task GetEmployerAccountSummary_VerifyUrlAndDataIsCorrectlyPassedIn()
         {
             //Arrange
