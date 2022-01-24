@@ -392,6 +392,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson($"api/apprenticeships/details/resume", request, cancellationToken);
         }
 
+        public Task ResendApprenticeshipInvitation(long apprenticeshipId, SaveDataRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/resendinvitation", request, cancellationToken);
+        }
+
         public Task<GetAllTrainingProgrammesResponse> GetAllTrainingProgrammes(CancellationToken cancellationToken = default)
         {
             return _client.Get<GetAllTrainingProgrammesResponse>($"api/TrainingProgramme/all", null, cancellationToken);
