@@ -736,7 +736,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetTransferRequestSummaryResponse>($"api/accounts/{employerAccountId}/transfers", CancellationToken.None, CancellationToken.None));
         }
     }
-
+    
     public class WhenCallingTheEndpointsFixture
     {
         public Client.CommitmentsApiClient CommitmentsApiClient { get; }
@@ -788,3 +788,4 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
     }
 }
+
