@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
-
 using Dapper;
-
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Dapper;
-
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.BulkUpload;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {

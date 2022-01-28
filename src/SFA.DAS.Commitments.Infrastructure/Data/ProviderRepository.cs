@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.NLog.Logger;
-using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
