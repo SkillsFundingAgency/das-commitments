@@ -1,8 +1,9 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+
 
 namespace SFA.DAS.Commitments.Database.IntegrationTests
 {
