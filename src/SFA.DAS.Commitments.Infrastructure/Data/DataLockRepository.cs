@@ -7,10 +7,10 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using System.Data.SqlClient;
 using SFA.DAS.Commitments.Domain.Exceptions;
 using System;
 using System.Text;
-using Microsoft.Data.SqlClient;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {

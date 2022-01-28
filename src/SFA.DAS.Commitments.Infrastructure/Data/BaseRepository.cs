@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Data.SqlClient;
 using Polly;
 using Polly.Retry;
 using SFA.DAS.NLog.Logger;
