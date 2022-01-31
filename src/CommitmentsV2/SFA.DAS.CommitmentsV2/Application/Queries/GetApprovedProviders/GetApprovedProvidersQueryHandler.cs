@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Expressions;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Linq;
 using System.Threading;

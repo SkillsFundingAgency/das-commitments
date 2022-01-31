@@ -10,7 +10,6 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
-using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {

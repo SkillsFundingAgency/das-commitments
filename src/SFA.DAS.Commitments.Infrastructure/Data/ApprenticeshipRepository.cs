@@ -11,7 +11,6 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
-using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
