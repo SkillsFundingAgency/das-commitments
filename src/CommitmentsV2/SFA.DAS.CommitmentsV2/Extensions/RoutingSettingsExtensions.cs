@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
     {
         private const string CommitmentsV2MessageHandler = "SFA.DAS.CommitmentsV2.MessageHandlers";
         private const string NotificationsMessageHandler = "SFA.DAS.Notifications.MessageHandlers";
-        private const string ApprenticeCommitmentsJobs = "SFA.DAS.ApprenticeCommitments.Jobs";
+        private const string ApprenticeCommitmentsJobs = "SFA.DAS.ApprenticeCommitments.Apprenticeship";
 
         public static void AddRouting(this RoutingSettings routingSettings)
         {
