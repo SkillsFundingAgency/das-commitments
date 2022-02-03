@@ -645,6 +645,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 yield return new DomainError(nameof(details.TrainingProgramme.CourseCode), "Entered course is not valid.");
             }
+
+            if (details.DeliveryModel == null)
+            {
+                yield return new DomainError(nameof(details.DeliveryModel), "You must select the apprenticeship delivery model");
+            }
         }
 
         private IEnumerable<DomainError> BuildStartDateValidationFailures(DraftApprenticeshipDetails details)

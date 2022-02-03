@@ -789,6 +789,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                   programmeType,
                   new DateTime(2016, 1, 1),
                   null);
+                DraftApprenticeshipDetails.DeliveryModel = DeliveryModel.Normal;
                 return this;
             }
 
