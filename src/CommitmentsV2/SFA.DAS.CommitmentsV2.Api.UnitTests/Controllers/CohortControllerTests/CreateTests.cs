@@ -54,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     c.AccountLegalEntityId == Request.AccountLegalEntityId &&
                     c.ProviderId == Request.ProviderId &&
                     c.CourseCode == Request.CourseCode &&
+                    c.DeliveryModel == Request.DeliveryModel &&
                     c.Cost == Request.Cost &&
                     c.StartDate == Request.StartDate &&
                     c.EndDate == Request.EndDate &&
