@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using MoreLinq.Extensions;
 using SFA.DAS.CommitmentsV2.Data;
