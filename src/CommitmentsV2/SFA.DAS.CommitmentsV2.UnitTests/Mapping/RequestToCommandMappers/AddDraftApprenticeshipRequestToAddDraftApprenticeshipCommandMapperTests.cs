@@ -67,6 +67,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         {
             return AssertPropertySet(input => input.DeliveryModel = dm, output => output.DeliveryModel == dm);
         }
-
     }
 }
