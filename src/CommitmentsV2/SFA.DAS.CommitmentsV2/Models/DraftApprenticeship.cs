@@ -74,7 +74,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed;
             TrainingCourseOption = selectedOption;
             StandardUId = source.StandardUId;
-            DeliveryModel = source.DeliveryModel;
+            if (source.DeliveryModel.HasValue)
+            {
+                DeliveryModel = source.DeliveryModel.Value;
+            }
+
             Cost = source.Cost;
             StartDate = source.StartDate;
             EndDate = source.EndDate;

@@ -25,7 +25,12 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool TrainingCourseVersionConfirmed { get; set; }
         public string TrainingCourseOption { get; set; }
         public string StandardUId { get; set; }
-        public DeliveryModel? DeliveryModel { get; set; }
+        private DeliveryModel? _deliveryModel { get; set; }
+        public DeliveryModel DeliveryModel
+        {
+            get => _deliveryModel ?? DeliveryModel.Normal;
+            set => _deliveryModel = value;
+        }
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
