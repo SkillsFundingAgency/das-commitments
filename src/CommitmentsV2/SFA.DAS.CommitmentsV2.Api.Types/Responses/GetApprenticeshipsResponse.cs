@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
@@ -23,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public string ProviderName { get; set; }
             public long ProviderId { get; set; }
             public string CourseName { get; set; }
+            public DeliveryModelDto DeliveryModel { get; set; }
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
             public DateTime PauseDate { get; set; }
