@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public string Uln { get; set; }
         public string CourseCode { get; set; }
         public string CourseName { get; set; }
+        public DeliveryModelDto DeliveryModel { get; set; }
         public DateTime? OriginalStartDate { get; set; }
     }
 }

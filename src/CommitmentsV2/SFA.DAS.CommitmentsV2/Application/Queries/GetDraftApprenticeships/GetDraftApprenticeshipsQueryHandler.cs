@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
@@ -35,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     Cost = (int?) a.Cost,
                     CourseCode = a.CourseCode,
                     CourseName = a.CourseName,
+                    DeliveryModel = new DeliveryModelDto(a.DeliveryModel),
                     DateOfBirth =  a.DateOfBirth,
                     StartDate = a.StartDate,
                     EndDate = a.EndDate,

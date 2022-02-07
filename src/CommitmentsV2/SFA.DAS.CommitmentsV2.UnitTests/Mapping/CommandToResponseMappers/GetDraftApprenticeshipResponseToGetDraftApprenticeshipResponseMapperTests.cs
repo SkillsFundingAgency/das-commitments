@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Routing;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers;
+using SFA.DAS.CommitmentsV2.Types;
 using HttpResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 
@@ -44,6 +46,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         public Task Map_CourseCode_ShouldBeSet()
         {
             return AssertPropertySet(input => input.CourseCode, "ABC123");
+        }
+
+        [TestCase(DeliveryModel.Normal)]
+        [TestCase(DeliveryModel.Flexible)]
+        public async Task Map_DeliveryModel_ShouldBeSet(DeliveryModel dm)
+        {
+            var mapper = CreateMapper();
+            var from = new CommandResponse.GetDraftApprenticeshipQueryResult
+            {
+                DeliveryModel = dm
+            };
+
+            var to = await mapper.Map(from);
+            Assert.AreEqual(dm, to.DeliveryModel.Code);
+            Assert.AreEqual(dm.ToString(), to.DeliveryModel.Description);
         }
 
         [Test]

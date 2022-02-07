@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
@@ -10,6 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string Email { get; set; }
         public string Uln { get; set; }
         public string CourseCode { get; set; }
+        public DeliveryModelDto DeliveryModel { get; set; }
         public string TrainingCourseName { get; set; }
         public string TrainingCourseVersion { get; set; }
         public string TrainingCourseOption { get; set; }
