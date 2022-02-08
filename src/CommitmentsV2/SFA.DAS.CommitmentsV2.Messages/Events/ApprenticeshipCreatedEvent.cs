@@ -21,6 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public DateTime EndDate { get; set; }
         public PriceEpisode[] PriceEpisodes { get; set; }
         public ProgrammeType TrainingType { get; set; }
+        public DeliveryModel DeliveryModel { get; set; }
         public string TrainingCode { get; set; }
         public long? TransferSenderId { get; set; }
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
