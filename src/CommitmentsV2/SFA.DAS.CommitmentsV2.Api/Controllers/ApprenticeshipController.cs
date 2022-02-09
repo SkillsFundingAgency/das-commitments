@@ -19,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
 using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
 
@@ -207,7 +208,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             return Ok(response);
         }
-		
+
+        [HttpPost]
+        [Route("{apprenticeshipId}/resendinvitation")]
+        public async Task<IActionResult> ResendInvitation(long apprenticeshipId, [FromBody] SaveDataRequest request)
+        {
+            _logger.LogInformation("Resend invitation email for : " + apprenticeshipId);
+            await _mediator.Send(new ResendInvitationCommand(apprenticeshipId, request.UserInfo));
+            return Accepted();
+        }
+
         [HttpPost]
         [Route("edit/validate")]
         public async Task<IActionResult> ValidateApprenticeshipForEdit([FromBody] ValidateApprenticeshipForEditRequest request)
