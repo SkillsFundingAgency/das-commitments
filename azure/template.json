@@ -209,6 +209,27 @@
             }
         },
         {
+            "apiVersion": "2021-04-01",
+            "name": "das-commitments-worker-sql-firewall-rule",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'sql-server-firewall-rules.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "serverName": {
+                        "value": "[parameters('sharedSQLServerName')]"
+                    },
+                    "subnetResourceIdList": {
+                        "value": "[createArray(reference('worker-subnet').outputs.SubnetResourceId.value)]"
+                    }
+                }
+            }
+        },
+        {
             "apiVersion": "2020-06-01",
             "name": "worker-app-service-plan",
             "resourceGroup": "[variables('resourceGroupName')]",
