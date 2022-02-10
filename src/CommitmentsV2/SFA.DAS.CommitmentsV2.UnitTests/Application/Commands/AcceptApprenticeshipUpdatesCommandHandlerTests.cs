@@ -235,6 +235,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
+            fixture.ApprenticeshipDetails.DeliveryModel = DeliveryModel.Flexible;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
             await fixture.Handle();
@@ -255,6 +256,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(apprenticeship.StartDate, list[0].StartDate);
             Assert.AreEqual(apprenticeship.EndDate, list[0].EndDate);
             Assert.AreEqual(apprenticeship.ProgrammeType as SFA.DAS.CommitmentsV2.Types.ProgrammeType?, list[0].TrainingType);
+            Assert.AreEqual(apprenticeship.DeliveryModel, list[0].DeliveryModel);
             Assert.AreEqual(apprenticeship.CourseCode, list[0].TrainingCode);
             Assert.AreEqual(apprenticeship.Uln, list[0].Uln);
             Assert.AreEqual(1, list[0].PriceEpisodes.Count());

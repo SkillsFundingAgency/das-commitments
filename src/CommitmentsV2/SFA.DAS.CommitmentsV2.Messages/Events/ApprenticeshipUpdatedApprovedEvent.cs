@@ -16,5 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public PriceEpisode[] PriceEpisodes { get; set; }
         public ProgrammeType TrainingType { get; set; }
         public string TrainingCode { get; set; }
+        public DeliveryModel DeliveryModel { get; set; }
     }
 }
