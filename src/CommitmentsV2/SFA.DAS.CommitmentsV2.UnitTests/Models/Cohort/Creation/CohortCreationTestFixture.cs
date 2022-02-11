@@ -68,7 +68,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 FirstName = _autoFixture.Create<string>(),
                 LastName = _autoFixture.Create<string>(),
                 ReservationId = Guid.NewGuid(),
-                Email = email
+                Email = email,
+                DeliveryModel = DeliveryModel.Normal
             };
 
             return this;
