@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
                 var cohortId = request.BulkUploadDraftApprenticeships.First(x => x.Uln == draftApprenticeship.Uln).CohortId;
                 var result = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, cohortId, draftApprenticeship, request.UserInfo, cancellationToken);
 
-                var cohortInfo = await _cohortDomainService.GetCohortDetails(result.Cohort.Id, cancellationToken);                
+                var cohortInfo = await _cohortDomainService.GetCohortDetails(cohortId, cancellationToken); //TODO : result.Cohort.Id               
                 response.Add(cohortInfo);
 
                 _logger.LogInformation($"Bulk upload - Added draft apprenticeship. Reservation-Id:{draftApprenticeship.ReservationId} Commitment-Id:{cohortId}");

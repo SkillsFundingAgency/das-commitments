@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             return Ok(new GetBulkUploadAddDraftApprenticeshipsResponse
             {
-                BulkUploadAddDraftApprenticeshipsResponse = result.BulkUploadAddDraftApprenticeshipsResponse
+                BulkUploadAddDraftApprenticeshipsResponse = result?.BulkUploadAddDraftApprenticeshipsResponse
             });
 
         }
