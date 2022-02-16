@@ -508,9 +508,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         }
 
 
-        public Task BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default)
+        //public Task BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default)
+        //{
+        //    return _client.PostAsJson<BulkUploadAddDraftApprenticeshipsRequest, GetBulkUploadAddDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload", request, cancellationToken);
+        //}
+
+        public Task<GetBulkUploadAddDraftApprenticeshipsResponse> BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken)
         {
-            return _client.PostAsJson($"api/{providerId}/bulkupload", request, cancellationToken);
+            return _client.PostAsJson<BulkUploadAddDraftApprenticeshipsRequest, GetBulkUploadAddDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload", request, cancellationToken);
         }
 
         public Task<GetApprenticeshipStatusSummaryResponse> GetEmployerAccountSummary(long accountId, CancellationToken cancellationToken = default)
@@ -522,5 +527,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {            
             return _client.Get<GetTransferRequestSummaryResponse>($"api/accounts/{accountId}/transfers", cancellationToken);
         }
+
+       
     }
 }

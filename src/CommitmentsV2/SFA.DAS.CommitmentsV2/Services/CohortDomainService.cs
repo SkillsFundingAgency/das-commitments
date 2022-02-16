@@ -21,6 +21,7 @@ using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Infrastructure;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -76,6 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var party = _authenticationService.GetUserParty();
 
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
+            draftApprenticeship.Cohort = cohort;
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
 
@@ -169,6 +171,20 @@ namespace SFA.DAS.CommitmentsV2.Services
             var party = _authenticationService.GetUserParty();
 
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
+        }
+
+        public async Task<BulkUploadAddDraftApprenticeshipsResponse> GetCohortDetails(long cohortId, CancellationToken cancellationToken)
+        {        
+            var cohort = await _dbContext.Value.GetCohortWithAccountAggregate(cohortId, cancellationToken);
+
+            var result = new BulkUploadAddDraftApprenticeshipsResponse
+            {
+                CohortReference = cohort.Reference,
+                NumberOfApprenticeships = cohort.Apprenticeships.Count(),
+                EmployerName = cohort.AccountLegalEntity.Name
+            };
+
+            return result;
         }
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)

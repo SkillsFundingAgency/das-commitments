@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
-    [DasAuthorize(Feature.BulkUploadV2)]
+   // [DasAuthorize(Feature.BulkUploadV2)]
     [Route("api/{providerId}/bulkupload")]
     public class BulkUploadController : ControllerBase
     {
@@ -34,12 +35,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             foreach (var df in request.BulkUploadDraftApprenticeships)
             {
-                _logger.LogInformation($"Received Bulk upload request for ULN : {df.Uln} with start date : {df.StartDate.Value.ToString("dd/MM/yyyy")}");
+                _logger.LogInformation($"Received Bulk upload request for ULN : {df.Uln} with start date : {df.StartDate.Value.ToString("dd/MM/yyyy")}");                
             }
             _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.BulkUploadDraftApprenticeships?.Count() ?? 0}");
             var command = await _modelMapper.Map<BulkUploadAddDraftApprenticeshipsCommand>(request);
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+
+            return Ok(new GetBulkUploadAddDraftApprenticeshipsResponse
+            {
+                BulkUploadAddDraftApprenticeshipsResponse = result.BulkUploadAddDraftApprenticeshipsResponse
+            });
+
         }
 
     }

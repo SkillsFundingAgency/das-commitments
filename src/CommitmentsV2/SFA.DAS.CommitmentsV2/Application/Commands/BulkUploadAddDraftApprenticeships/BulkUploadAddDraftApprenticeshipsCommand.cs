@@ -5,10 +5,12 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships
 {
-    public class BulkUploadAddDraftApprenticeshipsCommand : IRequest
+    public class BulkUploadAddDraftApprenticeshipsCommand : IRequest<GetBulkUploadAddDraftApprenticeshipsResponse>
     {
         public List<BulkUploadAddDraftApprenticeshipRequest> BulkUploadDraftApprenticeships { get; set; }
         public long ProviderId { get; set; }
         public UserInfo UserInfo { get; set; }
     }
+
+
 }

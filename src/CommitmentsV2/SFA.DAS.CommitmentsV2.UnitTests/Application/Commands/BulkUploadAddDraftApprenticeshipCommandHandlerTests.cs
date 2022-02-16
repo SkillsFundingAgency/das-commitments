@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     {
         public Fixture AutoFixture { get; set; }
         public Mock<ICohortDomainService> CohortDomainService { get; set; }
-        public IRequestHandler<BulkUploadAddDraftApprenticeshipsCommand> Handler { get; set; }
+        public IRequestHandler<BulkUploadAddDraftApprenticeshipsCommand, GetBulkUploadAddDraftApprenticeshipsResponse> Handler { get; set; }        
         public BulkUploadAddDraftApprenticeshipsCommand Command { get; set; }
         public CancellationToken CancellationToken { get; set; }
         public Mock<IReservationsApiClient> ReservationApiClient { get; set; }
