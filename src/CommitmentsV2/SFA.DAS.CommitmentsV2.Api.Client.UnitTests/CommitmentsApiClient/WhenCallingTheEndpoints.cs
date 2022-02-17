@@ -549,6 +549,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task ResendApprenticeshipInvitation_VerifyUrlAndDataIsCorrectlyPassedIn()
+        {
+            //Arrange
+            var request = new SaveDataRequest()
+            {
+                UserInfo = new UserInfo()
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.ResendApprenticeshipInvitation(11, request, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/11/resendinvitation", request, CancellationToken.None));
+        }
+
+        [Test]
         public async Task PauseApprenticeship_VerifyUrlAndData()
         {
             var request = new PauseApprenticeshipRequest
@@ -720,7 +736,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetTransferRequestSummaryResponse>($"api/accounts/{employerAccountId}/transfers", CancellationToken.None, CancellationToken.None));
         }
     }
-
+    
     public class WhenCallingTheEndpointsFixture
     {
         public Client.CommitmentsApiClient CommitmentsApiClient { get; }
@@ -768,6 +784,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             MockRestHttpClient.Setup(x => x.PostAsJson(It.IsAny<string>(), It.IsAny<AddDraftApprenticeshipRequest>(), CancellationToken.None))
                 .ReturnsAsync("");
+ 
             return this;
         }
     }
