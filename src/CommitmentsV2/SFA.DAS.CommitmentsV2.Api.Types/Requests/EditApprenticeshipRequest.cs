@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
@@ -11,6 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string LastName { get; set; }
         public string Email { get; set; }
         public string ULN { get; set; }
+        public DeliveryModel? DeliveryModel { get; set; }
         public string TrainingName { get; set; }
         public decimal? Cost { get; set; }
         public string EmployerReference { get; set; }

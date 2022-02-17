@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
@@ -15,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string ULN { get; set; }
+        public DeliveryModel DeliveryModel { get; set; }
         public string TrainingCode { get; set; }
         public string ProviderReference { get; set; }
         public string Email { get; set; }
