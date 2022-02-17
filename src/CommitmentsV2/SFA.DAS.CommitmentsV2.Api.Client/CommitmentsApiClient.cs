@@ -517,5 +517,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {            
             return _client.Get<GetTransferRequestSummaryResponse>($"api/accounts/{accountId}/transfers", cancellationToken);
         }
+
+        public Task<BulkUploadValidateApiResponse> ValidateBulkUploadRequest(long providerId, BulkUploadValidateApiRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<BulkUploadValidateApiRequest, BulkUploadValidateApiResponse>($"api/{providerId}/bulkupload/validate", request, cancellationToken);
+        }
     }
 }

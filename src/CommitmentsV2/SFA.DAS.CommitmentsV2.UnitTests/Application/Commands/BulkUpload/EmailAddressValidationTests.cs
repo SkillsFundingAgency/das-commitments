@@ -1,0 +1,98 @@
+﻿using NUnit.Framework;
+using System.Threading.Tasks;
+
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
+{
+    [TestFixture]
+    [Parallelizable]
+    public class EmailAddressValidationTests
+    {
+        [Test]
+        public async Task Validate_IsNotEmpty()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetEmailAddress("");
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "EmailAddress", "<b>Email address</b> must be entered");
+        }
+
+        [Test]
+        public async Task Validate_Is_A_Valid_EmailAddress()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetEmailAddress("accnm.com");
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "EmailAddress", "Enter a valid <b>email address</b>");
+        }
+
+        [Test]
+        public async Task Validate_Is_Less_Than_200_Characters()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetEmailAddress(
+                 "abc012345678900123456789001234567890012345678900123456789001234567890012345678900123456789001234567890012345678900123456789001234567890" +
+                 "01234567890012345678900123456789001234567890012345678900123456789001234567890012345678900123456789001234567890@email.com");
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "EmailAddress", "Enter an <b>email address</b> that is not longer than 200 characters");
+        }
+
+        [Test]
+        public async Task Validate_Overlapping_StartDate()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.OverlappingStartDate);
+
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "EmailAddress", "The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address");
+        }
+
+        [Test]
+        public async Task Validate_Overlapping_EndDate()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.OverlappingEndDate);
+
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "EmailAddress", "The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address");
+        }
+
+        [Test]
+        public async Task Validate_Overlapping_DateEmbrace()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.DateEmbrace);
+
+            var errors = await fixture.Handle();
+            Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
+            Assert.AreEqual(2, errors.BulkUploadValidationErrors[0].Errors.Count);
+            Assert.AreEqual("The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address", errors.BulkUploadValidationErrors[0].Errors[0].ErrorText);
+            Assert.AreEqual("The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address", errors.BulkUploadValidationErrors[0].Errors[1].ErrorText);
+            Assert.AreEqual("EmailAddress", errors.BulkUploadValidationErrors[0].Errors[0].Property);
+            Assert.AreEqual("EmailAddress", errors.BulkUploadValidationErrors[0].Errors[1].Property);
+        }
+
+        [Test]
+        public async Task Validate_When_Duplicate_Email()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetUpDuplicateEmail();
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "EmailAddress", "The <b>email address</b> has already been used for an apprentice in this file");
+        }
+
+        [Test]
+        public async Task Validate_Overlapping_DateWithIn()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.DateWithin);
+
+            var errors = await fixture.Handle();
+            Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
+            Assert.AreEqual(2, errors.BulkUploadValidationErrors[0].Errors.Count);
+            Assert.AreEqual("The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address", errors.BulkUploadValidationErrors[0].Errors[0].ErrorText);
+            Assert.AreEqual("The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address", errors.BulkUploadValidationErrors[0].Errors[1].ErrorText);
+            Assert.AreEqual("EmailAddress", errors.BulkUploadValidationErrors[0].Errors[0].Property);
+            Assert.AreEqual("EmailAddress", errors.BulkUploadValidationErrors[0].Errors[1].Property);
+        }
+    }
+}
