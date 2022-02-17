@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships.EditValidation
                     EmployerReference = request.EmployerReference,
                     StartDate = request.StartDate,
                     EndDate = request.EndDate,
+                    DeliveryModel = request.DeliveryModel,
                     CourseCode = request.TrainingCode,
                     Version = request.Version,
                     Option = request.Option,

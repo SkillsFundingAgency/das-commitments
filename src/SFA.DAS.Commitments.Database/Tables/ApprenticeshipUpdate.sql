@@ -21,7 +21,8 @@
 	[UpdateOrigin] TINYINT NULL,
 	[EffectiveFromDate] DATETIME NULL,
 	[EffectiveToDate] DATETIME NULL, 
-    [Email] NVARCHAR(200) NULL
+    [Email] NVARCHAR(200) NULL,
+    [DeliveryModel] TINYINT NULL
 )
 GO
 
