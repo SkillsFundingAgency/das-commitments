@@ -680,7 +680,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
-                    FirstName = "Test", LastName = "Test"
+                    FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Normal
                 };
 
                 ExistingDraftApprenticeship = new DraftApprenticeship {
