@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
 {
@@ -21,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                     FirstName = source.FirstName,
                     LastName = source.LastName,
                     Email = source.Email,
+                    DeliveryModel = new DeliveryModelDto(source.DeliveryModel),
                     TrainingType = source.TrainingType,
                     TrainingCode = source.TrainingCode,
                     Version = source.TrainingCourseVersion,
