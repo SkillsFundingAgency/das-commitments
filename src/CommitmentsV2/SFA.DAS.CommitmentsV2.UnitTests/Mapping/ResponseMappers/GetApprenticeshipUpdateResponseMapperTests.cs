@@ -52,6 +52,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
                 Assert.AreEqual(source.Originator.ToParty(), result.OriginatingParty);
             }
         }
+
+        [Test]
+        public void ApprenticeshipUpdates_DeliveryPartyIsMappedCorrectly()
+        {
+            foreach (var source in _source.ApprenticeshipUpdates)
+            {
+                var result = _result.ApprenticeshipUpdates.First(x => x.Id == source.Id);
+                Assert.AreEqual(source.DeliveryModel, result.DeliveryModel.Code);
+            }
+        }
     }
 
     public class ApprenticeshipUpdateOriginatorSpecimenBuilder :
