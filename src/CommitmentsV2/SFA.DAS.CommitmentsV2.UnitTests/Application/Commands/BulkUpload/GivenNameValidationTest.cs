@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetGivenNames("");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "GivenName", "<b>Fisrt name</b> must be entered");
+            fixture.ValidateError(errors, 1, "GivenName", "<b>First name</b> must be entered");
         }
 
         [Test]
