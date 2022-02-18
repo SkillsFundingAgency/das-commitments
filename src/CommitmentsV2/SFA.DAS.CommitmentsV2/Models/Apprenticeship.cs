@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
                 Uln = Uln,
-                DeliveryModel = DeliveryModel.Value,
+                DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Normal,
             });
         }
 
@@ -534,7 +534,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
                 Uln = Uln,
-                DeliveryModel = DeliveryModel.Value,
+                DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Normal,
             });
         }
 
