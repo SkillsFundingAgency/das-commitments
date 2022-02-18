@@ -116,6 +116,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var accountLegalEntity = new AccountLegalEntity()
                .Set(a => a.LegalEntityId, LegalEntityIdentifier)
                .Set(a => a.OrganisationType, OrganisationType.CompaniesHouse)
+               .Set(a => a.AccountId , accountId)
                .Set(a => a.Id, 444);
 
             var cohort = new Cohort()

@@ -93,6 +93,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
+        public async Task Should_Not_Update_Expired_DataLocks()
+        {
+            //Arrange
+            var apprenticeship = SetupApprenticeshipWithDatalocks(TriageStatus.Change, true);
+            _validCommand = new TriageDataLocksCommand(_apprenticeshipId, TriageStatus.Restart, _fixture.Create<UserInfo>());
+
+            //Act
+            await _handler.Handle(_validCommand, default);
+            await _dbContext.SaveChangesAsync();
+
+            //Assert          
+            var apprenticeshipDataLock = _confirmationDbContext.DataLocks.Where(s => s.ApprenticeshipId == apprenticeship.Id);
+            apprenticeshipDataLock.Where(x => x.TriageStatus == TriageStatus.Restart).Should().HaveCount(1);
+        }
+
+        [Test]
         public async Task Should_Ignore_Passed_Datalocks()
         {
             //Arrange
@@ -137,8 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             
             //Assert         
             Assert.AreEqual(expectedMessage, exception.Message);
-        }        
-
+        }
 
         private Apprenticeship SetupApprenticeship(TriageStatus triageStatus, bool hasHadDataLockSuccess)
         {
@@ -160,7 +175,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         ApprenticeshipId = apprenticeshipId,
                         DataLockEventId = 1,
                         EventStatus = EventStatus.New,
-                        IsExpired = false,
+                        IsExpired = false,                        
                         TriageStatus = triageStatus,
                         ErrorCode = DataLockErrorCode.Dlock04
                     }
@@ -174,7 +189,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return apprenticeship;           
         }
 
-        private Apprenticeship SetupApprenticeshipWithDatalocks(TriageStatus triageStatus, bool hasHadDataLockSuccess)
+        private Apprenticeship SetupApprenticeshipWithDatalocks(TriageStatus triageStatus, bool isExpired)
         {
             var fixture = new Fixture();
             var apprenticeshipId = 10082;
@@ -194,7 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         ApprenticeshipId = apprenticeshipId,
                         DataLockEventId = 1,
                         EventStatus = EventStatus.New,
-                        IsExpired = false,
+                        IsExpired = isExpired,
                         TriageStatus = triageStatus,
                         ErrorCode = DataLockErrorCode.Dlock04
                     },

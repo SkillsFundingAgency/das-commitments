@@ -19,5 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest
         public string ApprovedOrRejectedByUserName { get; set; }
         public string ApprovedOrRejectedByUserEmail { get; set; }
         public DateTime? ApprovedOrRejectedOn { get; set; }
+        public bool AutoApproval { get; set; }
+        public int? PledgeApplicationId { get; set; }
     }
 }

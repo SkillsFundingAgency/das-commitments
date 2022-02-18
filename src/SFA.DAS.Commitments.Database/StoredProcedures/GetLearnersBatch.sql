@@ -44,6 +44,8 @@ BEGIN
 		,[UKPRN]
 		,[LearnRefNumber]
 		,[PaymentStatus]
+		,[EmployerAccountId]
+		,[EmployerName]
 	
 	FROM [dbo].[GetLearners] (@sinceTime)
 
