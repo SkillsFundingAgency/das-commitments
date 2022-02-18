@@ -31,19 +31,22 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 else
                 {
                     var overlapResult = OverlapCheckEmail(csvRecord);
-                    switch (overlapResult.OverlapStatus)
+                    if (overlapResult != null)
                     {
-                        case OverlapStatus.DateEmbrace:
-                        case OverlapStatus.DateWithin:
-                            domainErrors.Add(new Error("EmailAddress", $"The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address"));
-                            domainErrors.Add(new Error("EmailAddress", $"The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address"));
-                            break;
-                        case OverlapStatus.OverlappingEndDate:
-                            domainErrors.Add(new Error("EmailAddress", $"The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address"));
-                            break;
-                        case OverlapStatus.OverlappingStartDate:
-                            domainErrors.Add(new Error("EmailAddress", $"The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address"));
-                            break;
+                        switch (overlapResult.OverlapStatus)
+                        {
+                            case OverlapStatus.DateEmbrace:
+                            case OverlapStatus.DateWithin:
+                                domainErrors.Add(new Error("EmailAddress", $"The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address"));
+                                domainErrors.Add(new Error("EmailAddress", $"The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address"));
+                                break;
+                            case OverlapStatus.OverlappingEndDate:
+                                domainErrors.Add(new Error("EmailAddress", $"The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address"));
+                                break;
+                            case OverlapStatus.OverlappingStartDate:
+                                domainErrors.Add(new Error("EmailAddress", $"The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address"));
+                                break;
+                        }
                     }
                 }
 
