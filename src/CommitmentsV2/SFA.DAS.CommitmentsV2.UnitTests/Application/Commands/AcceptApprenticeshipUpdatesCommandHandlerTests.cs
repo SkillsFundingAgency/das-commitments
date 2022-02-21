@@ -106,6 +106,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(fixture.ApprenticeshipUpdate.EndDate, fixture.ApprenticeshipFromDb.EndDate);
         }
 
+        [TestCase(DeliveryModel.Normal)]
+        [TestCase(DeliveryModel.Flexible)]
+        public async Task Handle_WhenCommandIsHandled_DeliveryModelIsUpdated(DeliveryModel dm)
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.DeliveryModel = dm;
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            Assert.AreEqual(fixture.ApprenticeshipUpdate.DeliveryModel, fixture.ApprenticeshipFromDb.DeliveryModel);
+        }
+
         [Test]
         public async Task Handle_WhenCommandIsHandled_CourseCodeIsUpdated()
         {

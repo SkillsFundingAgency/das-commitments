@@ -317,6 +317,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                     });
             }
 
+            if (update.DeliveryModel.HasValue)
+            {
+                DeliveryModel = update.DeliveryModel;
+            }
+
             if (update.TrainingType.HasValue)
             {
                 ProgrammeType = update.TrainingType;
