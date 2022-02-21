@@ -60,7 +60,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                             CompletionDate = null,
                             UKPRN = 10002638,
                             LearnRefNumber = "RF8662400336",
-                            PaymentStatus = 1
+                            PaymentStatus = 1,
+                            EmployerName = "SFA",
+                            EmployerAccountId = 1000
                         }
                     },
                     1,100, 1));
