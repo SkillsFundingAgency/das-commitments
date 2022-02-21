@@ -26,11 +26,14 @@ RETURN
 		,ProviderId [UKPRN]
 		,ProviderRef LearnRefNumber
 		,[PaymentStatus]
+		,cm1.[EmployerAccountId]
+		,ale.Name AS [EmployerName]
 		,COUNT(1) OVER() TotalCount
 		,ROW_NUMBER() OVER (ORDER BY [LastUpdated], ap1.Id ) Seq        
 
 	FROM [dbo].[Apprenticeship] ap1
 		JOIN [dbo].[Commitment] cm1 ON cm1.Id = ap1.CommitmentId
+		INNER JOIN  [dbo].[AccountLegalEntities] ale ON ale.AccountId = cm1.EmployerAccountId
 
 	WHERE [TrainingType] = 0
 	  AND [TrainingCode] is not null

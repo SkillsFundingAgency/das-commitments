@@ -32,5 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public long UKPRN { get; set; }
         public string LearnRefNumber { get; set; }
         public short PaymentStatus { get; set; }
+        public long EmployerAccountId { get; set; }
+        public string EmployerName { get; set; }
     }
 }
