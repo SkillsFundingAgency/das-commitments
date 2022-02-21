@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
-            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);            
+            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
 

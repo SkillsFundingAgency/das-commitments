@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
             _cohortDomainService = cohortDomainService;
             _reservationApiClient = reservationsApiClient;
         }
-               
+
         public async Task<GetBulkUploadAddDraftApprenticeshipsResponse> Handle(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
             var draftApprenticeshipsResponse = new List<BulkUploadAddDraftApprenticeshipsResponse>();

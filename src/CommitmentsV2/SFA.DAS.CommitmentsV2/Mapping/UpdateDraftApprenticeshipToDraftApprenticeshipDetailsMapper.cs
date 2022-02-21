@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
             var trainingProgramme = await GetCourse(source.CourseCode, source.StartDate);
             var result = new DraftApprenticeshipDetails
             {
-                Id = source.ApprenticeshipId,                
+                Id = source.ApprenticeshipId,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 Email = source.Email,

@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             foreach (var df in request.BulkUploadDraftApprenticeships)
             {
-                _logger.LogInformation($"Received Bulk upload request for ULN : {df.Uln} with start date : {df.StartDate.Value.ToString("dd/MM/yyyy")}");                
+                _logger.LogInformation($"Received Bulk upload request for ULN : {df.Uln} with start date : {df.StartDate.Value.ToString("dd/MM/yyyy")}");
             }
             _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.BulkUploadDraftApprenticeships?.Count() ?? 0}");
             var command = await _modelMapper.Map<BulkUploadAddDraftApprenticeshipsCommand>(request);

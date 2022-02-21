@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task DraftApprenticeshipDetailMapperIsCalled()
         {
-            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture();
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
             await fixture.Handle();
 
             fixture.VerifyMapperIsCalled();
@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task DraftApprenticeshipDetailAreAdded()
         {
-            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture();
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
             await fixture.Handle();
 
             fixture.VerifyDraftApprenticeshipsAreAdded();
@@ -42,25 +42,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task GetCohortDetailsForAddedDraftApprenticeshipDetail()
         {
-            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture();
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
             await fixture.Handle();
 
             fixture.VerifyGetCohortDetails();
         }
     }
 
-    public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture
+    public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture
     {
         public Fixture AutoFixture { get; set; }
         public Mock<ICohortDomainService> CohortDomainService { get; set; }
-        public IRequestHandler<BulkUploadAddDraftApprenticeshipsCommand, GetBulkUploadAddDraftApprenticeshipsResponse> Handler { get; set; }        
+        public IRequestHandler<BulkUploadAddDraftApprenticeshipsCommand, GetBulkUploadAddDraftApprenticeshipsResponse> Handler { get; set; }     
         public BulkUploadAddDraftApprenticeshipsCommand Command { get; set; }
         public CancellationToken CancellationToken { get; set; }
         public Mock<IReservationsApiClient> ReservationApiClient { get; set; }
         public Mock<IModelMapper> ModelMapper { get; }
         public List<DraftApprenticeshipDetails> DraftApprenticeshipDetails { get; set; }
 
-        public BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture()
+        public BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture()
         {
             AutoFixture = new Fixture();
             CohortDomainService = new Mock<ICohortDomainService>();
