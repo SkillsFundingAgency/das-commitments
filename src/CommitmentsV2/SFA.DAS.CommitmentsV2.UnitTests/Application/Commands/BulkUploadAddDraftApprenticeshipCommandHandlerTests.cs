@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -38,6 +38,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             fixture.VerifyDraftApprenticeshipsAreAdded();
         }
+
+        [Test]
+        public async Task GetCohortDetailsForAddedDraftApprenticeshipDetail()
+        {
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture();
+            await fixture.Handle();
+
+            fixture.VerifyGetCohortDetails();
+        }
     }
 
     public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsixture
@@ -64,6 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             ModelMapper.Setup(x => x.Map<List<DraftApprenticeshipDetails>>(It.IsAny<BulkUploadAddDraftApprenticeshipsCommand>())).ReturnsAsync(() => DraftApprenticeshipDetails);
             CohortDomainService.Setup(x => x.AddDraftApprenticeship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()));
+            CohortDomainService.Setup(x => x.GetCohortDetails(It.IsAny<long>(), It.IsAny<CancellationToken>()));
 
             Handler = new BulkUploadAddDraftApprenticeshipCommandHandler(Mock.Of<ILogger<BulkUploadAddDraftApprenticeshipCommandHandler>>(), ModelMapper.Object, CohortDomainService.Object, ReservationApiClient.Object);
             CancellationToken = new CancellationToken();
@@ -84,6 +94,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             foreach (var draftApp in DraftApprenticeshipDetails)
             {
                 CohortDomainService.Verify(x => x.AddDraftApprenticeship(Command.ProviderId, It.IsAny<long>(), draftApp, Command.UserInfo, It.IsAny<CancellationToken>()), Times.Once);
+            }
+        }
+
+        internal void VerifyGetCohortDetails()
+        {
+            foreach (var draftApp in DraftApprenticeshipDetails)
+            {
+                CohortDomainService.Verify(x => x.GetCohortDetails(It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
             }
         }
     }

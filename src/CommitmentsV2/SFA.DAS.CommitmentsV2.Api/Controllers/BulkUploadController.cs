@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Authorization.Mvc.Attributes;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
-   // [DasAuthorize(Feature.BulkUploadV2)]
+    [DasAuthorize(Feature.BulkUploadV2)]
     [Route("api/{providerId}/bulkupload")]
     public class BulkUploadController : ControllerBase
     {

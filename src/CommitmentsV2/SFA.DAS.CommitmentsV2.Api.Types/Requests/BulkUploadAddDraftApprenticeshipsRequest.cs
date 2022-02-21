@@ -27,18 +27,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? DateOfBirth { get; set; }
         public string Uln { get; set; }
         public string ProviderRef { get; set; }
-    }    
-
-    public class GetBulkUploadAddDraftApprenticeshipsResponse
-    {
-        public IEnumerable<BulkUploadAddDraftApprenticeshipsResponse> BulkUploadAddDraftApprenticeshipsResponse { get; set; }
-    }
-
-    public class BulkUploadAddDraftApprenticeshipsResponse
-    {
-        public long cohortId { get; set; }
-        public string CohortReference { get; set; }
-        public int NumberOfApprenticeships { get; set; }
-        public string EmployerName { get; set; }
     }
 }

@@ -17,11 +17,8 @@ using SFA.DAS.Encoding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Infrastructure;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -76,8 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
-            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
-            draftApprenticeship.Cohort = cohort;
+            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);            
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
 
@@ -173,11 +169,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
-        public async Task<BulkUploadAddDraftApprenticeshipsResponse> GetCohortDetails(long cohortId, CancellationToken cancellationToken)
+        public async Task<Api.Types.Responses.BulkUploadAddDraftApprenticeshipsResponse> GetCohortDetails(long cohortId, CancellationToken cancellationToken)
         {        
             var cohort = await _dbContext.Value.GetCohortWithAccountAggregate(cohortId, cancellationToken);
 
-            var result = new BulkUploadAddDraftApprenticeshipsResponse
+            var result = new Api.Types.Responses.BulkUploadAddDraftApprenticeshipsResponse
             {
                 CohortReference = cohort.Reference,
                 NumberOfApprenticeships = cohort.Apprenticeships.Count(),
