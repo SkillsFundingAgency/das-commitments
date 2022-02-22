@@ -11,8 +11,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 
     public class BulkUploadAddDraftApprenticeshipRequest
     {
-        public long LegalEntityId { get; set; }
-        public long CohortId { get; set; }
+        public long? LegalEntityId { get; set; }
+        public long? CohortId { get; set; }
         public string UserId { get; set; }
         public long ProviderId { get; set; }
         public string CourseCode { get; set; }
