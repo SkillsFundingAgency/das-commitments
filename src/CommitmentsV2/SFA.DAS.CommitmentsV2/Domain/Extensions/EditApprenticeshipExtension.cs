@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 ApprenticeshipId = apprenticeship.Id,
                 EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
                 ProviderId = apprenticeship.Cohort.ProviderId,
-                DeliveryModel = source.DeliveryModel,
+                DeliveryModel = source.DeliveryModel ?? apprenticeship.DeliveryModel ?? DeliveryModel.Normal,
                 CourseCode = GetValue(source.CourseCode, apprenticeship.CourseCode),
                 Version = GetValue(source.Version, apprenticeship.TrainingCourseVersion),
                 Option = GetValue(source.Option, apprenticeship.TrainingCourseOption),
