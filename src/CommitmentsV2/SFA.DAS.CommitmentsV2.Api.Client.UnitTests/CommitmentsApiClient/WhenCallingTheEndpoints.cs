@@ -708,7 +708,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.BulkUploadDraftApprenticeships(providerId, request, CancellationToken.None);
 
             //Assert
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/{providerId}/bulkupload", request, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<BulkUploadAddDraftApprenticeshipsRequest, GetBulkUploadAddDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload", request, CancellationToken.None));
         }
 
         public async Task GetEmployerAccountSummary_VerifyUrlAndDataIsCorrectlyPassedIn()

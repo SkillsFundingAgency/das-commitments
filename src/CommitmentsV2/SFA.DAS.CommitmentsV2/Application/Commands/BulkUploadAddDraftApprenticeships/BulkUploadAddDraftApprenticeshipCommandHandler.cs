@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -15,7 +16,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships
 {
-    public class BulkUploadAddDraftApprenticeshipCommandHandler : AsyncRequestHandler<BulkUploadAddDraftApprenticeshipsCommand>
+    public class BulkUploadAddDraftApprenticeshipCommandHandler : IRequestHandler<BulkUploadAddDraftApprenticeshipsCommand, GetBulkUploadAddDraftApprenticeshipsResponse>    
     {
         private readonly ILogger<BulkUploadAddDraftApprenticeshipCommandHandler> _logger;
         private readonly IModelMapper _modelMapper;
@@ -39,16 +40,25 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
             _cohortIds = new Dictionary<long, long>();
         }
 
-        protected override async Task Handle(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
+        public async Task<GetBulkUploadAddDraftApprenticeshipsResponse> Handle(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
+
             await Validate(request);
+
+            var draftApprenticeshipsResponse = new List<BulkUploadAddDraftApprenticeshipsResponse>();
             var draftApprenticeships = await _modelMapper.Map<List<DraftApprenticeshipDetails>>(request);
             foreach (var draftApprenticeship in draftApprenticeships)
             {
                 var cohortId = await GetCohortId(request.BulkUploadDraftApprenticeships.First(x => x.Uln == draftApprenticeship.Uln), request.UserInfo, cancellationToken);
                 var result = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, cohortId, draftApprenticeship, request.UserInfo, cancellationToken);
+
+                var cohort = await _cohortDomainService.GetCohortDetails(cohortId, cancellationToken);
+                draftApprenticeshipsResponse.Add(cohort);
+
                 _logger.LogInformation($"Bulk upload - Added draft apprenticeship. Reservation-Id:{draftApprenticeship.ReservationId} Commitment-Id:{cohortId}");
             }
+            
+            return new GetBulkUploadAddDraftApprenticeshipsResponse { BulkUploadAddDraftApprenticeshipsResponse = draftApprenticeshipsResponse };
         }
 
         private async Task Validate(BulkUploadAddDraftApprenticeshipsCommand request)
@@ -77,5 +87,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
 
             return bulkUploadAddDraftApprenticeshipRequest.CohortId.Value;
         }
+
     }
 }
