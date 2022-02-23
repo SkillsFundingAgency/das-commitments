@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
-    [DasAuthorize(Feature.BulkUploadV2)]
+    //[DasAuthorize(Feature.BulkUploadV2)]
     [Route("api/{providerId}/bulkupload")]
     public class BulkUploadController : ControllerBase
     {
