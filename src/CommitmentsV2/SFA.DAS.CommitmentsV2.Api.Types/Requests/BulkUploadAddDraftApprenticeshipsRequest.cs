@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
     public class BulkUploadAddDraftApprenticeshipsRequest : SaveDataRequest

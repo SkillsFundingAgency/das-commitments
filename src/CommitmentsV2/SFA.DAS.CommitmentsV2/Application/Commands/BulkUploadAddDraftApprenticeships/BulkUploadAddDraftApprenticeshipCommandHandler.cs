@@ -42,7 +42,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
 
         public async Task<GetBulkUploadAddDraftApprenticeshipsResponse> Handle(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
-
             await Validate(request);
 
             var draftApprenticeshipsResponse = new List<BulkUploadAddDraftApprenticeshipsResponse>();
@@ -52,12 +51,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
                 var cohortId = await GetCohortId(request.BulkUploadDraftApprenticeships.First(x => x.Uln == draftApprenticeship.Uln), request.UserInfo, cancellationToken);
                 var result = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, cohortId, draftApprenticeship, request.UserInfo, cancellationToken);
 
-                var cohort = await _cohortDomainService.GetCohortDetails(cohortId, cancellationToken);
-                draftApprenticeshipsResponse.Add(cohort);
-
                 _logger.LogInformation($"Bulk upload - Added draft apprenticeship. Reservation-Id:{draftApprenticeship.ReservationId} Commitment-Id:{cohortId}");
             }
-            
+
+            foreach (var cohortId in _cohortIds.Values)
+            {
+                var cohort = await _cohortDomainService.GetCohortDetails(cohortId, cancellationToken);
+                draftApprenticeshipsResponse.Add(cohort);
+            }
+
             return new GetBulkUploadAddDraftApprenticeshipsResponse { BulkUploadAddDraftApprenticeshipsResponse = draftApprenticeshipsResponse };
         }
 
@@ -68,11 +70,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
 
         private async Task<long> GetCohortId(BulkUploadAddDraftApprenticeshipRequest bulkUploadAddDraftApprenticeshipRequest, UserInfo user, CancellationToken cancellation)
         {
-            if (bulkUploadAddDraftApprenticeshipRequest.CohortId.HasValue)
+            if (_cohortIds.ContainsKey(bulkUploadAddDraftApprenticeshipRequest.LegalEntityId.Value))
             {
-                if (_cohortIds.ContainsKey(bulkUploadAddDraftApprenticeshipRequest.LegalEntityId.Value))
+                return _cohortIds.GetValueOrDefault(bulkUploadAddDraftApprenticeshipRequest.LegalEntityId.Value);
+            }
+            else
+            {
+                long cohortId;
+                if (bulkUploadAddDraftApprenticeshipRequest.CohortId.HasValue)
                 {
-                    return _cohortIds.GetValueOrDefault(bulkUploadAddDraftApprenticeshipRequest.LegalEntityId.Value);
+                    cohortId = bulkUploadAddDraftApprenticeshipRequest.CohortId.Value;
                 }
                 else
                 {
@@ -81,11 +88,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
                       .Where(x => x.Id == bulkUploadAddDraftApprenticeshipRequest.LegalEntityId).First();
 
                     var cohort = await _cohortDomainService.CreateEmptyCohort(bulkUploadAddDraftApprenticeshipRequest.ProviderId, accountLegalEntity.Account.Id, accountLegalEntity.Id, user, cancellation);
-                    _cohortIds.Add(accountLegalEntity.Id, cohort.Id);
-                }
-            }
 
-            return bulkUploadAddDraftApprenticeshipRequest.CohortId.Value;
+                    cohortId = cohort.Id;
+                }
+                _cohortIds.Add(bulkUploadAddDraftApprenticeshipRequest.LegalEntityId.Value, cohortId);
+                return cohortId;
+            }
         }
 
     }
