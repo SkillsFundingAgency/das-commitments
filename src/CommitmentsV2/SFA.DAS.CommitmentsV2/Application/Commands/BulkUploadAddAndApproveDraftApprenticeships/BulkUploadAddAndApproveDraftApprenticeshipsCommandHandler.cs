@@ -47,12 +47,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraf
                 var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Reference == result.CohortReference);
                 await _cohortDomainService.ApproveCohort(cohort.Id, "", request.UserInfo, cancellationToken);
             }
-            var response = new BulkUploadAddAndApproveDraftApprenticeshipsResponse()
+
+            return new BulkUploadAddAndApproveDraftApprenticeshipsResponse()
             {
                 BulkUploadAddAndApproveDraftApprenticeshipResponse = results.BulkUploadAddDraftApprenticeshipsResponse
             };
-
-            return response;
         }       
     }
 }
