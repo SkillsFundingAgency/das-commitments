@@ -19,11 +19,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             {
                 domainErrors.Add(new Error("TotalPrice", "Enter the <b>total cost</b> of training in whole pounds using numbers only"));
             }
-            else if (csvRecord.Cost == 0)
+            else if (csvRecord.Cost.Value == 0)
             {
                 domainErrors.Add(new Error("TotalPrice", "The <b>total cost</b> must be more than £0"));
             }
-            else if (csvRecord.Cost > 100000)
+            else if (csvRecord.Cost.Value > 100000)
             {
                 domainErrors.Add(new Error("TotalPrice", "The <b>total cost</b> must be £100,000 or less"));
             }
