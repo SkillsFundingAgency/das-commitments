@@ -126,7 +126,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             foreach (var draftApp in DraftApprenticeshipDetails)
             {
-                CohortDomainService.Verify(x => x.GetCohortDetails(It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+                CohortDomainService.Verify(x => x.GetCohortDetails(It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
             }
         }
     }
