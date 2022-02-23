@@ -19,8 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string UserId { get; set; }
         public long ProviderId { get; set; }
         public string CourseCode { get; set; }
-        public int? Cost => int.TryParse(CostAsString, out var price) ?  price : null;
-        public string CostAsString { get; set; }
         public DateTime? StartDate => GetDate(StartDateAsString, "yyyy-MM-dd");
         public string StartDateAsString { get; set; }
         public DateTime? EndDate => GetDate(EndDateAsString, "yyyy-MM");
@@ -35,6 +33,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string Uln { get; set; }
         public string ProviderRef { get; set; }
         public int RowNumber { get; set; }
+        public string CostAsString { get; set; }
+        public int? Cost
+        {
+            get
+            {
+                if (int.TryParse(CostAsString, out var price))
+                {
+                    return price;
+                }
+
+                return null;
+            }
+        }
 
         public static DateTime? GetDate(string date, string format)
         {
