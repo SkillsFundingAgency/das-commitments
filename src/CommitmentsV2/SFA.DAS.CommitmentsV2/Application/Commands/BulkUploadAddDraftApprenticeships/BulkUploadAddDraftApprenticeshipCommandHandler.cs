@@ -37,12 +37,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
             var draftApprenticeships = await _modelMapper.Map<List<DraftApprenticeshipDetails>>(request);
             foreach (var draftApprenticeship in draftApprenticeships)
             {
-                var cohortId = request.BulkUploadDraftApprenticeships.First(x => x.Uln == draftApprenticeship.Uln).CohortId;
-                //CON-4186 Save All but dont send to employers
-                //var result = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, cohortId, draftApprenticeship, request.UserInfo, cancellationToken);
-
-                //CON-4187 Approve all and send to employers
-                var result = await _cohortDomainService.AddAndApproveDraftApprenticeship(request.ProviderId, cohortId, draftApprenticeship, request.UserInfo, cancellationToken);
+                var cohortId = request.BulkUploadDraftApprenticeships.First(x => x.Uln == draftApprenticeship.Uln).CohortId;                
+                var result = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, cohortId, draftApprenticeship, request.UserInfo, cancellationToken);
 
                 var cohort = await _cohortDomainService.GetCohortDetails(cohortId, cancellationToken);
                 draftApprenticeshipsResponse.Add(cohort);

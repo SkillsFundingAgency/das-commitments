@@ -49,5 +49,24 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         }
 
+        [HttpPost]
+        [Route("")]
+        public async Task<IActionResult> AddAndApproveDraftApprenticeships(BulkUploadAddAndApproveDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default)
+        {
+            foreach (var df in request.BulkUploadDraftApprenticeships)
+            {
+                _logger.LogInformation($"Received Bulk upload request for ULN : {df.Uln} with start date : {df.StartDate.Value.ToString("dd/MM/yyyy")}");
+            }
+            _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.BulkUploadDraftApprenticeships?.Count() ?? 0}");
+            var command = await _modelMapper.Map<BulkUploadAddDraftApprenticeshipsCommand>(request);
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(new GetBulkUploadAddDraftApprenticeshipsResponse
+            {
+                BulkUploadAddDraftApprenticeshipsResponse = result?.BulkUploadAddDraftApprenticeshipsResponse
+            });
+
+        }
+
     }
 }
