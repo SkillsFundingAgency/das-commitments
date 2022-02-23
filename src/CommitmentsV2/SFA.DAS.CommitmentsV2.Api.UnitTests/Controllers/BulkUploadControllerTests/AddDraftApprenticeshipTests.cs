@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using AutoFixture.Kernel;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -7,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -54,6 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.BulkUploadControllerTe
                 _mapper = new Mock<IModelMapper>();
 
                 _autoFixture = new Fixture();
+                _autoFixture.Customizations.Add(new BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder());
                 _apprenticeshipId = _autoFixture.Create<long>();
                 _postRequest = _autoFixture.Create<BulkUploadAddDraftApprenticeshipsRequest>();
                 _command = _autoFixture.Create<BulkUploadAddDraftApprenticeshipsCommand>();
@@ -81,6 +84,28 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.BulkUploadControllerTe
                             p.UserInfo == _command.UserInfo),
                         It.IsAny<CancellationToken>()), Times.Once);
             }
+        }
+    }
+
+    public class BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder : ISpecimenBuilder
+    {
+        public object Create(object request, ISpecimenContext context)
+        {
+            if (request is Type type && type == typeof(BulkUploadAddDraftApprenticeshipRequest))
+            {
+                var fixture = new Fixture();
+                var startDate = fixture.Create<DateTime>();
+                var endDate = fixture.Create<DateTime>();
+                var dob = fixture.Create<DateTime>();
+                return fixture.Build<BulkUploadAddDraftApprenticeshipRequest>()
+                    .With(x => x.StartDateAsString, startDate.ToString("yyyy-MM-dd"))
+                    .With(x => x.EndDateAsString, endDate.ToString("yyyy-MM"))
+                    .With(x => x.DateOfBirthAsString, dob.ToString("yyyy-MM-dd"))
+                    .With(x => x.CostAsString, "1000")
+                    .Create();
+            }
+
+            return new NoSpecimen();
         }
     }
 }

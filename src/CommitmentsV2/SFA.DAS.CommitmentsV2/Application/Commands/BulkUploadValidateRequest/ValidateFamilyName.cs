@@ -8,14 +8,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private List<Error> ValidateFamilyName(CsvRecord csvRecord)
+        private List<Error> ValidateFamilyName(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             var domainErrors = new List<Error>();
-            if (string.IsNullOrEmpty(csvRecord.FamilyName))
+            if (string.IsNullOrEmpty(csvRecord.LastName))
             {
                 domainErrors.Add(new Error("FamilyName", "<b>Last name</b> must be entered"));
             }
-            else if (csvRecord.FamilyName.Length > 100)
+            else if (csvRecord.LastName.Length > 100)
             {
                 domainErrors.Add(new Error("FamilyName", "Enter a <b>last name</b> that is not longer than 100 characters"));
             }

@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             var legalEntities = command.BulkUploadDraftApprenticeships.GroupBy(x => x.LegalEntityId).Select(y => new { LegalEntityId = y.Key, Count = y.Count() });
             foreach (var lg in legalEntities)
             {
-                _reservationsApiClient.Setup(x => x.BulkCreateReservations(lg.LegalEntityId, It.IsAny<BulkCreateReservationsRequest>(), It.IsAny<CancellationToken>()))
+                _reservationsApiClient.Setup(x => x.BulkCreateReservations(lg.LegalEntityId.Value, It.IsAny<BulkCreateReservationsRequest>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => new BulkCreateReservationsResult(GetGuids(lg.Count)));
             }
         }
@@ -165,7 +165,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             var legalEntities = _source.BulkUploadDraftApprenticeships.GroupBy(x => x.LegalEntityId).Select(y => new { LegalEntityId = y.Key, Count = y.Count() });
             foreach (var legalEntity in legalEntities)
             {
-                _reservationsApiClient.Verify(x => x.BulkCreateReservations(legalEntity.LegalEntityId, It.Is<BulkCreateReservationsRequest>(x => x.Count == legalEntity.Count && x.TransferSenderId == null), It.IsAny<CancellationToken>()), Times.Once);
+                _reservationsApiClient.Verify(x => x.BulkCreateReservations(legalEntity.LegalEntityId.Value, It.Is<BulkCreateReservationsRequest>(x => x.Count == legalEntity.Count && x.TransferSenderId == null), It.IsAny<CancellationToken>()), Times.Once);
             }
         }
 

@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private List<Error> ValidateAgreementId(CsvRecord csvRecord)
+        private List<Error> ValidateAgreementId(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             List<Error> errors = new List<Error>();
             if (string.IsNullOrEmpty(csvRecord.AgreementId))

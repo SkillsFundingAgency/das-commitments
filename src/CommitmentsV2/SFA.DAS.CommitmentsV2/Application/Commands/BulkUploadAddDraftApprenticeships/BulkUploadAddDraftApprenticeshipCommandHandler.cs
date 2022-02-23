@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -19,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
         private readonly ILogger<BulkUploadAddDraftApprenticeshipCommandHandler> _logger;
         private readonly IModelMapper _modelMapper;
         private readonly ICohortDomainService _cohortDomainService;
+        private readonly IMediator _mediator;
         private readonly IProviderCommitmentsDbContext _providerDbContext;
         private readonly Dictionary<long, long> _cohortIds;
 
@@ -26,17 +28,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
             ILogger<BulkUploadAddDraftApprenticeshipCommandHandler> logger,
             IModelMapper draftApprenticeshipDetailsMapper,
             ICohortDomainService cohortDomainService,
+            IMediator mediator,
             IProviderCommitmentsDbContext providerCommitmentsDbContext)
         {
             _logger = logger;
             _modelMapper = draftApprenticeshipDetailsMapper;
             _cohortDomainService = cohortDomainService;
+            _mediator = mediator;
             _providerDbContext = providerCommitmentsDbContext;
             _cohortIds = new Dictionary<long, long>();
         }
 
         protected override async Task Handle(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
+            await Validate(request);
             var draftApprenticeships = await _modelMapper.Map<List<DraftApprenticeshipDetails>>(request);
             foreach (var draftApprenticeship in draftApprenticeships)
             {
@@ -44,6 +49,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
                 var result = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, cohortId, draftApprenticeship, request.UserInfo, cancellationToken);
                 _logger.LogInformation($"Bulk upload - Added draft apprenticeship. Reservation-Id:{draftApprenticeship.ReservationId} Commitment-Id:{cohortId}");
             }
+        }
+
+        private async Task Validate(BulkUploadAddDraftApprenticeshipsCommand request)
+        {
+            await _mediator.Send(new BulkUploadValidateCommand { ProviderId = request.ProviderId, CsvRecords = request.BulkUploadDraftApprenticeships });
         }
 
         private async Task<long> GetCohortId(BulkUploadAddDraftApprenticeshipRequest bulkUploadAddDraftApprenticeshipRequest, UserInfo user, CancellationToken cancellation)
