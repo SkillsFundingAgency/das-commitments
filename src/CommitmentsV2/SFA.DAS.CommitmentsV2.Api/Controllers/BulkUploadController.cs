@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.Authorization.Mvc.Attributes;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Features;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
-    //[DasAuthorize(Feature.BulkUploadV2)]
+    [DasAuthorize(Feature.BulkUploadV2)]
     [Route("api/{providerId}/bulkupload")]
     public class BulkUploadController : ControllerBase
     {
@@ -51,21 +52,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
-        [Route("")]
+        [Route("addandapprove")]
         public async Task<IActionResult> AddAndApproveDraftApprenticeships(BulkUploadAddAndApproveDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
-            foreach (var df in request.BulkUploadDraftApprenticeships)
+            foreach (var df in request.BulkUploadAddAndApproveDraftApprenticeships)
             {
                 _logger.LogInformation($"Received Bulk upload request for ULN : {df.Uln} with start date : {df.StartDate.Value.ToString("dd/MM/yyyy")}");
             }
-            _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.BulkUploadDraftApprenticeships?.Count() ?? 0}");
-            var command = await _modelMapper.Map<BulkUploadAddDraftApprenticeshipsCommand>(request);
+            _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.BulkUploadAddAndApproveDraftApprenticeships?.Count() ?? 0}");
+            var command = await _modelMapper.Map<BulkUploadAddAndApproveDraftApprenticeshipsCommand>(request);
             var result = await _mediator.Send(command, cancellationToken);
 
-            return Ok(new GetBulkUploadAddDraftApprenticeshipsResponse
+            return Ok(new BulkUploadAddAndApproveDraftApprenticeshipsResponse
             {
-                BulkUploadAddDraftApprenticeshipsResponse = result?.BulkUploadAddDraftApprenticeshipsResponse
+                BulkUploadAddAndApproveDraftApprenticeshipResponse = result?.BulkUploadAddAndApproveDraftApprenticeshipResponse
             });
+        }
 
         [Route("validate")]
         public async Task<IActionResult> Validate(BulkUploadValidateApiRequest request, CancellationToken cancellationToken = default)

@@ -77,8 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetAllCohortAccountIdsResponse> GetAllCohortAccountIds(CancellationToken cancellationToken = default);
         Task<GetEmailOverlapsResponse> GetEmailOverlapChecks(long cohortId, CancellationToken cancellationToken = default);
         Task<GetProviderCommitmentAgreementResponse> GetProviderCommitmentAgreement(long providerId, CancellationToken cancellationToken = default);
-        Task<GetBulkUploadAddDraftApprenticeshipsResponse> BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default);
-        //TODO : BulkUploadAddAndApproveDraftApprenticeships
+        Task<GetBulkUploadAddDraftApprenticeshipsResponse> BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default);        
         Task<BulkUploadAddAndApproveDraftApprenticeshipsResponse> BulkUploadAddAndApproveDraftApprenticeships(long providerId, BulkUploadAddAndApproveDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default);
         Task<GetApprenticeshipStatusSummaryResponse> GetEmployerAccountSummary(long employerAccountId, CancellationToken cancellationToken = default);
         Task<GetTransferRequestSummaryResponse> GetTransferRequests(long accountId, CancellationToken cancellationToken = default);

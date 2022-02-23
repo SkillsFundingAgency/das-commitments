@@ -514,7 +514,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<BulkUploadAddAndApproveDraftApprenticeshipsResponse> BulkUploadAddAndApproveDraftApprenticeships(long providerId, BulkUploadAddAndApproveDraftApprenticeshipsRequest request, CancellationToken cancellationToken)
         {
-            return _client.PostAsJson<BulkUploadAddAndApproveDraftApprenticeshipsRequest, BulkUploadAddAndApproveDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload", request, cancellationToken);
+            return _client.PostAsJson<BulkUploadAddAndApproveDraftApprenticeshipsRequest, BulkUploadAddAndApproveDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload/addandapprove", request, cancellationToken);
         }
 
         public Task<GetApprenticeshipStatusSummaryResponse> GetEmployerAccountSummary(long accountId, CancellationToken cancellationToken = default)

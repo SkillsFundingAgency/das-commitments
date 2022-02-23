@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
     public class BulkUploadAddAndApproveDraftApprenticeshipsRequest : SaveDataRequest
     {
         public long ProviderId { get; set; }
-        public IEnumerable<BulkUploadAddAndApproveDraftApprenticeshipRequest> BulkUploadDraftApprenticeships { get; set; }
+        public IEnumerable<BulkUploadAddAndApproveDraftApprenticeshipRequest> BulkUploadAddAndApproveDraftApprenticeships { get; set; }
     }
 
     public class BulkUploadAddAndApproveDraftApprenticeshipRequest
