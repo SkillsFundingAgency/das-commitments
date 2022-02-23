@@ -1,6 +1,8 @@
 ﻿using AutoFixture;
+using AutoFixture.Kernel;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -28,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
         public async Task Arrange()
         {
             var autoFixture = new Fixture();
+            autoFixture.Customizations.Add(new BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder());
             _source = autoFixture.Create<BulkUploadAddDraftApprenticeshipsCommand>();
             _source.BulkUploadDraftApprenticeships.ForEach(x => { x.CourseCode = "2"; x.ReservationId = null; });
 
@@ -57,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             var legalEntities = command.BulkUploadDraftApprenticeships.GroupBy(x => x.LegalEntityId).Select(y => new { LegalEntityId = y.Key, Count = y.Count() });
             foreach (var lg in legalEntities)
             {
-                _reservationsApiClient.Setup(x => x.BulkCreateReservations(lg.LegalEntityId, It.IsAny<BulkCreateReservationsRequest>(), It.IsAny<CancellationToken>()))
+                _reservationsApiClient.Setup(x => x.BulkCreateReservations(lg.LegalEntityId.Value, It.IsAny<BulkCreateReservationsRequest>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => new BulkCreateReservationsResult(GetGuids(lg.Count)));
             }
         }
@@ -165,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             var legalEntities = _source.BulkUploadDraftApprenticeships.GroupBy(x => x.LegalEntityId).Select(y => new { LegalEntityId = y.Key, Count = y.Count() });
             foreach (var legalEntity in legalEntities)
             {
-                _reservationsApiClient.Verify(x => x.BulkCreateReservations(legalEntity.LegalEntityId, It.Is<BulkCreateReservationsRequest>(x => x.Count == legalEntity.Count && x.TransferSenderId == null), It.IsAny<CancellationToken>()), Times.Once);
+                _reservationsApiClient.Verify(x => x.BulkCreateReservations(legalEntity.LegalEntityId.Value, It.Is<BulkCreateReservationsRequest>(x => x.Count == legalEntity.Count && x.TransferSenderId == null), It.IsAny<CancellationToken>()), Times.Once);
             }
         }
 
@@ -198,6 +201,46 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
                 Assert.AreEqual(_trainingProgramme.EffectiveFrom, rs.TrainingProgramme.EffectiveFrom);
                 Assert.AreEqual(_trainingProgramme.EffectiveTo, rs.TrainingProgramme.EffectiveTo);
             }
+        }
+    }
+
+    public class BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder : ISpecimenBuilder
+    {
+        public long? LegalEntityId { get; set; }
+        public string AgreementId { get; set; }
+        public BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder(string agreementId, long legalEntityId)
+        {
+            AgreementId = agreementId;
+            LegalEntityId = legalEntityId;
+        }
+
+        public BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder() { }
+
+        public object Create(object request, ISpecimenContext context)
+        {
+            if (request is Type type && type == typeof(BulkUploadAddDraftApprenticeshipRequest))
+            {
+                var fixture = new Fixture();
+                var startDate = fixture.Create<DateTime>();
+                var endDate = fixture.Create<DateTime>();
+                var dob = fixture.Create<DateTime>();
+                var buildDraftApprenticeshipRequest = fixture.Build<BulkUploadAddDraftApprenticeshipRequest>()
+                    .With(x => x.StartDateAsString, startDate.ToString("yyyy-MM-dd"))
+                    .With(x => x.EndDateAsString, endDate.ToString("yyyy-MM"))
+                    .With(x => x.DateOfBirthAsString, dob.ToString("yyyy-MM-dd"))
+                    .With(x => x.CostAsString, "1000");
+
+                if (LegalEntityId.HasValue)
+                {
+                    buildDraftApprenticeshipRequest = buildDraftApprenticeshipRequest
+                           .With(x => x.LegalEntityId, LegalEntityId)
+                           .With(x => x.AgreementId, AgreementId);
+                }
+
+               return buildDraftApprenticeshipRequest.Create();
+            }
+
+            return new NoSpecimen();
         }
     }
 }

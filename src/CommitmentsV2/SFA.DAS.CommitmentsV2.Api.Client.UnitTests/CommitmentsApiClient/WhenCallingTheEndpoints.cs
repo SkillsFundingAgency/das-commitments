@@ -735,6 +735,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetTransferRequestSummaryResponse>($"api/accounts/{employerAccountId}/transfers", CancellationToken.None, CancellationToken.None));
         }
+
+        [Test]
+        public async Task ValidateBulkUploadRequest_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.ValidateBulkUploadRequest(123, _fixture.BulkUploadValidateApiRequest, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<BulkUploadValidateApiRequest, BulkUploadValidateApiResponse>($"api/123/bulkupload/validate", _fixture.BulkUploadValidateApiRequest, CancellationToken.None));
+        }
     }
     
     public class WhenCallingTheEndpointsFixture
@@ -748,6 +755,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public SendCohortRequest SendCohortRequest { get; }
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; }
         public DeleteDraftApprenticeshipRequest DeleteDraftApprenticeshipRequest { get; }
+        public BulkUploadValidateApiRequest BulkUploadValidateApiRequest { get; set; }
         public UserInfo UserInfo { get; }
         public long CohortId { get; set; }
         
@@ -762,6 +770,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             SendCohortRequest = new SendCohortRequest();
             UpdateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest();
             DeleteDraftApprenticeshipRequest = new DeleteDraftApprenticeshipRequest();
+            BulkUploadValidateApiRequest = new BulkUploadValidateApiRequest();
             UserInfo = new UserInfo();
             CohortId = 123;
         }

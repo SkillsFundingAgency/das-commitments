@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.NServiceBus
                 .AddSingleton(p =>
                 {
                     var container = p.GetService<IContainer>();
-                    var hostingEnvironment = p.GetService<IWebHostEnvironment>();
+                    var hostingEnvironment = p.GetService<IHostEnvironment>();
                     var configuration = p.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
                     var isDevelopment = hostingEnvironment.IsDevelopment();
 
