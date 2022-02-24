@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
 
         public async Task<GetBulkUploadAddDraftApprenticeshipsResponse> Handle(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
-            await Validate(request);
+            await Validate(request);      
 
             var draftApprenticeshipsResponse = new List<BulkUploadAddDraftApprenticeshipsResponse>();
             var draftApprenticeships = await _modelMapper.Map<List<DraftApprenticeshipDetails>>(request);

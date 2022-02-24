@@ -9,49 +9,48 @@ using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeshi
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.Reservations.Api.Types;
+using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraftApprenticeships
 {
     public class BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler : IRequestHandler<BulkUploadAddAndApproveDraftApprenticeshipsCommand, BulkUploadAddAndApproveDraftApprenticeshipsResponse>
     {
-        private readonly ILogger<BulkUploadAddDraftApprenticeshipCommandHandler> _logger;
+        private readonly ILogger<BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler> _logger;
         private readonly IModelMapper _modelMapper;
         private readonly ICohortDomainService _cohortDomainService;
-        private readonly IReservationsApiClient _reservationApiClient;
         private readonly IMediator _mediator;
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly IProviderCommitmentsDbContext _providerDbContext;
 
-        public BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler(ILogger<BulkUploadAddDraftApprenticeshipCommandHandler> logger,
+        public BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler(
+            ILogger<BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler> logger,
             IModelMapper draftApprenticeshipDetailsMapper,
             ICohortDomainService cohortDomainService,
-            IReservationsApiClient reservationsApiClient,
             IMediator mediator,
-            Lazy<ProviderCommitmentsDbContext> dbContext)
+             IProviderCommitmentsDbContext providerDbContext)
         {
             _logger = logger;
             _modelMapper = draftApprenticeshipDetailsMapper;
             _cohortDomainService = cohortDomainService;
-            _reservationApiClient = reservationsApiClient;
             _mediator = mediator;
-            _dbContext = dbContext;
+            _providerDbContext = providerDbContext;
         }
-
-        //CON-4187 Approve all and send to employers
+        
         public async Task<BulkUploadAddAndApproveDraftApprenticeshipsResponse> Handle(BulkUploadAddAndApproveDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
-            var results = await _mediator.Send(new BulkUploadAddDraftApprenticeshipsCommand { UserInfo = request.UserInfo , BulkUploadDraftApprenticeships = request.BulkUploadDraftApprenticeships, ProviderId = request.ProviderId });
-            
-            foreach(var result in results.BulkUploadAddDraftApprenticeshipsResponse)
-            {               
-                var cohort = await _dbContext.Value.Cohorts.SingleAsync(c => c.Reference == result.CohortReference);
+            var results = await _mediator.Send(new BulkUploadAddDraftApprenticeshipsCommand 
+            { UserInfo = request.UserInfo, BulkUploadDraftApprenticeships = request.BulkUploadDraftApprenticeships, ProviderId = request.ProviderId });
+
+            foreach (var result in results.BulkUploadAddDraftApprenticeshipsResponse)
+            {
+                var cohort = await _providerDbContext.Cohorts.SingleAsync(c => c.Reference == result.CohortReference);
                 await _cohortDomainService.ApproveCohort(cohort.Id, "", request.UserInfo, cancellationToken);
+                _logger.LogInformation($"Bulk upload - Added and Approved  draft apprenticeship. Commitment-Reference:{cohort.Reference} Commitment-Id:{cohort.Id}");
             }
 
             return new BulkUploadAddAndApproveDraftApprenticeshipsResponse()
             {
                 BulkUploadAddAndApproveDraftApprenticeshipResponse = results.BulkUploadAddDraftApprenticeshipsResponse
             };
-        }       
+        }
     }
 }
