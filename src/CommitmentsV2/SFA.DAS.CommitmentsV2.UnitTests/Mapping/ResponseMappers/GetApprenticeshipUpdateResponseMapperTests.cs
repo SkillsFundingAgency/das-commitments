@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             foreach (var source in _source.ApprenticeshipUpdates)
             {
                 var result = _result.ApprenticeshipUpdates.First(x => x.Id == source.Id);
-                Assert.AreEqual(source.DeliveryModel, result.DeliveryModel.Code);
+                Assert.AreEqual(source.DeliveryModel, result.DeliveryModel);
             }
         }
     }
