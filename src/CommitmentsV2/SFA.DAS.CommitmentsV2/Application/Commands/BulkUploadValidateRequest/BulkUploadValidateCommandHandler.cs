@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.ProviderRelationships.Api.Client;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
@@ -19,9 +20,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
     {
         private readonly ILogger<BulkUploadValidateCommandHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly Dictionary<string, (string Name, bool? IsLevy)> _employerNames;
+        private readonly Dictionary<string, (string Name, bool? IsLevy, long? LegalEntityId)> _employerNames;
         private readonly IOverlapCheckService _overlapService;
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
+        private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
 
         public long ProviderId { get; set; }
@@ -30,13 +32,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             ILogger<BulkUploadValidateCommandHandler> logger,
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IOverlapCheckService overlapService,
-            IAcademicYearDateProvider academicYearDateProvider)
+            IAcademicYearDateProvider academicYearDateProvider,
+            IProviderRelationshipsApiClient providerRelationshipsApiClient)
         {
             _logger = logger;
             _dbContext = dbContext;
-            _employerNames = new Dictionary<string, (string Name, bool? IsLevy)>();
+            _employerNames = new Dictionary<string, (string Name, bool? IsLevy, long? LegalEntityId)>();
             _overlapService = overlapService;
             _academicYearDateProvider = academicYearDateProvider;
+            _providerRelationshipsApiClient = providerRelationshipsApiClient;
         }
 
         public Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
@@ -48,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             {
                 var domainErrors = new List<Error>();
                 domainErrors.AddRange(ValidateAgreementId(csvRecord));
-                domainErrors.AddRange(ValidateCohortRef(csvRecord));
+                domainErrors.AddRange(ValidateCohortRef(csvRecord, command.ProviderId));
                 domainErrors.AddRange(ValidateUln(csvRecord));
                 domainErrors.AddRange(ValidateFamilyName(csvRecord));
                 domainErrors.AddRange(ValidateGivenName(csvRecord));
@@ -89,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return employerDetails.IsLevy;
         }
 
-        private (string Name, bool? IsLevy) GetEmployerDetails(string agreementId)
+        private (string Name, bool? IsLevy, long? LegalEntityId) GetEmployerDetails(string agreementId)
         {
             if (!string.IsNullOrEmpty(agreementId))
             {
@@ -105,13 +109,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 {
                     var employerName = accontLegalEntity.Account.Name;
                     var isLevy = accontLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
-                    var tuple = (employerName, isLevy);
+                    var tuple = (employerName, isLevy, accontLegalEntity.Id);
                     _employerNames.Add(agreementId, tuple);
                     return tuple;
                 }
             }
 
-            return (string.Empty, null);
+            return (string.Empty, null, null);
         }
 
         private Models.Cohort GetCohortDetails(string cohortRef)
