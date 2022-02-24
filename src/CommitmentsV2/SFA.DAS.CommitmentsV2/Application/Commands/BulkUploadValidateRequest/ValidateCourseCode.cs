@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             {
                 domainErrors.Add(new Error("StdCode", "<b>Standard code</b> must be entered"));
             }
-            else if (!csvRecord.StdCode.All(char.IsDigit) && int.TryParse(csvRecord.StdCode, out _))
+            else if (!csvRecord.StdCode.All(char.IsDigit) && !int.TryParse(csvRecord.StdCode, out _))
             {
                 domainErrors.Add(new Error("StdCode", "Enter a valid <b>standard code</b>"));
             }

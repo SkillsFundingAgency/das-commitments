@@ -22,12 +22,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
                 if (cohort == null)
                 {
-                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <br>Cohort Ref</b>"));
+                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
                     return domainErrors;
                 }
                 else if (csvRecord.CohortRef.Length > 20)
                 {
-                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <br>Cohort Ref</b>"));
+                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
                 }
                 else if (cohort.AccountLegalEntity.PublicHashedId != csvRecord.AgreementId && !string.IsNullOrWhiteSpace(GetEmployerName(csvRecord.AgreementId)))
                 {
