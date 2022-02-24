@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Routing;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers;
 using SFA.DAS.CommitmentsV2.Types;
@@ -59,8 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             };
 
             var to = await mapper.Map(from);
-            Assert.AreEqual(dm, to.DeliveryModel.Code);
-            Assert.AreEqual(dm.ToString(), to.DeliveryModel.Description);
+            Assert.AreEqual(dm, to.DeliveryModel);
         }
 
         [Test]

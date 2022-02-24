@@ -1,6 +1,5 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
@@ -23,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string Version { get; set; }
         public string Option { get; set; }
         public string CourseName { get; set; }
-        public DeliveryModelDto DeliveryModel { get; set; }
+        public DeliveryModel DeliveryModel { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime DateOfBirth { get; set; }        

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Types.Dtos;
+using SFA.DAS.CommitmentsV2.Types;
 using ApprenticeshipDetailsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse.ApprenticeshipDetailsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 ProviderName = source.ProviderName,
                 ProviderId = source.ProviderId,
                 CourseName = source.CourseName,
-                DeliveryModel = new DeliveryModelDto(source.DeliveryModel),
+                DeliveryModel = source.DeliveryModel ?? DeliveryModel.Normal,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 PauseDate = source.PauseDate,

@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Types.Dtos;
+using SFA.DAS.CommitmentsV2.Types;
 using HttpResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 
@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 TrainingCourseOption = source.TrainingCourseOption,
                 TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed,
                 StandardUId = source.StandardUId,
-                DeliveryModel = new DeliveryModelDto(source.DeliveryModel),
+                DeliveryModel = source.DeliveryModel ?? DeliveryModel.Normal,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,

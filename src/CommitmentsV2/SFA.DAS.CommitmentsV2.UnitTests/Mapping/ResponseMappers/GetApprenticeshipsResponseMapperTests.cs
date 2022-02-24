@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
 
             result.Apprenticeships.First().Should().BeEquivalentTo(source.Apprenticeships.First(), 
                 o=>o.Excluding(e=>e.DeliveryModel));
-            result.Apprenticeships.First().DeliveryModel.Code.Should().Be(source.Apprenticeships.First().DeliveryModel);
+            result.Apprenticeships.First().DeliveryModel.Should().Be(source.Apprenticeships.First().DeliveryModel);
             result.TotalApprenticeshipsFound.Should().Be(source.TotalApprenticeshipsFound);
             result.TotalApprenticeshipsWithAlertsFound.Should().Be(source.TotalApprenticeshipsWithAlertsFound);
             result.TotalApprenticeships.Should().Be(source.TotalApprenticeships);

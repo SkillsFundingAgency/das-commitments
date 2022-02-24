@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     Cost = (int?) a.Cost,
                     CourseCode = a.CourseCode,
                     CourseName = a.CourseName,
-                    DeliveryModel = new DeliveryModelDto(a.DeliveryModel),
+                    DeliveryModel = a.DeliveryModel ?? DeliveryModel.Normal,
                     DateOfBirth =  a.DateOfBirth,
                     StartDate = a.StartDate,
                     EndDate = a.EndDate,

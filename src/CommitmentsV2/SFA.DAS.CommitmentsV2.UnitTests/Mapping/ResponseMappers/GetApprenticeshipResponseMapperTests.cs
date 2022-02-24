@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         [Test]
         public void DeliveryModelIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.DeliveryModel, _result.DeliveryModel.Code);
+            Assert.AreEqual(_source.DeliveryModel, _result.DeliveryModel);
         }
     }
 }
