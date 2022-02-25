@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetCohortRef("ABC*12");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "CohortRef", "You must enter a valid <br>Cohort Ref</b>");
+            fixture.ValidateError(errors, 1, "CohortRef", "You must enter a valid <b>Cohort Ref</b>");
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetCohortRef("123456789012345678901");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "CohortRef", "You must enter a valid <br>Cohort Ref</b>");
+            fixture.ValidateError(errors, 1, "CohortRef", "You must enter a valid <b>Cohort Ref</b>");
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetCohortRef("123456789012345678");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "CohortRef", "You must enter a valid <br>Cohort Ref</b>");
+            fixture.ValidateError(errors, 1, "CohortRef", "You must enter a valid <b>Cohort Ref</b>");
         }
 
         [Test]
