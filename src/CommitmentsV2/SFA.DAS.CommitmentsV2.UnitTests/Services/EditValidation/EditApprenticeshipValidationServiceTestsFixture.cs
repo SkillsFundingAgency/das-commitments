@@ -162,7 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
             bool hasHadDataLockSuccess = false,
             DateTime employerProviderApprovedOn = default,
-            DeliveryModel deliveryModel = DeliveryModel.Normal
+            DeliveryModel deliveryModel = DeliveryModel.Regular
             )
         {
             CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel);
@@ -249,7 +249,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
             bool hasHadDataLockSuccess = false,
             DateTime employerProviderApprovedOn = default,
-            DeliveryModel deliveryModel = DeliveryModel.Normal
+            DeliveryModel deliveryModel = DeliveryModel.Regular
             )
         {
             _apprenticeship = new Apprenticeship
@@ -298,7 +298,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
            string courseCode = "",
            decimal? cost = null,
            string providerRef = "",
-           DeliveryModel deliveryModel = DeliveryModel.Normal
+           DeliveryModel deliveryModel = DeliveryModel.Regular
            )
         {
             var request = new EditApprenticeshipValidationRequest

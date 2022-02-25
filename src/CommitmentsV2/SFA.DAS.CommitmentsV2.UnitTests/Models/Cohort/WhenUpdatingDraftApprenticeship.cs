@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 StartDate = DateTime.Today.AddMonths(-6),
                 EndDate = DateTime.Today.AddMonths(6),
                 DateOfBirth = DateTime.Today.AddYears(-18),
-                DeliveryModel = DeliveryModel.Normal
+                DeliveryModel = DeliveryModel.Regular
             }, Party.Provider);
         }
 
