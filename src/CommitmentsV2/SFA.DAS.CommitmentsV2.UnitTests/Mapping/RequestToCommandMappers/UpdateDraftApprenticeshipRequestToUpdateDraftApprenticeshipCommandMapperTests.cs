@@ -110,8 +110,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             return AssertPropertySet(from => from.Uln, "1234567890");
         }
 
-        [TestCase(DeliveryModel.Normal)]
-        [TestCase(DeliveryModel.Flexible)]
+        [TestCase(DeliveryModel.Regular)]
+        [TestCase(DeliveryModel.PortableFlexiJob)]
         public Task Map_DeliveryModel_ShouldBeSet(DeliveryModel dm)
         {
             return AssertPropertySet(from => from.DeliveryModel, dm);
