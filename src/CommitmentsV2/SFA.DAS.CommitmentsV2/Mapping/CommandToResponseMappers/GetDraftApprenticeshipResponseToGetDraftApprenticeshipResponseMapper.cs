@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 TrainingCourseOption = source.TrainingCourseOption,
                 TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed,
                 StandardUId = source.StandardUId,
-                DeliveryModel = source.DeliveryModel ?? DeliveryModel.Normal,
+                DeliveryModel = source.DeliveryModel ?? DeliveryModel.Regular,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
