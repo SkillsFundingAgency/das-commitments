@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private List<Error> ValidateEPAOrgId(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             var domainErrors = new List<Error>();
-            if (csvRecord.EPAOrgId.Length > 7)
+            if (!string.IsNullOrWhiteSpace(csvRecord.EPAOrgId) && csvRecord.EPAOrgId.Length > 7)
             {
                 domainErrors.Add(new Error("EPAOrgId", "The <b>EPAO ID</b> must not be longer than 7 characters"));
             }
