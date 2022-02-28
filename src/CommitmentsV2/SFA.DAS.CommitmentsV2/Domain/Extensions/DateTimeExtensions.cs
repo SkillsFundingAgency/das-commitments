@@ -32,13 +32,5 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         {
             return self.Month == value.Month && self.Year == value.Year;
         }
-
-        public static DateTime? GetDate(this string date, string format)
-        {
-            if (!string.IsNullOrWhiteSpace(date) &&
-                DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime outDateTime))
-                return outDateTime;
-            return null;
-        }
     }
 }

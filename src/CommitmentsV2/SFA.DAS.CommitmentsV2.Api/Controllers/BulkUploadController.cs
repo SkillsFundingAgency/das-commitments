@@ -8,7 +8,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeshi
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,6 +58,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
-
     }
 }
