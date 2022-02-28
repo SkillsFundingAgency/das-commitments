@@ -46,7 +46,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
                 return null;
             }
         }
-
         public static DateTime? GetDate(string date, string format, bool isStartDate = false)
         {
             if (!string.IsNullOrWhiteSpace(date) &&
@@ -61,5 +60,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
             }
             return null;
         }
+        public string EPAOrgId { get; set; }
     }
 }

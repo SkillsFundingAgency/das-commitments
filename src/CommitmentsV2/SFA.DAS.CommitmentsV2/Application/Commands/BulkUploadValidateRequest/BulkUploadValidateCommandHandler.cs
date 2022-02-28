@@ -63,6 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 domainErrors.AddRange(ValidateEndDate(csvRecord));
                 domainErrors.AddRange(ValidateCost(csvRecord));
                 domainErrors.AddRange(ValidateProviderRef(csvRecord));
+                domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
                 if (domainErrors.Count > 0)
                 {
                     bulkUploadValidationErrors.Add(new BulkUploadValidationError(
@@ -140,15 +141,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 return standard;
             }
 
-            return null;
-        }
-
-        private DateTime? GetValidDate(string date, string format)
-        {
-            DateTime outDateTime;
-            if (!string.IsNullOrWhiteSpace(date) &&
-                DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out outDateTime))
-                return outDateTime;
             return null;
         }
     }

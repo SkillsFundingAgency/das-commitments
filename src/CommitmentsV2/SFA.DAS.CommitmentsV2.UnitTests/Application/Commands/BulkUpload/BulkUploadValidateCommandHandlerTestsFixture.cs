@@ -18,7 +18,6 @@ using SFA.DAS.ProviderRelationships.Types.Dtos;
 using SFA.DAS.Testing.Builders;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -364,13 +363,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             return this;
         }
 
-        private DateTime? GetValidDate(string date, string format)
+        internal BulkUploadValidateCommandHandlerTestsFixture SetEPAOrgId(string epaOrgId)
         {
-            DateTime outDateTime;
-            if (!string.IsNullOrWhiteSpace(date) &&
-                DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out outDateTime))
-                return outDateTime;
-            return null;
+            CsvRecords[0].EPAOrgId = epaOrgId;
+            return this;
         }
     }
 }
