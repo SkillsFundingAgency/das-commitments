@@ -19,8 +19,8 @@ BEGIN
 	JOIN @Emails E ON E.Email = A.Email
 	WHERE 
 		CASE 
-			WHEN @CohortId IS NULL AND A.IsApproved = 1 THEN 1
 			WHEN @CohortId IS NOT NULL AND A.CommitmentId = @CohortId AND A.IsApproved = 0 AND A.StartDate IS NOT NULL AND A.EndDate IS NOT NULL THEN 1
+			WHEN C.WithParty = 4 AND A.IsApproved = 0 THEN 1
 			WHEN A.IsApproved = 1 THEN 1
 			ELSE 0
 		END = 1
