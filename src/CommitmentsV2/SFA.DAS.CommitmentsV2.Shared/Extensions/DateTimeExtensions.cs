@@ -26,13 +26,5 @@ namespace SFA.DAS.CommitmentsV2.Shared.Extensions
         {
             return $"{value:MM yyyy}";
         }
-
-        public static DateTime? GetDate(this string date, string format)
-        {
-            if (!string.IsNullOrWhiteSpace(date) &&
-                DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime outDateTime))
-                return outDateTime;
-            return null;
-        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
@@ -72,13 +73,61 @@ namespace SFA.DAS.CommitmentsV2.Services
             var db = _dbContext.Value;
             var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
-
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
-
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
-
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohort.Id, cancellationToken);
             return draftApprenticeship;
-        }      
+        }
+
+        public async Task<IEnumerable<Cohort>> AddDraftApprenticeships(List<DraftApprenticeshipDetails> draftApprenticeships, List<BulkUploadAddDraftApprenticeshipRequest> csvBulkUploadApprenticehips, long providerId, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var newCohorts = new Dictionary<long, Cohort>();
+            var existingCohorts = new Dictionary<long, Cohort>();
+            var result = new List<DraftApprenticeship>();
+            var db = _dbContext.Value;
+            var party = _authenticationService.GetUserParty();
+
+            foreach (var apprenticeship in draftApprenticeships)
+            {
+                _logger.LogInformation($"Bulk upload - Add draft apprenticeship. Reservation-Id:{apprenticeship.ReservationId} - uln {apprenticeship.Uln}");
+                var csvApprenticeship = csvBulkUploadApprenticehips.First(x => x.Uln == apprenticeship.Uln);
+
+                if (csvApprenticeship.CohortId.HasValue)
+                {
+                    if (!existingCohorts.ContainsKey(csvApprenticeship.CohortId.Value))
+                    {
+                        existingCohorts.Add(csvApprenticeship.CohortId.Value, await db.GetCohortAggregate(csvApprenticeship.CohortId.Value, cancellationToken));
+                    }
+                    result.Add(await AddDraftApprenticeship(providerId, csvApprenticeship.CohortId.Value, apprenticeship, userInfo, cancellationToken));
+                }
+                else
+                {
+                    Cohort cohort;
+                    // Check if we have already created an empty cohort for this Legal entity
+                    if (newCohorts.ContainsKey(csvApprenticeship.LegalEntityId.Value))
+                    {
+                        _logger.LogInformation($"Bulk upload - Adding to already created cohort - uln {apprenticeship.Uln}");
+                        cohort = newCohorts.GetValueOrDefault(csvApprenticeship.LegalEntityId.Value);
+                        db.Cohorts.Add(cohort);
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Bulk upload - Creating a new cohort for - uln {apprenticeship.Uln}");
+                        var accountLegalEntity = db.AccountLegalEntities
+                        .Include(x => x.Account)
+                        .Where(x => x.Id == csvApprenticeship.LegalEntityId).First();
+
+                        // create a new cohort for this legal entity
+                        cohort = await CreateEmptyCohort(providerId, accountLegalEntity.Account.Id, accountLegalEntity.Id, userInfo, cancellationToken);
+                        newCohorts.Add(accountLegalEntity.Id, cohort);
+                    }
+
+                    result.Add(cohort.AddDraftApprenticeship(apprenticeship, party, userInfo));
+                    await ValidateDraftApprenticeshipDetails(apprenticeship, null, cancellationToken); // As it is a newly cohort, and not yet saved to db - the cohort Id is null
+                }
+            }
+
+            return existingCohorts.Select(x => x.Value).Union(newCohorts.Select(x => x.Value));
+        }
 
         public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
@@ -167,20 +216,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             var party = _authenticationService.GetUserParty();
 
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
-        }
-
-        public async Task<Api.Types.Responses.BulkUploadAddDraftApprenticeshipsResponse> GetCohortDetails(long cohortId, CancellationToken cancellationToken)
-        {        
-            var cohort = await _dbContext.Value.GetCohortWithAccountAggregate(cohortId, cancellationToken);
-
-            var result = new Api.Types.Responses.BulkUploadAddDraftApprenticeshipsResponse
-            {
-                CohortReference = cohort.Reference,
-                NumberOfApprenticeships = cohort.Apprenticeships.Count(),
-                EmployerName = cohort.AccountLegalEntity.Name
-            };
-
-            return result;
         }
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)

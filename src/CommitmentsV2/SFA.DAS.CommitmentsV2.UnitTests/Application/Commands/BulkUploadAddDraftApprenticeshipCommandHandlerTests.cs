@@ -15,10 +15,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload;
+using SFA.DAS.Encoding;
+using Microsoft.EntityFrameworkCore;
+using System;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -29,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task DraftApprenticeshipDetailMapperIsCalled()
         {
             var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
-            await fixture.Handle();
+            await fixture.WithData(1, "COHROT").Handle();
 
             fixture.VerifyMapperIsCalled();
         }
@@ -38,23 +41,45 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task DraftApprenticeshipDetailAreAdded()
         {
             var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
-            await fixture.Handle();
+            await fixture.WithData(1, "COHROT").Handle();
 
             fixture.VerifyDraftApprenticeshipsAreAdded();
         }
 
         [Test]
-        public async Task GetCohortDetailsForAddedDraftApprenticeshipDetail()
+        public async Task VerifyCohortRefUpdatedForNewlyCreatedCohort()
         {
             var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
-            await fixture.Handle();
+            await fixture.WithData(0, string.Empty).Handle();
 
-            fixture.VerifyGetCohortDetails();
+            fixture.VerifyCohortRefUpdated();
+        }
+
+        [Test]
+        public async Task VerifyCohortRefNotUpdateForExistingCohort()
+        {
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
+            await fixture.WithData(1, "PPPP").Handle();
+
+            fixture.VerifyCohortRefNotUpdated();
+        }
+
+        [Test]
+        public async Task VeriyfResponse()
+        {
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
+            var bulkUploadResponse = await fixture
+                .WithData(1, "PPPP", "EmployerExistingCohort", "EXISTING","Existing legal entity") // Existing cohort
+                .WithData(0,string.Empty, "EmployerNewCohort", "NEW", "New Cohort legal entity") // new cohort
+                .Handle();
+
+            fixture.VerifyResponse(bulkUploadResponse);
         }
     }
 
     public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture
     {
+        public int IdGenerator { get; set; }
         public Fixture AutoFixture { get; set; }
         public Mock<ICohortDomainService> CohortDomainService { get; set; }
         public IRequestHandler<BulkUploadAddDraftApprenticeshipsCommand, GetBulkUploadAddDraftApprenticeshipsResponse> Handler { get; set; }     
@@ -62,49 +87,81 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public CancellationToken CancellationToken { get; set; }
         public Mock<IReservationsApiClient> ReservationApiClient { get; set; }
         public Mock<IModelMapper> ModelMapper { get; }
-        public Mock<IProviderCommitmentsDbContext> DbContext { get; set; }
+        public ProviderCommitmentsDbContext DbContext { get; set; }
         public List<DraftApprenticeshipDetails> DraftApprenticeshipDetails { get; set; }
-        public AccountLegalEntity AccountLegalEntity { get; set; }
+        public Mock<IEncodingService> EncodingService { get; set; }
 
         public BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture()
         {
             AutoFixture = new Fixture();
-            AutoFixture.Customizations.Add(new BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder("12", 1));
+            AutoFixture.Customizations.Add(new BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder("XEGFX", 1));
             CohortDomainService = new Mock<ICohortDomainService>();
             ReservationApiClient = new Mock<IReservationsApiClient>();
             ModelMapper = new Mock<IModelMapper>();
             Command = AutoFixture.Create<BulkUploadAddDraftApprenticeshipsCommand>();
-            DbContext = new Mock<IProviderCommitmentsDbContext>();
+            DbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                 .Options);
 
-            var Account = new Account()
-                 .Set(x => x.Id, 1)
-                 .Set(x => x.Name, "Test Employer");
-
-            AccountLegalEntity = new AccountLegalEntity()
-            .Set(x => x.Id, 1)
-            .Set(x => x.LegalEntityId, "12")
-            .Set(x => x.Account, Account)
-            .Set(x => x.AccountId, 1);
-
-            List<AccountLegalEntity> apprenticeships = new List<AccountLegalEntity>()
-            {
-              AccountLegalEntity
-            };
-
-            DbContext.Setup(x => x.AccountLegalEntities).ReturnsDbSet(apprenticeships);
+            EncodingService = new Mock<IEncodingService>();
+            EncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.CohortReference)).Returns(() => "COHORTREF");
 
             DraftApprenticeshipDetails = AutoFixture.Create<List<DraftApprenticeshipDetails>>();
             DraftApprenticeshipDetails = DraftApprenticeshipDetails.Zip(Command.BulkUploadDraftApprenticeships, (x, y) => { x.Uln = y.Uln; return x; }).ToList();
 
             ModelMapper.Setup(x => x.Map<List<DraftApprenticeshipDetails>>(It.IsAny<BulkUploadAddDraftApprenticeshipsCommand>())).ReturnsAsync(() => DraftApprenticeshipDetails);
-            CohortDomainService.Setup(x => x.AddDraftApprenticeship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()));
-            CohortDomainService.Setup(x => x.GetCohortDetails(It.IsAny<long>(), It.IsAny<CancellationToken>()));
+            CohortDomainService.Setup(x => x.AddDraftApprenticeships(It.IsAny<List<DraftApprenticeshipDetails>>(), It.IsAny<List<BulkUploadAddDraftApprenticeshipRequest>>(), It.IsAny<long>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => DbContext.Cohorts.Include(x => x.Apprenticeships).Include(x => x.AccountLegalEntity).Select(x => x));
 
-            Handler = new BulkUploadAddDraftApprenticeshipCommandHandler(Mock.Of<ILogger<BulkUploadAddDraftApprenticeshipCommandHandler>>(), ModelMapper.Object, CohortDomainService.Object, Mock.Of<IMediator>(), DbContext.Object);
+            Handler = new BulkUploadAddDraftApprenticeshipCommandHandler(Mock.Of<ILogger<BulkUploadAddDraftApprenticeshipCommandHandler>>(), ModelMapper.Object, CohortDomainService.Object, DbContext, EncodingService.Object);
             CancellationToken = new CancellationToken();
         }
 
-        public Task Handle()
+        public BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithData(long cohortId, string cohortRef,string accountName = "Test Employer", string legalEntityId = "XEGFX", string legalEntityName = "Legal Entity Name")
+        {
+            var Account = new Account()
+             .Set(x => x.Id, ++IdGenerator)
+             .Set(x => x.Name, accountName );
+
+            var AccountLegalEntity = new AccountLegalEntity()
+            .Set(x => x.LegalEntityId, legalEntityId)
+            .Set(x => x.Name, legalEntityName)
+            .Set(x => x.Id, ++IdGenerator)
+            .Set(x => x.Account, Account);
+
+            var cohort = new Cohort()
+              .Set(c => c.Id, cohortId)
+              .Set(c => c.Reference, cohortRef)
+              .Set(c => c.ProviderId, 333)
+              .Set(c => c.AccountLegalEntity, AccountLegalEntity);
+
+            DbContext.Apprenticeships.Add(GenerateApprenticeshipDetails(cohort));
+            DbContext.Apprenticeships.Add(GenerateApprenticeshipDetails(cohort));
+
+            DbContext.SaveChanges();
+
+            return this;
+        }
+
+        private Apprenticeship GenerateApprenticeshipDetails(Cohort cohort)
+        {
+            var ApprenticeshipDetails1 = AutoFixture.Build<Apprenticeship>()
+           .With(s => s.Cohort, cohort)
+           .With(s => s.EndDate, DateTime.UtcNow)
+           .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+           .Without(s => s.PriceHistory)
+           .Without(s => s.ApprenticeshipUpdate)
+           .Without(s => s.DataLockStatus)
+           .Without(s => s.EpaOrg)
+           .Without(s => s.Continuation)
+           .Without(s => s.PreviousApprenticeship)
+           .Without(s => s.EmailAddressConfirmed)
+           .Without(s => s.ApprenticeshipConfirmationStatus)
+           .Create();
+            return ApprenticeshipDetails1;
+        }
+
+        public Task<GetBulkUploadAddDraftApprenticeshipsResponse> Handle()
         {
             return Handler.Handle(Command, CancellationToken);
         }
@@ -116,18 +173,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         internal void VerifyDraftApprenticeshipsAreAdded()
         {
-            foreach (var draftApp in DraftApprenticeshipDetails)
-            {
-                CohortDomainService.Verify(x => x.AddDraftApprenticeship(Command.ProviderId, It.IsAny<long>(), draftApp, Command.UserInfo, It.IsAny<CancellationToken>()), Times.Once);
-            }
+            CohortDomainService.Verify(x => x.AddDraftApprenticeships(It.IsAny<List<DraftApprenticeshipDetails>>(), It.IsAny<List<BulkUploadAddDraftApprenticeshipRequest>>(), It.IsAny<long>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        internal void VerifyGetCohortDetails()
+        internal void VerifyCohortRefUpdated()
         {
-            foreach (var draftApp in DraftApprenticeshipDetails)
-            {
-                CohortDomainService.Verify(x => x.GetCohortDetails(It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
-            }
+            EncodingService.Verify(x => x.Encode(It.IsAny<long>(), EncodingType.CohortReference), Times.Once);
+        }
+
+        internal void VerifyCohortRefNotUpdated()
+        {
+            EncodingService.Verify(x => x.Encode(It.IsAny<long>(), EncodingType.CohortReference), Times.Never);
+        }
+
+        internal void VerifyResponse(GetBulkUploadAddDraftApprenticeshipsResponse bulkUploadResponse)
+        {
+            var firstCohort = bulkUploadResponse.BulkUploadAddDraftApprenticeshipsResponse.First();
+            Assert.AreEqual("PPPP", firstCohort.CohortReference);
+            Assert.AreEqual("Existing legal entity", firstCohort.EmployerName);
+            Assert.AreEqual(2, firstCohort.NumberOfApprenticeships);
+
+            var secondCohort = bulkUploadResponse.BulkUploadAddDraftApprenticeshipsResponse.Last();
+            Assert.AreEqual("COHORTREF", secondCohort.CohortReference);
+            Assert.AreEqual("New Cohort legal entity", secondCohort.EmployerName);
+            Assert.AreEqual(2, secondCohort.NumberOfApprenticeships);
         }
     }
 }

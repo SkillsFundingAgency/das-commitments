@@ -1,18 +1,24 @@
 ﻿using MediatR;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.ProviderRelationships.Types.Dtos;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private List<Error> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+        private List<Error> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
             var domainErrors = new List<Error>();
             if (string.IsNullOrEmpty(csvRecord.CohortRef))
             {
-                domainErrors.Add(new Error("CohortRef", "<b>Cohort Ref</b> must be entered"));
+                if (!HasPermissionToCreateCohort(csvRecord, providerId).Result)
+                {
+                    domainErrors.Add(new Error("CohortRef", "The <b>employer must give you permission</b> to add apprentices on their behalf"));
+                }
             }
             else
             {
@@ -51,6 +57,23 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             }
 
             return domainErrors;
+        }
+
+        private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
+        { 
+            var employerDetails = GetEmployerDetails(csvRecord.AgreementId);
+            if (employerDetails.LegalEntityId.HasValue && providerId != 0)
+            {
+                var request = new HasPermissionRequest()
+                {
+                    AccountLegalEntityId = employerDetails.LegalEntityId.Value,
+                    Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
+                    Ukprn = csvRecord.ProviderId
+                };
+                return await _providerRelationshipsApiClient.HasPermission(request);
+            }
+
+            return true;
         }
     }
 }
