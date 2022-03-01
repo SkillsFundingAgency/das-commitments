@@ -80,5 +80,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default);
         Task<GetApprenticeshipStatusSummaryResponse> GetEmployerAccountSummary(long employerAccountId, CancellationToken cancellationToken = default);
         Task<GetTransferRequestSummaryResponse> GetTransferRequests(long accountId, CancellationToken cancellationToken = default);
+        Task<BulkUploadValidateApiResponse> ValidateBulkUploadRequest(long providerId, BulkUploadValidateApiRequest request, CancellationToken cancellationToken = default);
     }
 }

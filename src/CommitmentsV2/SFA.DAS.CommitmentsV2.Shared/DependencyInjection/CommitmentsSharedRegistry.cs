@@ -20,7 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection
             For<ICurrentDateTime>().Use<CurrentDateTime>().Singleton();
             For<ICreateCsvService>().Use<CreateCsvService>().Singleton();
 
-            IncludeRegistry<CommitmentsSharedConfigurationRegistry>();
             IncludeRegistry<CommitmentsApiClientRegistry>();
             IncludeRegistry<EncodingRegistry>();
         }
