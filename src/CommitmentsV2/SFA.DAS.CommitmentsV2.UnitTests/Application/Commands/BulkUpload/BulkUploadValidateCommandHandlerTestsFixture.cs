@@ -32,10 +32,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public List<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; }
         public BulkUploadValidateCommand Command { get; set; }
         public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; set; }
-
         public OverlapCheckResult OverlapCheckResult { get; set; }
         public EmailOverlapCheckResult EmailOverlapCheckResult { get; set; }
-
         public BulkUploadValidateCommandHandlerTestsFixture()
         {
             CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
