@@ -484,6 +484,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StartDate = changeOfPartyRequest.StartDate,
                 EndDate = changeOfPartyRequest.EndDate,
                 Uln = this.Uln,
+                DeliveryModel = this.DeliveryModel,
                 CourseCode = this.CourseCode,
                 CourseName = this.CourseName,
                 ProgrammeType = this.ProgrammeType,
