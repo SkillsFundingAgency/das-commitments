@@ -28,11 +28,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse> Handler { get; set; }
         public Mock<IOverlapCheckService> OverlapCheckService { get; set; }
         public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; set; }
+        public Mock<IEmployerAgreementService> EmployerAgreementService { get; set; }
         public List<CsvRecord> CsvRecords { get; set; }
         public BulkUploadValidateCommand Command { get; set; }
 
         public OverlapCheckResult OverlapCheckResult { get; set; }
         public EmailOverlapCheckResult EmailOverlapCheckResult { get; set; }
+        public bool IsAgreementSigned { get; set; } = true;
+
 
         public BulkUploadValidateCommandHandlerTestsFixture()
         {
@@ -57,6 +60,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
             AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(DateTime.Parse(CsvRecords[0].StartDate));
 
+            EmployerAgreementService = new Mock<IEmployerAgreementService>();
+            EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(() => IsAgreementSigned);
+
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                                  .Options);
@@ -65,6 +71,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 , new Lazy<ProviderCommitmentsDbContext>(() => Db)
                 , OverlapCheckService.Object
                 , AcademicYearDateProvider.Object
+                , EmployerAgreementService.Object
                 );
         }
 
@@ -242,6 +249,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             return this;
         }
 
+        internal BulkUploadValidateCommandHandlerTestsFixture SetLevyStatus(ApprenticeshipEmployerType apprenticeshipEmployerType)
+        {
+            var account = Db.Accounts.FirstOrDefaultAsync().Result;
+            account.LevyStatus = apprenticeshipEmployerType;
+            Db.SaveChanges();
+            return this;
+        }
+
         internal BulkUploadValidateCommandHandlerTestsFixture SetStdCode(string stdCode)
         {
             CsvRecords[0].StdCode = stdCode;
@@ -299,6 +314,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         internal void SetOverlappingEmail(OverlapStatus status)
         {
             EmailOverlapCheckResult = new EmailOverlapCheckResult(1, status, true);
+        }
+
+        internal void SetIsAgreementSigned(bool isAgreementSigned)
+        {
+            IsAgreementSigned = isAgreementSigned;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetChangeOfParty()
