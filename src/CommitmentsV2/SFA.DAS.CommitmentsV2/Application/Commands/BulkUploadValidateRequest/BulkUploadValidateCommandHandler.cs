@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
     {
         private readonly ILogger<BulkUploadValidateCommandHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly Dictionary<string, (string Name, bool? IsLevy, long? LegalEntityId)> _employerNames;
+        private readonly EmployerSummaries _employerSummaries;
         private readonly IOverlapCheckService _overlapService;
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         {
             _logger = logger;
             _dbContext = dbContext;
-            _employerNames = new Dictionary<string, (string Name, bool? IsLevy, long? LegalEntityId)>();
+            _employerSummaries = new EmployerSummaries();
             _overlapService = overlapService;
             _academicYearDateProvider = academicYearDateProvider;
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
@@ -94,13 +94,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return employerDetails.IsLevy;
         }
 
-        private (string Name, bool? IsLevy, long? LegalEntityId) GetEmployerDetails(string agreementId)
+        private EmployerSummary GetEmployerDetails(string agreementId)
         {
             if (!string.IsNullOrEmpty(agreementId))
             {
-                if (_employerNames.ContainsKey(agreementId))
+                if (_employerSummaries.ContainsKey(agreementId))
                 {
-                    var result = _employerNames.GetValueOrDefault(agreementId);
+                    var result = _employerSummaries.GetValueOrDefault(agreementId);
                     return result;
                 }
                 var accontLegalEntity = _dbContext.Value.AccountLegalEntities
@@ -110,13 +110,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 {
                     var employerName = accontLegalEntity.Account.Name;
                     var isLevy = accontLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
-                    var tuple = (employerName, isLevy, accontLegalEntity.Id);
-                    _employerNames.Add(agreementId, tuple);
-                    return tuple;
+                    var employerSummary = new EmployerSummary(agreementId, accontLegalEntity.Id, isLevy, employerName);
+                    _employerSummaries.Add(employerSummary);
+                    return employerSummary;
                 }
             }
 
-            return (string.Empty, null, null);
+            return new EmployerSummary(agreementId, null, null, string.Empty);
         }
 
         private Models.Cohort GetCohortDetails(string cohortRef)
@@ -142,6 +142,36 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             }
 
             return null;
+        }
+
+        private class EmployerSummaries : List<EmployerSummary>
+        {
+            internal bool ContainsKey(string agreementId)
+            {
+                return this.Any(x => x.AgreementId == agreementId);
+            }
+
+            internal EmployerSummary GetValueOrDefault(string agreementId)
+            {
+               return this.First(x => x.AgreementId == agreementId);
+            }
+        }
+
+
+        private class EmployerSummary
+        {
+            public EmployerSummary(string agreementId, long? legalEntityId, bool? isLevy, string name)
+            {
+                AgreementId = agreementId;
+                LegalEntityId = legalEntityId;
+                IsLevy = isLevy;
+                Name = name;
+            }
+
+            public string AgreementId { get; set; }
+            public long? LegalEntityId { get; set; }
+            public bool? IsLevy { get; set; }
+            public string Name { get; set; }
         }
     }
 }

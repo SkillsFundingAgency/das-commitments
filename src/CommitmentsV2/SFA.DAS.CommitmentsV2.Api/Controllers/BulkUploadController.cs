@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Authorization.Mvc.Attributes;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
@@ -42,12 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.BulkUploadDraftApprenticeships?.Count() ?? 0}");
             var command = await _modelMapper.Map<BulkUploadAddDraftApprenticeshipsCommand>(request);
             var result = await _mediator.Send(command, cancellationToken);
-
-            return Ok(new GetBulkUploadAddDraftApprenticeshipsResponse
-            {
-                BulkUploadAddDraftApprenticeshipsResponse = result?.BulkUploadAddDraftApprenticeshipsResponse
-            });
-
+            return Ok(result);
         }
 
         [HttpPost]
@@ -61,11 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.BulkUploadAddAndApproveDraftApprenticeships?.Count() ?? 0}");
             var command = await _modelMapper.Map<BulkUploadAddAndApproveDraftApprenticeshipsCommand>(request);
             var result = await _mediator.Send(command, cancellationToken);
-
-            return Ok(new BulkUploadAddAndApproveDraftApprenticeshipsResponse
-            {
-                BulkUploadAddAndApproveDraftApprenticeshipResponse = result?.BulkUploadAddAndApproveDraftApprenticeshipResponse
-            });
+            return Ok(result);
         }
 
         [Route("validate")]
