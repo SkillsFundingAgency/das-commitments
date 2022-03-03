@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.LastName).HasMaxLength(100);
             builder.Property(e => e.Email).HasMaxLength(200);
             builder.Property(e => e.StartDate).HasColumnType("datetime");
+            builder.Property(e => e.DeliveryModel).HasColumnType("tinyint");
             builder.Property(e => e.TrainingCode).HasMaxLength(20);
             builder.Property(e => e.TrainingCourseVersion).HasMaxLength(5);
             builder.Property(e => e.TrainingCourseVersionConfirmed).HasColumnType("bool");

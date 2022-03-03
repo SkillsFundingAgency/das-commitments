@@ -238,6 +238,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 nameof(_fixture.DraftApprenticeshipDetails.Email),
                 passes);
         }
+
+        [TestCase(null, false)]
+        [TestCase(DeliveryModel.Normal, true)]
+        [TestCase(DeliveryModel.Flexible, true)]
+        public void DeliveryModel_CheckDeliveryModelIsPresent_Validation(DeliveryModel? dm, bool passes)
+        {
+            _fixture.AssertValidationForProperty(
+                () => _fixture.WithDeliveryModel(dm),
+                nameof(_fixture.DraftApprenticeshipDetails.DeliveryModel),
+                passes);
+        }
     }
 
     public class AddDraftApprenticeshipValidationTestsFixture
@@ -255,7 +266,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             UnitOfWorkContext = new UnitOfWorkContext();
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
-                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
+                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue),
+                DeliveryModel = DeliveryModel.Normal
             };
             SetupMinimumNameProperties();
             Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
@@ -316,6 +328,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public AddDraftApprenticeshipValidationTestsFixture WithEmail(string email)
         {
             DraftApprenticeshipDetails.Email = email;
+            return this;
+        }
+
+        public AddDraftApprenticeshipValidationTestsFixture WithDeliveryModel(DeliveryModel? dm)
+        {
+            DraftApprenticeshipDetails.DeliveryModel = dm;
             return this;
         }
 
