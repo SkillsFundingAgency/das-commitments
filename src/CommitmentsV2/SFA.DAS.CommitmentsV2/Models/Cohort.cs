@@ -639,6 +639,11 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildTrainingProgramValidationFailures(DraftApprenticeshipDetails details)
         {
+            if (details.DeliveryModel == null)
+            {
+                yield return new DomainError(nameof(details.DeliveryModel), "You must select the apprenticeship delivery model");
+            }
+
             if (details.TrainingProgramme == null) yield break;
 
             if (details.TrainingProgramme?.ProgrammeType == ProgrammeType.Framework && TransferSenderId.HasValue)
