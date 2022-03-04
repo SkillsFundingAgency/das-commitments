@@ -34,6 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
                     r.TrainingProgramme.Should().Be(f.TrainingProgramme);
+                    r.DeliveryModel.Should().Be(f.Command.DeliveryModel);
                     r.ReservationId.Should().Be(f.Command.ReservationId);
                     r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);

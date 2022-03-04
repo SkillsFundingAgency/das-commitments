@@ -30,6 +30,16 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
             return cohort;
         }
 
+        public static async Task<Cohort> GetCohortWithAccountAggregate(this ProviderCommitmentsDbContext db, long cohortId, CancellationToken cancellationToken)
+        {
+            var cohort = await db.Cohorts.Include(c => c.Apprenticeships)
+                .Include(c => c.AccountLegalEntity)
+                .SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
+            if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
+            if (cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
+            return cohort;
+        }
+
         public static async Task<Apprenticeship> GetApprenticeshipAggregate(this ProviderCommitmentsDbContext db, long apprenticeshipId, CancellationToken cancellationToken)
         {
             var apprenticeship = await db.Apprenticeships

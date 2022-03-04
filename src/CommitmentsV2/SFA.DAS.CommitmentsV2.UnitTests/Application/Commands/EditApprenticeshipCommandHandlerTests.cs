@@ -124,6 +124,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public async Task ThenDeliveryModelIsChanged(Party party)
+        {
+            fixture.SetParty(party);
+            fixture.Command.EditApprenticeshipRequest.DeliveryModel = DeliveryModel.Flexible;
+
+            await fixture.Handle();
+            fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.DeliveryModel, app => app.ApprenticeshipUpdate.First().DeliveryModel);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public async Task ThenStartDateIsChanged(Party party)
         {
             fixture.SetParty(party);
@@ -466,6 +477,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         internal void VerifyApprenticeshipUpdateCreated(long? expectedValue, Func<Apprenticeship, long?> getApprenticeshipUpdateValue)
+        {
+            var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
+            Assert.AreEqual(1, apprenticeship.ApprenticeshipUpdate.Count);
+            Assert.AreEqual(expectedValue, getApprenticeshipUpdateValue(apprenticeship));
+        }
+
+        internal void VerifyApprenticeshipUpdateCreated(DeliveryModel? expectedValue, Func<Apprenticeship, DeliveryModel?> getApprenticeshipUpdateValue)
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
             Assert.AreEqual(1, apprenticeship.ApprenticeshipUpdate.Count);

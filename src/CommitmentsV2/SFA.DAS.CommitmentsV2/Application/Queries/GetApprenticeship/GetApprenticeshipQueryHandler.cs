@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         Version = apprenticeship.TrainingCourseVersion,
                         Option = apprenticeship.TrainingCourseOption,
                         CourseName = apprenticeship.CourseName,
+                        DeliveryModel = apprenticeship.DeliveryModel,
                         EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
                         AccountLegalEntityId = apprenticeship.Cohort.AccountLegalEntityId,
                         EmployerName = apprenticeship.Cohort.AccountLegalEntity.Name,
