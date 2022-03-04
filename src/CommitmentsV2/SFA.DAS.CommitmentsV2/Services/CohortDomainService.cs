@@ -17,10 +17,8 @@ using SFA.DAS.Encoding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Infrastructure;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -169,6 +167,20 @@ namespace SFA.DAS.CommitmentsV2.Services
             var party = _authenticationService.GetUserParty();
 
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
+        }
+
+        public async Task<Api.Types.Responses.BulkUploadAddDraftApprenticeshipsResponse> GetCohortDetails(long cohortId, CancellationToken cancellationToken)
+        {        
+            var cohort = await _dbContext.Value.GetCohortWithAccountAggregate(cohortId, cancellationToken);
+
+            var result = new Api.Types.Responses.BulkUploadAddDraftApprenticeshipsResponse
+            {
+                CohortReference = cohort.Reference,
+                NumberOfApprenticeships = cohort.Apprenticeships.Count(),
+                EmployerName = cohort.AccountLegalEntity.Name
+            };
+
+            return result;
         }
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)

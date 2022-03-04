@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStdCode("");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "StdCode", "<b>Standard code</b> must be entered");
+            fixture.ValidateError(errors, 1, "CourseCode", "<b>Standard code</b> must be entered");
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStdCode("59ab");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "StdCode", "Enter a valid <b>standard code</b>");
+            fixture.ValidateError(errors, 1, "CourseCode", "Enter a valid <b>standard code</b>");
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStdCode("595961");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "StdCode", "Enter a valid <b>standard code</b>");
+            fixture.ValidateError(errors, 1, "CourseCode", "Enter a valid <b>standard code</b>");
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStdCode("5959");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "StdCode", "Enter a valid <b>standard code</b>");
+            fixture.ValidateError(errors, 1, "CourseCode", "Enter a valid <b>standard code</b>");
         }
     }
 }
