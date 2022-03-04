@@ -50,10 +50,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 {
                     domainErrors.Add(new Error("CohortRef", $"You cannot add apprentices to this cohort. You need to <b>add this learner to a different or new cohort.</b>"));
                 }
-                if (cohort.Apprenticeships.Count > 0)
-                {
-                    domainErrors.Add(new Error("CohortRef", $"This cohort is not empty. You need to <b>add this learner to a different or new cohort.</b>"));
-                }
+                //if (cohort.Apprenticeships.Count > 0)
+                //{
+                //    domainErrors.Add(new Error("CohortRef", $"This cohort is not empty. You need to <b>add this learner to a different or new cohort.</b>"));
+                //}
             }
 
             return domainErrors;
