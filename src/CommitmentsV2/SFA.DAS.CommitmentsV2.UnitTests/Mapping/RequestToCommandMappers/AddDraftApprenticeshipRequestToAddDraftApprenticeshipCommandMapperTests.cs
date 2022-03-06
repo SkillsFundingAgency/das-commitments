@@ -61,8 +61,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         }
 
         [TestCase(null)]
-        [TestCase(DeliveryModel.Normal)]
-        [TestCase(DeliveryModel.Flexible)]
+        [TestCase(DeliveryModel.Regular)]
+        [TestCase(DeliveryModel.PortableFlexiJob)]
         public Task Map_DeliveryModel_ShouldBeSet(DeliveryModel dm)
         {
             return AssertPropertySet(input => input.DeliveryModel = dm, output => output.DeliveryModel == dm);

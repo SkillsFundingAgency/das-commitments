@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 Version = source.Version,
                 Option = source.Option,
                 CourseName = source.CourseName,
-                DeliveryModel = source.DeliveryModel ?? DeliveryModel.Normal,
+                DeliveryModel = source.DeliveryModel ?? DeliveryModel.Regular,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,    

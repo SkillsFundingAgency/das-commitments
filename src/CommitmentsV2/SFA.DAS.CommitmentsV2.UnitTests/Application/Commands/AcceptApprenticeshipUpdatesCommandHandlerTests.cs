@@ -106,8 +106,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(fixture.ApprenticeshipUpdate.EndDate, fixture.ApprenticeshipFromDb.EndDate);
         }
 
-        [TestCase(DeliveryModel.Normal)]
-        [TestCase(DeliveryModel.Flexible)]
+        [TestCase(DeliveryModel.Regular)]
+        [TestCase(DeliveryModel.PortableFlexiJob)]
         public async Task Handle_WhenCommandIsHandled_DeliveryModelIsUpdated(DeliveryModel dm)
         {
             fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
@@ -248,7 +248,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
-            fixture.ApprenticeshipDetails.DeliveryModel = DeliveryModel.Flexible;
+            fixture.ApprenticeshipDetails.DeliveryModel = DeliveryModel.PortableFlexiJob;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
             await fixture.Handle();
