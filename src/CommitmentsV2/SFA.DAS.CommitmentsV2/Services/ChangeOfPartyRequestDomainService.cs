@@ -40,6 +40,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             DateTime? startDate,
             DateTime? endDate,
             UserInfo userInfo,
+            int? employmentPrice,
+            DateTime? employmentEndDate,
             CancellationToken cancellationToken)
         {
             var party = _authenticationService.GetUserParty();

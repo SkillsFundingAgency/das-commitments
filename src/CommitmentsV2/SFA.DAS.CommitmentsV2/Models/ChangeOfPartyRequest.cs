@@ -23,6 +23,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ChangeOfPartyRequestStatus Status { get; private set; }
         public virtual long? CohortId { get; private set; }
         public DateTime? ActionedOn { get; private set; }
+        public DateTime? EmploymentEndDate { get; private set; }
+        public int? EmploymentPrice { get; private set; }
 
         public byte[] RowVersion { get; private set; }
         public DateTime LastUpdatedOn { get; private set; }

@@ -38,8 +38,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public long ApprenticeshipId { get; private set; }
         public long NewPartyId { get; private set; }
         public int? Price { get; private set; }
+        public int? EmploymentPrice { get; private set; }
         public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
+        public DateTime? EmploymentEndDate { get; private set; }
         public UserInfo UserInfo { get; private set; }
 
         public ChangeOfPartyRequest ApprenticeshipChangeOfPartyRequestResult { get; private set; }
@@ -160,7 +162,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             try
             {
                 Result = await _domainService.CreateChangeOfPartyRequest(ApprenticeshipId,
-                    ChangeOfPartyRequestType, NewPartyId, Price, StartDate, EndDate, UserInfo, new CancellationToken());
+                    ChangeOfPartyRequestType, NewPartyId, Price, StartDate, EndDate, UserInfo,
+                    EmploymentPrice, EmploymentEndDate, new CancellationToken());
 
                 Db.Object.SaveChanges();
             }

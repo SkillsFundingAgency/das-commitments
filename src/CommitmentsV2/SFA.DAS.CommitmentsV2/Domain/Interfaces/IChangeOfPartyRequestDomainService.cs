@@ -15,6 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
             DateTime? startDate,
             DateTime? endDate,
             UserInfo userInfo,
+            int? employmentPrice,
+            DateTime? employmentEndDate,
             CancellationToken cancellationToken);
     }
 }
