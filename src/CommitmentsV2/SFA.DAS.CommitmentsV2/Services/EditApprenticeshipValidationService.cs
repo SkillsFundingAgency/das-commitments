@@ -152,6 +152,12 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> BuildTrainingProgramValidationFailures(EditApprenticeshipValidationRequest request, Apprenticeship apprenticeshipDetails)
         {
+
+            if (request.DeliveryModel == null)
+            {
+                yield return new DomainError(nameof(request.DeliveryModel), "Delivery model is required");
+            }
+
             if (!string.IsNullOrEmpty(request.CourseCode))
             {
                 if (request.CourseCode != apprenticeshipDetails.CourseCode)
@@ -187,6 +193,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.EndDate == apprenticeship.EndDate
                 && request.Cost == apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow)
                 && request.StartDate == apprenticeship.StartDate
+                && request.DeliveryModel == apprenticeship.DeliveryModel
                 && request.CourseCode == apprenticeship.CourseCode
                 && request.ULN == apprenticeship.Uln
                 && request.Version == apprenticeship.TrainingCourseVersion

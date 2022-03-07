@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
+        public DeliveryModel? DeliveryModel { get; set; }
         public ProgrammeType? TrainingType { get; set; }
         public string TrainingCode { get; set; }
         public string TrainingCourseVersion { get; set; }
