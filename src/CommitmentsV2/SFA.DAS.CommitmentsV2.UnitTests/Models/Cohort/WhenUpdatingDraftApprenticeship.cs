@@ -77,7 +77,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 LastName = "EFG",
                 StartDate = DateTime.Today.AddMonths(-6),
                 EndDate = DateTime.Today.AddMonths(6),
-                DateOfBirth = DateTime.Today.AddYears(-18)
+                DateOfBirth = DateTime.Today.AddYears(-18),
+                DeliveryModel = DeliveryModel.Normal
             }, Party.Provider);
         }
 
@@ -90,7 +91,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     LastName = SafeUpdate(draftApprenticeship.LastName),
                     StartDate = SafeUpdate(draftApprenticeship.StartDate),
                     EndDate = SafeUpdate(draftApprenticeship.EndDate),
-                    DateOfBirth = SafeUpdate(draftApprenticeship.DateOfBirth)
+                    DateOfBirth = SafeUpdate(draftApprenticeship.DateOfBirth),
+                    DeliveryModel = draftApprenticeship.DeliveryModel
                 }, Party.Provider);
         }
 
@@ -104,6 +106,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 Uln = draftApprenticeship.Uln,
                 TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(draftApprenticeship.CourseCode, "", ProgrammeType.Framework,
                     null, null),
+                DeliveryModel = draftApprenticeship.DeliveryModel,
                 Cost = (int?) draftApprenticeship.Cost,
                 StartDate = draftApprenticeship.StartDate,
                 EndDate = draftApprenticeship.EndDate,

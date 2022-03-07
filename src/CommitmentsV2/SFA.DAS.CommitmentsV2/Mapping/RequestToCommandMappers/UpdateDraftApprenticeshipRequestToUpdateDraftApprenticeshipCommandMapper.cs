@@ -17,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 Uln = source.Uln,
                 CourseCode = source.CourseCode,
                 CourseOption = source.CourseOption,
+                DeliveryModel = source.DeliveryModel,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Data.Configuration
 {
@@ -31,7 +33,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             
             builder.Property(e => e.ProviderRef).HasMaxLength(50);
             builder.Property(e => e.StartDate).HasColumnType("datetime");
-
 
             builder.Property(e => e.ProgrammeType)
                 .HasColumnName("TrainingType");
@@ -77,6 +78,9 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
 
             builder.Ignore(e => e.ApprenticeshipStatus);
             builder.Ignore(e => e.IsProviderSearch);
+
+            builder.Property(e => e.DeliveryModel)
+                .HasColumnType("tinyint");
         }
 
         private void SetTablePerHierarchy(EntityTypeBuilder<ApprenticeshipBase> builder)

@@ -1,4 +1,6 @@
 ﻿using System;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events
@@ -16,5 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public PriceEpisode[] PriceEpisodes { get; set; }
         public ProgrammeType TrainingType { get; set; }
         public string TrainingCode { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public DeliveryModel DeliveryModel { get; set; }
     }
 }

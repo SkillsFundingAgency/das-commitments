@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace SFA.DAS.CommitmentsV2.Shared.Extensions
 {
@@ -24,6 +25,14 @@ namespace SFA.DAS.CommitmentsV2.Shared.Extensions
         public static string ToGdsFormatShortMonthWithoutDay(this DateTime value)
         {
             return $"{value:MM yyyy}";
+        }
+
+        public static DateTime? GetDate(this string date, string format)
+        {
+            if (!string.IsNullOrWhiteSpace(date) &&
+                DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime outDateTime))
+                return outDateTime;
+            return null;
         }
     }
 }
