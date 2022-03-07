@@ -19,9 +19,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
     {
         private readonly ILogger<BulkUploadValidateCommandHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly Dictionary<string, (string Name, bool? IsLevy)> _employerNames;
+        private readonly Dictionary<string, (string Name, bool? IsLevy, bool? IsSigned)> _employerNames;
         private readonly IOverlapCheckService _overlapService;
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
+        private readonly IEmployerAgreementService _employerAgreementService;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
 
         public long ProviderId { get; set; }
@@ -30,16 +31,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             ILogger<BulkUploadValidateCommandHandler> logger,
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IOverlapCheckService overlapService,
-            IAcademicYearDateProvider academicYearDateProvider)
+            IAcademicYearDateProvider academicYearDateProvider,
+            IEmployerAgreementService employerAgreementService)
         {
             _logger = logger;
             _dbContext = dbContext;
-            _employerNames = new Dictionary<string, (string Name, bool? IsLevy)>();
+            _employerNames = new Dictionary<string, (string Name, bool? IsLevy, bool? IsSigned)>();
             _overlapService = overlapService;
             _academicYearDateProvider = academicYearDateProvider;
+            _employerAgreementService = employerAgreementService;
         }
 
-        public Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
+        public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
         {
             ProviderId = command.ProviderId;
             var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
@@ -47,23 +50,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             foreach (var csvRecord in command.CsvRecords)
             {
                 var domainErrors = new List<Error>();
-                domainErrors.AddRange(ValidateAgreementId(csvRecord));
-                domainErrors.AddRange(ValidateCohortRef(csvRecord));
-                domainErrors.AddRange(ValidateUln(csvRecord));
-                domainErrors.AddRange(ValidateFamilyName(csvRecord));
-                domainErrors.AddRange(ValidateGivenName(csvRecord));
-                domainErrors.AddRange(ValidateDateOfBirth(csvRecord));
-                domainErrors.AddRange(ValidateEmailAddress(csvRecord));
-                domainErrors.AddRange(ValidateCourseCode(csvRecord));
-                domainErrors.AddRange(ValidateStartDate(csvRecord));
-                domainErrors.AddRange(ValidateEndDate(csvRecord));
-                domainErrors.AddRange(ValidateCost(csvRecord));
-                domainErrors.AddRange(ValidateProviderRef(csvRecord));
-                if (domainErrors.Count > 0)
+                await Validate(csvRecord, domainErrors);
+
+                if (domainErrors.Any())
                 {
                     bulkUploadValidationErrors.Add(new BulkUploadValidationError(
                         csvRecord.RowNumber,
-                        GetEmployerName(csvRecord.AgreementId),
+                        await GetEmployerName(csvRecord.AgreementId),
                         csvRecord.Uln,
                         csvRecord.FirstName + " " + csvRecord.LastName,
                         domainErrors
@@ -71,25 +64,59 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 }
             }
 
-            return Task.FromResult(new BulkUploadValidateApiResponse
+            return new BulkUploadValidateApiResponse
             {
                 BulkUploadValidationErrors = bulkUploadValidationErrors
-            });
+            };
         }
 
-        private string GetEmployerName(string agreementId)
+        private async Task Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
         {
-            var employerDetails = GetEmployerDetails(agreementId);
+            domainErrors.AddRange(await ValidateAgreementIdValidFormat(csvRecord));
+            
+            if (!domainErrors.Any())
+            {
+                domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
+
+                // when a valid agreement has not been signed validation will stop
+                if(domainErrors.Any())
+                    return;
+
+                domainErrors.AddRange(await ValidateAgreementIdMustBeLevy(csvRecord));
+            }
+
+            domainErrors.AddRange(await ValidateCohortRef(csvRecord));
+            domainErrors.AddRange(ValidateUln(csvRecord));
+            domainErrors.AddRange(ValidateFamilyName(csvRecord));
+            domainErrors.AddRange(ValidateGivenName(csvRecord));
+            domainErrors.AddRange(ValidateDateOfBirth(csvRecord));
+            domainErrors.AddRange(ValidateEmailAddress(csvRecord));
+            domainErrors.AddRange(ValidateCourseCode(csvRecord));
+            domainErrors.AddRange(ValidateStartDate(csvRecord));
+            domainErrors.AddRange(ValidateEndDate(csvRecord));
+            domainErrors.AddRange(ValidateCost(csvRecord));
+            domainErrors.AddRange(ValidateProviderRef(csvRecord));
+        }
+
+        private async Task<string> GetEmployerName(string agreementId)
+        {
+            var employerDetails = await GetEmployerDetails(agreementId);
             return employerDetails.Name;
         }
 
-        private bool? IsLevy(string agreementId)
+        private async Task<bool?> IsLevy(string agreementId)
         {
-            var employerDetails = GetEmployerDetails(agreementId);
+            var employerDetails = await GetEmployerDetails(agreementId);
             return employerDetails.IsLevy;
         }
 
-        private (string Name, bool? IsLevy) GetEmployerDetails(string agreementId)
+        private async Task<bool?> IsSigned(string agreementId)
+        {
+            var employerDetails = await GetEmployerDetails(agreementId);
+            return employerDetails.IsSigned;
+        }
+
+        private async Task<(string Name, bool? IsLevy, bool? IsSigned)> GetEmployerDetails(string agreementId)
         {
             if (!string.IsNullOrEmpty(agreementId))
             {
@@ -98,20 +125,25 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     var result = _employerNames.GetValueOrDefault(agreementId);
                     return result;
                 }
-                var accontLegalEntity = _dbContext.Value.AccountLegalEntities
+
+                var accountLegalEntity = _dbContext.Value.AccountLegalEntities
                   .Include(x => x.Account)
                   .Where(x => x.PublicHashedId == agreementId).FirstOrDefault();
-                if (accontLegalEntity != null)
+
+                if (accountLegalEntity != null)
                 {
-                    var employerName = accontLegalEntity.Account.Name;
-                    var isLevy = accontLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
-                    var tuple = (employerName, isLevy);
+                    var employerName = accountLegalEntity.Account.Name;
+                    var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
+                    var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
+                    var tuple = (employerName, isLevy, isSigned);
+                    
                     _employerNames.Add(agreementId, tuple);
+                    
                     return tuple;
                 }
             }
 
-            return (string.Empty, null);
+            return (string.Empty, null, null);
         }
 
         private Models.Cohort GetCohortDetails(string cohortRef)
