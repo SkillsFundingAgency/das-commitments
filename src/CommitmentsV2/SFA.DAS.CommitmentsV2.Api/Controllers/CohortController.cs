@@ -47,6 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.AccountLegalEntityId,
                 request.ProviderId,
                 request.CourseCode,
+                request.DeliveryModel,
                 request.Cost,
                 request.StartDate,
                 request.EndDate,

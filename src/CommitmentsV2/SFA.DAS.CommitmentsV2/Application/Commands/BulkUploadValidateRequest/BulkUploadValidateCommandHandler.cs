@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IOverlapCheckService _overlapService;
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IEmployerAgreementService _employerAgreementService;
-        private List<CsvRecord> _csvRecords;
+        private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
 
         public long ProviderId { get; set; }
 
@@ -57,8 +57,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     bulkUploadValidationErrors.Add(new BulkUploadValidationError(
                         csvRecord.RowNumber,
                         await GetEmployerName(csvRecord.AgreementId),
-                        csvRecord.ULN,
-                        csvRecord.GivenNames + " " + csvRecord.FamilyName,
+                        csvRecord.Uln,
+                        csvRecord.FirstName + " " + csvRecord.LastName,
                         domainErrors
                         ));
                 }
@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             };
         }
 
-        private async Task Validate(CsvRecord csvRecord, List<Error> domainErrors)
+        private async Task Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
         {
             domainErrors.AddRange(await ValidateAgreementIdValidFormat(csvRecord));
             
@@ -174,7 +174,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private DateTime? GetValidDate(string date, string format)
         {
             DateTime outDateTime;
-            if (!string.IsNullOrWhiteSpace(date) && 
+            if (!string.IsNullOrWhiteSpace(date) &&
                 DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out outDateTime))
                 return outDateTime;
             return null;

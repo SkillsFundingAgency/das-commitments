@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Authorization.Mvc.Attributes;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,7 +42,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.BulkUploadDraftApprenticeships?.Count() ?? 0}");
             var command = await _modelMapper.Map<BulkUploadAddDraftApprenticeshipsCommand>(request);
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+
+            return Ok(new GetBulkUploadAddDraftApprenticeshipsResponse
+            {
+                BulkUploadAddDraftApprenticeshipsResponse = result?.BulkUploadAddDraftApprenticeshipsResponse
+            });
+
         }
 
         [HttpPost]

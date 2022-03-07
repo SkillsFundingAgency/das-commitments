@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public Mock<IOverlapCheckService> OverlapCheckService { get; set; }
         public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; set; }
         public Mock<IEmployerAgreementService> EmployerAgreementService { get; set; }
-        public List<CsvRecord> CsvRecords { get; set; }
+        public List<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; }
         public BulkUploadValidateCommand Command { get; set; }
 
         public OverlapCheckResult OverlapCheckResult { get; set; }
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         public BulkUploadValidateCommandHandlerTestsFixture()
         {
-            CsvRecords = new List<CsvRecord>();
+            CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
             PopulateCsvRecord();
             Command = new BulkUploadValidateCommand()
             {
@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 .ReturnsAsync(() => EmailOverlapCheckResult);
 
             AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
-            AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(DateTime.Parse(CsvRecords[0].StartDate));
+            AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(DateTime.Parse(CsvRecords[0].StartDateAsString));
 
             EmployerAgreementService = new Mock<IEmployerAgreementService>();
             EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(() => IsAgreementSigned);
@@ -115,64 +115,61 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         private void PopulateCsvRecord()
         {
-            CsvRecords.Add(new CsvRecord
+            CsvRecords.Add(new BulkUploadAddDraftApprenticeshipRequest
             {
                 RowNumber = 1,
                 AgreementId = "XEGE5X",
                 CohortRef = "P97BKL",
-                ULN = "6591690157",
-                FamilyName = "Smith",
-                GivenNames = "Mark",
-                DateOfBirth = "2000-01-02",
-                StdCode = "59",
-                StartDate = "2019-05-01",
-                EndDate = "2020-05",
-                TotalPrice = "2000",
-                EPAOrgID = "EPA0001",
+                Uln = "6591690157",
+                LastName = "Smith",
+                FirstName = "Mark",
+                DateOfBirthAsString = "2000-01-02",
+                CourseCode = "59",
+                StartDateAsString = "2019-05-01",
+                EndDateAsString = "2020-05",
+                CostAsString = "2000",
                 ProviderRef = "ZB88",
-                EmailAddress = "abc34628125987@abc.com"
+                Email = "abc34628125987@abc.com"
             });
         }
 
         internal void SetUpDuplicateUln()
         {
-            CsvRecords.Add(new CsvRecord
+            CsvRecords.Add(new BulkUploadAddDraftApprenticeshipRequest
             {
                 RowNumber = 2,
                 AgreementId = "XEGE5X",
                 CohortRef = "P97BKL",
-                ULN = "6591690157",
-                FamilyName = "Smith2",
-                GivenNames = "Mark2",
-                DateOfBirth = "2002-01-02",
-                StdCode = "59",
-                StartDate = "2019-05-01",
-                EndDate = "2020-05",
-                TotalPrice = "2000",
-                EPAOrgID = "EPA0001",
+                Uln = "6591690157",
+                LastName = "Smith2",
+                FirstName = "Mark2",
+                DateOfBirthAsString = "2002-01-02",
+                CourseCode = "59",
+                StartDateAsString = "2019-05-01",
+                EndDateAsString = "2020-05",
+                CostAsString = "2000",
                 ProviderRef = "ZB88",
-                EmailAddress = "abc34628125987@abc2.com"
+                Email = "abc34628125987@abc2.com"
             });
         }
 
         internal void SetUpDuplicateEmail()
         {
-            CsvRecords.Add(new CsvRecord
+            CsvRecords.Add(new BulkUploadAddDraftApprenticeshipRequest
             {
                 RowNumber = 2,
                 AgreementId = "XEGE5X",
                 CohortRef = "P97BKL",
-                ULN = "6591690158",
-                FamilyName = "Smith2",
-                GivenNames = "Mark2",
-                DateOfBirth = "2002-01-02",
-                StdCode = "59",
-                StartDate = "2019-05-01",
-                EndDate = "2020-05",
-                TotalPrice = "2000",
-                EPAOrgID = "EPA0001",
+                Uln = "6591690158",
+                LastName = "Smith2",
+                FirstName = "Mark2",
+                DateOfBirthAsString = "2002-01-02",
+                CourseCode = "59",
+                StartDateAsString = "2019-05-01",
+                EndDateAsString = "2020-05",
+                CostAsString = "2000",
                 ProviderRef = "ZB88",
-                EmailAddress = "abc34628125987@abc.com"
+                Email = "abc34628125987@abc.com"
             });
         }
 
@@ -209,26 +206,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetStartDate(string startDate)
         {
-            CsvRecords[0].StartDate = startDate;
+            CsvRecords[0].StartDateAsString = startDate;
             return this;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetEndDate(string endDate)
         {
-            CsvRecords[0].EndDate = endDate;
+            CsvRecords[0].EndDateAsString = endDate;
             return this;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetAfterAcademicYearEndDate()
         {
-            AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(DateTime.Parse(CsvRecords[0].StartDate).AddYears(-1).AddDays(-1));
+            AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(DateTime.Parse(CsvRecords[0].StartDateAsString).AddYears(-1).AddDays(-1));
             return this;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetCourseEffectiveFromAfterCourseStartDate()
         {
             var standard = Db.Standards.FirstOrDefaultAsync().Result;
-            standard.EffectiveFrom = DateTime.Parse(CsvRecords[0].StartDate).AddDays(1);
+            standard.EffectiveFrom = DateTime.Parse(CsvRecords[0].StartDateAsString).AddDays(1);
             Db.SaveChanges();
             return this;
         }
@@ -236,7 +233,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         internal BulkUploadValidateCommandHandlerTestsFixture SetCourseEffectiveToBeforeCourseStartDate()
         {
             var standard = Db.Standards.FirstOrDefaultAsync().Result;
-            standard.EffectiveTo = DateTime.Parse(CsvRecords[0].StartDate).AddDays(-1);
+            standard.EffectiveTo = DateTime.Parse(CsvRecords[0].StartDateAsString).AddDays(-1);
             Db.SaveChanges();
             return this;
         }
@@ -259,43 +256,43 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetStdCode(string stdCode)
         {
-            CsvRecords[0].StdCode = stdCode;
+            CsvRecords[0].CourseCode = stdCode;
             return this;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetGivenNames(string givenName)
         {
-            CsvRecords[0].GivenNames = givenName;
+            CsvRecords[0].FirstName = givenName;
             return this;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetFamilyName(string familyName)
         {
-            CsvRecords[0].FamilyName = familyName;
+            CsvRecords[0].LastName = familyName;
             return this;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetEmailAddress(string emailAddress)
         {
-            CsvRecords[0].EmailAddress = emailAddress;
+            CsvRecords[0].Email = emailAddress;
             return this;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetDateOfBirth(string dateOfBirth)
         {
-            CsvRecords[0].DateOfBirth = dateOfBirth;
+            CsvRecords[0].DateOfBirthAsString = dateOfBirth;
             return this;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetUln(string uln)
         {
-            CsvRecords[0].ULN = uln;
+            CsvRecords[0].Uln = uln;
             return this;
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetTotalPrice(string totalPrice)
         {
-            CsvRecords[0].TotalPrice = totalPrice;
+            CsvRecords[0].CostAsString = totalPrice;
             return this;
         }
 

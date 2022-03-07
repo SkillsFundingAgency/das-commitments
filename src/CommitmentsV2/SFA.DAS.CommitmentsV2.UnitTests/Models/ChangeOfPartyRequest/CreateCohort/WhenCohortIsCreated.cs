@@ -199,6 +199,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 ContinuedApprenticeship.SetValue(x => x.StartDate, _autoFixture.Create<DateTime?>());
                 ContinuedApprenticeship.SetValue(x => x.EndDate, _autoFixture.Create<DateTime?>());
                 ContinuedApprenticeship.SetValue(x => x.StartDate, _autoFixture.Create<DateTime?>());
+                ContinuedApprenticeship.SetValue(x => x.DeliveryModel, _autoFixture.Create<DeliveryModel>());
                 ContinuedApprenticeship.SetValue(x => x.CourseCode, _autoFixture.Create<string>());
                 ContinuedApprenticeship.SetValue(x => x.CourseName, _autoFixture.Create<string>());
                 ContinuedApprenticeship.SetValue(x => x.ProgrammeType, _autoFixture.Create<ProgrammeType>());
@@ -344,6 +345,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Assert.AreEqual(ContinuedApprenticeship.Uln, draftApprenticeship.Uln);
                 Assert.AreEqual(Request.StartDate, draftApprenticeship.StartDate);
                 Assert.AreEqual(Request.EndDate, draftApprenticeship.EndDate);
+                Assert.AreEqual(ContinuedApprenticeship.DeliveryModel, draftApprenticeship.DeliveryModel);
                 Assert.AreEqual(ContinuedApprenticeship.CourseCode, draftApprenticeship.CourseCode);
                 Assert.AreEqual(ContinuedApprenticeship.CourseName, draftApprenticeship.CourseName);
                 Assert.AreEqual(ContinuedApprenticeship.ProgrammeType, draftApprenticeship.ProgrammeType);

@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private async Task<List<Error>> ValidateAgreementIdValidFormat(CsvRecord csvRecord)
+        private async Task<List<Error>> ValidateAgreementIdValidFormat(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             List<Error> errors = new List<Error>();
             if (string.IsNullOrEmpty(csvRecord.AgreementId))
@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return errors;
         }
 
-        private async Task<List<Error>> ValidateAgreementIdIsSigned(CsvRecord csvRecord)
+        private async Task<List<Error>> ValidateAgreementIdIsSigned(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             List<Error> errors = new List<Error>();
             if (!(await IsSigned(csvRecord.AgreementId)).GetValueOrDefault(false))
@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return errors;
         }
 
-        private async Task<List<Error>> ValidateAgreementIdMustBeLevy(CsvRecord csvRecord)
+        private async Task<List<Error>> ValidateAgreementIdMustBeLevy(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             List<Error> errors = new List<Error>();
             if (!(await IsLevy(csvRecord.AgreementId)).GetValueOrDefault(false))
