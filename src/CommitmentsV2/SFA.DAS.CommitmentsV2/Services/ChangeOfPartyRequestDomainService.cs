@@ -66,6 +66,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             price,
             startDate,
             endDate,
+            employmentPrice,
+            employmentEndDate,
             userInfo,
             _currentDateTime.UtcNow);
 

@@ -266,6 +266,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
                     Price,
                     StartDate,
                     EndDate,
+                    null,
+                    null,
                     UserInfo,
                     Now);
             }

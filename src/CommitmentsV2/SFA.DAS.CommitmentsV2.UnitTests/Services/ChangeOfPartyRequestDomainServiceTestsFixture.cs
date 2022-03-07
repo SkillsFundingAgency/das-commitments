@@ -77,8 +77,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             ChangeOfPartyRequestType = changeOfPartyRequestType;            
             NewPartyId = Fixture.Create<long>();
             Price = Fixture.Create<int?>();
+            EmploymentPrice = Fixture.Create<int?>();
             StartDate = Fixture.Create<DateTime?>();
             EndDate = Fixture.Create<DateTime?>();
+            EmploymentEndDate = Fixture.Create<DateTime?>();
             UserInfo = Fixture.Create<UserInfo>();
 
             _domainService = new ChangeOfPartyRequestDomainService(
@@ -109,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Apprenticeship.Setup(x => x.Cohort).Returns(Cohort);
             Apprenticeship.Setup(x => x.CreateChangeOfPartyRequest(It.IsAny<ChangeOfPartyRequestType>(),
                     It.IsAny<Party>(), It.IsAny<long>(), It.IsAny<int?>(), It.IsAny<DateTime?>(),
-                    It.IsAny<DateTime?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
+                    It.IsAny<DateTime?>(), It.IsAny<int?>(), It.IsAny<DateTime?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
                 .Returns(ApprenticeshipChangeOfPartyRequestResult);
 
             Db
@@ -183,6 +185,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     It.Is<int?>(p => p == Price),
                     It.Is<DateTime?>(s => s == StartDate),
                     It.Is<DateTime?>(e => e == EndDate),
+                    It.Is<int?>(p => p == EmploymentPrice),
+                    It.Is<DateTime?>(e => e == EmploymentEndDate),
                     It.Is<UserInfo>(u => u == UserInfo),
                     It.Is<DateTime>(n => n == Now))
                 , Times.Once);

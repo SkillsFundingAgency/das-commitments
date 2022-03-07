@@ -45,6 +45,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             int? price,
             DateTime? startDate,
             DateTime? endDate,
+            int? employmentPrice,
+            DateTime? employmentEndDate,
             UserInfo userInfo,
             DateTime now)
         {
@@ -62,6 +64,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             Price = price;
             StartDate = startDate;
             EndDate = endDate;
+            EmploymentPrice = employmentPrice;
+            EmploymentEndDate = employmentEndDate;
             Status = ChangeOfPartyRequestStatus.Pending;
             CreatedOn = now;
             LastUpdatedOn = now;
