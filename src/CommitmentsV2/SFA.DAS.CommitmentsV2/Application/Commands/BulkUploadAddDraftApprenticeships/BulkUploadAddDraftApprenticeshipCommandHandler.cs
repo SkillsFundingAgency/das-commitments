@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
 using System;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships
 {
