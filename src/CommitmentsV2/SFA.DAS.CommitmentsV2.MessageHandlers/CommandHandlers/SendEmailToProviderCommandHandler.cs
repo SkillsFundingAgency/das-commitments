@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
+using SFA.DAS.Notifications.Messages.Commands;
 using SFA.DAS.PAS.Account.Api.ClientV2;
 using SFA.DAS.PAS.Account.Api.Types;
 
@@ -33,7 +36,27 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                         : new List<string> {message.EmailAddress}
                 };
 
-                await _pasAccountApi.SendEmailToAllProviderRecipients(message.ProviderId, providerEmailRequest);
+                var providerUsers = await _pasAccountApi.GetAccountUsers(message.ProviderId, CancellationToken.None);
+               
+                var finalRecipients = providerUsers
+                    .Where(x => x.ReceiveNotifications)
+                    .Select(x => x.EmailAddress)
+                    .ToList();
+
+                if (finalRecipients.Any())
+                {
+                    _logger.LogInformation($"Calling SendEmailCommand for {finalRecipients.Count()} emails");
+
+                    var tasks = finalRecipients
+                        .Select(email => context.Send(new SendEmailCommand(message.Template, email, message.Tokens)));
+
+                    await Task.WhenAll(tasks);
+                }
+                else
+                {
+                    _logger.LogWarning($"No Email Addresses found to send Template {message.Template} for ProviderId {message.ProviderId}");
+                }
+
             }
             catch (Exception e)
             {
