@@ -88,7 +88,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             UnitOfWorkContext = new UnitOfWorkContext();
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
-                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
+                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue),
+                DeliveryModel = DeliveryModel.Normal
             };
             SetupMinimumNameProperties();
             Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1};
@@ -163,6 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             draftApprenticeshipDetails.Set(x => x.LastName, "TEST");
             draftApprenticeshipDetails.Set(x => x.TrainingProgramme,
                 new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue));
+            draftApprenticeshipDetails.Set(x => x.DeliveryModel, DeliveryModel.Normal);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Party.Provider).Set(d => d.Id, id);
             
             Cohort.Apprenticeships.Add(draftApprenticeship);

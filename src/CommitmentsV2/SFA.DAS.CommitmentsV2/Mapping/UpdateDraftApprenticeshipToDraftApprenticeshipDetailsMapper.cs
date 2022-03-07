@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 Uln = source.Uln,
                 TrainingProgramme = trainingProgramme,
                 TrainingCourseOption = source.CourseOption,
+                DeliveryModel = source.DeliveryModel,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
