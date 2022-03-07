@@ -16,7 +16,9 @@
 	[CohortId] BIGINT NULL,
 	[ActionedOn] DATETIME2 NULL,
 	[NewApprenticeshipId] BIGINT NULL,
-	CONSTRAINT [FK_ChangeOfPartyRequest_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
+	[EmploymentPrice] NCHAR(10) NULL, 
+    [EmploymentEndDate] DATETIME2 NULL, 
+    CONSTRAINT [FK_ChangeOfPartyRequest_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
 	CONSTRAINT [FK_ChangeOfPartyRequest_AccountLegalEntityId] FOREIGN KEY ([AccountLegalEntityId]) REFERENCES [AccountLegalEntities]([Id]),
 	CONSTRAINT [FK_ChangeOfPartyRequest_ProviderId] FOREIGN KEY ([ProviderId]) REFERENCES [Providers]([Ukprn]),
 	CONSTRAINT [FK_ChangeOfPartyRequest_CohortId] FOREIGN KEY ([CohortId]) REFERENCES [Commitment]([Id])
