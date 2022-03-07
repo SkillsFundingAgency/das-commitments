@@ -9,24 +9,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private async Task<List<Error>> ValidateAgreementId(BulkUploadAddDraftApprenticeshipRequest csvRecord)
-        {
-            List<Error> domainErrors = new List<Error>();
-            domainErrors.AddRange(await ValidateAgreementIdValidFormat(csvRecord));
-
-            if (!domainErrors.Any())
-            {
-                domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
-
-                // when a valid agreement has not been signed validation will stop
-                if (domainErrors.Any())
-                    return domainErrors;
-
-                domainErrors.AddRange(await ValidateAgreementIdMustBeLevy(csvRecord));
-            }
-
-            return domainErrors;
-        }
         private async Task<List<Error>> ValidateAgreementIdValidFormat(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             List<Error> errors = new List<Error>();

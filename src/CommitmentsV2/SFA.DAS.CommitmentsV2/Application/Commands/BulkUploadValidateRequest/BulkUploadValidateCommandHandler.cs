@@ -77,19 +77,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
         private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
-            var domainErrors = new List<Error>();
-            domainErrors.AddRange(await ValidateAgreementId(csvRecord));
-            
-            //if (!domainErrors.Any())
-            //{
-            //    domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
+            var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
+            if (!domainErrors.Any())
+            {
+                domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
 
-            //    // when a valid agreement has not been signed validation will stop
-            //    if(domainErrors.Any())
-            //        return domainErrors;
+                // when a valid agreement has not been signed validation will stop
+                if (domainErrors.Any())
+                    return domainErrors;
 
-            //    domainErrors.AddRange(await ValidateAgreementIdMustBeLevy(csvRecord));
-            //}
+                domainErrors.AddRange(await ValidateAgreementIdMustBeLevy(csvRecord));
+            }
 
             domainErrors.AddRange(await ValidateCohortRef(csvRecord, providerId));
             domainErrors.AddRange(ValidateUln(csvRecord));
@@ -102,6 +100,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             domainErrors.AddRange(ValidateEndDate(csvRecord));
             domainErrors.AddRange(ValidateCost(csvRecord));
             domainErrors.AddRange(ValidateProviderRef(csvRecord));
+            domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
 
             return domainErrors;
         }
