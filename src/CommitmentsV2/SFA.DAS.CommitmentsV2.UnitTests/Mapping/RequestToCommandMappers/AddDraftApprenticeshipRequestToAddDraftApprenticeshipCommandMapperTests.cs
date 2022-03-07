@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
@@ -57,6 +58,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         {
             DateTime startDate = DateTime.Now;
             return AssertPropertySet(input => input.StartDate = startDate, output => output.StartDate == startDate);
+        }
+
+        [TestCase(null)]
+        [TestCase(DeliveryModel.Normal)]
+        [TestCase(DeliveryModel.Flexible)]
+        public Task Map_DeliveryModel_ShouldBeSet(DeliveryModel dm)
+        {
+            return AssertPropertySet(input => input.DeliveryModel = dm, output => output.DeliveryModel == dm);
         }
     }
 }

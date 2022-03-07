@@ -2,7 +2,6 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.ProviderRelationships.Types.Dtos;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private List<Error> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
+        private async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
             var domainErrors = new List<Error>();
             if (string.IsNullOrEmpty(csvRecord.CohortRef))
@@ -33,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 {
                     domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
                 }
-                else if (cohort.AccountLegalEntity.PublicHashedId != csvRecord.AgreementId && !string.IsNullOrWhiteSpace(GetEmployerName(csvRecord.AgreementId)))
+                else if (cohort.AccountLegalEntity.PublicHashedId != csvRecord.AgreementId && !string.IsNullOrWhiteSpace(await GetEmployerName(csvRecord.AgreementId)))
                 {
                     domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
                 }
@@ -61,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
         private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         { 
-            var employerDetails = GetEmployerDetails(csvRecord.AgreementId);
+            var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
             if (employerDetails.LegalEntityId.HasValue && providerId != 0)
             {
                 var request = new HasPermissionRequest()
