@@ -23,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public string ProviderName { get; set; }
             public long ProviderId { get; set; }
             public string CourseName { get; set; }
+            public DeliveryModel DeliveryModel { get; set; }
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
             public DateTime PauseDate { get; set; }

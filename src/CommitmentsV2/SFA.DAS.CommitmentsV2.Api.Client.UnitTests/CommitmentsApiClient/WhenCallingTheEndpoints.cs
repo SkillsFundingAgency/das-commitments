@@ -549,6 +549,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task ResendApprenticeshipInvitation_VerifyUrlAndDataIsCorrectlyPassedIn()
+        {
+            //Arrange
+            var request = new SaveDataRequest()
+            {
+                UserInfo = new UserInfo()
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.ResendApprenticeshipInvitation(11, request, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/apprenticeships/11/resendinvitation", request, CancellationToken.None));
+        }
+
+        [Test]
         public async Task PauseApprenticeship_VerifyUrlAndData()
         {
             var request = new PauseApprenticeshipRequest
@@ -692,7 +708,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.BulkUploadDraftApprenticeships(providerId, request, CancellationToken.None);
 
             //Assert
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/{providerId}/bulkupload", request, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<BulkUploadAddDraftApprenticeshipsRequest, GetBulkUploadAddDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload", request, CancellationToken.None));
         }
 
         public async Task GetEmployerAccountSummary_VerifyUrlAndDataIsCorrectlyPassedIn()
@@ -719,8 +735,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetTransferRequestSummaryResponse>($"api/accounts/{employerAccountId}/transfers", CancellationToken.None, CancellationToken.None));
         }
-    }
 
+        [Test]
+        public async Task ValidateBulkUploadRequest_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.ValidateBulkUploadRequest(123, _fixture.BulkUploadValidateApiRequest, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<BulkUploadValidateApiRequest, BulkUploadValidateApiResponse>($"api/123/bulkupload/validate", _fixture.BulkUploadValidateApiRequest, CancellationToken.None));
+        }
+    }
+    
     public class WhenCallingTheEndpointsFixture
     {
         public Client.CommitmentsApiClient CommitmentsApiClient { get; }
@@ -732,6 +755,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public SendCohortRequest SendCohortRequest { get; }
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; }
         public DeleteDraftApprenticeshipRequest DeleteDraftApprenticeshipRequest { get; }
+        public BulkUploadValidateApiRequest BulkUploadValidateApiRequest { get; set; }
         public UserInfo UserInfo { get; }
         public long CohortId { get; set; }
         
@@ -746,6 +770,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             SendCohortRequest = new SendCohortRequest();
             UpdateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest();
             DeleteDraftApprenticeshipRequest = new DeleteDraftApprenticeshipRequest();
+            BulkUploadValidateApiRequest = new BulkUploadValidateApiRequest();
             UserInfo = new UserInfo();
             CohortId = 123;
         }
@@ -768,6 +793,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             MockRestHttpClient.Setup(x => x.PostAsJson(It.IsAny<string>(), It.IsAny<AddDraftApprenticeshipRequest>(), CancellationToken.None))
                 .ReturnsAsync("");
+ 
             return this;
         }
     }

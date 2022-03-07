@@ -53,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task StopApprenticeship(long apprenticeshipId, StopApprenticeshipRequest request, CancellationToken cancellationToken = default);
         Task PauseApprenticeship(PauseApprenticeshipRequest request, CancellationToken cancellationToken = default);
         Task ResumeApprenticeship(ResumeApprenticeshipRequest request, CancellationToken cancellationToken = default);
+        Task ResendApprenticeshipInvitation(long apprenticeshipId, SaveDataRequest request, CancellationToken cancellationToken = default);
         Task<GetAllTrainingProgrammesResponse> GetAllTrainingProgrammes(CancellationToken cancellationToken = default);
         Task<GetAllTrainingProgrammeStandardsResponse> GetAllTrainingProgrammeStandards(CancellationToken cancellationToken = default);
         Task<GetTrainingProgrammeResponse> GetTrainingProgramme(string id, CancellationToken cancellationToken = default);
@@ -76,8 +77,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetAllCohortAccountIdsResponse> GetAllCohortAccountIds(CancellationToken cancellationToken = default);
         Task<GetEmailOverlapsResponse> GetEmailOverlapChecks(long cohortId, CancellationToken cancellationToken = default);
         Task<GetProviderCommitmentAgreementResponse> GetProviderCommitmentAgreement(long providerId, CancellationToken cancellationToken = default);
-        Task BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default);
+        Task<GetBulkUploadAddDraftApprenticeshipsResponse> BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default);
         Task<GetApprenticeshipStatusSummaryResponse> GetEmployerAccountSummary(long employerAccountId, CancellationToken cancellationToken = default);
         Task<GetTransferRequestSummaryResponse> GetTransferRequests(long accountId, CancellationToken cancellationToken = default);
+        Task<BulkUploadValidateApiResponse> ValidateBulkUploadRequest(long providerId, BulkUploadValidateApiRequest request, CancellationToken cancellationToken = default);
     }
 }

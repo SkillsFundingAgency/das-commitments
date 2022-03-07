@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
 {
@@ -27,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 Version = source.Version,
                 Option = source.Option,
                 CourseName = source.CourseName,
+                DeliveryModel = source.DeliveryModel ?? DeliveryModel.Normal,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,    

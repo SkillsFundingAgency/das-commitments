@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         public string UserId { get; set; }
         public long ProviderId { get; set; }
         public string CourseCode { get; set; }
+        public DeliveryModel? DeliveryModel { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

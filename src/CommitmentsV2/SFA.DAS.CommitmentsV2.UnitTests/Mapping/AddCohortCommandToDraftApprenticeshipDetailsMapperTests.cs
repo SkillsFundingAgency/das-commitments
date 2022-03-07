@@ -39,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.TrainingProgrammeStandard, draftApprenticeshipDetails.TrainingProgramme);
             Assert.AreEqual(fixture.TrainingProgrammeStandard.StandardUId, draftApprenticeshipDetails.StandardUId);
             Assert.AreEqual(fixture.TrainingProgrammeStandard.Version, draftApprenticeshipDetails.TrainingCourseVersion);
+            Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
         }
 
         [Test]
@@ -69,6 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
+            Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
         }
 
         [Test]
@@ -87,6 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
             Assert.AreEqual(null, draftApprenticeshipDetails.TrainingProgramme);
+            Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
         }
@@ -107,6 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
             Assert.AreEqual(fixture.TrainingProgrammeStandard, draftApprenticeshipDetails.TrainingProgramme);
+            Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
@@ -145,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                 .Create();
 
             Command = new AddCohortCommand(command.AccountId, command.AccountLegalEntityId, command.ProviderId,
-                courseCode, command.Cost, command.StartDate, command.EndDate, command.OriginatorReference,
+                courseCode, command.DeliveryModel, command.Cost, command.StartDate, command.EndDate, command.OriginatorReference,
                 command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
                 command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.UserInfo);
 
@@ -182,7 +186,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         private AddCohortCommand AddCohortCommandNoDate()
         {
             return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
-                Command.CourseCode, Command.Cost, null, null, Command.OriginatorReference, Command.ReservationId,
+                Command.CourseCode, Command.DeliveryModel, Command.Cost, null, null, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
                 Command.TransferSenderId, Command.PledgeApplicationId, Command.UserInfo);
         }
@@ -205,7 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var frameworkId = AutoFixture.Create<string>();
 
             return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
-                frameworkId, Command.Cost, Command.StartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
+                frameworkId, Command.DeliveryModel, Command.Cost, Command.StartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
                 Command.TransferSenderId, Command.PledgeApplicationId, Command.UserInfo);
         }

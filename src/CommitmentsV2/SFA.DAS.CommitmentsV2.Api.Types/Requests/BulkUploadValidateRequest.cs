@@ -1,0 +1,10 @@
+﻿using System.Collections.Generic;
+
+namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
+{
+    public class BulkUploadValidateApiRequest : SaveDataRequest
+    {
+        public long ProviderId { get; set; }
+        public IEnumerable<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; }
+    }
+}

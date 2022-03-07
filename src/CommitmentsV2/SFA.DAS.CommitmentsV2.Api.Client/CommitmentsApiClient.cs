@@ -392,6 +392,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson($"api/apprenticeships/details/resume", request, cancellationToken);
         }
 
+        public Task ResendApprenticeshipInvitation(long apprenticeshipId, SaveDataRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/resendinvitation", request, cancellationToken);
+        }
+
         public Task<GetAllTrainingProgrammesResponse> GetAllTrainingProgrammes(CancellationToken cancellationToken = default)
         {
             return _client.Get<GetAllTrainingProgrammesResponse>($"api/TrainingProgramme/all", null, cancellationToken);
@@ -502,10 +507,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{providerId}/commitmentagreements", null, cancellationToken);
         }
 
-
-        public Task BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken = default)
+        public Task<GetBulkUploadAddDraftApprenticeshipsResponse> BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken)
         {
-            return _client.PostAsJson($"api/{providerId}/bulkupload", request, cancellationToken);
+            return _client.PostAsJson<BulkUploadAddDraftApprenticeshipsRequest, GetBulkUploadAddDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload", request, cancellationToken);
         }
 
         public Task<GetApprenticeshipStatusSummaryResponse> GetEmployerAccountSummary(long accountId, CancellationToken cancellationToken = default)
@@ -516,6 +520,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<GetTransferRequestSummaryResponse> GetTransferRequests(long accountId, CancellationToken cancellationToken = default)
         {            
             return _client.Get<GetTransferRequestSummaryResponse>($"api/accounts/{accountId}/transfers", cancellationToken);
+        }
+
+        public Task<BulkUploadValidateApiResponse> ValidateBulkUploadRequest(long providerId, BulkUploadValidateApiRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<BulkUploadValidateApiRequest, BulkUploadValidateApiResponse>($"api/{providerId}/bulkupload/validate", request, cancellationToken);
         }
     }
 }

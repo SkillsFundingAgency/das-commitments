@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public long AccountLegalEntityId { get; }
         public long ProviderId { get; }
         public string CourseCode { get; }
+        public DeliveryModel? DeliveryModel { get; }
         public int? Cost { get; }
         public DateTime? StartDate { get; }
         public DateTime? EndDate { get; }
@@ -24,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public int? PledgeApplicationId { get; }
         public UserInfo UserInfo { get; }
 
-        public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode, int? cost, DateTime? startDate, DateTime? endDate, 
+        public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode, DeliveryModel? deliveryModel, int? cost, DateTime? startDate, DateTime? endDate, 
             string originatorReference, Guid? reservationId, string firstName, 
             string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId, int? pledgeApplicationId, UserInfo userInfo)
         {
@@ -32,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             AccountLegalEntityId = accountLegalEntityId;
             ProviderId = providerId;
             CourseCode = courseCode;
+            DeliveryModel = deliveryModel;
             Cost = cost;
             StartDate = startDate;
             EndDate = endDate;
