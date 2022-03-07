@@ -90,6 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public ProviderCommitmentsDbContext DbContext { get; set; }
         public List<DraftApprenticeshipDetails> DraftApprenticeshipDetails { get; set; }
         public Mock<IEncodingService> EncodingService { get; set; }
+        public Mock<IMediator> MediatorService { get; set; }
 
         public BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture()
         {
@@ -112,6 +113,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             ModelMapper.Setup(x => x.Map<List<DraftApprenticeshipDetails>>(It.IsAny<BulkUploadAddDraftApprenticeshipsCommand>())).ReturnsAsync(() => DraftApprenticeshipDetails);
             CohortDomainService.Setup(x => x.AddDraftApprenticeships(It.IsAny<List<DraftApprenticeshipDetails>>(), It.IsAny<List<BulkUploadAddDraftApprenticeshipRequest>>(), It.IsAny<long>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => DbContext.Cohorts.Include(x => x.Apprenticeships).Include(x => x.AccountLegalEntity).Select(x => x));
+
+            MediatorService = new Mock<IMediator>();
 
             Handler = new BulkUploadAddDraftApprenticeshipCommandHandler(Mock.Of<ILogger<BulkUploadAddDraftApprenticeshipCommandHandler>>(), ModelMapper.Object, CohortDomainService.Object, DbContext, EncodingService.Object, Mock.Of<IMediator>());
             CancellationToken = new CancellationToken();
