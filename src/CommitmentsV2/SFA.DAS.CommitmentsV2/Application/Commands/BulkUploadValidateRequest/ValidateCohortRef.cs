@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.ProviderRelationships.Types.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
@@ -14,7 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             var domainErrors = new List<Error>();
             if (string.IsNullOrEmpty(csvRecord.CohortRef))
             {
-                if (!HasPermissionToCreateCohort(csvRecord, providerId).Result)
+                var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(csvRecord, providerId);
+                if (!hasPermissionToCreateCohort)
                 {
                     domainErrors.Add(new Error("CohortRef", "The <b>employer must give you permission</b> to add apprentices on their behalf"));
                 }
@@ -63,11 +65,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
             if (employerDetails.LegalEntityId.HasValue && providerId != 0)
             {
+                _logger.LogDebug($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
                 var request = new HasPermissionRequest()
                 {
                     AccountLegalEntityId = employerDetails.LegalEntityId.Value,
                     Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
-                    Ukprn = csvRecord.ProviderId
+                    Ukprn = providerId
                 };
                 return await _providerRelationshipsApiClient.HasPermission(request);
             }
