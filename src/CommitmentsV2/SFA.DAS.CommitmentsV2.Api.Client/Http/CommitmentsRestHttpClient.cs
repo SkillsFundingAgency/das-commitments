@@ -62,7 +62,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
             }
 
             var errors = new CommitmentsApiBulkUploadModelException(JsonConvert.DeserializeObject<BulkUploadErrorResponse>(content).DomainErrors?.ToList());
-
             return errors;
         }
     }
