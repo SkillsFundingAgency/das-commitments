@@ -22,6 +22,8 @@ using SFA.DAS.Encoding;
 using Microsoft.EntityFrameworkCore;
 using System;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -75,6 +77,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             fixture.VerifyResponse(bulkUploadResponse);
         }
+
+        [Test]
+        public async Task VerifyExceptionThrownWhenValidationFails()
+        {
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
+            Assert.ThrowsAsync<BulkUploadDomainException>(() =>  fixture.WithData(1, "PPPP").WithValidationErrors().Handle());
+        }
     }
 
     public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture
@@ -115,8 +124,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .ReturnsAsync(() => DbContext.Cohorts.Include(x => x.Apprenticeships).Include(x => x.AccountLegalEntity).Select(x => x));
 
             MediatorService = new Mock<IMediator>();
-
-            Handler = new BulkUploadAddDraftApprenticeshipCommandHandler(Mock.Of<ILogger<BulkUploadAddDraftApprenticeshipCommandHandler>>(), ModelMapper.Object, CohortDomainService.Object, DbContext, EncodingService.Object, Mock.Of<IMediator>());
+            MediatorService.Setup(x => x.Send(It.IsAny<BulkUploadValidateCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => new BulkUploadValidateApiResponse { BulkUploadValidationErrors = new List<BulkUploadValidationError>() });
+            Handler = new BulkUploadAddDraftApprenticeshipCommandHandler(Mock.Of<ILogger<BulkUploadAddDraftApprenticeshipCommandHandler>>(), ModelMapper.Object, CohortDomainService.Object, DbContext, EncodingService.Object, MediatorService.Object);
             CancellationToken = new CancellationToken();
         }
 
@@ -200,6 +209,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual("COHORTREF", secondCohort.CohortReference);
             Assert.AreEqual("New Cohort legal entity", secondCohort.EmployerName);
             Assert.AreEqual(2, secondCohort.NumberOfApprenticeships);
+        }
+
+        internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithValidationErrors()
+        {
+            MediatorService.Setup(x => x.Send(It.IsAny<BulkUploadValidateCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => new BulkUploadValidateApiResponse
+            {
+                BulkUploadValidationErrors = new List<BulkUploadValidationError>()
+                {
+                    new BulkUploadValidationError(1, "PPPP", "12343343", "aappp aabbb", new List<Error>{ new Error("uln", "this is error")})
+                }
+            });
+            return this;
         }
     }
 }

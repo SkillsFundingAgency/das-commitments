@@ -73,9 +73,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
                     Ukprn = providerId
                 };
-                var result =  await _providerRelationshipsApiClient.HasPermission(request);
 
+                var result = await _providerRelationshipsApiClient.HasPermission(request);
                 _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
+                return result;
             }
 
             return true;
