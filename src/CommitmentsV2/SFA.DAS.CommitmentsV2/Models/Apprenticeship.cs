@@ -501,6 +501,16 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseOption = this.TrainingCourseOption
             };
 
+            // TODO Should this be limited to CoE
+            if (DeliveryModel == Types.DeliveryModel.PortableFlexiJob)
+            {
+                result.FlexibleEmployment = new FlexibleEmployment
+                {
+                    EmploymentPrice = changeOfPartyRequest.EmploymentPrice.Value,
+                    EmploymentEndDate = changeOfPartyRequest.EmploymentEndDate.Value
+                };
+            }
+
             return result;
         }
 

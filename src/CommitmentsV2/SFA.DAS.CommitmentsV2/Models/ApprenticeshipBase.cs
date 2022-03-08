@@ -52,5 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public bool IsContinuation => ContinuationOfId.HasValue;
         public virtual Apprenticeship PreviousApprenticeship { get; set; }
+
+        public FlexibleEmployment FlexibleEmployment { get; set; }
     }
 }
