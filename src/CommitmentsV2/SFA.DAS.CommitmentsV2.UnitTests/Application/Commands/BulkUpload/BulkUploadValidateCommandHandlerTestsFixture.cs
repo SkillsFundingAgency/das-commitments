@@ -29,13 +29,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse> Handler { get; set; }
         public Mock<IOverlapCheckService> OverlapCheckService { get; set; }
         public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; set; }
-        public Mock<IEmployerAgreementService> EmployerAgreementService { get; set; }
+        public Mock<IEmployerAgreementService> EmployerAgreementService { get; set; }        
         public List<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; }
         public BulkUploadValidateCommand Command { get; set; }
         public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; set; }
         public OverlapCheckResult OverlapCheckResult { get; set; }
         public EmailOverlapCheckResult EmailOverlapCheckResult { get; set; }
         public bool IsAgreementSigned { get; set; } = true;
+        public List<ApprenticeshipBase> apprenticeshipBase = new List<ApprenticeshipBase>();
 
         public BulkUploadValidateCommandHandlerTestsFixture()
         {
@@ -52,21 +53,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, CancellationToken.None))
                 .ReturnsAsync(() => OverlapCheckResult);
+            
+            var listUlnOverlap = new List<OverlapCheckResult>()
+            {
+                 new OverlapCheckResult(false, false)
+            };
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => listUlnOverlap);
 
             EmailOverlapCheckResult = new EmailOverlapCheckResult(1, OverlapStatus.None, false);
             OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, null, CancellationToken.None))
                 .ReturnsAsync(() => EmailOverlapCheckResult);
 
+            var listEmailOverlap = new List<EmailOverlapCheckResult>()
+            {
+                new EmailOverlapCheckResult (1, OverlapStatus.None, true)
+            };
+            OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(listEmailOverlap);
+
             AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
             AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(DateTime.Parse(CsvRecords[0].StartDateAsString));
 
             EmployerAgreementService = new Mock<IEmployerAgreementService>();
-            EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(() => IsAgreementSigned);
+            EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(() => IsAgreementSigned);            
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                                  .Options);
-            SetupDbData();
+             SetupDbData();            
 
             ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
             ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
@@ -75,14 +90,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 , OverlapCheckService.Object
                 , AcademicYearDateProvider.Object
                 , ProviderRelationshipsApiClient.Object
-                , EmployerAgreementService.Object
+                , EmployerAgreementService.Object                
                 );
         }
 
         private void SetupDbData()
         {
             var fixture = new Fixture();
-
             var account = new Account()
                 .Set(a => a.Name, "Employer1")
                 .Set(a => a.LevyStatus, ApprenticeshipEmployerType.Levy);
@@ -91,13 +105,41 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             .Set(al => al.PublicHashedId, "XEGE5X")
             .Set(al => al.Account, account);
 
+            apprenticeshipBase.Add(new DraftApprenticeship
+                (new DraftApprenticeshipDetails()
+                {   
+                    Id = 100,
+                    FirstName ="James", 
+                    LastName="Opus", 
+                    DateOfBirth= new DateTime(2001,05,09), 
+                    Cost=1000, Uln = "6591690154", 
+                    Email = "abc09@test.com", 
+                    StartDate = new DateTime(2021,10,1), 
+                    EndDate= new DateTime(2022,10,1) 
+                }, Party.Provider));
+
+
+            apprenticeshipBase.Add(new DraftApprenticeship
+                (new DraftApprenticeshipDetails()
+                { 
+                    Id = 101, 
+                    FirstName = "Ganga", 
+                    LastName="kas", 
+                    DateOfBirth = new DateTime(2002, 05, 09), 
+                    Cost = 1500, Uln = "6591690158", 
+                    Email="abc@test.com", 
+                    StartDate = new DateTime(2021, 10, 1), 
+                    EndDate = new DateTime(2022, 10, 1) 
+                }, Party.Provider));
+
             var Cohort = new Cohort()
             .Set(c => c.Id, 111)
             .Set(c => c.EmployerAccountId, 222)
             .Set(c => c.ProviderId, 333)
             .Set(c => c.Reference, "P97BKL")
             .Set(c => c.WithParty, Party.Provider)
-            .Set(c => c.AccountLegalEntity, ale);
+            .Set(c => c.AccountLegalEntity, ale)
+            .Set(c => c.Apprenticeships, apprenticeshipBase);
 
             var standard = new Standard()
                 .Set(x => x.LarsCode, 59)
@@ -105,11 +147,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 .Set(x => x.EffectiveFrom, new DateTime(2000, 1, 1))
                 .Set(x => x.EffectiveTo, new DateTime(2050, 1, 1));
 
-            Db.Cohorts.Add(Cohort);
-            Db.Standards.Add(standard);
+            Db.Cohorts.Add(Cohort);            
+            Db.Standards.Add(standard);            
             Db.SaveChanges();
-
-        }
+        }        
 
         internal async Task<Standard> GetStandard()
         {
@@ -155,7 +196,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 ProviderRef = "ZB88",
                 Email = "abc34628125987@abc2.com"
             });
-        }
+        }        
 
         internal void SetUpDuplicateEmail()
         {
@@ -164,7 +205,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 RowNumber = 2,
                 AgreementId = "XEGE5X",
                 CohortRef = "P97BKL",
-                Uln = "6591690158",
+                Uln = "6591690168",
                 LastName = "Smith2",
                 FirstName = "Mark2",
                 DateOfBirthAsString = "2002-01-02",
@@ -174,6 +215,46 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 CostAsString = "2000",
                 ProviderRef = "ZB88",
                 Email = "abc34628125987@abc.com"
+            });
+        }
+
+        internal void SetUpDuplicateUlnWithinTheSameCohort()
+        {
+            CsvRecords.Add(new BulkUploadAddDraftApprenticeshipRequest
+            {
+                RowNumber = 3,
+                AgreementId = "XEGE5X",
+                CohortRef = "P97BKL",
+                Uln = "6591690158",
+                LastName = "Smith3",
+                FirstName = "Mark3",
+                DateOfBirthAsString = "2002-01-02",
+                CourseCode = "59",
+                StartDateAsString = "2019-05-01",
+                EndDateAsString = "2020-05",
+                CostAsString = "2000",
+                ProviderRef = "ZB88",
+                Email = "abc34628125987@abc3.com"
+            });
+        }
+
+        internal void SetUpDuplicateEmailWithinTheSameCohort()
+        {
+            CsvRecords.Add(new BulkUploadAddDraftApprenticeshipRequest
+            {
+                RowNumber = 4,
+                AgreementId = "XEGE5X",
+                CohortRef = "P97BKL",
+                Uln = "6591690178",
+                LastName = "Smith4",
+                FirstName = "Mark4",
+                DateOfBirthAsString = "2002-01-02",
+                CourseCode = "59",
+                StartDateAsString = "2019-05-01",
+                EndDateAsString = "2020-05",
+                CostAsString = "2000",
+                ProviderRef = "ZB88",
+                Email = "abc@test.com"
             });
         }
 
@@ -323,6 +404,47 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             EmailOverlapCheckResult = new EmailOverlapCheckResult(1, status, true);
         }
 
+        internal void SetUpOverlappingUlnWithinTheSameCohort(bool startDate, bool endDate)
+        {
+            
+            var listUlnOverlap = new List<OverlapCheckResult>()
+            {
+                 new OverlapCheckResult(startDate, endDate)
+            };
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => listUlnOverlap);
+
+        }
+
+        internal void SetOverlappingEmailWithinTheSameCohort(OverlapStatus status)
+        {
+
+            var listEmailOverlap = new List<EmailOverlapCheckResult>()
+            {
+                new EmailOverlapCheckResult (1, status, true)
+            };
+            OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(listEmailOverlap);
+
+        }
+
+        internal void SetUpIncompleteRecord()
+        {
+            apprenticeshipBase.Add(
+                new DraftApprenticeship(new DraftApprenticeshipDetails()
+                {
+                    Id = 102,
+                    FirstName = "Roman",
+                    DateOfBirth = new DateTime(2003, 05, 09),
+                    Cost = 1500,
+                    Uln = "6571690158",
+                    Email = "abc7@test.com",
+                    StartDate = new DateTime(2021, 10, 1),
+                    EndDate = new DateTime(2022, 10, 1)
+                }, Party.Provider));
+        }
+
+
         internal void SetIsAgreementSigned(bool isAgreementSigned)
         {
             IsAgreementSigned = isAgreementSigned;
@@ -379,7 +501,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             cohort.ChangeOfPartyRequestId = request.Id;
             Db.SaveChanges();
             return this;
-        }
+        }        
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetEPAOrgId(string epaOrgId)
         {
