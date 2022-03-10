@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetTrainingProgram
             
             var actual = await handler.Handle(query, CancellationToken.None);
 
-            actual.TrainingProgramme.Should().BeEquivalentTo(result, opt => opt.Excluding(x => x.Options));
+            actual.TrainingProgramme.Should().BeEquivalentTo(result);
         }
         
         [Test, RecursiveMoqAutoData]
