@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public bool HasHadDataLockSuccess { get; set; }
             public string CourseCode { get; set; }
             public decimal? Cost { get; set; }
+            public int? PledgeApplicationId { get; set; }
         }
     }
 }

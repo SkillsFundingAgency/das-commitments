@@ -50,7 +50,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 TransferSenderId = source.Cohort.TransferSenderId,
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 CourseCode = source.CourseCode,
-                Cost = source.Cost
+                Cost = source.Cost,
+                PledgeApplicationId = source.Cohort.PledgeApplicationId
             });
         }
 
