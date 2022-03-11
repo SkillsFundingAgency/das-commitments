@@ -65,6 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                                                 cohort.DraftApprenticeships.Any(a =>
                                                 a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
                                                 a.StartDate == null || a.EndDate == null ||
+                                                a.CourseName == null ||
                                                 a.Cost == null ||
                                                 a.Uln == null ||
                                                 a.Email == null))                                            

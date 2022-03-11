@@ -36,7 +36,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public OverlapCheckResult OverlapCheckResult { get; set; }
         public EmailOverlapCheckResult EmailOverlapCheckResult { get; set; }
         public bool IsAgreementSigned { get; set; } = true;
-        public List<ApprenticeshipBase> apprenticeshipBase = new List<ApprenticeshipBase>();
+        public DraftApprenticeship DraftApprenticeship { get; private set; }
+        public Cohort Cohort { get; set; }
 
         public BulkUploadValidateCommandHandlerTestsFixture()
         {
@@ -104,48 +105,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var ale = new AccountLegalEntity()
             .Set(al => al.PublicHashedId, "XEGE5X")
             .Set(al => al.Account, account);
-
-            apprenticeshipBase.Add(new DraftApprenticeship
-                (new DraftApprenticeshipDetails()
-                {   
-                    Id = 100,
-                    FirstName ="James", 
-                    LastName="Opus", 
-                    DateOfBirth= new DateTime(2001,05,09), 
-                    Cost=1000, Uln = "6591690154", 
-                    Email = "abc09@test.com", 
-                    StartDate = new DateTime(2021,10,1), 
-                    EndDate= new DateTime(2022,10,1) 
-                }, Party.Provider));
-
-
-            apprenticeshipBase.Add(new DraftApprenticeship
-                (new DraftApprenticeshipDetails()
-                { 
-                    Id = 101, 
-                    FirstName = "Ganga", 
-                    LastName="kas", 
-                    DateOfBirth = new DateTime(2002, 05, 09), 
-                    Cost = 1500, Uln = "6591690158", 
-                    Email="abc@test.com", 
-                    StartDate = new DateTime(2021, 10, 1), 
-                    EndDate = new DateTime(2022, 10, 1) 
-                }, Party.Provider));
-
-            var Cohort = new Cohort()
+            
+            Cohort = new Cohort()
             .Set(c => c.Id, 111)
             .Set(c => c.EmployerAccountId, 222)
             .Set(c => c.ProviderId, 333)
             .Set(c => c.Reference, "P97BKL")
             .Set(c => c.WithParty, Party.Provider)
-            .Set(c => c.AccountLegalEntity, ale)
-            .Set(c => c.Apprenticeships, apprenticeshipBase);
+            .Set(c => c.AccountLegalEntity, ale);
 
             var standard = new Standard()
                 .Set(x => x.LarsCode, 59)
                 .Set(x => x.StandardUId, Guid.NewGuid().ToString())
                 .Set(x => x.EffectiveFrom, new DateTime(2000, 1, 1))
                 .Set(x => x.EffectiveTo, new DateTime(2050, 1, 1));
+
+            var draftApprenticeship = new DraftApprenticeship()
+               .Set(d => d.Id, 100)
+               .Set(d => d.FirstName, "James")
+               .Set(d => d.LastName, "Opus")
+               .Set(d => d.DateOfBirth, new DateTime(2001, 05, 09))
+               .Set(d => d.Cost, 1000)
+               .Set(d => d.Uln, "6591690154")
+               .Set(d => d.Email, "abc09@test.com")
+               .Set(d => d.StartDate, new DateTime(2021, 10, 1))
+               .Set(d => d.EndDate, new DateTime(2022, 10, 1))
+               .Set(d => d.CourseName, "coursename");
+            Cohort.Apprenticeships.Add(draftApprenticeship);
 
             Db.Cohorts.Add(Cohort);            
             Db.Standards.Add(standard);            
@@ -236,6 +222,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 ProviderRef = "ZB88",
                 Email = "abc34628125987@abc3.com"
             });
+
+            Cohort.Apprenticeships.Add(new DraftApprenticeship
+            {
+                Id = 101,
+                FirstName = "Ganga",
+                LastName = "John",
+                DateOfBirth = new DateTime(2002, 05, 09),
+                Cost = 1500,
+                Uln = "6591690158",
+                Email = "abc@test.com",
+                StartDate = new DateTime(2021, 10, 1),
+                EndDate = new DateTime(2022, 10, 1),
+                CourseName = "coursename"
+            });
         }
 
         internal void SetUpDuplicateEmailWithinTheSameCohort()
@@ -255,6 +255,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 CostAsString = "2000",
                 ProviderRef = "ZB88",
                 Email = "abc@test.com"
+            });
+
+            Cohort.Apprenticeships.Add(new DraftApprenticeship
+            {
+                Id = 101,
+                FirstName = "Patricia",
+                LastName = "John",
+                DateOfBirth = new DateTime(2002, 05, 09),
+                Cost = 1500,
+                Uln = "6591690158",
+                Email = "abc@test.com",
+                StartDate = new DateTime(2021, 10, 1),
+                EndDate = new DateTime(2022, 10, 1),
+                CourseName = "coursename"
             });
         }
 
@@ -429,19 +443,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         }
 
         internal void SetUpIncompleteRecord()
-        {
-            apprenticeshipBase.Add(
-                new DraftApprenticeship(new DraftApprenticeshipDetails()
-                {
-                    Id = 102,
-                    FirstName = "Roman",
-                    DateOfBirth = new DateTime(2003, 05, 09),
-                    Cost = 1500,
-                    Uln = "6571690158",
-                    Email = "abc7@test.com",
-                    StartDate = new DateTime(2021, 10, 1),
-                    EndDate = new DateTime(2022, 10, 1)
-                }, Party.Provider));
+        {           
+            DraftApprenticeship = new DraftApprenticeship
+            {
+                Id = 100,
+                FirstName = "James",
+                Cost = 1000,
+                Uln = "6591690154",
+                Email = "abc09@test.com",
+                StartDate = new DateTime(2021, 10, 1),
+                EndDate = new DateTime(2022, 10, 1),
+                CourseName = "coursename"
+            };
+
+            Cohort.Apprenticeships.Add(DraftApprenticeship);
         }
 
 

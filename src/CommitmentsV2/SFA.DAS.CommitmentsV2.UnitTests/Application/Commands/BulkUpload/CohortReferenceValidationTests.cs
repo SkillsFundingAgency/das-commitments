@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await fixture.Handle();
             //Assert
-            fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to P97BKL, as this cohort contains incomplete records. You need to <b>complete all details</b> before you can add into this cohort.");
+            fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {fixture.CsvRecords[0].CohortRef}, as this cohort contains incomplete records. You need to <b>complete all details</b> before you can add into this cohort.");
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Assert
             Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
             Assert.AreEqual(1, errors.BulkUploadValidationErrors[0].Errors.Count);
-            fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to P97BKL, as this cohort contains an overlapping training date. You need to <b>resolve any overlapping training date errors</b> before you can add into this cohort.");
+            fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {fixture.CsvRecords[0].CohortRef}, as this cohort contains an overlapping training date. You need to <b>resolve any overlapping training date errors</b> before you can add into this cohort.");
         }
 
         [Test]
@@ -146,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await fixture.Handle();
             //Assert
-            fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to P97BKL as it contains an overlapping email address. You need to <b>enter a unique email address</b> before you can add into this cohort.");
+            fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {fixture.CsvRecords[0].CohortRef} as it contains an overlapping email address. You need to <b>enter a unique email address</b> before you can add into this cohort.");
         }
     }
 }
