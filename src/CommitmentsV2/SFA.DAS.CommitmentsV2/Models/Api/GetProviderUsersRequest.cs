@@ -9,6 +9,6 @@
         {
             Ukprn = ukprn;
         }
-        public string GetUrl => $"api/account/{Ukprn}/users";
+        public string GetUrl => $"/providers/{Ukprn}/users";
     }
 }
