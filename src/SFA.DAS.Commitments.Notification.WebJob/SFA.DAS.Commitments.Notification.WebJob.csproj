@@ -58,6 +58,9 @@
     <Reference Include="Microsoft.Azure.KeyVault.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Azure.KeyVault.Core.2.0.4\lib\net45\Microsoft.Azure.KeyVault.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Azure.Services.AppAuthentication, Version=1.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Azure.Services.AppAuthentication.1.0.1\lib\net452\Microsoft.Azure.Services.AppAuthentication.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Azure.WebJobs, Version=1.1.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Azure.WebJobs.Core.1.1.2\lib\net45\Microsoft.Azure.WebJobs.dll</HintPath>
     </Reference>
@@ -96,8 +99,8 @@
     <Reference Include="Polly, Version=5.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.5.7.0\lib\net45\Polly.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Common.Domain, Version=1.4.272.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Common.Domain.1.4.272\lib\net462\SFA.DAS.Common.Domain.dll</HintPath>
+    <Reference Include="SFA.DAS.Common.Domain, Version=1.4.283.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Common.Domain.1.4.283\lib\net462\SFA.DAS.Common.Domain.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Configuration, Version=1.0.0.43116, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Configuration.1.0.0.43116\lib\net45\SFA.DAS.Configuration.dll</HintPath>
@@ -107,10 +110,10 @@
       <HintPath>..\packages\SFA.DAS.Configuration.AzureTableStorage.1.1.161\lib\net45\SFA.DAS.Configuration.AzureTableStorage.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.EAS.Account.Api.Client, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Account.Api.Client.1.6.1586\lib\net462\SFA.DAS.EAS.Account.Api.Client.dll</HintPath>
+      <HintPath>..\packages\SFA.DAS.Account.Api.Client.1.6.3100\lib\netstandard2.0\SFA.DAS.EAS.Account.Api.Client.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.EAS.Account.Api.Types, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Account.Api.Types.1.6.1586\lib\net462\SFA.DAS.EAS.Account.Api.Types.dll</HintPath>
+      <HintPath>..\packages\SFA.DAS.Account.Api.Types.1.6.3100\lib\netstandard2.0\SFA.DAS.EAS.Account.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Http, Version=1.2.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Http.1.2.4\lib\net45\SFA.DAS.Http.dll</HintPath>
@@ -200,7 +203,6 @@
     <Compile Include="Configuration\CommitmentNotificationConfiguration.cs" />
     <Compile Include="Configuration\PasAccountApiConfiguration.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
-    <Compile Include="DependencyResolution\FakeAccountApiClient.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
     <Compile Include="EmailServices\EmployerAlertSummaryEmailService.cs" />
     <Compile Include="EmailServices\IEmployerAlertSummaryEmailService.cs" />
@@ -259,7 +261,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\SlowCheetah.2.5.48\build\SlowCheetah.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SlowCheetah.2.5.48\build\SlowCheetah.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Azure.Services.AppAuthentication.1.0.1\build\Microsoft.Azure.Services.AppAuthentication.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Azure.Services.AppAuthentication.1.0.1\build\Microsoft.Azure.Services.AppAuthentication.targets'))" />
   </Target>
+  <Import Project="..\packages\Microsoft.Azure.Services.AppAuthentication.1.0.1\build\Microsoft.Azure.Services.AppAuthentication.targets" Condition="Exists('..\packages\Microsoft.Azure.Services.AppAuthentication.1.0.1\build\Microsoft.Azure.Services.AppAuthentication.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -94,8 +94,8 @@
     <Reference Include="Polly, Version=5.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.5.7.0\lib\net45\Polly.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Common.Domain, Version=1.4.272.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Common.Domain.1.4.272\lib\net462\SFA.DAS.Common.Domain.dll</HintPath>
+    <Reference Include="SFA.DAS.Common.Domain, Version=1.4.283.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Common.Domain.1.4.283\lib\net462\SFA.DAS.Common.Domain.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Configuration, Version=1.0.0.43116, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Configuration.1.0.0.43116\lib\net45\SFA.DAS.Configuration.dll</HintPath>
@@ -109,10 +109,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.EAS.Account.Api.Client, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Account.Api.Client.1.6.1586\lib\net462\SFA.DAS.EAS.Account.Api.Client.dll</HintPath>
+      <HintPath>..\packages\SFA.DAS.Account.Api.Client.1.6.3100\lib\netstandard2.0\SFA.DAS.EAS.Account.Api.Client.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.EAS.Account.Api.Types, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Account.Api.Types.1.6.1586\lib\net462\SFA.DAS.EAS.Account.Api.Types.dll</HintPath>
+      <HintPath>..\packages\SFA.DAS.Account.Api.Types.1.6.3100\lib\netstandard2.0\SFA.DAS.EAS.Account.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Client, Version=2.0.0.35796, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Client.2.0.0.35796\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
