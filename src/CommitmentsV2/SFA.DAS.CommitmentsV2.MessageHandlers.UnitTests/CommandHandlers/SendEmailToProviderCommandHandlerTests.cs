@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
-using SFA.DAS.PAS.Account.Api.ClientV2;
-using SFA.DAS.PAS.Account.Api.Types;
+using SFA.DAS.CommitmentsV2.Models.Api;
+using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.Notifications.Messages.Commands;
 using SFA.DAS.Testing.Fakes;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {
@@ -27,19 +28,48 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _fixture = new SendEmailToProviderCommandHandlerTestsFixture();
         }
 
-        [Test]
-        public async Task When_HandlingCommand_EmailIsSent()
+        [TestCase("test@test.com")]
+        public async Task When_HandlingCommand_AndAEmailIsSpecifiedAndUserAcceptsNotifications_OneEmailIsSent(string email)
         {
+            _fixture
+                .SetupCommandWithSpecificEmailAddress(email)
+                .AddToProviderUserList(email, true);
+
             await _fixture.Handle();
-            _fixture.VerifyEmailIsSent();
+
+            _fixture.VerifyCorrectMessageSendForSpecificEmail(email);
+        }
+
+        [TestCase("test@test.com")]
+        public async Task When_HandlingCommand_AndAEmailIsSpecifiedAndNoUserIsFoundInEmployeeList_NoEmailIsSent(string email)
+        {
+            _fixture
+                .SetupCommandWithSpecificEmailAddress(email);
+
+            await _fixture.Handle();
+            _fixture.VerifyNoMessagesSent();
         }
 
         [Test]
-        public async Task When_HandlingCommand_EmailIsSentToExplicitAddressIfSpecified()
+        public async Task When_HandlingCommand_AndNoUserFound_NoEmailsAreSent()
         {
-            _fixture.SetExplicitEmailAddress();
+            _fixture.SetupCommandWithoutEmailAddress();
             await _fixture.Handle();
-            _fixture.VerifyEmailIsSentToExplicitAddress();
+            _fixture.VerifyNoMessagesSent();
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        public async Task When_HandlingCommand_AndTheOnlyUserNotificationsOnHasAEmptyEmail(string email)
+        {
+            _fixture
+                .SetupCommandWithoutEmailAddress()
+                .SetupCommandWithSpecificEmailAddress(email);
+
+            await _fixture.Handle();
+            _fixture.VerifyNoMessagesSent();
+            _fixture.VerifyHasWarning();
         }
 
         [Test]
@@ -49,18 +79,31 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _fixture.VerifyHasError();
         }
 
+        [Test]
+        public async Task When_HandlingCommand_AndAllUsersHaveNotificationsOn_EmailsAreSentForOwnersAndTransactors()
+        {
+            _fixture
+                .SetupCommandWithoutEmailAddress()
+                .AddToProviderUserList();
+
+            await _fixture.Handle();
+            _fixture.VerifyMessageAreSent();
+        }
+
         private class SendEmailToProviderCommandHandlerTestsFixture
         {
             public SendEmailToProviderCommandHandler Handler;
             public SendEmailToProviderCommand Command;
-            public Mock<IPasAccountApiClient> PasAccountApiClient;
-            public Mock<IMessageHandlerContext> MessageHandlerContext;
+            public Mock<IApprovalsOuterApiClient> ApprovalsOuterApiClient;
             public FakeLogger<SendEmailToProviderCommandHandler> Logger;
+            public Mock<IMessageHandlerContext> MessageHandlerContext;
+            public Mock<IPipelineContext> PipelineContext;
 
             public long ProviderId;
             public string TemplateId;
-            public string ExplicitEmailAddress;
+            public string ReplyTo;
             public Dictionary<string, string> Tokens;
+            public ProvidersUsersResponse ProvidersUser;
 
             private Fixture _autoFixture;
 
@@ -69,24 +112,31 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _autoFixture = new Fixture();
                 ProviderId = _autoFixture.Create<long>();
                 TemplateId = _autoFixture.Create<string>();
-                ExplicitEmailAddress = _autoFixture.Create<string>();
+                ReplyTo = _autoFixture.Create<string>();
                 Tokens = _autoFixture.Create<Dictionary<string, string>>();
+                ProvidersUser = _autoFixture.Create<ProvidersUsersResponse>();
+                ProvidersUser.Users = new List<GetProviderUsersListItem>();
 
-                Command = new SendEmailToProviderCommand(ProviderId, TemplateId, Tokens, null);
-
-                MessageHandlerContext = new Mock<IMessageHandlerContext>();
                 Logger = new FakeLogger<SendEmailToProviderCommandHandler>();
+                MessageHandlerContext = new Mock<IMessageHandlerContext>();
+                PipelineContext = MessageHandlerContext.As<IPipelineContext>();
+                ApprovalsOuterApiClient = new Mock<IApprovalsOuterApiClient>();
+                ApprovalsOuterApiClient
+                    .Setup(x => x.Get<ProvidersUsersResponse>(It.IsAny<GetProviderUsersRequest>()))
+                    .ReturnsAsync(ProvidersUser);
 
-                PasAccountApiClient = new Mock<IPasAccountApiClient>();
-                PasAccountApiClient.Setup(x => x.SendEmailToAllProviderRecipients(It.IsAny<long>(),
-                    It.IsAny<ProviderEmailRequest>(), It.IsAny<CancellationToken>()));
-
-                Handler = new SendEmailToProviderCommandHandler(PasAccountApiClient.Object, Logger);
+                Handler = new SendEmailToProviderCommandHandler(ApprovalsOuterApiClient.Object, Logger);
             }
 
-            public SendEmailToProviderCommandHandlerTestsFixture SetExplicitEmailAddress()
+            public SendEmailToProviderCommandHandlerTestsFixture SetupCommandWithoutEmailAddress()
             {
-                Command = new SendEmailToProviderCommand(ProviderId, TemplateId, Tokens, ExplicitEmailAddress);
+                Command = new SendEmailToProviderCommand(ProviderId, TemplateId, Tokens);
+                return this;
+            }
+
+            public SendEmailToProviderCommandHandlerTestsFixture SetupCommandWithSpecificEmailAddress(string email)
+            {
+                Command = new SendEmailToProviderCommand(ProviderId, TemplateId, Tokens, email);
                 return this;
             }
 
@@ -96,31 +146,72 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 return this;
             }
 
+            public SendEmailToProviderCommandHandlerTestsFixture AddToProviderUserList()
+            {
+                var users = new List<GetProviderUsersListItem>
+                {
+                    new GetProviderUsersListItem { ReceiveNotifications = true, EmailAddress = "owner@test.com" },
+                    new GetProviderUsersListItem { ReceiveNotifications = true, EmailAddress = "transactor@test.com" },
+                    new GetProviderUsersListItem { ReceiveNotifications = true, EmailAddress = "viewer@test.com" }
+                };
+
+                ProvidersUser.Users = users;
+
+                return this;
+            }
+
+            public SendEmailToProviderCommandHandlerTestsFixture AddToProviderUserList(string email, bool acceptNotifications)
+            {
+                var users = new List<GetProviderUsersListItem>
+                {
+                    new GetProviderUsersListItem { ReceiveNotifications = acceptNotifications, EmailAddress = email }
+                };
+                ProvidersUser.Users = users;
+                return this;
+            }
+
+            public SendEmailToProviderCommandHandlerTestsFixture TurnEmployeeNotificationsOff()
+            {
+                foreach (var user in ProvidersUser.Users)
+                {
+                    user.ReceiveNotifications = false;
+                }
+                return this;
+            }
+
             public async Task Handle()
             {
                 await Handler.Handle(Command, MessageHandlerContext.Object);
             }
 
-            public void VerifyEmailIsSent()
+            public void VerifyCorrectMessageSendForSpecificEmail(string email)
             {
-                PasAccountApiClient.Verify(x=> x.SendEmailToAllProviderRecipients(It.Is<long>(p => p == ProviderId),
-                    It.Is<ProviderEmailRequest>(r =>
-                        !r.ExplicitEmailAddresses.Any() && r.TemplateId == TemplateId && r.Tokens == Tokens),
-                    It.IsAny<CancellationToken>()));
+                PipelineContext.Verify(x =>
+                       x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress == email && c.Tokens == Tokens && c.TemplateId == TemplateId),
+                        It.IsAny<SendOptions>()), Times.Once);
             }
 
-            public void VerifyEmailIsSentToExplicitAddress()
+            public void VerifyNoMessagesSent()
             {
-                PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(It.Is<long>(p => p == ProviderId),
-                    It.Is<ProviderEmailRequest>(r =>
-                        r.ExplicitEmailAddresses.Single() == ExplicitEmailAddress
-                        && r.TemplateId == TemplateId && r.Tokens == Tokens),
-                    It.IsAny<CancellationToken>()));
+                PipelineContext.Verify(x => x.Publish(It.IsAny<SendEmailCommand>(), It.IsAny<PublishOptions>()), Times.Never);
+            }
+
+            public void VerifyMessageAreSent()
+            {
+                PipelineContext.Verify(x => x.Send(It.IsAny<SendEmailCommand>(), It.IsAny<SendOptions>()), Times.Exactly(3));
+                PipelineContext.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress == "owner@test.com"), It.IsAny<SendOptions>()), Times.Once);
+                PipelineContext.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress == "transactor@test.com"), It.IsAny<SendOptions>()), Times.Once);
+                PipelineContext.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress == "viewer@test.com"), It.IsAny<SendOptions>()), Times.Once);
             }
 
             public void VerifyHasError()
             {
                 Assert.IsTrue(Logger.HasErrors);
+            }
+
+            public void VerifyHasWarning()
+            {
+                Assert.IsTrue(Logger.HasWarnings);
             }
         }
     }
