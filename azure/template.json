@@ -134,6 +134,9 @@
         },
         "subnetDelegations": {
             "type": "array"
+        },
+        "deploySupportApp": {
+            "type": "bool"
         }
     },
     "variables": {
@@ -707,6 +710,7 @@
             }
         },
         {
+            "condition": "[parameters('deploySupportApp')]",
             "apiVersion": "2020-06-01",
             "name": "support-app-insights",
             "resourceGroup": "[variables('resourceGroupName')]",
@@ -728,7 +732,7 @@
             }
         },
         {
-            "condition": "[greater(length(parameters('supportCustomHostName')), 0)]",
+            "condition": "[and(greater(length(parameters('supportCustomHostName')), 0), parameters('deploySupportApp'))]",
             "apiVersion": "2020-06-01",
             "name": "support-app-service-certificate",
             "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
@@ -753,6 +757,7 @@
             }
         },
         {
+            "condition": "[parameters('deploySupportApp')]",
             "apiVersion": "2020-06-01",
             "name": "support-app-service",
             "resourceGroup": "[variables('resourceGroupName')]",
