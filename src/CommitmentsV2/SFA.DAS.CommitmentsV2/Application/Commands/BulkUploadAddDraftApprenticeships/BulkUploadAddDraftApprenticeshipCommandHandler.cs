@@ -3,99 +3,76 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships
 {
-    public class BulkUploadAddDraftApprenticeshipCommandHandler : IRequestHandler<BulkUploadAddDraftApprenticeshipsCommand, GetBulkUploadAddDraftApprenticeshipsResponse>    
+    public class BulkUploadAddDraftApprenticeshipCommandHandler : IRequestHandler<BulkUploadAddDraftApprenticeshipsCommand, GetBulkUploadAddDraftApprenticeshipsResponse>
     {
         private readonly ILogger<BulkUploadAddDraftApprenticeshipCommandHandler> _logger;
         private readonly IModelMapper _modelMapper;
         private readonly ICohortDomainService _cohortDomainService;
-        private readonly IMediator _mediator;
-        private readonly IProviderCommitmentsDbContext _providerDbContext;
-        private readonly Dictionary<long, long> _employerAccountEmptycohortIds;
+        private readonly ProviderCommitmentsDbContext _providerDbContext;
+        private readonly IEncodingService _encodingService;
 
         public BulkUploadAddDraftApprenticeshipCommandHandler(
             ILogger<BulkUploadAddDraftApprenticeshipCommandHandler> logger,
             IModelMapper draftApprenticeshipDetailsMapper,
             ICohortDomainService cohortDomainService,
-            IMediator mediator,
-            IProviderCommitmentsDbContext providerCommitmentsDbContext)
+            ProviderCommitmentsDbContext providerCommitmentsDbContext,
+            IEncodingService encodingService)
         {
             _logger = logger;
             _modelMapper = draftApprenticeshipDetailsMapper;
             _cohortDomainService = cohortDomainService;
-            _mediator = mediator;
             _providerDbContext = providerCommitmentsDbContext;
-            _employerAccountEmptycohortIds = new Dictionary<long, long>();
+            _encodingService = encodingService;
         }
 
         public async Task<GetBulkUploadAddDraftApprenticeshipsResponse> Handle(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
-            await Validate(request);
-
-            var draftApprenticeshipsResponse = new List<BulkUploadAddDraftApprenticeshipsResponse>();
             var draftApprenticeships = await _modelMapper.Map<List<DraftApprenticeshipDetails>>(request);
-            foreach (var draftApprenticeship in draftApprenticeships)
+            var cohorts = await _cohortDomainService.AddDraftApprenticeships(draftApprenticeships,
+                request.BulkUploadDraftApprenticeships,
+                request.ProviderId,
+                request.UserInfo,
+                cancellationToken);
+
+            await _providerDbContext.SaveChangesAsync();
+
+            await UpdateCohortReferences(cohorts);
+
+            var cohortSummaryForBulkUpload = cohorts.Select(cohort => new BulkUploadAddDraftApprenticeshipsResponse
             {
-                var cohortId = await GetCohortId(request.BulkUploadDraftApprenticeships.First(x => x.Uln == draftApprenticeship.Uln), request.UserInfo, cancellationToken);
-                var result = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, cohortId, draftApprenticeship, request.UserInfo, cancellationToken);
+                CohortReference = cohort.Reference,
+                NumberOfApprenticeships = cohort.Apprenticeships.Count(),
+                EmployerName = cohort.AccountLegalEntity.Name
+            });
 
-                _logger.LogInformation($"Bulk upload - Added draft apprenticeship. Reservation-Id:{draftApprenticeship.ReservationId} Commitment-Id:{cohortId}");
-            }
-
-            var cohortIds = request.BulkUploadDraftApprenticeships
-                .Where(x => x.CohortId != null)
-                .Select(x => x.CohortId.Value)
-                .Union(_employerAccountEmptycohortIds.Values)
-                .Distinct();
-            
-            foreach (var cohortId in cohortIds)
-            {
-                var cohort = await _cohortDomainService.GetCohortDetails(cohortId, cancellationToken);
-                draftApprenticeshipsResponse.Add(cohort);
-            }
-
-            return new GetBulkUploadAddDraftApprenticeshipsResponse { BulkUploadAddDraftApprenticeshipsResponse = draftApprenticeshipsResponse };
+            return new GetBulkUploadAddDraftApprenticeshipsResponse { BulkUploadAddDraftApprenticeshipsResponse = cohortSummaryForBulkUpload };
         }
 
-        private async Task Validate(BulkUploadAddDraftApprenticeshipsCommand request)
+        private async Task UpdateCohortReferences(IEnumerable<Cohort> cohorts)
         {
-            await _mediator.Send(new BulkUploadValidateCommand { ProviderId = request.ProviderId, CsvRecords = request.BulkUploadDraftApprenticeships });
-        }
-
-        private async Task<long> GetCohortId(BulkUploadAddDraftApprenticeshipRequest bulkUploadAddDraftApprenticeshipRequest, UserInfo user, CancellationToken cancellation)
-        {
-            if (bulkUploadAddDraftApprenticeshipRequest.CohortId.HasValue)
+            bool anyNewCohorts = false;
+            foreach (var cohort in cohorts.Where(x => string.IsNullOrWhiteSpace(x.Reference)))
             {
-                return bulkUploadAddDraftApprenticeshipRequest.CohortId.Value;
+                cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
+                anyNewCohorts = true;
             }
-            else if (_employerAccountEmptycohortIds.ContainsKey(bulkUploadAddDraftApprenticeshipRequest.LegalEntityId.Value))
-            {
-                return _employerAccountEmptycohortIds.GetValueOrDefault(bulkUploadAddDraftApprenticeshipRequest.LegalEntityId.Value);
-            }
-            else
-            {
-                var accountLegalEntity = _providerDbContext.AccountLegalEntities
-                  .Include(x => x.Account)
-                  .Where(x => x.Id == bulkUploadAddDraftApprenticeshipRequest.LegalEntityId).First();
 
-                var cohort = await _cohortDomainService.CreateEmptyCohort(bulkUploadAddDraftApprenticeshipRequest.ProviderId, accountLegalEntity.Account.Id, accountLegalEntity.Id, user, cancellation);
-
-                _employerAccountEmptycohortIds.Add(bulkUploadAddDraftApprenticeshipRequest.LegalEntityId.Value, cohort.Id);
-                return cohort.Id;
+            if (anyNewCohorts)
+            {
+                // Another save for cohort references
+                await _providerDbContext.SaveChangesAsync();
             }
         }
-
     }
 }

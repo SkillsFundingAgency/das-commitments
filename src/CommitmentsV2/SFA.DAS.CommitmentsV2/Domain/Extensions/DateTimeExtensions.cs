@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Extensions
@@ -31,14 +30,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         public static bool IsSameMonthAndYear(this DateTime self, DateTime value)
         {
             return self.Month == value.Month && self.Year == value.Year;
-        }
-
-        public static DateTime? GetDate(this string date, string format)
-        {
-            if (!string.IsNullOrWhiteSpace(date) &&
-                DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime outDateTime))
-                return outDateTime;
-            return null;
         }
     }
 }
