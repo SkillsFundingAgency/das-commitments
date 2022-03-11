@@ -96,7 +96,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 Reference = reference,
                 Id = ApprenticeshipId,
                 FirstName = "AFirstName",
-                LastName = "ALastName"
+                LastName = "ALastName",
+                DeliveryModel = DeliveryModel.Normal
             };
 
             if (hasOptions)

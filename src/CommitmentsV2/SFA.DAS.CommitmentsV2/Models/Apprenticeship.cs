@@ -107,7 +107,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StandardUId = StandardUId,
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
-                Uln = Uln
+                Uln = Uln,
+                DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Normal,
             });
         }
 
@@ -317,6 +318,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                     });
             }
 
+            if (update.DeliveryModel.HasValue)
+            {
+                DeliveryModel = update.DeliveryModel;
+            }
+
             if (update.TrainingType.HasValue)
             {
                 ProgrammeType = update.TrainingType;
@@ -478,6 +484,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StartDate = changeOfPartyRequest.StartDate,
                 EndDate = changeOfPartyRequest.EndDate,
                 Uln = this.Uln,
+                DeliveryModel = this.DeliveryModel,
                 CourseCode = this.CourseCode,
                 CourseName = this.CourseName,
                 ProgrammeType = this.ProgrammeType,
@@ -532,7 +539,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StandardUId = StandardUId,
                 TrainingCourseVersion = TrainingCourseVersion,
                 TrainingCourseOption = TrainingCourseOption,
-                Uln = Uln
+                Uln = Uln,
+                DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Normal,
             });
         }
 

@@ -10,23 +10,23 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private List<Error> ValidateStartDate(CsvRecord csvRecord)
+        private List<Error> ValidateStartDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             var domainErrors = new List<Error>();
 
-            if (string.IsNullOrEmpty(csvRecord.StartDate))
+            if (string.IsNullOrEmpty(csvRecord.StartDateAsString))
             {
                 domainErrors.Add(new Error("StartDate", "Enter the <b>start date</b> using the format yyyy-mm-dd, for example 2017-09-01"));
                 return domainErrors;
             }
-            else if (!Regex.IsMatch(csvRecord.StartDate, "^\\d\\d\\d\\d-\\d\\d-\\d\\d$"))
+            else if (!Regex.IsMatch(csvRecord.StartDateAsString, "^\\d\\d\\d\\d-\\d\\d-\\d\\d$"))
             {
                 domainErrors.Add(new Error("StartDate", "Enter the <b>start date</b> using the format yyyy-mm-dd, for example 2017-09-01"));
                 return domainErrors;
             }
             else
             {
-                var startDate = GetValidDate(csvRecord.StartDate, "yyyy-MM-dd");
+                var startDate = csvRecord.StartDate;
                 if (startDate != null)
                 {
                     if (IsBeforeMay2017(startDate.Value))
@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                         domainErrors.Add(new Error("StartDate", "The <b>start date</b> must be no later than one year after the end of the current teaching year"));
                     }
 
-                    var standard = GetStandardDetails(csvRecord.StdCode);
+                    var standard = GetStandardDetails(csvRecord.CourseCode);
                     if (standard != null)
                     {
                         if (standard.EffectiveFrom.HasValue &&
@@ -67,17 +67,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return domainErrors;
         }
 
-        private bool IsBeforeMay2017(DateTime startDate)
+        private bool IsBeforeMay2017(DateTime StartDateAsString)
         {
-            return startDate < Constants.DasStartDate;
+            return StartDateAsString < Constants.DasStartDate;
         }
 
-        private bool IsBeforeMay2018AndIsCohortIsTransferFunded(DateTime startDate, string cohortRef)
+        private bool IsBeforeMay2018AndIsCohortIsTransferFunded(DateTime StartDateAsString, string cohortRef)
         {
             var cohortDetails = GetCohortDetails(cohortRef);
             if (cohortDetails != null)
             {
-                return cohortDetails.TransferSenderId.HasValue && startDate < Constants.TransferFeatureStartDate;
+                return cohortDetails.TransferSenderId.HasValue && StartDateAsString < Constants.TransferFeatureStartDate;
             }
 
             return false;

@@ -22,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string Version { get; set; }
         public string Option { get; set; }
         public string CourseName { get; set; }
+        public DeliveryModel DeliveryModel { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime DateOfBirth { get; set; }        
@@ -45,5 +46,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public ConfirmationStatus? ConfirmationStatus { get; set; }
         public bool EmailAddressConfirmedByApprentice { get; set; }
         public bool EmailShouldBePresent { get; set; }
+        public int? PledgeApplicationId { get; set; }
     }
 }

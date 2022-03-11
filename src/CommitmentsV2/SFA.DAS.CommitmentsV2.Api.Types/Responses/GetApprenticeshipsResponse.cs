@@ -23,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public string ProviderName { get; set; }
             public long ProviderId { get; set; }
             public string CourseName { get; set; }
+            public DeliveryModel DeliveryModel { get; set; }
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
             public DateTime PauseDate { get; set; }
@@ -40,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public bool HasHadDataLockSuccess { get; set; }
             public string CourseCode { get; set; }
             public decimal? Cost { get; set; }
+            public int? PledgeApplicationId { get; set; }
         }
     }
 }

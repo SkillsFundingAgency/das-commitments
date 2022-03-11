@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
@@ -107,6 +108,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         public Task Map_Uln_ShouldBeSet()
         {
             return AssertPropertySet(from => from.Uln, "1234567890");
+        }
+
+        [TestCase(DeliveryModel.Normal)]
+        [TestCase(DeliveryModel.Flexible)]
+        public Task Map_DeliveryModel_ShouldBeSet(DeliveryModel dm)
+        {
+            return AssertPropertySet(from => from.DeliveryModel, dm);
         }
     }
 }

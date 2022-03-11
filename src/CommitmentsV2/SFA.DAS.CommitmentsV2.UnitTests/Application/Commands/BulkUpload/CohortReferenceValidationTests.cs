@@ -7,14 +7,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
     [Parallelizable]
     public class CohortReferenceValidationTests
     {
-        [Test]
-        public async Task Validate_IsNotEmpty()
-        {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetCohortRef("");
-            var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "CohortRef", "<b>Cohort Ref</b> must be entered");
-        }
 
         [Test]
         public async Task Validate_IsAValidCohort()
@@ -68,6 +60,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetChangeOfParty();
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "CohortRef", "You cannot add apprentices to this cohort. You need to <b>add this learner to a different or new cohort.</b>");
+        }
+
+        [Test]
+        public async Task Validate_When_Provider_Has_No_Permission_Create_Cohort_On_Employer_Behalf()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetCohortRef("").SetProviderHasPermissionToCreateCohort(false);
+
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "CohortRef", "The <b>employer must give you permission</b> to add apprentices on their behalf");
         }
     }
 }
