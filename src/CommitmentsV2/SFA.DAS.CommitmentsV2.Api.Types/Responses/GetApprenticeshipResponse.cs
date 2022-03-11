@@ -46,5 +46,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public ConfirmationStatus? ConfirmationStatus { get; set; }
         public bool EmailAddressConfirmedByApprentice { get; set; }
         public bool EmailShouldBePresent { get; set; }
+        public int? PledgeApplicationId { get; set; }
     }
 }

@@ -49,7 +49,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 MadeRedundant = source.MadeRedundant,
                 ConfirmationStatus = source.ConfirmationStatus,
                 EmailAddressConfirmedByApprentice = source.EmailAddressConfirmedByApprentice,
-                EmailShouldBePresent = source.EmailShouldBePresent
+                EmailShouldBePresent = source.EmailShouldBePresent,
+                PledgeApplicationId = source.PledgeApplicationId
             });
         }
     }

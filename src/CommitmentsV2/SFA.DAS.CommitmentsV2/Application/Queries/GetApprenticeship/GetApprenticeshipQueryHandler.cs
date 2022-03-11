@@ -70,7 +70,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         ConfirmationStatus = apprenticeship.DisplayConfirmationStatus(
                             apprenticeship.Email,
                             apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn : null,
-                            apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn : null)
+                            apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn : null),
+                        PledgeApplicationId = apprenticeship.Cohort.PledgeApplicationId
                     },
                     cancellationToken);
 
