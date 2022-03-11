@@ -18,13 +18,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IFundingCapService _fundingCapService;
         private readonly ILogger<AddTransferRequestCommandHandler> _logger;
-        private readonly IApiClient _apiClient;
+        private readonly IApprovalsOuterApiClient _apiClient;
 
         public AddTransferRequestCommandHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IFundingCapService fundingCapService,
             ILogger<AddTransferRequestCommandHandler> logger,
-            IApiClient apiClient)
+            IApprovalsOuterApiClient apiClient)
         {
             _dbContext = dbContext;
             _fundingCapService = fundingCapService;

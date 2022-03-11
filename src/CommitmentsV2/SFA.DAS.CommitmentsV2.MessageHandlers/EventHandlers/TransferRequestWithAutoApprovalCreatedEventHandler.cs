@@ -15,10 +15,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
     public class TransferRequestWithAutoApprovalCreatedEventHandler : IHandleMessages<TransferRequestWithAutoApprovalCreatedEvent>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IApiClient _apiClient;
+        private readonly IApprovalsOuterApiClient _apiClient;
         private readonly ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> _logger;
 
-        public TransferRequestWithAutoApprovalCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> logger, IApiClient apiClient)
+        public TransferRequestWithAutoApprovalCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<TransferRequestWithAutoApprovalCreatedEventHandler> logger, IApprovalsOuterApiClient apiClient)
         {
             _dbContext = dbContext;
             _logger = logger;

@@ -10,13 +10,13 @@ using SFA.DAS.CommitmentsV2.Models.Api;
 
 namespace SFA.DAS.CommitmentsV2.Infrastructure
 {
-    public class ApiClient : IApiClient
+    public class ApprovalsOuterApiClient : IApprovalsOuterApiClient
     {
         private readonly HttpClient _httpClient;
         private readonly ApprovalsOuterApiConfiguration _config;
-        private readonly ILogger<ApiClient> _logger;
+        private readonly ILogger<ApprovalsOuterApiClient> _logger;
 
-        public ApiClient (HttpClient httpClient, ApprovalsOuterApiConfiguration config, ILogger<ApiClient> logger)
+        public ApprovalsOuterApiClient (HttpClient httpClient, ApprovalsOuterApiConfiguration config, ILogger<ApprovalsOuterApiClient> logger)
         {
             _config = config;
             _logger = logger;

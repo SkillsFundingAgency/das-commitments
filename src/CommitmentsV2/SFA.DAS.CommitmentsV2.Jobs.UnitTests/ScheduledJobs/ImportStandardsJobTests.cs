@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             StandardSummary approvedStandard,
             StandardSummary retiredStandard,
             IEnumerable<StandardSummary> invalidStatusStandards,
-            [Frozen] Mock<IApiClient> apiClient,
+            [Frozen] Mock<IApprovalsOuterApiClient> apiClient,
             [Frozen] Mock<IProviderCommitmentsDbContext> context,
             ImportStandardsJob importStandardsJob
             )
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         public async Task Then_The_StandardsFunding_Items_Are_Imported_From_The_Client(
             StandardResponse apiResponse,
             IEnumerable<StandardSummary> invalidStatusStandards,
-            [Frozen] Mock<IApiClient> apiClient,
+            [Frozen] Mock<IApprovalsOuterApiClient> apiClient,
             [Frozen] Mock<IProviderCommitmentsDbContext> context,
             ImportStandardsJob importStandardsJob
         )
@@ -158,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         public async Task Then_The_StandardOptions_Items_Are_Imported_From_The_Client(
             StandardResponse apiResponse,
             IEnumerable<StandardSummary> invalidStatusStandards,
-            [Frozen] Mock<IApiClient> apiClient,
+            [Frozen] Mock<IApprovalsOuterApiClient> apiClient,
             [Frozen] Mock<IProviderCommitmentsDbContext> context,
             ImportStandardsJob importStandardsJob
 )

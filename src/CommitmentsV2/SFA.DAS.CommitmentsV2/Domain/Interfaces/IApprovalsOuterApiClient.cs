@@ -4,7 +4,7 @@ using SFA.DAS.CommitmentsV2.Models.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {
-    public interface IApiClient
+    public interface IApprovalsOuterApiClient
     {
         Task<TResponse> Get<TResponse>(IGetApiRequest request);
     }

@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public TransferRequest TransferRequest { get; private set; }
             public PledgeApplication PledgeApplication { get; private set; }
             public int PledgeApplicationId { get; private set; }
-            public Mock<IApiClient> LevyTransferMatchingApiClient { get; private set; }
+            public Mock<IApprovalsOuterApiClient> LevyTransferMatchingApiClient { get; private set; }
             public ProviderCommitmentsDbContext Db { get; set; }
             public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
@@ -68,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 PledgeApplicationId = Fixture.Create<int>();
                 _event = new TransferRequestWithAutoApprovalCreatedEvent(1, PledgeApplicationId, DateTime.UtcNow);
                 PledgeApplication = new PledgeApplication();
-                LevyTransferMatchingApiClient = new Mock<IApiClient>();
+                LevyTransferMatchingApiClient = new Mock<IApprovalsOuterApiClient>();
                 LevyTransferMatchingApiClient.Setup(x => x.Get<PledgeApplication>(It.IsAny<GetPledgeApplicationRequest>())).ReturnsAsync(PledgeApplication);
 
                 _handler = new TransferRequestWithAutoApprovalCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),

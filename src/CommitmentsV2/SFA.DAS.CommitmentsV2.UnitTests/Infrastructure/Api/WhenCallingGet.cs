@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
             };
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, config, Mock.Of<ILogger<ApiClient>>());
+            var apiClient = new ApprovalsOuterApiClient(client, config, Mock.Of<ILogger<ApprovalsOuterApiClient>>());
 
             //Act
             var actual = await apiClient.Get<List<string>>(getTestRequest);
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
             
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, config, Mock.Of<ILogger<ApiClient>>());
+            var apiClient = new ApprovalsOuterApiClient(client, config, Mock.Of<ILogger<ApprovalsOuterApiClient>>());
             
             //Act Assert
             Assert.ThrowsAsync<HttpRequestException>(() => apiClient.Get<List<string>>(getTestRequest));
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
             
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, config, Mock.Of<ILogger<ApiClient>>());
+            var apiClient = new ApprovalsOuterApiClient(client, config, Mock.Of<ILogger<ApprovalsOuterApiClient>>());
             
             //Act Assert
             var actual = await apiClient.Get<List<string>>(getTestRequest);

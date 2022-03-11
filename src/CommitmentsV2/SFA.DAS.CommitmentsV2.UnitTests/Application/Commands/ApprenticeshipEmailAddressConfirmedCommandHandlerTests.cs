@@ -97,7 +97,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Fixture DataFixture { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public IRequestHandler<ApprenticeshipEmailAddressConfirmedCommand> Handler { get; set; }
-        public Mock<IApiClient> ApiClientMock { get; set; }
+        public Mock<IApprovalsOuterApiClient> ApiClientMock { get; set; }
         public string CurrentEmailAddress { get; set; }
         public ApprenticeResponse ApprenticeResponse { get; set; }
         public ApprenticeshipEmailAddressConfirmedCommand ApprenticeshipEmailAddressConfirmedCommand { get; set; }
@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             ApprenticeshipEmailAddressConfirmedCommand =
                 DataFixture.Create<ApprenticeshipEmailAddressConfirmedCommand>();
 
-            ApiClientMock = new Mock<IApiClient>();
+            ApiClientMock = new Mock<IApprovalsOuterApiClient>();
             ApiClientMock.Setup(x => x.Get<ApprenticeResponse>(It.IsAny<GetApprenticeRequest>()))
                 .ReturnsAsync(ApprenticeResponse);
 

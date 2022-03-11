@@ -94,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public ProviderCommitmentsDbContext Db { get; set; }
 
         public Mock<IFundingCapService> FundingService { get; set; }
-        public Mock<IApiClient> LevyTransferMatchingApiClient { get; set; }
+        public Mock<IApprovalsOuterApiClient> LevyTransferMatchingApiClient { get; set; }
         public IRequestHandler<AddTransferRequestCommand> Handler { get; set; }
 
         public Party LastApprovedByParty { get; set; }
@@ -112,7 +112,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             FundingService.Setup(x => x.FundingCourseSummary(It.IsAny<IEnumerable<ApprenticeshipBase>>()))
                 .ReturnsAsync(new List<FundingCapCourseSummary> {FundingCapCourseSummary1, FundingCapCourseSummary2});
 
-            LevyTransferMatchingApiClient = new Mock<IApiClient>();
+            LevyTransferMatchingApiClient = new Mock<IApprovalsOuterApiClient>();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())

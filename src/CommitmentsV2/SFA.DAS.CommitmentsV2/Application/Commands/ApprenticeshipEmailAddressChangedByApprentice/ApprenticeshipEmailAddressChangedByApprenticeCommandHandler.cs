@@ -18,10 +18,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressC
     public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandler : AsyncRequestHandler<ApprenticeshipEmailAddressChangedByApprenticeCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
-        private readonly IApiClient _apimClient;
+        private readonly IApprovalsOuterApiClient _apimClient;
         private readonly ILogger<ApprenticeshipEmailAddressChangedByApprenticeCommandHandler> _logger;
 
-        public ApprenticeshipEmailAddressChangedByApprenticeCommandHandler(Lazy<ProviderCommitmentsDbContext> db, IApiClient apimClient, ILogger<ApprenticeshipEmailAddressChangedByApprenticeCommandHandler> logger)
+        public ApprenticeshipEmailAddressChangedByApprenticeCommandHandler(Lazy<ProviderCommitmentsDbContext> db, IApprovalsOuterApiClient apimClient, ILogger<ApprenticeshipEmailAddressChangedByApprenticeCommandHandler> logger)
         {
             _db = db;
             _apimClient = apimClient;

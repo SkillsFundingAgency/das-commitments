@@ -16,10 +16,10 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
     public class ImportStandardsJob
     {
         private readonly ILogger<ImportStandardsJob> _logger;
-        private readonly IApiClient _apiClient;
+        private readonly IApprovalsOuterApiClient _apiClient;
         private readonly IProviderCommitmentsDbContext _providerContext;
 
-        public ImportStandardsJob(ILogger<ImportStandardsJob> logger, IApiClient apiClient, IProviderCommitmentsDbContext providerContext)
+        public ImportStandardsJob(ILogger<ImportStandardsJob> logger, IApprovalsOuterApiClient apiClient, IProviderCommitmentsDbContext providerContext)
         {
             _logger = logger;
             _apiClient = apiClient;
