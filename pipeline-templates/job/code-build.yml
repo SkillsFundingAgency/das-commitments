@@ -57,6 +57,16 @@ jobs:
         configuration: '$(buildConfiguration)'
         clean: true
 
+    - task: VSTest@2
+      displayName: 'VS test'
+      inputs:
+        testAssemblyVer2: |
+          **/bin/Release/*UnitTests.dll
+          !**/CommitmentsV2/**
+          !**/*Reservations.Api*/**
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
     - task: DotNetCoreCLI@2
       displayName: 'dotnet test'
       inputs:
