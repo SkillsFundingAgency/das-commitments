@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].FlexibleEmployment
+﻿CREATE TABLE [dbo].ApprenticeshipFlexibleEmployment
 (
 	[ApprenticeshipId] BIGINT NOT NULL,
 	[EmploymentPrice] DECIMAL NOT NULL,

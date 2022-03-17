@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         public void Configure(EntityTypeBuilder<FlexibleEmployment> builder)
         {
             builder
-                .ToTable("FlexibleEmployment")
+                .ToTable("ApprenticeshipFlexibleEmployment")
                 .HasKey("ApprenticeshipId");
 
             builder
