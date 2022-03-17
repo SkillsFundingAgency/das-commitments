@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
                     DateOfBirth = source.DateOfBirth,
                     Reference = source.ProviderRef,
                     ReservationId = source.ReservationId,
-                    DeliveryModel = Types.DeliveryModel.Normal
+                    DeliveryModel = Types.DeliveryModel.Regular,
                 };
                 await MapTrainingProgramme(source, result);
                 draftApprenticeshipDetailsList.Add(result);

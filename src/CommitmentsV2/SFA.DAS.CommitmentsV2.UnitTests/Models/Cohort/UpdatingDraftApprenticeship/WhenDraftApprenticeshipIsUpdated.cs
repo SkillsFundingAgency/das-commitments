@@ -168,7 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                         Cost = _autoFixture.Create<int>(),
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
-                        DeliveryModel = DeliveryModel.Normal,
+                        DeliveryModel = DeliveryModel.Regular,
                         DateOfBirth = _autoFixture.Create<DateTime>(),
                     };
                     
