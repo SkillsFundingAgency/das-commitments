@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace SFA.DAS.CommitmentsV2.Models.Api.Types
+namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
 {
     public class StandardSummary
     {
