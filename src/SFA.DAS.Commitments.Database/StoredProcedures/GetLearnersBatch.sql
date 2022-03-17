@@ -19,7 +19,7 @@ BEGIN
 	DECLARE @skip INT = (@batchNumber - 1) * @batchSize,
 			@TotalCount INT;
 
-	SET @TotalCount = (SELECT TOP 1 TotalCount FROM [dbo].[GetLearners] (@sinceTime))
+	SET @TotalCount = (SELECT COUNT(1) FROM [dbo].[GetLearners] (@sinceTime))
 
 	-- We use the totalcount to calculate the total number of batches.
 	SET @totalNumberOfBatches = ISNULL( CEILING( (@TotalCount) / CAST(@batchSize AS DECIMAL)), 0);

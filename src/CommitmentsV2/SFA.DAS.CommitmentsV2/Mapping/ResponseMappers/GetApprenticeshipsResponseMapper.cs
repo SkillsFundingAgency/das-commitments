@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 ProviderName = source.ProviderName,
                 ProviderId = source.ProviderId,
                 CourseName = source.CourseName,
-                DeliveryModel = source.DeliveryModel ?? DeliveryModel.Regular,
+                DeliveryModel = source.DeliveryModel,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 PauseDate = source.PauseDate,
@@ -52,7 +52,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 TransferSenderId = source.TransferSenderId,
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 CourseCode = source.CourseCode,
-                Cost = source.Cost
+                Cost = source.Cost,
+                PledgeApplicationId = source.PledgeApplicationId
             };
         }
     }
