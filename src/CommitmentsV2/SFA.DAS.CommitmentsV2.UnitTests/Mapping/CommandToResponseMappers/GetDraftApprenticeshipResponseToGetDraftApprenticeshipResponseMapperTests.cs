@@ -47,8 +47,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             return AssertPropertySet(input => input.CourseCode, "ABC123");
         }
 
-        [TestCase(DeliveryModel.Normal)]
-        [TestCase(DeliveryModel.Flexible)]
+        [TestCase(DeliveryModel.Regular)]
+        [TestCase(DeliveryModel.PortableFlexiJob)]
         public async Task Map_DeliveryModel_ShouldBeSet(DeliveryModel dm)
         {
             var mapper = CreateMapper();

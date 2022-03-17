@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 LastName = source.LastName,
                 Email = source.Email,
                 CourseName = source.CourseName,
+                DeliveryModel = source.DeliveryModel ?? Types.DeliveryModel.Regular,
                 EmployerName = source.Cohort.AccountLegalEntity.Name,
                 ProviderName = source.Cohort.Provider.Name,
                 StartDate = source.StartDate.GetValueOrDefault(),

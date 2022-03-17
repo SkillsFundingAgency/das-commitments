@@ -3,10 +3,9 @@
 namespace SFA.DAS.CommitmentsV2.Types
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-
     public enum DeliveryModel : byte
     {
-        Normal = 0,
-        Flexible = 1
+        Regular = 0,
+        PortableFlexiJob = 1,
     }
 }
