@@ -127,6 +127,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 .Without(s => s.ApprenticeshipUpdate)
                 .Without(s => s.Continuation)
                 .Without(s => s.PreviousApprenticeship)
+                .Without(s => s.FlexibleEmployment)
                 .Create();
         }
 

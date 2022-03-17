@@ -71,6 +71,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
              .Without(s => s.EpaOrg)
              .Without(s => s.Continuation)
              .Without(s => s.PreviousApprenticeship)
+             .Without(s => s.FlexibleEmployment)
              .Create();
 
          var db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()

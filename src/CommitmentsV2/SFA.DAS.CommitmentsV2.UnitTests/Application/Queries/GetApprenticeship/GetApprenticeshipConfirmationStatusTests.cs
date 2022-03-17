@@ -173,6 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .Without(x => x.DataLockStatus)
                 .Without(x => x.PreviousApprenticeship)
                 .Without(x => x.ApprenticeshipConfirmationStatus)
+                .Without(s => s.FlexibleEmployment)
                 .Create();
 
             var appr = _fixture.Build<Apprenticeship>()
@@ -191,6 +192,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .Without(x => x.DataLockStatus)
                 .Without(x => x.PreviousApprenticeship)
                 .Without(x => x.ApprenticeshipConfirmationStatus)
+                .Without(s => s.FlexibleEmployment)
                 .Create();
 
             var conf = _fixture.Build<ApprenticeshipConfirmationStatus>()

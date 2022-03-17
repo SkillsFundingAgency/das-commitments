@@ -162,6 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.EpaOrg)
              .Without(s => s.Continuation)
              .Without(s => s.PreviousApprenticeship)
+             .Without(s => s.FlexibleEmployment)
              .Create();
 
             CancellationToken = new CancellationToken();

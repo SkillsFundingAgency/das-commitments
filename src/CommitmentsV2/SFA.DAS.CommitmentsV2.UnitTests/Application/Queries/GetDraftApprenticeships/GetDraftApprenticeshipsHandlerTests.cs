@@ -97,6 +97,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                         .Build<DraftApprenticeship>()
                         .With(x => x.Id, _autoFixture.Create<long>)
                         .With(x => x.CommitmentId, _cohortId)
+                        .Without(s => s.FlexibleEmployment)
                         .Create();
 
                     _cohort.Apprenticeships.Add(apprenticeship);

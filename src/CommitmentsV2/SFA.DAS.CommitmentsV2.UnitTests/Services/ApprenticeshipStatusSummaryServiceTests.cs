@@ -138,6 +138,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
              .Without(s => s.CompletionDate)
              .Without(s => s.EmailAddressConfirmed)
              .Without(s => s.ApprenticeshipConfirmationStatus)
+             .Without(s => s.FlexibleEmployment)
              .Create();
 
             SeedApprenticeships.Add(apprenticeship);

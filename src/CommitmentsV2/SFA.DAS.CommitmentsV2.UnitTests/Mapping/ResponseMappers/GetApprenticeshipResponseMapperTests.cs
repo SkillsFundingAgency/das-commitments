@@ -25,7 +25,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         public async Task Arrange()
         {
             var autoFixture = new Fixture();
-            _source = autoFixture.Build<GetApprenticeshipQueryResult>().With(e=>e.DeliveryModel, DeliveryModel.PortableFlexiJob).Create();
+            _source = autoFixture.Build<GetApprenticeshipQueryResult>()
+                .With(e => e.DeliveryModel, DeliveryModel.PortableFlexiJob)
+                .Without(e => e.FlexibleEmployment)
+                .Create();
             _result = await _mapper.Map(TestHelper.Clone(_source));
         }
 
