@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task ThenDeliveryModelIsChanged(Party party)
         {
             fixture.SetParty(party);
-            fixture.Command.EditApprenticeshipRequest.DeliveryModel = DeliveryModel.Flexible;
+            fixture.Command.EditApprenticeshipRequest.DeliveryModel = DeliveryModel.PortableFlexiJob;
 
             await fixture.Handle();
             fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.DeliveryModel, app => app.ApprenticeshipUpdate.First().DeliveryModel);

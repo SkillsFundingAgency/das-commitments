@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 ProviderName = source.ProviderName,
                 ProviderId = source.ProviderId,
                 CourseName = source.CourseName,
-                DeliveryModel = source.DeliveryModel ?? DeliveryModel.Normal,
+                DeliveryModel = source.DeliveryModel,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 PauseDate = source.PauseDate,

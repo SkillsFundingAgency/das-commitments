@@ -53,5 +53,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             return errors;
         }
+
+        private async Task<bool?> IsSigned(string agreementId)
+        {
+            var employerDetails = await GetEmployerDetails(agreementId);
+            return employerDetails.IsSigned;
+        }
+
+        private async Task<bool?> IsLevy(string agreementId)
+        {
+            var employerDetails = await GetEmployerDetails(agreementId);
+            return employerDetails.IsLevy;
+        }
     }
 }
