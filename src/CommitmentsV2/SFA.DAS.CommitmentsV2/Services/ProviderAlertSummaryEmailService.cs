@@ -135,9 +135,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                         TotalCount = providerGroup.Count(),
                         ChangesForReview = providerGroup.Count(app => app.PendingOriginator == 0),
                         DataMismatchCount = providerGroup.Count(app => app.DLocks.Any(
-                            dlock => DataLockStatusExtensions.UnHandled(dlock)
-                                    && (DataLockStatusExtensions.WithCourseError(dlock)
-                                        || DataLockStatusExtensions.IsPriceOnly(dlock))))
+                            dlock => DataLockStatusExtensions.UnHandled(dlock) && 
+                            (DataLockStatusExtensions.WithCourseError(dlock) || DataLockStatusExtensions.IsPriceOnly(dlock))))
                     });
             }
 
@@ -146,11 +145,11 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         Expression<Func<SFA.DAS.CommitmentsV2.Models.DataLockStatus, bool>> unhandledCourseOrPriceDlock = dl =>
        !dl.IsResolved && dl.Status != Types.Status.Pass && !dl.IsExpired
-       && dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
+       && (dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
                || dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
                || dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
                || dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
-               || dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock07);
+               || dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock07));
 
     }
 }
