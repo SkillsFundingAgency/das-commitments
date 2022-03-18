@@ -73,6 +73,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.AreEqual(_fixture.DraftApprenticeshipDetails.EndDate, result.EndDate);
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenEmploymentEndDateIsMappedCorrectly(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
+            Assert.NotNull(result.FlexibleEmployment);
+            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.EmploymentEndDate, result.FlexibleEmployment.EmploymentEndDate);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenEmploymentPriceIsMappedCorrectly(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
+            Assert.NotNull(result.FlexibleEmployment);
+            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.EmploymentPrice, result.FlexibleEmployment.EmploymentPrice);
+        }
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
