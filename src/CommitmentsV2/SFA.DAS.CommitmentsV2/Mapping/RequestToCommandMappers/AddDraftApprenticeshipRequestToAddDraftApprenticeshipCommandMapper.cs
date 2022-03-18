@@ -24,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 Email = source.Email,
                 DateOfBirth = source.DateOfBirth,
                 Uln = source.Uln,
+                EmploymentEndDate = source.EmploymentEndDate,
                 UserInfo = source.UserInfo
             });
         }
