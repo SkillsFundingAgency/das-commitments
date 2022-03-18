@@ -144,6 +144,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 null,
                 transferSenderId,
                 pledgeApplicationId,
+                null,
+                null,
                 UserInfo);
 
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
