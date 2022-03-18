@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 LastName = source.LastName,
                 Email = source.Email,
                 CourseName = source.CourseName,
+                DeliveryModel = source.DeliveryModel ?? Types.DeliveryModel.Regular,
                 EmployerName = source.Cohort.AccountLegalEntity.Name,
                 ProviderName = source.Cohort.Provider.Name,
                 StartDate = source.StartDate.GetValueOrDefault(),
@@ -50,7 +51,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 TransferSenderId = source.Cohort.TransferSenderId,
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 CourseCode = source.CourseCode,
-                Cost = source.Cost
+                Cost = source.Cost,
+                PledgeApplicationId = source.Cohort.PledgeApplicationId
             });
         }
 

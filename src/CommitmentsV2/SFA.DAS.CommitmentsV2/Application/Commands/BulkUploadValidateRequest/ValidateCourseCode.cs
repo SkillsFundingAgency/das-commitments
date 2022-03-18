@@ -1,5 +1,4 @@
-﻿using System;
-using MediatR;
+﻿using MediatR;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using System.Collections.Generic;
@@ -9,24 +8,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private List<Error> ValidateCourseCode(CsvRecord csvRecord)
+        private List<Error> ValidateCourseCode(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             var domainErrors = new List<Error>();
-            if (string.IsNullOrEmpty(csvRecord.StdCode))
+            if (string.IsNullOrEmpty(csvRecord.CourseCode))
             {
-                domainErrors.Add(new Error("StdCode", "<b>Standard code</b> must be entered"));
+                domainErrors.Add(new Error("CourseCode", "<b>Standard code</b> must be entered"));
             }
-            else if (!csvRecord.StdCode.All(char.IsDigit) && !int.TryParse(csvRecord.StdCode, out _))
+            else if (!csvRecord.CourseCode.All(char.IsDigit) && !int.TryParse(csvRecord.CourseCode, out _))
             {
-                domainErrors.Add(new Error("StdCode", "Enter a valid <b>standard code</b>"));
+                domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
             }
-            else if (csvRecord.StdCode.Length > 5)
+            else if (csvRecord.CourseCode.Length > 5)
             {
-                domainErrors.Add(new Error("StdCode", "Enter a valid <b>standard code</b>"));
+                domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
             }
-            else if (GetStandardDetails(csvRecord.StdCode) == null)
+            else if (GetStandardDetails(csvRecord.CourseCode) == null)
             {
-                domainErrors.Add(new Error("StdCode", "Enter a valid <b>standard code</b>"));
+                domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
             }
 
             return domainErrors;

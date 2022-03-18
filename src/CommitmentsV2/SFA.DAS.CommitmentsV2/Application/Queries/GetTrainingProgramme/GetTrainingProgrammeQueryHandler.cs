@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme
             _service = service;
             _logger = logger;
         }
+        
         public async Task<GetTrainingProgrammeQueryResult> Handle(GetTrainingProgrammeQuery request, CancellationToken cancellationToken)
         {
             try
@@ -49,7 +50,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme
                             FundingCap = x.FundingCap
                         }).ToList(),
                         StandardUId = result.StandardUId,
-                        Version = result.Version
+                        Version = result.Version,
+                        Options = result.Options
                     }
                 }; 
             }

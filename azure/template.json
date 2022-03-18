@@ -86,10 +86,14 @@
         "metadataEndpoint": {
             "type": "string"
         },
-        "appServiceAllowedIPs": {
-            "type": "array",
-            "defaultValue": [
-            ]
+        "backEndAccessRestrictions": {
+            "type": "array"
+        },
+        "workerAccessRestrictions": {
+            "type": "array"
+        },
+        "supportAppAccessRestrictions": {
+            "type": "array"
         },
         "sharedKeyVaultName": {
             "type": "string"
@@ -130,6 +134,9 @@
         },
         "subnetDelegations": {
             "type": "array"
+        },
+        "deploySupportApp": {
+            "type": "bool"
         }
     },
     "variables": {
@@ -346,7 +353,7 @@
                         }
                     },
                     "ipSecurityRestrictions": {
-                        "value": "[parameters('appServiceAllowedIPs')]"
+                        "value": "[parameters('workerAccessRestrictions')]"
                     }
                 }
             },
@@ -444,7 +451,7 @@
                         }
                     },
                     "ipSecurityRestrictions": {
-                        "value": "[parameters('appServiceAllowedIPs')]"
+                        "value": "[parameters('workerAccessRestrictions')]"
                     }
                 }
             },
@@ -578,7 +585,7 @@
                         "value": "[if(greater(length(parameters('apiV1CustomHostname')), 0), reference('api-v1-app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
                     },
                     "ipSecurityRestrictions": {
-                        "value": "[parameters('appServiceAllowedIPs')]"
+                        "value": "[parameters('backEndAccessRestrictions')]"
                     }
                 }
             }
@@ -697,12 +704,13 @@
                         "value": "[if(greater(length(parameters('apiV2CustomHostname')), 0), reference('api-v2-app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
                     },
                     "ipSecurityRestrictions": {
-                        "value": "[parameters('appServiceAllowedIPs')]"
+                        "value": "[parameters('backEndAccessRestrictions')]"
                     }
                 }
             }
         },
         {
+            "condition": "[parameters('deploySupportApp')]",
             "apiVersion": "2020-06-01",
             "name": "support-app-insights",
             "resourceGroup": "[variables('resourceGroupName')]",
@@ -724,7 +732,7 @@
             }
         },
         {
-            "condition": "[greater(length(parameters('supportCustomHostName')), 0)]",
+            "condition": "[and(greater(length(parameters('supportCustomHostName')), 0), parameters('deploySupportApp'))]",
             "apiVersion": "2020-06-01",
             "name": "support-app-service-certificate",
             "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
@@ -749,6 +757,7 @@
             }
         },
         {
+            "condition": "[parameters('deploySupportApp')]",
             "apiVersion": "2020-06-01",
             "name": "support-app-service",
             "resourceGroup": "[variables('resourceGroupName')]",
@@ -796,7 +805,7 @@
                                 },
                                 {
                                     "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                    "value": "[reference('support-app-insights').outputs.InstrumentationKey.value]"
+                                    "value": "[if(parameters('deploySupportApp'), reference('support-app-insights').outputs.InstrumentationKey.value, '')]"
                                 }
                             ]
                         }
@@ -805,10 +814,10 @@
                         "value": "[parameters('supportCustomHostName')]"
                     },
                     "certificateThumbprint": {
-                        "value": "[if(greater(length(parameters('supportCustomHostname')), 0), reference('support-app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
+                        "value": "[if(and(greater(length(parameters('supportCustomHostname')), 0), parameters('deploySupportApp')), reference('support-app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
                     },
                     "ipSecurityRestrictions": {
-                        "value": "[parameters('appServiceAllowedIPs')]"
+                        "value": "[parameters('supportAppAccessRestrictions')]"
                     }
                 }
             }
@@ -918,6 +927,12 @@
                 "parameters": {
                     "serviceBusNamespaceName": {
                         "value": "[variables('serviceBusName')]"
+                    },
+                    "logAnalyticsWorkspaceName": {
+                        "value": "[parameters('logAnalyticsWorkspaceName')]"
+                    },
+                    "logAnalyticsWorkspaceResourceGroupName": {
+                        "value": "[parameters('sharedManagementResourceGroup')]"
                     }
                 }
             }

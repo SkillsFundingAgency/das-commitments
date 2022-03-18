@@ -26,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 ApprenticeshipId = apprenticeship.Id,
                 EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
                 ProviderId = apprenticeship.Cohort.ProviderId,
+                DeliveryModel = source.DeliveryModel ?? apprenticeship.DeliveryModel ?? DeliveryModel.Regular,
                 CourseCode = GetValue(source.CourseCode, apprenticeship.CourseCode),
                 Version = GetValue(source.Version, apprenticeship.TrainingCourseVersion),
                 Option = GetValue(source.Option, apprenticeship.TrainingCourseOption),
@@ -47,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         public static ApprenticeshipUpdate MapToApprenticeshipUpdate(this EditApprenticeshipCommand command, Apprenticeship apprenticeship, Party party, DateTime utcDateTime)
         {
             var apprenticeshipUpdate = new ApprenticeshipUpdate();
+            apprenticeshipUpdate.DeliveryModel = command.EditApprenticeshipRequest.DeliveryModel;
             apprenticeshipUpdate.TrainingCode = command.EditApprenticeshipRequest.CourseCode;
             apprenticeshipUpdate.TrainingCourseVersion = command.EditApprenticeshipRequest.Version;
             apprenticeshipUpdate.TrainingCourseOption = command.EditApprenticeshipRequest.Option;
@@ -71,6 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return !string.IsNullOrWhiteSpace(request.FirstName)
                 || !string.IsNullOrWhiteSpace(request.LastName)
                 || !string.IsNullOrWhiteSpace(request.Email)
+                || request.DeliveryModel != null
                 || !string.IsNullOrWhiteSpace(request.CourseCode)
                 || !string.IsNullOrWhiteSpace(request.Version)
                 || request.Option != apprenticeship.TrainingCourseOption

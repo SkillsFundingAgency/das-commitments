@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         Version = apprenticeship.TrainingCourseVersion,
                         Option = apprenticeship.TrainingCourseOption,
                         CourseName = apprenticeship.CourseName,
+                        DeliveryModel = apprenticeship.DeliveryModel,
                         EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
                         AccountLegalEntityId = apprenticeship.Cohort.AccountLegalEntityId,
                         EmployerName = apprenticeship.Cohort.AccountLegalEntity.Name,
@@ -69,7 +70,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         ConfirmationStatus = apprenticeship.DisplayConfirmationStatus(
                             apprenticeship.Email,
                             apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn : null,
-                            apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn : null)
+                            apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn : null),
+                        PledgeApplicationId = apprenticeship.Cohort.PledgeApplicationId
                     },
                     cancellationToken);
 

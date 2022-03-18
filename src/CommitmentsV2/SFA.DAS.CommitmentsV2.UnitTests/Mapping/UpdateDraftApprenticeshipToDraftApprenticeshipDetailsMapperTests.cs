@@ -37,6 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.DeliveryModel.Should().Be(f.Command.DeliveryModel);
                 });
         }
 
@@ -60,6 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().BeNull();
                     r.TrainingCourseVersion.Should().BeNull();
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.DeliveryModel.Should().Be(f.Command.DeliveryModel);
                 });
         }
 
@@ -83,6 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().Be(f.TrainingProgramme2.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme2.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeTrue();
+                    r.DeliveryModel.Should().Be(f.Command.DeliveryModel);
                 });
         }
 
@@ -106,6 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.DeliveryModel.Should().Be(f.Command.DeliveryModel);
                 });
         }
 
@@ -129,6 +133,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().BeNull();
                     r.TrainingCourseVersion.Should().BeNull();
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.DeliveryModel.Should().Be(f.Command.DeliveryModel);
                 });
         }
     }

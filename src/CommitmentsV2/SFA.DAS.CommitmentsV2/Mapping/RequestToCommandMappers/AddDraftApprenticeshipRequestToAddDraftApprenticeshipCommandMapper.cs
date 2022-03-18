@@ -13,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 UserId = source.UserId,
                 ProviderId = source.ProviderId,
                 CourseCode = source.CourseCode,
+                DeliveryModel = source.DeliveryModel,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,

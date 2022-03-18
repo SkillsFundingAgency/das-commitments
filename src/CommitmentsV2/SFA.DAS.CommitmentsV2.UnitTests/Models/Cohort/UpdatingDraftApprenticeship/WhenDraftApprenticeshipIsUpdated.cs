@@ -168,6 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                         Cost = _autoFixture.Create<int>(),
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
+                        DeliveryModel = DeliveryModel.Regular,
                         DateOfBirth = _autoFixture.Create<DateTime>(),
                     };
                     
@@ -291,6 +292,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                     Uln = draftApprenticeship.Uln,
                     TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(draftApprenticeship.CourseCode, "", ProgrammeType.Framework,
                         null, null),
+                    DeliveryModel = draftApprenticeship.DeliveryModel,
                     Cost = (int?)draftApprenticeship.Cost,
                     StartDate = draftApprenticeship.StartDate,
                     EndDate = draftApprenticeship.EndDate,

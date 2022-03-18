@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public DateTime? EffectiveFrom { get; }
         public DateTime? EffectiveTo { get; }
         public List<TrainingProgrammeFundingPeriod> FundingPeriods { get; set; }
-        public List<string> Options { get; set; }
+        public List<string> Options { get; set; } = new List<string> ();
 
         public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo)
         {

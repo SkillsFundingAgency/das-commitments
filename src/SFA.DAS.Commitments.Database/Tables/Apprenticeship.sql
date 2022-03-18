@@ -44,6 +44,7 @@
     [Email] NVARCHAR(200) NULL, 
     [EmailAddressConfirmed] BIT NULL,
     [LastUpdated] AS ISNULL([UpdatedOn],[CreatedOn]),
+    [DeliveryModel] TINYINT NULL, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
