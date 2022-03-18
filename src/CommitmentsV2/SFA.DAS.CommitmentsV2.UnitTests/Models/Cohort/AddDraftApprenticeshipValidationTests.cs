@@ -240,8 +240,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [TestCase(null, false)]
-        [TestCase(DeliveryModel.Normal, true)]
-        [TestCase(DeliveryModel.Flexible, true)]
+        [TestCase(DeliveryModel.Regular, true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, true)]
         public void DeliveryModel_CheckDeliveryModelIsPresent_Validation(DeliveryModel? dm, bool passes)
         {
             _fixture.AssertValidationForProperty(
@@ -267,7 +267,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue),
-                DeliveryModel = DeliveryModel.Normal
+                DeliveryModel = DeliveryModel.Regular
             };
             SetupMinimumNameProperties();
             Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
