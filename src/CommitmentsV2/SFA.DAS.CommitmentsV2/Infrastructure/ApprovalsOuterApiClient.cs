@@ -4,15 +4,18 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models.Api;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 
 namespace SFA.DAS.CommitmentsV2.Infrastructure
 {
     public class ApprovalsOuterApiClient : IApprovalsOuterApiClient
     {
         private readonly HttpClient _httpClient;
+        private readonly AsyncRetryPolicy _asyncRetryPolicy;
         private readonly ApprovalsOuterApiConfiguration _config;
         private readonly ILogger<ApprovalsOuterApiClient> _logger;
 
@@ -22,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
             _logger = logger;
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri(_config.BaseUrl);
+            _asyncRetryPolicy = GetRetryPolicy();
 
             AddHeaders();
         }
@@ -51,10 +55,25 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
             return default;
         }
 
+        public async Task<TResponse> GetWithRetry<TResponse>(IGetApiRequest request)
+        {
+            return await _asyncRetryPolicy.ExecuteAsync(async() => await Get<TResponse>(request));
+        }
+
         private void AddHeaders()
         {
             _httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", _config.Key);
             _httpClient.DefaultRequestHeaders.Add("X-Version", "1");
+        }
+
+        private AsyncRetryPolicy GetRetryPolicy()
+        {
+            var maxRetryAttempts = 3;
+            var pauseBetweenFailures = TimeSpan.FromSeconds(2);
+
+            return Policy
+                .Handle<HttpRequestException>()
+                .WaitAndRetryAsync(maxRetryAttempts, i => pauseBetweenFailures);
         }
     }
 }

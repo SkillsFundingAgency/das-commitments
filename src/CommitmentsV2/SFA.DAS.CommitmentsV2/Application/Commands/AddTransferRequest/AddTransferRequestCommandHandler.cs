@@ -9,7 +9,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models.Api;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
 {

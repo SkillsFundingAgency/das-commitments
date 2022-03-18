@@ -8,8 +8,8 @@ using Microsoft.Extensions.Logging;
 using MoreLinq.Extensions;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models.Api;
-using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {

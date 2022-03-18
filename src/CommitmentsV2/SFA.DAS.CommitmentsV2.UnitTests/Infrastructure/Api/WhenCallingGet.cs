@@ -1,11 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture.NUnit3;
-using Castle.Core.Logging;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -14,7 +7,13 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Infrastructure;
-using SFA.DAS.CommitmentsV2.Models.Api;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
 {

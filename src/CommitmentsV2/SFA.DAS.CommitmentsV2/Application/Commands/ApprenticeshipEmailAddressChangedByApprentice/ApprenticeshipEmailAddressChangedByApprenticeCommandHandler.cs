@@ -8,8 +8,8 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressConfi
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models.Api;
-using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 

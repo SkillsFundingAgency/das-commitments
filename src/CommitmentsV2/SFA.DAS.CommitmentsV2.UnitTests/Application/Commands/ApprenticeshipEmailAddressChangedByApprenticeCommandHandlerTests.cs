@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using MediatR;
@@ -16,9 +12,13 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Models.Api;
-using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.TestHelpers;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands

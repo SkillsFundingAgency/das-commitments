@@ -11,6 +11,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
     {
         public DomainServiceRegistry()
         {
+            For<IAlertSummaryService>().Use<AlertSummaryService>();
             For<ICohortDomainService>().Use<CohortDomainService>();
             For<IChangeOfPartyRequestDomainService>().Use<ChangeOfPartyRequestDomainService>();
             For<ITransferRequestDomainService>().Use<TransferRequestDomainService>();

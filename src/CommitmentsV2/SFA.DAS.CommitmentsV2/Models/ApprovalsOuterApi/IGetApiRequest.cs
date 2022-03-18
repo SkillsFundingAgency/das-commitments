@@ -1,4 +1,4 @@
-namespace SFA.DAS.CommitmentsV2.Models.Api
+namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
 {
     public interface IGetApiRequest
     {

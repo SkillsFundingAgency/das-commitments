@@ -11,8 +11,8 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
-using SFA.DAS.CommitmentsV2.Models.Api;
-using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs

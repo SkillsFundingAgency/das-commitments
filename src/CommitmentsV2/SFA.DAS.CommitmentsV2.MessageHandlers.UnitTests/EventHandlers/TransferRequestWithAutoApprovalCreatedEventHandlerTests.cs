@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
@@ -13,9 +10,11 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Models.Api;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
