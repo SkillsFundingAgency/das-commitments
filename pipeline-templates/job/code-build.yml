@@ -1,12 +1,10 @@
 jobs:
 - job: 'CodeBuild'
-
   pool:
     name: 'DAS - Continuous Integration'
     demands: Agent.OS -equals Windows_NT
 
   variables:
-  - group: Prod Management Resources
   - group: BUILD Management Resources
   - name: buildConfiguration
     value: 'release'
@@ -56,16 +54,6 @@ jobs:
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
         clean: true
-
-    - task: VSTest@2
-      displayName: 'VS test'
-      inputs:
-        testAssemblyVer2: |
-          **/bin/Release/*UnitTests.dll
-          !**/CommitmentsV2/**
-          !**/*Reservations.Api*/**
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
 
     - task: DotNetCoreCLI@2
       displayName: 'dotnet test'
@@ -168,3 +156,43 @@ jobs:
       displayName: "Publish Artifact"
       inputs:
         pathtoPublish: "$(build.artifactstagingdirectory)/publish"
+
+- job: build_test_v1
+  displayName: Build and Test commitments v1 only
+  pool:
+    name: 'DAS - Continuous Integration'
+  steps:
+    - task: NuGetToolInstaller@0
+      displayName: 'Use NuGet 4.3.0'
+      inputs:
+        versionSpec: 4.x
+
+    - task: NuGetCommand@2
+      displayName: 'NuGet restore'
+      inputs:
+        restoreSolution: 'src/SFA.DAS.CommitmentsTestSolution.sln'
+
+    - task: DotNetCoreCLI@2
+      displayName: Restore
+      inputs:
+        command: restore
+        projects: "src/**/*.csproj"  
+
+    - task: VSBuild@1
+      displayName: 'Build solution'
+      inputs:
+        solution: 'src/SFA.DAS.CommitmentsTestSolution.sln'
+        vsVersion: 15.0
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+        clean: true
+
+    - task: VSTest@2
+      displayName: 'VS test'
+      inputs:
+        testAssemblyVer2: |
+          **/bin/Release/*UnitTests.dll
+          !**/CommitmentsV2/**
+          !**/*Reservations.Api*/**
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
