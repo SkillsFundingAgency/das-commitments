@@ -711,6 +711,37 @@ namespace SFA.DAS.CommitmentsV2.Models
                 yield break;
             }
 
+            foreach (var failure in BuildFlexibleEmploymentPriceValidationFailures(draftApprenticeshipDetails))
+            {
+                yield return failure;
+            }
+
+            foreach (var failure in BuildFlexibleEmploymentDateValidationFailures(draftApprenticeshipDetails))
+            {
+                yield return failure;
+            }
+        }
+
+        private IEnumerable<DomainError> BuildFlexibleEmploymentDateValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.EmploymentEndDate == null || draftApprenticeshipDetails.TrainingProgramme.EffectiveTo == null)
+            {
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.EmploymentEndDate.Value < draftApprenticeshipDetails.TrainingProgramme.EffectiveFrom.Value.AddMonths(3))
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "This date must be at least 3 months later than the planned apprenticeship training start date");
+            }
+
+            if (draftApprenticeshipDetails.EmploymentEndDate.Value > draftApprenticeshipDetails.TrainingProgramme.EffectiveTo)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "This date must not be later than the projected apprenticeship training end date");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildFlexibleEmploymentPriceValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
             if (draftApprenticeshipDetails.EmploymentPrice == null)
             {
                 yield break;
@@ -726,12 +757,12 @@ namespace SFA.DAS.CommitmentsV2.Models
                 yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "The agreed price for this employment must be £100,000 or less");
             }
 
-            if(draftApprenticeshipDetails.Cost.GetValueOrDefault() <= 0)
+            if (draftApprenticeshipDetails.Cost.GetValueOrDefault() <= 0)
             {
                 yield break;
             }
 
-            if(draftApprenticeshipDetails.EmploymentPrice >= draftApprenticeshipDetails.Cost)
+            if (draftApprenticeshipDetails.EmploymentPrice >= draftApprenticeshipDetails.Cost)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "This price must not be more than than the total agreed apprenticeship price");
             }

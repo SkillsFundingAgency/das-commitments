@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using AutoFixture;
+using Microsoft.AspNetCore.JsonPatch.Internal;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -279,6 +281,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
                 passes);
         }
+
+        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-06-05", false)]
+        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-09-04", false)]
+        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-09-05", true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-11-05", true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-11-06", false)]
+        public void EmploymentEndDate_CheckEmploymentEndDateIsPresent_Validation(DeliveryModel? deliveryModel, string trainingStartDate, string trainingEndDate, string employmentEndDate, bool passes)
+        {
+            DateTime.TryParse(trainingStartDate, out var startDate);
+            DateTime.TryParse(trainingEndDate, out var endDate);
+            DateTime.TryParse(employmentEndDate, out var employmentDate);
+
+            _fixture.AssertValidationForProperty(
+                () => _fixture
+                      .WithDeliveryModel(deliveryModel)
+                      .WithTrainingProgrammeEffectiveBetween(startDate, endDate)
+                      .WithEmploymentEndDate(employmentDate),
+                nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
+                passes);
+        }
     }
 
     public class AddDraftApprenticeshipValidationTestsFixture
@@ -397,6 +419,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         internal AddDraftApprenticeshipValidationTestsFixture WithEmploymentPrice(int? price)
         {
             DraftApprenticeshipDetails.EmploymentPrice = price;
+            return this;
+        }
+
+        internal AddDraftApprenticeshipValidationTestsFixture WithEmploymentEndDate(DateTime? date)
+        {
+            DraftApprenticeshipDetails.EmploymentEndDate = date;
             return this;
         }
 
