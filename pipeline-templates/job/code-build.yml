@@ -33,23 +33,28 @@ jobs:
     - template: azure-pipelines-templates/build/step/dependency-check.yml@das-platform-building-blocks
 
     - task: NuGetToolInstaller@0
-      displayName: 'Use NuGet 4.3.0'
+      displayName: 'Use NuGet 5.x'
       inputs:
-        versionSpec: 4.x
+        versionSpec: 5.x
 
     - task: NuGetCommand@2
       displayName: 'NuGet restore'
       inputs:
         restoreSolution: 'src/SFA.DAS.Commitments*.sln'
 
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore V2'
+      inputs:
+        command: restore
+        projects: "src/CommitmentsV2/**/*.csproj"
+
     - task: VSBuild@1
-      displayName: 'Build solution'
+      displayName: 'Build V1 solution'
       inputs:
         solution: 'src/SFA.DAS.Commitments*.sln'
-        vsVersion: 15.0
+        vsVersion: latest
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
-        clean: true
 
     - task: VSTest@2
       displayName: 'VS test'
