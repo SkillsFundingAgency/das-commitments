@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using ApprenticeshipDetailsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse.ApprenticeshipDetailsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
@@ -34,6 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 ProviderName = source.ProviderName,
                 ProviderId = source.ProviderId,
                 CourseName = source.CourseName,
+                DeliveryModel = source.DeliveryModel,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 PauseDate = source.PauseDate,
@@ -50,7 +52,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 TransferSenderId = source.TransferSenderId,
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 CourseCode = source.CourseCode,
-                Cost = source.Cost
+                Cost = source.Cost,
+                PledgeApplicationId = source.PledgeApplicationId
             };
         }
     }

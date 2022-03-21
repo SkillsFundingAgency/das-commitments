@@ -41,7 +41,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
                     EndDate = source.EndDate,
                     DateOfBirth = source.DateOfBirth,
                     Reference = source.ProviderRef,
-                    ReservationId = source.ReservationId
+                    ReservationId = source.ReservationId,
+                    DeliveryModel = Types.DeliveryModel.Regular,
                 };
                 await MapTrainingProgramme(source, result);
                 draftApprenticeshipDetailsList.Add(result);
@@ -75,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
             var legalEntities = requests.BulkUploadDraftApprenticeships.GroupBy(x => x.LegalEntityId).Select(y => new { Id = y.Key, NumberOfApprentices = y.Count(), DraftApprenticeships = y.ToList() });
             foreach (var legalEntity in legalEntities)
             {
-                var reservationIds = await _reservationApiClient.BulkCreateReservations(legalEntity.Id, new BulkCreateReservationsRequest { Count = ushort.Parse(legalEntity.NumberOfApprentices.ToString()) }, cancellationToken);
+                var reservationIds = await _reservationApiClient.BulkCreateReservations(legalEntity.Id.Value, new BulkCreateReservationsRequest { Count = ushort.Parse(legalEntity.NumberOfApprentices.ToString()) }, cancellationToken);
 
                 for (int counter = 0; counter < legalEntity.NumberOfApprentices; counter++)
                 {

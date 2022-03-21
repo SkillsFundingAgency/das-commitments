@@ -9,22 +9,22 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private List<Error> ValidateDateOfBirth(CsvRecord csvRecord)
+        private List<Error> ValidateDateOfBirth(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             var domainErrors = new List<Error>();
            
-            if (string.IsNullOrEmpty(csvRecord.DateOfBirth))
+            if (string.IsNullOrEmpty(csvRecord.DateOfBirthAsString))
             {
                 domainErrors.Add(new Error("DateOfBirth", "Enter the apprentice's <b>date of birth</b> using the format yyyy-mm-dd, for example 2001-04-23"));
             }
-            else if (!Regex.IsMatch(csvRecord.DateOfBirth, "^\\d\\d\\d\\d-\\d\\d-\\d\\d$"))
+            else if (!Regex.IsMatch(csvRecord.DateOfBirthAsString, "^\\d\\d\\d\\d-\\d\\d-\\d\\d$"))
             {
                 domainErrors.Add(new Error("DateOfBirth", "Enter the apprentice's <b>date of birth</b> using the format yyyy-mm-dd, for example 2001-04-23"));
 
             }
             else
             {
-                var dateOfBith = GetValidDate(csvRecord.DateOfBirth, "yyyy-MM-dd");
+                var dateOfBith = csvRecord.DateOfBirth;
                 if (dateOfBith == null)
                 {
                     domainErrors.Add(new Error("DateOfBirth", "Enter the apprentice's <b>date of birth</b> using the format yyyy-mm-dd, for example 2001-04-23"));
@@ -42,9 +42,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return domainErrors;
         }
 
-        private bool WillApprenticeBeAtLeast15AtStartOfTraining(string startDateTime, DateTime dobDate)
+        private bool WillApprenticeBeAtLeast15AtStartOfTraining(DateTime? startDate, DateTime dobDate)
         {
-            var startDate = GetValidDate(startDateTime, "yyyy-MM-dd");
             if (startDate == null) return true; // Don't fail validation if both fields not set
 
             int age = startDate.Value.Year - dobDate.Year;
@@ -53,9 +52,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return age >= 15;
         }
 
-        private bool ApprenticeAgeMustBeLessThen115AtStartOfTraining(string startDateTime, DateTime dobDate)
+        private bool ApprenticeAgeMustBeLessThen115AtStartOfTraining(DateTime? startDate, DateTime dobDate)
         {
-            var startDate = GetValidDate(startDateTime, "yyyy-MM-dd");
             if (startDate == null) return true; // Don't fail validation if both fields not set
 
             int age = startDate.Value.Year - dobDate.Year;

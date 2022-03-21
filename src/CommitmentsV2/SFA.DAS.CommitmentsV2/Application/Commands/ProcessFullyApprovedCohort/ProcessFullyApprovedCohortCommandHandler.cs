@@ -59,6 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     TransferSenderId = a.Cohort.TransferSenderId,
                     ApprenticeshipEmployerTypeOnApproval = apprenticeshipEmployerType,
                     Uln = a.Uln,
+                    DeliveryModel = a.DeliveryModel ?? DeliveryModel.Regular,
                     TrainingType = a.ProgrammeType.Value,
                     TrainingCode = a.CourseCode,
                     StandardUId = a.StandardUId,

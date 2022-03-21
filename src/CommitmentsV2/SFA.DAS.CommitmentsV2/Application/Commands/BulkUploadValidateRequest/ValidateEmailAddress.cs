@@ -10,21 +10,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private List<Error> ValidateEmailAddress(CsvRecord csvRecord)
+        private List<Error> ValidateEmailAddress(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             var domainErrors = new List<Error>();
 
-            if (string.IsNullOrEmpty(csvRecord.EmailAddress))
+            if (string.IsNullOrEmpty(csvRecord.Email))
             {
                 domainErrors.Add(new Error("EmailAddress", "<b>Email address</b> must be entered"));
             }
             else
             {
-                if (!IsAValidEmailAddress(csvRecord.EmailAddress))
+                if (!IsAValidEmailAddress(csvRecord.Email))
                 {
                     domainErrors.Add(new Error("EmailAddress", $"Enter a valid <b>email address</b>"));
                 }
-                if (csvRecord.EmailAddress.Length > 200)
+                if (csvRecord.Email.Length > 200)
                 {
                     domainErrors.Add(new Error("EmailAddress", "Enter an <b>email address</b> that is not longer than 200 characters"));
                 }
@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     }
                 }
 
-                if (_csvRecords.Any(x => x.EmailAddress == csvRecord.EmailAddress && csvRecord.RowNumber > x.RowNumber))
+                if (_csvRecords.Any(x => x.Email == csvRecord.Email && csvRecord.RowNumber > x.RowNumber))
                 {
                     domainErrors.Add(new Error("EmailAddress", $"The <b>email address</b> has already been used for an apprentice in this file"));
                 }
@@ -77,13 +77,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             }
         }
 
-        private EmailOverlapCheckResult OverlapCheckEmail(CsvRecord csvRecord)
+        private EmailOverlapCheckResult OverlapCheckEmail(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
-            var learnerStartDate = GetValidDate(csvRecord.StartDate, "yyyy-MM-dd");
-            var learnerEndDate = GetValidDate(csvRecord.EndDate, "yyyy-MM");
+            var learnerStartDate = csvRecord.StartDate;
+            var learnerEndDate = csvRecord.EndDate;
             if (learnerStartDate.HasValue && learnerEndDate.HasValue)
             {
-                return _overlapService.CheckForEmailOverlaps(csvRecord.EmailAddress, new Domain.Entities.DateRange(learnerStartDate.Value, learnerEndDate.Value), null, null, CancellationToken.None).Result;
+                return _overlapService.CheckForEmailOverlaps(csvRecord.Email, new DateRange(learnerStartDate.Value, learnerEndDate.Value), null, null, CancellationToken.None).Result;
             }
 
             return new EmailOverlapCheckResult(csvRecord.RowNumber, OverlapStatus.None, false);

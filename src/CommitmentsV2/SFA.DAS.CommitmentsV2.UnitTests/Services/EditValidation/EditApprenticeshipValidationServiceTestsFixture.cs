@@ -161,10 +161,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             string reservationId = "134463EF-0088-4828-8775-EBD1223486AF",
             Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
             bool hasHadDataLockSuccess = false,
-            DateTime employerProviderApprovedOn = default
+            DateTime employerProviderApprovedOn = default,
+            DeliveryModel deliveryModel = DeliveryModel.Regular
             )
         {
-            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn);
+            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel);
 
             WithStartDateInFuture();
 
@@ -247,7 +248,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             string reservationId = "134463EF-0088-4828-8775-EBD1223486AF",
             Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
             bool hasHadDataLockSuccess = false,
-            DateTime employerProviderApprovedOn = default
+            DateTime employerProviderApprovedOn = default,
+            DeliveryModel deliveryModel = DeliveryModel.Regular
             )
         {
             _apprenticeship = new Apprenticeship
@@ -260,6 +262,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 DateOfBirth = new DateTime(dobYear, dobMonth, dobDay),
                 Cost = cost,
                 EmployerRef = employerRef,
+                DeliveryModel = deliveryModel,
                 ProgrammeType = programmeType,
                 CourseCode = courseCode,
                 ReservationId = Guid.Parse(reservationId),
@@ -294,7 +297,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
            string uln = "",
            string courseCode = "",
            decimal? cost = null,
-           string providerRef = ""
+           string providerRef = "",
+           DeliveryModel deliveryModel = DeliveryModel.Regular
            )
         {
             var request = new EditApprenticeshipValidationRequest
@@ -312,6 +316,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 ProviderReference = string.IsNullOrEmpty(providerRef) ? _apprenticeship.ProviderRef : providerRef,
                 CourseCode = string.IsNullOrEmpty(courseCode) ? _apprenticeship.CourseCode : courseCode,
                 ULN = string.IsNullOrEmpty(uln) ? _apprenticeship.Uln : uln,
+                DeliveryModel = deliveryModel
             };
 
             if (dobYear.HasValue && dobMonth.HasValue && dobDay.HasValue)
