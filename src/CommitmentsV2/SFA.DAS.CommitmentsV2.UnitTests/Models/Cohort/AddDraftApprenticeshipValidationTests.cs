@@ -282,24 +282,48 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 passes);
         }
 
-        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-06-05", false)]
-        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-09-04", false)]
-        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-09-05", true)]
-        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-11-05", true)]
-        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-05", "2019-11-05", "2019-11-06", false)]
-        public void EmploymentEndDate_CheckEmploymentEndDateIsPresent_Validation(DeliveryModel? deliveryModel, string trainingStartDate, string trainingEndDate, string employmentEndDate, bool passes)
+        [TestCase(DeliveryModel.Regular, null)]
+        [TestCase(DeliveryModel.PortableFlexiJob, null)]
+        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-01")]
+        public void EmploymentEndDate_CheckEmploymentEndDateIsPresent_AllowedValidations(DeliveryModel deliveryModel, string date)
         {
-            DateTime.TryParse(trainingStartDate, out var startDate);
-            DateTime.TryParse(trainingEndDate, out var endDate);
-            DateTime.TryParse(employmentEndDate, out var employmentDate);
-
             _fixture.AssertValidationForProperty(
                 () => _fixture
                       .WithDeliveryModel(deliveryModel)
-                      .WithTrainingProgrammeEffectiveBetween(startDate, endDate)
+                      .WithEmploymentEndDate(TryParseNullableDateTime(date)),
+                nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
+                true);
+        }
+
+        [TestCase(null, null, null, true)]
+        [TestCase("2019-06-05", "2019-11-05", null, true)]
+        [TestCase("2019-06-05", "2019-11-01", "2019-06-01", false)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-06-05", false)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-09-04", false)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-09-05", true)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-11-05", true)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-11-06", false)]
+        public void EmploymentEndDate_CheckEmploymentEndDate_Validation(string trainingStartDate, string trainingEndDate, string employmentEndDate, bool passes)
+        {
+            var startDate = TryParseNullableDateTime(trainingStartDate);
+            var endDate = TryParseNullableDateTime(trainingEndDate);
+            var employmentDate = TryParseNullableDateTime(employmentEndDate);
+
+            _fixture.AssertValidationForProperty(
+                () => _fixture
+                      .WithDeliveryModel(DeliveryModel.PortableFlexiJob)
+                      .WithStartDate(startDate)
+                      .WithEndDate(endDate)
                       .WithEmploymentEndDate(employmentDate),
                 nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
                 passes);
+        }
+
+        DateTime? TryParseNullableDateTime(string date)
+        {
+            return DateTime.TryParse(date, out var parsed)
+                ? parsed
+                : null;
         }
     }
 
@@ -374,6 +398,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public AddDraftApprenticeshipValidationTestsFixture WithStartDate(DateTime? startDate)
         {
             DraftApprenticeshipDetails.StartDate = startDate;
+            return this;
+        }
+
+        public AddDraftApprenticeshipValidationTestsFixture WithEndDate(DateTime? startDate)
+        {
+            DraftApprenticeshipDetails.EndDate = startDate;
             return this;
         }
 
