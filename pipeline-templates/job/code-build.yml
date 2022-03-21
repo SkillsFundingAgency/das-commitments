@@ -40,18 +40,12 @@ jobs:
     - task: NuGetCommand@2
       displayName: 'NuGet restore'
       inputs:
-        restoreSolution: 'src/SFA.DAS.Commitments.sln'
-
-    - task: DotNetCoreCLI@2
-      displayName: Restore
-      inputs:
-        command: restore
-        projects: "src/**/*.csproj"   
+        restoreSolution: 'src/SFA.DAS.Commitments*.sln'
 
     - task: VSBuild@1
       displayName: 'Build solution'
       inputs:
-        solution: 'src/SFA.DAS.Commitments.sln'
+        solution: 'src/SFA.DAS.Commitments*.sln'
         vsVersion: 15.0
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
