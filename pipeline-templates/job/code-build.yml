@@ -161,6 +161,14 @@ jobs:
   displayName: Build and Test commitments v1 only
   pool:
     name: 'DAS - Continuous Integration'
+    demands: Agent.OS -equals Windows_NT
+
+  variables:
+  - group: BUILD Management Resources
+  - name: buildConfiguration
+    value: 'release'
+  - name: buildPlatform
+    value: 'any cpu'
   steps:
     - task: NuGetToolInstaller@0
       displayName: 'Use NuGet 4.3.0'
