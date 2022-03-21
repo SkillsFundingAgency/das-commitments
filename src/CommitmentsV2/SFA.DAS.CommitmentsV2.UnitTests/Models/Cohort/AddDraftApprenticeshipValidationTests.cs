@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AutoFixture;
+using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -54,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [TestCase(100001, false)]
         public void Cost_CheckValidation(int? cost, bool passes)
         {
-            _fixture.AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Cost = cost,
+            _fixture.AssertValidationForProperty(() => _fixture.WithCost(cost),
                 nameof(_fixture.DraftApprenticeshipDetails.Cost),
                 passes);
         }
@@ -249,6 +250,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 nameof(_fixture.DraftApprenticeshipDetails.DeliveryModel),
                 passes);
         }
+
+        [TestCase(DeliveryModel.Regular, null, true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, null, true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, -1, false)]
+        [TestCase(DeliveryModel.PortableFlexiJob, 0, false)]
+        [TestCase(DeliveryModel.PortableFlexiJob, 1, true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, 100000, true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, 100001, false)]
+        public void EmploymentPrice_CheckEmploymentPriceIsPresentWhenFlexible_Validation(DeliveryModel deliveryModel, int? price, bool passes)
+        {
+            _fixture.AssertValidationForProperty(
+                () => _fixture.WithDeliveryModel(deliveryModel).WithEmploymentPrice(price),
+                nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
+                passes);
+        }
+
+        [TestCase(1, null, true)]
+        [TestCase(1, 1, false)]
+        [TestCase(1, 2, true)]
+        public void EmploymentPrice_CheckEmploymentPriceIsLessThanTotalAgreenApprenticeshipPrice_Validation(int? employmentPrice, int? totalPrice, bool passes)
+        {
+            _fixture.AssertValidationForProperty(
+                () =>_fixture
+                      .WithDeliveryModel(DeliveryModel.PortableFlexiJob)
+                      .WithEmploymentPrice(employmentPrice)
+                      .WithCost(totalPrice),
+                nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
+                passes);
+        }
     }
 
     public class AddDraftApprenticeshipValidationTestsFixture
@@ -361,6 +391,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             DraftApprenticeshipDetails.Uln = uln;
             
+            return this;
+        }
+
+        internal AddDraftApprenticeshipValidationTestsFixture WithEmploymentPrice(int? price)
+        {
+            DraftApprenticeshipDetails.EmploymentPrice = price;
+            return this;
+        }
+
+        internal AddDraftApprenticeshipValidationTestsFixture WithCost(int? cost)
+        {
+            DraftApprenticeshipDetails.Cost = cost;
             return this;
         }
     }
