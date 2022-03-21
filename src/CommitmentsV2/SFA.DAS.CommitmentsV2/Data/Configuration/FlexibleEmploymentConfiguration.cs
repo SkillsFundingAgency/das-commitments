@@ -13,14 +13,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasKey("ApprenticeshipId");
 
             builder
-                .Property(e => e.EmploymentPrice)
-                .HasColumnType("decimal(18, 0)");
-
-            builder
-                .Property(e => e.EmploymentEndDate)
-                .HasColumnType("datetime");
-
-            builder
                 .HasOne(d => d.Apprenticeship)
                 .WithOne(p => p.FlexibleEmployment);
         }

@@ -357,7 +357,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.CompletionDate)
              .Without(s => s.EmailAddressConfirmed)
              .Without(s => s.ApprenticeshipConfirmationStatus)
-             .Without(s => s.FlexibleEmployment)
              .Create();
 
             Db.Apprenticeships.Add(apprenticeship);

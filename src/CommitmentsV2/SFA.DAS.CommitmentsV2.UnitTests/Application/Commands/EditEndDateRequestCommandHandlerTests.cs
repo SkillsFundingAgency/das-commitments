@@ -81,7 +81,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.ApprenticeshipUpdate)
              .Without(s => s.Continuation)
              .Without(s => s.PreviousApprenticeship)
-             .Without(s => s.FlexibleEmployment)
              .Create();
 
             Db.Apprenticeships.Add(Apprenticeship);

@@ -349,7 +349,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .Without(a => a.EpaOrg)
                 .Without(a => a.ApprenticeshipUpdate)
                 .Without(a => a.PreviousApprenticeship)
-                .Without(s => s.FlexibleEmployment)
                 .CreateMany(2);
 
             foreach (var app in apprenticeships)
