@@ -111,10 +111,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             var summaries = new List<ProviderAlertSummary>();
 
             var providerSummaryInfos = await _context.Apprenticeships
-                            .Include(app => app.Cohort)
-                            .Include(app => app.Cohort.Provider)
+                            .Where(app => app.Cohort.Provider != null && app.Cohort.AccountLegalEntity != null)
                             .Where(app => app.PaymentStatus > 0)
-                            .Where(app => app.PendingUpdateOriginator != null ||
+                            .Where(app => app.PendingUpdateOriginator == Originator.Employer ||
                             app.DataLockStatus.AsQueryable().Any(unhandledCourseOrPriceDlock))
                             .Select(app => new
                             {
@@ -128,23 +127,27 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             foreach (var providerGroup in providerGroups)
             {
+                var changesForReview = providerGroup.Count(app => app.PendingOriginator == Originator.Employer);
+
+                var dataMismatchCount = providerGroup.Count(app => app.DLocks.Any(
+                        dlock => DataLockStatusExtensions.UnHandled(dlock) &&
+                        (DataLockStatusExtensions.WithCourseError(dlock) || DataLockStatusExtensions.IsPriceOnly(dlock))));
+
                 summaries.Add(new ProviderAlertSummary
-                    {
-                        ProviderId = providerGroup.First().ProviderId,
-                        ProviderName = providerGroup.First().ProviderName,
-                        TotalCount = providerGroup.Count(),
-                        ChangesForReview = providerGroup.Count(app => app.PendingOriginator == 0),
-                        DataMismatchCount = providerGroup.Count(app => app.DLocks.Any(
-                            dlock => DataLockStatusExtensions.UnHandled(dlock) && 
-                            (DataLockStatusExtensions.WithCourseError(dlock) || DataLockStatusExtensions.IsPriceOnly(dlock))))
-                    });
+                {
+                    ProviderId = providerGroup.First().ProviderId,
+                    ProviderName = providerGroup.First().ProviderName,
+                    TotalCount = changesForReview + dataMismatchCount,
+                    ChangesForReview = changesForReview,
+                    DataMismatchCount = dataMismatchCount
+                });
             }
 
             return summaries;
         }
 
         Expression<Func<SFA.DAS.CommitmentsV2.Models.DataLockStatus, bool>> unhandledCourseOrPriceDlock = dl =>
-       !dl.IsResolved && dl.Status != Types.Status.Pass && !dl.IsExpired
+       !dl.IsResolved && dl.Status != Types.Status.Pass && !dl.IsExpired && dl.TriageStatus == TriageStatus.Unknown
        && (dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
                || dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
                || dl.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
