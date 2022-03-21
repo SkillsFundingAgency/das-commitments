@@ -41,7 +41,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
                     EndDate = source.EndDate,
                     DateOfBirth = source.DateOfBirth,
                     Reference = source.ProviderRef,
-                    ReservationId = source.ReservationId
+                    ReservationId = source.ReservationId,
+                    DeliveryModel = Types.DeliveryModel.Regular,
                 };
                 await MapTrainingProgramme(source, result);
                 draftApprenticeshipDetailsList.Add(result);

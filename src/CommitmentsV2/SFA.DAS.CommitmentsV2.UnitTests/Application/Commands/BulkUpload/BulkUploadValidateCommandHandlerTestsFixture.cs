@@ -13,10 +13,11 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.ProviderRelationships.Api.Client;
+using SFA.DAS.ProviderRelationships.Types.Dtos;
 using SFA.DAS.Testing.Builders;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,11 +32,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public Mock<IEmployerAgreementService> EmployerAgreementService { get; set; }
         public List<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; }
         public BulkUploadValidateCommand Command { get; set; }
-
+        public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; set; }
         public OverlapCheckResult OverlapCheckResult { get; set; }
         public EmailOverlapCheckResult EmailOverlapCheckResult { get; set; }
         public bool IsAgreementSigned { get; set; } = true;
-
 
         public BulkUploadValidateCommandHandlerTestsFixture()
         {
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             };
 
             OverlapCheckService = new Mock<IOverlapCheckService>();
-            OverlapCheckResult =  new OverlapCheckResult(false, false);
+            OverlapCheckResult = new OverlapCheckResult(false, false);
 
             OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, CancellationToken.None))
                 .ReturnsAsync(() => OverlapCheckResult);
@@ -67,10 +67,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                                  .Options);
             SetupDbData();
+
+            ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
+            ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
             Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
                 , new Lazy<ProviderCommitmentsDbContext>(() => Db)
                 , OverlapCheckService.Object
                 , AcademicYearDateProvider.Object
+                , ProviderRelationshipsApiClient.Object
                 , EmployerAgreementService.Object
                 );
         }
@@ -219,6 +223,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         internal BulkUploadValidateCommandHandlerTestsFixture SetAfterAcademicYearEndDate()
         {
             AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(DateTime.Parse(CsvRecords[0].StartDateAsString).AddYears(-1).AddDays(-1));
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetProviderHasPermissionToCreateCohort(bool hasPermission)
+        {
+            ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => hasPermission);
             return this;
         }
 
@@ -371,13 +381,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             return this;
         }
 
-        private DateTime? GetValidDate(string date, string format)
+        internal BulkUploadValidateCommandHandlerTestsFixture SetEPAOrgId(string epaOrgId)
         {
-            DateTime outDateTime;
-            if (!string.IsNullOrWhiteSpace(date) &&
-                DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out outDateTime))
-                return outDateTime;
-            return null;
+            CsvRecords[0].EPAOrgId = epaOrgId;
+            return this;
         }
     }
 }

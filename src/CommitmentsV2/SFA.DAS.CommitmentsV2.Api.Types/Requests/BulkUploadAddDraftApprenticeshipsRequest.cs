@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string UserId { get; set; }
         public long ProviderId { get; set; }
         public string CourseCode { get; set; }
-        public DateTime? StartDate => GetDate(StartDateAsString, "yyyy-MM-dd");
+        public DateTime? StartDate => GetDate(StartDateAsString, "yyyy-MM-dd", true);
         public string StartDateAsString { get; set; }
         public DateTime? EndDate => GetDate(EndDateAsString, "yyyy-MM");
         public string EndDateAsString { get; set; }
@@ -46,13 +46,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
                 return null;
             }
         }
-
-        public static DateTime? GetDate(string date, string format)
+        public static DateTime? GetDate(string date, string format, bool isStartDate = false)
         {
             if (!string.IsNullOrWhiteSpace(date) &&
                 DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime outDateTime))
+            {
+                if (isStartDate)
+                {
+                    return new DateTime(outDateTime.Year, outDateTime.Month, 1);
+                }
+
                 return outDateTime;
+            }
             return null;
         }
+        public string EPAOrgId { get; set; }
     }
 }
