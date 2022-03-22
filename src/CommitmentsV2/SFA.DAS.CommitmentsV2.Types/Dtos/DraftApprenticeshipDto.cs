@@ -17,5 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public string CourseName { get; set; }
         public DeliveryModel DeliveryModel { get; set; }
         public DateTime? OriginalStartDate { get; set; }
+        public int? EmploymentPrice { get; set; }
+        public DateTime? EmploymentEndDate { get; set; }
     }
 }
