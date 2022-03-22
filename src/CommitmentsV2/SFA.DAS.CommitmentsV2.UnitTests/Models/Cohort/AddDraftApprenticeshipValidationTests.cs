@@ -323,7 +323,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             return DateTime.TryParse(date, out var parsed)
                 ? parsed
-                : null;
+                : default;
         }
     }
 
