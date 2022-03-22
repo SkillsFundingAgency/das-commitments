@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
@@ -11,11 +14,13 @@ namespace SFA.DAS.CommitmentsV2.Services
     {
         private readonly IUlnUtilisationService _ulnUtilisationService;
         private readonly IEmailOverlapService _emailOverlapService;
+        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public OverlapCheckService(IUlnUtilisationService ulnUtilisationService, IEmailOverlapService emailOverlapService)
+        public OverlapCheckService(IUlnUtilisationService ulnUtilisationService, IEmailOverlapService emailOverlapService, Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _ulnUtilisationService = ulnUtilisationService;
             _emailOverlapService = emailOverlapService;
+            _dbContext = dbContext;
         }
 
         public async Task<OverlapCheckResult> CheckForOverlaps(string uln, DateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
@@ -85,5 +90,27 @@ namespace SFA.DAS.CommitmentsV2.Services
             return summary.ToList();
         }
 
+        public async Task<List<OverlapCheckResult>> CheckForOverlaps(long cohortId, CancellationToken cancellationToken)
+        {
+            var overlapCheckResult = new List<OverlapCheckResult>();
+
+            var cohort = _dbContext.Value.Cohorts
+               .Include(x => x.AccountLegalEntity)
+               .Include(x => x.Apprenticeships)
+               .Where(x => x.Id == cohortId).FirstOrDefault();
+
+            foreach (var apprentice in cohort.DraftApprenticeships)
+            {
+                if (apprentice.StartDate.HasValue && apprentice.EndDate.HasValue)
+                {
+                    overlapCheckResult.Add(await CheckForOverlaps(apprentice.Uln,
+                          new DateRange(apprentice.StartDate ?? apprentice.StartDate.Value, apprentice.EndDate ?? apprentice.EndDate.Value),
+                          null,
+                          CancellationToken.None));
+                }
+            }
+
+            return overlapCheckResult.ToList();
+        }
     }
 }
