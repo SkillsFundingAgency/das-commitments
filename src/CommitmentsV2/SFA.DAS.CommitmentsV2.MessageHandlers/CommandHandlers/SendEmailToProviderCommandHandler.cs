@@ -32,6 +32,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
             {
                 var providerUsersResponse = await _approvalsOuterApiClient.Get<ProvidersUsersResponse>(new GetProviderUsersRequest(message.ProviderId));
 
+                if (providerUsersResponse == null)
+                {
+                    _logger.LogWarning($"No users found for ProviderId {message.ProviderId}");
+                    return;
+                }
+
                 var explicitEmailAddresses = string.IsNullOrWhiteSpace(message.EmailAddress)
                       ? new List<string>()
                       : new List<string> { message.EmailAddress };
@@ -46,7 +52,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                 }
                 else
                 {
-                   
                     recipients = providerUsersResponse.Users.Any(u => !u.IsSuperUser) ?
                         providerUsersResponse.Users.Where(x => !x.IsSuperUser).Select(x => x.EmailAddress).ToList():
                         providerUsersResponse?.Users.Select(x => x.EmailAddress).ToList();
