@@ -16,9 +16,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _logger = logger;
         }
 
-        public async Task Import([TimerTrigger("0 7 * * 1-5", RunOnStartup = true)] TimerInfo timer)
+        public async Task Notify([TimerTrigger("0 7 * * 1-5", RunOnStartup = true)] TimerInfo timer)
         {
-            _logger.LogInformation($"EmployerAlertSummaryNotificationJob - Started{(timer.IsPastDue ? " later than expected" : string.Empty)}");
+            _logger.LogInformation($"EmployerAlertSummaryNotificationJob - Started{(timer?.IsPastDue ?? false ? " later than expected" : string.Empty)}");
 
             await _alertSummaryService.SendEmployerAlertSummaryNotifications();
 
