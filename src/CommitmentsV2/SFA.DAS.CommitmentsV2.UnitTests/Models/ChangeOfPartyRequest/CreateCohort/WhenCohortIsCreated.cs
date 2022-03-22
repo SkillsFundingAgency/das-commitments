@@ -73,20 +73,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyDraftApprenticeshipDetails();
         }
 
-        [TestCase(ChangeOfPartyRequestType.ChangeEmployer, false)]
-        [TestCase(ChangeOfPartyRequestType.ChangeProvider, false)]
-        [TestCase(ChangeOfPartyRequestType.ChangeEmployer, true)]
-        [TestCase(ChangeOfPartyRequestType.ChangeProvider, true)]
-
-        public void Then_The_DraftApprenticeshipDetails_FlexibleEmployment_Are_Correct(ChangeOfPartyRequestType requestType, bool isContinuation)
-        {
-            _fixture.WithChangeOfPartyType(requestType);
-            _fixture.WithFlexibleApprenticeship();
-            if (isContinuation) _fixture.WithContinuation();
-            _fixture.CreateCohort();
-            _fixture.VerifyDraftApprenticeshipDetailsFlexibleEmployment();
-        }
-
         [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
         [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
         public void Then_WithParty_Is_Correct(ChangeOfPartyRequestType requestType)
