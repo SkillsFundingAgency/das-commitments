@@ -9,6 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     {
         Task<OverlapCheckResult> CheckForOverlaps(string uln, DateRange range,
             long? existingApprenticeshipId, CancellationToken cancellationToken);
+
+        Task<List<OverlapCheckResult>> CheckForOverlaps(long cohortId, CancellationToken cancellationToken);
+
         Task<EmailOverlapCheckResult> CheckForEmailOverlaps(string email, DateRange range,
             long? existingApprenticeshipId, long? cohortId, CancellationToken cancellationToken);
 

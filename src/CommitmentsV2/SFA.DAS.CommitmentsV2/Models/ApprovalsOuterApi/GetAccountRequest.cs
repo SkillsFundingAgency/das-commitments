@@ -9,6 +9,8 @@ namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
             _accountHashedId = accountHashedId;
         }
 
+        public string AccountHashedId => _accountHashedId;
+
         public string GetUrl => $"accounts/{_accountHashedId}";
     }
 }
