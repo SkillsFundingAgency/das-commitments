@@ -219,14 +219,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 apprenticeship);
         }
 
-        [TestCase(true, true, true)]
-        [TestCase(false, true, false)]
-        [TestCase(true, false, true)]
-        [TestCase(false, false, true)]
-        public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(bool emailPresent,
-            bool apprenticeEmailRequired, bool expectedCanApprove)
+        [TestCase("email@example.com", false, AllowedApproval.BothCanApprove)]
+        [TestCase("email@example.com", true, AllowedApproval.BothCanApprove)]
+        [TestCase(null, false, AllowedApproval.BothCanApprove)]
+        [TestCase(null, true, AllowedApproval.CannotApprove)]
+        public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(string email, bool apprenticeEmailRequired, AllowedApproval allowedApproval)
         {
-            var fieldToSet = emailPresent ? 0 : 8;
             Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
                 f.EmailOptionalService
@@ -234,35 +232,40 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                     .Returns(apprenticeEmailRequired);
             });
 
-            var apprenticeDetails = SetApprenticeDetails(fieldToSet);
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.Email, email)
+                .Create();
 
             await CheckQueryResponse(response =>
-                {
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForEmployer);
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForProvider);
-                },
+            {
+                response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
+                response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
+            },
                 apprenticeDetails, arrange);
         }
 
-        [TestCase(false, null, false)]
-        [TestCase(true, null, true)]
-        [TestCase(true, 101, true)]
-        public async Task Handle_WithApprenticeEmailAndAContinuationOfId_ShouldReturnExpectedEmployerCanApprove(
-            bool emailPresent, long? continuationOfId, bool expectedCanApprove)
+        [TestCase(null, null, AllowedApproval.CannotApprove)]
+        [TestCase(null, 101, AllowedApproval.BothCanApprove)]
+        [TestCase("email@example.com", null, AllowedApproval.BothCanApprove)]
+        [TestCase("email@example.com", 101, AllowedApproval.BothCanApprove)]
+        public async Task Handle_WithApprenticeEmailAndAContinuationOfId_ShouldReturnExpectedEmployerCanApprove(string email, long? continuationOfId, AllowedApproval allowedApproval)
         {
-            var fieldToSet = emailPresent ? 0 : 8;
             Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
                 f.EmailOptionalService
                     .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             });
 
-            var apprenticeDetails = SetApprenticeDetails(fieldToSet);
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.Email, email)
+                .Create();
 
             await CheckQueryResponse(response =>
                 {
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForEmployer);
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForProvider);
+                    response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
+                    response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
                 },
                 apprenticeDetails, arrange, continuationOfId);
         }
