@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -90,6 +90,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 }
 
                 if(apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)
+                {
+                    return true;
+                }
+
+                if(a.DeliveryModel == DeliveryModel.PortableFlexiJob
+                    && (a.FlexibleEmployment?.EmploymentEndDate == null
+                    || a.FlexibleEmployment?.EmploymentPrice == null))
                 {
                     return true;
                 }

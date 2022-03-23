@@ -189,6 +189,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.StartDate));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.EndDate));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.DateOfBirth));
+
+                    var flexijobApprenticeship = completeApprenticeship.With(x => x.DeliveryModel, DeliveryModel.PortableFlexiJob);
+                    yield return (AllowedApproval.CannotApprove, flexijobApprenticeship.Without(x => x.EmploymentPrice));
+                    yield return (AllowedApproval.CannotApprove, flexijobApprenticeship.Without(x => x.EmploymentEndDate));
                 }
             }
         }
