@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -268,6 +270,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             private readonly OverlapCheckService _overlapCheckService;
             private readonly Mock<IUlnUtilisationService> _ulnUtilisationService;
             private readonly Mock<IEmailOverlapService> _emailOverlapService;
+            public ProviderCommitmentsDbContext Db { get; set; }
             private DateTime _startDate;
             private DateTime _endDate;
             private long? _apprenticeshipId;
@@ -286,9 +289,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _emailOverlapService.Setup(x => x.GetOverlappingEmails(It.IsAny<long>(),
                     It.IsAny<CancellationToken>())).ReturnsAsync(new List<OverlappingEmail>());
 
+                Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                               .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                .Options);
+
                 _email = "any@email.com";
 
-                _overlapCheckService = new OverlapCheckService(_ulnUtilisationService.Object, _emailOverlapService.Object);
+                _overlapCheckService = new OverlapCheckService(_ulnUtilisationService.Object, _emailOverlapService.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db));
             }
 
             public OverlapCheckServiceTestFixture WithDateRange(DateTime startDate, DateTime endDate)
