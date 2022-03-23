@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -342,58 +342,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
             // Assert
             assert(response);
-        }
-
-        private DraftApprenticeshipDetails SetApprenticeDetails(int nullProperty)
-        {
-            var apprenticeDetails = new DraftApprenticeshipDetails
-            {
-                Id = 1,
-                FirstName = "FirstName",
-                LastName = "LastName",
-                Email = "test@test.com",
-                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("code", "name",
-                    ProgrammeType.Framework, DateTime.Now, DateTime.Now),
-                Cost = 1500,
-                StartDate = new DateTime(2019, 10, 1),
-                EndDate = DateTime.Now,
-                DateOfBirth = new DateTime(2000, 1, 1),
-                Reference = "",
-                ReservationId = new Guid(),
-                Uln = "1234567890"
-            };
-            switch (nullProperty)
-            {
-                case 1:
-                    apprenticeDetails.FirstName = null;
-                    break;
-                case 2:
-                    apprenticeDetails.LastName = null;
-                    break;
-                case 3:
-                    apprenticeDetails.TrainingProgramme = null;
-                    break;
-                case 4:
-                    apprenticeDetails.Cost = null;
-                    break;
-                case 5:
-                    apprenticeDetails.StartDate = null;
-                    break;
-                case 6:
-                    apprenticeDetails.EndDate = null;
-                    break;
-                case 7:
-                    apprenticeDetails.DateOfBirth = null;
-                    break;
-                case 8:
-                    apprenticeDetails.Email = null;
-                    break;
-                case 9:
-                    apprenticeDetails.Uln = null;
-                    break;
-            }
-
-            return apprenticeDetails;
         }
     }
 
