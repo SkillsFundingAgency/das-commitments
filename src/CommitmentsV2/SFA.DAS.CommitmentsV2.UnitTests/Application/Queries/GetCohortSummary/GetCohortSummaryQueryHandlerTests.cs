@@ -1,8 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using AutoFixture.Dsl;
+using FluentAssertions;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -162,25 +165,58 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
         }
 
-        [TestCase(0, true)]
-        [TestCase(1, false)]
-        [TestCase(2, false)]
-        [TestCase(3, false)]
-        [TestCase(4, false)]
-        [TestCase(5, false)]
-        [TestCase(6, false)]
-        [TestCase(7, false)]
-        [TestCase(8, true)]
-        [TestCase(9, true)]
-
-        public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedEmployerCanApprove(int nullProperty,
-            bool expectedEmployerCanApprove)
+        private static IEnumerable<TestCaseData> MissingPropertiesTestData
         {
-            var apprenticeDetails = SetApprenticeDetails(nullProperty);
+            get
+            {
+                return DraftsWithMissingProperties().Select(x => new TestCaseData(x.draft.Create(), x.allowedApproval));
 
+                static IEnumerable<(AllowedApproval allowedApproval, IPostprocessComposer<DraftApprenticeshipDetails> draft)> DraftsWithMissingProperties()
+                {
+                    var completeApprenticeship = new Fixture()
+                        .Build<DraftApprenticeshipDetails>()
+                        .With(x => x.Email, "person@example.com");
+
+                    yield return (AllowedApproval.BothCanApprove, completeApprenticeship);
+                    yield return (AllowedApproval.BothCanApprove, completeApprenticeship.With(x => x.Email, (string)null));
+
+                    yield return (AllowedApproval.EmployerCanApprove, completeApprenticeship.Without(x => x.Uln));
+
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.FirstName));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.LastName));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.TrainingProgramme));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.Cost));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.StartDate));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.EndDate));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.DateOfBirth));
+                }
+            }
+        }
+
+        [Flags]
+        public enum AllowedApproval
+        {
+            CannotApprove = 0,
+            EmployerCanApprove = 1,
+            ProviderCanApprove = 2,
+            BothCanApprove = EmployerCanApprove | ProviderCanApprove,
+        }
+
+
+        [TestCaseSource(nameof(MissingPropertiesTestData))]
+        public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedEmployerCanApprove(DraftApprenticeshipDetails apprenticeship, AllowedApproval allowedApproval)
+        {
             await CheckQueryResponse(
-                response => Assert.AreEqual(expectedEmployerCanApprove, response.IsCompleteForEmployer),
-                apprenticeDetails);
+                response => response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove)),
+                apprenticeship);
+        }
+
+        [TestCaseSource(nameof(MissingPropertiesTestData))]
+        public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedProviderCanApprove(DraftApprenticeshipDetails apprenticeship, AllowedApproval allowedApproval)
+        {
+            await CheckQueryResponse(
+                response => response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove)),
+                apprenticeship);
         }
 
         [TestCase(true, true, true)]
@@ -229,32 +265,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                     Assert.AreEqual(expectedCanApprove, response.IsCompleteForProvider);
                 },
                 apprenticeDetails, arrange, continuationOfId);
-        }
-
-        [TestCase(0, true)]
-        [TestCase(1, false)]
-        [TestCase(2, false)]
-        [TestCase(3, false)]
-        [TestCase(4, false)]
-        [TestCase(5, false)]
-        [TestCase(6, false)]
-        [TestCase(7, false)]
-        [TestCase(8, true)]
-        [TestCase(9, false)]
-        public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedProviderCanApprove(int nullProperty,
-            bool expectedProviderCanApprove)
-        {
-            var apprenticeDetails = SetApprenticeDetails(nullProperty);
-
-            await CheckQueryResponse(
-                response => Assert.AreEqual(expectedProviderCanApprove, response.IsCompleteForProvider),
-                apprenticeDetails);
-        }
-
-        [Test]
-        public async Task Handle_WithNoApprenticeDetails_ShouldReturnEmployerCannotApprove()
-        {
-            await CheckQueryResponse(response => Assert.IsFalse(response.IsCompleteForEmployer));
         }
 
         [Test]
