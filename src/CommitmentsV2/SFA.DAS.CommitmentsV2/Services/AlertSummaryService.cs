@@ -43,10 +43,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             await Task.WhenAll(accountsTasks);
 
             var accounts = accountsTasks
-                .Select(p => p.Result)
-                .Where(p => p.Outcome == OutcomeType.Successful)
-                .Select(p => p.Result)
-                .Where(p => p != null)
+                .Select(task => task.Result)
+                .Where(policy => policy.Outcome == OutcomeType.Successful)
+                .Select(policy => policy.Result)
+                .Where(response => response != null)
                 .ToList();
 
             accounts.ForEach(x =>
