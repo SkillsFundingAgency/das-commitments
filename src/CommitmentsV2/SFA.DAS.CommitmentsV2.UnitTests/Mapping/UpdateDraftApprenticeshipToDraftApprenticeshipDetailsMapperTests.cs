@@ -27,8 +27,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.FirstName.Should().Be(f.Command.FirstName);
                     r.LastName.Should().Be(f.Command.LastName);
                     r.Uln.Should().Be(f.Command.Uln);
+                    r.EmploymentPrice.Should().Be(f.Command.EmploymentPrice);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.EmploymentEndDate.Should().Be(f.Command.EmploymentEndDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.Reference);
