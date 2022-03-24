@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IUlnValidator>().Use<UlnValidator>();
             For<IEditApprenticeshipValidationService>().Use<EditApprenticeshipValidationService>();
             For<IEmailOptionalService>().Use<EmailOptionalService>();
+            For<IProviderAlertSummaryEmailService>().Use<ProviderAlertSummaryEmailService>();
 
             //todo: below line doesn't belong here. ideally, push this into a registry in the package itself, or an extension thereof
             For<Learners.Validators.IUlnValidator>().Use<Learners.Validators.UlnValidator>();
