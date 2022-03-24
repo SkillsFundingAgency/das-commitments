@@ -26,5 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         public DateTime? OriginalStartDate { get; set; }
         public bool IsContinuation { get; set; }
         public bool HasStandardOptions { get ; set ; }
+        public DateTime? EmploymentEndDate { get; set; }
+        public int? EmploymentPrice { get; set; }
     }
 }

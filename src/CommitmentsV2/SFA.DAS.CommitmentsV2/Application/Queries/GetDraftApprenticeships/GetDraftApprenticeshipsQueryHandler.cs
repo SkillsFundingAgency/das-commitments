@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
@@ -20,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
 
         public Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)
         {
-            var cohort = _dbContext.Value.Cohorts
+            var cohort = _dbContext.Value.Cohorts.Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
                 .Where(x => x.Id == query.CohortId)
                 .Select(x => new { DraftApprenticeships = x.Apprenticeships})
                 .SingleOrDefault();
