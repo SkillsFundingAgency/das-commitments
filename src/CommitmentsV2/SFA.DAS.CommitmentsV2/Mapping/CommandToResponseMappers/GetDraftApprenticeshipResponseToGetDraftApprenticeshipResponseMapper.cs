@@ -31,7 +31,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 ReservationId = source.ReservationId,
                 IsContinuation = source.IsContinuation,
                 OriginalStartDate = source.OriginalStartDate,
-                HasStandardOptions = source.HasStandardOptions
+                HasStandardOptions = source.HasStandardOptions,
+                EmploymentPrice = source.EmploymentPrice,
+                EmploymentEndDate = source.EmploymentEndDate,
             });
         }
     }
