@@ -58,6 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(result);
         }
 
+        [HttpPost]
         [Route("validate")]
         public async Task<IActionResult> Validate(BulkUploadValidateApiRequest request, CancellationToken cancellationToken = default)
         {
