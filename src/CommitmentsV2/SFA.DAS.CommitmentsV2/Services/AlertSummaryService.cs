@@ -3,6 +3,7 @@ using NServiceBus;
 using Polly;
 using Polly.Retry;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
