@@ -32,16 +32,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
                 if (cohort == null)
                 {
-                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
+                    domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
                     return domainErrors;
                 }
                 else if (csvRecord.CohortRef.Length > 20)
                 {
-                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
+                    domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
                 }
                 else if (cohort.AccountLegalEntity.PublicHashedId != csvRecord.AgreementId && !string.IsNullOrWhiteSpace(await GetEmployerName(csvRecord.AgreementId)))
                 {
-                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
+                    domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
+                }
+                else if (cohort.ProviderId != providerId)
+                {
+                    domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
                 }
 
                 if (cohort.WithParty == Types.Party.Employer)
