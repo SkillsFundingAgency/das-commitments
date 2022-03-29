@@ -97,27 +97,14 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (source.DeliveryModel == Types.DeliveryModel.PortableFlexiJob)
             {
-                if (FlexibleEmployment != null)
-                {
-                    FlexibleEmployment.EmploymentEndDate = source.EmploymentEndDate;
-                    FlexibleEmployment.EmploymentPrice = source.EmploymentPrice;
-                }
-                else
-                {
-                    FlexibleEmployment = new FlexibleEmployment
-                    {
-                        EmploymentPrice = source.EmploymentPrice,
-                        EmploymentEndDate = source.EmploymentEndDate,
-                    };
-                }
+                FlexibleEmployment ??= new FlexibleEmployment();
+                FlexibleEmployment.EmploymentEndDate = source.EmploymentEndDate;
+                FlexibleEmployment.EmploymentPrice = source.EmploymentPrice;
             }
             else
             {
-                if (FlexibleEmployment != null)
-                {
-                    FlexibleEmployment.EmploymentPrice = null;
-                    FlexibleEmployment.EmploymentEndDate = null;
-                }
+                FlexibleEmployment.EmploymentPrice = null;
+                FlexibleEmployment.EmploymentEndDate = null;
             }
         }
 
