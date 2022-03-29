@@ -2,6 +2,7 @@
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
@@ -18,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     public class AlertSummaryServiceTests
     {
         private AlertSummaryServiceTestsFixture _fixture;
+        private const string EmployerCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-eas.apprenticeships.education.gov.uk/";
 
         [SetUp]
         public void SetUp()
@@ -112,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -155,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -198,7 +200,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -241,7 +243,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -284,7 +286,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -327,7 +329,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1000/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1000" }
                             }
                         }
@@ -430,7 +432,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1001/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1001/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         },
@@ -445,7 +447,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", $"* 1 apprentice with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1002/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1002/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1002" }
                             }
                         },
@@ -460,7 +462,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1003/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1003/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" }
                             }
                         },
@@ -475,7 +477,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1004/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1004/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1004" }
                             }
                         },
@@ -490,7 +492,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "needs" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1005/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1005/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1005" }
                             }
                         },
@@ -505,7 +507,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "need" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1006/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1006/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" }
                             }
                         },
@@ -520,7 +522,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "need" },
                                 { "changes_for_review", $"* 2 apprentices with changes for review" },
                                 { "requested_changes", $"* 1 apprentice with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1007/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1007/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1007" }
                             }
                         }
@@ -563,7 +565,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "need" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1006/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1006/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1006" }
                             }
                         }
@@ -626,7 +628,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "need" },
                                 { "changes_for_review", $"* 2 apprentices with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1001/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1001/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         },
@@ -641,7 +643,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "need" },
                                 { "changes_for_review", $"* 2 apprentices with changes for review" },
                                 { "requested_changes", "" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1003/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1003/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1003" }
                             }
                         },
@@ -656,7 +658,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "need" },
                                 { "changes_for_review", "" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1005/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1005/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1005" }
                             }
                         }
@@ -699,7 +701,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                 { "need_needs", "need" },
                                 { "changes_for_review", $"* 4 apprentices with changes for review" },
                                 { "requested_changes", $"* 2 apprentices with requested changes" },
-                                { "link_to_mange_apprenticeships", $"accounts/HSH1001/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                                { "link_to_mange_apprenticeships", $"{EmployerCommitmentsBaseUrl}accounts/HSH1001/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                                 { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/HSH1001" }
                             }
                         }
@@ -730,17 +732,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             private Mock<IMessageSession> _messageSession;
             private Mock<IApprovalsOuterApiClient> _approvalsOuterApiClient;
             private Mock<IApprenticeshipDomainService> _apprenticeshipDomainService;
+            private static CommitmentsV2Configuration commitmentsV2Configuration;
 
             public AlertSummaryServiceTestsFixture()
             {
                 _apprenticeshipDomainService = new Mock<IApprenticeshipDomainService>();
                 _messageSession = new Mock<IMessageSession>();
                 _approvalsOuterApiClient = new Mock<IApprovalsOuterApiClient>();
+
+                commitmentsV2Configuration = new CommitmentsV2Configuration()
+                {
+                    EmployerCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-eas.apprenticeships.education.gov.uk/"
+                };
             }
 
             public async Task SendEmployerAlertSummaryNotifications()
             {
-                var service = new AlertSummaryService(_apprenticeshipDomainService.Object, _messageSession.Object, _approvalsOuterApiClient.Object, Mock.Of<ILogger<AlertSummaryService>>());
+                var service = new AlertSummaryService(_apprenticeshipDomainService.Object, _messageSession.Object, _approvalsOuterApiClient.Object, Mock.Of<ILogger<AlertSummaryService>>(), commitmentsV2Configuration);
                 await service.SendEmployerAlertSummaryNotifications();
             }
 
