@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
             RuleFor(model => model.Reference).MaximumLength(Constants.FieldLengths.ProviderReference).WithMessage("Reference must not be more than {MaxLength} characters");
             RuleFor(model => model.Uln).MaximumLength(Constants.FieldLengths.Uln).WithMessage("ULN must not be more than {MaxLength} characters");
             RuleFor(r => r.UserInfo).SetValidator(new UserInfoValidator()).When(r => r.UserInfo != null);
-            RuleFor(model => (int) model.DeliveryModel).InclusiveBetween(0, 1).WithMessage("Delivery Model can only be 0 or 1").When(model => model.DeliveryModel.HasValue);
+            RuleFor(model => (int) model.DeliveryModel).InclusiveBetween(0, 1).WithMessage("Delivery Model can only be 0 or 1");
         }
     }
 }
