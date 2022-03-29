@@ -22,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(csvRecord, providerId);
                 if (!hasPermissionToCreateCohort)
                 {
+                    _logger.LogInformation($"Has permission to create cohort : {providerId}");
                     domainErrors.Add(new Error("CohortRef", "The <b>employer must give you permission</b> to add apprentices on their behalf"));
                 }
             }
@@ -31,16 +32,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
                 if (cohort == null)
                 {
-                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
+                    domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
                     return domainErrors;
                 }
                 else if (csvRecord.CohortRef.Length > 20)
                 {
-                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
+                    domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
                 }
                 else if (cohort.AccountLegalEntity.PublicHashedId != csvRecord.AgreementId && !string.IsNullOrWhiteSpace(await GetEmployerName(csvRecord.AgreementId)))
                 {
-                    domainErrors.Add(new Error("CohortRef", $"You must enter a valid <b>Cohort Ref</b>"));
+                    domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
+                }
+                else if (cohort.ProviderId != providerId)
+                {
+                    domainErrors.Add(new Error("CohortRef", $"Enter a valid <b>Cohort Ref</b>"));
                 }
 
                 if (cohort.WithParty == Types.Party.Employer)
@@ -96,14 +101,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
             if (employerDetails.LegalEntityId.HasValue && providerId != 0)
             {
-                _logger.LogDebug($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
+                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
                 var request = new HasPermissionRequest()
                 {
                     AccountLegalEntityId = employerDetails.LegalEntityId.Value,
                     Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
                     Ukprn = providerId
                 };
-                return await _providerRelationshipsApiClient.HasPermission(request);
+
+                var result = await _providerRelationshipsApiClient.HasPermission(request);
+                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
+                return result;
             }
 
             return true;

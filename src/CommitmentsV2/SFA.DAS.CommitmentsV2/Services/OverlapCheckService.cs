@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     overlapCheckResult.Add(await CheckForOverlaps(apprentice.Uln,
                           new DateRange(apprentice.StartDate ?? apprentice.StartDate.Value, apprentice.EndDate ?? apprentice.EndDate.Value),
-                          null,
+                          apprentice.Id,
                           CancellationToken.None));
                 }
             }
