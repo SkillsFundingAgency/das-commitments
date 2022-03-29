@@ -115,7 +115,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 if (FlexibleEmployment != null)
                 {
-                    FlexibleEmployment = null;
+                    FlexibleEmployment.EmploymentPrice = null;
+                    FlexibleEmployment.EmploymentEndDate = null;
                 }
             }
         }
