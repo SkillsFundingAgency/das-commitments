@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task AndDifferentSummariesFound_ThenShouldCallSendEmailToAllProviderRecipientsOnceForEachProvider()
         {
-            var f = _fixture.WithMultipleProviderSummaryAlerts();            
+            var f = _fixture.WithMultipleProviderSummaryAlerts();
             await f.Sut.SendAlertSummaryEmails(f.JobId);
             f.VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlert();
         }
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public ProviderCommitmentsDbContext Db { get; set; }
         private Mock<IMessageSession> _mockNserviceBusContext;
         private static CommitmentsV2Configuration commitmentsV2Configuration;
-        public string ProviderCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";
+        private readonly string ProviderCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";        
 
         public ProviderAlertSummaryEmailsFixture()
         {
@@ -234,7 +234,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         private bool ValidateTokens(Dictionary<string, string> tokens, long providerId, int changesForReview, int dataMismatchCount)
         {
-            var outcome = tokens["total_count_text"] == (changesForReview + dataMismatchCount).ToString()
+            return tokens["total_count_text"] == (changesForReview + dataMismatchCount).ToString()
                     && tokens["link_to_mange_apprenticeships"].StartsWith(commitmentsV2Configuration.ProviderCommitmentsBaseUrl)
                     && changesForReview == 0 ?
                             string.IsNullOrWhiteSpace(tokens["changes_for_review"]) :
@@ -242,8 +242,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     && dataMismatchCount == 0 ?
                             string.IsNullOrWhiteSpace(tokens["mismatch_changes"]) :
                             tokens["mismatch_changes"].StartsWith("* " + dataMismatchCount);
-
-            return outcome;
         }
 
         public void TearDown()
