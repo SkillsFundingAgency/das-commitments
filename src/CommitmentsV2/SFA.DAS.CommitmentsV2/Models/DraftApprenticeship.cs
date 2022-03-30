@@ -101,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FlexibleEmployment.EmploymentEndDate = source.EmploymentEndDate;
                 FlexibleEmployment.EmploymentPrice = source.EmploymentPrice;
             }
-            else
+            else if (FlexibleEmployment != null)
             {
                 FlexibleEmployment.EmploymentPrice = null;
                 FlexibleEmployment.EmploymentEndDate = null;
