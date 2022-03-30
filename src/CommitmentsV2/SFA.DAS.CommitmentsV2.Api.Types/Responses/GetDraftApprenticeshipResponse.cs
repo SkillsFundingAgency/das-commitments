@@ -26,5 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool IsContinuation { get; set; }
         public DateTime? OriginalStartDate { get; set; }
         public bool HasStandardOptions { get; set; }
+        public int? EmploymentPrice { get; set; }
+        public DateTime? EmploymentEndDate { get; set; }
     }
 }
