@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     public class AlertSummaryServiceTests
     {
         private AlertSummaryServiceTestsFixture _fixture;
-        private const string EmployerCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-eas.apprenticeships.education.gov.uk/";
+        public const string EmployerCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-eas.apprenticeships.education.gov.uk/";
 
         [SetUp]
         public void SetUp()
@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         public class DataCases : IEnumerable
-        {
+        {            
             public IEnumerator GetEnumerator()
             {
                 #region no notifications
@@ -732,17 +732,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             private Mock<IMessageSession> _messageSession;
             private Mock<IApprovalsOuterApiClient> _approvalsOuterApiClient;
             private Mock<IApprenticeshipDomainService> _apprenticeshipDomainService;
-            private static CommitmentsV2Configuration commitmentsV2Configuration;
+            private static CommitmentsV2Configuration commitmentsV2Configuration;           
 
             public AlertSummaryServiceTestsFixture()
             {
                 _apprenticeshipDomainService = new Mock<IApprenticeshipDomainService>();
                 _messageSession = new Mock<IMessageSession>();
                 _approvalsOuterApiClient = new Mock<IApprovalsOuterApiClient>();
-
-                commitmentsV2Configuration = new CommitmentsV2Configuration()
+                commitmentsV2Configuration = new CommitmentsV2Configuration() 
                 {
-                    EmployerCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-eas.apprenticeships.education.gov.uk/"
+                    EmployerCommitmentsBaseUrl = EmployerCommitmentsBaseUrl
                 };
             }
 
