@@ -11,8 +11,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
     public class EmployerAlertSummaryNotificationJobTests
     {
         [Test, MoqAutoData]
-        public async Task Then_The_AlertSummaryService_IsCalledToNotifyEmployers(
-            [Frozen] Mock<IAlertSummaryService> alertSummaryService,
+        public async Task Then_The_EmployerAlertSummaryEmailService_IsCalledToNotifyEmployers(
+            [Frozen] Mock<IEmployerAlertSummaryEmailService> alertSummaryService,
             EmployerAlertSummaryNotificationJob sut
             )
         {

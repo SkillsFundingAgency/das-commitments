@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {
-    public interface IAlertSummaryService
+    public interface IEmployerAlertSummaryEmailService
     {
         Task SendEmployerAlertSummaryNotifications();
     }
