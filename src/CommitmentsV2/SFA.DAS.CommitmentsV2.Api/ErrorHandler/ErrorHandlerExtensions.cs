@@ -32,6 +32,13 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
                         logger.LogError($"Model Error thrown: {modelException}");
                         await context.Response.WriteAsync(WriteErrorResponse(modelException));
                     }
+                    if (contextFeature.Error is BulkUploadDomainException bulkUploadDomainException)
+                    {
+                        context.Response.SetStatusCode(HttpStatusCode.BadRequest);
+                        context.Response.SetSubStatusCode(HttpSubStatusCode.BulkUploadDomainException);
+                        logger.LogError($"Model Error thrown: {bulkUploadDomainException}");
+                        await context.Response.WriteAsync(WriteErrorResponse(bulkUploadDomainException));
+                    }
                     else
                     {
                         logger.LogError($"Something went wrong: {contextFeature.Error}");
@@ -50,6 +57,13 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
         {
             var response = new ErrorResponse(MapToApiErrors(domainException.DomainErrors));
             return JsonConvert.SerializeObject(response);
+        }
+
+        public static string WriteErrorResponse(BulkUploadDomainException domainException)
+        {
+            var response = new BulkUploadErrorResponse(domainException.DomainErrors);
+            var responseAsString = JsonConvert.SerializeObject(response);
+            return responseAsString;
         }
 
         private static List<ErrorDetail> MapToApiErrors(IEnumerable<DomainError> source)
