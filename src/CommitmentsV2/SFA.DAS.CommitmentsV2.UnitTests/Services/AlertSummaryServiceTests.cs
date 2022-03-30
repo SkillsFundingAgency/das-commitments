@@ -747,7 +747,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public async Task SendEmployerAlertSummaryNotifications()
             {
-                var service = new AlertSummaryService(_apprenticeshipDomainService.Object, _messageSession.Object, _approvalsOuterApiClient.Object, Mock.Of<ILogger<AlertSummaryService>>(), commitmentsV2Configuration);
+                var service = new EmployerAlertSummaryEmailService(_apprenticeshipDomainService.Object, _messageSession.Object, _approvalsOuterApiClient.Object, Mock.Of<ILogger<EmployerAlertSummaryEmailService>>(), commitmentsV2Configuration);
                 await service.SendEmployerAlertSummaryNotifications();
             }
 

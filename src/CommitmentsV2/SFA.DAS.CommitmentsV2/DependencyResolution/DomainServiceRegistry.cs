@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
     {
         public DomainServiceRegistry()
         {
-            For<IAlertSummaryService>().Use<AlertSummaryService>();
+            For<IApprenticeshipDomainService>().Use<ApprenticeshipDomainService>();
             For<ICohortDomainService>().Use<CohortDomainService>();
             For<IChangeOfPartyRequestDomainService>().Use<ChangeOfPartyRequestDomainService>();
             For<ITransferRequestDomainService>().Use<TransferRequestDomainService>();
@@ -25,6 +25,8 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IUlnValidator>().Use<UlnValidator>();
             For<IEditApprenticeshipValidationService>().Use<EditApprenticeshipValidationService>();
             For<IEmailOptionalService>().Use<EmailOptionalService>();
+            
+            For<IEmployerAlertSummaryEmailService>().Use<EmployerAlertSummaryEmailService>();
             For<IProviderAlertSummaryEmailService>().Use<ProviderAlertSummaryEmailService>();
 
             //todo: below line doesn't belong here. ideally, push this into a registry in the package itself, or an extension thereof

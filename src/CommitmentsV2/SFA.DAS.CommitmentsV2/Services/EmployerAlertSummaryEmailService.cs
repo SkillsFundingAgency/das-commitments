@@ -16,17 +16,17 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class AlertSummaryService : IAlertSummaryService
+    public class EmployerAlertSummaryEmailService : IEmployerAlertSummaryEmailService
     {
         private readonly IApprenticeshipDomainService _apprenticeshipDomainService;
         private readonly IMessageSession _messageSession;
         private readonly IApprovalsOuterApiClient _approvalsOuterApiClient;
-        private readonly ILogger<AlertSummaryService> _logger;
+        private readonly ILogger<EmployerAlertSummaryEmailService> _logger;
         private readonly AsyncRetryPolicy _asyncRetryPolicy;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
 
-        public AlertSummaryService(IApprenticeshipDomainService apprenticeshipDomainService, IMessageSession messageSession, IApprovalsOuterApiClient approvalsOuterApiClient, 
-            ILogger<AlertSummaryService> logger, CommitmentsV2Configuration commitmentsV2Configuration)
+        public EmployerAlertSummaryEmailService(IApprenticeshipDomainService apprenticeshipDomainService, IMessageSession messageSession, IApprovalsOuterApiClient approvalsOuterApiClient, 
+            ILogger<EmployerAlertSummaryEmailService> logger, CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _apprenticeshipDomainService = apprenticeshipDomainService;
             _messageSession = messageSession;

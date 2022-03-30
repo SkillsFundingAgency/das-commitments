@@ -7,10 +7,10 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {
     public class EmployerAlertSummaryNotificationJob
     {
-        private readonly IAlertSummaryService _alertSummaryService;
+        private readonly IEmployerAlertSummaryEmailService _alertSummaryService;
         private readonly ILogger<ImportStandardsJob> _logger;
         
-        public EmployerAlertSummaryNotificationJob(IAlertSummaryService alertSummaryService, ILogger<ImportStandardsJob> logger)
+        public EmployerAlertSummaryNotificationJob(IEmployerAlertSummaryEmailService alertSummaryService, ILogger<ImportStandardsJob> logger)
         {
             _alertSummaryService = alertSummaryService;
             _logger = logger;
