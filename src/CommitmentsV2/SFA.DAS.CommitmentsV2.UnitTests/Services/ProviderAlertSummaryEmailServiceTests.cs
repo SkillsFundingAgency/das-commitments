@@ -6,6 +6,7 @@ using Moq;
 using NServiceBus;
 using NServiceBus.Logging;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
@@ -57,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task AndDifferentSummariesFound_ThenShouldCallSendEmailToAllProviderRecipientsOnceForEachProvider()
         {
-            var f = _fixture.WithMultipleProviderSummaryAlerts();
+            var f = _fixture.WithMultipleProviderSummaryAlerts();            
             await f.Sut.SendAlertSummaryEmails(f.JobId);
             f.VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlert();
         }
@@ -67,7 +68,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     public class ProviderAlertSummaryEmailsFixture
     {
         public ProviderAlertSummaryEmailService Sut;
-
         public string JobId;
         public long FirstProviderId;
         public long SecondProviderId;
@@ -76,17 +76,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public long FirstApprenticeshipId;
         public long NoApprenticeChangesApprenticeshipId;
         public long NoDataLocksApprenticeshipId;
-
-
         public List<Apprenticeship> SeedApprenticeships { get; }
-
-     
         private Fixture Fixture = new Fixture();
-
-
         public ProviderCommitmentsDbContext Db { get; set; }
-
         private Mock<IMessageSession> _mockNserviceBusContext;
+        private static CommitmentsV2Configuration commitmentsV2Configuration;
+        public string ProviderCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";
 
         public ProviderAlertSummaryEmailsFixture()
         {
@@ -106,7 +101,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _mockNserviceBusContext = new Mock<IMessageSession>();
 
-            Sut = new ProviderAlertSummaryEmailService(Db, Mock.Of<ILogger<ProviderAlertSummaryEmailService>>(), _mockNserviceBusContext.Object);
+            commitmentsV2Configuration = new CommitmentsV2Configuration()
+            {
+                ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl
+            };
+
+            Sut = new ProviderAlertSummaryEmailService(Db, Mock.Of<ILogger<ProviderAlertSummaryEmailService>>(), commitmentsV2Configuration, _mockNserviceBusContext.Object);
         }
 
         internal void VerifySendEmailToAllProviderRecipientsIsNeverCalled()
@@ -234,21 +234,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         private bool ValidateTokens(Dictionary<string, string> tokens, long providerId, int changesForReview, int dataMismatchCount)
         {
-            return tokens["total_count_text"] == (changesForReview + dataMismatchCount).ToString()
-                    && tokens["link_to_mange_apprenticeships"].StartsWith(providerId.ToString())
+            var outcome = tokens["total_count_text"] == (changesForReview + dataMismatchCount).ToString()
+                    && tokens["link_to_mange_apprenticeships"].StartsWith(commitmentsV2Configuration.ProviderCommitmentsBaseUrl)
                     && changesForReview == 0 ?
                             string.IsNullOrWhiteSpace(tokens["changes_for_review"]) :
                             tokens["changes_for_review"].StartsWith("* " + changesForReview)
                     && dataMismatchCount == 0 ?
                             string.IsNullOrWhiteSpace(tokens["mismatch_changes"]) :
                             tokens["mismatch_changes"].StartsWith("* " + dataMismatchCount);
+
+            return outcome;
         }
 
         public void TearDown()
         {
             Db.Database.EnsureDeleted();
         }
-
     }
-
 }
