@@ -32,16 +32,16 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             logger.Trace($"Starting CommitmentNotification.WebJob, JobId: {notificationJobId}");
 
-            //var t1 = notificationJob.RunEmployerAlertSummaryNotification($"{notificationJobId}.Employer")
-            //    .ContinueWith(t => WhenDone(t, logger, "Employer"));
-
-            //var t2 = notificationJob.RunProviderAlertSummaryNotification($"{notificationJobId}.Provider")
-            //    .ContinueWith(t => WhenDone(t, logger, "Provider"));
-
+            // NOTE: both the T1 an T2 tasks need to be disabled when testing is complete on CON-4584 - the code
+            // may be removed afterwards or swept up in a general cleanup of V1 code
+            var t1 = notificationJob.RunEmployerAlertSummaryNotification($"{notificationJobId}.Employer")
+                .ContinueWith(t => WhenDone(t, logger, "Employer"));
+            var t2 = notificationJob.RunProviderAlertSummaryNotification($"{notificationJobId}.Provider")
+                .ContinueWith(t => WhenDone(t, logger, "Provider"));
             var t3 = notificationJob.RunSendingEmployerTransferRequestNotification($"{notificationJobId}.SendingEmployer")
                 .ContinueWith(t => WhenDone(t, logger, "SendingEmployer"));
 
-            Task.WaitAll(/*t1, t2,*/ t3);
+            Task.WaitAll(t1, t2, t3);
         }
 
         private static void WhenDone(Task task, ILog logger, string identifier)
