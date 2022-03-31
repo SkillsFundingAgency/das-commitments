@@ -316,7 +316,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                       .WithStartDate(startDate)
                       .WithEndDate(endDate)
                       .WithEmploymentEndDate(employmentDate),
-                nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
+                nameof(_fixture.DraftApprenticeshipDetails.EmploymentEndDate),
                 passes);
         }
 
