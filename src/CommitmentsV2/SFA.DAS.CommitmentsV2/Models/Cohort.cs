@@ -730,12 +730,12 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (draftApprenticeshipDetails.EmploymentEndDate.Value < draftApprenticeshipDetails.StartDate?.AddMonths(3))
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "This date must be at least 3 months later than the planned apprenticeship training start date");
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentEndDate), "This date must be at least 3 months later than the planned apprenticeship training start date");
             }
 
             if (draftApprenticeshipDetails.EmploymentEndDate.Value > draftApprenticeshipDetails.EndDate)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "This date must not be later than the projected apprenticeship training end date");
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentEndDate), "This date must not be later than the projected apprenticeship training end date");
             }
         }
 
