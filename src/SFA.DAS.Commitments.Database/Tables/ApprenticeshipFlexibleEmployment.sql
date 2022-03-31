@@ -3,7 +3,8 @@
 	[ApprenticeshipId] BIGINT NOT NULL,
 	[EmploymentPrice] INT NULL,
 	[EmploymentEndDate] DATETIME2 NULL,
-    CONSTRAINT [PK_FlexibleEmployment] PRIMARY KEY ([ApprenticeshipId])
+	CONSTRAINT [FK_ApprenticeshipFlexibleEmployment_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
+    CONSTRAINT [PK_ApprenticeshipFlexibleEmployment] PRIMARY KEY ([ApprenticeshipId])
 )
 GO
 
