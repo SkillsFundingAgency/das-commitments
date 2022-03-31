@@ -10,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -21,8 +20,6 @@ using SFA.DAS.CommitmentsV2.Types;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Authentication;
-using System.Text.RegularExpressions;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
 using SFA.DAS.EmailValidationService;
 
 namespace SFA.DAS.CommitmentsV2.Services

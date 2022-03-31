@@ -39,6 +39,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public DraftApprenticeship DraftApprenticeship { get; private set; }
         public Cohort Cohort { get; set; }
 
+        public const long ProviderId = 333;
+
         public BulkUploadValidateCommandHandlerTestsFixture()
         {
             CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
@@ -46,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             Command = new BulkUploadValidateCommand()
             {
                 CsvRecords = CsvRecords,
-                ProviderId = 1
+                ProviderId = ProviderId
             };
 
             OverlapCheckService = new Mock<IOverlapCheckService>();
@@ -109,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             Cohort = new Cohort()
             .Set(c => c.Id, 111)
             .Set(c => c.EmployerAccountId, 222)
-            .Set(c => c.ProviderId, 333)
+            .Set(c => c.ProviderId, ProviderId)
             .Set(c => c.Reference, "P97BKL")
             .Set(c => c.WithParty, Party.Provider)
             .Set(c => c.AccountLegalEntity, ale);
