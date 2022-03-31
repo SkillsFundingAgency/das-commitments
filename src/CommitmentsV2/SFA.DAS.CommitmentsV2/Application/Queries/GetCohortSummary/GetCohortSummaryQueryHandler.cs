@@ -32,7 +32,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
             }
 
-            var result = await db.Cohorts.Select(c => new GetCohortSummaryQueryResult
+            var result = await db.Cohorts
+                .Include(x => x.Apprenticeships)
+                .ThenInclude(x => x.FlexibleEmployment)
+                .Select(c => new GetCohortSummaryQueryResult
             {
                 CohortId = c.Id,
                 AccountId = c.EmployerAccountId,
