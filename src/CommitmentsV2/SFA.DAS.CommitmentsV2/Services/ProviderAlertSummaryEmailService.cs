@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -22,13 +23,16 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IProviderCommitmentsDbContext _context;
         private readonly ILogger<ProviderAlertSummaryEmailService> _logger;
         private readonly IMessageSession _nserviceBusContext;
+        private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
 
         public ProviderAlertSummaryEmailService(IProviderCommitmentsDbContext context,
             ILogger<ProviderAlertSummaryEmailService> logger,
+            CommitmentsV2Configuration commitmentsV2Configuration,
             IMessageSession nserviceBusContext)
         {
             _context = context;
             _logger = logger;
+            _commitmentsV2Configuration = commitmentsV2Configuration;
             _nserviceBusContext = nserviceBusContext;
         }
 
@@ -77,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                         {"mismatch_changes", GetMismatchText(alert.DataMismatchCount)},
                         {
                             "link_to_mange_apprenticeships",
-                            $"{providerId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested"
+                            $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested"
                         }
                     });
 
