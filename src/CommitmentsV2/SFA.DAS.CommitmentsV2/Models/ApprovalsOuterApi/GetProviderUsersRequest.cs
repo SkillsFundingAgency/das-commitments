@@ -12,6 +12,6 @@ namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
         {
             Ukprn = ukprn;
         }
-        public string GetUrl => $"/providers/{Ukprn}/users";
+        public string GetUrl => $"providers/{Ukprn}/users";
     }
 }
