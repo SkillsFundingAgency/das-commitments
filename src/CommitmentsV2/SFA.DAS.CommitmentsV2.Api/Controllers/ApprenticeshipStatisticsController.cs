@@ -2,20 +2,25 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatistics;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
     [Authorize]
     [Route("api/apprenticeshipstatistics")]
-    public class ApprenticeshipStatisticsController
+    public class ApprenticeshipStatisticsController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IModelMapper _modelMapper;
 
-        public ApprenticeshipStatisticsController(IMediator mediator)
+
+        public ApprenticeshipStatisticsController(IMediator mediator, IModelMapper modelMapper)
         {
             _mediator = mediator;
+            _modelMapper = modelMapper;
         }
 
 
@@ -29,6 +34,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 return NotFound();
             }
+
+            var response = _modelMapper.Map<GetApprenticeshipStatisticsResponse>(result);
+
+            return Ok(response);
+
         }
     }
 }
