@@ -14,7 +14,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
 
             builder
                 .HasOne(d => d.Apprenticeship)
-                .WithOne(p => p.FlexibleEmployment).OnDelete(DeleteBehavior.Cascade);
+                .WithOne(p => p.FlexibleEmployment)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
