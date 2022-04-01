@@ -2,6 +2,7 @@
 using NServiceBus;
 using Polly;
 using Polly.Retry;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -22,14 +23,16 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IApprovalsOuterApiClient _approvalsOuterApiClient;
         private readonly ILogger<EmployerAlertSummaryEmailService> _logger;
         private readonly AsyncRetryPolicy _asyncRetryPolicy;
+        private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
 
         public EmployerAlertSummaryEmailService(IApprenticeshipDomainService apprenticeshipDomainService, IMessageSession messageSession, IApprovalsOuterApiClient approvalsOuterApiClient, 
-            ILogger<EmployerAlertSummaryEmailService> logger)
+            ILogger<EmployerAlertSummaryEmailService> logger, CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _apprenticeshipDomainService = apprenticeshipDomainService;
             _messageSession = messageSession;
             _approvalsOuterApiClient = approvalsOuterApiClient;
             _logger = logger;
+            _commitmentsV2Configuration = commitmentsV2Configuration;
             _asyncRetryPolicy = GetRetryPolicy();
         }
 
@@ -69,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                         { "need_needs", alertSummary.TotalCount > 1 ? "need" :"needs" },
                         { "changes_for_review", ChangesForReviewText(alertSummary.ChangesForReviewCount) },
                         { "requested_changes", RestartRequestText(alertSummary.RestartRequestCount) },
-                        { "link_to_mange_apprenticeships", $"accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                        { "link_to_mange_apprenticeships", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                         { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/{hashedAccountId}" }
                     };
 
