@@ -270,7 +270,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [TestCase(1, null, true)]
-        [TestCase(1, 1, false)]
+        [TestCase(2, 1, false)]
+        [TestCase(2, 2, true)]
         [TestCase(1, 2, true)]
         public void EmploymentPrice_CheckEmploymentPriceIsLessThanTotalAgreenApprenticeshipPrice_Validation(int? employmentPrice, int? totalPrice, bool passes)
         {
