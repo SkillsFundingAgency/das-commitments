@@ -38,7 +38,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var response = _modelMapper.Map<GetApprenticeshipStatisticsResponse>(result);
 
             return Ok(response);
-
         }
     }
 }
