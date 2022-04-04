@@ -22,5 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities.EditApprenticeshipValidation
         public string Option { get; set; }
         public string ProviderReference { get; set; }
         public string Email { get; set; }
+        public DateTime? EmploymentEndDate { get; set; }
+        public decimal? EmploymentPrice { get; set; }
     }
 }
