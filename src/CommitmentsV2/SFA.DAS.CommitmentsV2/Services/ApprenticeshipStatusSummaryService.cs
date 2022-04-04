@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatistics;
 using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Services
@@ -57,6 +58,40 @@ namespace SFA.DAS.CommitmentsV2.Services
                 })
                
             };  
+        }
+
+        public async Task<GetApprenticeshipStatisticsQueryResult> GetApprenticeshipStatisticsFor(int lastNumberOfDays)
+        {
+            var fromDate = DateTime.UtcNow.AddDays(-30).Date;
+
+            var commitmentsApprovedTask = _dbContext.Value
+                .Apprenticeships
+                .Include(x => x.Cohort)
+                .CountAsync(x =>
+                    x.Cohort.EmployerAndProviderApprovedOn > fromDate &&
+                    (x.Cohort.Approvals == (Party) 3 || x.Cohort.Approvals == (Party) 7));
+
+            var commitmentsStoppedTask = _dbContext.Value
+                .Apprenticeships
+                .CountAsync(x =>
+                    x.StopDate > fromDate &&
+                    x.PaymentStatus == PaymentStatus.Withdrawn);
+
+            var commitmentsPausedTask = _dbContext.Value
+                .Apprenticeships
+                .CountAsync(x =>
+                    x.IsApproved &&
+                    x.PauseDate > fromDate &&
+                    x.PaymentStatus == PaymentStatus.Paused);
+
+            await Task.WhenAll(commitmentsApprovedTask, commitmentsStoppedTask, commitmentsPausedTask);
+
+            return new GetApprenticeshipStatisticsQueryResult
+            {
+                ApprovedApprenticeshipCount = commitmentsApprovedTask.Result,
+                StoppedApprenticeshipCount = commitmentsStoppedTask.Result,
+                PausedApprenticeshipCount = commitmentsPausedTask.Result
+            };
         }
     }
 
