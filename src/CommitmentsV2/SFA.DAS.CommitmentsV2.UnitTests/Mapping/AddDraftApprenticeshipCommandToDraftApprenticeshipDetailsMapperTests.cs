@@ -62,6 +62,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().Be(f.TrainingProgramme2.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme2.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeTrue();
+                    r.EmploymentPrice.Should().Be(f.Command.EmploymentPrice);
+                    r.EmploymentEndDate.Should().Be(f.Command.EmploymentEndDate);
                 });
         }
 

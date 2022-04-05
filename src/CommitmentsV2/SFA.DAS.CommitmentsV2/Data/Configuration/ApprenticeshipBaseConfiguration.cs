@@ -81,6 +81,11 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
 
             builder.Property(e => e.DeliveryModel)
                 .HasColumnType("tinyint");
+
+            builder.HasOne(p => p.FlexibleEmployment)
+                .WithOne(c => c.Apprenticeship)
+                .HasForeignKey<FlexibleEmployment>()
+                .IsRequired(false);
         }
 
         private void SetTablePerHierarchy(EntityTypeBuilder<ApprenticeshipBase> builder)

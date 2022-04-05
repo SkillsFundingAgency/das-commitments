@@ -51,7 +51,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                         Uln = draft.Uln,
                         IsContinuation = draft.ContinuationOfId.HasValue,
                         OriginalStartDate = draft.OriginalStartDate,
-                        HasStandardOptions = !string.IsNullOrEmpty(draft.StandardUId) && _dbContext.Value.StandardOptions.Any(c=>c.StandardUId.Equals(draft.StandardUId))
+                        HasStandardOptions = !string.IsNullOrEmpty(draft.StandardUId) && _dbContext.Value.StandardOptions.Any(c => c.StandardUId.Equals(draft.StandardUId)),
+                        EmploymentEndDate = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentEndDate : null,
+                        EmploymentPrice = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentPrice : null,
                     },
                     cancellationToken);
 

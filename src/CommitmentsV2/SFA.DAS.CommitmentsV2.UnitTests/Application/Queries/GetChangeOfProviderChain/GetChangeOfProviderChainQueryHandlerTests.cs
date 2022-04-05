@@ -269,6 +269,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                         1000,
                         input.StartDate,
                         input.EndDate,
+                        null,
+                        null,
                         new UserInfo(),
                         input.CreatedOn
                     );

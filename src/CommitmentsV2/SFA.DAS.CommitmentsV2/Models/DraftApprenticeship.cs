@@ -94,6 +94,18 @@ namespace SFA.DAS.CommitmentsV2.Models
                     ProviderRef = source.Reference;
                     break;
             }
+
+            if (source.DeliveryModel == Types.DeliveryModel.PortableFlexiJob)
+            {
+                FlexibleEmployment ??= new FlexibleEmployment();
+                FlexibleEmployment.EmploymentEndDate = source.EmploymentEndDate;
+                FlexibleEmployment.EmploymentPrice = source.EmploymentPrice;
+            }
+            else if (FlexibleEmployment != null)
+            {
+                FlexibleEmployment.EmploymentPrice = null;
+                FlexibleEmployment.EmploymentEndDate = null;
+            }
         }
 
         public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update)

@@ -67,5 +67,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         {
             return AssertPropertySet(input => input.DeliveryModel = dm, output => output.DeliveryModel == dm);
         }
+
+        [Test]
+        public Task Map_EmploymentEndDate_ShouldBeSet()
+        {
+            DateTime employmentEndDate = DateTime.Now;
+            return AssertPropertySet(input => input.EmploymentEndDate = employmentEndDate, output => output.EmploymentEndDate == employmentEndDate);
+        }
+
+        [Test]
+        public Task Map_EmploymentPrice_ShouldBeSet()
+        {
+            int employmentPrice = 456;
+            return AssertPropertySet(input => input.EmploymentPrice = employmentPrice, output => output.EmploymentPrice == employmentPrice);
+        }
     }
 }
