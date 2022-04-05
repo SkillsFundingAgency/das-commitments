@@ -44,6 +44,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             return _academicYearDateProvider.Object.CurrentAcademicYearEndDate;
         }
 
+        public Apprenticeship Apprenticeship => _apprenticeship;
+
         private Apprenticeship _apprenticeship;
 
         public EditApprenticeshipValidationServiceTestsFixture()
@@ -162,10 +164,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
             bool hasHadDataLockSuccess = false,
             DateTime employerProviderApprovedOn = default,
-            DeliveryModel deliveryModel = DeliveryModel.Regular
-            )
+            DeliveryModel deliveryModel = DeliveryModel.Regular,
+            FlexibleEmployment flexibleEmployment = null)
+            
         {
-            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel);
+            CreateApprenticeship(id, commitmentId, firstName, lastName, email, dobYear, dobMonth, dobDay, employerRef, uln, courseCode, programmeType, transferSenderId, cost, 
+                reservationId, paymentStatus, hasHadDataLockSuccess, employerProviderApprovedOn, deliveryModel, flexibleEmployment);
 
             WithStartDateInFuture();
 
@@ -249,7 +253,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Types.PaymentStatus paymentStatus = Types.PaymentStatus.Active,
             bool hasHadDataLockSuccess = false,
             DateTime employerProviderApprovedOn = default,
-            DeliveryModel deliveryModel = DeliveryModel.Regular
+            DeliveryModel deliveryModel = DeliveryModel.Regular,
+            FlexibleEmployment flexibleEmployment = null
             )
         {
             _apprenticeship = new Apprenticeship
@@ -274,7 +279,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 },
                 Uln = uln,
                 PaymentStatus = paymentStatus,
-                HasHadDataLockSuccess = hasHadDataLockSuccess
+                HasHadDataLockSuccess = hasHadDataLockSuccess,
+                FlexibleEmployment = flexibleEmployment
             };
 
             return this;
@@ -298,7 +304,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
            string courseCode = "",
            decimal? cost = null,
            string providerRef = "",
-           DeliveryModel deliveryModel = DeliveryModel.Regular
+           DeliveryModel deliveryModel = DeliveryModel.Regular,
+           int? employmentEndMonth = null,
+           int? employmentEndYear = null,
+           decimal? employmentPrice = null
            )
         {
             var request = new EditApprenticeshipValidationRequest
@@ -316,7 +325,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
                 ProviderReference = string.IsNullOrEmpty(providerRef) ? _apprenticeship.ProviderRef : providerRef,
                 CourseCode = string.IsNullOrEmpty(courseCode) ? _apprenticeship.CourseCode : courseCode,
                 ULN = string.IsNullOrEmpty(uln) ? _apprenticeship.Uln : uln,
-                DeliveryModel = deliveryModel
+                DeliveryModel = deliveryModel,
+                EmploymentEndDate = null,
+                EmploymentPrice = employmentPrice ?? _apprenticeship.FlexibleEmployment?.EmploymentPrice
             };
 
             if (dobYear.HasValue && dobMonth.HasValue && dobDay.HasValue)
@@ -344,6 +355,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             else
             {
                 request.EndDate = _apprenticeship.EndDate;
+            }
+
+            if (employmentEndYear.HasValue && employmentEndMonth.HasValue)
+            {
+                request.EmploymentEndDate = new DateTime(employmentEndYear.Value, employmentEndMonth.Value, 1);
+            }
+            else
+            {
+                request.EmploymentEndDate = _apprenticeship.FlexibleEmployment?.EmploymentEndDate;
             }
 
             return request;
