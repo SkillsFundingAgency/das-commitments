@@ -14,9 +14,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
         {
             return Task.FromResult(new GetApprenticeshipStatisticsResponse
             {
-                PausedApprenticeshipCount = source.PausedApprenticeshipCount,
-                StoppedApprenticeshipCount = source.StoppedApprenticeshipCount,
-                ApprovedApprenticeshipCount = source.ApprovedApprenticeshipCount
+                Paused = source.PausedApprenticeshipCount,
+                Stopped = source.StoppedApprenticeshipCount,
+                Approved = source.ApprovedApprenticeshipCount
             });
         }
     }
