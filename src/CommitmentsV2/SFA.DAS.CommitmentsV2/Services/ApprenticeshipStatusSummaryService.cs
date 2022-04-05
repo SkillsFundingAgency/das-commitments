@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<GetApprenticeshipStatisticsQueryResult> GetApprenticeshipStatisticsFor(int lastNumberOfDays)
         {
-            var fromDate = DateTime.UtcNow.AddDays(-30).Date;
+            var fromDate = DateTime.UtcNow.AddDays(Math.Abs(lastNumberOfDays) * -1).Date;
 
             var commitmentsApprovedTask = _dbContext.Value
                 .Apprenticeships
