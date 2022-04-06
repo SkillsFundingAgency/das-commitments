@@ -42,6 +42,12 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 ProviderReference = source.ProviderReference
             };
 
+            if (source.DeliveryModel == DeliveryModel.PortableFlexiJob)
+            {
+                validationRequest.EmploymentEndDate = source.EmploymentEndDate ?? apprenticeship.FlexibleEmployment?.EmploymentEndDate;
+                validationRequest.EmploymentPrice = source.EmploymentPrice ?? apprenticeship.FlexibleEmployment?.EmploymentPrice;
+            }
+
             return validationRequest;
         }
 
@@ -74,6 +80,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 || !string.IsNullOrWhiteSpace(request.LastName)
                 || !string.IsNullOrWhiteSpace(request.Email)
                 || request.DeliveryModel != null
+                || request.EmploymentEndDate != null
+                || request.EmploymentPrice != null
                 || !string.IsNullOrWhiteSpace(request.CourseCode)
                 || !string.IsNullOrWhiteSpace(request.Version)
                 || request.Option != apprenticeship.TrainingCourseOption
