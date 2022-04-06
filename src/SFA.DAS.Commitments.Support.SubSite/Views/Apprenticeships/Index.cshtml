@@ -25,9 +25,41 @@
                     </tr>
                     <tr>
                         <th scope="row" class="bold">Payment status</th>
-                        <td>@Model.PaymentStatus</td>
-
+                        <td>
+                            <strong class="@($"govuk-tag govuk-tag--{Model.PaymentStatusTagColour}")">
+                                @Model.PaymentStatus
+                            </strong>
+                        </td>
                     </tr>
+                    @if (Model.MadeRedundant.HasValue)
+                    {
+                        <tr>
+                            <th scope="row" class="bold">Completion payment month</th>
+                            <td>@(Model.MadeRedundant.Value ? "Yes" : "No")</td>
+                        </tr>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.CompletionPaymentMonth))
+                    {
+                        <tr>
+                            <th scope="row" class="bold">Completion payment month</th>
+                            <td>@Model.CompletionPaymentMonth</td>
+                        </tr>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Model.StopDate))
+                    {
+                        <tr>
+                            <th scope="row" class="bold">Stopped date</th>
+                            <td>@Model.StopDate</td>
+                        </tr>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Model.PauseDate))
+                    {
+                        <tr>
+                            <th scope="row" class="bold">Paused date</th>
+                            <td>@Model.PauseDate</td>
+                        </tr>
+                    }
                     <tr>
                         <th scope="row" class="bold">Unique learner number</th>
                         <td>@Model.UlnText</td>
