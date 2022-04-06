@@ -135,6 +135,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public async Task And_DeliveryModelIsSetToRegular_ThenDeliveryModelIsChanged_And_EmploymentFieldsSetToNull(Party party)
+        {
+            fixture.SetParty(party);
+            fixture.Command.EditApprenticeshipRequest.DeliveryModel = DeliveryModel.Regular;
+
+            await fixture.Handle();
+            fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.DeliveryModel, app => app.ApprenticeshipUpdate.First().DeliveryModel);
+            fixture.VerifyEmploymentFieldsAreNull();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public async Task ThenStartDateIsChanged(Party party)
         {
             fixture.SetParty(party);
@@ -488,6 +500,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
             Assert.AreEqual(1, apprenticeship.ApprenticeshipUpdate.Count);
             Assert.AreEqual(expectedValue, getApprenticeshipUpdateValue(apprenticeship));
+        }
+
+        internal void VerifyEmploymentFieldsAreNull()
+        {
+            var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
+            Assert.AreEqual(1, apprenticeship.ApprenticeshipUpdate.Count);
+            Assert.IsNull(apprenticeship.ApprenticeshipUpdate.First().EmploymentEndDate);
+            Assert.IsNull(apprenticeship.ApprenticeshipUpdate.First().EmploymentPrice);
         }
 
         internal void VerifyApprenticeshipUpdateCreatedEvent()

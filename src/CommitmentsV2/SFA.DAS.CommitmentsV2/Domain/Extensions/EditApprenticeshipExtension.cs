@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 ProviderReference = source.ProviderReference
             };
 
-            if (source.DeliveryModel == DeliveryModel.PortableFlexiJob)
+            if (source.DeliveryModel == DeliveryModel.PortableFlexiJob || apprenticeship.DeliveryModel == DeliveryModel.PortableFlexiJob)
             {
                 validationRequest.EmploymentEndDate = source.EmploymentEndDate ?? apprenticeship.FlexibleEmployment?.EmploymentEndDate;
                 validationRequest.EmploymentPrice = source.EmploymentPrice ?? apprenticeship.FlexibleEmployment?.EmploymentPrice;
@@ -55,6 +55,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         {
             var apprenticeshipUpdate = new ApprenticeshipUpdate();
             apprenticeshipUpdate.DeliveryModel = command.EditApprenticeshipRequest.DeliveryModel;
+            apprenticeshipUpdate.EmploymentEndDate = command.EditApprenticeshipRequest.EmploymentEndDate;
+            apprenticeshipUpdate.EmploymentPrice = command.EditApprenticeshipRequest.EmploymentPrice;
             apprenticeshipUpdate.TrainingCode = command.EditApprenticeshipRequest.CourseCode;
             apprenticeshipUpdate.TrainingCourseVersion = command.EditApprenticeshipRequest.Version;
             apprenticeshipUpdate.TrainingCourseOption = command.EditApprenticeshipRequest.Option;

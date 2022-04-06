@@ -22,7 +22,9 @@
 	[EffectiveFromDate] DATETIME NULL,
 	[EffectiveToDate] DATETIME NULL, 
     [Email] NVARCHAR(200) NULL,
-    [DeliveryModel] TINYINT NULL
+    [DeliveryModel] TINYINT NULL, 
+    [EmploymentPrice] DECIMAL NULL, 
+    [EmploymentEndDate] DATETIME2 NULL
 )
 GO
 
