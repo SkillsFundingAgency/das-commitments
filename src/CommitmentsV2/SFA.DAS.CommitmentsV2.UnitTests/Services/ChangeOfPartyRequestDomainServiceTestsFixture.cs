@@ -38,8 +38,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public long ApprenticeshipId { get; private set; }
         public long NewPartyId { get; private set; }
         public int? Price { get; private set; }
+        public int? EmploymentPrice { get; private set; }
         public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
+        public DateTime? EmploymentEndDate { get; private set; }
         public UserInfo UserInfo { get; private set; }
 
         public ChangeOfPartyRequest ApprenticeshipChangeOfPartyRequestResult { get; private set; }
@@ -75,8 +77,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             ChangeOfPartyRequestType = changeOfPartyRequestType;            
             NewPartyId = Fixture.Create<long>();
             Price = Fixture.Create<int?>();
+            EmploymentPrice = Fixture.Create<int?>();
             StartDate = Fixture.Create<DateTime?>();
             EndDate = Fixture.Create<DateTime?>();
+            EmploymentEndDate = Fixture.Create<DateTime?>();
             UserInfo = Fixture.Create<UserInfo>();
 
             _domainService = new ChangeOfPartyRequestDomainService(
@@ -107,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Apprenticeship.Setup(x => x.Cohort).Returns(Cohort);
             Apprenticeship.Setup(x => x.CreateChangeOfPartyRequest(It.IsAny<ChangeOfPartyRequestType>(),
                     It.IsAny<Party>(), It.IsAny<long>(), It.IsAny<int?>(), It.IsAny<DateTime?>(),
-                    It.IsAny<DateTime?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
+                    It.IsAny<DateTime?>(), It.IsAny<int?>(), It.IsAny<DateTime?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
                 .Returns(ApprenticeshipChangeOfPartyRequestResult);
 
             Db
@@ -160,7 +164,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             try
             {
                 Result = await _domainService.CreateChangeOfPartyRequest(ApprenticeshipId,
-                    ChangeOfPartyRequestType, NewPartyId, Price, StartDate, EndDate, UserInfo, new CancellationToken());
+                    ChangeOfPartyRequestType, NewPartyId, Price, StartDate, EndDate, UserInfo,
+                    EmploymentPrice, EmploymentEndDate, new CancellationToken());
 
                 Db.Object.SaveChanges();
             }
@@ -180,6 +185,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     It.Is<int?>(p => p == Price),
                     It.Is<DateTime?>(s => s == StartDate),
                     It.Is<DateTime?>(e => e == EndDate),
+                    It.Is<int?>(p => p == EmploymentPrice),
+                    It.Is<DateTime?>(e => e == EmploymentEndDate),
                     It.Is<UserInfo>(u => u == UserInfo),
                     It.Is<DateTime>(n => n == Now))
                 , Times.Once);

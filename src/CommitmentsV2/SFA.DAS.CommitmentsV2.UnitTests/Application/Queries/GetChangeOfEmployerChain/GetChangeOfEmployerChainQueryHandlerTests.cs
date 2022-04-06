@@ -210,6 +210,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
             public DateTime? StopDate { get; set; }
+            public DateTime? EmploymentEndDate { get; set; }
             public DateTime CreatedOn { get; set; }
             public long? ContinuationOfId { get; set; }
             public Employer CurrentEmployer { get; set; }
@@ -291,7 +292,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                         input.NewEmployer.EmployerId,
                         1000,
                         input.StartDate,
-                        input.EndDate,
+                        null,
+                        null,
+                        input.EmploymentEndDate,
                         new UserInfo(),
                         input.CreatedOn
                     );

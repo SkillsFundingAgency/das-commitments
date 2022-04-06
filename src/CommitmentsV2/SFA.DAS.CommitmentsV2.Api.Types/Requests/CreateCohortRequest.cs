@@ -22,5 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public Guid? ReservationId { get; set; }
         public long? TransferSenderId { get; set; }
         public int? PledgeApplicationId { get; set; }
+        public int? EmploymentPrice { get; set; }
+        public DateTime? EmploymentEndDate { get; set; }
     }
 }
