@@ -68,6 +68,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         }
 
         [Test]
+        public Task Map_EmploymentEndDate_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.EmploymentEndDate, (DateTime?)DateTime.Now);
+        }
+
+        [Test]
+        public Task Map_EmploymentPrice_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.EmploymentPrice, (int?)123);
+        }
+
+        [Test]
         public Task Map_StartDate_ShouldBeSet()
         {
             return AssertPropertySet(input => input.StartDate, (DateTime?) DateTime.Now);

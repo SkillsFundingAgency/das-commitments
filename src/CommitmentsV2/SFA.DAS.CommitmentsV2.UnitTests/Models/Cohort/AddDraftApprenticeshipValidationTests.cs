@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Linq;
 using AutoFixture;
+using FluentAssertions;
+using Microsoft.AspNetCore.JsonPatch.Internal;
+using Microsoft.Azure.Amqp.Framing;
+using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -54,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [TestCase(100001, false)]
         public void Cost_CheckValidation(int? cost, bool passes)
         {
-            _fixture.AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Cost = cost,
+            _fixture.AssertValidationForProperty(() => _fixture.WithCost(cost),
                 nameof(_fixture.DraftApprenticeshipDetails.Cost),
                 passes);
         }
@@ -249,6 +253,107 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 nameof(_fixture.DraftApprenticeshipDetails.DeliveryModel),
                 passes);
         }
+
+        [TestCase(DeliveryModel.Regular, null, true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, null, true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, -1, false)]
+        [TestCase(DeliveryModel.PortableFlexiJob, 0, false)]
+        [TestCase(DeliveryModel.PortableFlexiJob, 1, true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, 100000, true)]
+        [TestCase(DeliveryModel.PortableFlexiJob, 100001, false)]
+        public void EmploymentPrice_CheckEmploymentPriceIsPresentWhenFlexible_Validation(DeliveryModel deliveryModel, int? price, bool passes)
+        {
+            _fixture.AssertValidationForProperty(
+                () => _fixture.WithDeliveryModel(deliveryModel).WithEmploymentPrice(price),
+                nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
+                passes);
+        }
+
+        [TestCase(1, null, true)]
+        [TestCase(2, 1, false)]
+        [TestCase(2, 2, true)]
+        [TestCase(1, 2, true)]
+        public void EmploymentPrice_CheckEmploymentPriceIsLessThanTotalAgreenApprenticeshipPrice_Validation(int? employmentPrice, int? totalPrice, bool passes)
+        {
+            _fixture.AssertValidationForProperty(
+                () =>_fixture
+                      .WithDeliveryModel(DeliveryModel.PortableFlexiJob)
+                      .WithEmploymentPrice(employmentPrice)
+                      .WithCost(totalPrice),
+                nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
+                passes);
+        }
+
+        [TestCase(DeliveryModel.Regular, null)]
+        [TestCase(DeliveryModel.PortableFlexiJob, null)]
+        [TestCase(DeliveryModel.PortableFlexiJob, "2019-06-01")]
+        public void EmploymentEndDate_CheckEmploymentEndDateIsPresent_AllowedValidations(DeliveryModel deliveryModel, string date)
+        {
+            _fixture.AssertValidationForProperty(
+                () => _fixture
+                      .WithDeliveryModel(deliveryModel)
+                      .WithEmploymentEndDate(TryParseNullableDateTime(date)),
+                nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice),
+                true);
+        }
+
+        [TestCase(null, null, null, true)]
+        [TestCase("2019-06-05", "2019-11-05", null, true)]
+        [TestCase("2019-06-05", "2019-11-01", "2019-06-01", false)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-06-05", false)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-09-04", false)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-09-05", true)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-11-05", true)]
+        [TestCase("2019-06-05", "2019-11-05", "2019-11-06", false)]
+        public void EmploymentEndDate_CheckEmploymentEndDate_Validation(string trainingStartDate, string trainingEndDate, string employmentEndDate, bool passes)
+        {
+            var startDate = TryParseNullableDateTime(trainingStartDate);
+            var endDate = TryParseNullableDateTime(trainingEndDate);
+            var employmentDate = TryParseNullableDateTime(employmentEndDate);
+
+            _fixture.AssertValidationForProperty(
+                () => _fixture
+                      .WithDeliveryModel(DeliveryModel.PortableFlexiJob)
+                      .WithStartDate(startDate)
+                      .WithEndDate(endDate)
+                      .WithEmploymentEndDate(employmentDate),
+                nameof(_fixture.DraftApprenticeshipDetails.EmploymentEndDate),
+                passes);
+        }
+
+        [Test]
+        public void EmploymentEndDate_CheckEmploymentEndDate_Validation2()
+        {
+            var startDate = TryParseNullableDateTime(null);
+            var endDate = TryParseNullableDateTime(null);
+            var employmentDate = TryParseNullableDateTime(null);
+
+            startDate.Should().BeNull();
+            endDate.Should().BeNull();
+            employmentDate.Should().BeNull();
+
+            _fixture
+                .WithDeliveryModel(DeliveryModel.PortableFlexiJob)
+                .WithStartDate(startDate)
+                .WithEndDate(endDate)
+                .WithEmploymentEndDate(employmentDate);
+
+            try
+            {
+                _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider, _fixture.UserInfo);
+            }
+            catch (DomainException ex)
+            {
+                ex.DomainErrors.Select(x => x.PropertyName).Should().Contain(nameof(_fixture.DraftApprenticeshipDetails.EmploymentPrice));
+            }
+        }
+
+        DateTime? TryParseNullableDateTime(string date)
+        {
+            return DateTime.TryParse(date, out var parsed)
+                ? parsed
+                : (DateTime?)null;
+        }
     }
 
     public class AddDraftApprenticeshipValidationTestsFixture
@@ -325,6 +430,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             return this;
         }
 
+        public AddDraftApprenticeshipValidationTestsFixture WithEndDate(DateTime? startDate)
+        {
+            DraftApprenticeshipDetails.EndDate = startDate;
+            return this;
+        }
+
         public AddDraftApprenticeshipValidationTestsFixture WithEmail(string email)
         {
             DraftApprenticeshipDetails.Email = email;
@@ -361,6 +472,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             DraftApprenticeshipDetails.Uln = uln;
             
+            return this;
+        }
+
+        internal AddDraftApprenticeshipValidationTestsFixture WithEmploymentPrice(int? price)
+        {
+            DraftApprenticeshipDetails.EmploymentPrice = price;
+            return this;
+        }
+
+        internal AddDraftApprenticeshipValidationTestsFixture WithEmploymentEndDate(DateTime? date)
+        {
+            DraftApprenticeshipDetails.EmploymentEndDate = date;
+            return this;
+        }
+
+        internal AddDraftApprenticeshipValidationTestsFixture WithCost(int? cost)
+        {
+            DraftApprenticeshipDetails.Cost = cost;
             return this;
         }
     }

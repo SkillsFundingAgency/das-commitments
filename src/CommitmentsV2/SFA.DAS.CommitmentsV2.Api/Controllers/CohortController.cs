@@ -60,6 +60,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.Uln,
                 request.TransferSenderId,
                 request.PledgeApplicationId,
+                request.EmploymentPrice,
+                request.EmploymentEndDate,
                 request.UserInfo);
             
             var result = await _mediator.Send(command);

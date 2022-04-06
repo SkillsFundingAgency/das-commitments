@@ -47,7 +47,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             {
                 AutoFixture = new Fixture();
 
-                QueryResult = AutoFixture.Create<GetApprenticeshipQueryResult>();
+                QueryResult = AutoFixture
+                    .Build<GetApprenticeshipQueryResult>()
+                    .Create();
 
                 Mediator = new Mock<IMediator>();
                 Mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipQuery>(), It.IsAny<CancellationToken>()))

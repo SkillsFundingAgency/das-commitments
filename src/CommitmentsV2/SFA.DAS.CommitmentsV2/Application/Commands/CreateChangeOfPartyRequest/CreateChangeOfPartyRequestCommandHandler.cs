@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
         {
             return _changeOfPartyRequestDomainService.CreateChangeOfPartyRequest(command.ApprenticeshipId,
                 command.ChangeOfPartyRequestType, command.NewPartyId, command.NewPrice, command.NewStartDate, command.NewEndDate,
-                command.UserInfo, cancellationToken);
+                command.UserInfo, command.NewEmploymentPrice, command.NewEmploymentEndDate, cancellationToken);
         }
     }
 }

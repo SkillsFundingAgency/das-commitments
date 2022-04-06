@@ -23,6 +23,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ChangeOfPartyRequestStatus Status { get; private set; }
         public virtual long? CohortId { get; private set; }
         public DateTime? ActionedOn { get; private set; }
+        public DateTime? EmploymentEndDate { get; private set; }
+        public int? EmploymentPrice { get; private set; }
 
         public byte[] RowVersion { get; private set; }
         public DateTime LastUpdatedOn { get; private set; }
@@ -43,6 +45,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             int? price,
             DateTime? startDate,
             DateTime? endDate,
+            int? employmentPrice,
+            DateTime? employmentEndDate,
             UserInfo userInfo,
             DateTime now)
         {
@@ -60,6 +64,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             Price = price;
             StartDate = startDate;
             EndDate = endDate;
+            EmploymentPrice = employmentPrice;
+            EmploymentEndDate = employmentEndDate;
             Status = ChangeOfPartyRequestStatus.Pending;
             CreatedOn = now;
             LastUpdatedOn = now;
