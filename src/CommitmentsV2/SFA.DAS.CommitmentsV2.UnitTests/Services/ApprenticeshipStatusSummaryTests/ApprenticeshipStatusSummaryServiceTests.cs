@@ -1,4 +1,9 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -10,13 +15,8 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services
+namespace SFA.DAS.CommitmentsV2.UnitTests.Services.ApprenticeshipStatusSummaryTests
 {
     [TestFixture]
     [Parallelizable(ParallelScope.None)]
