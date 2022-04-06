@@ -748,7 +748,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (draftApprenticeshipDetails.EmploymentPrice <= 0)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "You must add the agreed price for this employment");
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "The cost must be greater than zero");
             }
 
             if (draftApprenticeshipDetails.EmploymentPrice > Constants.MaximumApprenticeshipCost)
