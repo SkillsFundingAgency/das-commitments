@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string ULN { get; set; }
         public DeliveryModel? DeliveryModel { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
-        public DateTime? EmploymentPrice { get; set; }
+        public decimal? EmploymentPrice { get; set; }
         public string TrainingName { get; set; }
         public decimal? Cost { get; set; }
         public string EmployerReference { get; set; }
