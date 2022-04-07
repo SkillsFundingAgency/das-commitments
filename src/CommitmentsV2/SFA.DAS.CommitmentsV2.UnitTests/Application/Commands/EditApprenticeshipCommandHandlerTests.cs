@@ -148,7 +148,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task ThenEmploymentEndDateIsChanged(Party party)
-
         {
             fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.DeliveryModel = DeliveryModel.PortableFlexiJob;
@@ -162,7 +161,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task ThenEmploymentPriceIsChanged(Party party)
-
         {
             fixture.SetParty(party);
             fixture.Command.EditApprenticeshipRequest.DeliveryModel = DeliveryModel.PortableFlexiJob;
