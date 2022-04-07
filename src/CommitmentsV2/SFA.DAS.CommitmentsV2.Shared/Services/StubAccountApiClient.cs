@@ -9,8 +9,8 @@ using SFA.DAS.EAS.Account.Api.Types;
 namespace SFA.DAS.CommitmentsV2.Shared.Services
 {
     /// <summary>
-    ///Commitments stub of Employer Account Api v1 Client
-    ///https://github.com/SkillsFundingAgency/das-employerapprenticeshipsservice/blob/f506d4e401109312d4d787da8a9b004060326912/src/SFA.DAS.Account.Api.Client/AccountApiClient.cs
+    /// Commitments stub of EAS Account Api Client
+    /// https://github.com/SkillsFundingAgency/das-employerapprenticeshipsservice/blob/f506d4e401109312d4d787da8a9b004060326912/src/SFA.DAS.Account.Api.Client/AccountApiClient.cs
     /// </summary>
     public class StubAccountApiClient : IAccountApiClient
     {
@@ -63,6 +63,11 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             var response = await _httpClient.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<LegalEntityViewModel>(json);
+        }
+
+        public Task<ICollection<LegalEntityViewModel>> GetLegalEntityDetailsConnectedToAccount(string accountId)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<ICollection<LevyDeclarationViewModel>> GetLevyDeclarations(string accountId)
