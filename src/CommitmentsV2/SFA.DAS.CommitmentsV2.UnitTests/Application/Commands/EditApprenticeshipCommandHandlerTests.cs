@@ -147,6 +147,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public async Task ThenEmploymentEndDateIsChanged(Party party)
+
+        {
+            fixture.SetParty(party);
+            fixture.Command.EditApprenticeshipRequest.DeliveryModel = DeliveryModel.PortableFlexiJob;
+            fixture.Command.EditApprenticeshipRequest.EmploymentEndDate = DateTime.UtcNow;
+
+            await fixture.Handle();
+            fixture.VerifyApprenticeshipUpdateCreated(fixture.Command.EditApprenticeshipRequest.EmploymentEndDate.Value,
+                app => app.ApprenticeshipUpdate.First().EmploymentEndDate.Value);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task ThenEmploymentPriceIsChanged(Party party)
+
+        {
+            fixture.SetParty(party);
+            fixture.Command.EditApprenticeshipRequest.DeliveryModel = DeliveryModel.PortableFlexiJob;
+            fixture.Command.EditApprenticeshipRequest.EmploymentPrice = 100;
+
+            await fixture.Handle();
+            fixture.VerifyApprenticeshipUpdateCreated((long)fixture.Command.EditApprenticeshipRequest.EmploymentPrice,
+                app => (long)app.ApprenticeshipUpdate.First().EmploymentPrice);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public async Task ThenStartDateIsChanged(Party party)
         {
             fixture.SetParty(party);
