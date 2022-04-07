@@ -1,16 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatistics;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatistics;
-using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -64,33 +63,31 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var fromDate = DateTime.UtcNow.AddDays(Math.Abs(lastNumberOfDays) * -1).Date;
 
-            var commitmentsApprovedTask = _dbContext.Value
+            var commitmentsApprovedCount = await _dbContext.Value
                 .Apprenticeships
                 .Include(x => x.Cohort)
                 .CountAsync(x =>
                     x.Cohort.EmployerAndProviderApprovedOn > fromDate &&
-                    (x.Cohort.Approvals == (Party) 3 || x.Cohort.Approvals == (Party) 7));
+                    (x.Cohort.Approvals == (Party)3 || x.Cohort.Approvals == (Party)7));
 
-            var commitmentsStoppedTask = _dbContext.Value
+            var commitmentsStoppedCount = await _dbContext.Value
                 .Apprenticeships
                 .CountAsync(x =>
                     x.StopDate > fromDate &&
                     x.PaymentStatus == PaymentStatus.Withdrawn);
 
-            var commitmentsPausedTask = _dbContext.Value
+            var commitmentsPausedCount = await _dbContext.Value
                 .Apprenticeships
                 .CountAsync(x =>
                     x.IsApproved &&
                     x.PauseDate > fromDate &&
                     x.PaymentStatus == PaymentStatus.Paused);
 
-            await Task.WhenAll(commitmentsApprovedTask, commitmentsStoppedTask, commitmentsPausedTask);
-
             return new GetApprenticeshipStatisticsQueryResult
             {
-                ApprovedApprenticeshipCount = commitmentsApprovedTask.Result,
-                StoppedApprenticeshipCount = commitmentsStoppedTask.Result,
-                PausedApprenticeshipCount = commitmentsPausedTask.Result
+                ApprovedApprenticeshipCount = commitmentsApprovedCount,
+                StoppedApprenticeshipCount = commitmentsStoppedCount,
+                PausedApprenticeshipCount = commitmentsPausedCount
             };
         }
     }
