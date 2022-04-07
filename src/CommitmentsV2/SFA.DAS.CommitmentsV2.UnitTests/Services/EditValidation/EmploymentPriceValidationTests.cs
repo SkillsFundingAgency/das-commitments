@@ -60,19 +60,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             Assert.AreEqual("The agreed price for this employment must be £100,000 or less", result.Errors[0].ErrorMessage);
             Assert.AreEqual("EmploymentPrice", result.Errors[0].PropertyName);
         }
-
-        [Test]
-        public async Task For_RegularApprenticeships_EmploymentPrice_Should_Be_Null()
-        {
-            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenticeship();
-            var request = fixture.CreateValidationRequest(employmentPrice:1);
-
-            var result = await fixture.Validate(request);
-
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("The employment price cannot be set", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EmploymentPrice", result.Errors[0].PropertyName);
-        }
     }
 }

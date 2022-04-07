@@ -27,6 +27,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
                 ProviderId = apprenticeship.Cohort.ProviderId,
                 DeliveryModel = source.DeliveryModel ?? apprenticeship.DeliveryModel ?? DeliveryModel.Regular,
+                EmploymentEndDate = source.EmploymentEndDate ?? apprenticeship.FlexibleEmployment?.EmploymentEndDate,
+                EmploymentPrice = source.EmploymentPrice ?? apprenticeship.FlexibleEmployment?.EmploymentPrice,
                 CourseCode = GetValue(source.CourseCode, apprenticeship.CourseCode),
                 Version = GetValue(source.Version, apprenticeship.TrainingCourseVersion),
                 Option = GetValue(source.Option, apprenticeship.TrainingCourseOption),
@@ -41,12 +43,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 Cost = source.Cost ?? apprenticeship.PriceHistory.GetPrice(dateTimeNow),
                 ProviderReference = source.ProviderReference
             };
-
-            if (source.DeliveryModel == DeliveryModel.PortableFlexiJob || apprenticeship.DeliveryModel == DeliveryModel.PortableFlexiJob)
-            {
-                validationRequest.EmploymentEndDate = source.EmploymentEndDate ?? apprenticeship.FlexibleEmployment?.EmploymentEndDate;
-                validationRequest.EmploymentPrice = source.EmploymentPrice ?? apprenticeship.FlexibleEmployment?.EmploymentPrice;
-            }
 
             return validationRequest;
         }

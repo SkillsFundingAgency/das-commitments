@@ -519,34 +519,16 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private IEnumerable<DomainError> BuildFlexibleEmploymentValidationFailures(EditApprenticeshipValidationRequest apprenticeshipRequest, Apprenticeship apprenticeshipDetails)
         {
-            switch (apprenticeshipRequest.DeliveryModel)
+            if(apprenticeshipRequest.DeliveryModel == DeliveryModel.PortableFlexiJob)
             {
-                case DeliveryModel.Regular:
+                foreach (var failure in BuildFlexibleEmploymentPriceValidationFailures(apprenticeshipRequest))
                 {
-                    if (apprenticeshipRequest.EmploymentEndDate != null)
-                    {
-                        yield return new DomainError(nameof(apprenticeshipRequest.EmploymentEndDate), "The employment end date cannot be set");
-                    }
-                    if (apprenticeshipRequest.EmploymentPrice != null)
-                    {
-                        yield return new DomainError(nameof(apprenticeshipRequest.EmploymentPrice), "The employment price cannot be set");
-                    }
-
-                    break;
+                    yield return failure;
                 }
-                case DeliveryModel.PortableFlexiJob:
+
+                foreach (var failure in BuildFlexibleEmploymentDateValidationFailures(apprenticeshipRequest))
                 {
-                    foreach (var failure in BuildFlexibleEmploymentPriceValidationFailures(apprenticeshipRequest))
-                    {
-                        yield return failure;
-                    }
-
-                    foreach (var failure in BuildFlexibleEmploymentDateValidationFailures(apprenticeshipRequest))
-                    {
-                        yield return failure;
-                    }
-
-                    break;
+                    yield return failure;
                 }
             }
         }

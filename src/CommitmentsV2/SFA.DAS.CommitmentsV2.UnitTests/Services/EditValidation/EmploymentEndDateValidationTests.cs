@@ -57,20 +57,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         }
 
         [Test]
-        public async Task For_RegularApprenticeships_EmploymentEndDate_Should_Be_Null()
-        {
-            var fixture = new EditApprenticeshipValidationServiceTestsFixture();
-            fixture.SetupMockContextApprenticeship();
-            var request = fixture.CreateValidationRequest(employmentEndMonth: 1, employmentEndYear: 2022);
-
-            var result = await fixture.Validate(request);
-
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("The employment end date cannot be set", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EmploymentEndDate", result.Errors[0].PropertyName);
-        }
-
-        [Test]
         public async Task For_PortableApprenticeships_EmploymentDateTime_Should_Not_Be_Empty()
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
