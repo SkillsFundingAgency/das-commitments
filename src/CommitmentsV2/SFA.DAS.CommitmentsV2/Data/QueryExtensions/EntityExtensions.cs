@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Data.QueryExtensions
     public static class EntityExtensions
     {
         public static Task<TResponse> GetById<TEntity, TResponse>(
-            this DbSet<TEntity> query,
+            this IQueryable<TEntity> query,
             Expression<Func<TEntity, bool>> where,
             Expression<Func<TEntity, TResponse>> select,
             CancellationToken cancellationToken) where TEntity : class
