@@ -20,5 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public string TrainingCode { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public DeliveryModel DeliveryModel { get; set; }
+        public DateTime? EmploymentEndDate { get; set; }
+        public decimal? EmploymentPrice { get; set; }
     }
 }

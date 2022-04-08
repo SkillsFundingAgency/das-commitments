@@ -111,6 +111,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseOption = TrainingCourseOption,
                 Uln = Uln,
                 DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Regular,
+                EmploymentEndDate = FlexibleEmployment?.EmploymentEndDate,
+                EmploymentPrice = FlexibleEmployment?.EmploymentPrice
             });
         }
 
@@ -323,6 +325,22 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (update.DeliveryModel.HasValue)
             {
                 DeliveryModel = update.DeliveryModel;
+                FlexibleEmployment ??= new FlexibleEmployment();
+                if (DeliveryModel == Types.DeliveryModel.Regular)
+                {
+                    FlexibleEmployment.EmploymentEndDate = null;
+                    FlexibleEmployment.EmploymentPrice = null;
+                }
+            }
+
+            if (update.EmploymentEndDate.HasValue)
+            {
+                FlexibleEmployment.EmploymentEndDate = update.EmploymentEndDate;
+            }
+
+            if (update.EmploymentPrice.HasValue)
+            {
+                FlexibleEmployment.EmploymentPrice = (int?)update.EmploymentPrice;
             }
 
             if (update.TrainingType.HasValue)
