@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.Reservations.Api.Types.Configuration;
@@ -54,6 +56,12 @@ namespace SFA.DAS.Reservations.Api.Types
         {
             var url = BuildUrl($"api/reservations/{reservationId}/change");
             return _httpHelper.PostAsJson<CreateChangeOfPartyReservationRequest, CreateChangeOfPartyReservationResult>(url, request, cancellationToken);
+        }
+
+        public Task<BulkValidationResults> BulkValidate(IEnumerable<Reservation> request, CancellationToken cancellationToken)
+        {
+            var url = BuildUrl($"api/Reservations/accounts/{request.First().AccountLegalEntityId}/bulk-validate");
+            return _httpHelper.PostAsJson<IEnumerable<Reservation>, BulkValidationResults>(url, request, cancellationToken);
         }
 
         private string BuildUrl(string path)

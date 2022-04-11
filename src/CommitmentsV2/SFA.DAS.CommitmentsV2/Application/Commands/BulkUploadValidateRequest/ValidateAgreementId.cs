@@ -43,16 +43,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return errors;
         }
 
-        private async Task<List<Error>> ValidateAgreementIdMustBeLevy(BulkUploadAddDraftApprenticeshipRequest csvRecord)
-        {
-            List<Error> errors = new List<Error>();
-            if (!(await IsLevy(csvRecord.AgreementId)).GetValueOrDefault(false))
-            {
-                errors.Add(new Error("AgreementId", $"You cannot add apprentices via file on behalf of <b>non-levy employers</b> yet."));
-            }
+        //private async Task<List<Error>> ValidateAgreementIdMustBeLevy(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+        //{
+        //    List<Error> errors = new List<Error>();
+        //    if (!(await IsLevy(csvRecord.AgreementId)).GetValueOrDefault(false))
+        //    {
+        //        errors.Add(new Error("AgreementId", $"You cannot add apprentices via file on behalf of <b>non-levy employers</b> yet."));
+        //    }
 
-            return errors;
-        }
+        //    return errors;
+        //}
 
         private async Task<bool?> IsSigned(string agreementId)
         {
@@ -60,10 +60,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return employerDetails.IsSigned;
         }
 
-        private async Task<bool?> IsLevy(string agreementId)
-        {
-            var employerDetails = await GetEmployerDetails(agreementId);
-            return employerDetails.IsLevy;
-        }
+        //private async Task<bool?> IsLevy(string agreementId)
+        //{
+        //    var employerDetails = await GetEmployerDetails(agreementId);
+        //    return employerDetails.IsLevy;
+        //}
     }
 }

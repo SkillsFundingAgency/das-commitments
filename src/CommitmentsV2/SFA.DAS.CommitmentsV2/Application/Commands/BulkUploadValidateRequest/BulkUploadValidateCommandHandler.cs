@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.ProviderRelationships.Api.Client;
@@ -25,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private readonly IEmployerAgreementService _employerAgreementService;
-
+        private readonly IReservationValidationService _reservationValidationService;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
 
         public long ProviderId { get; set; }
@@ -36,7 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             IOverlapCheckService overlapService,
             IAcademicYearDateProvider academicYearDateProvider,
             IProviderRelationshipsApiClient providerRelationshipsApiClient,
-            IEmployerAgreementService employerAgreementService)
+            IEmployerAgreementService employerAgreementService,
+            IReservationValidationService reservationValidationService)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _academicYearDateProvider = academicYearDateProvider;
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
-
+            _reservationValidationService = reservationValidationService;
         }
 
         public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
@@ -70,6 +70,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 }
             }
 
+            var errors = await ValidateReservation(command.CsvRecords, command.ProviderId);
+
             return new BulkUploadValidateApiResponse
             {
                 BulkUploadValidationErrors = bulkUploadValidationErrors
@@ -87,9 +89,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 if (domainErrors.Any())
                     return domainErrors;
 
-                domainErrors.AddRange(await ValidateAgreementIdMustBeLevy(csvRecord));
+               // domainErrors.AddRange(await ValidateAgreementIdMustBeLevy(csvRecord));
             }
 
+           // domainErrors.AddRange(await ValidateReservation(csvRecord, providerId));
             domainErrors.AddRange(await ValidateCohortRef(csvRecord, providerId));
             domainErrors.AddRange(ValidateUln(csvRecord));
             domainErrors.AddRange(ValidateFamilyName(csvRecord));
@@ -105,6 +108,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             return domainErrors;
         }
+
+
 
         private async Task<string> GetEmployerName(string agreementId)
         {
@@ -164,7 +169,5 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             return null;
         }
-
-
     }
 }

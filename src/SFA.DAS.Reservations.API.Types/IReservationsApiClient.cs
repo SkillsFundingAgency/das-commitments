@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,5 +12,6 @@ namespace SFA.DAS.Reservations.Api.Types
         Task<ReservationAllocationStatusResult> GetReservationAllocationStatus(ReservationAllocationStatusMessage request, CancellationToken cancellationToken);
         Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntity, BulkCreateReservationsRequest request, CancellationToken cancellationToken);
         Task<CreateChangeOfPartyReservationResult> CreateChangeOfPartyReservation(Guid reservationId, CreateChangeOfPartyReservationRequest request, CancellationToken cancellationToken);
+        Task<BulkValidationResults> BulkValidate(IEnumerable<Reservation> request, CancellationToken cancellationToken);
     }
 }

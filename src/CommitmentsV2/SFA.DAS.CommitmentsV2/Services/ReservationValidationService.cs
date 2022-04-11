@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
@@ -22,6 +24,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             _apiClient = apiClient;
             _requestMapper = requestMapper;
             _resultMapper = resultMapper;
+        }
+
+        public async Task<BulkValidationResults> BulkValidate(IEnumerable<ReservationRequest> request, CancellationToken cancellationToken)
+        {
+            var mappedRequest = request.Select(x => (Reservation)x);
+            return await _apiClient.BulkValidate(mappedRequest, cancellationToken);
         }
 
         public async Task<Domain.Entities.Reservations.ReservationValidationResult> Validate(ReservationValidationRequest request, CancellationToken cancellationToken)
