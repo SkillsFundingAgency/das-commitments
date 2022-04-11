@@ -39,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.NServiceBus
                         .UseNLogFactory()
                         .UseOutbox(true)
                         .UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
+                        .UseSendOnly()
                         .UseStructureMapBuilder(container);
 
                     if (isDevelopment)

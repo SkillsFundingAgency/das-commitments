@@ -8,8 +8,8 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressConfi
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models.Api;
-using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -18,10 +18,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressC
     public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandler : AsyncRequestHandler<ApprenticeshipEmailAddressChangedByApprenticeCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
-        private readonly IApiClient _apimClient;
+        private readonly IApprovalsOuterApiClient _apimClient;
         private readonly ILogger<ApprenticeshipEmailAddressChangedByApprenticeCommandHandler> _logger;
 
-        public ApprenticeshipEmailAddressChangedByApprenticeCommandHandler(Lazy<ProviderCommitmentsDbContext> db, IApiClient apimClient, ILogger<ApprenticeshipEmailAddressChangedByApprenticeCommandHandler> logger)
+        public ApprenticeshipEmailAddressChangedByApprenticeCommandHandler(Lazy<ProviderCommitmentsDbContext> db, IApprovalsOuterApiClient apimClient, ILogger<ApprenticeshipEmailAddressChangedByApprenticeCommandHandler> logger)
         {
             _db = db;
             _apimClient = apimClient;

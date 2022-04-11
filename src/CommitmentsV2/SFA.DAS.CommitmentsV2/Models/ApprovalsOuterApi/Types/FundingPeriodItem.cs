@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace SFA.DAS.CommitmentsV2.Models.Api.Types
+namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
 {
     public class FundingPeriodItem
     {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
+using Newtonsoft.Json;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
@@ -33,6 +34,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _fixture.SetupCommandWithSpecificEmailAddress(email).AddToEmployeeList(email.ToUpper(), true);
             await _fixture.Handle();
             _fixture.VerifyCorrectMessageSendForSpecificEmail(email);
+        }
+
+        [TestCase("test@test.com")]
+        public async Task When_HandlingCommand_AndNameTokenIsSpecified_ThenTokensIncludesName(string email)
+        {
+            _fixture.SetupCommandWithSpecificEmailAddress(email).AddToEmployeeList(email.ToUpper(), true, "User Name")
+                .SetNameToken("name");
+
+            await _fixture.Handle();
+            _fixture.VerifyCorrectMessageSendForSpecificEmail(email, "User Name");
         }
 
         [TestCase("test@test.com")]
@@ -154,9 +165,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 return this;
             }
 
-            public SendEmailToEmployerCommandHandlerTestsFixture AddToEmployeeList(string email, bool acceptNotifications)
+            public SendEmailToEmployerCommandHandlerTestsFixture AddToEmployeeList(string email, bool acceptNotifications, string name = null)
             {
-                Employees.Add(new TeamMemberViewModel { CanReceiveNotifications = acceptNotifications, Email = email, Role = "Viewer" });
+                Employees.Add(new TeamMemberViewModel { CanReceiveNotifications = acceptNotifications, Email = email, Name = name, Role = "Viewer" });
                 return this;
             }
 
@@ -175,16 +186,28 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 return this;
             }
 
+            public SendEmailToEmployerCommandHandlerTestsFixture SetNameToken(string nameToken)
+            {
+                Command = new SendEmailToEmployerCommand(Command.AccountId, Command.Template, Command.Tokens, Command.EmailAddress, nameToken);
+                return this;
+            }
+
             public async Task Handle()
             {
                 await Handler.Handle(Command, MessageHandlerContext.Object);
             }
 
-            public void VerifyCorrectMessageSendForSpecificEmail(string email)
+            public void VerifyCorrectMessageSendForSpecificEmail(string email, string name = null)
             {
+                Dictionary<string, string> tokensWithName = new Dictionary<string, string>(Tokens);
+                if (!string.IsNullOrEmpty(name))
+                {
+                    tokensWithName.Add(Command.NameToken, name);
+                }
+
                 PipelineContext.Verify(
                     x => x.Send(It.Is<SendEmailCommand>(c =>
-                        c.RecipientsAddress == email && c.Tokens == Tokens && c.TemplateId == TemplateId), It.IsAny<SendOptions>()), Times.Once);
+                        c.RecipientsAddress == email && SequenceEquals(c.Tokens, tokensWithName) && c.TemplateId == TemplateId), It.IsAny<SendOptions>()), Times.Once);
             }
 
             public void VerifyNoMessagesSent()
@@ -207,6 +230,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             public void VerifyHasWarning()
             {
                 Assert.IsTrue(Logger.HasWarnings);
+            }
+
+            public bool SequenceEquals<T, U>(IReadOnlyDictionary<T, U> first, IDictionary<T, U> second)
+            {
+                return first.OrderBy(kvp => kvp.Key).SequenceEqual(second.OrderBy(kvp => kvp.Key));
             }
         }
     }
