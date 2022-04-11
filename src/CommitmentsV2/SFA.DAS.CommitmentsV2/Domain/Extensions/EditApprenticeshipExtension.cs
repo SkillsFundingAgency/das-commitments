@@ -42,6 +42,12 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 ProviderReference = source.ProviderReference
             };
 
+            if (source.DeliveryModel == DeliveryModel.PortableFlexiJob || apprenticeship.DeliveryModel == DeliveryModel.PortableFlexiJob)
+            {
+                validationRequest.EmploymentEndDate = source.EmploymentEndDate ?? apprenticeship.FlexibleEmployment?.EmploymentEndDate;
+                validationRequest.EmploymentPrice = source.EmploymentPrice ?? apprenticeship.FlexibleEmployment?.EmploymentPrice;
+            }
+
             return validationRequest;
         }
 
@@ -49,6 +55,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         {
             var apprenticeshipUpdate = new ApprenticeshipUpdate();
             apprenticeshipUpdate.DeliveryModel = command.EditApprenticeshipRequest.DeliveryModel;
+            apprenticeshipUpdate.EmploymentEndDate = command.EditApprenticeshipRequest.EmploymentEndDate;
+            apprenticeshipUpdate.EmploymentPrice = command.EditApprenticeshipRequest.EmploymentPrice;
             apprenticeshipUpdate.TrainingCode = command.EditApprenticeshipRequest.CourseCode;
             apprenticeshipUpdate.TrainingCourseVersion = command.EditApprenticeshipRequest.Version;
             apprenticeshipUpdate.TrainingCourseOption = command.EditApprenticeshipRequest.Option;
@@ -74,6 +82,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 || !string.IsNullOrWhiteSpace(request.LastName)
                 || !string.IsNullOrWhiteSpace(request.Email)
                 || request.DeliveryModel != null
+                || request.EmploymentEndDate != null
+                || request.EmploymentPrice != null
                 || !string.IsNullOrWhiteSpace(request.CourseCode)
                 || !string.IsNullOrWhiteSpace(request.Version)
                 || request.Option != apprenticeship.TrainingCourseOption
