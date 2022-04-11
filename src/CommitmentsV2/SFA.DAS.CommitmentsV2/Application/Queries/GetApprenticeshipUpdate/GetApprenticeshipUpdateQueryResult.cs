@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
             public String Email { get; set; }
             public DeliveryModel? DeliveryModel { get; set; } 
             public DateTime? EmploymentEndDate { get; set; } 
-            public decimal? EmploymentPrice { get; set; } 
+            public int? EmploymentPrice { get; set; } 
             public ProgrammeType? TrainingType { get; set; }
             public string TrainingCode { get; set; }
             public string TrainingCourseVersion { get; set; }
