@@ -84,6 +84,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         }
 
         [Test]
+        public void ThenTheRequestHasCorrectEmploymentEndDate()
+        {
+            _fixture.CreateChangeOfPartyRequest();
+            Assert.AreEqual(_fixture.EmploymentEndDate, _fixture.Result.EmploymentEndDate);
+        }
+
+        [Test]
+        public void ThenTheRequestHasCorrectEmploymentPrice()
+        {
+            _fixture.CreateChangeOfPartyRequest();
+            Assert.AreEqual(_fixture.EmploymentPrice, _fixture.Result.EmploymentPrice);
+        }
+
+        [Test]
         public void ThenTheRequestStatusIsPending()
         {
             _fixture.CreateChangeOfPartyRequest();
@@ -175,6 +189,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public int? Price { get; private set; }
         public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
+        public DateTime? EmploymentEndDate { get; private set; }
+        public int? EmploymentPrice { get; private set; }
         public UserInfo UserInfo { get; private set; }
         public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
         public Exception Exception { get; private set; }
@@ -205,6 +221,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             Price = autoFixture.Create<int>();
             StartDate = autoFixture.Create<DateTime>();
             EndDate = autoFixture.Create<DateTime?>();
+            EmploymentEndDate = autoFixture.Create<DateTime?>();
+            EmploymentPrice = autoFixture.Create<int?>();
             UserInfo = new UserInfo();
         }
 
@@ -266,8 +284,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
                     Price,
                     StartDate,
                     EndDate,
+                    EmploymentPrice,
+                    EmploymentEndDate,
                     UserInfo,
-                    Now);
+                    Now); ;
             }
             catch (Exception ex)
             {

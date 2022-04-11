@@ -40,6 +40,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.TrainingProgrammeStandard.StandardUId, draftApprenticeshipDetails.StandardUId);
             Assert.AreEqual(fixture.TrainingProgrammeStandard.Version, draftApprenticeshipDetails.TrainingCourseVersion);
             Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
+            Assert.AreEqual(fixture.Command.EmploymentPrice, draftApprenticeshipDetails.EmploymentPrice);
+            Assert.AreEqual(fixture.Command.EmploymentEndDate, draftApprenticeshipDetails.EmploymentEndDate);
         }
 
         [Test]
@@ -151,7 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command = new AddCohortCommand(command.AccountId, command.AccountLegalEntityId, command.ProviderId,
                 courseCode, command.DeliveryModel, command.Cost, command.StartDate, command.EndDate, command.OriginatorReference,
                 command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
-                command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.UserInfo);
+                command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo);
 
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
@@ -188,7 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
                 Command.CourseCode, Command.DeliveryModel, Command.Cost, null, null, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
-                Command.TransferSenderId, Command.PledgeApplicationId, Command.UserInfo);
+                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo);
         }
 
         public Task<DraftApprenticeshipDetails> MapWithFramework()
@@ -211,7 +213,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
                 frameworkId, Command.DeliveryModel, Command.Cost, Command.StartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
-                Command.TransferSenderId, Command.PledgeApplicationId, Command.UserInfo);
+                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo);
         }
     }
 }

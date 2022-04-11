@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
@@ -73,6 +73,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.AreEqual(_fixture.DraftApprenticeshipDetails.EndDate, result.EndDate);
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenEmploymentEndDateIsMappedCorrectly(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
+            Assert.NotNull(result.FlexibleEmployment);
+            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.EmploymentEndDate, result.FlexibleEmployment.EmploymentEndDate);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenEmploymentPriceIsMappedCorrectly(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
+            Assert.NotNull(result.FlexibleEmployment);
+            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.EmploymentPrice, result.FlexibleEmployment.EmploymentPrice);
+        }
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
@@ -138,6 +155,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.IsNull(result.TrainingCourseOption);
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenRegularDeliveryModelIsMappedCorrectly(Party modifyingParty)
+        {
+            var flexibleEmployment = new Fixture().Create<FlexibleEmployment>();
+            var result = _fixture.WithModifyingParty(modifyingParty).WithDeliveryModel(DeliveryModel.Regular, flexibleEmployment).ApplyUpdate(flexibleEmployment);
+            Assert.IsNull(result.FlexibleEmployment.EmploymentEndDate);
+            Assert.IsNull(result.FlexibleEmployment.EmploymentPrice);
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenFlexiDeliveryModelIsMappedCorrectly(Party modifyingParty)
+        {
+            var flexibleEmployment = new Fixture().Create<FlexibleEmployment>();
+            var result = _fixture.WithModifyingParty(modifyingParty).WithDeliveryModel(DeliveryModel.PortableFlexiJob, flexibleEmployment).ApplyUpdate(flexibleEmployment);
+            Assert.AreEqual(result.FlexibleEmployment.EmploymentEndDate, flexibleEmployment.EmploymentEndDate);
+            Assert.AreEqual(result.FlexibleEmployment.EmploymentPrice, flexibleEmployment.EmploymentPrice);
+        }
+
         private class DraftApprenticeshipUpdateTestFixture
         {
             private readonly Fixture _autoFixture;
@@ -181,15 +218,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
                 return this;
             }
 
+            public DraftApprenticeshipUpdateTestFixture WithDeliveryModel(DeliveryModel deliveryModel, FlexibleEmployment flexibleEmployment)
+            {
+                DraftApprenticeshipDetails = CreateUpdateFromOriginal();
+                DraftApprenticeshipDetails.DeliveryModel = deliveryModel;
+                DraftApprenticeshipDetails.EmploymentEndDate = flexibleEmployment.EmploymentEndDate;
+                DraftApprenticeshipDetails.EmploymentPrice = flexibleEmployment.EmploymentPrice;
+                return this;
+            }          
+
             public DraftApprenticeshipUpdateTestFixture WithModifyingParty(Party party)
             {
                 _modifyingParty = party;
                 return this;
             }
-
+            
             public CommitmentsV2.Models.DraftApprenticeship ApplyUpdate()
             {
                 _result  = TestHelper.Clone(_draftApprenticeship);
+                _result.Merge(DraftApprenticeshipDetails, _modifyingParty);
+                return _result;
+            }
+
+            public CommitmentsV2.Models.DraftApprenticeship ApplyUpdate(FlexibleEmployment flexibleEmployment)
+            {
+                _result  = TestHelper.Clone(_draftApprenticeship);
+                
+                _result.FlexibleEmployment = flexibleEmployment;
                 _result.Merge(DraftApprenticeshipDetails, _modifyingParty);
                 return _result;
             }

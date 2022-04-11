@@ -33,6 +33,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         }
 
         [Test]
+        public Task Map_EmploymentPriceWithoutValue_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.EmploymentPrice, (int?)null);
+        }
+
+        [Test]
+        public Task Map_EmploymentPriceWithValue_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.EmploymentPrice, (int?)1234);
+        }
+
+        [Test]
         public Task Map_StartDateWithoutValue_ShouldBeSet()
         {
             return AssertPropertySet(from => from.StartDate, (DateTime?)null);
@@ -54,6 +66,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         public Task Map_EndDateWithValue_ShouldBeSet()
         {
             return AssertPropertySet(from => from.EndDate, (DateTime?)DateTime.Now);
+        }
+
+        [Test]
+        public Task Map_EmploymentEndDateWithoutValue_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.EmploymentEndDate, (DateTime?)null);
+        }
+
+        [Test]
+        public Task Map_EmploymentEndDateWithValue_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.EmploymentEndDate, (DateTime?)DateTime.Now);
         }
 
         [Test]

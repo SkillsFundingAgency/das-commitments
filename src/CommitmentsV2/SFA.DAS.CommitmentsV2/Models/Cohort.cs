@@ -549,6 +549,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             var errors = new List<DomainError>();
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildFlexibleEmploymentValidationFailures(draftApprenticeshipDetails));
             if (!isContinuation)
             {
                 errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
@@ -699,6 +700,70 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (Apprenticeships.Any(a => a.Id != draftApprenticeshipDetails.Id && a.Uln == draftApprenticeshipDetails.Uln))
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "The unique learner number has already been used for an apprentice in this cohort");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildFlexibleEmploymentValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.DeliveryModel != DeliveryModel.PortableFlexiJob)
+            {
+                yield break;
+            }
+
+            foreach (var failure in BuildFlexibleEmploymentPriceValidationFailures(draftApprenticeshipDetails))
+            {
+                yield return failure;
+            }
+
+            foreach (var failure in BuildFlexibleEmploymentDateValidationFailures(draftApprenticeshipDetails))
+            {
+                yield return failure;
+            }
+        }
+
+        private IEnumerable<DomainError> BuildFlexibleEmploymentDateValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.EmploymentEndDate == null)
+            {
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.EmploymentEndDate.Value < draftApprenticeshipDetails.StartDate?.AddMonths(3))
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentEndDate), "This date must be at least 3 months later than the planned apprenticeship training start date");
+            }
+
+            if (draftApprenticeshipDetails.EmploymentEndDate.Value > draftApprenticeshipDetails.EndDate)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentEndDate), "This date must not be later than the projected apprenticeship training end date");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildFlexibleEmploymentPriceValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.EmploymentPrice == null)
+            {
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.EmploymentPrice <= 0)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "The cost must be greater than zero");
+            }
+
+            if (draftApprenticeshipDetails.EmploymentPrice > Constants.MaximumApprenticeshipCost)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "The agreed price for this employment must be £100,000 or less");
+            }
+
+            if (draftApprenticeshipDetails.Cost.GetValueOrDefault() <= 0)
+            {
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.EmploymentPrice > draftApprenticeshipDetails.Cost)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "This price must not be more than than the total agreed apprenticeship price");
             }
         }
 

@@ -8,18 +8,18 @@ using Microsoft.Extensions.Logging;
 using MoreLinq.Extensions;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models.Api;
-using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {
     public class ImportStandardsJob
     {
         private readonly ILogger<ImportStandardsJob> _logger;
-        private readonly IApiClient _apiClient;
+        private readonly IApprovalsOuterApiClient _apiClient;
         private readonly IProviderCommitmentsDbContext _providerContext;
 
-        public ImportStandardsJob(ILogger<ImportStandardsJob> logger, IApiClient apiClient, IProviderCommitmentsDbContext providerContext)
+        public ImportStandardsJob(ILogger<ImportStandardsJob> logger, IApprovalsOuterApiClient apiClient, IProviderCommitmentsDbContext providerContext)
         {
             _logger = logger;
             _apiClient = apiClient;
