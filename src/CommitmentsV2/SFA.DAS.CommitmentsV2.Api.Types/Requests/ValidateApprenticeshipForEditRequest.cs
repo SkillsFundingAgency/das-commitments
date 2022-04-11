@@ -23,6 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string Version { get; set; }
         public string Option { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
-        public decimal? EmploymentPrice { get; set; }
+        public int? EmploymentPrice { get; set; }
     }
 }

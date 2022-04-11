@@ -307,7 +307,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
            DeliveryModel deliveryModel = DeliveryModel.Regular,
            int? employmentEndMonth = null,
            int? employmentEndYear = null,
-           decimal? employmentPrice = null
+           int? employmentPrice = null
            )
         {
             var request = new EditApprenticeshipValidationRequest

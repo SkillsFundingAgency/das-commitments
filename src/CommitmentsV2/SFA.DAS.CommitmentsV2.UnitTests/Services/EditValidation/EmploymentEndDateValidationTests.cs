@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var employEndDate = fixture.Apprenticeship.EndDate.Value.AddMonths(1);
             var request = fixture.CreateValidationRequest(deliveryModel: DeliveryModel.PortableFlexiJob,
                 employmentEndMonth: employEndDate.Month, employmentEndYear: employEndDate.Year);
-            request.EmploymentPrice = fixture.Apprenticeship.Cost - 1;
+            request.EmploymentPrice = (int)fixture.Apprenticeship.Cost - 1;
 
             var result = await fixture.Validate(request);
 
@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var employEndDate = fixture.Apprenticeship.StartDate.Value.AddMonths(2);
             var request = fixture.CreateValidationRequest(deliveryModel: DeliveryModel.PortableFlexiJob,
                 employmentEndMonth: employEndDate.Month, employmentEndYear: employEndDate.Year);
-            request.EmploymentPrice = fixture.Apprenticeship.Cost - 1;
+            request.EmploymentPrice = (int)fixture.Apprenticeship.Cost - 1;
 
             var result = await fixture.Validate(request);
 
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
         {
             var fixture = new EditApprenticeshipValidationServiceTestsFixture();
             fixture.SetupMockContextApprenticeship();
-            var employPrice = fixture.Apprenticeship.Cost.Value - 100;
+            var employPrice = (int)fixture.Apprenticeship.Cost.Value - 100;
             var request = fixture.CreateValidationRequest(deliveryModel: DeliveryModel.PortableFlexiJob,
                 employmentPrice: employPrice);
 
