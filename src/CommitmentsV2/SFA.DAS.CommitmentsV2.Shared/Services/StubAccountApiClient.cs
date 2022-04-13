@@ -47,14 +47,20 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             return JsonConvert.DeserializeObject<ICollection<TeamMemberViewModel>>(json);
         }
 
-        public Task<EmployerAgreementView> GetEmployerAgreement(string accountId, string legalEntityId, string agreementId)
+        public async Task<EmployerAgreementView> GetEmployerAgreement(string accountId, string legalEntityId, string agreementId)
         {
-            throw new NotImplementedException();
+            var url = $"api/accounts/{accountId}/legalEntities/{legalEntityId}/agreements/{agreementId}/agreement";
+            var response = await _httpClient.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<EmployerAgreementView>(json);
         }
 
-        public Task<ICollection<ResourceViewModel>> GetLegalEntitiesConnectedToAccount(string accountId)
+        public async Task<ICollection<ResourceViewModel>> GetLegalEntitiesConnectedToAccount(string accountId)
         {
-            throw new NotImplementedException();
+           var url = $"api/accounts/{accountId}/legalentities";
+            var response = await _httpClient.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<ResourceViewModel>>(json);
         }
 
         public async Task<LegalEntityViewModel> GetLegalEntity(string accountId, long id)
@@ -65,9 +71,12 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             return JsonConvert.DeserializeObject<LegalEntityViewModel>(json);
         }
 
-        public Task<ICollection<LegalEntityViewModel>> GetLegalEntityDetailsConnectedToAccount(string accountId)
+        public async Task<ICollection<LegalEntityViewModel>> GetLegalEntityDetailsConnectedToAccount(string accountId)
         {
-            throw new NotImplementedException();
+           var url = $"api/accounts/{accountId}/legalentities";
+            var response = await _httpClient.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<LegalEntityViewModel>>(json);
         }
 
         public Task<ICollection<LevyDeclarationViewModel>> GetLevyDeclarations(string accountId)
