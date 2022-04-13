@@ -64,8 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
 
                 _query = new GetApprenticeshipQuery(ApprenticeshipId);
 
-                _handler = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db),
-                    AuthenticationService.Object);
+                _handler = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
             private void SeedData()

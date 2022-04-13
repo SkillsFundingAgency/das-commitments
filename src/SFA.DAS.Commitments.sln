@@ -1,8 +1,51 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.352
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AEF29222-4B94-48CB-9438-78E5A6333438}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureConfiguration", "AzureConfiguration", "{7B1AC6BD-B43A-4BE0-9BA9-14E234C46593}"
+	ProjectSection(SolutionItems) = preProject
+		AzureTopicConfigurationStrucuture.json = AzureTopicConfigurationStrucuture.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support.Portal", "Support.Portal", "{D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8DEFE127-06E5-4CEE-9A89-5D5490A4C370}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebJobs", "WebJobs", "{2843BBDC-578C-4D53-B466-675AABC7520F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommitmentsV2", "CommitmentsV2", "{15A95BFE-8923-440A-8F15-5B28E9F92906}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{7B7AC1DE-4952-4711-B4A7-80F9202C64E1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificates", "{8F14A807-720B-4CC3-83F7-DD78F0495F20}"
+	ProjectSection(SolutionItems) = preProject
+		Certificates\localhost.pfx = Certificates\localhost.pfx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notification Templates", "Notification Templates", "{46E55DE2-FF6C-4D97-8651-A62F62820290}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Employer", "Employer", "{06B3E9C9-3956-4ACC-B28E-F1B05E88E0E9}"
+	ProjectSection(SolutionItems) = preProject
+		EmployerCohortApproved.txt = EmployerCohortApproved.txt
+		EmployerCohortNotification.txt = EmployerCohortNotification.txt
+		EmployerTransferPendingFinalApproval.txt = EmployerTransferPendingFinalApproval.txt
+		SenderApprovedCommitmentEmployerNotification.txt = SenderApprovedCommitmentEmployerNotification.txt
+		SenderRejectedCommitmentEmployerNotification.txt = SenderRejectedCommitmentEmployerNotification.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Provider", "Provider", "{03AFF74E-D0F7-4A38-8CA6-746F8F47EBC4}"
+	ProjectSection(SolutionItems) = preProject
+		ProviderApprenticeshipPauseNotification.txt = ProviderApprenticeshipPauseNotification.txt
+		ProviderApprenticeshipResumeNotification.txt = ProviderApprenticeshipResumeNotification.txt
+		SenderApprovedCommitmentProviderNotification.txt = SenderApprovedCommitmentProviderNotification.txt
+		SenderRejectedCommitmentProviderNotification.txt = SenderRejectedCommitmentProviderNotification.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebJobs", "WebJobs", "{E4C27252-0B29-4E40-9F75-13B3B9E59E55}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api", "SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj", "{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Domain", "SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj", "{C4C803AF-747E-4747-A23B-DA43219009A4}"
@@ -16,8 +59,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.UnitTests", "SFA.DAS.Commitments.Api.UnitTests\SFA.DAS.Commitments.Api.UnitTests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Application.UnitTests", "SFA.DAS.Commitments.Application.UnitTests\SFA.DAS.Commitments.Application.UnitTests.csproj", "{C0C88789-3229-4B47-8081-16D1B5D85D9A}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AEF29222-4B94-48CB-9438-78E5A6333438}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Infrastructure.UnitTests", "SFA.DAS.Commitments.Infrastructure.UnitTests\SFA.DAS.Commitments.Infrastructure.UnitTests.csproj", "{6669C64D-7DAE-47C2-A469-7636C89C0974}"
 EndProject
@@ -45,16 +86,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Academi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Events", "SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj", "{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureConfiguration", "AzureConfiguration", "{7B1AC6BD-B43A-4BE0-9BA9-14E234C46593}"
-	ProjectSection(SolutionItems) = preProject
-		AzureTopicConfigurationStrucuture.json = AzureTopicConfigurationStrucuture.json
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support.Portal", "Support.Portal", "{D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Support.SubSite", "SFA.DAS.Commitments.Support.SubSite\SFA.DAS.Commitments.Support.SubSite.csproj", "{9173AFD2-EE6B-40A8-825F-35FD6735A61A}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8DEFE127-06E5-4CEE-9A89-5D5490A4C370}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Support.SubSite.UnitTests", "SFA.DAS.Commitments.Support.SubSite.UnitTests\SFA.DAS.Commitments.Support.SubSite.UnitTests.csproj", "{D7D3924E-48DE-495D-803D-DD0288242E16}"
 EndProject
@@ -63,12 +95,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob", "SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob\SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.csproj", "{4ED42C47-4671-4C63-B0AF-B7CEEC2F15D8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests", "SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests\SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests.csproj", "{44EA50F0-1EBD-469F-BF64-502D236617A2}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebJobs", "WebJobs", "{2843BBDC-578C-4D53-B466-675AABC7520F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommitmentsV2", "CommitmentsV2", "{15A95BFE-8923-440A-8F15-5B28E9F92906}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{7B7AC1DE-4952-4711-B4A7-80F9202C64E1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Api", "CommitmentsV2\SFA.DAS.CommitmentsV2.Api\SFA.DAS.CommitmentsV2.Api.csproj", "{D408130C-64AE-420B-8DED-CFF490DDFF16}"
 EndProject
@@ -102,11 +128,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Host"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Jobs.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.Jobs.UnitTests\SFA.DAS.CommitmentsV2.Jobs.UnitTests.csproj", "{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificates", "{8F14A807-720B-4CC3-83F7-DD78F0495F20}"
-	ProjectSection(SolutionItems) = preProject
-		Certificates\localhost.pfx = Certificates\localhost.pfx
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.Client", "CommitmentsV2\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj", "{1C575645-72A6-4912-AB53-A58F0D28D5CD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Types", "CommitmentsV2\SFA.DAS.CommitmentsV2.Types\SFA.DAS.CommitmentsV2.Types.csproj", "{3C2B457C-FBD1-494D-91D8-E0F614BBA99F}"
@@ -123,28 +144,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Cl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Types.UnitTests", "SFA.DAS.Reservations.Api.Types.UnitTests\SFA.DAS.Reservations.Api.Types.UnitTests.csproj", "{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notification Templates", "Notification Templates", "{46E55DE2-FF6C-4D97-8651-A62F62820290}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Shared", "CommitmentsV2\SFA.DAS.CommitmentsV2.Shared\SFA.DAS.CommitmentsV2.Shared.csproj", "{FE32E9B9-43DA-4B52-B14D-86BD449B265C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Shared.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.Shared.UnitTests\SFA.DAS.CommitmentsV2.Shared.UnitTests.csproj", "{102B4BAE-0F8B-4135-A5D0-F692C775EAF0}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Employer", "Employer", "{06B3E9C9-3956-4ACC-B28E-F1B05E88E0E9}"
-	ProjectSection(SolutionItems) = preProject
-		EmployerCohortApproved.txt = EmployerCohortApproved.txt
-		EmployerCohortNotification.txt = EmployerCohortNotification.txt
-		EmployerTransferPendingFinalApproval.txt = EmployerTransferPendingFinalApproval.txt
-		SenderApprovedCommitmentEmployerNotification.txt = SenderApprovedCommitmentEmployerNotification.txt
-		SenderRejectedCommitmentEmployerNotification.txt = SenderRejectedCommitmentEmployerNotification.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Provider", "Provider", "{03AFF74E-D0F7-4A38-8CA6-746F8F47EBC4}"
-	ProjectSection(SolutionItems) = preProject
-		ProviderApprenticeshipPauseNotification.txt = ProviderApprenticeshipPauseNotification.txt
-		ProviderApprenticeshipResumeNotification.txt = ProviderApprenticeshipResumeNotification.txt
-		SenderApprovedCommitmentProviderNotification.txt = SenderApprovedCommitmentProviderNotification.txt
-		SenderRejectedCommitmentProviderNotification.txt = SenderRejectedCommitmentProviderNotification.txt
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests\SFA.DAS.CommitmentsV2.ExternalMessageHandlers.UnitTests.csproj", "{65BB1121-B505-45EE-B9BB-E178BC7838C3}"
 EndProject
@@ -152,7 +154,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Exter
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Commitments.Database.IntegrationTests", "SFA.DAS.Commitments.Database.IntegrationTests\SFA.DAS.Commitments.Database.IntegrationTests.csproj", "{6B404E03-5F6A-467A-AAF7-3D49F13725B5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebJobs", "WebJobs", "{E4C27252-0B29-4E40-9F75-13B3B9E59E55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Support.SubSite.Core", "SFA.DAS.Commitments.Support.SubSite.Core\SFA.DAS.Commitments.Support.SubSite.Core.csproj", "{76E2F8D0-3195-45BC-95DD-18C6A0B5A1E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -377,11 +379,20 @@ Global
 		{6B404E03-5F6A-467A-AAF7-3D49F13725B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B404E03-5F6A-467A-AAF7-3D49F13725B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B404E03-5F6A-467A-AAF7-3D49F13725B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76E2F8D0-3195-45BC-95DD-18C6A0B5A1E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76E2F8D0-3195-45BC-95DD-18C6A0B5A1E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76E2F8D0-3195-45BC-95DD-18C6A0B5A1E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76E2F8D0-3195-45BC-95DD-18C6A0B5A1E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{8DEFE127-06E5-4CEE-9A89-5D5490A4C370} = {D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}
+		{7B7AC1DE-4952-4711-B4A7-80F9202C64E1} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
+		{06B3E9C9-3956-4ACC-B28E-F1B05E88E0E9} = {46E55DE2-FF6C-4D97-8651-A62F62820290}
+		{03AFF74E-D0F7-4A38-8CA6-746F8F47EBC4} = {46E55DE2-FF6C-4D97-8651-A62F62820290}
+		{E4C27252-0B29-4E40-9F75-13B3B9E59E55} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{8EDF4429-251A-416D-BB68-93F227191BCF} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{C0C88789-3229-4B47-8081-16D1B5D85D9A} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{6669C64D-7DAE-47C2-A469-7636C89C0974} = {AEF29222-4B94-48CB-9438-78E5A6333438}
@@ -395,12 +406,10 @@ Global
 		{29173485-58C9-4310-BC16-D485E67D09AF} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{72DEEA89-6555-4AAB-B48B-63C050E16B95} = {2843BBDC-578C-4D53-B466-675AABC7520F}
 		{9173AFD2-EE6B-40A8-825F-35FD6735A61A} = {D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}
-		{8DEFE127-06E5-4CEE-9A89-5D5490A4C370} = {D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}
 		{D7D3924E-48DE-495D-803D-DD0288242E16} = {8DEFE127-06E5-4CEE-9A89-5D5490A4C370}
 		{30D5D7DA-8613-45CE-8521-B4FF7F2B6100} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{4ED42C47-4671-4C63-B0AF-B7CEEC2F15D8} = {2843BBDC-578C-4D53-B466-675AABC7520F}
 		{44EA50F0-1EBD-469F-BF64-502D236617A2} = {AEF29222-4B94-48CB-9438-78E5A6333438}
-		{7B7AC1DE-4952-4711-B4A7-80F9202C64E1} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{D408130C-64AE-420B-8DED-CFF490DDFF16} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{97402F20-3EA7-408A-9FE8-5B03FF0F883D} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{2DE78569-EB24-4F5A-A2CB-09D1D917F5A6} = {E4C27252-0B29-4E40-9F75-13B3B9E59E55}
@@ -425,12 +434,10 @@ Global
 		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{FE32E9B9-43DA-4B52-B14D-86BD449B265C} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{102B4BAE-0F8B-4135-A5D0-F692C775EAF0} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
-		{06B3E9C9-3956-4ACC-B28E-F1B05E88E0E9} = {46E55DE2-FF6C-4D97-8651-A62F62820290}
-		{03AFF74E-D0F7-4A38-8CA6-746F8F47EBC4} = {46E55DE2-FF6C-4D97-8651-A62F62820290}
 		{65BB1121-B505-45EE-B9BB-E178BC7838C3} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{99496856-DC05-415D-980F-9F1D6B49BC1D} = {E4C27252-0B29-4E40-9F75-13B3B9E59E55}
 		{6B404E03-5F6A-467A-AAF7-3D49F13725B5} = {AEF29222-4B94-48CB-9438-78E5A6333438}
-		{E4C27252-0B29-4E40-9F75-13B3B9E59E55} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
+		{76E2F8D0-3195-45BC-95DD-18C6A0B5A1E7} = {D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}

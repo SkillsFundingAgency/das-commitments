@@ -212,7 +212,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
 
             _db.SaveChanges();
 
-            _sut = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), new Mock<IAuthenticationService>().Object);
+            _sut = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
         }
     }
 }
