@@ -1,11 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture.NUnit3;
-using Castle.Core.Logging;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -14,7 +7,13 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Infrastructure;
-using SFA.DAS.CommitmentsV2.Models.Api;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
 {
@@ -36,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
             };
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, config, Mock.Of<ILogger<ApiClient>>());
+            var apiClient = new ApprovalsOuterApiClient(client, config, Mock.Of<ILogger<ApprovalsOuterApiClient>>());
 
             //Act
             var actual = await apiClient.Get<List<string>>(getTestRequest);
@@ -60,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
             
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, config, Mock.Of<ILogger<ApiClient>>());
+            var apiClient = new ApprovalsOuterApiClient(client, config, Mock.Of<ILogger<ApprovalsOuterApiClient>>());
             
             //Act Assert
             Assert.ThrowsAsync<HttpRequestException>(() => apiClient.Get<List<string>>(getTestRequest));
@@ -82,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
             
             var httpMessageHandler = MessageHandler.SetupMessageHandlerMock(response, config.BaseUrl + getTestRequest.GetUrl, config.Key);
             var client = new HttpClient(httpMessageHandler.Object);
-            var apiClient = new ApiClient(client, config, Mock.Of<ILogger<ApiClient>>());
+            var apiClient = new ApprovalsOuterApiClient(client, config, Mock.Of<ILogger<ApprovalsOuterApiClient>>());
             
             //Act Assert
             var actual = await apiClient.Get<List<string>>(getTestRequest);
