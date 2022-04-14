@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
     {
         public ApprovalsOuterApiServiceRegistry()
         {
-            For<IApiClient>().Use<ApiClient>().Ctor<HttpClient>().Is(new HttpClient()).Singleton();
+            For<IApprovalsOuterApiClient>().Use<ApprovalsOuterApiClient>().Ctor<HttpClient>().Is(new HttpClient()).Singleton();
             For<ITrainingProgrammeLookup>().Use<TrainingProgrammeLookup>();
         }
     }

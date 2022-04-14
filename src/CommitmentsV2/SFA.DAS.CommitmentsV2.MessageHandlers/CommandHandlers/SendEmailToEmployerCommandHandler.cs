@@ -26,7 +26,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 
         public async Task Handle(SendEmailToEmployerCommand message, IMessageHandlerContext context)
         {
-
             bool IsOwnerOrTransactor(string role)
             {
                 return role.Equals(Owner, StringComparison.InvariantCultureIgnoreCase) ||
@@ -37,29 +36,46 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
             {
                 _logger.LogInformation($"Getting AccountUsers for {message.AccountId}");
 
-                var emails = new List<string>();
+                var emails = new List<(string Email, string Name)>();
                 var users = await _accountApiClient.GetAccountUsers(message.AccountId);
 
                 if (string.IsNullOrWhiteSpace(message.EmailAddress))
                 {
                     _logger.LogInformation("Sending emails to all AccountUsers who can recieve emails");
+
                     emails.AddRange(users.Where(x =>
-                            x.CanReceiveNotifications && !string.IsNullOrWhiteSpace(x.Email) &&
+                        x.CanReceiveNotifications && !string.IsNullOrWhiteSpace(x.Email) &&
                             IsOwnerOrTransactor(x.Role))
-                        .Select(x => x.Email));
+                        .Select(x => (x.Email, x.Name)));
                 }
-                else if (users.Any(x => message.EmailAddress.Equals(x.Email, StringComparison.InvariantCultureIgnoreCase) &&
-                    x.CanReceiveNotifications))
+                else
                 {
-                    _logger.LogInformation("Sending email to the explicit user in message");
-                    emails.Add(message.EmailAddress);
+                    var user = users.FirstOrDefault(x =>
+                        x.CanReceiveNotifications && message.EmailAddress.Equals(x.Email, StringComparison.InvariantCultureIgnoreCase));
+
+                    if (user != null)
+                    {
+                        _logger.LogInformation("Sending email to the explicit user in message");
+                        emails.Add((Email: message.EmailAddress, user.Name));
+                    }
                 }
 
                 if (emails.Any())
                 {
                     _logger.LogInformation($"Calling SendEmailCommand for {emails.Count()} emails");
-                    await Task.WhenAll(emails.Select(email =>
-                        context.Send(new SendEmailCommand(message.Template,  email, message.Tokens))));
+
+                    var emailTasks = emails.Select(email =>
+                    {
+                        var tokens = new Dictionary<string, string>(message.Tokens);
+                        if (!string.IsNullOrEmpty(message.NameToken))
+                        {
+                            tokens.Add(message.NameToken, email.Name);
+                        }
+
+                        return context.Send(new SendEmailCommand(message.Template, email.Email, tokens));
+                    });
+
+                    await Task.WhenAll(emailTasks);
                 }
                 else
                 {

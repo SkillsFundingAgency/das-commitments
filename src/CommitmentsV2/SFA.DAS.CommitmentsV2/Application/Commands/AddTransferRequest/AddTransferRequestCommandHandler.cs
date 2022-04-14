@@ -9,7 +9,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models.Api;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
 {
@@ -18,13 +18,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IFundingCapService _fundingCapService;
         private readonly ILogger<AddTransferRequestCommandHandler> _logger;
-        private readonly IApiClient _apiClient;
+        private readonly IApprovalsOuterApiClient _apiClient;
 
         public AddTransferRequestCommandHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IFundingCapService fundingCapService,
             ILogger<AddTransferRequestCommandHandler> logger,
-            IApiClient apiClient)
+            IApprovalsOuterApiClient apiClient)
         {
             _dbContext = dbContext;
             _fundingCapService = fundingCapService;

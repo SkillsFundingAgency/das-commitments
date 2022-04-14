@@ -11,6 +11,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
             registry.IncludeRegistry<ConfigurationRegistry>();
             registry.IncludeRegistry<DataRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
+            registry.IncludeRegistry<DomainServiceRegistry>();
+            registry.IncludeRegistry<EncodingRegistry>();
         }
     }
 }
