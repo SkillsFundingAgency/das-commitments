@@ -26,6 +26,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IEmployerAgreementService _employerAgreementService;
         private readonly IReservationValidationService _reservationValidationService;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
+        private Dictionary<string, Models.Cohort> _cahcedCohortDetails;
+
 
         public long ProviderId { get; set; }
 
@@ -46,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
             _reservationValidationService = reservationValidationService;
+            _cahcedCohortDetails = new Dictionary<string, Models.Cohort>();
         }
 
         public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
@@ -70,13 +73,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 }
             }
 
-            var errors = await ValidateReservation(command.CsvRecords, command.ProviderId);
+            await ValidateReservation(command.CsvRecords, command.ProviderId, bulkUploadValidationErrors);
 
             return new BulkUploadValidateApiResponse
             {
                 BulkUploadValidationErrors = bulkUploadValidationErrors
             };
         }
+
+       
 
         private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
@@ -136,21 +141,27 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     var employerName = accountLegalEntity.Account.Name;
                     var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
                     var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
-                    var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned);
+                    var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
                     _employerSummaries.Add(employerSummary);
                     return employerSummary;
                 }
             }
 
-            return new EmployerSummary(agreementId, null, null, string.Empty, null);
+            return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
         }
 
         private Models.Cohort GetCohortDetails(string cohortRef)
         {
+            if (_cahcedCohortDetails.ContainsKey(cohortRef))
+            {
+                return _cahcedCohortDetails.GetValueOrDefault(cohortRef);
+            }
+
             var cohort = _dbContext.Value.Cohorts
                 .Include(x => x.AccountLegalEntity)
                 .Include(x => x.Apprenticeships)
                 .Where(x => x.Reference == cohortRef).FirstOrDefault();
+            _cahcedCohortDetails.Add(cohortRef, cohort);
 
             return cohort;
         }

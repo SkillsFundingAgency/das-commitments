@@ -14,10 +14,11 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities.Reservations
         public bool IsLevyAccount { get; set; }
         public long? TransferSenderAccountId { get; set; }
         public Guid? UserId { get; set; }
+        public int RowNumber { get; set; }
 
-        public static implicit operator DAS.Reservations.Api.Types.Reservation(ReservationRequest source)
+        public static implicit operator DAS.Reservations.Api.Types.BulkReservation(ReservationRequest source)
         {
-            return new DAS.Reservations.Api.Types.Reservation
+            return new DAS.Reservations.Api.Types.BulkReservation
             {
                 Id = source.Id,
                 StartDate = source.StartDate,
@@ -25,8 +26,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities.Reservations
                 ProviderId = source.ProviderId,
                 AccountLegalEntityId = source.AccountLegalEntityId,
                 TransferSenderAccountId = source.TransferSenderAccountId,
-                UserId = source.UserId
-
+                UserId = source.UserId,
+                RowNumber = source.RowNumber,
             };
         }
     }

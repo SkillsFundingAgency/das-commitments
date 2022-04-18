@@ -52,16 +52,22 @@ namespace SFA.DAS.Reservations.Api.Types
             return _httpHelper.PostAsJson<BulkCreateReservationsRequest, BulkCreateReservationsResult>(url, request, cancellationToken);
         }
 
+        public Task<BulkCreateReservationsWithNoneLevyResult> BulkCreateReservationsWithNonLevy(BulkCreateReservationsWithNonLevyRequest request, CancellationToken cancellationToken)
+        {
+            var url = BuildUrl($"api/reservations/accounts/bulk-create");
+            return _httpHelper.PostAsJson<BulkCreateReservationsWithNonLevyRequest, BulkCreateReservationsWithNoneLevyResult>(url, request, cancellationToken);
+        }
+
         public Task<CreateChangeOfPartyReservationResult> CreateChangeOfPartyReservation(Guid reservationId, CreateChangeOfPartyReservationRequest request, CancellationToken cancellationToken)
         {
             var url = BuildUrl($"api/reservations/{reservationId}/change");
             return _httpHelper.PostAsJson<CreateChangeOfPartyReservationRequest, CreateChangeOfPartyReservationResult>(url, request, cancellationToken);
         }
 
-        public Task<BulkValidationResults> BulkValidate(IEnumerable<Reservation> request, CancellationToken cancellationToken)
+        public Task<BulkValidationResults> BulkValidate(IEnumerable<BulkReservation> request, CancellationToken cancellationToken)
         {
-            var url = BuildUrl($"api/Reservations/accounts/{request.First().AccountLegalEntityId}/bulk-validate");
-            return _httpHelper.PostAsJson<IEnumerable<Reservation>, BulkValidationResults>(url, request, cancellationToken);
+            var url = BuildUrl($"api/Reservations/accounts/bulk-validate");
+            return _httpHelper.PostAsJson<IEnumerable<BulkReservation>, BulkValidationResults>(url, request, cancellationToken);
         }
 
         private string BuildUrl(string path)

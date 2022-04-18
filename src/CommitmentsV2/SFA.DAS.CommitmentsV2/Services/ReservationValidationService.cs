@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<BulkValidationResults> BulkValidate(IEnumerable<ReservationRequest> request, CancellationToken cancellationToken)
         {
-            var mappedRequest = request.Select(x => (Reservation)x);
+            var mappedRequest = request.Select(x => (BulkReservation)x);
             return await _apiClient.BulkValidate(mappedRequest, cancellationToken);
         }
 

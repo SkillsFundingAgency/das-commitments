@@ -17,14 +17,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
             var domainErrors = new List<Error>();
-            if (string.IsNullOrEmpty(csvRecord.CohortRef))
+            var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+            if (employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value)
             {
-                var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(csvRecord, providerId);
-                if (!hasPermissionToCreateCohort)
-                {
-                    _logger.LogInformation($"Has permission to create cohort : {providerId}");
-                    domainErrors.Add(new Error("CohortRef", "The <b>employer must give you permission</b> to add apprentices on their behalf"));
-                }
+                await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot reserve funds on their behalf");
+            }
+            else if (string.IsNullOrEmpty(csvRecord.CohortRef))
+            {
+                await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, "The <b>employer must give you permission</b> to add apprentices on their behalf");
             }
             else
             {
@@ -95,26 +95,38 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             return domainErrors;
         }
-     
+
+        private async Task ValidatePermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, List<Error> domainErrors, string error)
+        {
+            var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(csvRecord, providerId);
+            if (!hasPermissionToCreateCohort)
+            {
+                _logger.LogInformation($"Has permission to create cohort : {providerId}");
+                domainErrors.Add(new Error("CohortRef", error));
+            }
+        }
+
         private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         { 
-            var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-            if (employerDetails.LegalEntityId.HasValue && providerId != 0)
-            {
-                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
-                var request = new HasPermissionRequest()
-                {
-                    AccountLegalEntityId = employerDetails.LegalEntityId.Value,
-                    Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
-                    Ukprn = providerId
-                };
+            //var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+            //if (employerDetails.LegalEntityId.HasValue && providerId != 0)
+            //{
+            //    _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
+            //    var request = new HasPermissionRequest()
+            //    {
+            //        AccountLegalEntityId = employerDetails.LegalEntityId.Value,
+            //        Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
+            //        Ukprn = providerId
+            //    };
 
-                var result = await _providerRelationshipsApiClient.HasPermission(request);
-                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
-                return result;
-            }
+            //    var result = await _providerRelationshipsApiClient.HasPermission(request);
+            //    _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
 
-            return true;
+            //    employerDetails.HasPermissionToCreateCohort = result;
+            //    return result;
+            //}
+
+            return await Task.FromResult(true);
         }
 
         private async Task<List<OverlapCheckResult>> OverlapUlnCheckForCohort(Models.Cohort cohort)
