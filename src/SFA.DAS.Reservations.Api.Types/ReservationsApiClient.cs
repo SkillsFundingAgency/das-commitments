@@ -52,10 +52,10 @@ namespace SFA.DAS.Reservations.Api.Types
             return _httpHelper.PostAsJson<BulkCreateReservationsRequest, BulkCreateReservationsResult>(url, request, cancellationToken);
         }
 
-        public Task<BulkCreateReservationsWithNoneLevyResult> BulkCreateReservationsWithNonLevy(BulkCreateReservationsWithNonLevyRequest request, CancellationToken cancellationToken)
+        public Task<BulkCreateReservationsWithNonLevyResult> BulkCreateReservationsWithNonLevy(BulkCreateReservationsWithNonLevyRequest request, CancellationToken cancellationToken)
         {
             var url = BuildUrl($"api/reservations/accounts/bulk-create");
-            return _httpHelper.PostAsJson<BulkCreateReservationsWithNonLevyRequest, BulkCreateReservationsWithNoneLevyResult>(url, request, cancellationToken);
+            return _httpHelper.PostAsJson<BulkCreateReservationsWithNonLevyRequest, BulkCreateReservationsWithNonLevyResult>(url, request, cancellationToken);
         }
 
         public Task<CreateChangeOfPartyReservationResult> CreateChangeOfPartyReservation(Guid reservationId, CreateChangeOfPartyReservationRequest request, CancellationToken cancellationToken)

@@ -85,17 +85,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
             var results = await _reservationApiClient.BulkCreateReservationsWithNonLevy(request, cancellationToken);
 
             results.BulkCreateResults.ForEach(x => requests.BulkUploadDraftApprenticeships.First(y => y.Uln == x.ULN).ReservationId = x.ReservationId);
-
-            //var legalEntities = requests.BulkUploadDraftApprenticeships.GroupBy(x => x.LegalEntityId).Select(y => new { Id = y.Key, NumberOfApprentices = y.Count(), DraftApprenticeships = y.ToList() });
-            //foreach (var legalEntity in legalEntities)
-            //{
-            //    var reservationIds = await _reservationApiClient.BulkCreateReservations(legalEntity.Id.Value, new BulkCreateReservationsRequest { Count = ushort.Parse(legalEntity.NumberOfApprentices.ToString()) }, cancellationToken);
-
-            //    for (int counter = 0; counter < legalEntity.NumberOfApprentices; counter++)
-            //    {
-            //        legalEntity.DraftApprenticeships[counter].ReservationId = reservationIds.ReservationIds[counter];
-            //    }
-            //}
         }
 
         private BulkCreateReservationsWithNonLevyRequest CreateBulkUploadReservationRequest(BulkUploadAddDraftApprenticeshipsCommand requests)
@@ -123,8 +112,15 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
         }
 
 
-        private long? GetTransferSenderId(string cohortRef) =>
-                       GetCohortDetails(cohortRef)?.TransferSenderId;
+        private long? GetTransferSenderId(string cohortRef)
+        {
+            if (!string.IsNullOrWhiteSpace(cohortRef))
+            {
+               return GetCohortDetails(cohortRef)?.TransferSenderId;
+            }
+
+            return null;
+        }
         private long GetAccountLegalEntityId(string agreementId) =>
                         long.Parse(GetEmployerDetails(agreementId).LegalEntityId);
 

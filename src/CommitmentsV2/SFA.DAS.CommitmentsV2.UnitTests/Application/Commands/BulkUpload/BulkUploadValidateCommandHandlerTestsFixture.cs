@@ -93,7 +93,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 , OverlapCheckService.Object
                 , AcademicYearDateProvider.Object
                 , ProviderRelationshipsApiClient.Object
-                , EmployerAgreementService.Object                
+                , EmployerAgreementService.Object 
+                , Mock.Of<IReservationValidationService>()
                 );
         }
 

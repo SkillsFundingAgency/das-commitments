@@ -51,14 +51,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "AgreementId", "You cannot add apprentices for this employer as they need to <b>accept the agreement</b> with the ESFA.");
         }
-
-        [Test]
-        public async Task Validate_IsNotNonLevy()
-        {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetLevyStatus(Types.ApprenticeshipEmployerType.NonLevy);
-            var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "AgreementId", "You cannot add apprentices via file on behalf of <b>non-levy employers</b> yet.");
-        }
     }
 }

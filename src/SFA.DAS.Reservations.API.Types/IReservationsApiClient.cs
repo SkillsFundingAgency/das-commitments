@@ -13,6 +13,6 @@ namespace SFA.DAS.Reservations.Api.Types
         Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntity, BulkCreateReservationsRequest request, CancellationToken cancellationToken);
         Task<CreateChangeOfPartyReservationResult> CreateChangeOfPartyReservation(Guid reservationId, CreateChangeOfPartyReservationRequest request, CancellationToken cancellationToken);
         Task<BulkValidationResults> BulkValidate(IEnumerable<BulkReservation> request, CancellationToken cancellationToken);
-        Task<BulkCreateReservationsWithNoneLevyResult> BulkCreateReservationsWithNonLevy(BulkCreateReservationsWithNonLevyRequest request, CancellationToken cancellationToken);
+        Task<BulkCreateReservationsWithNonLevyResult> BulkCreateReservationsWithNonLevy(BulkCreateReservationsWithNonLevyRequest request, CancellationToken cancellationToken);
     }
 }

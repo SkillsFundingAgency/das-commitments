@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SFA.DAS.Reservations.Api.Types
 {
-    public class BulkCreateReservationsWithNoneLevyResult
+    public class BulkCreateReservationsWithNonLevyResult
     {
         public List<BulkCreateReservationResult> BulkCreateResults { get; set; }
     }

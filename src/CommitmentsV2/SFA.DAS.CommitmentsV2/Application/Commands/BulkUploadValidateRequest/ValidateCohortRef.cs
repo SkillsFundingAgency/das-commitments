@@ -107,26 +107,26 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         }
 
         private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
-        { 
-            //var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-            //if (employerDetails.LegalEntityId.HasValue && providerId != 0)
-            //{
-            //    _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
-            //    var request = new HasPermissionRequest()
-            //    {
-            //        AccountLegalEntityId = employerDetails.LegalEntityId.Value,
-            //        Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
-            //        Ukprn = providerId
-            //    };
+        {
+            var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+            if (employerDetails.LegalEntityId.HasValue && providerId != 0)
+            {
+                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
+                var request = new HasPermissionRequest()
+                {
+                    AccountLegalEntityId = employerDetails.LegalEntityId.Value,
+                    Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
+                    Ukprn = providerId
+                };
 
-            //    var result = await _providerRelationshipsApiClient.HasPermission(request);
-            //    _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
+                var result = await _providerRelationshipsApiClient.HasPermission(request);
+                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
 
-            //    employerDetails.HasPermissionToCreateCohort = result;
-            //    return result;
-            //}
-
-            return await Task.FromResult(true);
+                employerDetails.HasPermissionToCreateCohort = result;
+                return result;
+            }
+            return true;
+            // return await Task.FromResult(true);
         }
 
         private async Task<List<OverlapCheckResult>> OverlapUlnCheckForCohort(Models.Cohort cohort)
