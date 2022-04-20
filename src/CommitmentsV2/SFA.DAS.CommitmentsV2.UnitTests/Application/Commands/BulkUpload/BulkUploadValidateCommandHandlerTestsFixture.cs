@@ -38,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public bool IsAgreementSigned { get; set; } = true;
         public DraftApprenticeship DraftApprenticeship { get; private set; }
         public Cohort Cohort { get; set; }
+        public Mock<IReservationValidationService> ReservationApiClient { get; set; }
 
         public const long ProviderId = 333;
 
@@ -88,13 +89,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
             ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
+
+            ReservationApiClient = new Mock<IReservationValidationService>();
+            ReservationApiClient.Setup(x => x.BulkValidate(It.IsAny<IEnumerable<CommitmentsV2.Domain.Entities.Reservations.ReservationRequest>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Reservations.Api.Types.BulkValidationResults());
             Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
                 , new Lazy<ProviderCommitmentsDbContext>(() => Db)
                 , OverlapCheckService.Object
                 , AcademicYearDateProvider.Object
                 , ProviderRelationshipsApiClient.Object
                 , EmployerAgreementService.Object 
-                , Mock.Of<IReservationValidationService>()
+                , ReservationApiClient.Object
                 );
         }
 
@@ -525,6 +530,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             CsvRecords[0].EPAOrgId = epaOrgId;
             return this;
+        }
+
+        internal void SetUpReservationValidationError(string reason)
+        {
+            ReservationApiClient.Setup(x => x.BulkValidate(It.IsAny<IEnumerable<CommitmentsV2.Domain.Entities.Reservations.ReservationRequest>>(), It.IsAny<CancellationToken>()))
+              .ReturnsAsync(new Reservations.Api.Types.BulkValidationResults()
+              {
+                  ValidationErrors = new List<Reservations.Api.Types.BulkValidation>()
+                  { 
+                      new Reservations.Api.Types.BulkValidation
+                      {
+                          Reason =reason,
+                          RowNumber = 1
+                      }
+                  }
+              });
         }
     }
 }
