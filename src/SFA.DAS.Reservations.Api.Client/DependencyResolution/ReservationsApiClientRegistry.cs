@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Configuration;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using Microsoft.Azure;
+using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.Configuration;
 using SFA.DAS.Http;
 using SFA.DAS.Http.TokenGenerators;
@@ -40,13 +43,13 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
             }
 
             return environment;
-        } 
+        }
 
         private IReservationsApiClient CreateClient(IContext ctx)
         {
             var config = GetConfig(ctx);
             var log = ctx.GetInstance<ILog>();
-            var httpClient = CreateHttpClient(ctx, config);
+            var httpClient =  CreateHttpClient(ctx, config);
             var httpHelper = new HttpHelper(httpClient, log);
             return new ReservationsApiClient(config, httpHelper);
         }
@@ -58,16 +61,39 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
                 return new HttpClient();
             }
 
-            var adConfig = new ReservationsClientApiConfigurationADAdapter(config);
-            var bearerToken = new AzureActiveDirectoryBearerTokenGenerator(adConfig);
+            if (IsClientCredentialConfiguration(config.ClientId, config.ClientSecret, config.Tenant))
+            {
+                var adConfig = new ReservationsClientApiConfigurationADAdapter(config);
+                var bearerToken = new AzureActiveDirectoryBearerTokenGenerator(adConfig);
 
-            return new HttpClientBuilder()
-                .WithBearerAuthorisationHeader(bearerToken)
-                .WithHandler(new NLog.Logger.Web.MessageHandlers.RequestIdMessageRequestHandler())
-                .WithHandler(new NLog.Logger.Web.MessageHandlers.SessionIdMessageRequestHandler())
-                .WithDefaultHeaders()
-                .Build();
+                return new HttpClientBuilder()
+                    .WithBearerAuthorisationHeader(bearerToken)
+                    .WithHandler(new NLog.Logger.Web.MessageHandlers.RequestIdMessageRequestHandler())
+                    .WithHandler(new NLog.Logger.Web.MessageHandlers.SessionIdMessageRequestHandler())
+                    .WithDefaultHeaders()
+                    .Build();
+            }
+            else
+            {
+                var httpClient = new HttpClientBuilder()
+                   .WithHandler(new NLog.Logger.Web.MessageHandlers.RequestIdMessageRequestHandler())
+                   .WithHandler(new NLog.Logger.Web.MessageHandlers.SessionIdMessageRequestHandler())
+                   .WithDefaultHeaders()
+                   .Build();
 
+                var accessToken =  GetManagedIdentityAuthenticationResult(config.IdentifierUri);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                return httpClient;
+            }
+        }
+        private bool IsClientCredentialConfiguration(string clientId, string clientSecret, string tenant)
+        {
+            return !string.IsNullOrWhiteSpace(clientId) && !string.IsNullOrWhiteSpace(clientSecret) && !string.IsNullOrWhiteSpace(tenant);
+        }
+        private string GetManagedIdentityAuthenticationResult(string resource)
+        {
+            var azureServiceTokenProvider = new AzureServiceTokenProvider();
+            return azureServiceTokenProvider.GetAccessTokenAsync(resource).Result;
         }
     }
 }
