@@ -470,16 +470,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             public List<Apprenticeship> SeedApprenticeships { get; }
             public List<DataLockStatus> SeedDataLocks { get; }
-
-            public List<AccountLegalEntity> SeedAccountLegalEntity { get; }
-           
+            
             private Mock<IEncodingService> _encodingService;
 
             public ApprenticeshipDomainServiceTestsFixture()
             {
                 SeedApprenticeships = new List<Apprenticeship>();
                 SeedDataLocks = new List<DataLockStatus>();
-                SeedAccountLegalEntity = new List<AccountLegalEntity>();
                 
                 _encodingService = new Mock<IEncodingService>();
                 _encodingService.Setup(s => s.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns<long, EncodingType>((value, encodingType) => $"HSH{value}");

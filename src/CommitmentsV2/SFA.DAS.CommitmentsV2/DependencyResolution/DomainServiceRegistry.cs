@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IEmailOptionalService>().Use<EmailOptionalService>();
             
             For<IEmployerAlertSummaryEmailService>().Use<EmployerAlertSummaryEmailService>();
+            For<IEmployerTransferRequestPendingEmailService>().Use<EmployerTransferRequestPendingEmailService>();
             For<IProviderAlertSummaryEmailService>().Use<ProviderAlertSummaryEmailService>();
 
             //todo: below line doesn't belong here. ideally, push this into a registry in the package itself, or an extension thereof
