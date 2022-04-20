@@ -16,15 +16,15 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
-    public class AlertSummaryServiceTests
+    public class EmployerAlertSummaryEmailServiceTests
     {
-        private AlertSummaryServiceTestsFixture _fixture;
+        private EmployerAlertSummaryEmailServiceTestsFixture _fixture;
         public const string EmployerCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-eas.apprenticeships.education.gov.uk/";
 
         [SetUp]
         public void SetUp()
         {
-            _fixture = new AlertSummaryServiceTestsFixture();
+            _fixture = new EmployerAlertSummaryEmailServiceTestsFixture();
         }
 
         [TestCaseSource(typeof(DataCases))]
@@ -727,14 +727,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             #endregion
         }
 
-        public class AlertSummaryServiceTestsFixture
+        public class EmployerAlertSummaryEmailServiceTestsFixture
         {
             private Mock<IMessageSession> _messageSession;
             private Mock<IApprovalsOuterApiClient> _approvalsOuterApiClient;
             private Mock<IApprenticeshipDomainService> _apprenticeshipDomainService;
             private static CommitmentsV2Configuration commitmentsV2Configuration;           
 
-            public AlertSummaryServiceTestsFixture()
+            public EmployerAlertSummaryEmailServiceTestsFixture()
             {
                 _apprenticeshipDomainService = new Mock<IApprenticeshipDomainService>();
                 _messageSession = new Mock<IMessageSession>();
@@ -751,13 +751,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 await service.SendEmployerAlertSummaryNotifications();
             }
 
-            public AlertSummaryServiceTestsFixture WithEmployerAlertSummaryNotifications(List<EmployerAlertSummaryNotification> employerAlertSummaryNotifications)
+            public EmployerAlertSummaryEmailServiceTestsFixture WithEmployerAlertSummaryNotifications(List<EmployerAlertSummaryNotification> employerAlertSummaryNotifications)
             {
                 _apprenticeshipDomainService.Setup(m => m.GetEmployerAlertSummaryNotifications()).ReturnsAsync(employerAlertSummaryNotifications);
                 return this;
             }
 
-            public AlertSummaryServiceTestsFixture WithAccountResponse(List<AccountResponse> accountResponses)
+            public EmployerAlertSummaryEmailServiceTestsFixture WithAccountResponse(List<AccountResponse> accountResponses)
             {
                 _approvalsOuterApiClient.Setup(x => x.Get<AccountResponse>(It.IsAny<GetAccountRequest>())).ReturnsAsync((GetAccountRequest request) =>
                     accountResponses.FirstOrDefault(p => p.HashedAccountId == request.AccountHashedId));
