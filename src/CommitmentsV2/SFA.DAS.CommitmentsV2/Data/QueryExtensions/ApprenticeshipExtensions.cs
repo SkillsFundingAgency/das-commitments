@@ -1,9 +1,9 @@
-﻿using System;
+﻿using SFA.DAS.CommitmentsV2.Models;
+using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data.QueryExtensions
 {
@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Data.QueryExtensions
         ///     The returned instance will not be tracked (i.e. the object is expected to be read-only).
         /// </remarks>
         public static Task<TResponse> GetById<TResponse>(
-            this DbSet<Apprenticeship> query,
+            this IQueryable<Apprenticeship> query,
             long apprenticeshipId,
             Expression<Func<Apprenticeship, TResponse>> select,
             CancellationToken cancellationToken)

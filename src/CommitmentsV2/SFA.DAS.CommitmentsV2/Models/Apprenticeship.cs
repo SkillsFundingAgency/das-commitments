@@ -516,10 +516,23 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StandardUId = this.StandardUId,
                 TrainingCourseVersion = this.TrainingCourseVersion,
                 TrainingCourseVersionConfirmed = this.TrainingCourseVersionConfirmed,
-                TrainingCourseOption = this.TrainingCourseOption
+                TrainingCourseOption = this.TrainingCourseOption,
+                FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
             };
 
             return result;
+        }
+
+        private FlexibleEmployment CreateFlexibleEmploymentForChangeOfParty(ChangeOfPartyRequest changeOfPartyRequest)
+        {
+            if (DeliveryModel != Types.DeliveryModel.PortableFlexiJob) return null;
+
+            // TODO Should this be limited to CoE
+            return new FlexibleEmployment
+            {
+                EmploymentPrice = changeOfPartyRequest.EmploymentPrice.Value,
+                EmploymentEndDate = changeOfPartyRequest.EmploymentEndDate.Value
+            };
         }
 
         public void EditEndDateOfCompletedRecord(DateTime endDate, ICurrentDateTime currentDate, Party party, UserInfo userInfo)
