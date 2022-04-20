@@ -23,10 +23,6 @@ namespace SFA.DAS.Reservations.Api.Types
         public Guid? UserId { get; set; }
         public string ULN { get; set; }
 
-        //public static implicit operator BulkCreateReservations(BulkUploadAddDraftApprenticeshipRequest bulkUploadAddDraftApprenticeshipRequest)
-        //{
-
-        //}
     }
 
 }
