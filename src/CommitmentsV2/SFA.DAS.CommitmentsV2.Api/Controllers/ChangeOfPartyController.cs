@@ -48,7 +48,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 NewStartDate = request.NewStartDate,
                 NewEndDate = request.NewEndDate,
                 NewPrice = request.NewPrice,
-                UserInfo = request.UserInfo
+                UserInfo = request.UserInfo,
+                NewEmploymentEndDate = request.NewEmploymentEndDate,
+                NewEmploymentPrice = request.NewEmploymentPrice,
             }, cancellationToken);
 
             return Ok();

@@ -16,7 +16,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         // AzureWebJobsDashboard and AzureWebJobsStorage
         static void Main()
         {
-
+            /* All the notifications jobs have been migrated to V2 code in CON-4584 / CON-4709; but currently disabled
+               here - this code can be removed in the general V1 code cleanup
+            
             var container = IoC.Initialize();
             var logger = container.GetInstance<ILog>();
             var config = container.GetInstance<CommitmentNotificationConfiguration>();
@@ -40,6 +42,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 .ContinueWith(t => WhenDone(t, logger, "SendingEmployer"));
 
             Task.WaitAll(t1, t2, t3);
+            
+            */
         }
 
         private static void WhenDone(Task task, ILog logger, string identifier)

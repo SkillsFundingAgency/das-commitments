@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models.Api;
-using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -16,10 +16,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressC
     public class ApprenticeshipEmailAddressConfirmedCommandHandler : AsyncRequestHandler<ApprenticeshipEmailAddressConfirmedCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
-        private readonly IApiClient _apimClient;
+        private readonly IApprovalsOuterApiClient _apimClient;
         private readonly ILogger<ApprenticeshipEmailAddressConfirmedCommandHandler> _logger;
 
-        public ApprenticeshipEmailAddressConfirmedCommandHandler(Lazy<ProviderCommitmentsDbContext> db, IApiClient apimClient, ILogger<ApprenticeshipEmailAddressConfirmedCommandHandler> logger)
+        public ApprenticeshipEmailAddressConfirmedCommandHandler(Lazy<ProviderCommitmentsDbContext> db, IApprovalsOuterApiClient apimClient, ILogger<ApprenticeshipEmailAddressConfirmedCommandHandler> logger)
         {
             _db = db;
             _apimClient = apimClient;

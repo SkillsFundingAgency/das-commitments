@@ -11,8 +11,8 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
-using SFA.DAS.CommitmentsV2.Models.Api;
-using SFA.DAS.CommitmentsV2.Models.Api.Types;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         public DateTime Now { get; set; }
         public Mock<ProviderCommitmentsDbContext> Db { get; set; }
         public ImportProvidersJobs ImportProvidersJob { get; set; }
-        public Mock<IApiClient> ProviderApiClient { get; set; }
+        public Mock<IApprovalsOuterApiClient> ProviderApiClient { get; set; }
         public List<ProviderSummary> Providers { get; set; }
         public List<ProviderSummary> ImportedProviders { get; set; }
 
@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         {
             Now = DateTime.UtcNow;
             Db = new Mock<ProviderCommitmentsDbContext>();
-            ProviderApiClient = new Mock<IApiClient>();
+            ProviderApiClient = new Mock<IApprovalsOuterApiClient>();
             ImportedProviders = new List<ProviderSummary>();
 
             Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<SqlParameter>(), It.IsAny<SqlParameter>()))

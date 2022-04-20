@@ -25,7 +25,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         public async Task Arrange()
         {
             var autoFixture = new Fixture();
-            _source = autoFixture.Build<GetApprenticeshipQueryResult>().With(e=>e.DeliveryModel, DeliveryModel.PortableFlexiJob).Create();
+            _source = autoFixture.Build<GetApprenticeshipQueryResult>()
+                .With(e => e.DeliveryModel, DeliveryModel.PortableFlexiJob)
+                .Create();
             _result = await _mapper.Map(TestHelper.Clone(_source));
         }
 
@@ -41,6 +43,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         public void DeliveryModelIsMappedCorrectly()
         {
             Assert.AreEqual(_source.DeliveryModel, _result.DeliveryModel);
+        }
+
+        [Test]
+        public void EmploymentPriceIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.FlexibleEmployment.EmploymentPrice, _result.EmploymentPrice);
+        }
+
+        [Test]
+        public void EmploymentEndDateIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.FlexibleEmployment.EmploymentEndDate, _result.EmploymentEndDate);
         }
     }
 }

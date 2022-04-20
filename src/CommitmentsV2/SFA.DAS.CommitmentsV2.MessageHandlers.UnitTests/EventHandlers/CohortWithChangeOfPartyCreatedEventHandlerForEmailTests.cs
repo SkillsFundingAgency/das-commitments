@@ -131,7 +131,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     ReservationId = _autoFixture.Create<Guid>()
                 };
 
-                _changeOfPartyRequest = new ChangeOfPartyRequest(_apprenticeship, ChangeOfPartyRequestType.ChangeProvider, Party.Employer, _autoFixture.Create<long>(), null, null, null, _autoFixture.Create<UserInfo>(), DateTime.Now);
+                _changeOfPartyRequest = new ChangeOfPartyRequest(
+                    _apprenticeship,
+                    ChangeOfPartyRequestType.ChangeProvider,
+                    Party.Employer,
+                    _autoFixture.Create<long>(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    _autoFixture.Create<UserInfo>(),
+                    DateTime.Now);
                 _apprenticeship.Cohort.ChangeOfPartyRequestId = _changeOfPartyRequest.Id;
 
                 _db.ChangeOfPartyRequests.Add(_changeOfPartyRequest);

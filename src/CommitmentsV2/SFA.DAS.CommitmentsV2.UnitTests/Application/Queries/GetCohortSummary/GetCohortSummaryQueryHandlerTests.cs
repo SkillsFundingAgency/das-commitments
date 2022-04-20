@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using AutoFixture.Dsl;
+using FluentAssertions;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -162,35 +165,70 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
         }
 
-        [TestCase(0, true)]
-        [TestCase(1, false)]
-        [TestCase(2, false)]
-        [TestCase(3, false)]
-        [TestCase(4, false)]
-        [TestCase(5, false)]
-        [TestCase(6, false)]
-        [TestCase(7, false)]
-        [TestCase(8, true)]
-        [TestCase(9, true)]
-
-        public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedEmployerCanApprove(int nullProperty,
-            bool expectedEmployerCanApprove)
+        private static IEnumerable<TestCaseData> MissingPropertiesTestData
         {
-            var apprenticeDetails = SetApprenticeDetails(nullProperty);
+            get
+            {
+                return DraftsWithMissingProperties().Select(x => new TestCaseData(x.draft.Create(), x.allowedApproval));
 
-            await CheckQueryResponse(
-                response => Assert.AreEqual(expectedEmployerCanApprove, response.IsCompleteForEmployer),
-                apprenticeDetails);
+                static IEnumerable<(AllowedApproval allowedApproval, IPostprocessComposer<DraftApprenticeshipDetails> draft)> DraftsWithMissingProperties()
+                {
+                    var completeApprenticeship = new Fixture()
+                        .Build<DraftApprenticeshipDetails>()
+                        .With(x => x.Email, "person@example.com");
+
+                    yield return (AllowedApproval.BothCanApprove, completeApprenticeship);
+                    yield return (AllowedApproval.BothCanApprove, completeApprenticeship.With(x => x.Email, (string)null));
+
+                    yield return (AllowedApproval.EmployerCanApprove, completeApprenticeship.Without(x => x.Uln));
+
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.FirstName));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.LastName));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.TrainingProgramme));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.Cost));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.StartDate));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.EndDate));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.DateOfBirth));
+
+                    var flexijobApprenticeship = completeApprenticeship.With(x => x.DeliveryModel, DeliveryModel.PortableFlexiJob);
+                    yield return (AllowedApproval.CannotApprove, flexijobApprenticeship.Without(x => x.EmploymentPrice));
+                    yield return (AllowedApproval.CannotApprove, flexijobApprenticeship.Without(x => x.EmploymentEndDate));
+                }
+            }
         }
 
-        [TestCase(true, true, true)]
-        [TestCase(false, true, false)]
-        [TestCase(true, false, true)]
-        [TestCase(false, false, true)]
-        public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(bool emailPresent,
-            bool apprenticeEmailRequired, bool expectedCanApprove)
+        [Flags]
+        public enum AllowedApproval
         {
-            var fieldToSet = emailPresent ? 0 : 8;
+            CannotApprove = 0,
+            EmployerCanApprove = 1,
+            ProviderCanApprove = 2,
+            BothCanApprove = EmployerCanApprove | ProviderCanApprove,
+        }
+
+
+        [TestCaseSource(nameof(MissingPropertiesTestData))]
+        public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedEmployerCanApprove(DraftApprenticeshipDetails apprenticeship, AllowedApproval allowedApproval)
+        {
+            await CheckQueryResponse(
+                response => response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove)),
+                apprenticeship);
+        }
+
+        [TestCaseSource(nameof(MissingPropertiesTestData))]
+        public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedProviderCanApprove(DraftApprenticeshipDetails apprenticeship, AllowedApproval allowedApproval)
+        {
+            await CheckQueryResponse(
+                response => response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove)),
+                apprenticeship);
+        }
+
+        [TestCase("email@example.com", false, AllowedApproval.BothCanApprove)]
+        [TestCase("email@example.com", true, AllowedApproval.BothCanApprove)]
+        [TestCase(null, false, AllowedApproval.BothCanApprove)]
+        [TestCase(null, true, AllowedApproval.CannotApprove)]
+        public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(string email, bool apprenticeEmailRequired, AllowedApproval allowedApproval)
+        {
             Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
                 f.EmailOptionalService
@@ -198,63 +236,42 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                     .Returns(apprenticeEmailRequired);
             });
 
-            var apprenticeDetails = SetApprenticeDetails(fieldToSet);
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.Email, email)
+                .Create();
 
             await CheckQueryResponse(response =>
-                {
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForEmployer);
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForProvider);
-                },
+            {
+                response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
+                response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
+            },
                 apprenticeDetails, arrange);
         }
 
-        [TestCase(false, null, false)]
-        [TestCase(true, null, true)]
-        [TestCase(true, 101, true)]
-        public async Task Handle_WithApprenticeEmailAndAContinuationOfId_ShouldReturnExpectedEmployerCanApprove(
-            bool emailPresent, long? continuationOfId, bool expectedCanApprove)
+        [TestCase(null, null, AllowedApproval.CannotApprove)]
+        [TestCase(null, 101, AllowedApproval.BothCanApprove)]
+        [TestCase("email@example.com", null, AllowedApproval.BothCanApprove)]
+        [TestCase("email@example.com", 101, AllowedApproval.BothCanApprove)]
+        public async Task Handle_WithApprenticeEmailAndAContinuationOfId_ShouldReturnExpectedEmployerCanApprove(string email, long? continuationOfId, AllowedApproval allowedApproval)
         {
-            var fieldToSet = emailPresent ? 0 : 8;
             Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
                 f.EmailOptionalService
                     .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             });
 
-            var apprenticeDetails = SetApprenticeDetails(fieldToSet);
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.Email, email)
+                .Create();
 
             await CheckQueryResponse(response =>
                 {
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForEmployer);
-                    Assert.AreEqual(expectedCanApprove, response.IsCompleteForProvider);
+                    response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
+                    response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
                 },
                 apprenticeDetails, arrange, continuationOfId);
-        }
-
-        [TestCase(0, true)]
-        [TestCase(1, false)]
-        [TestCase(2, false)]
-        [TestCase(3, false)]
-        [TestCase(4, false)]
-        [TestCase(5, false)]
-        [TestCase(6, false)]
-        [TestCase(7, false)]
-        [TestCase(8, true)]
-        [TestCase(9, false)]
-        public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedProviderCanApprove(int nullProperty,
-            bool expectedProviderCanApprove)
-        {
-            var apprenticeDetails = SetApprenticeDetails(nullProperty);
-
-            await CheckQueryResponse(
-                response => Assert.AreEqual(expectedProviderCanApprove, response.IsCompleteForProvider),
-                apprenticeDetails);
-        }
-
-        [Test]
-        public async Task Handle_WithNoApprenticeDetails_ShouldReturnEmployerCannotApprove()
-        {
-            await CheckQueryResponse(response => Assert.IsFalse(response.IsCompleteForEmployer));
         }
 
         [Test]
@@ -329,58 +346,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
             // Assert
             assert(response);
-        }
-
-        private DraftApprenticeshipDetails SetApprenticeDetails(int nullProperty)
-        {
-            var apprenticeDetails = new DraftApprenticeshipDetails
-            {
-                Id = 1,
-                FirstName = "FirstName",
-                LastName = "LastName",
-                Email = "test@test.com",
-                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("code", "name",
-                    ProgrammeType.Framework, DateTime.Now, DateTime.Now),
-                Cost = 1500,
-                StartDate = new DateTime(2019, 10, 1),
-                EndDate = DateTime.Now,
-                DateOfBirth = new DateTime(2000, 1, 1),
-                Reference = "",
-                ReservationId = new Guid(),
-                Uln = "1234567890"
-            };
-            switch (nullProperty)
-            {
-                case 1:
-                    apprenticeDetails.FirstName = null;
-                    break;
-                case 2:
-                    apprenticeDetails.LastName = null;
-                    break;
-                case 3:
-                    apprenticeDetails.TrainingProgramme = null;
-                    break;
-                case 4:
-                    apprenticeDetails.Cost = null;
-                    break;
-                case 5:
-                    apprenticeDetails.StartDate = null;
-                    break;
-                case 6:
-                    apprenticeDetails.EndDate = null;
-                    break;
-                case 7:
-                    apprenticeDetails.DateOfBirth = null;
-                    break;
-                case 8:
-                    apprenticeDetails.Email = null;
-                    break;
-                case 9:
-                    apprenticeDetails.Uln = null;
-                    break;
-            }
-
-            return apprenticeDetails;
         }
     }
 

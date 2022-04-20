@@ -162,7 +162,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     PreviousApprenticeship = PreviousApprenticeship,
                     OriginalStartDate = PreviousApprenticeship.StartDate,
                     Continuation = nextApprenticeship,
-                    MadeRedundant = _autoFixture.Create<bool?>()
+                    MadeRedundant = _autoFixture.Create<bool?>(),
+                    FlexibleEmployment = _autoFixture.Create<FlexibleEmployment>(),
                 };
 
                 switch (Apprenticeship.PaymentStatus)
@@ -219,6 +220,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(PreviousApprenticeship.Cohort.ProviderId, _result.PreviousProviderId);
                 Assert.AreEqual(Apprenticeship.Continuation?.Id, _result.ContinuedById);
                 Assert.AreEqual(Apprenticeship.MadeRedundant, _result.MadeRedundant);
+                Assert.AreEqual(Apprenticeship.FlexibleEmployment.EmploymentPrice, _result.FlexibleEmployment.EmploymentPrice);
+                Assert.AreEqual(Apprenticeship.FlexibleEmployment.EmploymentEndDate, _result.FlexibleEmployment.EmploymentEndDate);
             }
         }
     }

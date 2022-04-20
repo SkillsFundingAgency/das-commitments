@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
@@ -44,5 +45,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public bool EmailAddressConfirmedByApprentice { get; set; }
         public bool EmailShouldBePresent { get; set; }
         public int? PledgeApplicationId { get; set; }
+        public FlexibleEmployment FlexibleEmployment { get; set; }
     }
 }
