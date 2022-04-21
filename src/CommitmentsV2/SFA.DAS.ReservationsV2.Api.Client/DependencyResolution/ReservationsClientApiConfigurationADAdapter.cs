@@ -9,7 +9,7 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
     ///     to an IAzureActiveDirectoryClientConfiguration, which is in the newer versions of the
     ///     SFA.DAS.Http package.
     /// </summary>
-    public class ReservationsClientApiConfigurationADAdapter : IAzureActiveDirectoryClientConfiguration
+    public class ReservationsClientApiConfigurationADAdapter : IAzureActiveDirectoryClientConfiguration, IManagedIdentityClientConfiguration
     {
         private readonly ReservationsClientApiConfiguration _config;
 

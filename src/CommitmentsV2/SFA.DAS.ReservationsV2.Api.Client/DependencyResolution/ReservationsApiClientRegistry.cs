@@ -15,7 +15,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
         public ReservationsApiClientRegistry()
         {
             For<IReservationsApiClient>().Use(ctx => CreateClient(ctx)).Singleton();
-        } 
+        }
 
         private IReservationsApiClient CreateClient(IContext ctx)
         {
@@ -34,8 +34,20 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
             }
 
             var loggerFactory = ctx.GetInstance<ILoggerFactory>();
-            var activeDirectoryConfig = new ReservationsClientApiConfigurationADAdapter(config);
-            var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(activeDirectoryConfig, loggerFactory);
+
+            IHttpClientFactory httpClientFactory;
+
+            if (IsClientCredentialConfiguration(config.ClientId, config.ClientSecret, config.Tenant))
+            {
+                var activeDirectoryConfig = new ReservationsClientApiConfigurationADAdapter(config);
+                httpClientFactory = new AzureActiveDirectoryHttpClientFactory(activeDirectoryConfig, loggerFactory);
+            }
+            else
+            {
+                var miConfig = new ReservationsClientApiConfigurationMIAdapter(config);
+                httpClientFactory = new ManagedIdentityHttpClientFactory(miConfig, loggerFactory);
+            }
+
             return httpClientFactory.CreateHttpClient();
         }
 
@@ -44,6 +56,11 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
             var configuration = context.GetInstance<IConfiguration>();
             var configSection = configuration.GetSection(ConfigurationKeys.ReservationsClientApiConfiguration);
             return configSection.Get<ReservationsClientApiConfiguration>();
+        }
+
+        private bool IsClientCredentialConfiguration(string clientId, string clientSecret, string tenant)
+        {
+            return !string.IsNullOrWhiteSpace(clientId) && !string.IsNullOrWhiteSpace(clientSecret) && !string.IsNullOrWhiteSpace(tenant);
         }
     }
 }
