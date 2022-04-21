@@ -23,8 +23,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     && employerDetails.IsSigned.HasValue && employerDetails.IsSigned.Value 
                     && employerDetails.HasPermissionToCreateCohort.HasValue && employerDetails.HasPermissionToCreateCohort.Value)
                 {
-                    var x = Map(res, employerDetails);
-                    reservationsToValidate.Add(x);
+                    var reservation = Map(res, employerDetails);
+                    reservationsToValidate.Add(reservation);
                 }
             }
 
@@ -43,17 +43,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             }
         }
 
-        private ReservationRequest Map(BulkUploadAddDraftApprenticeshipRequest x, EmployerSummary employerDetails)
+        private ReservationRequest Map(BulkUploadAddDraftApprenticeshipRequest draftApprenticeshipRequest, EmployerSummary employerDetails)
         {
-            var cohortDetails = GetCohortDetails(x.CohortRef);
+            var cohortDetails = GetCohortDetails(draftApprenticeshipRequest.CohortRef);
             long.TryParse(employerDetails.AccountLegalEntityId, out var accountLegalEntityId);
 
             return new ReservationRequest
             {
                 Id = System.Guid.NewGuid(),
-                StartDate = x.StartDate,
-                CourseId = x.CourseCode,
-                ProviderId = (uint)x.ProviderId,
+                StartDate = draftApprenticeshipRequest.StartDate,
+                CourseId = draftApprenticeshipRequest.CourseCode,
+                ProviderId = (uint)draftApprenticeshipRequest.ProviderId,
                 AccountLegalEntityId = accountLegalEntityId,
                 TransferSenderAccountId = cohortDetails?.TransferSenderId,
                 UserId = System.Guid.Empty,
