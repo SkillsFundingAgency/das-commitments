@@ -16,7 +16,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         // AzureWebJobsDashboard and AzureWebJobsStorage
         static void Main()
         {
-
+            /* All the notifications jobs have been migrated to V2 code in CON-4584 / CON-4709; but currently disabled
+               here - this code can be removed in the general V1 code cleanup
+            
             var container = IoC.Initialize();
             var logger = container.GetInstance<ILog>();
             var config = container.GetInstance<CommitmentNotificationConfiguration>();
@@ -32,16 +34,16 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             logger.Trace($"Starting CommitmentNotification.WebJob, JobId: {notificationJobId}");
 
-            // NOTE: both the T1 an T2 tasks need to be disabled when testing is complete on CON-4584 - the code
-            // may be removed afterwards or swept up in a general cleanup of V1 code
-            /*var t1 = notificationJob.RunEmployerAlertSummaryNotification($"{notificationJobId}.Employer")
+            var t1 = notificationJob.RunEmployerAlertSummaryNotification($"{notificationJobId}.Employer")
                 .ContinueWith(t => WhenDone(t, logger, "Employer"));
             var t2 = notificationJob.RunProviderAlertSummaryNotification($"{notificationJobId}.Provider")
-                .ContinueWith(t => WhenDone(t, logger, "Provider"));*/
+                .ContinueWith(t => WhenDone(t, logger, "Provider"));
             var t3 = notificationJob.RunSendingEmployerTransferRequestNotification($"{notificationJobId}.SendingEmployer")
                 .ContinueWith(t => WhenDone(t, logger, "SendingEmployer"));
 
-            Task.WaitAll(/*t1, t2,*/ t3);
+            Task.WaitAll(t1, t2, t3);
+            
+            */
         }
 
         private static void WhenDone(Task task, ILog logger, string identifier)
