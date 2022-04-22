@@ -7,12 +7,12 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {
     public class EmployerAlertSummaryNotificationJob
     {
-        private readonly IEmployerAlertSummaryEmailService _alertSummaryService;
-        private readonly ILogger<ImportStandardsJob> _logger;
+        private readonly IEmployerAlertSummaryEmailService _employerAlertSummaryEmailService;
+        private readonly ILogger<EmployerAlertSummaryNotificationJob> _logger;
         
-        public EmployerAlertSummaryNotificationJob(IEmployerAlertSummaryEmailService alertSummaryService, ILogger<ImportStandardsJob> logger)
+        public EmployerAlertSummaryNotificationJob(IEmployerAlertSummaryEmailService alertSummaryService, ILogger<EmployerAlertSummaryNotificationJob> logger)
         {
-            _alertSummaryService = alertSummaryService;
+            _employerAlertSummaryEmailService = alertSummaryService;
             _logger = logger;
         }
 
@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
         {
             _logger.LogInformation($"EmployerAlertSummaryNotificationJob - Started{(timer?.IsPastDue ?? false ? " later than expected" : string.Empty)}");
 
-            await _alertSummaryService.SendEmployerAlertSummaryNotifications();
+            await _employerAlertSummaryEmailService.SendEmployerAlertSummaryNotifications();
 
             _logger.LogInformation("EmployerAlertSummaryNotificationJob - Finished");
         }

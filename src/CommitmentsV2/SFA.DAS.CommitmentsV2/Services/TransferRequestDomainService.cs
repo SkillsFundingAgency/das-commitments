@@ -106,6 +106,44 @@ namespace SFA.DAS.CommitmentsV2.Services
             return result;
         }
 
+        public async Task<List<EmployerTransferRequestPendingNotification>> GetEmployerTransferRequestPendingNotifications()
+        {
+            _logger.LogInformation("Getting pending transfer requests for employer accounts");
+
+            var query = _dbContext.Value.TransferRequests
+                            .Include(t => t.Cohort)
+                            .ThenInclude(c => c.AccountLegalEntity)
+                            .Where(tr => tr.Status == TransferApprovalStatus.Pending && tr.AutoApproval == false)
+                            .Select(tr => new EmployerTransferRequestPendingNotification
+                            {
+                                TransferRequestId = tr.Id,
+                                ReceivingEmployerAccountId = tr.Cohort.EmployerAccountId,
+                                ReceivingLegalEntityName = tr.Cohort.AccountLegalEntity.Name,
+                                CohortReference = tr.Cohort.Reference,
+                                CommitmentId = tr.CommitmentId,
+                                SendingEmployerAccountId = tr.Cohort.TransferSenderId,
+                                TransferCost = tr.Cost,
+                                Status = tr.Status,
+                                ApprovedOrRejectedByUserName = tr.TransferApprovalActionedByEmployerName,
+                                ApprovedOrRejectedByUserEmail = tr.TransferApprovalActionedByEmployerEmail,
+                                ApprovedOrRejectedOn = tr.TransferApprovalActionedOn,
+                                CreatedOn = tr.CreatedOn
+                            });
+
+            var results = await query.ToListAsync();
+
+            if (results.Any())
+            {
+                _logger.LogInformation("Retrieved pending transfer requests for employer accounts");
+            }
+            else
+            {
+                _logger.LogInformation($"Cannot find any pending transfer requests for employer accounts");
+            }
+
+            return results;
+        }
+
         private async Task<TransferRequest> GetTransferRequest(long id, CancellationToken cancellationToken)
         {
             return await _dbContext.Value.TransferRequests
