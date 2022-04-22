@@ -57,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var apprenticeship = _context.Apprenticeships
                 .Include(y => y.Cohort)
                 .Include(y => y.PriceHistory)
+                .Include(y => y.FlexibleEmployment)
                 .FirstOrDefault(x => x.Id == request.ApprenticeshipId);
 
             if (apprenticeship == null)
