@@ -137,7 +137,13 @@
         },
         "deploySupportApp": {
             "type": "bool"
-        }
+        },
+        "supportIdaTenant" : {
+            "type": "string"
+        },
+        "supportIdaAudience" : {
+             "type": "string"
+        }       
     },
     "variables": {
         "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
@@ -806,6 +812,14 @@
                                 {
                                     "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
                                     "value": "[if(parameters('deploySupportApp'), reference('support-app-insights').outputs.InstrumentationKey.value, '')]"
+                                },
+                                {
+                                    "name": "idaTenant",
+                                    "value": "[parameters('supportIdaTenant')]"   
+                                },
+                                {
+                                    "name": "idaAudience",
+                                    "value": "[parameters('supportIdaAudience')]"                                    
                                 }
                             ]
                         }
