@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Support.SubSite
             var siteValidatorSettings = ioc.GetService<ISiteValidatorSettings>();
 
             GlobalConfiguration.Configuration.MessageHandlers.Add(new TokenValidationHandler(siteValidatorSettings, logger));
-            GlobalFilters.Filters.Add(new TokenValidationFilter(siteValidatorSettings, logger));
+            //GlobalFilters.Filters.Add(new TokenValidationFilter(siteValidatorSettings, logger));
 
 
             logger.Info("Web role started");
