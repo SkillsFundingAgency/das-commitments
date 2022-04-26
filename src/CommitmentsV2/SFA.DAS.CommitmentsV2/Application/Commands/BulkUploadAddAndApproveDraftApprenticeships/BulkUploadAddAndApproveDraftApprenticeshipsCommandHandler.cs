@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraf
         public async Task<BulkUploadAddAndApproveDraftApprenticeshipsResponse> Handle(BulkUploadAddAndApproveDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
             var results = await _mediator.Send(new BulkUploadAddDraftApprenticeshipsCommand 
-            { UserInfo = request.UserInfo, BulkUploadDraftApprenticeships = request.BulkUploadDraftApprenticeships, ProviderId = request.ProviderId });
+            { UserInfo = request.UserInfo, BulkUploadDraftApprenticeships = request.BulkUploadDraftApprenticeships, ProviderId = request.ProviderId, ReservationsWithValidation = request.ReservationsWithValidation });
 
             foreach (var result in results.BulkUploadAddDraftApprenticeshipsResponse)
             {

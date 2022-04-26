@@ -8,6 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
     {
         public long ProviderId { get; set; }
         public IEnumerable<BulkUploadAddDraftApprenticeshipRequest> BulkUploadDraftApprenticeships { get; set; }
+        public BulkReservationValidationResults ReservationValidationResults { get; set; }
     }
 
     public class BulkUploadAddDraftApprenticeshipRequest
@@ -63,4 +64,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string EPAOrgId { get; set; }
 
     }
+
+    //public class BulkReservationValidationResults
+    //{
+    //    public ICollection<BulkReservationValidation> ValidationErrors { get; set; }
+    //}
+
+    //public class BulkReservationValidation
+    //{
+    //    public string Reason { get; set; }
+
+    //    public int RowNumber { get; set; }
+    //}
 }

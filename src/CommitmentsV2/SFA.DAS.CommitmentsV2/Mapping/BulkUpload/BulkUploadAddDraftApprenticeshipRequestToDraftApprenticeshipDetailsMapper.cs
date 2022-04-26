@@ -1,15 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
-using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.Reservations.Api.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
@@ -17,24 +13,26 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
     public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper : IMapper<BulkUploadAddDraftApprenticeshipsCommand, List<DraftApprenticeshipDetails>>
     {
         private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
-        private readonly IReservationsApiClient _reservationApiClient;
-        private readonly Lazy<ProviderCommitmentsDbContext> _providerDbContext;
-        private Dictionary<string, Models.Cohort> _cahcedCohortDetails;
-        private Dictionary<string, Models.AccountLegalEntity> _cahcedLegalEntities;
+        //private readonly IReservationsApiClient _reservationApiClient;
+        //private readonly Lazy<ProviderCommitmentsDbContext> _providerDbContext;
+        //private Dictionary<string, Models.Cohort> _cahcedCohortDetails;
+        //private Dictionary<string, Models.AccountLegalEntity> _cahcedLegalEntities;
 
-        public BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup, IReservationsApiClient reservationsApiClient, Lazy<ProviderCommitmentsDbContext> providerCommitmentsDbContext)
+        public BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup
+            //, IReservationsApiClient reservationsApiClient, Lazy<ProviderCommitmentsDbContext> providerCommitmentsDbContext
+            )
         {
             _trainingProgrammeLookup = trainingProgrammeLookup;
-            _reservationApiClient = reservationsApiClient;
-            _providerDbContext = providerCommitmentsDbContext;
-            _cahcedCohortDetails = new Dictionary<string, Models.Cohort>();
-            _cahcedLegalEntities = new Dictionary<string, Models.AccountLegalEntity>();
+            //_reservationApiClient = reservationsApiClient;
+            //_providerDbContext = providerCommitmentsDbContext;
+            //_cahcedCohortDetails = new Dictionary<string, Models.Cohort>();
+            //_cahcedLegalEntities = new Dictionary<string, Models.AccountLegalEntity>();
         }
 
         public async Task<List<DraftApprenticeshipDetails>> Map(BulkUploadAddDraftApprenticeshipsCommand command)
         {
             var draftApprenticeshipDetailsList = new List<DraftApprenticeshipDetails>();
-            await MapReservation(command, CancellationToken.None);
+            MapReservation(command);
 
             foreach (var source in command.BulkUploadDraftApprenticeships)
             {
@@ -79,90 +77,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
             return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
         }
 
-        private async Task MapReservation(BulkUploadAddDraftApprenticeshipsCommand requests, CancellationToken cancellationToken)
+        private void MapReservation(BulkUploadAddDraftApprenticeshipsCommand requests)
         {
-            var request = CreateBulkUploadReservationRequest(requests);
-            var results = await _reservationApiClient.BulkCreateReservationsWithNonLevy(request, cancellationToken);
-
-            results.BulkCreateResults.ForEach(x => requests.BulkUploadDraftApprenticeships.First(y => y.Uln == x.ULN).ReservationId = x.ReservationId);
-        }
-
-        private BulkCreateReservationsWithNonLevyRequest CreateBulkUploadReservationRequest(BulkUploadAddDraftApprenticeshipsCommand requests)
-        {
-            var reservationApiRequest = new BulkCreateReservationsWithNonLevyRequest
-            {
-                Reservations = requests.BulkUploadDraftApprenticeships.Select(x => new BulkCreateReservations
-                {
-                    AccountLegalEntityId = GetAccountLegalEntityId(x.AgreementId),
-                    AccountId = GetAccountId(x.AgreementId),
-                    AccountLegalEntityName = GetAccountLegalEntityName(x.AgreementId),
-                    CourseId = x.CourseCode,
-                    CreatedDate = DateTime.UtcNow,
-                    Id = Guid.NewGuid(),
-                    IsLevyAccount = IsLevy(x.AgreementId),
-                    ProviderId = uint.Parse(x.ProviderId.ToString()),
-                    StartDate = x.StartDate,
-                    TransferSenderAccountId = GetTransferSenderId(x.CohortRef),
-                    ULN = x.Uln,
-                    UserId = Guid.Parse(requests.UserInfo.UserId)
-                }).ToList()
-            };
-
-            return reservationApiRequest;
-        }
-
-
-        private long? GetTransferSenderId(string cohortRef)
-        {
-            if (!string.IsNullOrWhiteSpace(cohortRef))
-            {
-               return GetCohortDetails(cohortRef)?.TransferSenderId;
-            }
-
-            return null;
-        }
-        private long GetAccountLegalEntityId(string agreementId) =>
-                        long.Parse(GetEmployerDetails(agreementId).LegalEntityId);
-
-        private string GetAccountLegalEntityName(string agreementId) =>
-                                GetEmployerDetails(agreementId).Name;
-
-        private long GetAccountId(string agreementId) =>
-            GetEmployerDetails(agreementId).AccountId;
-        private bool IsLevy(string agreementId) =>
-            GetEmployerDetails(agreementId).Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
-
-
-        private Models.Cohort GetCohortDetails(string cohortRef)
-        {
-            if (_cahcedCohortDetails.ContainsKey(cohortRef))
-            {
-                return _cahcedCohortDetails.GetValueOrDefault(cohortRef);
-            }
-
-            var cohort = _providerDbContext.Value.Cohorts
-                .Include(x => x.AccountLegalEntity)
-                .Include(x => x.Apprenticeships)
-                .Where(x => x.Reference == cohortRef).FirstOrDefault();
-            _cahcedCohortDetails.Add(cohortRef, cohort);
-
-            return cohort;
-        }
-
-        private Models.AccountLegalEntity GetEmployerDetails(string agreementId)
-        {
-            if (_cahcedLegalEntities.ContainsKey(agreementId))
-            {
-                return _cahcedLegalEntities.GetValueOrDefault(agreementId);
-            }
-
-            var accountLegalEntity = _providerDbContext.Value.AccountLegalEntities
-              .Include(x => x.Account)
-              .Where(x => x.PublicHashedId == agreementId).FirstOrDefault();
-
-            _cahcedLegalEntities.Add(agreementId, accountLegalEntity);
-            return accountLegalEntity;
+            requests.ReservationsWithValidation.BulkCreateResults.ForEach(x => requests.BulkUploadDraftApprenticeships.First(y => y.Uln == x.ULN).ReservationId = x.ReservationId);
         }
     }
-    
 }

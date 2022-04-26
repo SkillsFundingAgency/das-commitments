@@ -15,7 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
             return Task.FromResult(new BulkUploadValidateCommand
             {
                 CsvRecords = source.CsvRecords,
-                ProviderId = source.ProviderId
+                ProviderId = source.ProviderId,
+                 ReservationValidationResults = source.BulkReservationValidationResults
             });
         }
     }

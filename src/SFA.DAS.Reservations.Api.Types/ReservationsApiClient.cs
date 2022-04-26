@@ -64,10 +64,10 @@ namespace SFA.DAS.Reservations.Api.Types
             return _httpHelper.PostAsJson<CreateChangeOfPartyReservationRequest, CreateChangeOfPartyReservationResult>(url, request, cancellationToken);
         }
 
-        public Task<BulkValidationResults> BulkValidate(IEnumerable<BulkReservation> request, CancellationToken cancellationToken)
+        public Task<BulkReservationValidationResults> BulkValidate(IEnumerable<BulkReservation> request, CancellationToken cancellationToken)
         {
             var url = BuildUrl($"api/Reservations/accounts/bulk-validate");
-            return _httpHelper.PostAsJson<IEnumerable<BulkReservation>, BulkValidationResults>(url, request, cancellationToken);
+            return _httpHelper.PostAsJson<IEnumerable<BulkReservation>, BulkReservationValidationResults>(url, request, cancellationToken);
         }
 
         private string BuildUrl(string path)

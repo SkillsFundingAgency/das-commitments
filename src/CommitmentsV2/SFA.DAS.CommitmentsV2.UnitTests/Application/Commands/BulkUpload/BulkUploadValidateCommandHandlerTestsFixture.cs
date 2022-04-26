@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             ReservationApiClient = new Mock<IReservationValidationService>();
             ReservationApiClient.Setup(x => x.BulkValidate(It.IsAny<IEnumerable<CommitmentsV2.Domain.Entities.Reservations.ReservationRequest>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Reservations.Api.Types.BulkValidationResults());
+                .ReturnsAsync(new Reservations.Api.Types.BulkReservationValidationResults());
             Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
                 , new Lazy<ProviderCommitmentsDbContext>(() => Db)
                 , OverlapCheckService.Object
@@ -535,11 +535,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         internal void SetUpReservationValidationError(string reason)
         {
             ReservationApiClient.Setup(x => x.BulkValidate(It.IsAny<IEnumerable<CommitmentsV2.Domain.Entities.Reservations.ReservationRequest>>(), It.IsAny<CancellationToken>()))
-              .ReturnsAsync(new Reservations.Api.Types.BulkValidationResults()
+              .ReturnsAsync(new Reservations.Api.Types.BulkReservationValidationResults()
               {
-                  ValidationErrors = new List<Reservations.Api.Types.BulkValidation>()
+                  ValidationErrors = new List<Reservations.Api.Types.BulkReservationValidation>()
                   { 
-                      new Reservations.Api.Types.BulkValidation
+                      new Reservations.Api.Types.BulkReservationValidation
                       {
                           Reason =reason,
                           RowNumber = 1

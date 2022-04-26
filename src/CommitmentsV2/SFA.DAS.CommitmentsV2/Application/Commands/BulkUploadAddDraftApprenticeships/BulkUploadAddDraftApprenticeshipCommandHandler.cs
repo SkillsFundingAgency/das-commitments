@@ -14,6 +14,7 @@ using SFA.DAS.Encoding;
 using System;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships
 {
@@ -68,7 +69,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
 
         private async Task ValidateBulkUploadRequest(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new BulkUploadValidateCommand { CsvRecords = request.BulkUploadDraftApprenticeships, ProviderId = request.ProviderId }, cancellationToken);
+            var reservationValidationResults = new BulkReservationValidationResults { ValidationErrors = request.ReservationsWithValidation.ValidationErrors };
+            var result = await _mediator.Send(new BulkUploadValidateCommand { CsvRecords = request.BulkUploadDraftApprenticeships, ProviderId = request.ProviderId, ReservationValidationResults = reservationValidationResults },  cancellationToken );
             result.BulkUploadValidationErrors.ThrowIfAny();
         }
 

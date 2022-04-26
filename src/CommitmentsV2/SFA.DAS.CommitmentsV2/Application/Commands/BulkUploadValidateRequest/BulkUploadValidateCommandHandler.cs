@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _csvRecords = command.CsvRecords.ToList();
             foreach (var csvRecord in command.CsvRecords)
             {
-                var domainErrors =  await Validate(csvRecord, command.ProviderId);
+                var domainErrors = await Validate(csvRecord, command.ProviderId);
 
                 if (domainErrors.Any())
 
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 }
             }
 
-            await ValidateReservation(command.CsvRecords, command.ProviderId, bulkUploadValidationErrors);
+            await ValidateReservation(command.CsvRecords, command.ReservationValidationResults, command.ProviderId, bulkUploadValidationErrors);
 
             return new BulkUploadValidateApiResponse
             {
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             };
         }
 
-       
+
 
         private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
