@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
@@ -32,8 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
         public async Task<List<DraftApprenticeshipDetails>> Map(BulkUploadAddDraftApprenticeshipsCommand command)
         {
             var draftApprenticeshipDetailsList = new List<DraftApprenticeshipDetails>();
-            MapReservation(command);
-
             foreach (var source in command.BulkUploadDraftApprenticeships)
             {
                 var result = new DraftApprenticeshipDetails
@@ -77,9 +74,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
             return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
         }
 
-        private void MapReservation(BulkUploadAddDraftApprenticeshipsCommand requests)
-        {
-            requests.ReservationsWithValidation.BulkCreateResults.ForEach(x => requests.BulkUploadDraftApprenticeships.First(y => y.Uln == x.ULN).ReservationId = x.ReservationId);
-        }
+        //private void MapReservation(BulkUploadAddDraftApprenticeshipsCommand requests)
+        //{
+        //    requests.ReservationsWithValidation.BulkCreateResults.ForEach(x => requests.BulkUploadDraftApprenticeships.First(y => y.Uln == x.ULN).ReservationId = x.ReservationId);
+        //}
     }
 }

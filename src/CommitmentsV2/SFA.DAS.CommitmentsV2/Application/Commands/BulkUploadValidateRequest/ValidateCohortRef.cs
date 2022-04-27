@@ -1,9 +1,7 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,6 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
+        public const string CohortRefPermissionIssue = "CohortRefPermission";
         private async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
             var domainErrors = new List<Error>();
@@ -102,31 +101,31 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             if (!hasPermissionToCreateCohort)
             {
                 _logger.LogInformation($"Has permission to create cohort : {providerId}");
-                domainErrors.Add(new Error("CohortRef", error));
+                domainErrors.Add(new Error(CohortRefPermissionIssue, error));
             }
         }
 
         private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
-            var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-            if (employerDetails.LegalEntityId.HasValue && providerId != 0)
-            {
-                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
-                var request = new HasPermissionRequest()
-                {
-                    AccountLegalEntityId = employerDetails.LegalEntityId.Value,
-                    Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
-                    Ukprn = providerId
-                };
+            //var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+            //if (employerDetails.LegalEntityId.HasValue && providerId != 0)
+            //{
+            //    _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
+            //    var request = new HasPermissionRequest()
+            //    {
+            //        AccountLegalEntityId = employerDetails.LegalEntityId.Value,
+            //        Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
+            //        Ukprn = providerId
+            //    };
 
-                var result = await _providerRelationshipsApiClient.HasPermission(request);
-                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
+            //    var result = await _providerRelationshipsApiClient.HasPermission(request);
+            //    _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
 
-                employerDetails.HasPermissionToCreateCohort = result;
-                return result;
-            }
-            return true;
-            // return await Task.FromResult(true);
+            //    employerDetails.HasPermissionToCreateCohort = result;
+            //    return result;
+            //}
+            //return true;
+            return await Task.FromResult(true);
         }
 
         private async Task<List<OverlapCheckResult>> OverlapUlnCheckForCohort(Models.Cohort cohort)

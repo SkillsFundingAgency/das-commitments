@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
                 BulkUploadDraftApprenticeships = source.BulkUploadAddAndApproveDraftApprenticeships.ToList(),
                 UserInfo = source.UserInfo,
                 ProviderId = source.ProviderId,
-                ReservationsWithValidation = source.ReservationsWithValidation
+                BulkReservationValidationResults = source.BulkReservationValidationResults
             });
         }
     }

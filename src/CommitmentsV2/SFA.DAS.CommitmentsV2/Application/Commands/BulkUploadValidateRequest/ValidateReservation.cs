@@ -1,11 +1,8 @@
 ﻿using MediatR;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
-using SFA.DAS.Reservations.Api.Types;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
@@ -33,7 +30,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             var existingErrorRecord = bulkUploadValidationErrors.FirstOrDefault(x => x.RowNumber == record.RowNumber);
             if (existingErrorRecord != null)
             {
-                existingErrorRecord.Errors.Add(errorToAdd);
+                if (!existingErrorRecord.Errors.Any(x => x.Property == LegalAgreementIdIssue || x.Property == CohortRefPermissionIssue))
+                {
+                    existingErrorRecord.Errors.Add(errorToAdd);
+                }
             }
             else
             {

@@ -26,11 +26,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             _resultMapper = resultMapper;
         }
 
-        public async Task<BulkReservationValidationResults> BulkValidate(IEnumerable<ReservationRequest> request, CancellationToken cancellationToken)
-        {
-            var mappedRequest = request.Select(x => (BulkReservation)x);
-            return await _apiClient.BulkValidate(mappedRequest, cancellationToken);
-        }
+        //public async Task<BulkReservationValidationResults> BulkValidate(IEnumerable<ReservationRequest> request, CancellationToken cancellationToken)
+        //{
+        //    var mappedRequest = request.Select(x => (BulkReservation)x);
+        //    return await _apiClient.BulkValidate(mappedRequest, cancellationToken);
+        //}
 
         public async Task<Domain.Entities.Reservations.ReservationValidationResult> Validate(ReservationValidationRequest request, CancellationToken cancellationToken)
         {
