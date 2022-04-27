@@ -27,7 +27,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public Originator? PendingUpdateOriginator { get; set; }
         public DateTime? CompletionDate { get; set; }
         public bool? MadeRedundant { get; set; }
-        public bool? EmailAddressConfirmed { get; set; }
 
         [NotMapped]
         public string ApprenticeName => string.Concat(FirstName, " ", LastName);
@@ -480,6 +479,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FirstName = this.FirstName,
                 LastName = this.LastName,
                 Email = this.Email,
+                EmailAddressConfirmed = this.EmailAddressConfirmed,
                 DateOfBirth = this.DateOfBirth,
                 Cost = changeOfPartyRequest.Price,
                 StartDate = changeOfPartyRequest.StartDate,
@@ -499,6 +499,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseVersionConfirmed = this.TrainingCourseVersionConfirmed,
                 TrainingCourseOption = this.TrainingCourseOption,
                 FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
+                ApprenticeshipConfirmationStatus = this.ApprenticeshipConfirmationStatus
             };
 
             return result;
