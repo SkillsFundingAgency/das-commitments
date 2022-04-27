@@ -24,7 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private readonly IEmployerAgreementService _employerAgreementService;
-        private readonly IReservationValidationService _reservationValidationService;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
         private Dictionary<string, Models.Cohort> _cahcedCohortDetails;
 
@@ -37,8 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             IOverlapCheckService overlapService,
             IAcademicYearDateProvider academicYearDateProvider,
             IProviderRelationshipsApiClient providerRelationshipsApiClient,
-            IEmployerAgreementService employerAgreementService,
-            IReservationValidationService reservationValidationService)
+            IEmployerAgreementService employerAgreementService)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -47,7 +45,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _academicYearDateProvider = academicYearDateProvider;
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
-            _reservationValidationService = reservationValidationService;
             _cahcedCohortDetails = new Dictionary<string, Models.Cohort>();
         }
 
@@ -93,11 +90,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 // when a valid agreement has not been signed validation will stop
                 if (domainErrors.Any())
                     return domainErrors;
-
-               // domainErrors.AddRange(await ValidateAgreementIdMustBeLevy(csvRecord));
             }
 
-           // domainErrors.AddRange(await ValidateReservation(csvRecord, providerId));
             domainErrors.AddRange(await ValidateCohortRef(csvRecord, providerId));
             domainErrors.AddRange(ValidateUln(csvRecord));
             domainErrors.AddRange(ValidateFamilyName(csvRecord));

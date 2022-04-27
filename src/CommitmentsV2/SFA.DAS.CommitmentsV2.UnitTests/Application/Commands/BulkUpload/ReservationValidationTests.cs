@@ -10,8 +10,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public async Task Reservation_Validation_Error()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
-            fixture.SetLevyStatus(Types.ApprenticeshipEmployerType.NonLevy);
-            fixture.SetUpReservationValidationError("The employer has reached their reservations limit. Contact the employer.");
+            fixture.Command.ReservationValidationResults = new Api.Types.Requests.BulkReservationValidationResults();
+            fixture.Command.ReservationValidationResults.ValidationErrors.Add(new Api.Types.Requests.BulkReservationValidation { Reason = "The employer has reached their reservations limit. Contact the employer.", RowNumber = 1 });
+            
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "ReservationId", "The employer has reached their reservations limit. Contact the employer.");
         }
@@ -21,8 +22,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetProviderRef("012345678901234567890");
-            fixture.SetLevyStatus(Types.ApprenticeshipEmployerType.NonLevy);
-            fixture.SetUpReservationValidationError("The employer has reached their reservations limit. Contact the employer.");
+            fixture.Command.ReservationValidationResults = new Api.Types.Requests.BulkReservationValidationResults();
+            fixture.Command.ReservationValidationResults.ValidationErrors.Add(new Api.Types.Requests.BulkReservationValidation { Reason = "The employer has reached their reservations limit. Contact the employer.", RowNumber = 1 });
+
             var errors = await fixture.Handle();
             Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
             Assert.AreEqual(2, errors.BulkUploadValidationErrors.First().Errors.Count);

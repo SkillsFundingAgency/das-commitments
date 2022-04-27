@@ -89,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await fixture.Handle();
             //Assert
-            fixture.ValidateError(errors, 1, "CohortRef", "The <b>employer must give you permission</b> to add apprentices on their behalf");
+            fixture.ValidateError(errors, 1, "CohortRefPermission", "The <b>employer must give you permission</b> to add apprentices on their behalf");
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await fixture.Handle();
             //Assert
-            fixture.ValidateError(errors, 1, "CohortRef", "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot reserve funds on their behalf");
+            fixture.ValidateError(errors, 1, "CohortRefPermission", "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot reserve funds on their behalf");
         }
 
         [Test]

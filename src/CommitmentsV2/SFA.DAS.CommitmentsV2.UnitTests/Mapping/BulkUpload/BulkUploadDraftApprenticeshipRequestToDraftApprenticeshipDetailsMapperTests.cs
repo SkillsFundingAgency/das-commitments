@@ -14,7 +14,6 @@ using SFA.DAS.Reservations.Api.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
@@ -27,8 +26,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
         private List<DraftApprenticeshipDetails> _result;
         private Mock<ITrainingProgrammeLookup> _trainingLookup;
         private TrainingProgramme _trainingProgramme;
-        private Mock<IReservationsApiClient> _reservationsApiClient;
-        public ProviderCommitmentsDbContext Db { get; set; }
         public List<Account> SeedAccounts { get; set; }
 
         [SetUp]
@@ -40,49 +37,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source = autoFixture.Create<BulkUploadAddDraftApprenticeshipsCommand>();
             _source.UserInfo.UserId = Guid.NewGuid().ToString();
             _source.BulkUploadDraftApprenticeships.ForEach(x => { x.CourseCode = "2"; x.ReservationId = null; });
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                                  .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                                                  .Options);
 
             _trainingProgramme = new TrainingProgramme("2", "TrainingProgramme", "1.0", "1.1", Types.ProgrammeType.Standard, new DateTime(2050, 1, 1), new DateTime(2060, 1, 1), new System.Collections.Generic.List<CommitmentsV2.Models.IFundingPeriod>());
             _trainingLookup = new Mock<ITrainingProgrammeLookup>();
             _trainingLookup.Setup(s => s.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), It.IsAny<DateTime>())).ReturnsAsync(() => _trainingProgramme);
 
-            _reservationsApiClient = new Mock<IReservationsApiClient>();
-            SetupReservations(_source);
-            _mapper = new BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper(_trainingLookup.Object, _reservationsApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db));
-            AddAccountWithLegalEntities(1, "Account Name", 1, 1, "Legal entity name", Types.ApprenticeshipEmployerType.Levy);
-            SeedData(Db);
+            _mapper = new BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper(_trainingLookup.Object);
             _result = await _mapper.Map(TestHelper.Clone(_source));
-        }
-
-        private void AddAccountWithLegalEntities(long accountId, string accountName,
-    long accountLegalEntityId, long maLegalEntityId, string name, Types.ApprenticeshipEmployerType levyStatus)
-        {
-            var account = new CommitmentsV2.Models.Account(accountId, "PRI123", "PUB123", accountName, DateTime.Now) { LevyStatus = levyStatus };
-
-            account.AddAccountLegalEntity(accountLegalEntityId, maLegalEntityId, "22", "PUB456",
-                name, CommitmentsV2.Models.OrganisationType.Charities, "My address", DateTime.Now);
-
-            SeedAccounts.Add(account);
-        }
-
-        private void SeedData(ProviderCommitmentsDbContext dbContext)
-        {
-            dbContext.Accounts.AddRange(SeedAccounts);
-            dbContext.AccountLegalEntities.AddRange(SeedAccounts.SelectMany(ac => ac.AccountLegalEntities));
-            dbContext.SaveChanges(true);
-        }
-
-        void SetupReservations(BulkUploadAddDraftApprenticeshipsCommand command)
-        {
-            var response = command.BulkUploadDraftApprenticeships.Select(x => new BulkCreateReservationResult
-            { 
-                 ReservationId = Guid.NewGuid(),
-                 ULN = x.Uln
-            });
-            _reservationsApiClient.Setup(x => x.BulkCreateReservationsWithNonLevy(It.IsAny<BulkCreateReservationsWithNonLevyRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new BulkCreateReservationsWithNonLevyResult { BulkCreateResults = response.ToList() });
         }
 
         [Test]
@@ -174,13 +135,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
                 Assert.AreEqual(source.ProviderRef, result.Reference);
             });
         }
-
-        [Test]
-        public void ReservationIdIsMappedCorrectly()
-        {
-            Assert.IsTrue(_result.All(x => x.ReservationId != null));
-        }
-
 
         [Test]
         public void TrainingCourseVersionIsMappedCorrectly()
