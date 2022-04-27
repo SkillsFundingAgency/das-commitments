@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime CommitmentsApprovedOn { get; set; }
         public DateTime? ConfirmationOverdueOn { get; set; }
         public DateTime? ApprenticeshipConfirmedOn { get; set; }
-        public Apprenticeship Apprenticeship { get; set; }
+        public ApprenticeshipBase Apprenticeship { get; set; }
         public string ConfirmationStatusSort { get; set; }
 
         public ConfirmationStatus ConfirmationStatus => ApprenticeshipConfirmedOn == null
