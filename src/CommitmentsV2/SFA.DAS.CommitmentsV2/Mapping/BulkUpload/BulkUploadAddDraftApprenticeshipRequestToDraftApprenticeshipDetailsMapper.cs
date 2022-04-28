@@ -12,20 +12,10 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
     public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper : IMapper<BulkUploadAddDraftApprenticeshipsCommand, List<DraftApprenticeshipDetails>>
     {
         private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
-        //private readonly IReservationsApiClient _reservationApiClient;
-        //private readonly Lazy<ProviderCommitmentsDbContext> _providerDbContext;
-        //private Dictionary<string, Models.Cohort> _cahcedCohortDetails;
-        //private Dictionary<string, Models.AccountLegalEntity> _cahcedLegalEntities;
 
-        public BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup
-            //, IReservationsApiClient reservationsApiClient, Lazy<ProviderCommitmentsDbContext> providerCommitmentsDbContext
-            )
+        public BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup)
         {
             _trainingProgrammeLookup = trainingProgrammeLookup;
-            //_reservationApiClient = reservationsApiClient;
-            //_providerDbContext = providerCommitmentsDbContext;
-            //_cahcedCohortDetails = new Dictionary<string, Models.Cohort>();
-            //_cahcedLegalEntities = new Dictionary<string, Models.AccountLegalEntity>();
         }
 
         public async Task<List<DraftApprenticeshipDetails>> Map(BulkUploadAddDraftApprenticeshipsCommand command)
@@ -73,10 +63,5 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
 
             return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
         }
-
-        //private void MapReservation(BulkUploadAddDraftApprenticeshipsCommand requests)
-        //{
-        //    requests.ReservationsWithValidation.BulkCreateResults.ForEach(x => requests.BulkUploadDraftApprenticeships.First(y => y.Uln == x.ULN).ReservationId = x.ReservationId);
-        //}
     }
 }

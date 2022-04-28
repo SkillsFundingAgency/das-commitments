@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private readonly IEmployerAgreementService _employerAgreementService;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
-        private Dictionary<string, Models.Cohort> _cahcedCohortDetails;
+        private Dictionary<string, Models.Cohort> _cachedCohortDetails;
 
 
         public long ProviderId { get; set; }
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _academicYearDateProvider = academicYearDateProvider;
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
-            _cahcedCohortDetails = new Dictionary<string, Models.Cohort>();
+            _cachedCohortDetails = new Dictionary<string, Models.Cohort>();
         }
 
         public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
@@ -146,16 +146,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
         private Models.Cohort GetCohortDetails(string cohortRef)
         {
-            if (_cahcedCohortDetails.ContainsKey(cohortRef))
+            if (_cachedCohortDetails.ContainsKey(cohortRef))
             {
-                return _cahcedCohortDetails.GetValueOrDefault(cohortRef);
+                return _cachedCohortDetails.GetValueOrDefault(cohortRef);
             }
 
             var cohort = _dbContext.Value.Cohorts
                 .Include(x => x.AccountLegalEntity)
                 .Include(x => x.Apprenticeships)
                 .Where(x => x.Reference == cohortRef).FirstOrDefault();
-            _cahcedCohortDetails.Add(cohortRef, cohort);
+            _cachedCohortDetails.Add(cohortRef, cohort);
 
             return cohort;
         }
