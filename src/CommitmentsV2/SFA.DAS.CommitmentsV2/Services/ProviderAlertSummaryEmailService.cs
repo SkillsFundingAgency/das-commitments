@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                         {"mismatch_changes", GetMismatchText(alert.DataMismatchCount)},
                         {
                             "link_to_mange_apprenticeships",
-                            $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested"
+                            $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{providerId}/apprentices"
                         }
                     });
 

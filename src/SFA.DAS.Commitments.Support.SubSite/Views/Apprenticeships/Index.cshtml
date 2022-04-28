@@ -11,209 +11,218 @@
 
     <div class="column-full">
 
-        <h1 class="heading-xlarge">
+        <h1 class="heading-large">
             @Model.Name
         </h1>
 
         <div>
             <table class="responsive twoColumn">
-                <thead>
-                    <tr>
-                        <th colspan="2"> <h2 class="heading-medium">Status</h2></th>
-                    </tr>
-                </thead>
-
                 <tbody>
                     <tr>
-                        <th class="tw-50">Agreement status</th>
+                        <th scope="row" class="bold tw-50">Agreement status</th>
                         <td>@Model.AgreementStatus</td>
 
                     </tr>
                     <tr>
-                        <th>Payment status</th>
-                        <td>@Model.PaymentStatus</td>
-
-                    </tr>
-                    <tr>
-                        <th>Apprentice confirmation</th>
+                        <th scope="row" class="bold">Payment status</th>
                         <td>
-                            @Model.ConfirmationStatusDescription
+                            <strong class="@($"govuk-tag govuk-tag--{Model.PaymentStatusTagColour}")">
+                                @Model.PaymentStatus
+                            </strong>
                         </td>
                     </tr>
-
-                    @if (Model.Alerts != null && Model.Alerts.Any())
+                    @if (Model.MadeRedundant.HasValue)
                     {
-
                         <tr>
-                            <th>Alerts</th>
-                            <td><a href="#"> @Model.Alerts.First()</a></td>
+                            <th scope="row" class="bold">Made redundant</th>
+                            <td>@(Model.MadeRedundant.Value ? "Yes" : "No")</td>
                         </tr>
-
-                        foreach (var alert in Model.Alerts.Skip(1))
-                        {
-                            <tr>
-                                <td></td>
-                                <td><a href="#">@alert</a></td>
-                            </tr>
-                        }
                     }
-                </tbody>
-            </table>
 
-
-            <table class="responsive twoColumn">
-                <thead>
+                    @if (!string.IsNullOrWhiteSpace(Model.CompletionPaymentMonth))
+                    {
+                        <tr>
+                            <th scope="row" class="bold">Completion payment month</th>
+                            <td>@Model.CompletionPaymentMonth</td>
+                        </tr>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Model.StopDate))
+                    {
+                        <tr>
+                            <th scope="row" class="bold">Stopped date</th>
+                            <td>@Model.StopDate</td>
+                        </tr>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Model.PauseDate))
+                    {
+                        <tr>
+                            <th scope="row" class="bold">Paused date</th>
+                            <td>@Model.PauseDate</td>
+                        </tr>
+                    }
                     <tr>
-                        <th colspan="2"> <h2 class="heading-medium">Apprentice</h2></th>
+                        <th scope="row" class="bold">Unique learner number</th>
+                        <td>@Model.UlnText</td>
                     </tr>
-
-                </thead>
-            </table>
-
-            <table class="responsive twoColumn">
-                <tbody>
                     <tr>
-                        <th class="tw-50">Name</th>
-                        <td>@Model.Name</td>
-                    </tr>
-                    <tr>
-                        <th>Email address</th>
+                        <th scope="row" class="bold">Email address</th>
                         <td>
                             @Model.Email
                         </td>
                     </tr>
-                    <tr >
-                        <th>Unique learner number</th>
-                        <td>@Model.UlnText</td>
-                    </tr>
+
+
                     <tr>
-                        <th>Date of birth</th>
-                        <td>@Model.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
+                        <th scope="row" class="bold">Training provider</th>
+                        <td>@Model.TrainingProvider</td>
                     </tr>
-                    <tr >
-                        <th>Cohort reference</th>
-                        <td>@Model.CohortReference</td>
-                    </tr>
-
-                    <tr >
-                        <th>
-                            Employer reference
-                        </th>
-                        <td>
-                            @Model.EmployerReference
-                       </td>
-                </tr>
-
-            </tbody>
-        </table>
-
-
-        <table class="responsive twoColumn">
-            <thead>
-                <tr>
-                    <th colspan="2"> <h2 class="heading-medium">Training</h2></th>
-                </tr>
-            </thead>
-        </table>
-
-        <table class="responsive twoColumn">
-            <tbody>
-                <tr>
-                    <th class="tw-50">Legal entity</th>
-                    <td>@Model.LegalEntity</td>
-                </tr>
-                <tr>
-                    <th>Training provider</th>
-                    <td>@Model.TrainingProvider</td>
-                </tr>
-                <tr>
-                    <th>UKPRN</th>
-                    <td>@Model.UKPRN</td>
-                </tr>
-
-                <tr>
-                    <th>Apprenticeship training course</th>
-                    <td>@Model.Trainingcourse</td>
-                </tr>
-                @if (!string.IsNullOrWhiteSpace(Model.Version))
-                {
-                    <tr>
-                        <th>Version</th>
-                        <td>@Model.Version</td>
-                    </tr>
-                }
-                @if (!string.IsNullOrWhiteSpace(Model.Option))
-                {
-                    <tr>
-                        <th>Option</th>
-                        <td>@Model.Option</td>
-                    </tr>
-                }
-                <tr>
-                    <th>Apprenticeship code</th>
-                    <td>@Model.ApprenticeshipCode</td>
-                </tr>
-
-
-            </tbody>
-        </table>
-
-
-        <table class="responsive twoColumn">
-            <thead>
-                <tr>
-                    <th colspan="2"> <h2 class="heading-medium">Dates</h2></th>
-                </tr>
-            </thead>
-        </table>
-
-        <table class="responsive twoColumn">
-            <tbody>
-
-                <tr>
-                    <th class="tw-50">AS training start date</th>
-                    <td>
-                        @{
-                            var startDate = Model.DasTrainingStartDate?.ToGdsFormatWithoutDay() ?? "";
-                        }
-
-                        @startDate
-                    </td>
-                </tr>
-                <tr>
-                    <th>AS training end date</th>
-                    <td>
-                        @{
-                            var endDate = Model.DasTrainingEndDate?.ToGdsFormatWithoutDay() ?? "";
-                        }
-
-                        @endDate
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-
-        <table class="responsive twoColumn">
-            <thead>
-                <tr>
-                    <th colspan="2"> <h2 class="heading-medium">Payment</h2></th>
-                </tr>
-            </thead>
-        </table>
-
-        <table class="responsive twoColumn">
-            <tbody>
-                <tr>
-                    <th class="tw-50">Current training cost</th>
-                    <td>@Model.TrainingCost.ToGdsCurrencyFormat()</td>
-                </tr>
-
-            </tbody>
-        </table>
-
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
+<br />
 
+<div class="grid-row">
+    <div class="column-full">
+        <div class="tabs">
+            <ul class="js-tabs tabs__list">
+                <li class="tabs__list-item">
+                    <a href="#tab-summary" class="tabs__tab">Summary</a>
+                </li>
+            </ul>
+            <div id="tab-summary" class="js-tab-pane tabs__pane">
+                <table class="responsive twoColumn">
+                    <thead>
+                        <tr>
+                            <th colspan="2"> <h2 class="heading-medium">Apprentice</h2></th>
+                        </tr>
+                    </thead>
+                </table>
+
+                <table class="responsive twoColumn">
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="bold tw-50">Name</th>
+                            <td>@Model.Name</td>
+
+                        </tr>
+                        <tr>
+                            <th scope="row" class="bold">Date of birth</th>
+                            <td>@Model.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
+
+                        </tr>
+                        <tr>
+                            <th scope="row" class="bold">Cohort reference</th>
+                            <td>@Model.CohortReference</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="bold">Employer reference</th>
+                            <td>
+                                @Model.EmployerReference
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="responsive twoColumn">
+                    <thead>
+                        <tr>
+                            <th colspan="2"> <h2 class="heading-medium">Training</h2></th>
+                        </tr>
+                    </thead>
+                </table>
+
+                <table class="responsive twoColumn">
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="bold tw-50">Legal entity</th>
+                            <td>@Model.LegalEntity</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="bold">UKPRN</th>
+                            <td>@Model.UKPRN</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="bold">Apprenticeship training course</th>
+                            <td>@Model.Trainingcourse</td>
+                        </tr>
+                        @if (!string.IsNullOrWhiteSpace(Model.Version))
+                        {
+                            <tr>
+                                <th scope="row" class="bold">Version</th>
+                                <td>@Model.Version</td>
+                            </tr>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Option))
+                        {
+                            <tr>
+                                <th scope="row" class="bold">Option</th>
+                                <td>@Model.Option</td>
+                            </tr>
+                        }
+                        <tr>
+                            <th scope="row" class="bold">Apprenticeship code</th>
+                            <td>@Model.ApprenticeshipCode</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="bold">Apprentice confirmation</th>
+                            <td>@Model.ConfirmationStatusDescription</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="responsive twoColumn">
+                    <thead>
+                        <tr>
+                            <th colspan="2"> <h2 class="heading-medium">Dates</h2></th>
+                        </tr>
+                    </thead>
+                </table>
+
+                <table class="responsive twoColumn">
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="bold tw-50">AS training start date</th>
+                            <td>
+                                @{
+                                    var startDate = Model.DasTrainingStartDate?.ToGdsFormatWithoutDay() ?? "";
+                                }
+
+                                @startDate
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="bold">AS training end date</th>
+                            <td>
+                                @{
+                                    var endDate = Model.DasTrainingEndDate?.ToGdsFormatWithoutDay() ?? "";
+                                }
+
+                                @endDate
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="responsive twoColumn">
+                    <thead>
+                        <tr>
+                            <th colspan="2"> <h2 class="heading-medium">Payment</h2></th>
+                        </tr>
+                    </thead>
+                </table>
+
+                <table class="responsive twoColumn">
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="bold tw-50">Current training cost</th>
+                            <td>@Model.TrainingCost.ToGdsCurrencyFormat()</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>

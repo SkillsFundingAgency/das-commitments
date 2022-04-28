@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                         { "need_needs", alertSummary.TotalCount > 1 ? "need" :"needs" },
                         { "changes_for_review", ChangesForReviewText(alertSummary.ChangesForReviewCount) },
                         { "requested_changes", RestartRequestText(alertSummary.RestartRequestCount) },
-                        { "link_to_mange_apprenticeships", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                        { "link_to_mange_apprenticeships", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{hashedAccountId}/apprentices" },
                         { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/{hashedAccountId}" }
                     };
 

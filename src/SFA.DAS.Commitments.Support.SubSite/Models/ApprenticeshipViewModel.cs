@@ -42,6 +42,10 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
 
         public string Version { get; set; }
         public string Option { get; set; }
-
+        public string PauseDate { get; set; }
+        public string StopDate { get; set; }
+        public string CompletionPaymentMonth { get; set; }
+        public string PaymentStatusTagColour { get; set; }
+        public bool? MadeRedundant { get; set; }
     }
 }
