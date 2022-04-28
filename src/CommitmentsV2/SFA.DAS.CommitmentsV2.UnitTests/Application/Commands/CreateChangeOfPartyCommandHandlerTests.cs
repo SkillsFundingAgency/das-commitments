@@ -22,7 +22,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             f.ChangeOfPartyDomainService.Verify(s => s.CreateChangeOfPartyRequest(f.Command.ApprenticeshipId,
                 f.Command.ChangeOfPartyRequestType, f.Command.NewPartyId, f.Command.NewPrice,
-                f.Command.NewStartDate, f.Command.NewEndDate, f.Command.UserInfo, It.IsAny<CancellationToken>()));
+                f.Command.NewStartDate, f.Command.NewEndDate, f.Command.UserInfo, f.Command.NewEmploymentPrice,
+                f.Command.NewEmploymentEndDate, It.IsAny<CancellationToken>()));
         }
     }
 

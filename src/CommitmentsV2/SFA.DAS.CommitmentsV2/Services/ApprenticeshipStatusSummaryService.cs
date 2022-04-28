@@ -59,15 +59,4 @@ namespace SFA.DAS.CommitmentsV2.Services
             };  
         }
     }
-
-    public class ApprenticeshipSummary
-    {
-        public string AccountLegalEntityId { get; set; }
-        
-        public OrganisationType OrganisationType { get; set; }
-
-        public PaymentStatus PaymentStatus { get; set; }
-
-        public int Count { get; set; }
-    }
 }

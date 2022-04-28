@@ -50,7 +50,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 ConfirmationStatus = source.ConfirmationStatus,
                 EmailAddressConfirmedByApprentice = source.EmailAddressConfirmedByApprentice,
                 EmailShouldBePresent = source.EmailShouldBePresent,
-                PledgeApplicationId = source.PledgeApplicationId
+                PledgeApplicationId = source.PledgeApplicationId,
+                EmploymentEndDate = source.FlexibleEmployment?.EmploymentEndDate,
+                EmploymentPrice = source.FlexibleEmployment?.EmploymentPrice,
             });
         }
     }

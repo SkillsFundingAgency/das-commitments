@@ -487,6 +487,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyDraftApprenticeshipDeleted();
         }
 
+        [Test]
+        public async Task DeleteFlexiJobDraftApprenticeship_WhenCohortIsWithEmployer()
+        {
+            _fixture.ExistingDraftApprenticeship.FlexibleEmployment = new FlexibleEmployment { EmploymentPrice = 10, EmploymentEndDate = DateTime.Now };
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer).WithExistingDraftApprenticeship();
+            await _fixture.WithParty(Party.Employer).DeleteDraftApprenticeship();
+            _fixture.VerifyDraftApprenticeshipDeleted();
+        }
+
         [TestCase(true, true)]
         [TestCase(false, false)]
         public async Task UpdateDraftApprenticeship_WhenContinuation_StartDateMustBeAfterPreviousStopDate(bool overlap, bool expectThrow)
