@@ -126,7 +126,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 return result;
             }
             return true;
-            //return await Task.FromResult(true);
         }
 
         private async Task<List<OverlapCheckResult>> OverlapUlnCheckForCohort(Models.Cohort cohort)
