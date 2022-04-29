@@ -12,8 +12,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         {
             AddConfiguration<CommitmentsV2Configuration>(CommitmentsConfigurationKeys.CommitmentsV2);
             AddConfiguration<AccountApiConfiguration>(CommitmentsConfigurationKeys.AccountApi);
-            AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);
-            AddConfiguration<CustomisedFeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
+            AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);            
             AddConfiguration<EncodingConfig>(CommitmentsConfigurationKeys.EncodingConfiguration);
             AddConfiguration<ApprovalsOuterApiConfiguration>(CommitmentsConfigurationKeys.ApprovalsOuterApiConfiguration);
             AddConfiguration<EmailOptionalConfiguration>(CommitmentsConfigurationKeys.EmailOptionalConfiguration);

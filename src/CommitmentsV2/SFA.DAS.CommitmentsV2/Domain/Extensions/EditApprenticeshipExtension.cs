@@ -27,6 +27,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
                 ProviderId = apprenticeship.Cohort.ProviderId,
                 DeliveryModel = source.DeliveryModel ?? apprenticeship.DeliveryModel ?? DeliveryModel.Regular,
+                EmploymentEndDate = source.EmploymentEndDate ?? apprenticeship.FlexibleEmployment?.EmploymentEndDate,
+                EmploymentPrice = source.EmploymentPrice ?? apprenticeship.FlexibleEmployment?.EmploymentPrice,
                 CourseCode = GetValue(source.CourseCode, apprenticeship.CourseCode),
                 Version = GetValue(source.Version, apprenticeship.TrainingCourseVersion),
                 Option = GetValue(source.Option, apprenticeship.TrainingCourseOption),
@@ -49,6 +51,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         {
             var apprenticeshipUpdate = new ApprenticeshipUpdate();
             apprenticeshipUpdate.DeliveryModel = command.EditApprenticeshipRequest.DeliveryModel;
+            apprenticeshipUpdate.EmploymentEndDate = command.EditApprenticeshipRequest.EmploymentEndDate;
+            apprenticeshipUpdate.EmploymentPrice = command.EditApprenticeshipRequest.EmploymentPrice;
             apprenticeshipUpdate.TrainingCode = command.EditApprenticeshipRequest.CourseCode;
             apprenticeshipUpdate.TrainingCourseVersion = command.EditApprenticeshipRequest.Version;
             apprenticeshipUpdate.TrainingCourseOption = command.EditApprenticeshipRequest.Option;
@@ -74,6 +78,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 || !string.IsNullOrWhiteSpace(request.LastName)
                 || !string.IsNullOrWhiteSpace(request.Email)
                 || request.DeliveryModel != null
+                || request.EmploymentEndDate != null
+                || request.EmploymentPrice != null
                 || !string.IsNullOrWhiteSpace(request.CourseCode)
                 || !string.IsNullOrWhiteSpace(request.Version)
                 || request.Option != apprenticeship.TrainingCourseOption

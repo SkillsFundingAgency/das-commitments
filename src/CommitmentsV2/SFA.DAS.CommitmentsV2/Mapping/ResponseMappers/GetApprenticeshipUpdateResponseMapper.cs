@@ -22,6 +22,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                     LastName = source.LastName,
                     Email = source.Email,
                     DeliveryModel = source.DeliveryModel,
+                    EmploymentEndDate = source.EmploymentEndDate,
+                    EmploymentPrice = source.EmploymentPrice,
                     TrainingType = source.TrainingType,
                     TrainingCode = source.TrainingCode,
                     Version = source.TrainingCourseVersion,

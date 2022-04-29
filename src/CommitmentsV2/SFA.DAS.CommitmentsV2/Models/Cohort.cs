@@ -763,7 +763,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (draftApprenticeshipDetails.EmploymentPrice > draftApprenticeshipDetails.Cost)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "This price must not be more than than the total agreed apprenticeship price");
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmploymentPrice), "This price must not be more than the total agreed apprenticeship price");
             }
         }
 

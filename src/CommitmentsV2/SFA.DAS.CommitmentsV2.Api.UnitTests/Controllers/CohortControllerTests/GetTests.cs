@@ -35,6 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                         v.CohortId == f.GetCohortResult.CohortId &&
                         v.AccountLegalEntityId == f.GetCohortResult.AccountLegalEntityId &&
                         v.LegalEntityName == f.GetCohortResult.LegalEntityName &&
+                        v.ProviderId == f.GetCohortResult.ProviderId &&
                         v.ProviderName == f.GetCohortResult.ProviderName &&
                         v.IsFundedByTransfer == f.GetCohortResult.IsFundedByTransfer &&
                         v.TransferSenderId == f.GetCohortResult.TransferSenderId &&
