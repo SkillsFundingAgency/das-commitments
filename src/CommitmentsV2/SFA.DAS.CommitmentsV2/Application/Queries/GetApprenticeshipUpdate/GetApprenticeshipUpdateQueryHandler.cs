@@ -38,6 +38,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
                         LastName = update.LastName,
                         Email = update.Email,
                         DeliveryModel = update.DeliveryModel,
+                        EmploymentEndDate = update.EmploymentEndDate,
+                        EmploymentPrice = update.EmploymentPrice,
                         TrainingType = update.TrainingType,
                         TrainingCode = update.TrainingCode,
                         TrainingName = update.TrainingName,
