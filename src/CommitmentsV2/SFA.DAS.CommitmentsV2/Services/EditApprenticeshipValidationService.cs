@@ -57,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var apprenticeship = _context.Apprenticeships
                 .Include(y => y.Cohort)
                 .Include(y => y.PriceHistory)
+                .Include(y => y.FlexibleEmployment)
                 .FirstOrDefault(x => x.Id == request.ApprenticeshipId);
 
             if (apprenticeship == null)
@@ -80,6 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.AddRange(await BuildReservationValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildTrainingProgramValidationFailures(request, apprenticeship));
                 errors.AddRange(BuildEmailValidationFailures(request, apprenticeship));
+                errors.AddRange(BuildFlexibleEmploymentValidationFailures(request, apprenticeship));
             }
 
             if (errors.Count == 0)
@@ -123,6 +125,10 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     throw new InvalidOperationException("Invalid operation - training code can't change for the current state of the object.");
                 }
+                if (request.DeliveryModel != apprenticeship.DeliveryModel)
+                {
+                    throw new InvalidOperationException("Invalid operation - delivery model can't change for the current state of the object.");
+                }
             }
 
             if (IsLockedForUpdate(apprenticeship) || IsUpdateLockedForStartDateAndCourse(apprenticeship))
@@ -139,6 +145,10 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     throw new InvalidOperationException("Invalid operation - End date can't change for the current state of the object.");
                 }
+                if (request.EmploymentEndDate != apprenticeship.FlexibleEmployment?.EmploymentEndDate)
+                {
+                    throw new InvalidOperationException("Invalid operation - Employment End date can't change for the current state of the object.");
+                }
             }
 
             if (IsLockedForUpdate(apprenticeship))
@@ -146,6 +156,10 @@ namespace SFA.DAS.CommitmentsV2.Services
                 if (request.Cost != apprenticeship.PriceHistory.GetPrice(_currentDateTime.UtcNow))
                 {
                     throw new InvalidOperationException("Invalid operation - Cost can't change for the current state of the object.");
+                }
+                if (request.EmploymentPrice != apprenticeship.FlexibleEmployment?.EmploymentPrice)
+                {
+                    throw new InvalidOperationException("Invalid operation - Employment Price can't change for the current state of the object.");
                 }
             }
         }
@@ -198,6 +212,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                 && request.ULN == apprenticeship.Uln
                 && request.Version == apprenticeship.TrainingCourseVersion
                 && request.Option == apprenticeship.TrainingCourseOption
+                && request.EmploymentEndDate == apprenticeship.FlexibleEmployment?.EmploymentEndDate
+                && request.EmploymentPrice == apprenticeship.FlexibleEmployment?.EmploymentPrice
                 && referenceNotUpdated)
             {
                 yield return new DomainError("ApprenticeshipId", "No change made: you need to amend details or cancel");
@@ -499,6 +515,61 @@ namespace SFA.DAS.CommitmentsV2.Services
             else
             {
                 yield return new DomainError(nameof(request.EndDate), $"The end date is not valid");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildFlexibleEmploymentValidationFailures(EditApprenticeshipValidationRequest apprenticeshipRequest, Apprenticeship apprenticeshipDetails)
+        {
+            if(apprenticeshipRequest.DeliveryModel == DeliveryModel.PortableFlexiJob)
+            {
+                foreach (var failure in BuildFlexibleEmploymentPriceValidationFailures(apprenticeshipRequest))
+                {
+                    yield return failure;
+                }
+
+                foreach (var failure in BuildFlexibleEmploymentDateValidationFailures(apprenticeshipRequest))
+                {
+                    yield return failure;
+                }
+            }
+        }
+
+        private IEnumerable<DomainError> BuildFlexibleEmploymentDateValidationFailures(EditApprenticeshipValidationRequest request)
+        {
+            if (request.EmploymentEndDate == null)
+            {
+                yield return new DomainError(nameof(request.EmploymentEndDate), "You must add the employment end date");
+            }
+            else if (request.EmploymentEndDate.Value < request.StartDate?.AddMonths(3))
+            {
+                yield return new DomainError(nameof(request.EmploymentEndDate), "This date must be at least 3 months later than the planned apprenticeship training start date");
+            }
+            if (request.EmploymentEndDate > request.EndDate)
+            {
+                yield return new DomainError(nameof(request.EmploymentEndDate), "This date must not be later than the projected apprenticeship training end date");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildFlexibleEmploymentPriceValidationFailures(EditApprenticeshipValidationRequest request)
+        {
+            if (request.EmploymentPrice == null || request.EmploymentPrice <= 0)
+            {
+                yield return new DomainError(nameof(request.EmploymentPrice), "You must add the agreed price for this employment");
+            }
+
+            if (request.EmploymentPrice > Constants.MaximumApprenticeshipCost)
+            {
+                yield return new DomainError(nameof(request.EmploymentPrice), "The agreed price for this employment must be £100,000 or less");
+            }
+
+            if (request.Cost.GetValueOrDefault() <= 0)
+            {
+                yield break;
+            }
+
+            if (request.EmploymentPrice > request.Cost)
+            {
+                yield return new DomainError(nameof(request.EmploymentPrice), "This price must not be more than the total agreed apprenticeship price");
             }
         }
 
