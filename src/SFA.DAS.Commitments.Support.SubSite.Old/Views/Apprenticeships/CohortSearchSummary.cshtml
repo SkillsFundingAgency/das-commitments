@@ -1,0 +1,58 @@
+﻿@using SFA.DAS.Commitments.Support.SubSite.Models
+@model CommitmentSummaryViewModel
+@{
+    ViewBag.Title = "CohortSearchSummary";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <h1 class="heading-xlarge" id="commitmentsHeader">Cohort Summary</h1>
+    </div>
+</div>
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <table class="responsive">
+            <thead>
+                <tr>
+                    <th colspan="2">
+
+                        <p>
+                            We found the following cohort:
+                        </p>
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Cohort reference</td>
+                    <td>@Model.CohortReference</td>
+                </tr>
+                <tr>
+                    <td>Employer's account name</td>
+                    <td>@Model.EmployerName</td>
+                </tr>
+
+                <tr>
+                    <td>Provider name</td>
+                    <td>@Model.ProviderName</td>
+                </tr>
+                <tr>
+                    <td>UKPRN</td>
+                    <td>@Model.ProviderUkprn</td>
+                </tr>
+                <tr>
+                    <td>Cohort status</td>
+                    <td>@Model.CohortStatusText</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <br />
+        <a class="button" id="viewCohort" href="\resource?key=CommitmentCohortDetail&id=@Model.HashedAccountId&childid=@Model.CohortReference"> View this cohort </a>
+    </div>
+</div>
+

@@ -1,8 +1,7 @@
-﻿using SFA.DAS.Commitments.Application.Rules;
-using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Support.SubSite.Extentions;
+﻿using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Services;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.HashingService;
 using System.Linq;
 
@@ -26,10 +25,10 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             _apprenticeshipMapper = apprenticeshipMapper;
         }
 
-        public CommitmentSummaryViewModel MapToCommitmentSummaryViewModel(Commitment commitment)
+        public CommitmentSummaryViewModel MapToCommitmentSummaryViewModel(GetCohortSummaryQueryResult commitment)
         {
-
             var agremmentStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships);
+
             var status = _statusCalculator.GetStatus(commitment.EditStatus,
                                                     commitment.Apprenticeships.Count,
                                                     commitment.LastAction,
@@ -39,8 +38,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
             return new CommitmentSummaryViewModel
             {
-                CohortReference = _hashingService.HashValue(commitment.Id),
-                HashedAccountId = _hashingService.HashValue(commitment.EmployerAccountId),
+                CohortReference = _hashingService.HashValue(commitment.CohortId),
+                HashedAccountId = _hashingService.HashValue(commitment.AccountId),
                 EmployerName = commitment.LegalEntityName,
                 ProviderName = commitment.ProviderName,
                 ProviderUkprn = commitment.ProviderId,
@@ -48,7 +47,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             };
         }
 
-        public CommitmentDetailViewModel MapToCommitmentDetailViewModel(Commitment commitment)
+        public CommitmentDetailViewModel MapToCommitmentDetailViewModel(GetCohortSummaryQueryResult commitment)
         {
             return new CommitmentDetailViewModel
             {

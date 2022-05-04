@@ -1,12 +1,29 @@
 ﻿using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Support.SubSite.Enums;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using System;
-
 
 namespace SFA.DAS.Commitments.Support.SubSite.Services
 {
     public sealed class CommitmentStatusCalculator : ICommitmentStatusCalculator
     {
+        public static CohortStatus GetStatus(GetCohortSummaryQueryResult cohort)
+        {
+            if (cohort.IsDraft && cohort.WithParty == Party.Provider)
+                return CohortStatus.Draft;
+
+            if (!cohort.IsDraft && cohort.WithParty == Party.Provider)
+                return CohortStatus.Review;
+
+            if (!cohort.IsDraft && cohort.WithParty == Party.Employer)
+                return CohortStatus.WithEmployer;
+
+            if (!cohort.IsDraft && cohort.WithParty == Party.TransferSender)
+                return CohortStatus.WithTransferSender;
+
+            return CohortStatus.Unknown;
+        }
+
         public RequestStatus GetStatus(EditStatus editStatus, int apprenticeshipCount, LastAction lastAction, AgreementStatus? overallAgreementStatus, long? transferSenderId, TransferApprovalStatus? transferApprovalStatus)
         {
             bool hasApprenticeships = apprenticeshipCount > 0;
@@ -28,7 +45,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
             return RequestStatus.None;
         }
 
-        private  RequestStatus GetProviderOnlyStatus(LastAction lastAction, bool hasApprenticeships)
+        private RequestStatus GetProviderOnlyStatus(LastAction lastAction, bool hasApprenticeships)
         {
             if (!hasApprenticeships || lastAction == LastAction.None)
                 return RequestStatus.SentToProvider;
@@ -72,11 +89,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
                         {
                             case EditStatus.Both:
                                 return RequestStatus.WithSenderForApproval;
+
                             case EditStatus.EmployerOnly:
                                 //todo: need to set to draft after rejected by sender and edited by receiver (but not sent to provider)
                                 return GetEmployerOnlyStatus(lastAction, hasApprenticeships, overallAgreementStatus);
+
                             case EditStatus.ProviderOnly:
                                 return GetProviderOnlyStatus(lastAction, hasApprenticeships);
+
                             default:
                                 throw new Exception("Unexpected EditStatus");
                         }

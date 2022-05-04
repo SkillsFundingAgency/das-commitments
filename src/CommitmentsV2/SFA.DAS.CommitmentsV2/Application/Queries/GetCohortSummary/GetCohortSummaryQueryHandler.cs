@@ -36,34 +36,35 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 .Include(x => x.Apprenticeships)
                 .ThenInclude(x => x.FlexibleEmployment)
                 .Select(c => new GetCohortSummaryQueryResult
-            {
-                CohortId = c.Id,
-                AccountId = c.EmployerAccountId,
-                CohortReference = c.Reference,
-                AccountLegalEntityId = c.AccountLegalEntity.Id,
-                AccountLegalEntityPublicHashedId = c.AccountLegalEntity.PublicHashedId,
-                LegalEntityName = c.AccountLegalEntity.Name,
-                ProviderName = c.Provider.Name,
-                TransferSenderId = c.TransferSenderId,
-                TransferSenderName = c.TransferSender.Name,
-                PledgeApplicationId = c.PledgeApplicationId,
-                WithParty = c.WithParty,
-                LatestMessageCreatedByEmployer = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefault(),
-                LatestMessageCreatedByProvider = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefault(),
-                ProviderId = c.ProviderId,
-                LastAction = c.LastAction,
-                LastUpdatedByEmployerEmail = c.LastUpdatedByEmployerEmail,
-                LastUpdatedByProviderEmail = c.LastUpdatedByProviderEmail,
-                Approvals = c.Approvals,
-                IsApprovedByEmployer = c.Approvals.HasFlag(Party.Employer), //redundant
-                IsApprovedByProvider = c.Approvals.HasFlag(Party.Provider), //redundant
-                IsCompleteForEmployer = CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired),
-                IsCompleteForProvider = CalculateIsCompleteForProvider(c, apprenticeEmailIsRequired),
-                LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
-                ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
-                TransferApprovalStatus = c.TransferApprovalStatus,
-                ApprenticeEmailIsRequired = apprenticeEmailIsRequired
-            })
+                {
+                    CohortId = c.Id,
+                    AccountId = c.EmployerAccountId,
+                    CohortReference = c.Reference,
+                    AccountLegalEntityId = c.AccountLegalEntity.Id,
+                    AccountLegalEntityPublicHashedId = c.AccountLegalEntity.PublicHashedId,
+                    LegalEntityName = c.AccountLegalEntity.Name,
+                    ProviderName = c.Provider.Name,
+                    TransferSenderId = c.TransferSenderId,
+                    TransferSenderName = c.TransferSender.Name,
+                    PledgeApplicationId = c.PledgeApplicationId,
+                    WithParty = c.WithParty,
+                    LatestMessageCreatedByEmployer = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefault(),
+                    LatestMessageCreatedByProvider = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefault(),
+                    ProviderId = c.ProviderId,
+                    LastAction = c.LastAction,
+                    LastUpdatedByEmployerEmail = c.LastUpdatedByEmployerEmail,
+                    LastUpdatedByProviderEmail = c.LastUpdatedByProviderEmail,
+                    Approvals = c.Approvals,
+                    IsApprovedByEmployer = c.Approvals.HasFlag(Party.Employer), //redundant
+                    IsApprovedByProvider = c.Approvals.HasFlag(Party.Provider), //redundant
+                    IsCompleteForEmployer = CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired),
+                    IsCompleteForProvider = CalculateIsCompleteForProvider(c, apprenticeEmailIsRequired),
+                    LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
+                    ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
+                    TransferApprovalStatus = c.TransferApprovalStatus,
+                    ApprenticeEmailIsRequired = apprenticeEmailIsRequired,
+                    IsDraft = c.IsDraft,
+                })
                 .SingleOrDefaultAsync(c => c.CohortId == request.CohortId, cancellationToken);
 
             return result;
@@ -81,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 
             bool HasMissingData(Models.ApprenticeshipBase a)
             {
-                if(a.FirstName == null
+                if (a.FirstName == null
                     || a.LastName == null
                     || a.DateOfBirth == null
                     || a.CourseName == null
@@ -92,12 +93,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     return true;
                 }
 
-                if(apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)
+                if (apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)
                 {
                     return true;
                 }
 
-                if(a.DeliveryModel == DeliveryModel.PortableFlexiJob
+                if (a.DeliveryModel == DeliveryModel.PortableFlexiJob
                     && (a.FlexibleEmployment?.EmploymentEndDate == null
                     || a.FlexibleEmployment?.EmploymentPrice == null))
                 {

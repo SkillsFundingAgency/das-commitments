@@ -1,33 +1,43 @@
-// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IoC.cs" company="Web Advanced">
-// Copyright 2012 Web Advanced (www.webadvanced.com)
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
-
-
-namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution {
-    using SFA.DAS.Commitments.Infrastructure.Configuration;
+namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
+{
+    using SFA.DAS.CommitmentsV2.Data;
+    using SFA.DAS.CommitmentsV2.DependencyResolution;
     using StructureMap;
-	
-    public static class IoC {
-        public static IContainer Initialize() {
-            return new Container(c =>
-            {
-                c.AddRegistry<DefaultRegistry>();
-                c.Policies.Add<CurrentDatePolicy>();
-            });
 
+    public static class IoC
+    {
+        public static void Initialize(Registry registry)
+        {
+            registry.IncludeRegistry<SupportConfigurationRegistry>();
+            registry.IncludeRegistry<DatabaseRegistry>();
+            registry.IncludeRegistry<DefaultRegistry>();
+
+            registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
+            // registry.IncludeRegistry<ApprovalsOuterApiServiceRegistry>();
+            //registry.IncludeRegistry<AuthorizationRegistry>();
+
+            registry.IncludeRegistry<ApprenticeshipSearchRegistry>();
+
+            registry.IncludeRegistry<CurrentDateTimeRegistry>();
+
+            registry.IncludeRegistry<DomainServiceRegistry>();
+
+            // registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
+            //registry.IncludeRegistry<EmployerAccountsRegistry>();
+            //registry.IncludeRegistry<FeaturesAuthorizationRegistry>();
+
+            registry.IncludeRegistry<EncodingRegistry>();
+            registry.IncludeRegistry<MappingRegistry>();
+            registry.IncludeRegistry<MediatorRegistry>();
+
+            //registry.IncludeRegistry<NServiceBusClientUnitOfWorkRegistry>();
+            //registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
+            //registry.IncludeRegistry<ReservationsApiClientRegistry>();
+
+            registry.IncludeRegistry<StateServiceRegistry>();
+            registry.IncludeRegistry<CachingRegistry>();
+
+            //registry.IncludeRegistry<ProviderPermissionsAuthorizationRegistry>();
         }
     }
 }

@@ -1,12 +1,12 @@
-﻿using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
-using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Support.SubSite.Extensions;
+﻿using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Support.SubSite.Models;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.HashingService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.GetApprenticeshipsQueryResult;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
@@ -19,17 +19,17 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             _hashingService = hashingService;
         }
 
-        public UlnSummaryViewModel MapToUlnResultView(GetApprenticeshipsByUlnResponse response)
+        public UlnSummaryViewModel MapToUlnResultView(GetApprenticeshipsQueryResult response)
         {
             return new UlnSummaryViewModel
             {
-                Uln = response.Apprenticeships.First().ULN,
-                ApprenticeshipsCount = response.TotalCount,
+                Uln = response.Apprenticeships.First().Uln,
+                ApprenticeshipsCount = response.TotalApprenticeships,
                 SearchResults = response.Apprenticeships.Select(o => MapToApprenticeshipSearchItemViewModel(o)).OrderBy(a => a.ApprenticeName).ToList()
             };
         }
 
-        public ApprenticeshipViewModel MapToApprenticeshipViewModel(Apprenticeship apprenticeship)
+        public ApprenticeshipViewModel MapToApprenticeshipViewModel(ApprenticeshipDetails apprenticeship)
         {
             var changeRequested = apprenticeship.DataLockPriceTriaged || apprenticeship.DataLockCourseChangeTriaged;
 
@@ -38,11 +38,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 FirstName = apprenticeship.FirstName,
                 LastName = apprenticeship.LastName,
                 Email = apprenticeship.Email ?? "",
-                ConfirmationStatusDescription = apprenticeship.ConfirmationStatusDescription ?? "",
+                ConfirmationStatusDescription = apprenticeship.ConfirmationStatus?.ToString() ?? "",
                 AgreementStatus = apprenticeship.AgreementStatus.GetEnumDescription(),
                 PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate),
                 Alerts = MapRecordStatus(apprenticeship.UpdateOriginator, apprenticeship.DataLockCourseTriaged, changeRequested),
-                Uln = apprenticeship.ULN,
+                Uln = apprenticeship.Uln,
                 DateOfBirth = apprenticeship.DateOfBirth,
                 CohortReference = _hashingService.HashValue(apprenticeship.CommitmentId),
                 EmployerReference = apprenticeship.EmployerRef,
@@ -59,7 +59,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             };
         }
 
-        public ApprenticeshipSearchItemViewModel MapToApprenticeshipSearchItemViewModel(Apprenticeship apprenticeship)
+        public ApprenticeshipSearchItemViewModel MapToApprenticeshipSearchItemViewModel(ApprenticeshipDetails apprenticeship)
         {
             return new ApprenticeshipSearchItemViewModel
             {

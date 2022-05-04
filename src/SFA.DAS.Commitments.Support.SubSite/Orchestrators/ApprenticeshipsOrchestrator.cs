@@ -1,30 +1,39 @@
 ﻿using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
-using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
-using SFA.DAS.Commitments.Application.Queries.GetCommitment;
-using SFA.DAS.Commitments.Domain;
+
+//using SFA.DAS.Commitments.Application.Exceptions;
+//using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
+//using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
+//using SFA.DAS.Commitments.Application.Queries.GetCommitment;
+//using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.HashingService;
-using SFA.DAS.NLog.Logger;
+
+//using SFA.DAS.NLog.Logger;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+
+//using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
     public class ApprenticeshipsOrchestrator : IApprenticeshipsOrchestrator
     {
-        private readonly ILog _logger;
+        private readonly ILogger<ApprenticeshipsOrchestrator> _logger;
         private readonly IMediator _mediator;
         private readonly IValidator<ApprenticeshipSearchQuery> _searchValidator;
         private readonly IHashingService _hashingService;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
         private readonly ICommitmentMapper _commitmentMapper;
 
-        public ApprenticeshipsOrchestrator(ILog logger,
+        public ApprenticeshipsOrchestrator(ILogger<ApprenticeshipsOrchestrator> logger,
                                             IMediator mediator,
                                             IApprenticeshipMapper apprenticeshipMapper,
                                             IValidator<ApprenticeshipSearchQuery> searchValidator,
@@ -41,35 +50,27 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
         public async Task<ApprenticeshipViewModel> GetApprenticeship(string hashId, string accountHashedId)
         {
-            _logger.Trace("Retrieving Apprenticeship Details");
+            _logger.LogInformation("Retrieving Apprenticeship Details");
 
             var apprenticeshipId = _hashingService.DecodeValue(hashId);
             var accountId = _hashingService.DecodeValue(accountHashedId);
 
-            var response = await _mediator.SendAsync(new GetApprenticeshipRequest
-            {
-                Caller = new Caller
-                {
-                    Id = accountId,
-                    CallerType = CallerType.Support
-                },
-                ApprenticeshipId = apprenticeshipId
-            });
+            var response = await _mediator.Send(new GetApprenticeshipQuery(apprenticeshipId));
 
-            if (response.Data == null)
+            if (response == null)
             {
                 var errorMsg = $"Can't find Apprenticeship with Hash Id {hashId}";
-                _logger.Warn(errorMsg);
+                _logger.LogWarning(errorMsg);
 
                 throw new Exception(errorMsg);
             }
 
-            return _apprenticeshipMapper.MapToApprenticeshipViewModel(response.Data);
+            return _apprenticeshipMapper.MapToApprenticeshipViewModel(response);
         }
 
         public async Task<UlnSummaryViewModel> GetApprenticeshipsByUln(ApprenticeshipSearchQuery searchQuery)
         {
-            _logger.Trace("Retrieving Apprenticeships Record");
+            _logger.LogInformation("Retrieving Apprenticeships Record");
 
             var validationResult = _searchValidator.Validate(searchQuery);
 
@@ -88,7 +89,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Unable to decode Hashed Employer Account Id");
+                _logger.LogError(ex, "Unable to decode Hashed Employer Account Id");
 
                 return new UlnSummaryViewModel
                 {
@@ -96,14 +97,18 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
-
-            var response = await _mediator.SendAsync(new GetApprenticeshipsByUlnRequest
+            var filterValues = new ApprenticeshipSearchFilters
             {
-                Uln = searchQuery.SearchTerm,
+                SearchTerm = searchQuery.SearchTerm,
+            };
+
+            var response = await _mediator.Send(new GetApprenticeshipsQuery
+            {
+                SearchFilters = filterValues,
                 EmployerAccountId = employerAccountId
             });
 
-            if ((response?.TotalCount ?? 0) == 0)
+            if ((response?.TotalApprenticeshipsFound ?? 0) == 0)
             {
                 return new UlnSummaryViewModel
                 {
@@ -111,14 +116,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
-            _logger.Info($"Apprenticeships Record Count: {response.TotalCount}");
+            _logger.LogInformation($"Apprenticeships Record Count: {response?.TotalApprenticeshipsFound}");
 
             return _apprenticeshipMapper.MapToUlnResultView(response);
         }
 
         public async Task<CommitmentSummaryViewModel> GetCommitmentSummary(ApprenticeshipSearchQuery searchQuery)
         {
-            _logger.Trace("Retrieving Commitment Details");
+            _logger.LogInformation("Retrieving Commitment Details");
 
             var validationResult = _searchValidator.Validate(searchQuery);
             if (!validationResult.IsValid)
@@ -138,7 +143,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Unable to decode Hashed Commitment Id");
+                _logger.LogError(ex, "Unable to decode Hashed Commitment Id");
 
                 return new CommitmentSummaryViewModel
                 {
@@ -152,7 +157,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Unable to decode Hashed Account Id");
+                _logger.LogError(ex, "Unable to decode Hashed Account Id");
 
                 return new CommitmentSummaryViewModel
                 {
@@ -162,17 +167,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             try
             {
-                var response = await _mediator.SendAsync(new GetCommitmentRequest
-                {
-                    CommitmentId = commitmentId,
-                    Caller = new Caller
-                    {
-                        Id = accountId,
-                        CallerType = CallerType.Employer
-                    }
-                });
+                var response = await _mediator.Send(new GetCohortSummaryQuery(commitmentId));
 
-                if (response?.Data == null)
+                if (response == null)
                 {
                     return new CommitmentSummaryViewModel
                     {
@@ -180,13 +177,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                     };
                 }
 
-                _logger.Info($"Commitment Record with Id: {response.Data.Id}");
+                _logger.LogInformation($"Commitment Record with Id: {response.CohortId}");
 
-                return _commitmentMapper.MapToCommitmentSummaryViewModel(response.Data);
+                return _commitmentMapper.MapToCommitmentSummaryViewModel(response);
             }
-            catch(UnauthorizedException unauthorizedException)
+            catch (Exception ex)
             {
-                _logger.Warn(unauthorizedException.Message);
+                _logger.LogError(ex.Message);
                 return new CommitmentSummaryViewModel
                 {
                     ReponseMessages = { "Account is unauthorised to access this Cohort." }
@@ -196,7 +193,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
         public async Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashCommitmentId)
         {
-            _logger.Trace("Retrieving Commitment Details");
+            _logger.LogInformation("Retrieving Commitment Details");
 
             long commitmentId = 0;
 
@@ -206,23 +203,16 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Unable to decode Hashed Commitment Id");
+                _logger.LogError(ex, "Unable to decode Hashed Commitment Id");
                 throw;
             }
 
-            var response = await _mediator.SendAsync(new GetCommitmentRequest
-            {
-                CommitmentId = commitmentId,
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Support
-                }
-            });
+            var response = await _mediator.Send(new GetCohortSummaryQuery(commitmentId));
 
-            if (response?.Data == null)
+            if (response == null)
             {
                 var errorMsg = $"Can't find Commitment with Hash Id {hashCommitmentId}";
-                _logger.Warn(errorMsg);
+                _logger.LogWarning(errorMsg);
 
                 throw new Exception(errorMsg);
             }

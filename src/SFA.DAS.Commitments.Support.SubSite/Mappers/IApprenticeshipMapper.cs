@@ -1,14 +1,15 @@
-﻿using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
-using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Support.SubSite.Models;
+﻿using SFA.DAS.Commitments.Support.SubSite.Models;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
     public interface IApprenticeshipMapper
     {
+        ApprenticeshipViewModel MapToApprenticeshipViewModel(GetApprenticeshipQueryResult response);
 
-        ApprenticeshipViewModel MapToApprenticeshipViewModel(Apprenticeship response);
-        UlnSummaryViewModel MapToUlnResultView(GetApprenticeshipsByUlnResponse response);
+        UlnSummaryViewModel MapToUlnResultView(GetApprenticeshipsQueryResult response);
+
         ApprenticeshipSearchItemViewModel MapToApprenticeshipSearchItemViewModel(Apprenticeship apprenticeship);
     }
 }
