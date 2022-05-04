@@ -517,7 +517,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseVersionConfirmed = this.TrainingCourseVersionConfirmed,
                 TrainingCourseOption = this.TrainingCourseOption,
                 FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
-                ApprenticeshipConfirmationStatus = this.ApprenticeshipConfirmationStatus
+                ApprenticeshipConfirmationStatus = ApprenticeshipConfirmationStatus?.Copy(),
             };
 
             return result;

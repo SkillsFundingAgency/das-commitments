@@ -1,6 +1,5 @@
-﻿using System;
-using SFA.DAS.CommitmentsV2.Models.Interfaces;
-using SFA.DAS.CommitmentsV2.Types;
+﻿using SFA.DAS.CommitmentsV2.Types;
+using System;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -10,18 +9,29 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
         }
 
+        public ApprenticeshipConfirmationStatus Copy()
+        {
+            return new ApprenticeshipConfirmationStatus
+            {
+                CommitmentsApprovedOn = this.CommitmentsApprovedOn,
+                ApprenticeshipConfirmedOn = this.ApprenticeshipConfirmedOn,
+                ConfirmationOverdueOn = this.ConfirmationOverdueOn,
+            };
+        }
+
         public ApprenticeshipConfirmationStatus(long apprenticeshipId, DateTime commitmentsApprovedOn, DateTime? confirmationOverdueOn, DateTime? apprenticeshipConfirmedOn)
         {
             ApprenticeshipId = apprenticeshipId;
             CommitmentsApprovedOn = commitmentsApprovedOn;
-            ConfirmationOverdueOn = confirmationOverdueOn;
             ApprenticeshipConfirmedOn = apprenticeshipConfirmedOn;
+            ConfirmationOverdueOn = confirmationOverdueOn;
         }
+
         public long ApprenticeshipId { get; set; }
+        public ApprenticeshipBase Apprenticeship { get; set; }
         public DateTime CommitmentsApprovedOn { get; set; }
         public DateTime? ConfirmationOverdueOn { get; set; }
         public DateTime? ApprenticeshipConfirmedOn { get; set; }
-        public ApprenticeshipBase Apprenticeship { get; set; }
         public string ConfirmationStatusSort { get; set; }
 
         public ConfirmationStatus ConfirmationStatus => ApprenticeshipConfirmedOn == null
