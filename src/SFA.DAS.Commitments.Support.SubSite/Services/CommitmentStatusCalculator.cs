@@ -1,29 +1,12 @@
-﻿using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Support.SubSite.Enums;
+﻿using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Types;
 using System;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Services
 {
     public sealed class CommitmentStatusCalculator : ICommitmentStatusCalculator
     {
-        public static CohortStatus GetStatus(GetCohortSummaryQueryResult cohort)
-        {
-            if (cohort.IsDraft && cohort.WithParty == Party.Provider)
-                return CohortStatus.Draft;
-
-            if (!cohort.IsDraft && cohort.WithParty == Party.Provider)
-                return CohortStatus.Review;
-
-            if (!cohort.IsDraft && cohort.WithParty == Party.Employer)
-                return CohortStatus.WithEmployer;
-
-            if (!cohort.IsDraft && cohort.WithParty == Party.TransferSender)
-                return CohortStatus.WithTransferSender;
-
-            return CohortStatus.Unknown;
-        }
-
         public RequestStatus GetStatus(EditStatus editStatus, int apprenticeshipCount, LastAction lastAction, AgreementStatus? overallAgreementStatus, long? transferSenderId, TransferApprovalStatus? transferApprovalStatus)
         {
             bool hasApprenticeships = apprenticeshipCount > 0;
@@ -102,12 +85,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
                         }
                     }
 
-                case TransferApprovalStatus.TransferApproved:
+                case TransferApprovalStatus.Approved:
                     if (edit != EditStatus.Both)
                         throw new Exception($"{invalidStateExceptionMessagePrefix}If approved by sender, must be approved by receiver and provider");
                     return RequestStatus.None;
 
-                case TransferApprovalStatus.TransferRejected:
+                case TransferApprovalStatus.Rejected:
                     if (edit != EditStatus.EmployerOnly)
                         throw new Exception($"{invalidStateExceptionMessagePrefix}If just rejected by sender, must be with receiver");
                     return RequestStatus.RejectedBySender;
