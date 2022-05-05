@@ -18,15 +18,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         {
             var domainErrors = new List<Error>();
             var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-            if (employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value)
-            {
-                await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot reserve funds on their behalf");
-            }
-            else if (string.IsNullOrEmpty(csvRecord.CohortRef))
-            {
-                await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, "The <b>employer must give you permission</b> to add apprentices on their behalf");
-            }
-            else
+
+            if (!string.IsNullOrWhiteSpace(csvRecord.CohortRef))
             {
                 var cohort = GetCohortDetails(csvRecord.CohortRef);
 
@@ -96,14 +89,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return domainErrors;
         }
 
-        private async Task ValidatePermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, List<Error> domainErrors, string error)
+        private async Task<bool> ValidatePermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, List<Error> domainErrors, bool? isLevy)
         {
+            var nonLevyPermissionText = "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot reserve funds on their behalf";
+            var levyPermissionText = "The <b>employer must give you permission</b> to add apprentices on their behalf";
+
             var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(csvRecord, providerId);
             if (!hasPermissionToCreateCohort)
             {
+                var errorTextToUse = (isLevy.HasValue && isLevy.Value) ? levyPermissionText : nonLevyPermissionText;
                 _logger.LogInformation($"Has permission to create cohort : {providerId}");
-                domainErrors.Add(new Error(CohortRefPermissionIssue, error));
+                domainErrors.Add(new Error(CohortRefPermissionIssue, errorTextToUse));
             }
+
+            return hasPermissionToCreateCohort;
         }
 
         private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)

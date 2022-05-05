@@ -53,24 +53,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             ProviderId = command.ProviderId;
             var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
             _csvRecords = command.CsvRecords.ToList();
+
             foreach (var csvRecord in command.CsvRecords)
             {
-                var domainErrors = await Validate(csvRecord, command.ProviderId);
+                var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
+                await AddError(bulkUploadValidationErrors, csvRecord, criticalDomainError);
 
-                if (domainErrors.Any())
-
+                if (!criticalDomainError.Any())
                 {
-                    bulkUploadValidationErrors.Add(new BulkUploadValidationError(
-                        csvRecord.RowNumber,
-                        await GetEmployerName(csvRecord.AgreementId),
-                        csvRecord.Uln,
-                        csvRecord.FirstName + " " + csvRecord.LastName,
-                        domainErrors
-                        ));
+                    var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults);
+                    await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
                 }
             }
-
-            await ValidateReservation(command.CsvRecords, command.ReservationValidationResults, command.ProviderId, bulkUploadValidationErrors);
 
             return new BulkUploadValidateApiResponse
             {
@@ -78,9 +72,47 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             };
         }
 
+        private async Task AddError(List<BulkUploadValidationError> bulkUploadValidationErrors, BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
+        {
+            if (domainErrors.Any())
 
+            {
+                bulkUploadValidationErrors.Add(new BulkUploadValidationError(
+                    csvRecord.RowNumber,
+                    await GetEmployerName(csvRecord.AgreementId),
+                    csvRecord.Uln,
+                    csvRecord.FirstName + " " + csvRecord.LastName,
+                    domainErrors
+                    ));
+            }
+        }
 
-        private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
+        private async Task<List<Error>> ValidateCriticalErrors(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
+        {
+            var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
+            if (!domainErrors.Any())
+            {
+                domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
+
+                // when a valid agreement has not been signed validation will stop
+                if (domainErrors.Any())
+                    return domainErrors;
+            }
+
+            var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+            if ((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef))
+            {
+               if (!await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
+                {
+                    // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
+                    return domainErrors;
+                }
+            }
+
+            return domainErrors;
+        }
+
+        private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults)
         {
             var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
             if (!domainErrors.Any())
@@ -104,11 +136,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             domainErrors.AddRange(ValidateCost(csvRecord));
             domainErrors.AddRange(ValidateProviderRef(csvRecord));
             domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
+            domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
 
             return domainErrors;
         }
-
-
 
         private async Task<string> GetEmployerName(string agreementId)
         {

@@ -3,46 +3,21 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private async Task ValidateReservation(IEnumerable<BulkUploadAddDraftApprenticeshipRequest> csvRecords, 
-            BulkReservationValidationResults reservationValidationResults, 
-            long providerId, 
-            List<BulkUploadValidationError> bulkUploadValidationErrors)
+        private IEnumerable<Error> ValidateReservation(BulkUploadAddDraftApprenticeshipRequest csvRecord, BulkReservationValidationResults reservationValidationResults)
         {
-            if (reservationValidationResults?.ValidationErrors?.Any() ?? false)
+            var domainErrors = new List<Error>();
+            var reservationValidationError = reservationValidationResults?.ValidationErrors?.Where(x => x.RowNumber == csvRecord.RowNumber);
+            if (reservationValidationError != null && reservationValidationError.Any())
             {
-                foreach (var validationError in reservationValidationResults.ValidationErrors)
-                {
-                    var record = csvRecords.First(x => x.RowNumber == validationError.RowNumber);
-                    await AddValidationError(bulkUploadValidationErrors, validationError, record);
-                }
+                domainErrors.AddRange(reservationValidationError.Select(y => new Error("ReservationId", y.Reason)));
             }
-        }
 
-        private async Task AddValidationError(List<BulkUploadValidationError> bulkUploadValidationErrors, BulkReservationValidation validationError, BulkUploadAddDraftApprenticeshipRequest record)
-        {
-            var errorToAdd = new Error("ReservationId", validationError.Reason);
-            var existingErrorRecord = bulkUploadValidationErrors.FirstOrDefault(x => x.RowNumber == record.RowNumber);
-            if (existingErrorRecord != null)
-            {
-                if (!existingErrorRecord.Errors.Any(x => x.Property == LegalAgreementIdIssue || x.Property == CohortRefPermissionIssue))
-                {
-                    existingErrorRecord.Errors.Add(errorToAdd);
-                }
-            }
-            else
-            {
-                bulkUploadValidationErrors.Add(new BulkUploadValidationError(record.RowNumber,
-                            await GetEmployerName(record.AgreementId),
-                            record.Uln,
-                            record.FirstName + " " + record.LastName,
-                            new List<Error> { errorToAdd }));
-            }
+            return domainErrors;
         }
     }
 }
