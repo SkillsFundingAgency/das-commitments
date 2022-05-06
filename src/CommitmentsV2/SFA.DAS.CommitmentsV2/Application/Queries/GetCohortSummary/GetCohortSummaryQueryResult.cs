@@ -19,7 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         ///     use framework courses.
         /// </summary>
         public bool IsFundedByTransfer => TransferSenderId != null;
-
         public long? TransferSenderId { get; set; }
         public string TransferSenderName { get; set; }
         public int? PledgeApplicationId { get; set; }
@@ -29,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public LastAction LastAction { get; set; }
         public string LastUpdatedByEmployerEmail { get; set; }
         public string LastUpdatedByProviderEmail { get; set; }
-        public bool IsApprovedByProvider { get; set; }
+		public bool IsApprovedByProvider { get; set; }
         public bool IsApprovedByEmployer { get; set; }
         public bool IsCompleteForEmployer { get; set; }
         public bool IsCompleteForProvider { get; set; }
@@ -38,6 +37,5 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public long? ChangeOfPartyRequestId { get; set; }
         public TransferApprovalStatus? TransferApprovalStatus { get; set; }
         public bool ApprenticeEmailIsRequired { get; set; }
-        public bool IsDraft { get; set; }
     }
 }
