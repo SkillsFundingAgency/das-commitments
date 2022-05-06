@@ -2,6 +2,7 @@
 using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.HashingService;
 using System;
 using System.Collections.Generic;
@@ -44,13 +45,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 Alerts = MapRecordStatus(apprenticeship.UpdateOriginator, apprenticeship.DataLockCourseTriaged, changeRequested),
                 Uln = apprenticeship.Uln,
                 DateOfBirth = apprenticeship.DateOfBirth,
-                CohortReference = _hashingService.HashValue(apprenticeship.CommitmentId),
+                CohortReference = apprenticeship.CohortReference,
                 EmployerReference = apprenticeship.EmployerRef,
-                LegalEntity = apprenticeship.LegalEntityName,
+                LegalEntity = apprenticeship.EmployerName,
                 TrainingProvider = apprenticeship.ProviderName,
                 UKPRN = apprenticeship.ProviderId,
-                Trainingcourse = apprenticeship.TrainingName,
-                ApprenticeshipCode = apprenticeship.TrainingCode,
+                Trainingcourse = apprenticeship.CourseName,
+                ApprenticeshipCode = apprenticeship.co,
                 DasTrainingStartDate = apprenticeship.StartDate,
                 DasTrainingEndDate = apprenticeship.EndDate,
                 TrainingCost = apprenticeship.Cost,
@@ -63,15 +64,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
         {
             return new ApprenticeshipSearchItemViewModel
             {
-                HashedAccountId = _hashingService.HashValue(apprenticeship.EmployerAccountId),
+                HashedAccountId = _hashingService.HashValue(apprenticeship.AccountLegalEntityId),
                 ApprenticeshipHashId = _hashingService.HashValue(apprenticeship.Id),
                 ApprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
-                EmployerName = apprenticeship.LegalEntityName,
+                EmployerName = apprenticeship.EmployerName,
                 ProviderUkprn = apprenticeship.ProviderId,
                 TrainingDates = $"{apprenticeship.StartDate.ToGdsFormatWithSlashSeperator() ?? "-"} to {apprenticeship.EndDate.ToGdsFormatWithSlashSeperator() ?? "-"}",
                 PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate),
                 DateOfBirth = apprenticeship.DateOfBirth,
-                Uln = apprenticeship.ULN
+                Uln = apprenticeship.Uln
             };
         }
 

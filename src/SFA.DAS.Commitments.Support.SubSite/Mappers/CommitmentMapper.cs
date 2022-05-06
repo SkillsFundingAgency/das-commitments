@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             var agremmentStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships);
 
             var status = _statusCalculator.GetStatus(commitment.EditStatus,
-                                                    commitment.Apprenticeships.Count,
+                                                    commitment.NumberOfApprentices,
                                                     commitment.LastAction,
                                                     agremmentStatus,
                                                     commitment.TransferSenderId,

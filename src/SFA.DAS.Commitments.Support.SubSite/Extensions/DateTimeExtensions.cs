@@ -18,5 +18,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.Extensions
         {
             return date.HasValue ? date.Value.ToString("dd MMMM yyyy") : string.Empty;
         }
+
+        public static string ToGdsFormatWithSlashSeperator(this DateTime date)
+        {
+            return date.ToString("MM/yy");
+        }
+
+        public static string ToGdsFormatWithSpaceSeperator(this DateTime date)
+        {
+            return date.ToString("dd MMMM yyyy");
+        }
     }
 }
