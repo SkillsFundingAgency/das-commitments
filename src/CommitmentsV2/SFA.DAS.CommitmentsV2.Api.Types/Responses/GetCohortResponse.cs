@@ -8,6 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public long AccountLegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
         public string ProviderName { get; set; }
+        public long? ProviderId { get; set; }
         public bool IsFundedByTransfer => TransferSenderId != null;
         public long? TransferSenderId { get; set; }
         public int? PledgeApplicationId { get; set; }

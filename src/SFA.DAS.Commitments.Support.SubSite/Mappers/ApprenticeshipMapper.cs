@@ -33,6 +33,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
         public ApprenticeshipViewModel MapToApprenticeshipViewModel(ApprenticeshipDetails apprenticeship)
         {
             var changeRequested = apprenticeship.DataLockPriceTriaged || apprenticeship.DataLockCourseChangeTriaged;
+            (string paymentStatusText, string paymentStatusTagColour) = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate);
 
             return new ApprenticeshipViewModel
             {
@@ -41,7 +42,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 Email = apprenticeship.Email ?? "",
                 ConfirmationStatusDescription = apprenticeship.ConfirmationStatus?.ToString() ?? "",
                 AgreementStatus = apprenticeship.AgreementStatus.GetEnumDescription(),
-                PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate),
+                PaymentStatus = paymentStatusText,
                 Alerts = MapRecordStatus(apprenticeship.UpdateOriginator, apprenticeship.DataLockCourseTriaged, changeRequested),
                 Uln = apprenticeship.Uln,
                 DateOfBirth = apprenticeship.DateOfBirth,
@@ -56,7 +57,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 DasTrainingEndDate = apprenticeship.EndDate,
                 TrainingCost = apprenticeship.Cost,
                 Version = apprenticeship.TrainingCourseVersionConfirmed ? apprenticeship.TrainingCourseVersion : null,
-                Option = apprenticeship.TrainingCourseOption == string.Empty ? "To be confirmed" : apprenticeship.TrainingCourseOption
+                Option = apprenticeship.TrainingCourseOption == string.Empty ? "To be confirmed" : apprenticeship.TrainingCourseOption,
+                PauseDate = apprenticeship.PaymentStatus == PaymentStatus.Paused ? apprenticeship.PauseDate?.ToGdsFormatWithoutDay() : string.Empty,
+                StopDate = apprenticeship.PaymentStatus == PaymentStatus.Withdrawn ? apprenticeship.StopDate?.ToGdsFormatWithoutDay() : string.Empty,
+                CompletionPaymentMonth = apprenticeship.PaymentStatus == PaymentStatus.Completed ? apprenticeship.CompletionDate?.ToGdsFormatWithoutDay() : string.Empty,
+                PaymentStatusTagColour = paymentStatusTagColour,
+                MadeRedundant = apprenticeship.MadeRedundant
             };
         }
 
@@ -70,38 +76,38 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 EmployerName = apprenticeship.EmployerName,
                 ProviderUkprn = apprenticeship.ProviderId,
                 TrainingDates = $"{apprenticeship.StartDate.ToGdsFormatWithSlashSeperator() ?? "-"} to {apprenticeship.EndDate.ToGdsFormatWithSlashSeperator() ?? "-"}",
-                PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate),
+                PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate).paymentStatusText,
                 DateOfBirth = apprenticeship.DateOfBirth,
                 Uln = apprenticeship.Uln
             };
         }
 
-        private string MapPaymentStatus(PaymentStatus paymentStatus, DateTime? startDate, DateTime? stopDate, DateTime? pauseDate)
+        private (string paymentStatusText,  string paymentStatusTagColour) MapPaymentStatus(PaymentStatus paymentStatus, DateTime? startDate, DateTime? stopDate, DateTime? pauseDate)
         {
             var isStartDateInFuture = startDate.HasValue && startDate.Value > new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
             switch (paymentStatus)
             {
                 case PaymentStatus.PendingApproval:
-                    return "Approval needed";
+                    return ("Approval needed", "");
 
                 case PaymentStatus.Active:
-                    return isStartDateInFuture ? "Waiting to start" : "Live";
+                    return isStartDateInFuture ? ("Waiting to start", "") : ("Live", "blue");
 
                 case PaymentStatus.Paused:
-                    return pauseDate.HasValue ? $"Paused on {pauseDate.ToGdsFormatWithSpaceSeperator()}" : "Paused";
+                    return ("Paused", "grey");
 
                 case PaymentStatus.Withdrawn:
-                    return stopDate.HasValue ? $"Stopped on {stopDate.ToGdsFormatWithSpaceSeperator()}" : "Stopped";
+                    return ("Stopped", "red");
 
                 case PaymentStatus.Completed:
-                    return "Finished";
+                    return ("Completed", "green");
 
                 case PaymentStatus.Deleted:
-                    return "Deleted";
+                    return ("Deleted", "red");
 
                 default:
-                    return string.Empty;
+                    return (string.Empty, string.Empty);
             }
         }
 

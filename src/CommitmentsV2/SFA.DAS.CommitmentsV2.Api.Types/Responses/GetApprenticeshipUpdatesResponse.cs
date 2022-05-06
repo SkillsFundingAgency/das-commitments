@@ -18,6 +18,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public string LastName { get; set; }
             public string Email { get; set; }
             public DeliveryModel? DeliveryModel { get; set; }
+            public DateTime? EmploymentEndDate { get; set; }
+            public int? EmploymentPrice { get; set; }
             public ProgrammeType? TrainingType { get; set; }
             public string TrainingCode { get; set; }
             public string Version { get; set; }

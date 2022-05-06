@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -79,8 +78,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual("XXX@XX.com", fixture.ApprenticeshipFromDb.Email);
         }
 
-
-
         [Test]
         public async Task Handle_WhenCommandIsHandled_StartDateIsUpdated()
         {
@@ -106,17 +103,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(fixture.ApprenticeshipUpdate.EndDate, fixture.ApprenticeshipFromDb.EndDate);
         }
 
-        [TestCase(DeliveryModel.Regular)]
-        [TestCase(DeliveryModel.PortableFlexiJob)]
-        public async Task Handle_WhenCommandIsHandled_DeliveryModelIsUpdated(DeliveryModel dm)
+        [Test]
+        public async Task Handle_WhenCommandIsHandled_DeliveryModelPortableFlexiJobIsCorrectlyUpdated()
         {
             fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.DeliveryModel = dm;
+            fixture.ApprenticeshipUpdate.DeliveryModel = DeliveryModel.PortableFlexiJob;
+            fixture.ApprenticeshipUpdate.EmploymentEndDate = DateTime.UtcNow;;
+            fixture.ApprenticeshipUpdate.EmploymentPrice = 10001;;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
             await fixture.Handle();
 
             Assert.AreEqual(fixture.ApprenticeshipUpdate.DeliveryModel, fixture.ApprenticeshipFromDb.DeliveryModel);
+            Assert.AreEqual(fixture.ApprenticeshipUpdate.EmploymentEndDate, fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentEndDate);
+            Assert.AreEqual(fixture.ApprenticeshipUpdate.EmploymentPrice, fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentPrice);
+        }
+
+        [Test]
+        public async Task Handle_WhenCommandIsHandled_DeliveryModelRegularIsCorrectlyUpdated()
+        {
+            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            fixture.ApprenticeshipUpdate.DeliveryModel = DeliveryModel.Regular;
+            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+
+            await fixture.Handle();
+
+            Assert.AreEqual(fixture.ApprenticeshipUpdate.DeliveryModel, fixture.ApprenticeshipFromDb.DeliveryModel);
+            Assert.IsNull(fixture.ApprenticeshipUpdate.EmploymentEndDate);
+            Assert.IsNull(fixture.ApprenticeshipUpdate.EmploymentPrice);
         }
 
         [Test]
@@ -270,6 +284,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(apprenticeship.EndDate, list[0].EndDate);
             Assert.AreEqual(apprenticeship.ProgrammeType as SFA.DAS.CommitmentsV2.Types.ProgrammeType?, list[0].TrainingType);
             Assert.AreEqual(apprenticeship.DeliveryModel, list[0].DeliveryModel);
+            Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentEndDate, list[0].EmploymentEndDate);
+            Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentPrice, list[0].EmploymentPrice);
+            Assert.AreEqual(apprenticeship.DeliveryModel, list[0].DeliveryModel);
+            Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentEndDate, list[0].EmploymentEndDate);
+            Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentPrice, list[0].EmploymentPrice);
             Assert.AreEqual(apprenticeship.CourseCode, list[0].TrainingCode);
             Assert.AreEqual(apprenticeship.Uln, list[0].Uln);
             Assert.AreEqual(1, list[0].PriceEpisodes.Count());
@@ -277,7 +296,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(priceEpisode[0].ToDate, list[0].PriceEpisodes[0].ToDate);
             Assert.AreEqual(priceEpisode[0].Cost, list[0].PriceEpisodes[0].Cost);
         }
-
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_AndEmailIsUpdated_ApprenticeshipUpdatedEmailAddressEvent_IsEmitted()
