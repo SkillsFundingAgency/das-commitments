@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
         private async Task<bool> ValidatePermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, List<Error> domainErrors, bool? isLevy)
         {
-            var nonLevyPermissionText = "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot reserve funds on their behalf";
+            var nonLevyPermissionText = "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot <b>reserve funds</b> on their behalf";
             var levyPermissionText = "The <b>employer must give you permission</b> to add apprentices on their behalf";
 
             var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(csvRecord, providerId);
