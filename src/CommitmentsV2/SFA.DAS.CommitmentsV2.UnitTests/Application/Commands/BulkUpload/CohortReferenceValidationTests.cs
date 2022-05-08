@@ -101,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await fixture.Handle();
             //Assert
-            fixture.ValidateError(errors, 1, "CohortRefPermission", "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot reserve funds on their behalf");
+            fixture.ValidateError(errors, 1, "CohortRefPermission", "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot <b>reserve funds</b> on their behalf");
         }
 
         [Test]
