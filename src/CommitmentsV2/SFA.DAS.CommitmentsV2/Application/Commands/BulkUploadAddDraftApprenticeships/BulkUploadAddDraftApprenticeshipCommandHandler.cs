@@ -44,7 +44,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
 
         public async Task<GetBulkUploadAddDraftApprenticeshipsResponse> Handle(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
         {
-            await ValidateBulkUploadRequest(request, cancellationToken);
             var draftApprenticeships = await _modelMapper.Map<List<DraftApprenticeshipDetails>>(request);
             var cohorts = await _cohortDomainService.AddDraftApprenticeships(draftApprenticeships,
                 request.BulkUploadDraftApprenticeships,
@@ -64,13 +63,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
             });
 
             return new GetBulkUploadAddDraftApprenticeshipsResponse { BulkUploadAddDraftApprenticeshipsResponse = cohortSummaryForBulkUpload };
-        }
-
-        private async Task ValidateBulkUploadRequest(BulkUploadAddDraftApprenticeshipsCommand request, CancellationToken cancellationToken)
-        {
-            var reservationValidationResults = new BulkReservationValidationResults { ValidationErrors = request.BulkReservationValidationResults?.ValidationErrors };
-            var result = await _mediator.Send(new BulkUploadValidateCommand { CsvRecords = request.BulkUploadDraftApprenticeships, ProviderId = request.ProviderId, ReservationValidationResults = reservationValidationResults },  cancellationToken );
-            result.BulkUploadValidationErrors.ThrowIfAny();
         }
 
         private async Task UpdateCohortReferences(IEnumerable<Cohort> cohorts)
