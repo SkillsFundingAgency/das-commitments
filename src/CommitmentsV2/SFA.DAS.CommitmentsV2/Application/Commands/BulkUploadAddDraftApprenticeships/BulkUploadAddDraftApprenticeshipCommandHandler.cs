@@ -11,9 +11,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
-using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships
 {

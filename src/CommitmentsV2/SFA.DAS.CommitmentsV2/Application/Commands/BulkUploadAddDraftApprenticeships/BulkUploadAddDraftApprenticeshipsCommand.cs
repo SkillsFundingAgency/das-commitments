@@ -11,6 +11,5 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
         public List<BulkUploadAddDraftApprenticeshipRequest> BulkUploadDraftApprenticeships { get; set; }
         public long ProviderId { get; set; }
         public UserInfo UserInfo { get; set; }
-        public BulkReservationValidationResults BulkReservationValidationResults { get; set; }
     }
 }
