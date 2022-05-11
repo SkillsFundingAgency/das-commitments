@@ -100,9 +100,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             }
 
             var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-            if ((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef))
+            if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef)) && !IsFundedByTransfer(csvRecord.CohortRef))
             {
-               if (!await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
+                 if (!await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
                 {
                     // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
                     return domainErrors;
@@ -110,6 +110,26 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             }
 
             return domainErrors;
+        }
+
+        /// <summary>
+        /// If it is funded by Transfer - non-levy employer doesn't need to check for the permission to create cohort.
+        /// </summary>
+        /// <param name="cohortRef"></param>
+        /// <returns></returns>
+        private bool IsFundedByTransfer(string cohortRef)
+        {
+            if (!string.IsNullOrWhiteSpace(cohortRef))
+            {
+                var cohortDetails = GetCohortDetails(cohortRef);
+
+                if (cohortDetails.TransferSenderId.HasValue)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults)
