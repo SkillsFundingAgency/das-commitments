@@ -9,6 +9,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Extensions
             return date.ToString("MMM yyyy");
         }
 
+        public static string ToGdsFormatWithoutDay(this DateTime? date)
+        {
+            return date.HasValue ? date.Value.ToString("MMM yyyy") : string.Empty;
+        }
+
         public static string ToGdsFormatWithSlashSeperator(this DateTime? date)
         {
             return date.HasValue ? date.Value.ToString("MM/yy") : string.Empty;

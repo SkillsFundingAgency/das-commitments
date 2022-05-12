@@ -1,0 +1,24 @@
+2022-05-12 18:52:39.3237 Info Message Template Auto Format enabled
+2022-05-12 18:52:39.4267 Info Adding target Console Target[Console]
+2022-05-12 18:52:39.4766 Info Adding target File Target[File]
+2022-05-12 18:52:39.4835 Info Configured from an XML element in C:\EDU_REPO\das-commitments\src\SFA.DAS.Commitments.Support.SubSite\bin\Debug\netcoreapp3.1\nlog.Development.config...
+2022-05-12 18:52:39.4835 Warn Unused target detected. Add a rule for this target to the configuration. TargetName: Console
+2022-05-12 18:52:39.5008 Info Found 35 configuration items
+2022-05-12 18:54:15.0112 Info Message Template Auto Format enabled
+2022-05-12 18:54:15.0552 Info Adding target Console Target[Console]
+2022-05-12 18:54:15.0991 Info Adding target File Target[File]
+2022-05-12 18:54:15.0991 Info Configured from an XML element in C:\EDU_REPO\das-commitments\src\SFA.DAS.Commitments.Support.SubSite\bin\Debug\netcoreapp3.1\nlog.Development.config...
+2022-05-12 18:54:15.1181 Warn Unused target detected. Add a rule for this target to the configuration. TargetName: Console
+2022-05-12 18:54:15.1275 Info Found 35 configuration items
+2022-05-12 18:55:13.8619 Info Message Template Auto Format enabled
+2022-05-12 18:55:13.9269 Info Adding target Console Target[Console]
+2022-05-12 18:55:13.9377 Info Adding target File Target[File]
+2022-05-12 18:55:13.9555 Info Configured from an XML element in C:\EDU_REPO\das-commitments\src\SFA.DAS.Commitments.Support.SubSite\bin\Debug\netcoreapp3.1\nlog.Development.config...
+2022-05-12 18:55:13.9555 Warn Unused target detected. Add a rule for this target to the configuration. TargetName: Console
+2022-05-12 18:55:13.9764 Info Found 35 configuration items
+2022-05-12 18:58:08.7070 Info Message Template Auto Format enabled
+2022-05-12 18:58:08.7648 Info Adding target Console Target[Console]
+2022-05-12 18:58:08.7853 Info Adding target File Target[File]
+2022-05-12 18:58:08.7853 Info Configured from an XML element in C:\EDU_REPO\das-commitments\src\SFA.DAS.Commitments.Support.SubSite\bin\Debug\netcoreapp3.1\nlog.Development.config...
+2022-05-12 18:58:08.7992 Warn Unused target detected. Add a rule for this target to the configuration. TargetName: Console
+2022-05-12 18:58:08.7992 Info Found 35 configuration items

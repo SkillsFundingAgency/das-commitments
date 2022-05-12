@@ -2,6 +2,8 @@
 using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.HashingService;
 using System;
@@ -20,19 +22,20 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             _hashingService = hashingService;
         }
 
-        public UlnSummaryViewModel MapToUlnResultView(GetApprenticeshipsQueryResult response)
+        public UlnSummaryViewModel MapToUlnResultView(GetSupportApprenticeshipQueryResult response)
         {
             return new UlnSummaryViewModel
             {
                 Uln = response.Apprenticeships.First().Uln,
-                ApprenticeshipsCount = response.TotalApprenticeships,
+                ApprenticeshipsCount = response.Apprenticeships.Count,
                 SearchResults = response.Apprenticeships.Select(o => MapToApprenticeshipSearchItemViewModel(o)).OrderBy(a => a.ApprenticeName).ToList()
             };
         }
 
-        public ApprenticeshipViewModel MapToApprenticeshipViewModel(ApprenticeshipDetails apprenticeship)
+        public ApprenticeshipViewModel MapToApprenticeshipViewModel(GetSupportApprenticeshipQueryResult apprenticeships)
         {
-            var changeRequested = apprenticeship.DataLockPriceTriaged || apprenticeship.DataLockCourseChangeTriaged;
+            var apprenticeship = apprenticeships.Apprenticeships.First();
+
             (string paymentStatusText, string paymentStatusTagColour) = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate);
 
             return new ApprenticeshipViewModel
@@ -43,7 +46,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 ConfirmationStatusDescription = apprenticeship.ConfirmationStatus?.ToString() ?? "",
                 AgreementStatus = apprenticeship.AgreementStatus.GetEnumDescription(),
                 PaymentStatus = paymentStatusText,
-                Alerts = MapRecordStatus(apprenticeship.UpdateOriginator, apprenticeship.DataLockCourseTriaged, changeRequested),
+                Alerts = MapRecordStatus(apprenticeship.Alerts),
                 Uln = apprenticeship.Uln,
                 DateOfBirth = apprenticeship.DateOfBirth,
                 CohortReference = apprenticeship.CohortReference,
@@ -52,21 +55,33 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 TrainingProvider = apprenticeship.ProviderName,
                 UKPRN = apprenticeship.ProviderId,
                 Trainingcourse = apprenticeship.CourseName,
-                ApprenticeshipCode = apprenticeship.co,
+                ApprenticeshipCode = apprenticeship.CourseCode,
                 DasTrainingStartDate = apprenticeship.StartDate,
                 DasTrainingEndDate = apprenticeship.EndDate,
                 TrainingCost = apprenticeship.Cost,
+
                 Version = apprenticeship.TrainingCourseVersionConfirmed ? apprenticeship.TrainingCourseVersion : null,
-                Option = apprenticeship.TrainingCourseOption == string.Empty ? "To be confirmed" : apprenticeship.TrainingCourseOption,
-                PauseDate = apprenticeship.PaymentStatus == PaymentStatus.Paused ? apprenticeship.PauseDate?.ToGdsFormatWithoutDay() : string.Empty,
-                StopDate = apprenticeship.PaymentStatus == PaymentStatus.Withdrawn ? apprenticeship.StopDate?.ToGdsFormatWithoutDay() : string.Empty,
-                CompletionPaymentMonth = apprenticeship.PaymentStatus == PaymentStatus.Completed ? apprenticeship.CompletionDate?.ToGdsFormatWithoutDay() : string.Empty,
+                Option = string.IsNullOrWhiteSpace(apprenticeship.TrainingCourseOption) ? "To be confirmed" : apprenticeship.TrainingCourseOption,
+
+                PauseDate = apprenticeship.PaymentStatus == PaymentStatus.Paused
+                ? apprenticeship.PauseDate.ToGdsFormatWithoutDay()
+                : string.Empty,
+
+                StopDate = apprenticeship.PaymentStatus == PaymentStatus.Withdrawn
+                ? apprenticeship.StopDate.ToGdsFormatWithoutDay()
+                : string.Empty,
+
+                CompletionPaymentMonth = apprenticeship.PaymentStatus == PaymentStatus.Completed
+                ? apprenticeship.CompletionDate.ToGdsFormatWithoutDay()
+                : string.Empty,
+
                 PaymentStatusTagColour = paymentStatusTagColour,
+
                 MadeRedundant = apprenticeship.MadeRedundant
             };
         }
 
-        public ApprenticeshipSearchItemViewModel MapToApprenticeshipSearchItemViewModel(ApprenticeshipDetails apprenticeship)
+        public ApprenticeshipSearchItemViewModel MapToApprenticeshipSearchItemViewModel(SupportApprenticeshipDetails apprenticeship)
         {
             return new ApprenticeshipSearchItemViewModel
             {
@@ -82,14 +97,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             };
         }
 
-        private (string paymentStatusText,  string paymentStatusTagColour) MapPaymentStatus(PaymentStatus paymentStatus, DateTime? startDate, DateTime? stopDate, DateTime? pauseDate)
+        private (string paymentStatusText, string paymentStatusTagColour) MapPaymentStatus(PaymentStatus paymentStatus, DateTime? startDate, DateTime? stopDate, DateTime? pauseDate)
         {
             var isStartDateInFuture = startDate.HasValue && startDate.Value > new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
             switch (paymentStatus)
             {
-                case PaymentStatus.PendingApproval:
-                    return ("Approval needed", "");
+                //case PaymentStatus.PendingApproval:
+                //    return ("Approval needed", "");
 
                 case PaymentStatus.Active:
                     return isStartDateInFuture ? ("Waiting to start", "") : ("Live", "blue");
@@ -103,36 +118,17 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 case PaymentStatus.Completed:
                     return ("Completed", "green");
 
-                case PaymentStatus.Deleted:
-                    return ("Deleted", "red");
+                //case PaymentStatus.Deleted:
+                //    return ("Deleted", "red");
 
                 default:
                     return (string.Empty, string.Empty);
             }
         }
 
-        private IEnumerable<string> MapRecordStatus(Originator? pendingUpdateOriginator, bool dataLockCourseTriaged, bool changeRequested)
+        private IEnumerable<string> MapRecordStatus(IEnumerable<Alerts> alerts)
         {
-            const string changesPending = "Changes pending";
-            const string changesForReview = "Changes for review";
-            const string changesRequested = "Changes requested";
-
-            var statuses = new List<string>();
-
-            if (pendingUpdateOriginator != null)
-            {
-                var t = pendingUpdateOriginator == Originator.Employer
-                    ? changesPending : changesForReview;
-                statuses.Add(t);
-            }
-
-            if (dataLockCourseTriaged)
-                statuses.Add(changesRequested);
-
-            if (changeRequested)
-                statuses.Add(changesForReview);
-
-            return statuses.Distinct();
+            return alerts.Select(o => o.GetEnumDescription()).Distinct().ToList();
         }
     }
 }

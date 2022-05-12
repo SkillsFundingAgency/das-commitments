@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using Moq;
-using NServiceBus.Logging;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
+using SFA.DAS.Commitments.Application.Queries.GetCommitment;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.HashingService;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.ApprenticeshipOrchestratorTests
 {
@@ -25,20 +24,17 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
     [Parallelizable]
     public class WhenGettingCommitmentSummary
     {
-        private Mock<ILogger<ApprenticeshipsOrchestrator>> _logger;
+        private Mock<ILog> _logger;
         private Mock<IMediator> _mediator;
         private Mock<IValidator<ApprenticeshipSearchQuery>> _searchValidator;
         private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
         private Mock<IHashingService> _hashingService;
         private Mock<ICommitmentMapper> _commitmentMapper;
-        private GetSupportCohortSummaryQueryResult _mockedCommitmentResult;
-        private GetSupportApprenticeshipQueryResult _mockedSupportApprenticeshipResult;
-        private ApprenticeshipsOrchestrator _orchestrator;
 
         [SetUp]
-        public void Setup()
+        public void OneTimeSetup()
         {
-            _logger = new Mock<ILogger<ApprenticeshipsOrchestrator>>();
+            _logger = new Mock<ILog>();
             _mediator = new Mock<IMediator>();
             _searchValidator = new Mock<IValidator<ApprenticeshipSearchQuery>>();
             _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
@@ -53,13 +49,10 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
              .Setup(o => o.HashValue(It.IsAny<long>()))
              .Returns("ABCDE500");
 
-            _logger.Setup(x => x.LogInformation(It.IsAny<string>()));
-
-            var dataFixture = new Fixture();
-            _mockedCommitmentResult = dataFixture.Build<GetSupportCohortSummaryQueryResult>().Create();
-            _mockedSupportApprenticeshipResult = dataFixture.Build<GetSupportApprenticeshipQueryResult>().Create();
+            _logger.Setup(x => x.Trace(It.IsAny<string>()));
+            _logger.Setup(x => x.Info(It.IsAny<string>()));
         }
-
+        
         [Test]
         [Category("UnitTest")]
         public async Task GivenInvalidCohortShouldReturnResponseMessageAndNotCallSearchService()
@@ -71,8 +64,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 SearchType = ApprenticeshipSearchType.SearchByCohort
             };
 
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportCohortSummaryQueryResult()).Verifiable();
+            _mediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>()))
+            .ReturnsAsync(new GetCommitmentResponse
+            {
+                Data = new Commitment { }
+            }).Verifiable();
 
             var validationFailures = new List<ValidationFailure>
             {
@@ -85,19 +81,19 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 .Returns(validationResult)
                 .Verifiable();
 
-            _orchestrator = new ApprenticeshipsOrchestrator(_logger.Object,
-             _mediator.Object,
-             _apprenticeshipMapper.Object,
-             _searchValidator.Object,
-             _hashingService.Object,
-             _commitmentMapper.Object);
+            var _orchestrator = new ApprenticeshipsOrchestrator(_logger.Object,
+                _mediator.Object,
+                _apprenticeshipMapper.Object,
+                _searchValidator.Object,
+                _hashingService.Object,
+                _commitmentMapper.Object);
 
             // Act
             var result = await _orchestrator.GetCommitmentSummary(searchQuery);
 
             // Assert
             _searchValidator.VerifyAll();
-            _mediator.Verify(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None), Times.Never);
+            _mediator.Verify(x => x.SendAsync(It.IsAny<GetCommitmentRequest>()), Times.Never);
 
             result.Should().NotBeNull();
             result.Should().BeOfType<CommitmentSummaryViewModel>();
@@ -118,8 +114,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 SearchType = ApprenticeshipSearchType.SearchByCohort
             };
 
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
-              .ReturnsAsync(new GetSupportCohortSummaryQueryResult()).Verifiable();
+            _mediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>()))
+            .ReturnsAsync(new GetCommitmentResponse
+            {
+                Data = new Commitment { }
+            }).Verifiable();
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.SetupGet(x => x.IsValid).Returns(true);
@@ -160,8 +159,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 SearchType = ApprenticeshipSearchType.SearchByCohort
             };
 
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
-             .ReturnsAsync(new GetSupportCohortSummaryQueryResult()).Verifiable();
+            _mediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>()))
+            .ReturnsAsync(new GetCommitmentResponse
+            {
+                Data = new Commitment { }
+            }).Verifiable();
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.SetupGet(x => x.IsValid).Returns(true);
@@ -203,10 +205,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 SearchType = ApprenticeshipSearchType.SearchByCohort
             };
 
-            var getComtResponse = responseAsNull ? null : new GetSupportCohortSummaryQueryResult();
-
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
-           .ReturnsAsync(getComtResponse).Verifiable();
+            var getComtResponse = responseAsNull ? null : new GetCommitmentResponse { Data = null };
+            _mediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>()))
+            .ReturnsAsync(getComtResponse);
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.SetupGet(x => x.IsValid).Returns(true);
@@ -245,8 +246,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 SearchType = ApprenticeshipSearchType.SearchByCohort
             };
 
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportCohortSummaryQueryResult()).Verifiable();
+            _mediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>()))
+            .ReturnsAsync(new GetCommitmentResponse
+            {
+                Data = new Commitment()
+            });
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.SetupGet(x => x.IsValid).Returns(true);
@@ -261,12 +265,10 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 _hashingService.Object,
                 _commitmentMapper.Object);
 
-            _commitmentMapper
-                .Setup(x => x.MapToCommitmentSummaryViewModel(It.IsAny<GetSupportCohortSummaryQueryResult>(), It.IsAny<GetSupportApprenticeshipQueryResult>()))
-                .Returns(new CommitmentSummaryViewModel
-                {
-                    EmployerName = employerName
-                });
+            _commitmentMapper.Setup(x => x.MapToCommitmentSummaryViewModel(It.IsAny<Commitment>())).Returns(new CommitmentSummaryViewModel
+            {
+                EmployerName = employerName
+            });
 
             // Act
             var result = await _orchestrator.GetCommitmentSummary(searchQuery);
@@ -292,8 +294,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             };
 
             _mediator
-                .Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
-                .Throws<Exception>();
+                .Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>()))
+                .Throws<UnauthorizedException>();
 
             var validationResult = new Mock<ValidationResult>();
             validationResult
@@ -320,7 +322,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             result.Should().BeOfType<CommitmentSummaryViewModel>();
 
             result.ReponseMessages.Should().NotBeNull();
-            result.ReponseMessages.Should().Contain("Unable to load resource error");
+            result.ReponseMessages.Should().Contain("Account is unauthorised to access this Cohort.");
         }
     }
 }
