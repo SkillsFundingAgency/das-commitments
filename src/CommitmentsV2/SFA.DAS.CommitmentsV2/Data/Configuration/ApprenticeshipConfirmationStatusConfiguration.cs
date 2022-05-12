@@ -19,7 +19,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             sortCol.Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.HasOne(d => d.Apprenticeship)
-                .WithOne(p => p.ApprenticeshipConfirmationStatus);
+                .WithOne(p => p.ApprenticeshipConfirmationStatus)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

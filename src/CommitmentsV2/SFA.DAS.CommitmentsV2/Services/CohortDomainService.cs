@@ -249,9 +249,23 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
 
             AssertHasApprenticeshipId(cohortId, apprenticeshipId);
+
+            await DeleteApprenticeshipConfirmationStatus(apprenticeshipId);
+
             cohort.DeleteDraftApprenticeship(apprenticeshipId, _authenticationService.GetUserParty(), userInfo);
 
             return cohort;
+        }
+
+        public async Task DeleteApprenticeshipConfirmationStatus(long apprenticeshipId)
+        {
+            var confirmationStatus = await _dbContext.Value.ApprenticeshipConfirmationStatus.FirstOrDefaultAsync(x => x.ApprenticeshipId == apprenticeshipId);
+
+            if (confirmationStatus != null)
+            {
+                _dbContext.Value.Remove(confirmationStatus);
+                await _dbContext.Value.SaveChangesAsync();
+            }
         }
 
         private ICohortOriginator GetCohortOriginator(Party originatingParty, Provider provider, AccountLegalEntity accountLegalEntity)
