@@ -18,19 +18,20 @@ using SFA.DAS.Commitments.Support.SubSite.Caching;
 using FluentValidation.AspNetCore;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.Commitments.Support.SubSite.Validation;
+using SFA.DAS.Commitments.Support.SubSite.Configuration;
 
 namespace SFA.DAS.Commitments.Support.SubSite
 {
     public class Startup
     {
+        private readonly IWebHostEnvironment _env;
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
             _env = env;
         }
-
-        private readonly IWebHostEnvironment _env;
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -39,7 +40,7 @@ namespace SFA.DAS.Commitments.Support.SubSite
             services.AddRazorPages();
 
             services
-               //.AddApiConfigurationSections(Configuration)
+               .AddConfigurationSections(Configuration)
                .AddAuthentication(Configuration, _env.IsDevelopment())
                .AddAuthorization(_env)
                .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
@@ -80,14 +81,13 @@ namespace SFA.DAS.Commitments.Support.SubSite
                .UseStaticFiles()
                //.UseDasHealthChecks()
                .UseAuthentication()
-               // .UseUnitOfWork()
                .UseRouting()
                .UseAuthorization()
                .UseEndpoints(builder =>
                {
                    builder.MapControllerRoute(
                        name: "default",
-                       pattern: "{controller=Home}/{action=Index}/{id?}");
+                       pattern: "{controller=Status}/{action=Get}/{id?}");
                });
 
             //app.UseStaticFiles();

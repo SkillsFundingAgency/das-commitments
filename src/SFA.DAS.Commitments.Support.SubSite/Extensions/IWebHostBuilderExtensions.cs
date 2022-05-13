@@ -13,8 +13,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Extentions
                 .AddAzureTableStorage(
                     CommitmentsSupportConfigurationKeys.CommitmentsSupportSubSite,
                     CommitmentsConfigurationKeys.CommitmentsV2,
-                    CommitmentsConfigurationKeys.EncodingConfiguration,
-                    Reservations.Api.Types.Configuration.ConfigurationKeys.ReservationsClientApiConfiguration)
+                    CommitmentsConfigurationKeys.EncodingConfiguration)
             );
         }
     }

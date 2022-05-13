@@ -18,6 +18,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     using System.Configuration;
     using System.Web;
     using SFA.DAS.CommitmentsV2.DependencyResolution;
+    using SFA.DAS.Authorization.Services;
 
     public class DefaultRegistry : Registry
     {
@@ -33,13 +34,26 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
                 scan.TheCallingAssembly();
                 scan.WithDefaultConventions();
 
-                scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith("SFA.DAS"));
+                scan.AssembliesFromApplicationBaseDirectory(a =>
+                a.GetName().Name.StartsWith("SFA.DAS.Commitments.Support.SubSite") ||
+                a.GetName().Name.StartsWith("SFA.DAS.CommitmentsV2")
+                );
                 scan.RegisterConcreteTypesAgainstTheFirstInterface();
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<>));
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
             });
 
             For(typeof(IPipelineBehavior<,>)).Use(typeof(ValidationBehavior<,>));
+
+            For<IApprenticeshipMapper>().Use<ApprenticeshipMapper>();
+
+            For<IHashingService>().Use("Build HashingService", x =>
+            {
+                var config = x.GetInstance<CommitmentSupportSiteConfiguartion>();
+                return new HashingService(config.AllowedHashstringCharacters, config.Hashstring);
+            });
+
+            //For<IAuthorizationService>().Use<AuthorizationService>();
 
             //ConfigureLog();
 
@@ -56,14 +70,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 
             //For<ICurrentDateTime>().Use<CurrentDateTime>();
             //For<IApprenticeshipTransactions>().Use<ApprenticeshipTransactions>();
-
-            For<IApprenticeshipMapper>().Use<ApprenticeshipMapper>();
-
-            For<IHashingService>().Use("Build HashingService", x =>
-             {
-                 var config = x.GetInstance<CommitmentSupportSiteConfiguartion>();
-                 return new HashingService(config.AllowedHashstringCharacters, config.Hashstring);
-             });
 
             // Mediator Handler Mapping
             //For<IAsyncRequestHandler<GetApprenticeshipsByUlnRequest, GetApprenticeshipsByUlnResponse>>().Use<GetApprenticeshipsByUlnQueryHandler>();
