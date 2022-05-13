@@ -38,7 +38,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public bool IsAgreementSigned { get; set; } = true;
         public DraftApprenticeship DraftApprenticeship { get; private set; }
         public Cohort Cohort { get; set; }
-
         public const long ProviderId = 333;
 
         public BulkUploadValidateCommandHandlerTestsFixture()
@@ -88,12 +87,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
             ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
+
             Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
                 , new Lazy<ProviderCommitmentsDbContext>(() => Db)
                 , OverlapCheckService.Object
                 , AcademicYearDateProvider.Object
                 , ProviderRelationshipsApiClient.Object
-                , EmployerAgreementService.Object                
+                , EmployerAgreementService.Object 
                 );
         }
 

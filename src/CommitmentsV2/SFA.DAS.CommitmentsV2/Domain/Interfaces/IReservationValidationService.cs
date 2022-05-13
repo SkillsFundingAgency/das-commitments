@@ -6,6 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {
     public interface IReservationValidationService
     {
-        Task<ReservationValidationResult> Validate(ReservationValidationRequest request, CancellationToken cancellationToken);
+        Task<Entities.Reservations.ReservationValidationResult> Validate(ReservationValidationRequest request, CancellationToken cancellationToken);
     }
 }
