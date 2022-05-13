@@ -507,16 +507,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{providerId}/commitmentagreements", null, cancellationToken);
         }
 
-        public Task<GetBulkUploadAddDraftApprenticeshipsResponse> BulkUploadDraftApprenticeships(long providerId, BulkUploadAddDraftApprenticeshipsRequest request, CancellationToken cancellationToken)
-        {
-            return _client.PostAsJson<BulkUploadAddDraftApprenticeshipsRequest, GetBulkUploadAddDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload", request, cancellationToken);
-        }
-
-        public Task<BulkUploadAddAndApproveDraftApprenticeshipsResponse> BulkUploadAddAndApproveDraftApprenticeships(long providerId, BulkUploadAddAndApproveDraftApprenticeshipsRequest request, CancellationToken cancellationToken)
-        {
-            return _client.PostAsJson<BulkUploadAddAndApproveDraftApprenticeshipsRequest, BulkUploadAddAndApproveDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload/addandapprove", request, cancellationToken);
-        }
-
         public Task<GetApprenticeshipStatusSummaryResponse> GetEmployerAccountSummary(long accountId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetApprenticeshipStatusSummaryResponse>($"api/accounts/{accountId}/summary", cancellationToken);
@@ -525,11 +515,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<GetTransferRequestSummaryResponse> GetTransferRequests(long accountId, CancellationToken cancellationToken = default)
         {            
             return _client.Get<GetTransferRequestSummaryResponse>($"api/accounts/{accountId}/transfers", cancellationToken);
-        }
-
-        public Task<BulkUploadValidateApiResponse> ValidateBulkUploadRequest(long providerId, BulkUploadValidateApiRequest request, CancellationToken cancellationToken = default)
-        {
-            return _client.PostAsJson<BulkUploadValidateApiRequest, BulkUploadValidateApiResponse>($"api/{providerId}/bulkupload/validate", request, cancellationToken);
         }
     }
 }

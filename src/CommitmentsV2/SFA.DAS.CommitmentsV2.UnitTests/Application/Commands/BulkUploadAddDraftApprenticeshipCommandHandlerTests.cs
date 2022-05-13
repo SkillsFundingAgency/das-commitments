@@ -77,13 +77,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             fixture.VerifyResponse(bulkUploadResponse);
         }
-
-        [Test]
-        public async Task VerifyExceptionThrownWhenValidationFails()
-        {
-            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
-            Assert.ThrowsAsync<BulkUploadDomainException>(() =>  fixture.WithData(1, "PPPP").WithValidationErrors().Handle());
-        }
     }
 
     public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture
