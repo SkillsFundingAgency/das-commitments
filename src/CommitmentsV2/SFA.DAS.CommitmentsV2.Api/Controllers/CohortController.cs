@@ -118,6 +118,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 CohortId = result.CohortId,
                 AccountLegalEntityId = result.AccountLegalEntityId,
                 LegalEntityName = result.LegalEntityName,
+                ProviderId = result.ProviderId,
                 ProviderName = result.ProviderName,
                 TransferSenderId = result.TransferSenderId,
                 PledgeApplicationId = result.PledgeApplicationId,

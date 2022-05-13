@@ -169,6 +169,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Without(a => a.EpaOrg)
                 .Without(a => a.ApprenticeshipUpdate)
                 .Without(a => a.Continuation)
+                .Without(s => s.ApprenticeshipConfirmationStatus)
                 .Without(a => a.PreviousApprenticeship);
 
             var cohort1 = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
@@ -218,6 +219,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeshipNew = apprenticeshipBuilder
                 .With(a => a.Cohort, cohort)
                 .With(a => a.ContinuationOfId, PreviousApprenticeshipId)
+                .Without(s => s.ApprenticeshipConfirmationStatus)
                 .Create();
 
             var apprenticeships = new[] { apprenticeshipNew };

@@ -20,7 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
         public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public virtual ApprenticeshipBase Continuation { get; set; }
-        public virtual ApprenticeshipConfirmationStatus ApprenticeshipConfirmationStatus { get; set; }
 
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
@@ -28,7 +27,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public Originator? PendingUpdateOriginator { get; set; }
         public DateTime? CompletionDate { get; set; }
         public bool? MadeRedundant { get; set; }
-        public bool? EmailAddressConfirmed { get; set; }
 
         [NotMapped]
         public string ApprenticeName => string.Concat(FirstName, " ", LastName);
@@ -111,6 +109,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseOption = TrainingCourseOption,
                 Uln = Uln,
                 DeliveryModel = DeliveryModel ?? Types.DeliveryModel.Regular,
+                EmploymentEndDate = FlexibleEmployment?.EmploymentEndDate,
+                EmploymentPrice = FlexibleEmployment?.EmploymentPrice
             });
         }
 
@@ -323,6 +323,22 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (update.DeliveryModel.HasValue)
             {
                 DeliveryModel = update.DeliveryModel;
+                FlexibleEmployment ??= new FlexibleEmployment();
+                if (DeliveryModel == Types.DeliveryModel.Regular)
+                {
+                    FlexibleEmployment.EmploymentEndDate = null;
+                    FlexibleEmployment.EmploymentPrice = null;
+                }
+            }
+
+            if (update.EmploymentEndDate.HasValue)
+            {
+                FlexibleEmployment.EmploymentEndDate = update.EmploymentEndDate;
+            }
+
+            if (update.EmploymentPrice.HasValue)
+            {
+                FlexibleEmployment.EmploymentPrice = (int?)update.EmploymentPrice;
             }
 
             if (update.TrainingType.HasValue)
@@ -481,6 +497,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FirstName = this.FirstName,
                 LastName = this.LastName,
                 Email = this.Email,
+                EmailAddressConfirmed = this.EmailAddressConfirmed,
                 DateOfBirth = this.DateOfBirth,
                 Cost = changeOfPartyRequest.Price,
                 StartDate = changeOfPartyRequest.StartDate,
@@ -500,6 +517,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseVersionConfirmed = this.TrainingCourseVersionConfirmed,
                 TrainingCourseOption = this.TrainingCourseOption,
                 FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
+                ApprenticeshipConfirmationStatus = ApprenticeshipConfirmationStatus?.Copy(),
             };
 
             return result;

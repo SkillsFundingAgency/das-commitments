@@ -126,4 +126,18 @@
     <Property Name="ParentElementType" Value="SqlSchema" />
     <Property Name="NewName" Value="ApprenticeshipFlexibleEmployment" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="d24bf16d-567e-48fd-aee7-fb512cc18c71" ChangeDateTime="04/06/2022 14:44:42">
+    <Property Name="ElementName" Value="[dbo].[ApprenticeshipUpdate].[ EmploymentPrice int True ]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ApprenticeshipUpdate]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value=" EmploymentPrice" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="684d1cd9-7daa-4aa1-a556-9cf265378ca8" ChangeDateTime="04/06/2022 14:45:28">
+    <Property Name="ElementName" Value="[dbo].[ApprenticeshipUpdate].[ EmploymentPrice]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ApprenticeshipUpdate]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="EmploymentPrice" />
+  </Operation>
 </Operations>

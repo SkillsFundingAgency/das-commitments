@@ -87,6 +87,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyDraftApprenticeshipDetailsFlexibleEmployment();
         }
 
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer, false)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider, false)]
+        [TestCase(ChangeOfPartyRequestType.ChangeEmployer, true)]
+        [TestCase(ChangeOfPartyRequestType.ChangeProvider, true)]
+        public void Then_The_DraftApprenticeshipDetails_ApprenticeshipConfirmationStats_Are_Correct(ChangeOfPartyRequestType requestType, bool isContinuation)
+        {
+            _fixture.WithChangeOfPartyType(requestType);
+            _fixture.WithApprenticeshipConfirmedStatus();
+            if (isContinuation) _fixture.WithContinuation();
+            _fixture.CreateCohort();
+            _fixture.VerifyApprenticeshipConfirmationDetails();
+        }
+
         [TestCase(ChangeOfPartyRequestType.ChangeEmployer)]
         [TestCase(ChangeOfPartyRequestType.ChangeProvider)]
         public void Then_WithParty_Is_Correct(ChangeOfPartyRequestType requestType)
@@ -270,6 +283,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Request.SetValue(x => x.EmploymentPrice, _autoFixture.Create<int>());
             }
 
+            internal void WithApprenticeshipConfirmedStatus()
+            {
+                ContinuedApprenticeship.SetValue(x=>x.ApprenticeshipConfirmationStatus, _autoFixture.Build<ApprenticeshipConfirmationStatus>().Without(x=>x.Apprenticeship).Create());
+                ContinuedApprenticeship.SetValue(x=>x.EmailAddressConfirmed, true);
+            }
+
             public WhenCohortIsCreatedTestFixture WithContinuation()
             {
                 ContinuedApprenticeship.ContinuationOfId = _autoFixture.Create<long>();
@@ -385,6 +404,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Assert.IsNotNull(draftApprenticeship.FlexibleEmployment);
                 Assert.AreEqual(Request.EmploymentEndDate, draftApprenticeship.FlexibleEmployment.EmploymentEndDate);
                 Assert.AreEqual(Request.EmploymentPrice, draftApprenticeship.FlexibleEmployment.EmploymentPrice);
+            }
+
+            public void VerifyApprenticeshipConfirmationDetails()
+            {
+                Assert.AreEqual(1, Result.DraftApprenticeships.Count());
+                var draftApprenticeship = Result.DraftApprenticeships.Single();
+                Assert.IsNotNull(draftApprenticeship.ApprenticeshipConfirmationStatus);
+                Assert.AreEqual(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn, draftApprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn);
+                Assert.AreEqual(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.CommitmentsApprovedOn, draftApprenticeship.ApprenticeshipConfirmationStatus.CommitmentsApprovedOn);
+                Assert.AreEqual(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn, draftApprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn);
+                Assert.AreEqual(ContinuedApprenticeship.EmailAddressConfirmed, draftApprenticeship.EmailAddressConfirmed);
             }
 
             public void VerifyTracking()
