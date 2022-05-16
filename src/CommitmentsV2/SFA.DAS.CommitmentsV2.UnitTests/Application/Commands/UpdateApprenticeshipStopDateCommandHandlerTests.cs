@@ -292,7 +292,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _encodingService.Setup(a => a.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)).Returns(hashedAppId);
             var newStopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
             var templateName = "ProviderApprenticeshipStopEditNotification";
-            var tokenUrl = $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{hashedAppId}";                
+            var tokenUrl = $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{hashedAppId}/details";                
 
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, newStopDate, new UserInfo());
 

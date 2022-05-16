@@ -138,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
                        {"APPRENTICE", apprenticeship.ApprenticeName },
                        {"OLDDATE", apprenticeship.StopDate.Value.ToString("dd/MM/yyyy") },
                        {"NEWDATE", newStopDate.ToString("dd/MM/yyyy") },
-                       {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}"}
+                       {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
                 });
 
             await _nserviceBusContext.Send(sendEmailToProviderCommand);
