@@ -87,6 +87,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
+        [Route("{apprenticeshipId}/recognise-prior-learning")]
+        public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] RecognisePriorLearningRequest request)
+        {
+            await Task.CompletedTask;
+            return Ok();
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Add(long cohortId, [FromBody]AddDraftApprenticeshipRequest request)
         {
             var command = await _addDraftApprenticeshipMapper.Map(request);
