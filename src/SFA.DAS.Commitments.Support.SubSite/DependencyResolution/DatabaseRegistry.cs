@@ -17,11 +17,13 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         {
             var environmentName = Environment.GetEnvironmentVariable(EnvironmentVariableNames.EnvironmentName);
 
+            For<IDbContextFactory>().Use<DbContextFactory>();
+
             For<DbConnection>().Use($"Build DbConnection", c =>
             {
                 var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-                return environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase)
+                return !string.IsNullOrWhiteSpace(environmentName) && environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase)
                     ? new SqlConnection(GetConnectionString(c))
                     : new SqlConnection
                     {
@@ -31,7 +33,6 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             });
 
             For<ProviderCommitmentsDbContext>().Use(c => c.GetInstance<IDbContextFactory>().CreateDbContext());
-            For<IProviderCommitmentsDbContext>().Use(c => c.GetInstance<IDbContextFactory>().CreateDbContext());
         }
 
         private string GetConnectionString(IContext context)

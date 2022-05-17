@@ -12,16 +12,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
             registry.IncludeRegistry<AuthorizationRegistry>();
             registry.IncludeRegistry<SupportConfigurationRegistry>();
             registry.IncludeRegistry<DatabaseRegistry>();
-
             registry.IncludeRegistry<DefaultRegistry>();
 
-            //registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
-            //registry.IncludeRegistry<CurrentDateTimeRegistry>();
-            //registry.IncludeRegistry<DomainServiceRegistry>();
-            //registry.IncludeRegistry<EncodingRegistry>();
-            //registry.IncludeRegistry<MappingRegistry>();
-            //registry.IncludeRegistry<StateServiceRegistry>();
-            //registry.IncludeRegistry<CachingRegistry>();
+            registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
+            registry.IncludeRegistry<CurrentDateTimeRegistry>();
+            registry.IncludeRegistry<DomainServiceRegistry>();
+            registry.IncludeRegistry<EncodingRegistry>();
+            registry.IncludeRegistry<MappingRegistry>();
+            registry.IncludeRegistry<StateServiceRegistry>();
+            registry.IncludeRegistry<CachingRegistry>();
         }
     }
 }

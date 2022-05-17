@@ -127,8 +127,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
 
             long commitmentId = 0;
-            long accountId = 0;
-
+          
             try
             {
                 commitmentId = _hashingService.DecodeValue(searchQuery.SearchTerm);
@@ -143,20 +142,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
-            try
-            {
-                accountId = _hashingService.DecodeValue(searchQuery.HashedAccountId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unable to decode Hashed Account Id");
-
-                return new CommitmentSummaryViewModel
-                {
-                    ReponseMessages = { "Problem validating your account Id" }
-                };
-            }
-
+          
             try
             {
                 var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId));

@@ -34,6 +34,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship
             var query = _dbContext.Value
                 .Apprenticeships
                 .Include(x => x.Cohort)
+                .Include(x => x.Cohort.AccountLegalEntity)
+                .Include(x => x.Cohort.Provider)
+                .Include(x => x.PriceHistory)
                 .AsQueryable();
 
             if (request.ApprenticeshipId.HasValue)

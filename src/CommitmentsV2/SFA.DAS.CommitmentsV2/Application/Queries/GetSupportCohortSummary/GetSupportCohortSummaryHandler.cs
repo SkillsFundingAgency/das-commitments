@@ -41,7 +41,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
             }
 
             var cohort = await db.Cohorts
-                .Include(x => x.Apprenticeships)
+                 .Include(x => x.Apprenticeships)
+                 .Include(x => x.AccountLegalEntity).Include(x => x.AccountLegalEntity.Account)
+                .Include(x => x.Provider)
+                .Include(x => x.TransferSender)
                 .SingleOrDefaultAsync(c => c.Id == query.CohortId, cancellationToken);
 
             var response = new GetSupportCohortSummaryQueryResult
@@ -54,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
                 LegalEntityName = cohort.AccountLegalEntity.Name,
                 ProviderName = cohort.Provider.Name,
                 TransferSenderId = cohort.TransferSenderId,
-                TransferSenderName = cohort.TransferSender.Name,
+                TransferSenderName = cohort?.TransferSender?.Name,
                 PledgeApplicationId = cohort.PledgeApplicationId,
                 WithParty = cohort.WithParty,
                 LatestMessageCreatedByEmployer = cohort.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefault(),
@@ -66,8 +69,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
                 Approvals = cohort.Approvals,
                 IsApprovedByEmployer = cohort.Approvals.HasFlag(Party.Employer), //redundant
                 IsApprovedByProvider = cohort.Approvals.HasFlag(Party.Provider), //redundant
+
                 IsCompleteForEmployer = CalculateIsCompleteForEmployer(cohort, apprenticeEmailIsRequired),
                 IsCompleteForProvider = CalculateIsCompleteForProvider(cohort, apprenticeEmailIsRequired),
+
                 LevyStatus = cohort.AccountLegalEntity.Account.LevyStatus,
                 ChangeOfPartyRequestId = cohort.ChangeOfPartyRequestId,
                 TransferApprovalStatus = cohort.TransferApprovalStatus,

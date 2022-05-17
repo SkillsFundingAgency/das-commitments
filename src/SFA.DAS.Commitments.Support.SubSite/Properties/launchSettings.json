@@ -1,4 +1,4 @@
-﻿{
+{
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -18,10 +18,11 @@
     "SFA.DAS.Commitments.Support.SubSite": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:44350",
       "environmentVariables": {
+        "APPSETTING_EnvironmentName": "LOCAL",
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "https://localhost:44350"
     }
   }
 }

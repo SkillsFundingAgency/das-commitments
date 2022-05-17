@@ -19,6 +19,8 @@ using FluentValidation.AspNetCore;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.Commitments.Support.SubSite.Validation;
 using SFA.DAS.Commitments.Support.SubSite.Configuration;
+using SFA.DAS.Commitments.Support.SubSite.Extensions;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace SFA.DAS.Commitments.Support.SubSite
 {
@@ -36,26 +38,22 @@ namespace SFA.DAS.Commitments.Support.SubSite
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApplicationInsightsTelemetry();
             services.AddRazorPages();
 
-            services
-               .AddConfigurationSections(Configuration)
-               .AddAuthentication(Configuration, _env.IsDevelopment())
-               .AddAuthorization(_env)
-               .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
-               .AddMvc(o =>
-               {
-                   o.AddAuthorization();
-                   o.Filters.Add<ValidateModelStateFilter>();
-                   o.Filters.Add<StopwatchFilter>();
-               })
-               .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>())
-               .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<ApprenticeshipsSearchQueryValidator>())
-               .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddActiveDirectoryAuthentication(Configuration);
+            services.AddMvc(options =>
+            {
+                if (!_env.IsDevelopment())
+                {
+                    options.Filters.Add(new AuthorizeFilter("default"));
+                }
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddDasDistributedMemoryCache(Configuration, _env.IsDevelopment());
+
             services.AddMemoryCache();
+            services.AddHealthChecks();
+            services.AddApplicationInsightsTelemetry();
         }
 
         public void ConfigureContainer(Registry registry)
@@ -73,34 +71,22 @@ namespace SFA.DAS.Commitments.Support.SubSite
             else
             {
                 app.UseHsts();
+                app.UseAuthentication();
             }
 
-            app.UseHttpsRedirection()
-               //.UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
-               // .UseUnauthorizedAccessExceptionHandler()
-               .UseStaticFiles()
-               //.UseDasHealthChecks()
-               .UseAuthentication()
-               .UseRouting()
-               .UseAuthorization()
-               .UseEndpoints(builder =>
-               {
-                   builder.MapControllerRoute(
-                       name: "default",
-                       pattern: "{controller=Status}/{action=Get}/{id?}");
-               });
+            app.UseStaticFiles();
 
-            //app.UseStaticFiles();
+            app.UseRouting();
 
-            //app.UseRouting();
+            app.UseAuthorization();
 
-            //app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
+                endpoints.MapControllers();
+            });
 
-            //app.UseEndpoints(endpoints =>
-            //{
-            //    endpoints.MapRazorPages();
-            //    endpoints.MapControllers();
-            //});
+            app.UseHealthChecks("/health");
         }
     }
 }

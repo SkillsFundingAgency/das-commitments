@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Roles = "das-support-portal")]
+   // [Authorize(Roles = "das-support-portal")]
     public class ApprenticeshipsController : Controller
     {
         private readonly IApprenticeshipsOrchestrator _orchestrator;
