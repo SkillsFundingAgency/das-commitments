@@ -28,5 +28,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool HasStandardOptions { get; set; }
         public int? EmploymentPrice { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
+        public bool? HasPriorLearning { get; set; }
     }
 }
