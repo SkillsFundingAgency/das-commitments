@@ -22,20 +22,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
                 ServiceName = ApplicationConstants.ServiceName,
                 ServiceVersion = "Unknown",
                 ServiceTime = DateTimeOffset.UtcNow,
-                Request = AddRequestContext()
+                Request = "Unknown"
             });
-        }
-
-        private string AddRequestContext()
-        {
-            try
-            {
-                return $" {HttpContext.Request.Method}: {UriHelper.GetDisplayUrl(Request)}";
-            }
-            catch
-            {
-                return "Unknown";
-            }
         }
     }
 }
