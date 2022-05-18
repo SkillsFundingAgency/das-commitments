@@ -4,11 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -17,15 +13,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship
     public class GetSupportApprenticeshipQueryHandler : IRequestHandler<GetSupportApprenticeshipQuery, GetSupportApprenticeshipQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ICurrentDateTime _currentDateTime;
         private readonly IMapper<Apprenticeship, SupportApprenticeshipDetails> _mapper;
 
         public GetSupportApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-            ICurrentDateTime currentDateTime,
             IMapper<Apprenticeship, SupportApprenticeshipDetails> mapper)
         {
             _dbContext = dbContext;
-            _currentDateTime = currentDateTime;
             _mapper = mapper;
         }
 

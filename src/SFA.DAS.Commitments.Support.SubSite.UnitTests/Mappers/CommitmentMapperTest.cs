@@ -1,93 +1,93 @@
-﻿//using NUnit.Framework;
-//using FluentAssertions;
-//using Moq;
-//using SFA.DAS.Commitments.Support.SubSite.Models;
-//using SFA.DAS.HashingService;
-//using SFA.DAS.Commitments.Support.SubSite.Mappers;
-//using AutoFixture;
-//using SFA.DAS.Commitments.Support.SubSite.Services;
-//using System.Collections.Generic;
-//using SFA.DAS.Commitments.Support.SubSite.Enums;
-//using SFA.DAS.CommitmentsV2.Types;
-//using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
-//using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
+﻿using NUnit.Framework;
+using FluentAssertions;
+using Moq;
+using SFA.DAS.Commitments.Support.SubSite.Models;
+using SFA.DAS.HashingService;
+using SFA.DAS.Commitments.Support.SubSite.Mappers;
+using AutoFixture;
+using SFA.DAS.Commitments.Support.SubSite.Services;
+using System.Collections.Generic;
+using SFA.DAS.Commitments.Support.SubSite.Enums;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 
-//namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
-//{
-//    [TestFixture]
-//    public class CommitmentMapperTest
-//    {
-//        private Mock<IHashingService> _hashingService;
-//        private Mock<ICommitmentStatusCalculator> _statusCalculator;
-//        private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
-//        private const string _hashedId = "HBCDE5";
+namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
+{
+    [TestFixture]
+    public class CommitmentMapperTest
+    {
+        private Mock<IHashingService> _hashingService;
+        private Mock<ICommitmentStatusCalculator> _statusCalculator;
+        private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
+        private const string _hashedId = "HBCDE5";
 
-//        private GetSupportCohortSummaryQueryResult _mockedCommitmentResult;
-//        private GetSupportApprenticeshipQueryResult _mockedSupportApprenticeshipResult;
-//        private CommitmentMapper _mapper;
+        private GetSupportCohortSummaryQueryResult _mockedCommitmentResult;
+        private GetSupportApprenticeshipQueryResult _mockedSupportApprenticeshipResult;
+        private CommitmentMapper _mapper;
 
-//        [SetUp]
-//        public void SetUp()
-//        {
-//            _hashingService = new Mock<IHashingService>();
-//            _statusCalculator = new Mock<ICommitmentStatusCalculator>();
-//            _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
+        [SetUp]
+        public void SetUp()
+        {
+            _hashingService = new Mock<IHashingService>();
+            _statusCalculator = new Mock<ICommitmentStatusCalculator>();
+            _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
 
-//            var dataFixture = new Fixture();
-//            _mockedCommitmentResult = dataFixture.Build<GetSupportCohortSummaryQueryResult>().Create();
-//            _mockedSupportApprenticeshipResult = dataFixture.Build<GetSupportApprenticeshipQueryResult>().Create();
+            var dataFixture = new Fixture();
+            _mockedCommitmentResult = dataFixture.Build<GetSupportCohortSummaryQueryResult>().Create();
+            _mockedSupportApprenticeshipResult = dataFixture.Build<GetSupportApprenticeshipQueryResult>().Create();
 
-//            _statusCalculator
-//                .Setup(x => x.GetStatus(It.IsAny<EditStatus>(),
-//                                                     It.IsAny<int>(),
-//                                                     It.IsAny<LastAction>(),
-//                                                     It.IsAny<AgreementStatus?>(),
-//                                                     It.IsAny<long?>(),
-//                                                     It.IsAny<TransferApprovalStatus?>()))
-//                  .Returns(RequestStatus.Approved);
+            _statusCalculator
+                .Setup(x => x.GetStatus(It.IsAny<EditStatus>(),
+                                                     It.IsAny<int>(),
+                                                     It.IsAny<LastAction>(),
+                                                     It.IsAny<AgreementStatus?>(),
+                                                     It.IsAny<long?>(),
+                                                     It.IsAny<TransferApprovalStatus?>()))
+                  .Returns(RequestStatus.Approved);
 
-//            _hashingService
-//             .Setup(o => o.HashValue(It.IsAny<long>()))
-//             .Returns(_hashedId);
+            _hashingService
+             .Setup(o => o.HashValue(It.IsAny<long>()))
+             .Returns(_hashedId);
 
-//            _mapper = new CommitmentMapper(_hashingService.Object,
-//                _statusCalculator.Object,
-//                _apprenticeshipMapper.Object);
-//        }
+            _mapper = new CommitmentMapper(_hashingService.Object,
+                _statusCalculator.Object,
+                _apprenticeshipMapper.Object);
+        }
 
-//        [Test]
-//        public void ShouldCallService()
-//        {
-//            var result = _mapper.MapToCommitmentSummaryViewModel(_mockedCommitmentResult, _mockedSupportApprenticeshipResult);
+        [Test]
+        public void ShouldCallService()
+        {
+            var result = _mapper.MapToCommitmentSummaryViewModel(_mockedCommitmentResult, _mockedSupportApprenticeshipResult);
 
-//            _statusCalculator.Verify(x => x.GetStatus(It.IsAny<EditStatus>(),
-//                                                      It.IsAny<int>(),
-//                                                     It.IsAny<LastAction>(),
-//                                                     It.IsAny<AgreementStatus?>(),
-//                                                     It.IsAny<long?>(),
-//                                                     It.IsAny<TransferApprovalStatus?>()), Times.AtLeastOnce);
+            _statusCalculator.Verify(x => x.GetStatus(It.IsAny<EditStatus>(),
+                                                      It.IsAny<int>(),
+                                                     It.IsAny<LastAction>(),
+                                                     It.IsAny<AgreementStatus?>(),
+                                                     It.IsAny<long?>(),
+                                                     It.IsAny<TransferApprovalStatus?>()), Times.AtLeastOnce);
 
-//            _hashingService.Verify(o => o.HashValue(It.IsAny<long>()), Times.AtLeastOnce);
-//        }
+            _hashingService.Verify(o => o.HashValue(It.IsAny<long>()), Times.AtLeastOnce);
+        }
 
-//        [Test]
-//        public void ShouldMapToVaLidCommitmentSummaryViewModel()
-//        {
-//            var result = _mapper.MapToCommitmentSummaryViewModel(_mockedCommitmentResult, _mockedSupportApprenticeshipResult);
+        [Test]
+        public void ShouldMapToVaLidCommitmentSummaryViewModel()
+        {
+            var result = _mapper.MapToCommitmentSummaryViewModel(_mockedCommitmentResult, _mockedSupportApprenticeshipResult);
 
-//            result.Should().NotBeNull();
-//            result.Should().BeOfType<CommitmentSummaryViewModel>();
-//            result.CohortReference.Should().BeSameAs(_hashedId);
-//        }
+            result.Should().NotBeNull();
+            result.Should().BeOfType<CommitmentSummaryViewModel>();
+            result.CohortReference.Should().BeSameAs(_hashedId);
+        }
 
-//        [Test]
-//        public void ShouldMapToValidCommitmentDetailViewModel()
-//        {
-//            var result = _mapper.MapToCommitmentDetailViewModel(_mockedCommitmentResult, _mockedSupportApprenticeshipResult);
-//            result.Should().NotBeNull();
-//            result.Should().BeOfType<CommitmentDetailViewModel>();
-//            result.CommitmentApprenticeships.Should().NotBeNull();
-//            result.CommitmentSummary.Should().NotBeNull();
-//        }
-//    }
-//}
+        [Test]
+        public void ShouldMapToValidCommitmentDetailViewModel()
+        {
+            var result = _mapper.MapToCommitmentDetailViewModel(_mockedCommitmentResult, _mockedSupportApprenticeshipResult);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<CommitmentDetailViewModel>();
+            result.CommitmentApprenticeships.Should().NotBeNull();
+            result.CommitmentSummary.Should().NotBeNull();
+        }
+    }
+}

@@ -100,7 +100,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 Uln = searchQuery.SearchTerm
             });
 
-            if ((response?.Apprenticeships.Count ?? 0) == 0)
+            if ((response?.Apprenticeships?.Count ?? 0) == 0)
             {
                 return new UlnSummaryViewModel
                 {
@@ -108,7 +108,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
-            _logger.LogInformation($"Apprenticeships Record Count: {response?.Apprenticeships.Count}");
+            _logger.LogInformation($"Apprenticeships Record Count: {response.Apprenticeships.Count}");
 
             return _apprenticeshipMapper.MapToUlnResultView(response);
         }

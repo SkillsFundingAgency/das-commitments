@@ -15,7 +15,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
     public class StatusController : Controller
     {
         [AllowAnonymous]
-        public ActionResult Get()
+        public IActionResult Get()
         {
             return Ok(new ServiceStatusViewModel
             {

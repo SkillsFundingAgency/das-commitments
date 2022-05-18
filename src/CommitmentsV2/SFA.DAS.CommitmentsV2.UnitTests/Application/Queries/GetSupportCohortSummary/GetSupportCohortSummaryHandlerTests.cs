@@ -12,11 +12,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using Message = SFA.DAS.CommitmentsV2.Models.Message;
 
@@ -229,7 +231,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
         [TestCase(null, true, AllowedApproval.CannotApprove)]
         public async Task Handle_WithApprenticeEmail_ShouldReturnExpectedEmployerCanApprove(string email, bool apprenticeEmailRequired, AllowedApproval allowedApproval)
         {
-            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
+            Action<GetSupportCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
                 f.EmailOptionalService
                     .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>()))
@@ -255,7 +257,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
         [TestCase("email@example.com", 101, AllowedApproval.BothCanApprove)]
         public async Task Handle_WithApprenticeEmailAndAContinuationOfId_ShouldReturnExpectedEmployerCanApprove(string email, long? continuationOfId, AllowedApproval allowedApproval)
         {
-            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
+            Action<GetSupportCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
                 f.EmailOptionalService
                     .Setup(x => x.ApprenticeEmailIsRequiredFor(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
@@ -300,9 +302,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             await CheckQueryResponse(response => Assert.AreEqual(value, response.ChangeOfPartyRequestId));
         }
 
-        private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert,
+        private async Task CheckQueryResponse(Action<GetSupportCohortSummaryQueryResult> assert,
             DraftApprenticeshipDetails apprenticeshipDetails = null,
-            Action<GetCohortSummaryHandlerTestFixtures> arrange = null, long? continuationOfId = null)
+            Action<GetSupportCohortSummaryHandlerTestFixtures> arrange = null, long? continuationOfId = null)
         {
             var autoFixture = new Fixture();
 
@@ -335,41 +337,43 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             }
 
             // arrange
-            var fixtures = new GetCohortSummaryHandlerTestFixtures()
+            var fixtures = new GetSupportCohortSummaryHandlerTestFixtures()
                 .AddCommitment(CohortId, Cohort, WithParty, LatestMessageCreatedByEmployer,
                     LatestMessageCreatedByProvider, Approvals, ChangeOfPartyRequestId);
 
             arrange?.Invoke(fixtures);
 
             // act
-            var response = await fixtures.GetResult(new GetCohortSummaryQuery(CohortId));
+            var response = await fixtures.GetResult(new GetSupportCohortSummaryQuery(CohortId));
 
             // Assert
             assert(response);
         }
     }
 
-    public class GetCohortSummaryHandlerTestFixtures
+    public class GetSupportCohortSummaryHandlerTestFixtures
     {
-        public GetCohortSummaryHandlerTestFixtures()
+        public GetSupportCohortSummaryHandlerTestFixtures()
         {
-            HandlerMock = new Mock<IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>>();
-            ValidatorMock = new Mock<IValidator<GetCohortSummaryQuery>>();
+            HandlerMock = new Mock<IRequestHandler<GetSupportCohortSummaryQuery, GetSupportCohortSummaryQueryResult>>();
+            ValidatorMock = new Mock<IValidator<GetSupportCohortSummaryQuery>>();
             EmailOptionalService = new Mock<IEmailOptionalService>();
             SeedCohorts = new List<Cohort>();
+            _mapper = new Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>>();
         }
 
-        public Mock<IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>> HandlerMock { get; set; }
+        public Mock<IRequestHandler<GetSupportCohortSummaryQuery, GetSupportCohortSummaryQueryResult>> HandlerMock { get; set; }
 
-        public IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult> Handler => HandlerMock.Object;
+        public IRequestHandler<GetSupportCohortSummaryQuery, GetSupportCohortSummaryQueryResult> Handler => HandlerMock.Object;
 
-        public Mock<IValidator<GetCohortSummaryQuery>> ValidatorMock { get; set; }
+        public Mock<IValidator<GetSupportCohortSummaryQuery>> ValidatorMock { get; set; }
         public Mock<IEmailOptionalService> EmailOptionalService { get; set; }
-        public IValidator<GetCohortSummaryQuery> Validator => ValidatorMock.Object;
+        public IValidator<GetSupportCohortSummaryQuery> Validator => ValidatorMock.Object;
+        private Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>> _mapper;
 
         public List<Cohort> SeedCohorts { get; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, Party withParty,
+        public GetSupportCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, Party withParty,
             string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, Party approvals,
             long? changeOfPartyRequestId)
         {
@@ -412,12 +416,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             return this;
         }
 
-        public Task<GetCohortSummaryQueryResult> GetResult(GetCohortSummaryQuery query)
+        public Task<GetSupportCohortSummaryQueryResult> GetResult(GetSupportCohortSummaryQuery query)
         {
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetCohortSummaryQueryHandler(lazy, EmailOptionalService.Object);
+                var handler = new GetSupportCohortSummaryHandler(lazy, _mapper.Object, EmailOptionalService.Object);
 
                 return handler.Handle(query, CancellationToken.None);
             });
