@@ -1,32 +1,25 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.ProviderRelationships.Types.Dtos;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.ProviderRelationships.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
+        public const string CohortRefPermissionIssue = "CohortRefPermission";
         private async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
             var domainErrors = new List<Error>();
-            if (string.IsNullOrEmpty(csvRecord.CohortRef))
-            {
-                var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(csvRecord, providerId);
-                if (!hasPermissionToCreateCohort)
-                {
-                    _logger.LogInformation($"Has permission to create cohort : {providerId}");
-                    domainErrors.Add(new Error("CohortRef", "The <b>employer must give you permission</b> to add apprentices on their behalf"));
-                }
-            }
-            else
+            var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+
+            if (!string.IsNullOrWhiteSpace(csvRecord.CohortRef))
             {
                 var cohort = GetCohortDetails(csvRecord.CohortRef);
 
@@ -95,9 +88,25 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             return domainErrors;
         }
-     
+
+        private async Task<bool> ValidatePermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, List<Error> domainErrors, bool? isLevy)
+        {
+            var nonLevyPermissionText = "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot <b>reserve funds</b> on their behalf";
+            var levyPermissionText = "The <b>employer must give you permission</b> to add apprentices on their behalf";
+
+            var hasPermissionToCreateCohort = await HasPermissionToCreateCohort(csvRecord, providerId);
+            if (!hasPermissionToCreateCohort)
+            {
+                var errorTextToUse = (isLevy.HasValue && isLevy.Value) ? levyPermissionText : nonLevyPermissionText;
+                _logger.LogInformation($"Has permission to create cohort : {providerId}");
+                domainErrors.Add(new Error(CohortRefPermissionIssue, errorTextToUse));
+            }
+
+            return hasPermissionToCreateCohort;
+        }
+
         private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
-        { 
+        {
             var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
             if (employerDetails.LegalEntityId.HasValue && providerId != 0)
             {
@@ -111,9 +120,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
                 var result = await _providerRelationshipsApiClient.HasPermission(request);
                 _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
+
+                employerDetails.HasPermissionToCreateCohort = result;
                 return result;
             }
-
             return true;
         }
 

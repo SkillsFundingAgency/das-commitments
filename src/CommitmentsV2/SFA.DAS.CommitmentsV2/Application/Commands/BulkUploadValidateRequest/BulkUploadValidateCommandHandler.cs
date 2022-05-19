@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.ProviderRelationships.Api.Client;
@@ -25,8 +24,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private readonly IEmployerAgreementService _employerAgreementService;
-
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
+        private Dictionary<string, Models.Cohort> _cachedCohortDetails;
+
 
         public long ProviderId { get; set; }
 
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _academicYearDateProvider = academicYearDateProvider;
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
-
+            _cachedCohortDetails = new Dictionary<string, Models.Cohort>();
         }
 
         public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
@@ -53,20 +53,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             ProviderId = command.ProviderId;
             var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
             _csvRecords = command.CsvRecords.ToList();
+
             foreach (var csvRecord in command.CsvRecords)
             {
-                var domainErrors =  await Validate(csvRecord, command.ProviderId);
+                var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
+                await AddError(bulkUploadValidationErrors, csvRecord, criticalDomainError);
 
-                if (domainErrors.Any())
-
+                if (!criticalDomainError.Any())
                 {
-                    bulkUploadValidationErrors.Add(new BulkUploadValidationError(
-                        csvRecord.RowNumber,
-                        await GetEmployerName(csvRecord.AgreementId),
-                        csvRecord.Uln,
-                        csvRecord.FirstName + " " + csvRecord.LastName,
-                        domainErrors
-                        ));
+                    var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults);
+                    await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
                 }
             }
 
@@ -76,7 +72,22 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             };
         }
 
-        private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
+        private async Task AddError(List<BulkUploadValidationError> bulkUploadValidationErrors, BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
+        {
+            if (domainErrors.Any())
+
+            {
+                bulkUploadValidationErrors.Add(new BulkUploadValidationError(
+                    csvRecord.RowNumber,
+                    await GetEmployerName(csvRecord.AgreementId),
+                    csvRecord.Uln,
+                    csvRecord.FirstName + " " + csvRecord.LastName,
+                    domainErrors
+                    ));
+            }
+        }
+
+        private async Task<List<Error>> ValidateCriticalErrors(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
             var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
             if (!domainErrors.Any())
@@ -86,8 +97,51 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 // when a valid agreement has not been signed validation will stop
                 if (domainErrors.Any())
                     return domainErrors;
+            }
 
-                domainErrors.AddRange(await ValidateAgreementIdMustBeLevy(csvRecord));
+            var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
+            if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef)) && !IsFundedByTransfer(csvRecord.CohortRef))
+            {
+                 if (!await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
+                {
+                    // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
+                    return domainErrors;
+                }
+            }
+
+            return domainErrors;
+        }
+
+        /// <summary>
+        /// If it is funded by Transfer - non-levy employer doesn't need to check for the permission to create cohort.
+        /// </summary>
+        /// <param name="cohortRef"></param>
+        /// <returns></returns>
+        private bool IsFundedByTransfer(string cohortRef)
+        {
+            if (!string.IsNullOrWhiteSpace(cohortRef))
+            {
+                var cohortDetails = GetCohortDetails(cohortRef);
+
+                if (cohortDetails.TransferSenderId.HasValue)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults)
+        {
+            var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
+            if (!domainErrors.Any())
+            {
+                domainErrors.AddRange(await ValidateAgreementIdIsSigned(csvRecord));
+
+                // when a valid agreement has not been signed validation will stop
+                if (domainErrors.Any())
+                    return domainErrors;
             }
 
             domainErrors.AddRange(await ValidateCohortRef(csvRecord, providerId));
@@ -102,6 +156,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             domainErrors.AddRange(ValidateCost(csvRecord));
             domainErrors.AddRange(ValidateProviderRef(csvRecord));
             domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
+            domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
 
             return domainErrors;
         }
@@ -131,21 +186,27 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     var employerName = accountLegalEntity.Account.Name;
                     var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
                     var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
-                    var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned);
+                    var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
                     _employerSummaries.Add(employerSummary);
                     return employerSummary;
                 }
             }
 
-            return new EmployerSummary(agreementId, null, null, string.Empty, null);
+            return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
         }
 
         private Models.Cohort GetCohortDetails(string cohortRef)
         {
+            if (_cachedCohortDetails.ContainsKey(cohortRef))
+            {
+                return _cachedCohortDetails.GetValueOrDefault(cohortRef);
+            }
+
             var cohort = _dbContext.Value.Cohorts
                 .Include(x => x.AccountLegalEntity)
                 .Include(x => x.Apprenticeships)
                 .Where(x => x.Reference == cohortRef).FirstOrDefault();
+            _cachedCohortDetails.Add(cohortRef, cohort);
 
             return cohort;
         }
@@ -164,7 +225,5 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             return null;
         }
-
-
     }
 }
