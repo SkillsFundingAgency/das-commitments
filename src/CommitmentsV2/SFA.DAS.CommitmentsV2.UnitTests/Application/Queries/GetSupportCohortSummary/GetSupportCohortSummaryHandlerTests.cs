@@ -276,14 +276,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
                 apprenticeDetails, arrange, continuationOfId);
         }
 
-        [Test]
-        [NonParallelizable]
-        public async Task Handle_DeletedCohort_ShouldReturnNull()
-        {
-            CohortIsDeleted = true;
-            await CheckQueryResponse(Assert.IsNull);
-        }
-
         [TestCase(ApprenticeshipEmployerType.Levy)]
         [TestCase(ApprenticeshipEmployerType.NonLevy)]
         public async Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedLevyStatus(

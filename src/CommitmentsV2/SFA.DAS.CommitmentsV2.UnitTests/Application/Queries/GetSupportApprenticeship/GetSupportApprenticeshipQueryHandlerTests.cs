@@ -27,10 +27,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
         }
 
         [Test]
-        public async Task Handle_WhenApprenticeshipCohortIdIsNoNull_ThenShouldReturnResult()
+        public async Task WhenApprenticeshipIsSearchedUsingCohortId_ThenShouldReturnResult()
         {
             await _fixture.Handle();
             _fixture.VerifyResultMapping();
+        }
+
+        [Test]
+        public async Task WhenApprenticeshipIsSearchedUsingApprenticeship1Uln_ThenShouldReturnResult()
+        {
+            _fixture.WithApprenticeship1Uln();
+            await _fixture.Handle();
+            _fixture.VerifyApprenticeship1UlnQueryResultMapping();
+        }
+        [Test]
+        public async Task WhenApprenticeshipIsSearchedUsingApprenticeship1Id_ThenShouldReturnResult()
+        {
+            _fixture.WithApprenticeship1Id();
+            await _fixture.Handle();
+            _fixture.VerifyApprenticeship1UlnQueryResultMapping();
         }
 
         [Test]
@@ -51,9 +66,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
 
             public long ApprenticeshipId1 { get; private set; }
             public Apprenticeship Apprenticeship1 { get; private set; }
+            public string ApprenticeshipUln1 { get;  set; }
 
             public long ApprenticeshipId2 { get; private set; }
             public Apprenticeship Apprenticeship2 { get; private set; }
+            public string ApprenticeshipUln2 { get; set; }
 
 
             public long AccountLegalEntityId { get; private set; }
@@ -73,8 +90,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
             {
 
                 _autoFixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
-
                 _cohortId = _autoFixture.Create<long>();
+
                 _query = new GetSupportApprenticeshipQuery { CohortId = _cohortId };
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
@@ -87,6 +104,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                 _queryHandler = new GetSupportApprenticeshipQueryHandler(lazyDb, _mapper.Object);
             }
 
+            public GetSupportApprenticeshipQueryHandlerTestsFixture WithApprenticeship1Uln()
+            {
+                _query = new GetSupportApprenticeshipQuery
+                {
+                    Uln = ApprenticeshipUln1
+                };
+                return this;
+            }
+
+            public GetSupportApprenticeshipQueryHandlerTestsFixture WithApprenticeship1Id()
+            {
+                _query = new GetSupportApprenticeshipQuery
+                {
+                    ApprenticeshipId = ApprenticeshipId1
+                };
+                return this;
+            }
+
             public GetSupportApprenticeshipQueryHandlerTestsFixture WithNonExistentCohort()
             {
                 _query = new GetSupportApprenticeshipQuery
@@ -94,12 +129,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                     CohortId = _cohortId + 1
                 };
 
-                return this;
-            }
-
-            public GetSupportApprenticeshipQueryHandlerTestsFixture WithDeletedCohort()
-            {
-                Cohort.IsDeleted = true;
                 return this;
             }
 
@@ -114,6 +143,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
 
                 ApprenticeshipId1 = _autoFixture.Create<long>();
                 ApprenticeshipId2 = _autoFixture.Create<long>();
+
+                ApprenticeshipUln1 = _autoFixture.Create<string>();
+                ApprenticeshipUln2 = _autoFixture.Create<string>();
 
                 Provider = new Provider
                 {
@@ -181,8 +213,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                     Id = _autoFixture.Create<long>()
                 };
 
-                Apprenticeship1 = CreateApprenticeship(Apprenticeship1, ApprenticeshipId1, Cohort, nextApprenticeship);
-                Apprenticeship2 = CreateApprenticeship(Apprenticeship2, ApprenticeshipId2, Cohort, nextApprenticeship);
+                Apprenticeship1 = CreateApprenticeship(ApprenticeshipUln1, ApprenticeshipId1, Cohort, nextApprenticeship);
+                Apprenticeship2 = CreateApprenticeship(ApprenticeshipUln2, ApprenticeshipId2, Cohort, nextApprenticeship);
 
                 _db.Apprenticeships.Add(Apprenticeship1);
                 _db.Apprenticeships.Add(Apprenticeship2);
@@ -192,8 +224,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
 
             public void VerifyResultMapping()
             {
+                Assert.AreEqual(2, _queryResult.Apprenticeships.Count);
                 _mapper.Verify(x => x.Map(It.Is<Apprenticeship>(o => o.Uln == Apprenticeship1.Uln)), Times.Once);
                 _mapper.Verify(x => x.Map(It.Is<Apprenticeship>(o => o.Uln == Apprenticeship2.Uln)), Times.Once);
+            }
+
+            public void VerifyApprenticeship1UlnQueryResultMapping()
+            {
+                Assert.AreEqual(1, _queryResult.Apprenticeships.Count);
+                _mapper.Verify(x => x.Map(It.Is<Apprenticeship>(o => o.Uln == Apprenticeship1.Uln)), Times.Once);
             }
 
             public void VerifyNoResult()
@@ -202,9 +241,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                 Assert.AreEqual(0, _queryResult.Apprenticeships.Count);
             }
 
-            private Apprenticeship CreateApprenticeship(Apprenticeship apprenticeship, long apprenticeshipId, Cohort cohort, Apprenticeship nextApprenticeship)
+            private Apprenticeship CreateApprenticeship(string uln ,long apprenticeshipId, Cohort cohort, Apprenticeship nextApprenticeship)
             {
-                apprenticeship = new Apprenticeship
+               var  apprenticeship = new Apprenticeship
                 {
                     Id = apprenticeshipId,
                     CommitmentId = cohort.Id,
@@ -219,7 +258,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                     DateOfBirth = _autoFixture.Create<DateTime>(),
                     StartDate = _autoFixture.Create<DateTime>(),
                     EndDate = _autoFixture.Create<DateTime>(),
-                    Uln = _autoFixture.Create<string>(),
+                    Uln = uln,
                     PaymentStatus = _autoFixture.Create<PaymentStatus>(),
                     EpaOrg = EndpointAssessmentOrganisation,
                     EmployerRef = _autoFixture.Create<string>(),
