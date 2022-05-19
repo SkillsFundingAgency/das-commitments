@@ -20,7 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
         public virtual ICollection<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public virtual ApprenticeshipBase Continuation { get; set; }
-        public virtual ApprenticeshipConfirmationStatus ApprenticeshipConfirmationStatus { get; set; }
 
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
@@ -28,7 +27,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public Originator? PendingUpdateOriginator { get; set; }
         public DateTime? CompletionDate { get; set; }
         public bool? MadeRedundant { get; set; }
-        public bool? EmailAddressConfirmed { get; set; }
 
         [NotMapped]
         public string ApprenticeName => string.Concat(FirstName, " ", LastName);
@@ -499,6 +497,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FirstName = this.FirstName,
                 LastName = this.LastName,
                 Email = this.Email,
+                EmailAddressConfirmed = this.EmailAddressConfirmed,
                 DateOfBirth = this.DateOfBirth,
                 Cost = changeOfPartyRequest.Price,
                 StartDate = changeOfPartyRequest.StartDate,
@@ -516,10 +515,24 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StandardUId = this.StandardUId,
                 TrainingCourseVersion = this.TrainingCourseVersion,
                 TrainingCourseVersionConfirmed = this.TrainingCourseVersionConfirmed,
-                TrainingCourseOption = this.TrainingCourseOption
+                TrainingCourseOption = this.TrainingCourseOption,
+                FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
+                ApprenticeshipConfirmationStatus = ApprenticeshipConfirmationStatus?.Copy(),
             };
 
             return result;
+        }
+
+        private FlexibleEmployment CreateFlexibleEmploymentForChangeOfParty(ChangeOfPartyRequest changeOfPartyRequest)
+        {
+            if (DeliveryModel != Types.DeliveryModel.PortableFlexiJob) return null;
+
+            // TODO Should this be limited to CoE
+            return new FlexibleEmployment
+            {
+                EmploymentPrice = changeOfPartyRequest.EmploymentPrice.Value,
+                EmploymentEndDate = changeOfPartyRequest.EmploymentEndDate.Value
+            };
         }
 
         public void EditEndDateOfCompletedRecord(DateTime endDate, ICurrentDateTime currentDate, Party party, UserInfo userInfo)

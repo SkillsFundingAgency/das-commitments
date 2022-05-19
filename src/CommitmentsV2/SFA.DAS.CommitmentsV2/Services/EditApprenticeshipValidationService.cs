@@ -57,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var apprenticeship = _context.Apprenticeships
                 .Include(y => y.Cohort)
                 .Include(y => y.PriceHistory)
+                .Include(y => y.FlexibleEmployment)
                 .FirstOrDefault(x => x.Id == request.ApprenticeshipId);
 
             if (apprenticeship == null)
@@ -568,7 +569,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (request.EmploymentPrice > request.Cost)
             {
-                yield return new DomainError(nameof(request.EmploymentPrice), "This price must not be more than than the total agreed apprenticeship price");
+                yield return new DomainError(nameof(request.EmploymentPrice), "This price must not be more than the total agreed apprenticeship price");
             }
         }
 

@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("This price must not be more than than the total agreed apprenticeship price", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("This price must not be more than the total agreed apprenticeship price", result.Errors[0].ErrorMessage);
             Assert.AreEqual("EmploymentPrice", result.Errors[0].PropertyName);
         }
 

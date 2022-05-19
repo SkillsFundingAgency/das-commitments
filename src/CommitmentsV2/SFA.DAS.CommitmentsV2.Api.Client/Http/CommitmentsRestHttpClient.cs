@@ -6,7 +6,6 @@ using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Api.Types.Http;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 using SFA.DAS.Http;
 
@@ -27,10 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
             {
                 return CreateApiModelException(httpResponseMessage, content);
             }
-            else if (httpResponseMessage.StatusCode == HttpStatusCode.BadRequest && httpResponseMessage.GetSubStatusCode() == HttpSubStatusCode.BulkUploadDomainException)
-            {
-                return CreateBulkUploadApiModelException(httpResponseMessage, content);
-            }
             else
             {
                return base.CreateClientException(httpResponseMessage, content);
@@ -50,18 +45,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
             var errorDetails = string.Join(";", errors.Errors.Select(e => $"{e.Field} ({e.Message})"));
             _logger.Log(errors.Errors.Count == 0 ? LogLevel.Warning : LogLevel.Debug, $"{httpResponseMessage.RequestMessage.RequestUri} has returned {errors.Errors.Count} errors: {errorDetails}");
 
-            return errors;
-        }
-
-        private Exception CreateBulkUploadApiModelException(HttpResponseMessage httpResponseMessage, string content)
-        {
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                _logger.LogWarning($"{httpResponseMessage.RequestMessage.RequestUri} has returned an empty string when an array of error responses was expected.");
-                return new CommitmentsApiBulkUploadModelException(new List<BulkUploadValidationError>());
-            }
-
-            var errors = new CommitmentsApiBulkUploadModelException(JsonConvert.DeserializeObject<BulkUploadErrorResponse>(content).DomainErrors?.ToList());
             return errors;
         }
     }

@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
@@ -23,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         {
             var x = await _dbContext.Value
                 .Apprenticeships
+                .Include(x => x.FlexibleEmployment)
                 .GetById(request.ApprenticeshipId, apprenticeship =>
                     new GetApprenticeshipQueryResult
                     {

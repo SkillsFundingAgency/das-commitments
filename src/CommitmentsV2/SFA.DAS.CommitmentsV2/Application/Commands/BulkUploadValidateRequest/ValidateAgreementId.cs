@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
+        public const string LegalAgreementIdIssue = "LegalAgreementId";
         private async Task<List<Error>> ValidateAgreementIdValidFormat(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
             List<Error> errors = new List<Error>();
@@ -37,18 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             List<Error> errors = new List<Error>();
             if (!(await IsSigned(csvRecord.AgreementId)).GetValueOrDefault(false))
             {
-                errors.Add(new Error("AgreementId", "You cannot add apprentices for this employer as they need to <b>accept the agreement</b> with the ESFA."));
-            }
-
-            return errors;
-        }
-
-        private async Task<List<Error>> ValidateAgreementIdMustBeLevy(BulkUploadAddDraftApprenticeshipRequest csvRecord)
-        {
-            List<Error> errors = new List<Error>();
-            if (!(await IsLevy(csvRecord.AgreementId)).GetValueOrDefault(false))
-            {
-                errors.Add(new Error("AgreementId", $"You cannot add apprentices via file on behalf of <b>non-levy employers</b> yet."));
+                errors.Add(new Error(LegalAgreementIdIssue, "You cannot add apprentices for this employer as they need to <b>accept the agreement</b> with the ESFA."));
             }
 
             return errors;
@@ -58,12 +48,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         {
             var employerDetails = await GetEmployerDetails(agreementId);
             return employerDetails.IsSigned;
-        }
-
-        private async Task<bool?> IsLevy(string agreementId)
-        {
-            var employerDetails = await GetEmployerDetails(agreementId);
-            return employerDetails.IsLevy;
         }
     }
 }

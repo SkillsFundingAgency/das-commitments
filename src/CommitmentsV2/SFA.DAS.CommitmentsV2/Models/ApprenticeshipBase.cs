@@ -17,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
+        public bool? EmailAddressConfirmed { get; set; }
         public string Uln { get; set; }
         public ProgrammeType? ProgrammeType { get; set; }
         public string CourseCode { get; set; }
@@ -52,6 +53,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public bool IsContinuation => ContinuationOfId.HasValue;
         public virtual Apprenticeship PreviousApprenticeship { get; set; }
+
+        public virtual ApprenticeshipConfirmationStatus ApprenticeshipConfirmationStatus { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
     }
 }
