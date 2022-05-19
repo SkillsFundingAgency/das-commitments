@@ -144,17 +144,17 @@ stages:
           msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
           platform: 'anycpu'
           configuration: '$(buildConfiguration)'
-          clean: true    
+          clean: true   
 
-      - task: VSBuild@1
-        displayName: 'Publish Support Site'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Publish Support Subsite'
         inputs:
-          solution: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
-          vsVersion: 15.0
-          msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
-          platform: 'anycpu'
-          configuration: '$(buildConfiguration)'
-          clean: true
+          command: publish
+          publishWebProjects: false
+          projects: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
+          arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'      
+
 
       - task: VSBuild@1
         displayName: 'Publish v1 WebJob'
