@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -43,6 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         ProviderCommitmentsDbContext _confirmationDbContext;
         private UnitOfWorkContext _unitOfWorkContext { get; set; }
         private IRequestHandler<StopApprenticeshipCommand> _handler;
+        private const string ProviderCommitmentsBaseUrl = "https://approvals";
 
         [SetUp]
         public void Init()
@@ -68,7 +70,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _authenticationService.Object,
                 _nserviceBusContext.Object,
                 _encodingService.Object,
-                _logger.Object);
+                _logger.Object,
+                new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl });
         }
 
         [Test]
@@ -248,7 +251,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _encodingService.Setup(a => a.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)).Returns(hashedAppId);
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
             var templateName = "ProviderApprenticeshipStopNotification";
-            var tokenUrl = $"{apprenticeship.Cohort.ProviderId}/apprentices/manage/{hashedAppId}/details";
+            var tokenUrl = $"{ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{hashedAppId}";
+
             var tokens = new Dictionary<string, string>
             {
                 {"EMPLOYER",apprenticeship.Cohort.AccountLegalEntity.Name },

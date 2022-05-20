@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -27,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
         private readonly IMessageSession _nserviceBusContext;
         private readonly IEncodingService _encodingService;
         private readonly ILogger<StopApprenticeshipCommandHandler> _logger;
+        private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
         private const string StopNotificationEmailTemplate = "ProviderApprenticeshipStopNotification";
 
         public StopApprenticeshipCommandHandler(
@@ -35,7 +37,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             IAuthenticationService authenticationService,
             IMessageSession nserviceBusContext,
             IEncodingService encodingService,
-            ILogger<StopApprenticeshipCommandHandler> logger)
+            ILogger<StopApprenticeshipCommandHandler> logger,
+            CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _dbContext = dbContext;
             _currentDate = currentDate;
@@ -43,6 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             _nserviceBusContext = nserviceBusContext;
             _encodingService = encodingService;
             _logger = logger;
+            _commitmentsV2Configuration = commitmentsV2Configuration;
         }
 
         protected override async Task Handle(StopApprenticeshipCommand request, CancellationToken cancellationToken)
@@ -79,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
                         {"EMPLOYER", employerName},
                         {"APPRENTICE", apprenticeName },
                         {"DATE", stopDate.ToString("dd/MM/yyyy") },
-                        {"URL", $"{providerId}/apprentices/manage/{_encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId)}/details" }
+                        {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{providerId}/apprentices/{_encodingService.Encode(apprenticeshipId, EncodingType.ApprenticeshipId)}"}
                 });
 
             await _nserviceBusContext.Send(sendEmailToProviderCommand);
