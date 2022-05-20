@@ -11,17 +11,17 @@ namespace SFA.DAS.Commitments.Support.SubSite.Authentication
     {
         public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration config, bool isDevelopment = false)
         {
-            var azureActiveDirectoryConfiguration = config.GetSection(CommitmentsSupportConfigurationKeys.CommitmentsSupportSubSite).Get<CommitmentSupportSiteConfiguartion>();
+            var authConfiguration = config.GetSection(CommitmentsSupportConfigurationKeys.CommitmentsSupportSubSite).Get<CommitmentSupportSiteConfiguartion>();
 
             services.AddAuthentication(auth =>
             {
                 auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(auth =>
             {
-                auth.Authority = $"https://login.microsoftonline.com/{azureActiveDirectoryConfiguration.SiteValidator.Tenant}";
+                auth.Authority = $"https://login.microsoftonline.com/{authConfiguration.SiteValidator.Tenant}";
                 auth.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
-                    ValidAudiences = azureActiveDirectoryConfiguration.SiteValidator.Audience.Split(",")
+                    ValidAudiences = authConfiguration.SiteValidator.Audience.Split(",")
                 };
             });
 
