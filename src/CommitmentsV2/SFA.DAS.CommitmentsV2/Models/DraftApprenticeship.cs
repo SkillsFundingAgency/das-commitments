@@ -151,5 +151,15 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(LastName), "CourseCode for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
             }
         }
+
+        public void SetRecognisePriorLearning(bool? recognisePriorLearning)
+        {
+            if (!recognisePriorLearning.HasValue)
+            {
+                throw new DomainException(nameof(RecognisePriorLearning), "Recognise prior learning must be set");
+            }
+
+            RecognisePriorLearning = recognisePriorLearning;
+        }
     }
 }

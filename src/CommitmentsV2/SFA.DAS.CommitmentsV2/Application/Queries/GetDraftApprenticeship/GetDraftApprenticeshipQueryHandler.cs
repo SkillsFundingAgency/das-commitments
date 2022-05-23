@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
 
         public GetDraftApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
         {
-            _dbContext = dbContext;
+            _dbContext = dbContext; 
             _authenticationService = authenticationService;
         }
 
