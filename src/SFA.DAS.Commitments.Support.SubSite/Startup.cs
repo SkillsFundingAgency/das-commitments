@@ -49,7 +49,6 @@ namespace SFA.DAS.Commitments.Support.SubSite
             }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddDasDistributedMemoryCache(Configuration, _env.IsDevelopment());
-
             services.AddMemoryCache();
             services.AddHealthChecks();
             services.AddApplicationInsightsTelemetry();

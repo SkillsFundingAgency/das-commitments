@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-   // [Authorize(Roles = "das-support-portal")]
+    [Authorize(Roles = "das-support-portal")]
     public class ApprenticeshipsController : Controller
     {
         private readonly IApprenticeshipsOrchestrator _orchestrator;
@@ -20,8 +20,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             _orchestrator = apprenticeshipsOrchestrator;
         }
 
-        [Route("Apprenticeships/account/{hashedAccountId}/Cohort/{hashedCohortId}/", Name = "CohortDetails")]
-        public async Task<ActionResult> CohortDetails(string hashedAccontId, string hashedCohortId)
+        [Route("account/{hashedAccountId}/Cohort/{hashedCohortId}/", Name = "CohortDetails")]
+        public async Task<ActionResult> CohortDetails(string hashedAccountId, string hashedCohortId)
         {
             if (string.IsNullOrWhiteSpace(hashedCohortId))
             {
@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             return View(model);
         }
 
-        [Route("Apprenticeships/account/{hashedAccountId}/Apprenticeship/{hashedApprenticeshipId}", Name = "ApprenticeshipDetails")]
+        [Route("account/{hashedAccountId}/Apprenticeship/{hashedApprenticeshipId}", Name = "ApprenticeshipDetails")]
         public async Task<ActionResult> Index(string hashedApprenticeshipId, string hashedAccountId)
         {
             if (string.IsNullOrWhiteSpace(hashedApprenticeshipId) || string.IsNullOrWhiteSpace(hashedAccountId))
@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             return View(model);
         }
 
-        [Route("Apprenticeships/search/{hashedAccountId}")]
+        [Route("search/{hashedAccountId}")]
         [HttpGet]
         public async Task<ActionResult> Search(string hashedAccountId)
         {
@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             });
         }
 
-        [Route("Apprenticeships/search")]
+        [Route("search")]
         [HttpPost]
         public async Task<ActionResult> SearchRequest(string hashedAccountId, ApprenticeshipSearchType searchType, string searchTerm)
         {

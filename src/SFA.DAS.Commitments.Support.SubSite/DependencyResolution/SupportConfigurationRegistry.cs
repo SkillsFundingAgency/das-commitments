@@ -12,16 +12,12 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         public SupportConfigurationRegistry()
         {
             AddConfiguration<CommitmentSupportSiteConfiguartion>(CommitmentsSupportConfigurationKeys.CommitmentsSupportSubSite);
-
-            //AddConfiguration<CommitmentsV2Configuration>(CommitmentsConfigurationKeys.CommitmentsV2);
-            //AddConfiguration<AccountApiConfiguration>(CommitmentsConfigurationKeys.AccountApi);
-            //AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);
-            //AddConfiguration<CustomisedFeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
-            //AddConfiguration<EncodingConfig>(CommitmentsConfigurationKeys.EncodingConfiguration);
-            //AddConfiguration<ApprovalsOuterApiConfiguration>(CommitmentsConfigurationKeys.ApprovalsOuterApiConfiguration);
-            //AddConfiguration<EmailOptionalConfiguration>(CommitmentsConfigurationKeys.EmailOptionalConfiguration);
-            //AddConfiguration<LevyTransferMatchingApiConfiguration>(CommitmentsConfigurationKeys.LevyTransferMatchingApiConfiguration);
-            //AddConfiguration<Authorization.Features.Configuration.FeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
+           
+            AddConfiguration<CommitmentsV2Configuration>(CommitmentsConfigurationKeys.CommitmentsV2);
+           
+            AddConfiguration<EncodingConfig>(CommitmentsConfigurationKeys.EncodingConfiguration);
+           
+            AddConfiguration<Authorization.Features.Configuration.FeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
         }
 
         private void AddConfiguration<T>(string name) where T : class

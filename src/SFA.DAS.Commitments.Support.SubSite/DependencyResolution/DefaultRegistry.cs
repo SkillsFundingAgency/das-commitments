@@ -53,6 +53,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
                 return new HashingService(config.AllowedHashstringCharacters, config.Hashstring);
             });
 
+            For<IApprenticeshipsOrchestrator>().Use<ApprenticeshipsOrchestrator>();
+            For<IValidator<ApprenticeshipSearchQuery>>().Use<ApprenticeshipsSearchQueryValidator>().Singleton();
+            For<ISiteValidatorSettings>().Use(ctx => ctx.GetInstance<SiteValidatorSettings>());
+
+
+
+
+
             //For<IAuthorizationService>().Use<AuthorizationService>();
 
             //ConfigureLog();
@@ -60,13 +68,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
             //For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             //For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
 
-            For<ISiteValidatorSettings>().Use(ctx => ctx.GetInstance<SiteValidatorSettings>());
+
 
             //For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             //For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
-            For<IApprenticeshipsOrchestrator>().Use<ApprenticeshipsOrchestrator>();
-            For<IValidator<ApprenticeshipSearchQuery>>().Use<ApprenticeshipsSearchQueryValidator>().Singleton();
+
 
             //For<ICurrentDateTime>().Use<CurrentDateTime>();
             //For<IApprenticeshipTransactions>().Use<ApprenticeshipTransactions>();

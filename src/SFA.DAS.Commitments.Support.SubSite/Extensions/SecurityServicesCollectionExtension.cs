@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Extensions
                 o.AddPolicy("default", policy =>
                 {
                     policy.RequireAuthenticatedUser();
-                    policy.RequireRole("Default");
+                    policy.RequireRole("das-support-portal");
                 });
             });
 
