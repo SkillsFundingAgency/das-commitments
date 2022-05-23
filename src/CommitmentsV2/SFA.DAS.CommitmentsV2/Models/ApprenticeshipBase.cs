@@ -56,5 +56,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual ApprenticeshipConfirmationStatus ApprenticeshipConfirmationStatus { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
+        public bool? RecognisePriorLearning { get; set; }
     }
 }

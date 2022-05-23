@@ -129,5 +129,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             return AssertPropertySet(input => input.HasStandardOptions, true);
         }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        [TestCase(null)]
+        public Task Map_RecognisePriorLearning_ShouldBeSet(bool? value)
+        {
+            return AssertPropertySet(input => input.RecognisePriorLearning, value);
+        }
+
     }
 }
