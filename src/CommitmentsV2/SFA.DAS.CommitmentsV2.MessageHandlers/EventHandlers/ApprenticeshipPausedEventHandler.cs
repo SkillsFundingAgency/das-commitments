@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
@@ -17,12 +18,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         private readonly ILogger<ApprenticeshipPausedEventHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IEncodingService _encodingService;
+        private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
 
-        public ApprenticeshipPausedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApprenticeshipPausedEventHandler> logger, IEncodingService encodingService)
+        public ApprenticeshipPausedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApprenticeshipPausedEventHandler> logger, 
+            IEncodingService encodingService, CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _dbContext = dbContext;
             _logger = logger;
             _encodingService = encodingService;
+            _commitmentsV2Configuration = commitmentsV2Configuration;
         }
 
         public async Task Handle(ApprenticeshipPausedEvent message, IMessageHandlerContext context)
@@ -45,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                                   {"EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name},
                                   {"APPRENTICE", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
                                   {"DATE", apprenticeship.PauseDate?.ToString("dd/MM/yyyy")},
-                                  {"URL", $"{apprenticeship.Cohort.ProviderId}/apprentices/manage/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
+                                  {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}"}
                       });
 
             return sendEmailToProviderCommand;
