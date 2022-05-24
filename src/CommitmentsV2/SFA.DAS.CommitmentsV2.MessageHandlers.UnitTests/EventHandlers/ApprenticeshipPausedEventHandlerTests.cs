@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using SFA.DAS.Encoding;
+using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -46,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     c.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
                     c.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
                     c.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
-                    c.Tokens["URL"] == $"1/apprentices/manage/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}/details"
+                    c.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
                     )
                   , It.IsAny<SendOptions>()), Times.Once);
         }
@@ -56,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     {
         public Mock<ILogger<ApprenticeshipPausedEventHandler>> Logger { get; set; }
         public Mock<IEncodingService> MockEncodingService { get; set; }
+
         public ApprenticeshipPausedEvent Event { get; set; }
 
         private readonly Apprenticeship _apprenticeship;
@@ -65,6 +67,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public const string LastName = "TestLast";
         public const string EmployerName = "TestEmployerName";
         public const string HashedApprenticeshipId = "ABC";
+        public const string ProviderCommitmentsBaseUrl = "https://approvals/";
 
         public ApprenticeshipPausedEventHandlerTestsFixture() : base((m) => null)
         {
@@ -99,7 +102,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             MockEncodingService = new Mock<IEncodingService>();
             MockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns(HashedApprenticeshipId);
 
-            Handler = new ApprenticeshipPausedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Logger.Object, MockEncodingService.Object);
+            Handler = new ApprenticeshipPausedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Logger.Object, MockEncodingService.Object,
+                new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl });
         }
 
         public override Task Handle()

@@ -28,6 +28,7 @@ using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -45,6 +46,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         ProviderCommitmentsDbContext _confirmationDbContext;
         private UnitOfWorkContext _unitOfWorkContext { get; set; }
         private IRequestHandler<UpdateApprenticeshipStopDateCommand> _handler;
+        private static CommitmentsV2Configuration commitmentsV2Configuration;
+        private readonly string ProviderCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";
 
         [SetUp]
         public void Init()
@@ -66,6 +69,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
             _logger = new Mock<ILogger<UpdateApprenticeshipStopDateCommandHandler>>();
             _unitOfWorkContext = new UnitOfWorkContext();
+            commitmentsV2Configuration = new CommitmentsV2Configuration()
+            {
+                ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl
+            };
 
             _handler = new UpdateApprenticeshipStopDateCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
                 _logger.Object,
@@ -73,7 +80,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _authenticationService.Object,
                  _nserviceBusContext.Object,
                 _encodingService.Object,
-                _overlapCheckService.Object);
+                _overlapCheckService.Object,
+                commitmentsV2Configuration);
                 
         }
 
@@ -284,7 +292,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _encodingService.Setup(a => a.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)).Returns(hashedAppId);
             var newStopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
             var templateName = "ProviderApprenticeshipStopEditNotification";
-            var tokenUrl = $"{apprenticeship.Cohort.ProviderId}/apprentices/manage/{hashedAppId}/details";           
+            var tokenUrl = $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{hashedAppId}";                
 
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, newStopDate, new UserInfo());
 

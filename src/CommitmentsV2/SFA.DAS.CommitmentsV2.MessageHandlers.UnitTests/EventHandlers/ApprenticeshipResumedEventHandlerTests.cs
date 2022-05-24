@@ -1,19 +1,19 @@
 ﻿using AutoFixture;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.Encoding;
 using System;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.TestHelpers;
-using SFA.DAS.CommitmentsV2.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
@@ -42,10 +42,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
                     c.Template == "ProviderApprenticeshipResumeNotification" &&
-                    c.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
-                    c.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
+                    c.Tokens["EMPLOYER"] == ApprenticeshipResumedEventHandlerTestsFixture.EmployerName &&
+                    c.Tokens["APPRENTICE"] == $"{ApprenticeshipResumedEventHandlerTestsFixture.FirstName} {ApprenticeshipResumedEventHandlerTestsFixture.LastName}" &&
                     c.Tokens["DATE"] == _fixture.Event.ResumedOn.ToString("dd/MM/yyyy") &&
-                    c.Tokens["URL"] == $"{ApprenticeshipResumedEventHandlerTestsFixture .ProviderId}/apprentices/manage/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}/details"
+                    c.Tokens["URL"] == $"{ApprenticeshipResumedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/{ApprenticeshipResumedEventHandlerTestsFixture.ProviderId}/apprentices/{ApprenticeshipResumedEventHandlerTestsFixture.HashedApprenticeshipId}"
                     )
                   , It.IsAny<SendOptions>()), Times.Once);
         }
@@ -65,6 +65,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public const string EmployerName = "TestEmployerName";
         public const string HashedApprenticeshipId = "ABC";
         public const long ProviderId = 1;
+        public const string ProviderCommitmentsBaseUrl = "https://approvals/";
 
         public ApprenticeshipResumedEventHandlerTestsFixture() : base((m) => null)
         {
@@ -98,7 +99,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             MockEncodingService = new Mock<IEncodingService>();
             MockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns(HashedApprenticeshipId);
 
-            Handler = new ApprenticeshipResumedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), MockEncodingService.Object, Logger.Object);
+            Handler = new ApprenticeshipResumedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), MockEncodingService.Object, 
+                Logger.Object, new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl });
         }
 
         public override Task Handle()
