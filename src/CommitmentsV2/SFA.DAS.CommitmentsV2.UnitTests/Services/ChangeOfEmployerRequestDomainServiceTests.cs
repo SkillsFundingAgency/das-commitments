@@ -79,5 +79,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _fixture.VerifyException<DomainException>();
         }
+
+        [Test]
+        public async Task CreateChangeOfPartyRequest_Throws_exception_if_apprenticeship_is_FlexiJob_during_a_change_of_provider_request()
+        {
+            _fixture.WithOriginatingParty(Party.Employer);
+            _fixture.WithDeliveryModelAsFlexiJobAndChangeOfProvider();
+
+            await _fixture.CreateChangeOfPartyRequest();
+
+            _fixture.VerifyException<DomainException>();
+        }
+
+
     }
 }
