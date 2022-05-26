@@ -138,5 +138,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             return AssertPropertySet(input => input.RecognisePriorLearning, value);
         }
 
+        [Test]
+        public Task Map_DurationReducedBy_ShouldBeSet()
+        {
+            var durationReducedBy = 9;
+            return AssertPropertySet(input => input.DurationReducedBy, durationReducedBy);
+        }
+
+        [Test]
+        public Task Map_PriceReducedBy_ShouldBeSet()
+        {
+            var priceReducedBy = 9;
+            return AssertPropertySet(input => input.PriceReducedBy, priceReducedBy);
+        }
     }
 }
