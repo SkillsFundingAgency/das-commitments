@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _providerContext = providerContext;
         }
 
-    public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
+    public async Task Import([TimerTrigger("45 10 1 * * *", RunOnStartup = false)] TimerInfo timer)
     {
         _logger.LogInformation("ImportFrameworksJob - Started");
         var response = await _apiClient.Get<FrameworkResponse>(new GetFrameworksRequest());
