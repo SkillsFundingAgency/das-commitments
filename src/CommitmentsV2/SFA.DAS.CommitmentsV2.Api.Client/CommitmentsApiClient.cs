@@ -521,5 +521,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}/recognise-prior-learning", request, cancellationToken);
         }
+
+        public Task RecognisePriorLearningDetails(long cohortId, long apprenticeshipId, RecognisePriorLearningDetailsRequest request, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }
