@@ -16,6 +16,7 @@ using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
@@ -124,7 +125,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task Set_RecognisePriorLearning_ShouldMapToCommandObjecvtAndReturnOkResponse()
+        public async Task Set_RecognisePriorLearning_ShouldMapToCommandObjectAndReturnOkResponse()
         {
             //Arrange
             var fixture = new DraftApprenticeshipControllerTestsFixture().WithRecognisePriorLearningRequest();
@@ -134,6 +135,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             //Assert
             fixture.VerifyRecognisePriorLearningCommandIsMappedCorrectly();
+        }
+
+        [Test]
+        public async Task Set_PriorLearningDetails_ShouldMapToCommandObjectAndReturnOkResponse()
+        {
+            //Arrange
+            var fixture = new DraftApprenticeshipControllerTestsFixture().WithPriorLearningDetailsRequest();
+
+            //Act
+            await fixture.UpdatePriorLearningDetails();
+
+            //Assert
+            fixture.VerifyPriorLearningDetailsCommandIsMappedCorrectly();
         }
     }
 
@@ -149,6 +163,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public AddDraftApprenticeshipCommand AddDraftApprenticeshipCommand { get; set; }
         public GetDraftApprenticeshipsQuery GetDraftApprenticeshipsQuery { get; set; }
         public DeleteDraftApprenticeshipRequest DeleteDraftApprenticeshipRequest { get; set; }
+        public PriorLearningDetailsRequest PriorLearningDetailsRequest { get; set; }
         public RecognisePriorLearningRequest RecognisePriorLearningRequest { get; set; }
         public DeleteDraftApprenticeshipCommand DeleteDraftApprenticeshipCommand { get; set; }
 
@@ -206,11 +221,26 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return this;
         }
 
+        public DraftApprenticeshipControllerTestsFixture WithPriorLearningDetailsRequest()
+        {
+            PriorLearningDetailsRequest = new PriorLearningDetailsRequest { DurationReducedBy = 8, PriceReducedBy = 989 };
+            return this;
+        }
+
         public DraftApprenticeshipControllerTestsFixture VerifyRecognisePriorLearningCommandIsMappedCorrectly()
         {
             Mediator.Verify(x=>x.Send(It.Is<RecognisePriorLearningCommand>(p =>
             p.CohortId == CohortId && p.ApprenticeshipId == DraftApprenticeshipId &&
                 p.RecognisePriorLearning == RecognisePriorLearningRequest.RecognisePriorLearning), It.IsAny<CancellationToken>()));
+            return this;
+        }
+
+        public DraftApprenticeshipControllerTestsFixture VerifyPriorLearningDetailsCommandIsMappedCorrectly()
+        {
+            Mediator.Verify(x => x.Send(It.Is<PriorLearningDetailsCommand>(p =>
+                p.CohortId == CohortId && p.ApprenticeshipId == DraftApprenticeshipId &&
+                p.DurationReducedBy == PriorLearningDetailsRequest.DurationReducedBy &&
+                p.PriceReducedBy == PriorLearningDetailsRequest.PriceReducedBy), It.IsAny<CancellationToken>()));
             return this;
         }
 
@@ -245,6 +275,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public Task<IActionResult> UpdateRecognisePriorLearning()
         {
             return Controller.Update(CohortId, DraftApprenticeshipId, RecognisePriorLearningRequest);
+        }
+
+        public Task<IActionResult> UpdatePriorLearningDetails()
+        {
+            return Controller.Update(CohortId, DraftApprenticeshipId, PriorLearningDetailsRequest);
         }
 
         public Task<IActionResult> Add()

@@ -36,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
             var draftApprenticeship = await db.DraftApprenticeships
                 .Include(a => a.Cohort)
                 .Include(a => a.FlexibleEmployment)
+                .Include(a => a.PriorLearning)
                 .SingleOrDefaultAsync(a => a.Id == apprenticeshipId && a.CommitmentId == cohortId, cancellationToken);
             if (draftApprenticeship == null) throw new BadRequestException($"Draft Apprenticeship {apprenticeshipId}  in Cohort {cohortId} was not found");
             if (draftApprenticeship.Cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");

@@ -736,6 +736,26 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}/recognise-prior-learning", request, CancellationToken.None));
         }
+
+        [Test]
+        public async Task PriorLearningDetailsUpdate_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var cohortId = 2;
+            var apprenticeshipId = 11;
+            var request = new PriorLearningDetailsRequest
+            {
+                DurationReducedBy = 10,
+                PriceReducedBy = 999,
+                UserInfo = new UserInfo()
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.PriorLearningDetails(cohortId, apprenticeshipId, request, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}/prior-learning", request, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture
