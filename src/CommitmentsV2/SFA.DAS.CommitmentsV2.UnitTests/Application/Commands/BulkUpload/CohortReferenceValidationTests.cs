@@ -82,14 +82,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         }
 
         [Test]
-        public async Task Validate_When_Provider_Has_No_Permission_Create_Cohort_On_Employer_Behalf()
+        public async Task Validate_When_Provider_Has_No_Permission_Create_Cohort_On_Employer_Behalf_Levy()
         {
             //Arrange
             fixture.SetCohortRef("").SetProviderHasPermissionToCreateCohort(false);
             //Act
             var errors = await fixture.Handle();
             //Assert
-            fixture.ValidateError(errors, 1, "CohortRef", "The <b>employer must give you permission</b> to add apprentices on their behalf");
+            fixture.ValidateError(errors, 1, "CohortRefPermission", "The <b>employer must give you permission</b> to add apprentices on their behalf");
+        }
+
+        [Test]
+        public async Task Validate_When_Provider_Has_No_Permission_Create_Cohort_On_Employer_Behalf_Non_Levy()
+        {
+            //Arrange
+            fixture.SetLevyStatus(Types.ApprenticeshipEmployerType.NonLevy);
+            fixture.SetCohortRef("").SetProviderHasPermissionToCreateCohort(false);
+            //Act
+            var errors = await fixture.Handle();
+            //Assert
+            fixture.ValidateError(errors, 1, "CohortRefPermission", "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot <b>reserve funds</b> on their behalf");
         }
 
         [Test]

@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Validation
 {

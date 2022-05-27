@@ -82,6 +82,11 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.DeliveryModel)
                 .HasColumnType("tinyint");
 
+            builder.HasOne(p => p.ApprenticeshipConfirmationStatus)
+                .WithOne(c => c.Apprenticeship)
+                .HasForeignKey<ApprenticeshipConfirmationStatus>(a => a.ApprenticeshipId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasOne(p => p.FlexibleEmployment)
                 .WithOne(c => c.Apprenticeship)
                 .HasForeignKey<FlexibleEmployment>()

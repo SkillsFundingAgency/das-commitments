@@ -692,44 +692,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{ providerId}/commitmentagreements", null, CancellationToken.None));
         }
 
-        [Test]
-        public async Task BulkUploadDraftApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
-        {
-            //Arrange
-            var providerId = 11;
-            var request = new BulkUploadAddDraftApprenticeshipsRequest
-            {
-                ProviderId = providerId,
-                BulkUploadDraftApprenticeships = new List<BulkUploadAddDraftApprenticeshipRequest>(),
-                UserInfo = new UserInfo()
-            };
-
-            //Act
-            await _fixture.CommitmentsApiClient.BulkUploadDraftApprenticeships(providerId, request, CancellationToken.None);
-
-            //Assert
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<BulkUploadAddDraftApprenticeshipsRequest, GetBulkUploadAddDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload", request, CancellationToken.None));
-        }
-
-        [Test]
-        public async Task BulkUploadAddAndApproveDraftApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
-        {
-            //Arrange
-            var providerId = 11;
-            var request = new BulkUploadAddAndApproveDraftApprenticeshipsRequest
-            {
-                ProviderId = providerId,
-                BulkUploadAddAndApproveDraftApprenticeships = new List<BulkUploadAddDraftApprenticeshipRequest>(),
-                UserInfo = new UserInfo()
-            };
-
-            //Act
-            await _fixture.CommitmentsApiClient.BulkUploadAddAndApproveDraftApprenticeships(providerId, request, CancellationToken.None);
-
-            //Assert
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<BulkUploadAddAndApproveDraftApprenticeshipsRequest, BulkUploadAddAndApproveDraftApprenticeshipsResponse>($"api/{providerId}/bulkupload/addandapprove", request, CancellationToken.None));
-        }
-
         public async Task GetEmployerAccountSummary_VerifyUrlAndDataIsCorrectlyPassedIn()
         {
             //Arrange
@@ -753,13 +715,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
 
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetTransferRequestSummaryResponse>($"api/accounts/{employerAccountId}/transfers", CancellationToken.None, CancellationToken.None));
-        }
-
-        [Test]
-        public async Task ValidateBulkUploadRequest_VerifyUrlAndDataIsCorrectPassedIn()
-        {
-            await _fixture.CommitmentsApiClient.ValidateBulkUploadRequest(123, _fixture.BulkUploadValidateApiRequest, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<BulkUploadValidateApiRequest, BulkUploadValidateApiResponse>($"api/123/bulkupload/validate", _fixture.BulkUploadValidateApiRequest, CancellationToken.None));
         }
     }
     

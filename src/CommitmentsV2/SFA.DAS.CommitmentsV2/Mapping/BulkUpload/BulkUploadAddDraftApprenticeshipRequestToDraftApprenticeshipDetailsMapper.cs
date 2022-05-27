@@ -3,11 +3,8 @@ using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeshi
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.Reservations.Api.Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
@@ -15,19 +12,15 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
     public class BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper : IMapper<BulkUploadAddDraftApprenticeshipsCommand, List<DraftApprenticeshipDetails>>
     {
         private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
-        private readonly IReservationsApiClient _reservationApiClient;
 
-        public BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup, IReservationsApiClient reservationsApiClient)
+        public BulkUploadAddDraftApprenticeshipRequestToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup)
         {
             _trainingProgrammeLookup = trainingProgrammeLookup;
-            _reservationApiClient = reservationsApiClient;
         }
 
         public async Task<List<DraftApprenticeshipDetails>> Map(BulkUploadAddDraftApprenticeshipsCommand command)
         {
             var draftApprenticeshipDetailsList = new List<DraftApprenticeshipDetails>();
-            await MapReservation(command, CancellationToken.None);
-
             foreach (var source in command.BulkUploadDraftApprenticeships)
             {
                 var result = new DraftApprenticeshipDetails
@@ -69,20 +62,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
             }
 
             return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
-        }
-
-        private async Task MapReservation(BulkUploadAddDraftApprenticeshipsCommand requests, CancellationToken cancellationToken)
-        {
-            var legalEntities = requests.BulkUploadDraftApprenticeships.GroupBy(x => x.LegalEntityId).Select(y => new { Id = y.Key, NumberOfApprentices = y.Count(), DraftApprenticeships = y.ToList() });
-            foreach (var legalEntity in legalEntities)
-            {
-                var reservationIds = await _reservationApiClient.BulkCreateReservations(legalEntity.Id.Value, new BulkCreateReservationsRequest { Count = ushort.Parse(legalEntity.NumberOfApprentices.ToString()) }, cancellationToken);
-
-                for (int counter = 0; counter < legalEntity.NumberOfApprentices; counter++)
-                {
-                   legalEntity.DraftApprenticeships[counter].ReservationId = reservationIds.ReservationIds[counter];
-                }
-            }
         }
     }
 }
