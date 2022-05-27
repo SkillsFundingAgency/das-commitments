@@ -26,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IEmployerAgreementService _employerAgreementService;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
         private Dictionary<string, Models.Cohort> _cachedCohortDetails;
+        private Dictionary<string, Models.Standard> _cachedStandards;
 
 
         public long ProviderId { get; set; }
@@ -46,6 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
             _cachedCohortDetails = new Dictionary<string, Models.Cohort>();
+            _cachedStandards = new Dictionary<string, Models.Standard>();
         }
 
         public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
@@ -185,7 +187,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 {
                     var employerName = accountLegalEntity.Account.Name;
                     var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
-                    var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
+                    var isSigned = await Task.FromResult(true);
+                        //await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
                     var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
                     _employerSummaries.Add(employerSummary);
                     return employerSummary;
@@ -215,12 +218,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         {
             if (!string.IsNullOrWhiteSpace(stdCode))
             {
-                int.TryParse(stdCode, out int result);
+                if (_cachedStandards.ContainsKey(stdCode))
+                {
+                    return _cachedStandards.GetValueOrDefault(stdCode);
+                }
 
-                var standard = _dbContext.Value.Standards
-                    .Where(x => x.LarsCode == result).FirstOrDefault();
+                if (int.TryParse(stdCode, out int result))
+                {
 
-                return standard;
+                    var standard = _dbContext.Value.Standards
+                        .Where(x => x.LarsCode == result).FirstOrDefault();
+                    _cachedStandards.Add(stdCode, standard);
+
+                    return standard;
+                }
             }
 
             return null;

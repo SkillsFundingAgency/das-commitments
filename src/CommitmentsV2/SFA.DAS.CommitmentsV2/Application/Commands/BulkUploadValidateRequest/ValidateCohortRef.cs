@@ -13,9 +13,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
+        public Dictionary<long, List<OverlapCheckResult>> _cachedUlnOverlapCheckResult;
+        public Dictionary<long, List<EmailOverlapCheckResult>> _cachedEmailOverlapCheckResult;
         public const string CohortRefPermissionIssue = "CohortRefPermission";
         private async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
+            _cachedUlnOverlapCheckResult = new Dictionary<long, List<OverlapCheckResult>>();
+            _cachedEmailOverlapCheckResult = new Dictionary<long, List<EmailOverlapCheckResult>>();
             var domainErrors = new List<Error>();
             var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
 
@@ -108,33 +112,46 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private async Task<bool> HasPermissionToCreateCohort(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)
         {
             var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
-            if (employerDetails.LegalEntityId.HasValue && providerId != 0)
-            {
-                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
-                var request = new HasPermissionRequest()
-                {
-                    AccountLegalEntityId = employerDetails.LegalEntityId.Value,
-                    Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
-                    Ukprn = providerId
-                };
+            //if (employerDetails.LegalEntityId.HasValue && providerId != 0)
+            //{
+            //    _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId}");
+            //    var request = new HasPermissionRequest()
+            //    {
+            //        AccountLegalEntityId = employerDetails.LegalEntityId.Value,
+            //        Operation = ProviderRelationships.Types.Models.Operation.CreateCohort,
+            //        Ukprn = providerId
+            //    };
 
-                var result = await _providerRelationshipsApiClient.HasPermission(request);
-                _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
+            //    var result = await _providerRelationshipsApiClient.HasPermission(request);
+            //    _logger.LogInformation($"Checking permission for Legal entity :{employerDetails.LegalEntityId.Value} -- ProviderId : {providerId} -- result {result}");
 
-                employerDetails.HasPermissionToCreateCohort = result;
-                return result;
-            }
-            return true;
+            //    employerDetails.HasPermissionToCreateCohort = result;
+            //    return result;
+            //}
+            //return true;
+            return await Task.FromResult(true);
         }
 
         private async Task<List<OverlapCheckResult>> OverlapUlnCheckForCohort(Models.Cohort cohort)
         {
-            return await _overlapService.CheckForOverlaps(cohort.Id, CancellationToken.None);
+            if (_cachedUlnOverlapCheckResult.ContainsKey(cohort.Id))
+            {
+                return _cachedUlnOverlapCheckResult.GetValueOrDefault(cohort.Id);
+            }
+            var result = await _overlapService.CheckForOverlaps(cohort.Id, CancellationToken.None);
+            _cachedUlnOverlapCheckResult.Add(cohort.Id, result);
+            return result;
         }
 
         private async Task<List<EmailOverlapCheckResult>> OverlapEmailCheckForCohort(Models.Cohort cohort)
         {
-            return await _overlapService.CheckForEmailOverlaps(cohort.Id, CancellationToken.None);
+            if (_cachedEmailOverlapCheckResult.ContainsKey(cohort.Id))
+            {
+                return _cachedEmailOverlapCheckResult.GetValueOrDefault(cohort.Id);
+            }
+            var result = await _overlapService.CheckForEmailOverlaps(cohort.Id, CancellationToken.None);
+            _cachedEmailOverlapCheckResult.Add(cohort.Id, result);
+            return result;
         }
     }
 }
