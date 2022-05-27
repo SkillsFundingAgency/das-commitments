@@ -46,6 +46,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             fixture.VerifyException<DomainException>();
         }
+
+        [Test]
+        public async Task Handle_WhenPriorLearningExistsAndRecognisedPriorLearningIsFalse_PriorLearningDetailsAreNulled()
+        {
+            fixture = await new RecognisePriorLearningHandlerTestsFixture().WithPriorLearningDetailsSet();
+            fixture.Command.RecognisePriorLearning = false;
+
+            await fixture.Handle();
+
+            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedBy);
+            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.PriceReducedBy);
+        }
     }
 
     public class RecognisePriorLearningHandlerTestsFixture
@@ -61,6 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public IRequestHandler<RecognisePriorLearningCommand> Handler { get; set; }
         public UserInfo UserInfo { get; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
+        public ApprenticeshipPriorLearning PriorLearning { get; set; }
 
         public DraftApprenticeship DraftApprenticeshipFromDb => 
             Db.DraftApprenticeships.First(x => x.Id == ApprenticeshipId);
@@ -99,7 +112,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s => s.ApprenticeshipUpdate)
              .Without(s => s.FlexibleEmployment)
              .Without(s => s.PreviousApprenticeship)
+             .Without(s=>s.PriorLearning)
              .Create();
+
+            PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 9, PriceReducedBy = 190};
 
             CancellationToken = new CancellationToken();
 
@@ -134,6 +150,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task<RecognisePriorLearningHandlerTestsFixture> SeedData()
         {
             Db.DraftApprenticeships.Add(ApprenticeshipDetails);
+            await Db.SaveChangesAsync();
+            return this;
+        }
+
+        public async Task<RecognisePriorLearningHandlerTestsFixture> WithPriorLearningDetailsSet()
+        {
+            var apprenticeship = Db.DraftApprenticeships.First();
+            apprenticeship.RecognisePriorLearning = true;
+            apprenticeship.PriorLearning = PriorLearning;
             await Db.SaveChangesAsync();
             return this;
         }
