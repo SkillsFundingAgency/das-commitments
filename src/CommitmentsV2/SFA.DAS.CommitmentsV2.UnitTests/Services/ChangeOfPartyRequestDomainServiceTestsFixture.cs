@@ -109,6 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Apprenticeship.Setup(x => x.Id).Returns(ApprenticeshipId);
             Apprenticeship.Setup(x => x.CommitmentId).Returns(1000);
             Apprenticeship.Setup(x => x.Cohort).Returns(Cohort);
+            Apprenticeship.Setup(x => x.DeliveryModel).Returns(DeliveryModel.Regular);
             Apprenticeship.Setup(x => x.CreateChangeOfPartyRequest(It.IsAny<ChangeOfPartyRequestType>(),
                     It.IsAny<Party>(), It.IsAny<long>(), It.IsAny<int?>(), It.IsAny<DateTime?>(),
                     It.IsAny<DateTime?>(), It.IsAny<int?>(), It.IsAny<DateTime?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
@@ -156,6 +157,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             return this;
         }
+
+        public ChangeOfPartyRequestDomainServiceTestsFixture WithDeliveryModelAsFlexiJobAndChangeOfProvider()
+        {
+            ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider;
+            Apprenticeship.Setup(x => x.DeliveryModel).Returns(DeliveryModel.PortableFlexiJob);
+
+            return this;
+        }
+
 
         public async Task CreateChangeOfPartyRequest()
         {

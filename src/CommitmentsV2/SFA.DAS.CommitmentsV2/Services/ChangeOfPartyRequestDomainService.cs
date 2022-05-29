@@ -53,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeProvider)
             {
                 CheckEmployerHasntSelectedTheirCurrentProvider(apprenticeship.Cohort.ProviderId, newPartyId, apprenticeship.Id);
+                CheckApprenticeIsNotAFlexiJob(apprenticeship.DeliveryModel, apprenticeshipId);
             }
             
             if (party == Party.Provider && changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeEmployer)
@@ -111,6 +112,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (newProviderId == currentProviderId)
             {
                 throw new DomainException("Ukprn", $"Provider {newProviderId} is already the training provider Apprenticeship {apprenticeshipId}");
+            }
+        }
+
+        private void CheckApprenticeIsNotAFlexiJob(DeliveryModel? dm, long apprenticeshipId)
+        {
+            if (dm == DeliveryModel.PortableFlexiJob)
+            {
+                throw new DomainException("DeliveryModel", $"Apprenticeship {apprenticeshipId} is a Portable Flexi-Job and cannot change training provider");
             }
         }
     }
