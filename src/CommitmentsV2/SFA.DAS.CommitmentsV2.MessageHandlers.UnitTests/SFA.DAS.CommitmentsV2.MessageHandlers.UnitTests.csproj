@@ -17,6 +17,7 @@
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
     <PackageReference Include="NServiceBus.Testing" Version="7.0.0" />
+    <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.3100" />
     <PackageReference Include="SFA.DAS.ApprenticeCommitments.Messages" Version="0.1.83-prerelease-5" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
     <PackageReference Include="SFA.DAS.Payments.ProviderPayments.Messages" Version="0.0.69" />
