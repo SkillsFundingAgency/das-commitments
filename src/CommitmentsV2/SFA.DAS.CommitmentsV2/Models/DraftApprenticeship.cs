@@ -106,6 +106,21 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FlexibleEmployment.EmploymentPrice = null;
                 FlexibleEmployment.EmploymentEndDate = null;
             }
+
+            ClearPriorLearningWhenStartDateBeforeAug2022();
+        }
+
+        private void ClearPriorLearningWhenStartDateBeforeAug2022()
+        {
+            if (StartDate < new DateTime(2022, 08, 01))
+            {
+                RecognisePriorLearning = null;
+                if (PriorLearning != null)
+                {
+                    PriorLearning.DurationReducedBy = null;
+                    PriorLearning.PriceReducedBy = null;
+                }
+            }
         }
 
         public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update)
