@@ -169,7 +169,7 @@ stages:
       displayName: 'Archive v1 API'
       inputs:
         rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-api'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.PAS.Commitments.Api.zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Api.zip'
 
     - task: VSBuild@1
       displayName: 'Publish Support Site'
