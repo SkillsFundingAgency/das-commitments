@@ -160,7 +160,7 @@ stages:
       inputs:
         solution: 'src/SFA.DAS.Commitments.Api/SFA.DAS.Commitments.Api.csproj'
         vsVersion: 15.0
-        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/publish"'
+        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/v1-api"'
         platform: 'anycpu'
         configuration: '$(buildConfiguration)'
         clean: true
@@ -168,15 +168,15 @@ stages:
     - task: ArchiveFiles@2
       displayName: 'Archive v1 API'
       inputs:
-        rootFolderOrFile: '$(build.artifactstagingdirectory)'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/SFA.DAS.PAS.Commitments.Api.zip'
+        rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-api'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.PAS.Commitments.Api.zip'
 
     - task: VSBuild@1
       displayName: 'Publish Support Site'
       inputs:
         solution: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
         vsVersion: 15.0
-        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/publish"'
+        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/support-site"'
         platform: 'anycpu'
         configuration: '$(buildConfiguration)'
         clean: true
@@ -184,15 +184,15 @@ stages:
     - task: ArchiveFiles@2
       displayName: 'Archive Support Site'
       inputs:
-        rootFolderOrFile: '$(build.artifactstagingdirectory)'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/SFA.DAS.Commitments.Support.SubSite.zip'
+        rootFolderOrFile: '$(build.artifactstagingdirectory)/support-site'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Support.SubSite.zip'
 
     - task: VSBuild@1
       displayName: 'Publish v1 WebJob'
       inputs:
         solution: 'src/SFA.DAS.Commitments.Host.WebJob/SFA.DAS.Commitments.Host.WebJob.csproj'
         vsVersion: 15.0
-        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/publish"'
+        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/v1-webjob"'
         platform: 'anycpu'
         configuration: '$(buildConfiguration)'
         clean: true
@@ -200,8 +200,8 @@ stages:
     - task: ArchiveFiles@2
       displayName: 'Archive v1 Webjob'
       inputs:
-        rootFolderOrFile: '$(build.artifactstagingdirectory)'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/SFA.DAS.Commitments.Host.WebJob.zip'
+        rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-webjob'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Host.WebJob.zip'
 
     - task: NuGetCommand@2
       displayName: 'NuGet pack'
