@@ -50,13 +50,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship
             var apprenticeships = await query.ToListAsync(CancellationToken.None);
 
             var response = new GetSupportApprenticeshipQueryResult();
-
-            foreach (var apprenticeship in apprenticeships)
-            {
-                var model = await _mapper.Map(apprenticeship);
-                response.Apprenticeships.Add(model);
-            }
-
+            var mappedApprenticeshipsTask = apprenticeships.Select(_mapper.Map).ToList();
+            var mappedApprenticeships = await Task.WhenAll(mappedApprenticeshipsTask);
+            response.Apprenticeships = mappedApprenticeships.ToList();
             return response;
         }
     }

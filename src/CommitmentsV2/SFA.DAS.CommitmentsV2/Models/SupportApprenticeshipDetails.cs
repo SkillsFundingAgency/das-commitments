@@ -42,5 +42,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string TrainingCourseVersion { get; set; }
         public bool TrainingCourseVersionConfirmed { get; set; }
         public string TrainingCourseOption { get; set; }
+        public long EmployerAccountId { get; internal set; }
     }
 }

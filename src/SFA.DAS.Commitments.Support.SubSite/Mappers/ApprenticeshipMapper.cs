@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
         {
             return new ApprenticeshipSearchItemViewModel
             {
-                HashedAccountId = _encodingService.Encode(apprenticeship.AccountLegalEntityId, EncodingType.AccountLegalEntityId),
+                HashedAccountId = _encodingService.Encode(apprenticeship.EmployerAccountId, EncodingType.AccountId),
                 ApprenticeshipHashId = _encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId),
                 ApprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
                 EmployerName = apprenticeship.EmployerName,

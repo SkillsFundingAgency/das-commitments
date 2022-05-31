@@ -51,7 +51,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
         public CommitmentDetailViewModel MapToCommitmentDetailViewModel(GetSupportCohortSummaryQueryResult commitment, GetSupportApprenticeshipQueryResult apprenticeshipQueryResult)
         {
-            var apprenticeships = apprenticeshipQueryResult.Apprenticeships.Select(o => _apprenticeshipMapper.MapToApprenticeshipSearchItemViewModel(o));
+            var apprenticeships = apprenticeshipQueryResult.Apprenticeships.Select(_apprenticeshipMapper.MapToApprenticeshipSearchItemViewModel);
 
             return new CommitmentDetailViewModel
             {
