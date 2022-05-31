@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.Commitments.Support.SubSite.Authentication;
 using SFA.DAS.Commitments.Support.SubSite.DependencyResolution;
-using SFA.DAS.Commitments.Support.SubSite.Filters;
 using SFA.DAS.Authorization.Mvc.Extensions;
 using StructureMap;
 using System;

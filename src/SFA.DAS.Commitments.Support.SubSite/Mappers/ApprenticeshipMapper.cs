@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.HashingService;
+using SFA.DAS.Encoding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +15,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
     public class ApprenticeshipMapper : IApprenticeshipMapper
     {
-        private readonly IHashingService _hashingService;
+        private readonly IEncodingService _encodingService;
 
-        public ApprenticeshipMapper(IHashingService hashingService)
+        public ApprenticeshipMapper(IEncodingService encodingService)
         {
-            _hashingService = hashingService;
+            _encodingService = encodingService;
         }
 
         public UlnSummaryViewModel MapToUlnResultView(GetSupportApprenticeshipQueryResult response)
@@ -85,8 +85,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
         {
             return new ApprenticeshipSearchItemViewModel
             {
-                HashedAccountId = _hashingService.HashValue(apprenticeship.AccountLegalEntityId),
-                ApprenticeshipHashId = _hashingService.HashValue(apprenticeship.Id),
+                HashedAccountId = _encodingService.Encode(apprenticeship.AccountLegalEntityId, EncodingType.AccountLegalEntityId),
+                ApprenticeshipHashId = _encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId),
                 ApprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
                 EmployerName = apprenticeship.EmployerName,
                 ProviderUkprn = apprenticeship.ProviderId,
@@ -103,9 +103,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
             switch (paymentStatus)
             {
-                //case PaymentStatus.PendingApproval:
-                //    return ("Approval needed", "");
-
                 case PaymentStatus.Active:
                     return isStartDateInFuture ? ("Waiting to start", "") : ("Live", "blue");
 
@@ -117,9 +114,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
                 case PaymentStatus.Completed:
                     return ("Completed", "green");
-
-                //case PaymentStatus.Deleted:
-                //    return ("Deleted", "red");
 
                 default:
                     return (string.Empty, string.Empty);

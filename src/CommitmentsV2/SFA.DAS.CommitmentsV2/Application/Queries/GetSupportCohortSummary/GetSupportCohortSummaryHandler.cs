@@ -28,24 +28,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
 
         public async Task<GetSupportCohortSummaryQueryResult> Handle(GetSupportCohortSummaryQuery query, CancellationToken cancellationToken)
         {
-            var db = _db.Value;
-            var apprenticeEmailIsRequired = false;
-
-            var parties = await db.Cohorts
-                .Select(x => new { x.Id, x.EmployerAccountId, x.ProviderId })
-                .FirstOrDefaultAsync(c => c.Id == query.CohortId, cancellationToken);
-
-            if (parties != null)
-            {
-                apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
-            }
-
-            var cohort = await db.Cohorts
-                 .Include(x => x.Apprenticeships)
+            var cohort = await _db.Value.Cohorts
                  .Include(x => x.AccountLegalEntity).Include(x => x.AccountLegalEntity.Account)
-                .Include(x => x.Provider)
-                .Include(x => x.TransferSender)
+                 .Include(x => x.Provider)
+                 .Include(x => x.TransferSender)
+                 .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
                 .SingleOrDefaultAsync(c => c.Id == query.CohortId, cancellationToken);
+
+            var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
 
             var response = new GetSupportCohortSummaryQueryResult
             {

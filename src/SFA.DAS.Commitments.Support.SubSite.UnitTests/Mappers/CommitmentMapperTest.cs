@@ -2,7 +2,6 @@
 using FluentAssertions;
 using Moq;
 using SFA.DAS.Commitments.Support.SubSite.Models;
-using SFA.DAS.HashingService;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using AutoFixture;
 using SFA.DAS.Commitments.Support.SubSite.Services;
@@ -11,13 +10,14 @@ using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
 {
     [TestFixture]
     public class CommitmentMapperTest
     {
-        private Mock<IHashingService> _hashingService;
+        private Mock<IEncodingService> _encodingService;
         private Mock<ICommitmentStatusCalculator> _statusCalculator;
         private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
         private const string _hashedId = "HBCDE5";
@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         [SetUp]
         public void SetUp()
         {
-            _hashingService = new Mock<IHashingService>();
+            _encodingService = new Mock<IEncodingService>();
             _statusCalculator = new Mock<ICommitmentStatusCalculator>();
             _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
 
@@ -46,11 +46,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                                                      It.IsAny<TransferApprovalStatus?>()))
                   .Returns(RequestStatus.Approved);
 
-            _hashingService
-             .Setup(o => o.HashValue(It.IsAny<long>()))
+            _encodingService
+             .Setup(o => o.Encode(It.IsAny<long>(), It.IsAny<EncodingType>()))
              .Returns(_hashedId);
 
-            _mapper = new CommitmentMapper(_hashingService.Object,
+            _mapper = new CommitmentMapper(_encodingService.Object,
                 _statusCalculator.Object,
                 _apprenticeshipMapper.Object);
         }
@@ -67,7 +67,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                                                      It.IsAny<long?>(),
                                                      It.IsAny<TransferApprovalStatus?>()), Times.AtLeastOnce);
 
-            _hashingService.Verify(o => o.HashValue(It.IsAny<long>()), Times.AtLeastOnce);
+            _encodingService.Verify(o => o.Encode(It.IsAny<long>(), It.IsAny<EncodingType>()), Times.AtLeastOnce);
         }
 
         [Test]

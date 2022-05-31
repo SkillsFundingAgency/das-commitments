@@ -17,7 +17,7 @@ using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
-using SFA.DAS.HashingService;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.ApprenticeshipOrchestratorTests
 {
@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
         private Mock<IMediator> _mediator;
         private Mock<IValidator<ApprenticeshipSearchQuery>> _searchValidator;
         private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
-        private Mock<IHashingService> _hashingService;
+        private Mock<IEncodingService> _encodingService;
         private Mock<ICommitmentMapper> _commitmentMapper;
         private GetSupportCohortSummaryQueryResult _mockedCommitmentResult;
         private GetSupportApprenticeshipQueryResult _mockedSupportApprenticeshipResult;
@@ -40,15 +40,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             _mediator = new Mock<IMediator>();
             _searchValidator = new Mock<IValidator<ApprenticeshipSearchQuery>>();
             _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
-            _hashingService = new Mock<IHashingService>();
+            _encodingService = new Mock<IEncodingService>();
             _commitmentMapper = new Mock<ICommitmentMapper>();
 
-            _hashingService
-                .Setup(o => o.DecodeValue(It.IsAny<string>()))
+            _encodingService
+                .Setup(o => o.Decode(It.IsAny<string>(), It.IsAny<EncodingType>()))
                 .Returns(100);
 
-            _hashingService
-             .Setup(o => o.HashValue(It.IsAny<long>()))
+            _encodingService
+             .Setup(o => o.Encode(It.IsAny<long>(), It.IsAny<EncodingType>()))
              .Returns("ABCDE500");
 
             var dataFixture = new Fixture();
@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
              _mediator.Object,
              _apprenticeshipMapper.Object,
              _searchValidator.Object,
-             _hashingService.Object,
+             _encodingService.Object,
              _commitmentMapper.Object);
 
             // Act
@@ -123,13 +123,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             _searchValidator.Setup(x => x.Validate(searchQuery))
                 .Returns(validationResult.Object);
 
-            _hashingService.Setup(x => x.DecodeValue(searchQuery.SearchTerm)).Throws<Exception>();
+            _encodingService
+                .Setup(x => x.Decode(searchQuery.SearchTerm, It.IsAny<EncodingType>()))
+                .Throws<Exception>();
 
             _orchestrator = new ApprenticeshipsOrchestrator(Mock.Of<ILogger<ApprenticeshipsOrchestrator>>(),
                  _mediator.Object,
                 _apprenticeshipMapper.Object,
                 _searchValidator.Object,
-                _hashingService.Object,
+                _encodingService.Object,
                 _commitmentMapper.Object);
 
             // Act
@@ -171,7 +173,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 _mediator.Object,
                 _apprenticeshipMapper.Object,
                 _searchValidator.Object,
-                _hashingService.Object,
+                _encodingService.Object,
                 _commitmentMapper.Object);
 
             // Act
@@ -218,7 +220,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 _mediator.Object,
                 _apprenticeshipMapper.Object,
                 _searchValidator.Object,
-                _hashingService.Object,
+                _encodingService.Object,
                 _commitmentMapper.Object);
 
             _commitmentMapper
@@ -268,7 +270,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                _mediator.Object,
                 _apprenticeshipMapper.Object,
                 _searchValidator.Object,
-                _hashingService.Object,
+                _encodingService.Object,
                 _commitmentMapper.Object);
 
             // Act

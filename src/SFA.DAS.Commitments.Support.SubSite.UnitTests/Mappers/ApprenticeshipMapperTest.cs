@@ -11,18 +11,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Support.SubSite.Models;
-using SFA.DAS.HashingService;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using AutoFixture;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
 {
     [TestFixture]
     public class ApprenticeshipMapperTest
     {
-        private Mock<IHashingService> _hashingService;
+        private Mock<IEncodingService> _encodingService;
 
         private SupportApprenticeshipDetails _mockedApprenticeship;
         private SupportApprenticeshipDetails _mockedApprenticeshipNotConfirmedVersion;
@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         [SetUp]
         public void SetUp()
         {
-            _hashingService = new Mock<IHashingService>();
+            _encodingService = new Mock<IEncodingService>();
 
             var dataFixture = new Fixture();
             _mockedApprenticeship = dataFixture.Build<SupportApprenticeshipDetails>().Create();
@@ -59,7 +59,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             _mockedApprenticeshipNotConfirmedOption.TrainingCourseVersion = "1.1";
             _mockedApprenticeshipNotConfirmedOption.TrainingCourseOption = "";
 
-
             SupportApprenticeshipQueryResponse = new GetSupportApprenticeshipQueryResult
             {
                 Apprenticeships = new List<SupportApprenticeshipDetails>
@@ -68,7 +67,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                 }
             };
 
-            _mapper = new ApprenticeshipMapper(_hashingService.Object);
+            _mapper = new ApprenticeshipMapper(_encodingService.Object);
         }
 
         [Test]

@@ -2,7 +2,6 @@
 using MediatR;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
-using SFA.DAS.HashingService;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
@@ -24,7 +24,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
         private readonly ILogger<ApprenticeshipsOrchestrator> _logger;
         private readonly IMediator _mediator;
         private readonly IValidator<ApprenticeshipSearchQuery> _searchValidator;
-        private readonly IHashingService _hashingService;
+        private readonly IEncodingService _encodingService;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
         private readonly ICommitmentMapper _commitmentMapper;
 
@@ -32,13 +32,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                                             IMediator mediator,
                                             IApprenticeshipMapper apprenticeshipMapper,
                                             IValidator<ApprenticeshipSearchQuery> searchValidator,
-                                            IHashingService hashingService,
+                                            IEncodingService encodingService,
                                             ICommitmentMapper commitmentMapper)
         {
             _logger = logger;
             _mediator = mediator;
             _searchValidator = searchValidator;
-            _hashingService = hashingService;
+            _encodingService = encodingService;
             _apprenticeshipMapper = apprenticeshipMapper;
             _commitmentMapper = commitmentMapper;
         }
@@ -47,8 +47,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
         {
             _logger.LogInformation("Retrieving Apprenticeship Details");
 
-            var apprenticeshipId = _hashingService.DecodeValue(hashId);
-            var accountId = _hashingService.DecodeValue(accountHashedId);
+            var apprenticeshipId = _encodingService.Decode(hashId, EncodingType.ApprenticeshipId);
+            var accountId = _encodingService.Decode(accountHashedId, EncodingType.AccountId);
 
             var response = await _mediator.Send(new GetSupportApprenticeshipQuery
             {
@@ -83,7 +83,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             long employerAccountId;
             try
             {
-                employerAccountId = _hashingService.DecodeValue(searchQuery.HashedAccountId);
+                employerAccountId = _encodingService.Decode(searchQuery.HashedAccountId, EncodingType.AccountId);
             }
             catch (Exception ex)
             {
@@ -127,10 +127,10 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
 
             long commitmentId = 0;
-          
+
             try
             {
-                commitmentId = _hashingService.DecodeValue(searchQuery.SearchTerm);
+                commitmentId = _encodingService.Decode(searchQuery.SearchTerm, EncodingType.CohortReference);
             }
             catch (Exception ex)
             {
@@ -142,7 +142,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
-          
             try
             {
                 var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId));
@@ -182,7 +181,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             try
             {
-                commitmentId = _hashingService.DecodeValue(hashCommitmentId);
+                commitmentId = _encodingService.Decode(hashCommitmentId, EncodingType.CohortReference);
             }
             catch (Exception ex)
             {

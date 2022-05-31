@@ -6,7 +6,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.HashingService;
+using SFA.DAS.Encoding;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,15 +14,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
     public class CommitmentMapper : ICommitmentMapper
     {
-        private readonly IHashingService _hashingService;
+        private readonly IEncodingService _encodingService;
         private readonly ICommitmentStatusCalculator _statusCalculator;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
 
-        public CommitmentMapper(IHashingService hashingService,
+        public CommitmentMapper(IEncodingService encodingService,
                                 ICommitmentStatusCalculator statusCalculator,
                                 IApprenticeshipMapper apprenticeshipMapper)
         {
-            _hashingService = hashingService;
+            _encodingService = encodingService;
             _statusCalculator = statusCalculator;
             _apprenticeshipMapper = apprenticeshipMapper;
         }
@@ -40,8 +40,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
             return new CommitmentSummaryViewModel
             {
-                CohortReference = _hashingService.HashValue(commitment.CohortId),
-                HashedAccountId = _hashingService.HashValue(commitment.AccountId),
+                CohortReference = _encodingService.Encode(commitment.CohortId, EncodingType.CohortReference),
+                HashedAccountId = _encodingService.Encode(commitment.AccountId, EncodingType.AccountId),
                 EmployerName = commitment.LegalEntityName,
                 ProviderName = commitment.ProviderName,
                 ProviderUkprn = commitment.ProviderId,
@@ -51,10 +51,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
         public CommitmentDetailViewModel MapToCommitmentDetailViewModel(GetSupportCohortSummaryQueryResult commitment, GetSupportApprenticeshipQueryResult apprenticeshipQueryResult)
         {
+            var apprenticeships = apprenticeshipQueryResult.Apprenticeships.Select(o => _apprenticeshipMapper.MapToApprenticeshipSearchItemViewModel(o));
+
             return new CommitmentDetailViewModel
             {
                 CommitmentSummary = MapToCommitmentSummaryViewModel(commitment, apprenticeshipQueryResult),
-                CommitmentApprenticeships = apprenticeshipQueryResult.Apprenticeships.Select(o => _apprenticeshipMapper.MapToApprenticeshipSearchItemViewModel(o))
+                CommitmentApprenticeships = apprenticeships
             };
         }
 

@@ -11,7 +11,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     using SFA.DAS.Commitments.Support.SubSite.Validation;
     using SFA.DAS.Configuration;
     using SFA.DAS.Configuration.AzureTableStorage;
-    using SFA.DAS.HashingService;
     using SFA.DAS.Learners.Validators;
     using StructureMap;
     using StructureMap.Graph;
@@ -36,8 +35,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 
                 scan.AssembliesFromApplicationBaseDirectory(a =>
                 a.GetName().Name.StartsWith("SFA.DAS.Commitments.Support.SubSite") ||
-                a.GetName().Name.StartsWith("SFA.DAS.CommitmentsV2")
-                );
+                a.GetName().Name.StartsWith("SFA.DAS.CommitmentsV2"));
                 scan.RegisterConcreteTypesAgainstTheFirstInterface();
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<>));
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
@@ -47,40 +45,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 
             For<IApprenticeshipMapper>().Use<ApprenticeshipMapper>();
 
-            For<IHashingService>().Use("Build HashingService", x =>
-            {
-                var config = x.GetInstance<CommitmentSupportSiteConfiguartion>();
-                return new HashingService(config.AllowedHashstringCharacters, config.Hashstring);
-            });
-
             For<IApprenticeshipsOrchestrator>().Use<ApprenticeshipsOrchestrator>();
             For<IValidator<ApprenticeshipSearchQuery>>().Use<ApprenticeshipsSearchQueryValidator>().Singleton();
             For<ISiteValidatorSettings>().Use(ctx => ctx.GetInstance<SiteValidatorSettings>());
-
-
-
-
-
-            //For<IAuthorizationService>().Use<AuthorizationService>();
-
-            //ConfigureLog();
-
-            //For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
-            //For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
-
-
-
-            //For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
-            //For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
-
-
-
-            //For<ICurrentDateTime>().Use<CurrentDateTime>();
-            //For<IApprenticeshipTransactions>().Use<ApprenticeshipTransactions>();
-
-            // Mediator Handler Mapping
-            //For<IAsyncRequestHandler<GetApprenticeshipsByUlnRequest, GetApprenticeshipsByUlnResponse>>().Use<GetApprenticeshipsByUlnQueryHandler>();
-            //For<IAsyncRequestHandler<GetCommitmentRequest, GetCommitmentResponse>>().Use<GetCommitmentQueryHandler>();
         }
     }
 }

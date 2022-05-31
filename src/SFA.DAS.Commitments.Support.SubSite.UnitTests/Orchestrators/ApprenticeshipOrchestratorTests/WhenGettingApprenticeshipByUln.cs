@@ -8,7 +8,6 @@ using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
-using SFA.DAS.HashingService;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using System.Threading;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
 {
@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         private Mock<IMediator> _mediator;
         private Mock<IValidator<ApprenticeshipSearchQuery>> _searchValidator;
         private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
-        private Mock<IHashingService> _hashingService;
+        private Mock<IEncodingService> _encodingService;
         private Mock<ICommitmentMapper> _commitmentMapper;
         private ApprenticeshipsOrchestrator _sut;
 
@@ -36,7 +36,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             _mediator = new Mock<IMediator>();
             _searchValidator = new Mock<IValidator<ApprenticeshipSearchQuery>>();
             _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
-            _hashingService = new Mock<IHashingService>();
+            _encodingService = new Mock<IEncodingService>();
             _commitmentMapper = new Mock<ICommitmentMapper>();
 
             _apprenticeshipMapper
@@ -44,19 +44,19 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
               .Returns(new UlnSummaryViewModel())
               .Verifiable();
 
-            _hashingService
-                .Setup(o => o.DecodeValue(It.IsAny<string>()))
+            _encodingService
+                .Setup(o => o.Decode(It.IsAny<string>(), It.IsAny<EncodingType>()))
                 .Returns(100);
 
-            _hashingService
-             .Setup(o => o.HashValue(It.IsAny<long>()))
+            _encodingService
+             .Setup(o => o.Encode(It.IsAny<long>(), It.IsAny<EncodingType>()))
              .Returns("ABCDE500");
 
             _sut = new ApprenticeshipsOrchestrator(Mock.Of<ILogger<ApprenticeshipsOrchestrator>>(),
                 _mediator.Object,
                 _apprenticeshipMapper.Object,
                 _searchValidator.Object,
-                _hashingService.Object,
+                _encodingService.Object,
                 _commitmentMapper.Object);
         }
 
