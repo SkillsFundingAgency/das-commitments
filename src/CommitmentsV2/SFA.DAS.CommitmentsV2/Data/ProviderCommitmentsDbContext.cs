@@ -31,8 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<ApprenticeshipConfirmationStatus> ApprenticeshipConfirmationStatus { get; set; }
         public virtual DbSet<OverlappingEmail> OverlappingEmails { get; set; }
         public virtual DbSet<Learner> Learners { get; set; }
-        public virtual DbSet<FlexibleEmployment> FlexibleEmployment { get; set; }
-        public virtual DbSet<ApprenticeshipPriorLearning> PriorLearning { get; set; }
         public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
         {
         }
