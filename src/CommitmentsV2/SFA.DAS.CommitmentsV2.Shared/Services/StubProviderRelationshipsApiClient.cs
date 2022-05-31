@@ -70,5 +70,6 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
         {
             public List<Operation> Permissions { get; set; }
         }
+
     }
 }
