@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public StubAccountApiClient()
         {
-            _httpClient = new HttpClient { BaseAddress = new Uri("https://sfa-stub-employeraccountapi.herokuapp.com/") };
+            _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:3999/accounts-api/api/") };
         }
 
         public Task<AccountDetailViewModel> GetAccount(string hashedAccountId)
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public async Task<AccountDetailViewModel> GetAccount(long accountId)
         {
-            var url = $"api/accounts/internal/{accountId}";
+            var url = $"accounts/internal/{accountId}";
             var response = await _httpClient.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<AccountDetailViewModel>(json);
@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public async Task<ICollection<TeamMemberViewModel>> GetAccountUsers(long accountId)
         {
-            var url = $"api/accounts/internal/{accountId}/users";
+            var url = $"accounts/internal/{accountId}/users";
             var response = await _httpClient.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ICollection<TeamMemberViewModel>>(json);
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public async Task<EmployerAgreementView> GetEmployerAgreement(string accountId, string legalEntityId, string agreementId)
         {
-            var url = $"api/accounts/{accountId}/legalEntities/{legalEntityId}/agreements/{agreementId}/agreement";
+            var url = $"accounts/{accountId}/legalEntities/{legalEntityId}/agreements/{agreementId}/agreement";
             var response = await _httpClient.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<EmployerAgreementView>(json);
@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public async Task<ICollection<ResourceViewModel>> GetLegalEntitiesConnectedToAccount(string accountId)
         {
-           var url = $"api/accounts/{accountId}/legalentities";
+           var url = $"accounts/{accountId}/legalentities";
             var response = await _httpClient.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<ResourceViewModel>>(json);
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public async Task<LegalEntityViewModel> GetLegalEntity(string accountId, long id)
         {
-            var url = $"api/accounts/{accountId}/legalentities/{id}";
+            var url = $"accounts/{accountId}/legalentities/{id}";
             var response = await _httpClient.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<LegalEntityViewModel>(json);
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public async Task<ICollection<LegalEntityViewModel>> GetLegalEntityDetailsConnectedToAccount(string accountId)
         {
-           var url = $"api/accounts/{accountId}/legalentities";
+           var url = $"accounts/{accountId}/legalentities";
             var response = await _httpClient.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<LegalEntityViewModel>>(json);
@@ -121,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public async Task<ICollection<TransferConnectionViewModel>> GetTransferConnections(string accountHashedId)
         {
-            var url = $"api/accounts/{accountHashedId}/transfers/connections";
+            var url = $"accounts/{accountHashedId}/transfers/connections";
             var response = await _httpClient.GetAsync(url);
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ICollection<TransferConnectionViewModel>>(json);
@@ -136,5 +136,6 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
         {
             throw new NotImplementedException();
         }
+
     }
 }
