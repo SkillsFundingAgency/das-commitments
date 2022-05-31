@@ -45,6 +45,7 @@
     [EmailAddressConfirmed] BIT NULL,
     [LastUpdated] AS ISNULL([UpdatedOn],[CreatedOn]),
     [DeliveryModel] TINYINT NULL, 
+    [RecognisePriorLearning] BIT NULL, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )

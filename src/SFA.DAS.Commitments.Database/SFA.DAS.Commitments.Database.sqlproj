@@ -167,6 +167,7 @@
     <None Include="AdhocScripts\Manual\CS-1026-UpdateEmailsToMatchEmailsInCMAD.sql" />
     <Build Include="Views\ApprenticeshipLatestCheck.sql" />
     <Build Include="Tables\ApprenticeshipFlexibleEmployment.sql" />
+    <Build Include="Tables\ApprenticeshipPriorLearning.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

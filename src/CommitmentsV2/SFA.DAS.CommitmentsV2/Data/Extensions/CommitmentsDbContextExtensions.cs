@@ -31,6 +31,18 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
             return cohort;
         }
 
+        public static async Task<DraftApprenticeship> GetDraftApprenticeshipAggregate(this ProviderCommitmentsDbContext db, long cohortId, long apprenticeshipId, CancellationToken cancellationToken)
+        {
+            var draftApprenticeship = await db.DraftApprenticeships
+                .Include(a => a.Cohort)
+                .Include(a => a.FlexibleEmployment)
+                .Include(a => a.PriorLearning)
+                .SingleOrDefaultAsync(a => a.Id == apprenticeshipId && a.CommitmentId == cohortId, cancellationToken);
+            if (draftApprenticeship == null) throw new BadRequestException($"Draft Apprenticeship {apprenticeshipId}  in Cohort {cohortId} was not found");
+            if (draftApprenticeship.Cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
+            return draftApprenticeship;
+        }
+
         public static async Task<Apprenticeship> GetApprenticeshipAggregate(this ProviderCommitmentsDbContext db, long apprenticeshipId, CancellationToken cancellationToken)
         {
             var apprenticeship = await db.Apprenticeships
