@@ -3,6 +3,7 @@
 	[ApprenticeshipId] BIGINT NOT NULL,
 	[DurationReducedBy] INT NULL,
 	[PriceReducedBy] INT NULL,
+	[Accelerated] AS (CASE WHEN [DurationReducedBy] > 12 THEN CONVERT([BIT], 1) WHEN DurationReducedBy IS NULL THEN NULL ELSE CONVERT([BIT], 0) END), 
     CONSTRAINT [PK_ApprenticeshipRecognisePriorLearning] PRIMARY KEY ([ApprenticeshipId]),
 	CONSTRAINT [FK_ApprenticeshipRecognisePriorLearning_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]) ON DELETE CASCADE
 )
