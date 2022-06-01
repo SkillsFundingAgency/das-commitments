@@ -20,5 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Types
         public string AccountLegalEntityPublicHashedId { get; set; }
         public bool IsLinkedToChangeOfPartyRequest { get; set; }
         public CommitmentStatus CommitmentStatus { get; set; }
+        public int? PledgeApplicationId { get; set; }
     }
 }
