@@ -48,7 +48,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             _logger.LogInformation("Retrieving Apprenticeship Details");
 
             var apprenticeshipId = _encodingService.Decode(hashId, EncodingType.ApprenticeshipId);
-            var accountId = _encodingService.Decode(accountHashedId, EncodingType.AccountId);
+            _ = _encodingService.Decode(accountHashedId, EncodingType.AccountId);
 
             var response = await _mediator.Send(new GetSupportApprenticeshipQuery
             {
@@ -80,10 +80,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
-            long employerAccountId;
             try
             {
-                employerAccountId = _encodingService.Decode(searchQuery.HashedAccountId, EncodingType.AccountId);
+                _ = _encodingService.Decode(searchQuery.HashedAccountId, EncodingType.AccountId);
             }
             catch (Exception ex)
             {

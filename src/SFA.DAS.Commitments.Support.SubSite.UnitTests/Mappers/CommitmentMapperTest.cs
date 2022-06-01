@@ -67,17 +67,34 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                                                      It.IsAny<long?>(),
                                                      It.IsAny<TransferApprovalStatus?>()), Times.AtLeastOnce);
 
-            _encodingService.Verify(o => o.Encode(It.IsAny<long>(), It.IsAny<EncodingType>()), Times.AtLeastOnce);
+            _encodingService.Verify(o => o.Encode(It.IsAny<long>(), EncodingType.AccountId), Times.AtLeastOnce);
+            _encodingService.Verify(o => o.Encode(It.IsAny<long>(), EncodingType.CohortReference), Times.AtLeastOnce);
         }
 
         [Test]
         public void ShouldMapToVaLidCommitmentSummaryViewModel()
         {
+            _encodingService
+               .Setup(x => x.Encode(_mockedCommitmentResult.CohortId, EncodingType.CohortReference))
+               .Returns("6PR88G");
+
+            _encodingService
+                .Setup(x => x.Encode(_mockedCommitmentResult.AccountId, EncodingType.AccountId))
+                .Returns("V4G9RR");
+
             var result = _mapper.MapToCommitmentSummaryViewModel(_mockedCommitmentResult, _mockedSupportApprenticeshipResult);
+
+            _encodingService.Verify(x => x.Encode(_mockedCommitmentResult.CohortId, EncodingType.CohortReference), Times.AtLeastOnce);
+            _encodingService.Verify(x => x.Encode(_mockedCommitmentResult.AccountId, EncodingType.AccountId), Times.AtLeastOnce);
 
             result.Should().NotBeNull();
             result.Should().BeOfType<CommitmentSummaryViewModel>();
-            result.CohortReference.Should().BeSameAs(_hashedId);
+            result.HashedAccountId.Should().Be("V4G9RR");
+            result.CohortReference.Should().Be("6PR88G");
+
+            result.EmployerName.Should().Be(_mockedCommitmentResult.LegalEntityName);
+            result.ProviderName.Should().Be(_mockedCommitmentResult.ProviderName);
+            result.ProviderUkprn.Should().Be(_mockedCommitmentResult.ProviderId);
         }
 
         [Test]

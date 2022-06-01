@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
 {
     [TestFixture]
     [Parallelizable]
-    public class WhenGettingApprenticeshipByUln
+    public class WhenGettingApprenticeship
     {
         private Mock<IMediator> _mediator;
         private Mock<IValidator<ApprenticeshipSearchQuery>> _searchValidator;
@@ -44,14 +44,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
               .Returns(new UlnSummaryViewModel())
               .Verifiable();
 
-            _encodingService
-                .Setup(o => o.Decode(It.IsAny<string>(), It.IsAny<EncodingType>()))
-                .Returns(100);
-
-            _encodingService
-             .Setup(o => o.Encode(It.IsAny<long>(), It.IsAny<EncodingType>()))
-             .Returns("ABCDE500");
-
             _sut = new ApprenticeshipsOrchestrator(Mock.Of<ILogger<ApprenticeshipsOrchestrator>>(),
                 _mediator.Object,
                 _apprenticeshipMapper.Object,
@@ -61,13 +53,51 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         }
 
         [Test]
+        public async Task GivenValidApprenticeshipIdShouldCallRequiredServices()
+        {
+            // Arrasnge
+            string hashedApprenticeshipId = "ABC001";
+            string hashedAccountId = "ACCOUNT001";
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
+            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+            {
+                Apprenticeships = GetApprenticeships()
+            }).Verifiable();
+
+            _apprenticeshipMapper
+                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>()))
+                .Returns(new ApprenticeshipViewModel())
+                .Verifiable();
+
+            _encodingService
+              .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
+              .Returns(100);
+
+            _encodingService
+              .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
+              .Returns(100);
+
+            // Act
+            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+
+            // Arrange
+            _encodingService.Verify(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
+            _encodingService.Verify(o => o.Decode(hashedAccountId, EncodingType.AccountId), Times.Once);
+
+            _mediator.Verify(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
+            _apprenticeshipMapper.Verify(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>()), Times.Once);
+        }
+
+        [Test]
         public async Task GivenValidUlnShouldCallRequiredServices()
         {
             // Arrasnge
             ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "1000201219",
-                SearchType = ApprenticeshipSearchType.SearchByUln
+                SearchType = ApprenticeshipSearchType.SearchByUln,
+                HashedAccountId = "ABC1234"
             };
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
@@ -88,13 +118,60 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 .Returns(new UlnSummaryViewModel())
                 .Verifiable();
 
+            _encodingService
+              .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
+              .Returns(100);
+
             // Act
             var result = await _sut.GetApprenticeshipsByUln(searchQuery);
 
             // Arrange
+            _encodingService.Verify(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId), Times.Once);
+
             _searchValidator.VerifyAll();
             _mediator.VerifyAll();
             _apprenticeshipMapper.VerifyAll();
+        }
+
+        [Test]
+        public async Task GivenInvalidHashedAccountIdReturnErrorResponseMessage()
+        {
+            // Arrasnge
+            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
+            {
+                SearchTerm = "1000201219",
+                SearchType = ApprenticeshipSearchType.SearchByUln
+            };
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
+            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+            {
+                Apprenticeships = GetApprenticeships()
+            });
+
+            var validationResult = new Mock<ValidationResult>();
+            validationResult.SetupGet(x => x.IsValid).Returns(true);
+
+            _searchValidator.Setup(x => x.Validate(searchQuery))
+                .Returns(validationResult.Object)
+                .Verifiable();
+
+            _encodingService
+              .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
+              .Throws(new Exception());
+
+            // Act
+            var result = await _sut.GetApprenticeshipsByUln(searchQuery);
+
+            // Assert
+            _searchValidator.VerifyAll();
+            _mediator.Verify(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None), Times.Never);
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<UlnSummaryViewModel>();
+
+            result.ReponseMessages.Should().NotBeNull();
+            result.ReponseMessages.Should().HaveCount(1);
         }
 
         [Test]
@@ -114,9 +191,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             });
 
             var validationFailures = new List<ValidationFailure>
-                    {
-                       new ValidationFailure("SearchTerm","Invalid Uln")
-                    };
+            {
+                new ValidationFailure("SearchTerm","Invalid Uln")
+            };
 
             var validationResult = new ValidationResult(validationFailures);
 
