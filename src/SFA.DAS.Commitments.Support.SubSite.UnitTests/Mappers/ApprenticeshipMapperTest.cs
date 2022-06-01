@@ -130,6 +130,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         public void ShouldMapPaymentStatusCorrectly(CommitmentsV2.Types.PaymentStatus paymentStatus, string expectedPaymentStatusText, string expectedPaymentStatusTagColour)
         {
             SupportApprenticeshipQueryResponse.Apprenticeships.First().PaymentStatus = paymentStatus;
+            SupportApprenticeshipQueryResponse.Apprenticeships.First().StartDate = System.DateTime.Now.AddMonths(-1);
             var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse);
 
             result.PaymentStatus.Should().Be(expectedPaymentStatusText);
