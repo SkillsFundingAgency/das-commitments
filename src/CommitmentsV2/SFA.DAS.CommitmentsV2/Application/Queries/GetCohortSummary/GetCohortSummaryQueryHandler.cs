@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
@@ -33,8 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
             }
 
             var result = await db.Cohorts
-                .Include(x => x.Apprenticeships)
-                .ThenInclude(x => x.FlexibleEmployment)
+                .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
+                .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
                 .Select(c => new GetCohortSummaryQueryResult
             {
                 CohortId = c.Id,
@@ -72,9 +74,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         private static bool CalculateIsCompleteForProvider(Models.Cohort c, bool apprenticeEmailIsRequired)
         {
             return CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired)
-                && !c.Apprenticeships.Any(a => a.Uln == null);
+                && !c.Apprenticeships.Any(a => a.Uln == null)
+                && PriorLearningHasBeenConsidered(c);
         }
 
+        private static bool PriorLearningHasBeenConsidered(Cohort cohort)
+            => !cohort.Apprenticeships.Any(a => a.RecognisingPriorLearningStillNeedsToBeConsidered);
+       
         private static bool CalculateIsCompleteForEmployer(Models.Cohort c, bool apprenticeEmailIsRequired)
         {
             return c.Apprenticeships.Any() && !c.Apprenticeships.Any(HasMissingData);

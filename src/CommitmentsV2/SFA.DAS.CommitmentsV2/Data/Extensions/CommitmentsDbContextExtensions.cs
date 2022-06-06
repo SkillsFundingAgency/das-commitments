@@ -23,7 +23,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
         public static async Task<Cohort> GetCohortAggregate(this ProviderCommitmentsDbContext db, long cohortId, CancellationToken cancellationToken)
         {
             var cohort = await db.Cohorts
-                .Include(c => c.Apprenticeships).ThenInclude(a=>a.FlexibleEmployment)
+                .Include(c => c.Apprenticeships).ThenInclude(a => a.FlexibleEmployment)
+                .Include(c => c.Apprenticeships).ThenInclude(a => a.PriorLearning)
                 .Include(c => c.TransferRequests)
                 .SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
             if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");

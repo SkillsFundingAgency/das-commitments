@@ -175,6 +175,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 {
                     var completeApprenticeship = new Fixture()
                         .Build<DraftApprenticeshipDetails>()
+                        .With(x=>x.StartDate, new DateTime(2022,07,01))
                         .With(x => x.Email, "person@example.com");
 
                     yield return (AllowedApproval.BothCanApprove, completeApprenticeship);
@@ -186,7 +187,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.LastName));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.TrainingProgramme));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.Cost));
-                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.StartDate));
+                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.With(x => x.StartDate, (DateTime?)null));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.EndDate));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.DateOfBirth));
 
@@ -223,6 +224,58 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 apprenticeship);
         }
 
+        [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", null, null, null, AllowedApproval.CannotApprove)]
+        [TestCase("2022-08-01", false, null, null, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", true, 10, 100, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", true, null, null, AllowedApproval.CannotApprove)]
+        public async Task Handle_WithApprenticeRPLConsidered_ShouldReturnExpectedProviderCanApprove(DateTime startDate, bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
+        {
+            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
+            {
+                f.SetupRPLData(recognisePriorLearning, durationReducedBy, priceReducedBy);
+            });
+
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.StartDate, startDate)
+                .With(x => x.EndDate, startDate.AddYears(1))
+                .Create();
+
+            await CheckQueryResponse(response =>
+                {
+                    response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
+                },
+                apprenticeDetails, arrange);
+        }
+
+        [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", null, null, null, AllowedApproval.EmployerCanApprove)]
+        [TestCase("2022-08-01", false, null, null, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", true, 10, 100, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", true, null, null, AllowedApproval.EmployerCanApprove)]
+        public async Task Handle_WithApprenticeRPLConsidered_ShouldReturnExpectedEmployerCanApprove(DateTime startDate, bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
+        {
+            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
+            {
+                f.SetupRPLData(recognisePriorLearning, durationReducedBy, priceReducedBy);
+            });
+
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.StartDate, startDate)
+                .With(x => x.EndDate, startDate.AddYears(1))
+                .Create();
+
+            await CheckQueryResponse(response =>
+                {
+                    response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
+                },
+                apprenticeDetails, arrange);
+        }
+
+
+
         [TestCase("email@example.com", false, AllowedApproval.BothCanApprove)]
         [TestCase("email@example.com", true, AllowedApproval.BothCanApprove)]
         [TestCase(null, false, AllowedApproval.BothCanApprove)]
@@ -239,6 +292,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             var apprenticeDetails = new Fixture()
                 .Build<DraftApprenticeshipDetails>()
                 .With(x => x.Email, email)
+                .With(x => x.StartDate, new DateTime(2022,7,1))
+                .With(x => x.EndDate, new DateTime(2023,7,1))
                 .Create();
 
             await CheckQueryResponse(response =>
@@ -263,6 +318,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
             var apprenticeDetails = new Fixture()
                 .Build<DraftApprenticeshipDetails>()
+                .With(x => x.StartDate, new DateTime(2022, 07, 01))
                 .With(x => x.Email, email)
                 .Create();
 
@@ -450,5 +506,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             builder.AddConsole();
             builder.SetMinimumLevel(LogLevel.Debug);
         });
+
+        public GetCohortSummaryHandlerTestFixtures SetupRPLData(bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy)
+        {
+            var apprenticeship = SeedCohorts.First().Apprenticeships.First();
+            apprenticeship.RecognisePriorLearning = recognisePriorLearning;
+            apprenticeship.PriorLearning = new ApprenticeshipPriorLearning();
+            apprenticeship.PriorLearning.DurationReducedBy = durationReducedBy;
+            apprenticeship.PriorLearning.PriceReducedBy = priceReducedBy;
+
+            return this;
+        }
     }
 }

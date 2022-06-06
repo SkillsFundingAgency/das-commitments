@@ -21,7 +21,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
 
         public Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)
         {
-            var cohort = _dbContext.Value.Cohorts.Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
+            var cohort = _dbContext.Value.Cohorts
+                .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
+                .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
                 .Where(x => x.Id == query.CohortId)
                 .Select(x => new { DraftApprenticeships = x.Apprenticeships})
                 .SingleOrDefault();
@@ -45,6 +47,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     OriginalStartDate = a.OriginalStartDate,
                     EmploymentEndDate = a.FlexibleEmployment?.EmploymentEndDate,
                     EmploymentPrice = a.FlexibleEmployment?.EmploymentPrice,
+                    RecognisePriorLearning = a.RecognisePriorLearning,
+                    DurationReducedBy = a.PriorLearning?.DurationReducedBy,
+                    PriceReducedBy = a.PriorLearning?.PriceReducedBy,
+                    RecognisingPriorLearningStillNeedsToBeConsidered = a.RecognisingPriorLearningStillNeedsToBeConsidered
                 }).ToList()
             });
         }
