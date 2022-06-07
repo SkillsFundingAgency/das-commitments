@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
+using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -21,66 +21,72 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class RecognisePriorLearningHandlerTests
+    public class PriorLearningDetailsHandlerTests
     {
-        RecognisePriorLearningHandlerTestsFixture fixture;
+        PriorLearningDetailsHandlerTestsFixture fixture;
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task Handle_WhenCommandIsHandled_RecognisePriorLearningIsUpdated(bool expected)
+        [Test]
+        public async Task Handle_WhenCommandIsHandled_PriorLearningDetailsAreUpdated()
         {
-            fixture = new RecognisePriorLearningHandlerTestsFixture();
-            fixture.Command.RecognisePriorLearning = expected;
+            fixture = new PriorLearningDetailsHandlerTestsFixture();
 
             await fixture.Handle();
 
-            Assert.AreEqual(expected, fixture.DraftApprenticeshipFromDb.RecognisePriorLearning);
+            Assert.AreEqual(fixture.Command.DurationReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy);
+            Assert.AreEqual(fixture.Command.PriceReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.PriceReducedBy);
         }
 
         [Test]
-        public async Task Handle_WhenNoRecognisePriorLearningIsSet_ExceptionIsThrown()
+        public async Task Handle_WhenNoDurationIsSet_ExceptionIsThrown()
         {
-            fixture = new RecognisePriorLearningHandlerTestsFixture();
-            fixture.Command.RecognisePriorLearning = null;
+            fixture = new PriorLearningDetailsHandlerTestsFixture();
+            fixture.Command.DurationReducedBy = null;
             await fixture.Handle();
 
             fixture.VerifyException<DomainException>();
         }
 
         [Test]
-        public async Task Handle_WhenPriorLearningExistsAndRecognisedPriorLearningIsFalse_PriorLearningDetailsAreNulled()
+        public async Task Handle_WhenNoPriceIsSet_ExceptionIsThrown()
         {
-            fixture = await new RecognisePriorLearningHandlerTestsFixture().WithPriorLearningDetailsSet();
-            fixture.Command.RecognisePriorLearning = false;
-
+            fixture = new PriorLearningDetailsHandlerTestsFixture();
+            fixture.Command.PriceReducedBy = null;
             await fixture.Handle();
 
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedBy);
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.PriceReducedBy);
+            fixture.VerifyException<DomainException>();
+        }
+
+        [TestCase(null)]
+        [TestCase(false)]
+        public async Task Handle_WhenRecognisePriorLearningIsNotTrue_ExceptionIsThrown(bool? value)
+        {
+            fixture = await new PriorLearningDetailsHandlerTestsFixture().WithRecognisePriorLearningSetTo(value);
+            await fixture.Handle();
+
+            fixture.VerifyException<DomainException>();
         }
     }
 
-    public class RecognisePriorLearningHandlerTestsFixture
+    public class PriorLearningDetailsHandlerTestsFixture
     {
         public long ApprenticeshipId = 12;
         public Fixture fixture { get; set; }
-        public RecognisePriorLearningCommand Command { get; set; }
+        public PriorLearningDetailsCommand Command { get; set; }
         public DraftApprenticeship ApprenticeshipDetails { get; set; }
         public Cohort Cohort { get; set; }
         public AccountLegalEntity AccountLegalEntity { get; set; }
         public CancellationToken CancellationToken { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
-        public IRequestHandler<RecognisePriorLearningCommand> Handler { get; set; }
+        public IRequestHandler<PriorLearningDetailsCommand> Handler { get; set; }
         public UserInfo UserInfo { get; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
-        public ApprenticeshipPriorLearning PriorLearning { get; set; }
 
         public DraftApprenticeship DraftApprenticeshipFromDb => 
             Db.DraftApprenticeships.First(x => x.Id == ApprenticeshipId);
 
         public Exception Exception { get; set; }
 
-        public RecognisePriorLearningHandlerTestsFixture()
+        public PriorLearningDetailsHandlerTestsFixture()
         {
             fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -108,14 +114,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .With(s => s.Cohort, Cohort)
              .With(s => s.EndDate, DateTime.UtcNow)
              .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+             .With(a=>a.RecognisePriorLearning, true)
              .Without(s => s.ApprenticeshipConfirmationStatus)
              .Without(s => s.ApprenticeshipUpdate)
              .Without(s => s.FlexibleEmployment)
              .Without(s => s.PreviousApprenticeship)
-             .Without(s=>s.PriorLearning)
              .Create();
-
-            PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 9, PriceReducedBy = 190};
 
             CancellationToken = new CancellationToken();
 
@@ -124,13 +128,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Options);
 
             UserInfo = fixture.Create<UserInfo>();
-            Command = fixture.Build<RecognisePriorLearningCommand>().With(o => o.UserInfo, UserInfo).Create();
+            Command = fixture.Build<PriorLearningDetailsCommand>().With(o => o.UserInfo, UserInfo).Create();
             Command.ApprenticeshipId = ApprenticeshipId;
             Command.CohortId = Cohort.Id;
 
-            Handler = new RecognisePriorLearningHandler(
+            Handler = new PriorLearningDetailsHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
-                Mock.Of<ILogger<RecognisePriorLearningHandler>>());
+                Mock.Of<ILogger<PriorLearningDetailsHandler>>());
 
             var _ = SeedData().Result;
         }
@@ -147,18 +151,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
         }
 
-        public async Task<RecognisePriorLearningHandlerTestsFixture> SeedData()
+        public async Task<PriorLearningDetailsHandlerTestsFixture> SeedData()
         {
             Db.DraftApprenticeships.Add(ApprenticeshipDetails);
             await Db.SaveChangesAsync();
             return this;
         }
 
-        public async Task<RecognisePriorLearningHandlerTestsFixture> WithPriorLearningDetailsSet()
+        public async Task<PriorLearningDetailsHandlerTestsFixture> WithRecognisePriorLearningSetTo(bool? recognisePriorLearning)
         {
             var apprenticeship = Db.DraftApprenticeships.First();
-            apprenticeship.RecognisePriorLearning = true;
-            apprenticeship.PriorLearning = PriorLearning;
+            apprenticeship.RecognisePriorLearning = recognisePriorLearning;
             await Db.SaveChangesAsync();
             return this;
         }

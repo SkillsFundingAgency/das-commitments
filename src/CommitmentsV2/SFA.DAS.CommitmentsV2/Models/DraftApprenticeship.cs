@@ -106,6 +106,21 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FlexibleEmployment.EmploymentPrice = null;
                 FlexibleEmployment.EmploymentEndDate = null;
             }
+
+            ClearPriorLearningWhenStartDateBeforeAug2022();
+        }
+
+        private void ClearPriorLearningWhenStartDateBeforeAug2022()
+        {
+            if (StartDate < new DateTime(2022, 08, 01))
+            {
+                RecognisePriorLearning = null;
+                if (PriorLearning != null)
+                {
+                    PriorLearning.DurationReducedBy = null;
+                    PriorLearning.PriceReducedBy = null;
+                }
+            }
         }
 
         public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update)
@@ -160,6 +175,32 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             RecognisePriorLearning = recognisePriorLearning;
+
+            if (RecognisePriorLearning == false && PriorLearning != null)
+            {
+                PriorLearning.DurationReducedBy = null;
+                PriorLearning.PriceReducedBy = null;
+            }
+        }
+
+        public void SetPriorLearningDetails(int? durationReducedBy, int? priceReducedBy)
+        {
+            if (!durationReducedBy.HasValue)
+            {
+                throw new DomainException(nameof(PriorLearning.DurationReducedBy), "Duration reduction must be set");
+            }
+            if (!priceReducedBy.HasValue)
+            {
+                throw new DomainException(nameof(PriorLearning.PriceReducedBy), "Price reduction must be set");
+            }
+            if (RecognisePriorLearning != true)
+            {
+                throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
+            }
+
+            PriorLearning ??= new ApprenticeshipPriorLearning();
+            PriorLearning.DurationReducedBy = durationReducedBy;
+            PriorLearning.PriceReducedBy = priceReducedBy;
         }
     }
 }

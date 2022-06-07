@@ -20,5 +20,8 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public int? EmploymentPrice { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
         public bool? RecognisePriorLearning { get; set; }
+        public int? ReducedDuration { get; set; }
+        public int? ReducedPrice { get; set; }
+
     }
 }

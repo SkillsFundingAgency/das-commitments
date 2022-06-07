@@ -55,6 +55,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                         EmploymentEndDate = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentEndDate : null,
                         EmploymentPrice = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentPrice : null,
                         RecognisePriorLearning = draft.RecognisePriorLearning,
+                        DurationReducedBy = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedBy : null,
+                        PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
                     },
                     cancellationToken);
 

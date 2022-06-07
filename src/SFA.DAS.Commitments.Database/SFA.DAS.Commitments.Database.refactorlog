@@ -140,4 +140,32 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="EmploymentPrice" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="2f4535ac-50f2-40b0-983f-55d87ce04b79" ChangeDateTime="05/25/2022 14:45:07">
+    <Property Name="ElementName" Value="[dbo].[ApprenticeshipRecognisePriorLearning].[ReducedDuration]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ApprenticeshipRecognisePriorLearning]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ReducedDurationBy" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f215e1e7-3696-4bc8-9412-4f53a935d4ed" ChangeDateTime="05/25/2022 14:45:12">
+    <Property Name="ElementName" Value="[dbo].[ApprenticeshipRecognisePriorLearning].[ReducedPrice]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ApprenticeshipRecognisePriorLearning]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ReducedPriceBy" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="95372183-cb4d-4dcb-8ebc-d7c49140d67c" ChangeDateTime="05/26/2022 13:14:57">
+    <Property Name="ElementName" Value="[dbo].[ApprenticeshipPriorLearning].[ReducedDurationBy]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ApprenticeshipPriorLearning]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="DurationReducedBy" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="7c4fc8cd-7882-469d-aba1-62a18013179b" ChangeDateTime="05/26/2022 13:15:04">
+    <Property Name="ElementName" Value="[dbo].[ApprenticeshipPriorLearning].[ReducedPriceBy]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ApprenticeshipPriorLearning]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="PriceReducedBy" />
+  </Operation>
 </Operations>

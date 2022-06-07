@@ -29,6 +29,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         public DateTime? EmploymentEndDate { get; set; }
         public int? EmploymentPrice { get; set; }
         public bool? RecognisePriorLearning { get; set; }
+        public int? DurationReducedBy { get; set; }
+        public int? PriceReducedBy { get; set; }
 
     }
 }
