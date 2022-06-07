@@ -45,5 +45,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
         public string CompletionPaymentMonth { get; set; }
         public string PaymentStatusTagColour { get; set; }
         public bool? MadeRedundant { get; set; }
+
+        public List<ApprenticeshipProviderHistoryViewModel> ApprenticeshipProviderHistory { get; set; } = new List<ApprenticeshipProviderHistoryViewModel>();
     }
 }

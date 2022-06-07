@@ -87,11 +87,19 @@
 <div class="grid-row">
     <div class="column-full">
         <div class="tabs">
+
             <ul class="js-tabs tabs__list">
-                <li class="tabs__list-item">
+                <li class="tabs__list-item current">
                     <a href="#tab-summary" class="tabs__tab">Summary</a>
                 </li>
+
+                <li class="tabs__list-item">
+                   <a href="#tab-provider-history" class="tabs__tab">Training provider history</a>
+                </li>
             </ul>
+
+
+
             <div id="tab-summary" class="js-tab-pane tabs__pane">
                 <table class="responsive twoColumn">
                     <thead>
@@ -222,6 +230,68 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <div id="tab-provider-history" class="js-tab-pane tabs__pane">
+
+                <h2 class="heading-medium">Training provider history</h2>
+
+                @if (Model.ApprenticeshipProviderHistory.Count > 1)
+                {
+                    <table class="responsive twoColumn">
+                        <thead>
+                            <tr>
+                                <th colspan="2"> <h3 class="heading-medium">Current</h3></th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <table class="responsive twoColumn">
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="bold tw-50">Current training provider</th>
+                                <td>@Model.TrainingProvider</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="bold">Current planned training dates </th>
+                                <td>@Model.DasTrainingStartDate.ToGdsFormatWithSpaceSeperator()</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="responsive twoColumn">
+                        <thead>
+                            <tr>
+                                <th colspan="2"> <h3 class="heading-medium">Previous</h3></th>
+                            </tr>
+                        </thead>
+                    </table>
+
+
+                    foreach (var providerHistory in Model.ApprenticeshipProviderHistory)
+                    {
+                        <table class="responsive twoColumn">
+                            <tbody>
+                                <tr>
+                                    <th scope="row" class="bold tw-50">Previous training provider</th>
+                                    <td>@providerHistory.ProviderName</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="bold">Previous planned training dates </th>
+                                    <td>@providerHistory.StartDate.ToGdsFormatWithSpaceSeperator()</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+
+                }
+                else
+                {
+                    <p class="govuk-body">
+                        There is no training provider history for this record.
+                    </p>
+                }
+
             </div>
         </div>
     </div>

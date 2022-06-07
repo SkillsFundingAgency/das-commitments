@@ -2,6 +2,7 @@
 using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -32,7 +33,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             };
         }
 
-        public ApprenticeshipViewModel MapToApprenticeshipViewModel(GetSupportApprenticeshipQueryResult apprenticeships)
+        public ApprenticeshipViewModel MapToApprenticeshipViewModel(GetSupportApprenticeshipQueryResult apprenticeships, GetChangeOfProviderChainQueryResult providerChainQueryResult)
         {
             var apprenticeship = apprenticeships.Apprenticeships.First();
 
@@ -77,7 +78,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
                 PaymentStatusTagColour = paymentStatusTagColour,
 
-                MadeRedundant = apprenticeship.MadeRedundant
+                MadeRedundant = apprenticeship.MadeRedundant,
+
+                ApprenticeshipProviderHistory = MapApprenticeshipProviderHistories(providerChainQueryResult)
             };
         }
 
@@ -123,6 +126,22 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
         private IEnumerable<string> MapRecordStatus(IEnumerable<Alerts> alerts)
         {
             return alerts.Select(o => o.GetEnumDescription()).Distinct().ToList();
+        }
+
+        private List<ApprenticeshipProviderHistoryViewModel> MapApprenticeshipProviderHistories(GetChangeOfProviderChainQueryResult providerChainQueryResult)
+        {
+            if (providerChainQueryResult?.ChangeOfProviderChain == null)
+                return new List<ApprenticeshipProviderHistoryViewModel>();
+
+            return providerChainQueryResult.ChangeOfProviderChain.Select(x => new ApprenticeshipProviderHistoryViewModel
+            {
+                ProviderName = x.ProviderName,
+                ApprenticeshipId = x.ApprenticeshipId,
+                CreatedOn = x.CreatedOn,
+                EndDate = x.EndDate,
+                StartDate = x.StartDate,
+                StopDate = x.StopDate
+            }).ToList();
         }
     }
 }

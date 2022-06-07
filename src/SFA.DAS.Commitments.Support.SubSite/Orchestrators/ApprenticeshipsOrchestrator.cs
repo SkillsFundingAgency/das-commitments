@@ -16,6 +16,8 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.Encoding;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
+using System.Threading;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
@@ -63,7 +65,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 throw new Exception(errorMsg);
             }
 
-            return _apprenticeshipMapper.MapToApprenticeshipViewModel(response);
+            var apprenticeshipProviders = await _mediator.Send(new GetChangeOfProviderChainQuery(apprenticeshipId), CancellationToken.None);
+
+            return _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
         }
 
         public async Task<UlnSummaryViewModel> GetApprenticeshipsByUln(ApprenticeshipSearchQuery searchQuery)
