@@ -125,7 +125,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     throw new InvalidOperationException("Invalid operation - training code can't change for the current state of the object.");
                 }
-                if (request.DeliveryModel != apprenticeship.DeliveryModel)
+                if (request.DeliveryModel != (apprenticeship.DeliveryModel ?? DeliveryModel.Regular))
                 {
                     throw new InvalidOperationException("Invalid operation - delivery model can't change for the current state of the object.");
                 }
