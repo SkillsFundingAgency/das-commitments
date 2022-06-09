@@ -7,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Domain
         public static readonly DateTime TransferFeatureStartDate = new DateTime(2018, 5, 1, 0, 0, 0, DateTimeKind.Utc);
         public static readonly DateTime DasStartDate = new DateTime(2017, 5, 1, 0, 0, 0, DateTimeKind.Utc);
         public static readonly DateTime MinimumDateOfBirth = new DateTime(1900, 01, 01, 0, 0, 0, DateTimeKind.Utc);
+        public static readonly DateTime RecognisePriorLearningBecomesRequiredOn = new DateTime(2022, 08, 01, 0, 0, 0, DateTimeKind.Utc);
         public const int MinimumAgeAtApprenticeshipStart = 15;
         public const int MaximumAgeAtApprenticeshipStart = 115;
         public const int MaximumApprenticeshipCost = 100000;

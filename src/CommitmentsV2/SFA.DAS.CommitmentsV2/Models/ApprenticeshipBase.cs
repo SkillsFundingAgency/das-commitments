@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -58,5 +59,30 @@ namespace SFA.DAS.CommitmentsV2.Models
         public FlexibleEmployment FlexibleEmployment { get; set; }
         public bool? RecognisePriorLearning { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
+
+        public bool RecognisingPriorLearningStillNeedsToBeConsidered
+        {
+            get
+            {
+                if (StartDate >= Constants.RecognisePriorLearningBecomesRequiredOn)
+                {
+                    switch (RecognisePriorLearning)
+                    {
+                        case null:
+                            return true;
+                        case false:
+                            return false;
+                    }
+
+                    if (PriorLearning?.DurationReducedBy == null || PriorLearning?.PriceReducedBy == null)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
     }
 }

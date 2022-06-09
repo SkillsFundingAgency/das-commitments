@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
@@ -112,7 +113,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void ClearPriorLearningWhenStartDateBeforeAug2022()
         {
-            if (StartDate < new DateTime(2022, 08, 01))
+            if (StartDate < Constants.RecognisePriorLearningBecomesRequiredOn)
             {
                 RecognisePriorLearning = null;
                 if (PriorLearning != null)
