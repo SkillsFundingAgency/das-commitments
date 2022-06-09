@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
+using SFA.DAS.ProviderRelationships.Api.Client.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
@@ -12,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         {
             AddConfiguration<CommitmentsV2Configuration>(CommitmentsConfigurationKeys.CommitmentsV2);
             AddConfiguration<AccountApiConfiguration>(CommitmentsConfigurationKeys.AccountApi);
+            AddConfiguration<ProviderRelationshipsApiConfiguration>(CommitmentsConfigurationKeys.ProviderRelationshipsApi);
             AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);            
             AddConfiguration<EncodingConfig>(CommitmentsConfigurationKeys.EncodingConfiguration);
             AddConfiguration<ApprovalsOuterApiConfiguration>(CommitmentsConfigurationKeys.ApprovalsOuterApiConfiguration);
