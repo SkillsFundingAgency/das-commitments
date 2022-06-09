@@ -172,7 +172,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (!recognisePriorLearning.HasValue)
             {
-                throw new DomainException(nameof(RecognisePriorLearning), "Recognise prior learning must be set");
+                throw new DomainException("IsTherePriorLearning", "You must select yes or no");
             }
 
             RecognisePriorLearning = recognisePriorLearning;
@@ -188,11 +188,19 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (!durationReducedBy.HasValue)
             {
-                throw new DomainException(nameof(PriorLearning.DurationReducedBy), "Duration reduction must be set");
+                throw new DomainException("ReducedDuration", "You must enter the number of hours");
+            }
+            if (durationReducedBy.HasValue && durationReducedBy.Value < 0)
+            {
+                throw new DomainException("ReducedDuration", "Number of hours must not be negative");
             }
             if (!priceReducedBy.HasValue)
             {
-                throw new DomainException(nameof(PriorLearning.PriceReducedBy), "Price reduction must be set");
+                throw new DomainException("ReducedPrice", "You must enter the price");
+            }
+            if (priceReducedBy.HasValue && priceReducedBy.Value < 0)
+            {
+                throw new DomainException("ReducedPrice", "Price must not be negative");
             }
             if (RecognisePriorLearning != true)
             {
