@@ -168,6 +168,7 @@ stages:
     - task: ArchiveFiles@2
       displayName: 'Archive v1 API'
       inputs:
+        includeRootFolder: false
         rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-api'
         archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Api.zip'
 
@@ -184,6 +185,7 @@ stages:
     - task: ArchiveFiles@2
       displayName: 'Archive Support Site'
       inputs:
+        includeRootFolder: false
         rootFolderOrFile: '$(build.artifactstagingdirectory)/support-site'
         archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Support.SubSite.zip'
 
@@ -200,6 +202,7 @@ stages:
     - task: ArchiveFiles@2
       displayName: 'Archive v1 Webjob'
       inputs:
+        includeRootFolder: false
         rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-webjob'
         archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Host.WebJob.zip'
 
