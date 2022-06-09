@@ -48,7 +48,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
                         Cost = update.Cost,
                         StartDate = update.StartDate,
                         EndDate = update.EndDate,
-                        DateOfBirth = update.DateOfBirth
+                        DateOfBirth = update.DateOfBirth,
+                        CreatedOn = update.CreatedOn
                     }).ToListAsync(cancellationToken)
             };
         }

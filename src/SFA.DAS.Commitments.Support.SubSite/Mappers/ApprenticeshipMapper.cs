@@ -1,7 +1,10 @@
-﻿using SFA.DAS.Commitments.Support.SubSite.Extensions;
+﻿using MediatR;
+using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -77,7 +80,10 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
                 PaymentStatusTagColour = paymentStatusTagColour,
 
-                MadeRedundant = apprenticeship.MadeRedundant
+                MadeRedundant = apprenticeship.MadeRedundant,
+                DeliveryModel = apprenticeship.DeliveryModel,
+                EmploymentPrice = apprenticeship.EmploymentPrice,
+                EmploymentEndDate = apprenticeship.EmploymentEndDate
             };
         }
 
@@ -123,6 +129,47 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
         private IEnumerable<string> MapRecordStatus(IEnumerable<Alerts> alerts)
         {
             return alerts.Select(o => o.GetEnumDescription()).Distinct().ToList();
+        }
+
+        public ApprenticeshipUpdateViewModel MapToUpdateApprenticeshipViewModel(GetApprenticeshipUpdateQueryResult updates, SupportApprenticeshipDetails originalApprenticeship)
+        {
+            var updateCount = updates?.ApprenticeshipUpdates?.Count;
+            if (updateCount == null || updateCount == 0)
+            {
+                return null;
+            }
+
+            if (updates?.ApprenticeshipUpdates?.Count > 1)
+            {
+                throw new Exception("Multiple updates found");
+            }
+
+            var update = updates.ApprenticeshipUpdates.First();
+
+           var result =
+            new ApprenticeshipUpdateViewModel
+            {
+                FirstName = update.FirstName,
+                LastName = update.LastName,
+                Email = update.Email,
+                DateOfBirth = update.DateOfBirth,
+                Cost = update.Cost,
+                StartDate = update.StartDate,
+                EndDate = update.EndDate,
+                CourseCode = update.TrainingCode,
+                CourseName = update.TrainingName,
+                Version = update.TrainingCourseVersion,
+                Option = string.IsNullOrWhiteSpace(update.TrainingCourseOption) ? "To be confirmed" : update.TrainingCourseOption,
+                DeliveryModel = update.DeliveryModel,
+                EmploymentEndDate = update.EmploymentEndDate,
+                EmploymentPrice = update.EmploymentPrice,
+                Originator = update.Originator,
+                CreatedOn = update.CreatedOn,
+                OriginalFirstName = originalApprenticeship.FirstName,
+                OriginalLastName = originalApprenticeship.LastName
+            };
+
+            return result;
         }
     }
 }

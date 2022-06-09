@@ -16,6 +16,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using System.Threading;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
 {
@@ -87,6 +88,42 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
 
             _mediator.Verify(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
             _apprenticeshipMapper.Verify(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GivenValidApprenticeshipIdShouldGetApprenticeshipUpdate()
+        {
+            // Arrasnge
+            string hashedApprenticeshipId = "ABC001";
+            string hashedAccountId = "ACCOUNT001";
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
+            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+            {
+                Apprenticeships = GetApprenticeships()
+            }).Verifiable();
+
+            _apprenticeshipMapper
+                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>()))
+                .Returns(new ApprenticeshipViewModel())
+                .Verifiable();
+
+            _apprenticeshipMapper
+              .Setup(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()))
+              .Returns(new ApprenticeshipUpdateViewModel());
+
+            _encodingService
+              .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
+              .Returns(100);
+
+            _encodingService
+              .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
+              .Returns(100);
+
+            // Act
+            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+
+            _apprenticeshipMapper.Verify(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()), Times.Once);
         }
 
         [Test]
