@@ -138,6 +138,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.OriginalStartDate, result.OriginalStartDate);
             Assert.AreEqual(source.FlexibleEmployment.EmploymentEndDate, result.EmploymentEndDate);
             Assert.AreEqual(source.FlexibleEmployment.EmploymentPrice, result.EmploymentPrice);
+            Assert.AreEqual(source.RecognisePriorLearning, result.RecognisePriorLearning);
+            Assert.AreEqual(source.PriorLearning.DurationReducedBy, result.DurationReducedBy);
+            Assert.AreEqual(source.PriorLearning.PriceReducedBy, result.PriceReducedBy);
         }
     }
 }
