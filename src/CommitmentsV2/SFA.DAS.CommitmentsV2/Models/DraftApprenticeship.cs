@@ -187,11 +187,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (!durationReducedBy.HasValue)
             {
-                throw new DomainException("ReducedDuration", "You must enter the number of hours");
+                throw new DomainException("ReducedDuration", "You must enter the number of weeks");
             }
             if (durationReducedBy.HasValue && durationReducedBy.Value < 0)
             {
-                throw new DomainException("ReducedDuration", "Number of hours must not be negative");
+                throw new DomainException("ReducedDuration", "Number of weeks must not be negative");
             }
             if (!priceReducedBy.HasValue)
             {
