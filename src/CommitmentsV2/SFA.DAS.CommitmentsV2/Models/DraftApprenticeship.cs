@@ -187,19 +187,19 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (!durationReducedBy.HasValue)
             {
-                throw new DomainException("ReducedDuration", "Duration reduction must be set");
+                throw new DomainException("ReducedDuration", "You must enter the number of hours");
             }
             if (durationReducedBy.HasValue && durationReducedBy.Value < 0)
             {
-                throw new DomainException("ReducedDuration", "Duration reduction must not be negative");
+                throw new DomainException("ReducedDuration", "Number of hours must not be negative");
             }
             if (!priceReducedBy.HasValue)
             {
-                throw new DomainException("ReducedPrice", "Price reduction must be set");
+                throw new DomainException("ReducedPrice", "You must enter the price");
             }
             if (priceReducedBy.HasValue && priceReducedBy.Value < 0)
             {
-                throw new DomainException("ReducedPrice", "Price reduction must not be negative");
+                throw new DomainException("ReducedPrice", "Price must not be negative");
             }
             if (RecognisePriorLearning != true)
             {
