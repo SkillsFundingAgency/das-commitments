@@ -144,7 +144,7 @@ stages:
         command: publish
         publishWebProjects: false
         projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/SFA.DAS.CommitmentsV2.Api.csproj'
-        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'      
+        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
 
     - task: DotNetCoreCLI@2
       displayName: 'publish v2 WebJob'
@@ -157,10 +157,10 @@ stages:
     - task: DotNetCoreCLI@2
       displayName: 'publish Support Site'
       inputs:
-        command: custom
+        command: publish
+        publishWebProjects: false
         projects: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
-        custom: msbuild
-        arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
   
     - task: VSBuild@1
       displayName: 'Publish v1 API'
