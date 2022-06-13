@@ -12,8 +12,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Authorization.Features.Models;
+using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
@@ -250,6 +253,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         }
 
         [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", null, null, null, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", false, null, null, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", true, 10, 100, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", true, null, null, AllowedApproval.BothCanApprove)]
+        public async Task Handle_WithApprenticeRPLConsidered_ShouldReturnExpectedProviderCanApproveWhenRPLFeatureIsOff(DateTime startDate, bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
+        {
+            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
+            {
+                f.WithRecognisingPriorLearningServiceFeatureDisabled();
+                f.SetupRPLData(recognisePriorLearning, durationReducedBy, priceReducedBy);
+            });
+
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.StartDate, startDate)
+                .With(x => x.EndDate, startDate.AddYears(1))
+                .Create();
+
+            await CheckQueryResponse(response =>
+                {
+                    response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
+                },
+                apprenticeDetails, arrange);
+        }
+
+        [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
         [TestCase("2022-08-01", null, null, null, AllowedApproval.EmployerCanApprove)]
         [TestCase("2022-08-01", false, null, null, AllowedApproval.BothCanApprove)]
         [TestCase("2022-08-01", true, 10, 100, AllowedApproval.BothCanApprove)]
@@ -273,8 +302,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 },
                 apprenticeDetails, arrange);
         }
-
-
 
         [TestCase("email@example.com", false, AllowedApproval.BothCanApprove)]
         [TestCase("email@example.com", true, AllowedApproval.BothCanApprove)]
@@ -412,6 +439,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             HandlerMock = new Mock<IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>>();
             ValidatorMock = new Mock<IValidator<GetCohortSummaryQuery>>();
             EmailOptionalService = new Mock<IEmailOptionalService>();
+            FeatureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
+            SetRecognisePriorLearningServiceFeature(true);
             SeedCohorts = new List<Cohort>();
         }
 
@@ -421,6 +450,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
         public Mock<IValidator<GetCohortSummaryQuery>> ValidatorMock { get; set; }
         public Mock<IEmailOptionalService> EmailOptionalService { get; set; }
+        public Mock<IFeatureTogglesService<FeatureToggle>> FeatureTogglesService { get; set; }
         public IValidator<GetCohortSummaryQuery> Validator => ValidatorMock.Object;
 
         public List<Cohort> SeedCohorts { get; }
@@ -473,7 +503,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetCohortSummaryQueryHandler(lazy, EmailOptionalService.Object);
+                var handler = new GetCohortSummaryQueryHandler(lazy, EmailOptionalService.Object, FeatureTogglesService.Object);
 
                 return handler.Handle(query, CancellationToken.None);
             });
@@ -515,6 +545,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             apprenticeship.PriorLearning.DurationReducedBy = durationReducedBy;
             apprenticeship.PriorLearning.PriceReducedBy = priceReducedBy;
 
+            return this;
+        }
+
+        public GetCohortSummaryHandlerTestFixtures WithRecognisingPriorLearningServiceFeatureDisabled() =>
+            SetRecognisePriorLearningServiceFeature(false);
+
+        private GetCohortSummaryHandlerTestFixtures SetRecognisePriorLearningServiceFeature(bool rplRequired)
+        {
+            var toggle = new FeatureToggle { Feature = Constants.RecognitionOfPriorLearningFeature, IsEnabled = rplRequired };
+            FeatureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature)).Returns(toggle);
             return this;
         }
     }
