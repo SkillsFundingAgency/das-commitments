@@ -12,9 +12,9 @@
     <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.3100" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.77" />
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.61" />
-    <PackageReference Include="SFA.DAS.ProviderRelationships.Api.Client" Version="3.2.61" />
+    <PackageReference Include="SFA.DAS.ProviderRelationships.Api.Client" Version="4.0.3" />
     <PackageReference Include="SFA.DAS.Validation.Mvc" Version="6.0.7" />
-    <PackageReference Include="StructureMap" Version="4.7.0" />
+    <PackageReference Include="StructureMap" Version="4.7.1" />
   </ItemGroup>
 
   <ItemGroup>
