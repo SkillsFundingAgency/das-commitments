@@ -188,11 +188,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (!durationReducedBy.HasValue)
             {
-                throw new DomainException("ReducedDuration", "You must enter the number of hours");
+                throw new DomainException("ReducedDuration", "You must enter the number of weeks");
             }
             if (durationReducedBy.HasValue && durationReducedBy.Value < 0)
             {
-                throw new DomainException("ReducedDuration", "Number of hours must not be negative");
+                throw new DomainException("ReducedDuration", "The number can't be negative");
             }
             if (!priceReducedBy.HasValue)
             {
@@ -200,7 +200,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             if (priceReducedBy.HasValue && priceReducedBy.Value < 0)
             {
-                throw new DomainException("ReducedPrice", "Price must not be negative");
+                throw new DomainException("ReducedPrice", "The number can't be negative");
             }
             if (RecognisePriorLearning != true)
             {
