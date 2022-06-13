@@ -53,6 +53,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 PledgeApplicationId = source.PledgeApplicationId,
                 EmploymentEndDate = source.FlexibleEmployment?.EmploymentEndDate,
                 EmploymentPrice = source.FlexibleEmployment?.EmploymentPrice,
+                RecognisePriorLearning = source.ApprenticeshipPriorLearning != null,
+                DurationReducedBy = source.ApprenticeshipPriorLearning.DurationReducedBy,
+                PriceReducedBy = source.ApprenticeshipPriorLearning?.PriceReducedBy,
             });
         }
     }

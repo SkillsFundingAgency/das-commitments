@@ -46,5 +46,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public bool EmailShouldBePresent { get; set; }
         public int? PledgeApplicationId { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
+        public ApprenticeshipPriorLearning ApprenticeshipPriorLearning { get; set; }
     }
 }
