@@ -76,7 +76,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                             apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn : null),
                         PledgeApplicationId = apprenticeship.Cohort.PledgeApplicationId,
                         FlexibleEmployment = apprenticeship.FlexibleEmployment,
-                        ApprenticeshipPriorLearning = apprenticeship.PriorLearning
+                        RecognisePriorLearning = apprenticeship.RecognisePriorLearning,
+                        ApprenticeshipPriorLearning = apprenticeship.PriorLearning,
                     },
                     cancellationToken);
 

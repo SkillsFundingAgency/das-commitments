@@ -5,6 +5,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
@@ -25,9 +26,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         public async Task Arrange()
         {
             var autoFixture = new Fixture();
+
             _source = autoFixture.Build<GetApprenticeshipQueryResult>()
                 .With(e => e.DeliveryModel, DeliveryModel.PortableFlexiJob)
+                .With(e => e.ApprenticeshipPriorLearning, autoFixture.Create<ApprenticeshipPriorLearning>())
                 .Create();
+
             _result = await _mapper.Map(TestHelper.Clone(_source));
         }
 
@@ -55,6 +59,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         public void EmploymentEndDateIsMappedCorrectly()
         {
             Assert.AreEqual(_source.FlexibleEmployment.EmploymentEndDate, _result.EmploymentEndDate);
+        }
+
+        [Test]
+        public void RecognisePriorLearningIsMappedCorrectly()
+        {
+            Assert.AreEqual(true, _result.RecognisePriorLearning);
+        }
+
+        [Test]
+        public void DurationReducedByIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.ApprenticeshipPriorLearning.DurationReducedBy, _result.DurationReducedBy);
+        }
+
+        [Test]
+        public void PriceReducedByIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.ApprenticeshipPriorLearning.PriceReducedBy, _result.PriceReducedBy);
         }
     }
 }
