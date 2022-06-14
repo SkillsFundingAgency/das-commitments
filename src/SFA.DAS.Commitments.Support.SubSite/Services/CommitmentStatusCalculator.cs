@@ -1,7 +1,7 @@
-﻿using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Support.SubSite.Enums;
+﻿using SFA.DAS.Commitments.Support.SubSite.Enums;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Types;
 using System;
-
 
 namespace SFA.DAS.Commitments.Support.SubSite.Services
 {
@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
             return RequestStatus.None;
         }
 
-        private  RequestStatus GetProviderOnlyStatus(LastAction lastAction, bool hasApprenticeships)
+        private RequestStatus GetProviderOnlyStatus(LastAction lastAction, bool hasApprenticeships)
         {
             if (!hasApprenticeships || lastAction == LastAction.None)
                 return RequestStatus.SentToProvider;
@@ -72,22 +72,25 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
                         {
                             case EditStatus.Both:
                                 return RequestStatus.WithSenderForApproval;
+
                             case EditStatus.EmployerOnly:
                                 //todo: need to set to draft after rejected by sender and edited by receiver (but not sent to provider)
                                 return GetEmployerOnlyStatus(lastAction, hasApprenticeships, overallAgreementStatus);
+
                             case EditStatus.ProviderOnly:
                                 return GetProviderOnlyStatus(lastAction, hasApprenticeships);
+
                             default:
                                 throw new Exception("Unexpected EditStatus");
                         }
                     }
 
-                case TransferApprovalStatus.TransferApproved:
+                case TransferApprovalStatus.Approved:
                     if (edit != EditStatus.Both)
                         throw new Exception($"{invalidStateExceptionMessagePrefix}If approved by sender, must be approved by receiver and provider");
                     return RequestStatus.None;
 
-                case TransferApprovalStatus.TransferRejected:
+                case TransferApprovalStatus.Rejected:
                     if (edit != EditStatus.EmployerOnly)
                         throw new Exception($"{invalidStateExceptionMessagePrefix}If just rejected by sender, must be with receiver");
                     return RequestStatus.RejectedBySender;

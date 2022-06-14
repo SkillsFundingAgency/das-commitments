@@ -1,6 +1,4 @@
-﻿using SFA.DAS.Support.Shared.SiteConnection;
-
-namespace SFA.DAS.Commitments.Support.SubSite.Configuration
+﻿namespace SFA.DAS.Commitments.Support.SubSite.Configuration
 {
     public class CommitmentSupportSiteConfiguartion
     {

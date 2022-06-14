@@ -1,5 +1,5 @@
-﻿using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Support.SubSite.Enums;
+﻿using SFA.DAS.Commitments.Support.SubSite.Enums;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Services
 {
