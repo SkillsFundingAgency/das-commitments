@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     RecognisePriorLearning = a.RecognisePriorLearning,
                     DurationReducedBy = a.PriorLearning?.DurationReducedBy,
                     PriceReducedBy = a.PriorLearning?.PriceReducedBy,
-                    RecognisingPriorLearningStillNeedsToBeConsidered = !isRplRequired && a.RecognisingPriorLearningStillNeedsToBeConsidered
+                    RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && a.RecognisingPriorLearningStillNeedsToBeConsidered
                 }).ToList()
             });
         }
