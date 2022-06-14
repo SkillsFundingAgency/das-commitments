@@ -1,8 +1,9 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.AspNetCore.Mvc;
+using NUnit.Framework;
 using SFA.DAS.Commitments.Support.SubSite.Controllers;
 using SFA.DAS.Commitments.Support.SubSite.GlobalConstants;
 using SFA.DAS.Commitments.Support.SubSite.Models;
-using System.Web.Http.Results;
+using System.Collections.Generic;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.StatusControllerTests
 {
@@ -13,11 +14,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.StatusContro
         public void ShouldReturnStatusModel()
         {
             var sut = new StatusController();
-            var result = sut.Get() as OkNegotiatedContentResult<ServiceStatusViewModel>;
+            var viewResult = sut.Get();
 
+            Assert.AreEqual(typeof(OkObjectResult), viewResult.GetType());
+            var objectResult = (OkObjectResult)viewResult;
+            Assert.AreEqual(200, objectResult.StatusCode);
+
+            var result = objectResult.Value as ServiceStatusViewModel;
             Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Content);
-            Assert.AreEqual(ApplicationConstants.ServiceName, result.Content.ServiceName);
+            Assert.AreEqual(ApplicationConstants.ServiceName, result.ServiceName);
         }
     }
 }
