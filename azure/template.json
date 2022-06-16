@@ -861,7 +861,7 @@
                 },
                 "parameters": {
                     "principalId": {
-                        "value": "[createArray(reference('api-v2-app-service').outputs.managedServiceIdentityId.value, reference('api-v2-app-service').outputs.stagingManagedServiceIdentityId.value, reference('worker-v2-app-service').outputs.managedServiceIdentityId.value)[copyIndex()]]"
+                        "value": "[createArray(reference(concat(variables('apiV2AppServiceName'), '-', parameters('utcValue'))).outputs.managedServiceIdentityId.value, reference(concat(variables('apiV2AppServiceName'), '-', parameters('utcValue'))).outputs.stagingManagedServiceIdentityId.value, reference(concat(variables('workerV2AppServiceName'), '-', parameters('utcValue'))).outputs.managedServiceIdentityId.value)[copyIndex()]]"
                     },
                     "assignmentType": {
                         "value": "ServiceBusOwner"
