@@ -250,11 +250,11 @@
                         <tbody>
                             <tr>
                                 <th scope="row" class="bold tw-50">Current training provider</th>
-                                <td>@Model.TrainingProvider</td>
+                                <td>@Model.ApprenticeshipProviderHistory.First().ProviderName</td>
                             </tr>
                             <tr>
                                 <th scope="row" class="bold">Current planned training dates </th>
-                                <td>@Model.DasTrainingStartDate.ToGdsFormatWithSpaceSeperator()</td>
+                                <td>@Model.ApprenticeshipProviderHistory.First().StartDate.ToGdsFormatWithoutDay() to @Model.ApprenticeshipProviderHistory.First().StopDate.ToGdsFormatWithoutDay()</td>
                             </tr>
                         </tbody>
                     </table>
@@ -267,8 +267,7 @@
                         </thead>
                     </table>
 
-
-                    foreach (var providerHistory in Model.ApprenticeshipProviderHistory)
+                    foreach (var providerHistory in Model.ApprenticeshipProviderHistory.Skip(1))
                     {
                         <table class="responsive twoColumn">
                             <tbody>
@@ -278,10 +277,14 @@
                                 </tr>
                                 <tr>
                                     <th scope="row" class="bold">Previous planned training dates </th>
-                                    <td>@providerHistory.StartDate.ToGdsFormatWithSpaceSeperator()</td>
+                                    <td>
+                                        @providerHistory.StartDate.ToGdsFormatWithoutDay() to @providerHistory.StopDate.ToGdsFormatWithoutDay()
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
+
+                        <br />
                     }
 
                 }
