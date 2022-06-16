@@ -203,13 +203,16 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             const string employerName = "Employer Name";
             ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
             {
-                HashedAccountId = "HASH",
+                HashedAccountId = "HashedAccountId",
                 SearchTerm = "short",
                 SearchType = ApprenticeshipSearchType.SearchByCohort
             };
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportCohortSummaryQueryResult())
+            .ReturnsAsync(new GetSupportCohortSummaryQueryResult
+            {
+                AccountId = 100
+            })
             .Verifiable();
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
@@ -218,11 +221,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 Apprenticeships = new List<CommitmentsV2.Models.SupportApprenticeshipDetails>()
             });
 
+            _encodingService
+            .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
+            .Returns(100);
+
             var validationResult = new Mock<ValidationResult>();
             validationResult.SetupGet(x => x.IsValid).Returns(true);
 
-            _searchValidator.Setup(x => x.Validate(searchQuery))
-                .Returns(validationResult.Object);
+            _searchValidator.Setup(x => x.Validate(searchQuery)).Returns(validationResult.Object);
 
             _orchestrator = new ApprenticeshipsOrchestrator(Mock.Of<ILogger<ApprenticeshipsOrchestrator>>(),
                 _mediator.Object,
@@ -332,7 +338,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             result.Should().BeOfType<CommitmentSummaryViewModel>();
 
             result.ReponseMessages.Should().NotBeNull();
-            result.ReponseMessages.Should().Contain("Unable to decode the account id");
+            result.ReponseMessages.Should().Contain("Problem validating your account Id");
         }
 
         [Test]
