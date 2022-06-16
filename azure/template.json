@@ -187,7 +187,10 @@
                         "value": true
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "apiVersion": "2021-04-01",
@@ -265,7 +268,10 @@
                         "value": "[parameters('aspSku')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "apiVersion": "2021-04-01",
@@ -286,7 +292,10 @@
                         "value": "[variables('workerV1AppServiceName')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "apiVersion": "2021-04-01",
@@ -362,6 +371,7 @@
                 }
             },
             "dependsOn": [
+                "[variables('resourceGroupName')]",
                 "[concat(variables('workerV2AppServiceName'), '-app-service-plan-', parameters('utcValue'))]"
             ]
         },
@@ -384,7 +394,10 @@
                         "value": "[variables('workerV2AppServiceName')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "apiVersion": "2021-04-01",
@@ -460,6 +473,7 @@
                 }
             },
             "dependsOn": [
+                "[variables('resourceGroupName')]",
                 "[concat(variables('workerV2AppServiceName'), '-app-service-plan-', parameters('utcValue'))]"
             ]
         },
@@ -482,7 +496,10 @@
                         "value": "[variables('apiV1AppServiceName')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "apiVersion": "2021-04-01",
@@ -591,7 +608,10 @@
                         "value": "[parameters('backEndAccessRestrictions')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "apiVersion": "2021-04-01",
@@ -612,7 +632,10 @@
                         "value": "[variables('apiV2AppServiceName')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "apiVersion": "2021-04-01",
@@ -709,7 +732,10 @@
                         "value": "[parameters('backEndAccessRestrictions')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "condition": "[parameters('deploySupportApp')]",
@@ -731,7 +757,10 @@
                         "value": "[variables('supportAppServiceName')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "condition": "[parameters('deploySupportApp')]",
@@ -822,7 +851,10 @@
                         "value": "[parameters('supportAppAccessRestrictions')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
             "apiVersion": "2021-04-01",
@@ -850,7 +882,7 @@
         },
         {
             "apiVersion": "2021-04-01",
-            "name": "[concat('commitmets-role-assignments-', copyIndex())]",
+            "name": "[concat('commitmets-role-assignments-', copyIndex(), parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
             "properties": {
@@ -937,10 +969,13 @@
                         "value": "[parameters('sharedManagementResourceGroup')]"
                     }
                 }
-            }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
         },
         {
-            "name": "[concat(variables('serviceBusName'), '-topic-', copyIndex())]",
+            "name": "[concat(variables('serviceBusName'), '-topic-', copyIndex(), '-', parameters('utcValue'))]",
             "resourceGroup": "[variables('resourceGroupName')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
