@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         [Test]
         public void RecognisePriorLearningIsMappedCorrectly()
         {
-            Assert.AreEqual(true, _result.RecognisePriorLearning);
+            Assert.AreEqual(_source.RecognisePriorLearning, _result.RecognisePriorLearning);
         }
 
         [Test]
