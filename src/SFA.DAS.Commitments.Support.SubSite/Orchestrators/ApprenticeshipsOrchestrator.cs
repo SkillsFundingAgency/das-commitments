@@ -134,6 +134,21 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
 
             long commitmentId = 0;
+            long accountId = 0;
+
+            try
+            {
+                accountId = _encodingService.Decode(searchQuery.HashedAccountId, EncodingType.AccountId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to decode Hashed Account Id");
+
+                return new CommitmentSummaryViewModel
+                {
+                    ReponseMessages = { "Problem validating your account Id" }
+                };
+            }
 
             try
             {
@@ -151,7 +166,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             try
             {
-                var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId));
+                var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId, accountId));
 
                 if (cohort == null)
                 {
@@ -161,11 +176,20 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                     };
                 }
 
+                if (!cohort.AccountId.Equals(accountId))
+                {
+                    _logger.LogWarning($"Unauthorised to access Cohort {cohort.CohortId}");
+                    return new CommitmentSummaryViewModel
+                    {
+                        ReponseMessages = { "Account is unauthorised to access this Cohort." }
+                    };
+                }
+
                 _logger.LogInformation($"Commitment Record with Id: {cohort.CohortId}");
 
                 var cohortApprenticeshipsResponse = await _mediator.Send(new GetSupportApprenticeshipQuery
                 {
-                    CohortId = cohort.CohortId
+                    CohortId = cohort.CohortId,
                 });
 
                 return _commitmentMapper.MapToCommitmentSummaryViewModel(cohort, cohortApprenticeshipsResponse);
@@ -180,11 +204,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
         }
 
-        public async Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashCommitmentId)
+        public async Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashCommitmentId, string accountHashedId)
         {
             _logger.LogInformation("Retrieving Commitment Details");
 
             long commitmentId = 0;
+            long accountId;
 
             try
             {
@@ -196,7 +221,17 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 throw;
             }
 
-            var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId));
+            try
+            {
+                accountId = _encodingService.Decode(accountHashedId, EncodingType.AccountId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to decode Hashed Account Id");
+                throw;
+            }
+
+            var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId, accountId));
 
             if (cohort == null)
             {
