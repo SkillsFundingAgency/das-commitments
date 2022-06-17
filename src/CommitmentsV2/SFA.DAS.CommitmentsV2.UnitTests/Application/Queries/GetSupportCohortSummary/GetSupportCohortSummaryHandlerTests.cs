@@ -31,6 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
         public AccountLegalEntity AccountLegalEntity;
         public Provider Provider;
         public long CohortId;
+        public long AccountId;
         public long AccountLegalEntityId;
         public Party WithParty = Party.Employer;
         public const string LatestMessageCreatedByEmployer = "ohayou";
@@ -208,7 +209,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             BothCanApprove = EmployerCanApprove | ProviderCanApprove,
         }
 
-
         [TestCaseSource(nameof(MissingPropertiesTestData))]
         public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedEmployerCanApprove(DraftApprenticeshipDetails apprenticeship, AllowedApproval allowedApproval)
         {
@@ -301,12 +301,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             var autoFixture = new Fixture();
 
             var account = new Account(autoFixture.Create<long>(), "", "", "", DateTime.UtcNow)
-                {LevyStatus = LevyStatus};
+            { LevyStatus = LevyStatus };
             AccountLegalEntity = new AccountLegalEntity(account, 1, 1, "", "", autoFixture.Create<string>(),
                 OrganisationType.Charities, "", DateTime.UtcNow);
-            Provider = new Provider {Name = autoFixture.Create<string>()};
+            Provider = new Provider { Name = autoFixture.Create<string>() };
 
             CohortId = autoFixture.Create<long>();
+            AccountId = autoFixture.Create<long>();
             Cohort = autoFixture.Build<Cohort>().Without(o => o.Apprenticeships).Without(o => o.TransferRequests)
                 .Without(o => o.Messages)
                 .Without(o => o.AccountLegalEntity).Without(o => o.Provider).Without(o => o.TransferSender)
@@ -336,7 +337,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             arrange?.Invoke(fixtures);
 
             // act
-            var response = await fixtures.GetResult(new GetSupportCohortSummaryQuery(CohortId));
+            var response = await fixtures.GetResult(new GetSupportCohortSummaryQuery(CohortId, AccountId));
 
             // Assert
             assert(response);
