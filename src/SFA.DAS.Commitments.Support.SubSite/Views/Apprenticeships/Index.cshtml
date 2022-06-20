@@ -11,11 +11,11 @@
     if (Model.ApprenticeshipUpdates != null)
     {
         pendingChangesRequestedBy = Model.ApprenticeshipUpdates.Originator == SFA.DAS.CommitmentsV2.Types.Originator.Employer
-        ? "Requested by Employer"
-        : "Requested by Training Provider";
+        ? "Requested by Employer "
+        : "Requested by Training Provider ";
         if (Model.ApprenticeshipUpdates.CreatedOn.HasValue)
         {
-            pendingChangesRequestedBy += Model.ApprenticeshipUpdates.CreatedOn.Value.ToString(format: "dd MMM yyyy");
+            pendingChangesRequestedBy += Model.ApprenticeshipUpdates.CreatedOn.Value.ToString(format: " dd MMM yyyy");
         }
     }
 

@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 TrainingCost = apprenticeship.Cost,
 
                 Version = apprenticeship.TrainingCourseVersionConfirmed ? apprenticeship.TrainingCourseVersion : null,
-                Option = string.IsNullOrWhiteSpace(apprenticeship.TrainingCourseOption) ? "To be confirmed" : apprenticeship.TrainingCourseOption,
+                Option = apprenticeship.TrainingCourseOption,
 
                 PauseDate = apprenticeship.PaymentStatus == PaymentStatus.Paused
                 ? apprenticeship.PauseDate.ToGdsFormatWithoutDay()
@@ -159,7 +159,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 CourseCode = update.TrainingCode,
                 CourseName = update.TrainingName,
                 Version = update.TrainingCourseVersion,
-                Option = string.IsNullOrWhiteSpace(update.TrainingCourseOption) ? "To be confirmed" : update.TrainingCourseOption,
+                Option = update.TrainingCourseOption,
                 DeliveryModel = update.DeliveryModel,
                 EmploymentEndDate = update.EmploymentEndDate,
                 EmploymentPrice = update.EmploymentPrice,
