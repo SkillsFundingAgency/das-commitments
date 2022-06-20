@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.ProviderRelationships.Api.Client;
+using SFA.DAS.ProviderRelationships.Api.Client.Http;
 using StructureMap;
 using StructureMap.Building.Interception;
 
@@ -19,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             For<IModelMapper>().Use<ModelMapper>();
 
             Toggle<IProviderRelationshipsApiClient, StubProviderRelationshipsApiClient>("UseStubProviderRelationships");
+            Toggle<IProviderRelationshipsApiClientFactory, StubProviderRelationshipsApiClientFactory>("UseStubProviderRelationships");
         }
 
         private void Toggle<TPluginType, TConcreteType>(string configurationKey) where TConcreteType : TPluginType
