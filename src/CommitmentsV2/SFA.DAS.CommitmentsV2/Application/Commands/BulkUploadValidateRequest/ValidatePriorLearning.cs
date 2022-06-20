@@ -9,29 +9,34 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
     {
         private IEnumerable<Error> ValidatePriorLearning(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
-            // This validation cannot be enabled until the bulk upload file format change has been communicated
-            // and software integrators have had time to update their systems.
+            if (csvRecord.RecognisePriorLearning == false)
+            {
+                yield break;
+            }
 
-            //if (csvRecord.RecognisePriorLearning == false)
-            //{
-            yield break;
-            //}
-
+            //This validation cannot be enabled until the bulk upload file format change has been communicated
+            //and software integrators have had time to update their systems.
             //if (csvRecord.RecognisePriorLearning == null)
             //{
             //    yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
-            //    yield break;
             //}
 
-            //if (csvRecord.DurationReducedBy == null)
-            //{
-            //    yield return new Error("DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning.");
-            //}
+            // When the above validation is enabled, this one must be kept.
+            // We don't want to return *ReducedBy errors until RPL is confirmed
+            if (csvRecord.RecognisePriorLearning == null)
+            {
+                yield break;
+            }
 
-            //if (csvRecord.PriceReducedBy == null)
-            //{
-            //    yield return new Error("PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning.");
-            //}
+            if (csvRecord.DurationReducedBy == null)
+            {
+                yield return new Error("DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning.");
+            }
+
+            if (csvRecord.PriceReducedBy == null)
+            {
+                yield return new Error("PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning.");
+            }
         }
     }
 }

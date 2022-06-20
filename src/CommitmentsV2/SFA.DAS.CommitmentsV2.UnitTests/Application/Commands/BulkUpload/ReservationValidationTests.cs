@@ -33,10 +33,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         }
     }
 
-    [Ignore("RPL cannot be mandatory in bulk upload until all Providers' software systems are updated", Until = "2022-10-30")]
     public class PriorLearningValidationTests
     {
         [Test]
+        [Ignore("RPL cannot be mandatory in bulk upload until all Providers' software systems are updated", Until = "2022-10-30")]
         public async Task Prior_Learning_Validation_Error()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
