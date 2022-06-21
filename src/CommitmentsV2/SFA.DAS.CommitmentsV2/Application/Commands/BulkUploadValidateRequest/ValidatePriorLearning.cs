@@ -31,11 +31,23 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             if (csvRecord.DurationReducedBy == null)
             {
                 yield return new Error("DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning.");
+            } 
+            else if (csvRecord.DurationReducedBy < 1)
+            {
+                yield return new Error("DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must be more than 0.");
             }
 
             if (csvRecord.PriceReducedBy == null)
             {
                 yield return new Error("PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning.");
+            }
+            else if (csvRecord.PriceReducedBy < 1)
+            {
+                yield return new Error("PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be more than 0.");
+            }
+            else if (csvRecord.PriceReducedBy < 100000)
+            {
+                yield return new Error("PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be £100,000 or less.");
             }
         }
     }
