@@ -36,10 +36,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
                     Reference = source.ProviderRef,
                     ReservationId = source.ReservationId,
                     DeliveryModel = Types.DeliveryModel.Regular,
-                    RecognisePriorLearning = source.RecognisePriorLearning,
-                    DurationReducedBy = source.DurationReducedBy,
-                    PriceReducedBy = source.PriceReducedBy,
-                    
                 };
                 await MapTrainingProgramme(source, result);
                 draftApprenticeshipDetailsList.Add(result);
