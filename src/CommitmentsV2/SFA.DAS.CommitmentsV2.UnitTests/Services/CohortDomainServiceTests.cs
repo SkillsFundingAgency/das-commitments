@@ -570,6 +570,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyCourseException(passes);
         }
 
+        [TestCase(Party.Employer, "2022-07-31")]
+        [TestCase(Party.Provider, "2022-07-31")]
+        [TestCase(Party.Employer, "2022-04-01")]
+        [TestCase(Party.Provider, "2022-04-01")]
+        public async Task UpdateDraftApprenticeship_IsSuccessfulAndStartDateIsPriorToAug2022_ThenDraftApprenticeshipIsUpdatedButPriorLearningDataIsRemoved(Party withParty, DateTime startDate)
+        {
+            _fixture.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeshipWithPriorLearning();
+            _fixture.DraftApprenticeshipDetails.StartDate = startDate;
+            _fixture.DraftApprenticeshipDetails.EndDate = startDate.AddYears(1);
+            await _fixture.UpdateDraftApprenticeship();
+            _fixture.VerifyPriorLearningIsNull();
+        }
+
+        [TestCase(Party.Employer, "2022-08-01")]
+        [TestCase(Party.Provider, "2022-08-01")]
+        [TestCase(Party.Employer, "2022-09-01")]
+        [TestCase(Party.Provider, "2022-09-01")]
+        public async Task UpdateDraftApprenticeship_IsSuccessfulAndStartDateIsAfterToAug2022_ThenDraftApprenticeshipIsUpdatedButPriorLearningDataIsRemoved(Party withParty, DateTime startDate)
+        {
+            _fixture.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeshipWithPriorLearning();
+            _fixture.DraftApprenticeshipDetails.StartDate = startDate;
+            _fixture.DraftApprenticeshipDetails.EndDate = startDate.AddYears(1);
+            await _fixture.UpdateDraftApprenticeship();
+            _fixture.VerifyPriorLearningIsStillPresent();
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public DateTime Now { get; set; }
@@ -614,6 +640,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public List<DomainError> DomainErrors { get; }
             public string Message { get; private set; }
             public UserInfo UserInfo { get; private set; }
+            public ApprenticeshipPriorLearning PriorLearning{ get; private set; }
 
             public long MaLegalEntityId { get; private set; }
 
@@ -749,6 +776,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .ReturnsAsync(TransferConnections);
                 
                 EmailOptionalService = new Mock<IEmailOptionalService>();
+
+                PriorLearning = fixture.Create<ApprenticeshipPriorLearning>();
 
                 Exception = null;
                 DomainErrors = new List<DomainError>();
@@ -1023,6 +1052,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Db.DraftApprenticeships.Add(ExistingDraftApprenticeship);
                 return this;
             }
+
+            public CohortDomainServiceTestFixture WithExistingDraftApprenticeshipWithPriorLearning()
+            {
+                DraftApprenticeshipDetails.Id = DraftApprenticeshipId;
+
+                ExistingDraftApprenticeship.RecognisePriorLearning = true;
+                ExistingDraftApprenticeship.PriorLearning = PriorLearning;
+
+                Db.DraftApprenticeships.Add(ExistingDraftApprenticeship);
+                return this;
+            }
+
 
             public CohortDomainServiceTestFixture WithOverlappingEmails()
             {
@@ -1361,6 +1402,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.AreEqual(updated.FirstName, DraftApprenticeshipDetails.FirstName);
                 Assert.AreEqual(updated.LastName, DraftApprenticeshipDetails.LastName);
             }
+
+            public void VerifyPriorLearningIsNull()
+            {
+                var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
+
+                Assert.IsNotNull(updated.PriorLearning, "No prior learning found");
+                Assert.IsNull(updated.PriorLearning.DurationReducedBy);
+                Assert.IsNull(updated.PriorLearning.PriceReducedBy);
+            }
+
+            public void VerifyPriorLearningIsStillPresent()
+            {
+                var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
+
+                Assert.IsNotNull(updated.PriorLearning, "No prior learning found");
+                Assert.IsNotNull(updated.PriorLearning.DurationReducedBy);
+                Assert.AreEqual(PriorLearning.DurationReducedBy, updated.PriorLearning.DurationReducedBy);
+                Assert.IsNotNull(updated.PriorLearning.PriceReducedBy);
+                Assert.AreEqual(PriorLearning.PriceReducedBy, updated.PriorLearning.PriceReducedBy);
+            }
+
 
             public void VerifyLastUpdatedFieldsAreSet(Party withParty)
             {

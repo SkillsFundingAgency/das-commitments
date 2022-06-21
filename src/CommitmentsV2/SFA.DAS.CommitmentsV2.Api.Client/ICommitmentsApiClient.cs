@@ -79,5 +79,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetProviderCommitmentAgreementResponse> GetProviderCommitmentAgreement(long providerId, CancellationToken cancellationToken = default);
         Task<GetApprenticeshipStatusSummaryResponse> GetEmployerAccountSummary(long employerAccountId, CancellationToken cancellationToken = default);
         Task<GetTransferRequestSummaryResponse> GetTransferRequests(long accountId, CancellationToken cancellationToken = default);
+        Task RecognisePriorLearning(long cohortId, long apprenticeshipId, RecognisePriorLearningRequest request, CancellationToken cancellationToken = default);
+        Task PriorLearningDetails(long cohortId, long apprenticeshipId, PriorLearningDetailsRequest request, CancellationToken cancellationToken = default);
     }
 }

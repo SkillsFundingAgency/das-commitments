@@ -91,6 +91,11 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithOne(c => c.Apprenticeship)
                 .HasForeignKey<FlexibleEmployment>()
                 .IsRequired(false);
+
+            builder.HasOne(p => p.PriorLearning)
+                .WithOne(c => c.Apprenticeship)
+                .HasForeignKey<ApprenticeshipPriorLearning>()
+                .IsRequired(false);
         }
 
         private void SetTablePerHierarchy(EntityTypeBuilder<ApprenticeshipBase> builder)
