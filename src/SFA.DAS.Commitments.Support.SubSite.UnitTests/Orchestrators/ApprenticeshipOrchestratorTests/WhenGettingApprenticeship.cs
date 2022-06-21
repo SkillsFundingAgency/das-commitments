@@ -107,7 +107,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             }).Verifiable();
 
             _apprenticeshipMapper
-                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>()))
+                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
                 .Returns(new ApprenticeshipViewModel())
                 .Verifiable();
 

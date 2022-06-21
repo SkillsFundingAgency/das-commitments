@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
-            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, 
+            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId,
                 CommitmentsV2.Types.ApprenticeshipUpdateStatus.Pending));
 
             if (response == null)
@@ -66,8 +66,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             var apprenticeshipProviders = await _mediator.Send(new GetChangeOfProviderChainQuery(apprenticeshipId), CancellationToken.None);
 
-            return _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
-            var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response);
+            var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
             result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships.First());
 
             if (result.ApprenticeshipUpdates?.Cost != null)

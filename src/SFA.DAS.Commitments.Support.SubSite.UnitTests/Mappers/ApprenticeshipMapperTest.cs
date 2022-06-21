@@ -173,20 +173,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         }
 
         [Test]
-        public void ShouldMapApprenticeshipNotYetConfirmedOptionToViewModelOptionToBeConfirmed()
-        {
-            SupportApprenticeshipQueryResponse = new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = new List<SupportApprenticeshipDetails>
-                {
-                    _mockedApprenticeshipNotConfirmedOption
-                }
-            };
-            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
-            result.Option.Should().Be("To be confirmed");
-        }
-
-        [Test]
         public void ShouldMapApprenticeshipEmailToApprenticeshipViewModelEmail()
         {
             var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
