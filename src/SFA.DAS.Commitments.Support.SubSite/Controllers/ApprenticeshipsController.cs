@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             {
                 return RedirectToAction(nameof(Search));
             }
-            var model = await _orchestrator.GetCommitmentDetails(hashedCohortId);
+            var model = await _orchestrator.GetCommitmentDetails(hashedCohortId, hashedAccountId);
             return View(model);
         }
 
