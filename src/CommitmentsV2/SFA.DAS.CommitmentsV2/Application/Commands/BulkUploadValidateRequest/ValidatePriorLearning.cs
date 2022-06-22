@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Domain;
 using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
@@ -9,22 +10,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
     {
         private IEnumerable<Error> ValidatePriorLearning(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
+            if(csvRecord.StartDate < Constants.RecognisePriorLearningBecomesRequiredOn)
+            {
+                yield break;
+            }
+
             if (csvRecord.RecognisePriorLearning == false)
             {
                 yield break;
             }
 
-            //This validation cannot be enabled until the bulk upload file format change has been communicated
-            //and software integrators have had time to update their systems.
-            //if (csvRecord.RecognisePriorLearning == null)
-            //{
-            //    yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
-            //}
-
-            // When the above validation is enabled, this one must be kept.
-            // We don't want to return *ReducedBy errors until RPL is confirmed
             if (csvRecord.RecognisePriorLearning == null)
             {
+                //This validation cannot be enabled until the bulk upload file format change has been communicated
+                //and software integrators have had time to update their systems.
+                //yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
+
+                // When the above validation is enabled, this one must be kept.
+                // We don't want to return *ReducedBy errors until RPL is confirmed
                 yield break;
             }
 

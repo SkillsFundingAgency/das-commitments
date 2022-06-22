@@ -159,11 +159,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 FirstName = "Mark",
                 DateOfBirthAsString = "2000-01-02",
                 CourseCode = "59",
-                StartDateAsString = "2019-05-01",
-                EndDateAsString = "2020-05",
+                StartDateAsString = $"{DateTime.Now.Year}-05-01",
+                EndDateAsString = $"{DateTime.Now.Year + 1}-05",
                 CostAsString = "2000",
                 ProviderRef = "ZB88",
-                Email = "abc34628125987@abc.com"
+                Email = "abc34628125987@abc.com",
+                RecognisePriorLearning = false,
             });
         }
 

@@ -36,10 +36,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
     public class PriorLearningValidationTests
     {
         [Test]
+        public async Task Prior_learning_is_not_validated_when_start_is_before_aug2022()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2022-07-31");
+            fixture.SetPriorLearning(null, null, null);
+
+            var errors = await fixture.Handle();
+
+            errors.BulkUploadValidationErrors.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task Prior_learning_is_not_validated_when_start_is_before_aug2022_even_when_present()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2022-07-31");
+            fixture.SetPriorLearning(true, null, null);
+
+            var errors = await fixture.Handle();
+
+            errors.BulkUploadValidationErrors.Should().BeEmpty();
+        }
+
+        [Test]
         [Ignore("RPL cannot be mandatory in bulk upload until all Providers' software systems are updated", Until = "2022-10-30")]
         public async Task Prior_Learning_Validation_Error()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: null);
 
             var errors = await fixture.Handle();
@@ -51,6 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public async Task Prior_Learning_Duration_Validation_Error()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: null, priceReducedBy: 1);
 
             var errors = await fixture.Handle();
@@ -61,6 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public async Task Prior_Learning_Price_Validation_Error()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 1, priceReducedBy: null);
 
             var errors = await fixture.Handle();
