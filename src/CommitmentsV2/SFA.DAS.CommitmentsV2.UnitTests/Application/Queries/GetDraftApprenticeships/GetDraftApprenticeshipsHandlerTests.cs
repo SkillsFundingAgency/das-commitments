@@ -4,12 +4,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using NUnit.Framework;
+using SFA.DAS.Authorization.Features.Models;
+using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
+using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprenticeships
 {
@@ -32,6 +37,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
 
         [Test]
+        public async Task Handle_WhenCohortExists_AndRPLFeatureNotEnabledThenRecognisingPriorLearningStillNeedsToBeConsiderShouldBeFalse()
+        {
+            _fixture.WithRecognisePriorLearningServiceDisabled();
+            var result = await _fixture.Handle();
+            result.DraftApprenticeships.Any(x=>x.RecognisingPriorLearningStillNeedsToBeConsidered).ShouldBeFalse();
+        }
+
+        [Test]
         public async Task Handle_WhenCohortDoesNotExist_ThenShouldNotReturnResult()
         {
             _fixture.WithNonExistentCohort();
@@ -48,22 +61,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             private readonly IFixture _autoFixture;
             private Cohort _cohort;
             private long _cohortId;
+            private Mock<IFeatureTogglesService<FeatureToggle>> _featureTogglesService;
 
             public GetDraftApprenticeshipsHandlerTestsFixture()
             {
                 _autoFixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
 
+                _featureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
+                SetRecognisePriorLearningService(true);
                 _cohortId = _autoFixture.Create<long>();
                 _query = new GetDraftApprenticeshipsQuery(_cohortId);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
                 SeedData();
-                _queryHandler = new GetDraftApprenticeshipsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
+                _queryHandler = new GetDraftApprenticeshipsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), _featureTogglesService.Object);
             }
 
             public GetDraftApprenticeshipsHandlerTestsFixture WithNonExistentCohort()
             {
                 _query = new GetDraftApprenticeshipsQuery(_cohortId + 1);
+                return this;
+            }
+
+            public GetDraftApprenticeshipsHandlerTestsFixture WithRecognisePriorLearningServiceDisabled() =>
+                SetRecognisePriorLearningService(false);
+
+            private GetDraftApprenticeshipsHandlerTestsFixture SetRecognisePriorLearningService(bool rplRequired)
+            {
+                var toggle = new FeatureToggle {Feature = Constants.RecognitionOfPriorLearningFeature, IsEnabled = rplRequired};
+                _featureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature)).Returns(toggle);
                 return this;
             }
 

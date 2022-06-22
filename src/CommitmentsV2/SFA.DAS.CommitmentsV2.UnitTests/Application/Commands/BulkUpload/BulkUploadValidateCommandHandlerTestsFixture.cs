@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -287,6 +288,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             Assert.AreEqual(property, errors.BulkUploadValidationErrors[0].Errors[0].Property);
         }
 
+        public void ValidateError(BulkUploadValidateApiResponse errors, string property, string errorText)
+        {
+            errors.Should().NotBeNull();
+            errors.BulkUploadValidationErrors.Should().NotBeEmpty();
+            errors.BulkUploadValidationErrors[0].Errors.Should().ContainEquivalentOf(new
+            {
+                Property = property,
+                ErrorText = errorText,
+            });
+        }
+
         internal BulkUploadValidateCommandHandlerTestsFixture SetCohortRef(string cohortRef)
         {
             CsvRecords[0].CohortRef = cohortRef;
@@ -442,6 +454,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                   .ReturnsAsync(listEmailOverlap);
 
+        }
+
+        internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null)
+        {
+            CsvRecords[0].RecognisePriorLearning = recognisePriorLearning;
+            CsvRecords[0].DurationReducedBy = durationReducedBy;
+            CsvRecords[0].PriceReducedBy = priceReducedBy;
         }
 
         internal void SetUpIncompleteRecord()

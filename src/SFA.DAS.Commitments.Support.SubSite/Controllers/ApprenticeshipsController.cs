@@ -3,11 +3,14 @@ using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
 using System.Threading.Tasks;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 {
-    [System.Web.Mvc.Authorize(Roles = "das-support-portal")]
+    [ApiController]
+    [Route("[controller]")]
+    [Authorize(Roles = "das-support-portal")]
     public class ApprenticeshipsController : Controller
     {
         private readonly IApprenticeshipsOrchestrator _orchestrator;
@@ -17,18 +20,18 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             _orchestrator = apprenticeshipsOrchestrator;
         }
 
-        [Route("Apprenticeships/account/{hashedAccountId}/Cohort/{hashedCohortId}/", Name = "CohortDetails")]
-        public async Task<ActionResult> CohortDetails(string hashedAccontId, string hashedCohortId)
+        [Route("account/{hashedAccountId}/Cohort/{hashedCohortId}/", Name = "CohortDetails")]
+        public async Task<ActionResult> CohortDetails(string hashedAccountId, string hashedCohortId)
         {
             if (string.IsNullOrWhiteSpace(hashedCohortId))
             {
                 return RedirectToAction(nameof(Search));
             }
-            var model = await _orchestrator.GetCommitmentDetails(hashedCohortId);
+            var model = await _orchestrator.GetCommitmentDetails(hashedCohortId, hashedAccountId);
             return View(model);
         }
 
-        [Route("Apprenticeships/account/{hashedAccountId}/Apprenticeship/{hashedApprenticeshipId}", Name = "ApprenticeshipDetails")]
+        [Route("account/{hashedAccountId}/Apprenticeship/{hashedApprenticeshipId}", Name = "ApprenticeshipDetails")]
         public async Task<ActionResult> Index(string hashedApprenticeshipId, string hashedAccountId)
         {
             if (string.IsNullOrWhiteSpace(hashedApprenticeshipId) || string.IsNullOrWhiteSpace(hashedAccountId))
@@ -39,18 +42,18 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             return View(model);
         }
 
-        [Route("Apprenticeships/search/{hashedAccountId}")]
+        [Route("search/{hashedAccountId}")]
         [HttpGet]
         public async Task<ActionResult> Search(string hashedAccountId)
         {
-            var uriString = $"/resource/apprenticeships/search/{hashedAccountId}";    
+            var uriString = $"/resource/apprenticeships/search/{hashedAccountId}";
             return View(new ApprenticeshipSearchQuery()
             {
                 ResponseUrl = uriString
             });
         }
 
-        [Route("Apprenticeships/search")]
+        [Route("search")]
         [HttpPost]
         public async Task<ActionResult> SearchRequest(string hashedAccountId, ApprenticeshipSearchType searchType, string searchTerm)
         {
@@ -72,6 +75,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 
             return View(searchQuery);
         }
+
         private async Task<ActionResult> CohortSearch(ApprenticeshipSearchQuery searchQuery)
         {
             var cohortSearchResult = await _orchestrator.GetCommitmentSummary(searchQuery);

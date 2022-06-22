@@ -8,5 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Types
     {
         Regular = 0,
         PortableFlexiJob = 1,
+        FlexiJobAgency = 2
     }
 }
