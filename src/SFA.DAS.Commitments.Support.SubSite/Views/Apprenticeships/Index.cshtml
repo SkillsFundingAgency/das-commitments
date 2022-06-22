@@ -1,10 +1,24 @@
 ﻿@using SFA.DAS.Commitments.Support.SubSite.Extensions
 @using SFA.DAS.Commitments.Support.SubSite.Models
+@using SFA.DAS.CommitmentsV2.Types
 
 @model ApprenticeshipViewModel
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var pendingChangesRequestedBy = "There are no changes for this record";
+
+    if (Model.ApprenticeshipUpdates != null)
+    {
+        pendingChangesRequestedBy = Model.ApprenticeshipUpdates.Originator == SFA.DAS.CommitmentsV2.Types.Originator.Employer
+        ? "Requested by Employer "
+        : "Requested by Training Provider ";
+        if (Model.ApprenticeshipUpdates.CreatedOn.HasValue)
+        {
+            pendingChangesRequestedBy += Model.ApprenticeshipUpdates.CreatedOn.Value.ToString(format: " dd MMM yyyy");
+        }
+    }
+
 }
 
 <div class="grid-row">
@@ -88,8 +102,11 @@
     <div class="column-full">
         <div class="tabs">
             <ul class="js-tabs tabs__list">
-                <li class="tabs__list-item">
+                <li class="tabs__list-item current">
                     <a href="#tab-summary" class="tabs__tab">Summary</a>
+                </li>
+                 <li class="tabs__list-item">
+                    <a href="#tab-pending-changes" class="tabs__tab">Pending Changes</a>
                 </li>
             </ul>
             <div id="tab-summary" class="js-tab-pane tabs__pane">
@@ -223,6 +240,185 @@
                     </tbody>
                 </table>
             </div>
+            <div id="tab-pending-changes" class="js-tab-pane tabs__pane">
+
+                 <h2 class="heading-medium">Changes requested by training provider or employer</h2>
+                 <div>@pendingChangesRequestedBy</div>
+
+                 @if (Model.ApprenticeshipUpdates != null)
+                 {
+                     <table class="responsive threeColumn">
+                         <thead>
+                             <tr>
+                                 <th></th>
+                                 <th> <h2 class="heading-medium">Currently</h2></th>
+                                 <th> <h2 class="heading-medium">Change to</h2></th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                             @if (!string.IsNullOrWhiteSpace(Model.ApprenticeshipUpdates.FirstName) || !string.IsNullOrWhiteSpace(Model.ApprenticeshipUpdates.LastName))
+                             {
+                                 
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Name</th>
+                                     <td class="govuk-table__cell">@Model.Name</td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.DisplayNameForUpdate</td>
+                                 </tr>
+                             }
+                             @if (!string.IsNullOrWhiteSpace(Model.ApprenticeshipUpdates.Email))
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Email</th>
+                                     <td class="govuk-table__cell">
+                                         @Model.Email
+                                     </td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.Email</td>
+            
+                                 </tr>
+                             }
+                             @if (Model.ApprenticeshipUpdates.DateOfBirth.HasValue)
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Date of birth</th>
+                                     <td class="govuk-table__cell">
+                                         @Model.DateOfBirth.Value.ToGdsFormatWithSpaceSeperator()
+                                     </td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.DateOfBirth.Value.ToGdsFormatWithSpaceSeperator()</td>
+            
+                                 </tr>
+                             }
+                             @if (!string.IsNullOrWhiteSpace(Model.ApprenticeshipUpdates.ULN))
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">ULN</th>
+                                     <td class="govuk-table__cell">@Model.Uln</td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.ULN</td>
+                                 </tr>
+                             }
+                             @if (Model.ApprenticeshipUpdates.DeliveryModel.HasValue)
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Apprenticeship delivery model</th>
+                                     <td class="govuk-table__cell">@Model.DeliveryModel.ToDescription() </td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.DeliveryModel.ToDescription()</td>
+                                 </tr>
+            
+                                 @if (Model.ApprenticeshipUpdates.DeliveryModel == DeliveryModel.Regular)
+                                 {
+                                     <tr>
+                                         <th scope="row" class="govuk-table__header">Planned end date of this employment</th>
+                                         <td class="govuk-table__cell">@(Model.EmploymentEndDate.HasValue ? Model.EmploymentEndDate.Value.ToGdsFormatWithSpaceSeperator() : "Not applicable")</td>
+                                         <td class="govuk-table__cell">Not applicable</td>
+                                     </tr>
+                                     <tr>
+                                         <th scope="row" class="govuk-table__header">Training price for this employment</th>
+                                         <td class="govuk-table__cell">@(Model.EmploymentPrice.HasValue ? Model.EmploymentPrice.FormatCost() : "Not applicable")</td>
+                                         <td class="govuk-table__cell">Not applicable</td>
+                                     </tr>
+                                 }
+                             }
+                             @if (Model.ApprenticeshipUpdates.EmploymentEndDate.HasValue)
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Planned end date of this employment</th>
+                                     <td class="govuk-table__cell">@(Model.EmploymentEndDate.HasValue ? Model.EmploymentEndDate.Value.ToGdsFormatWithSpaceSeperator() : "Not applicable" ) </td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.EmploymentEndDate.Value.ToGdsFormatWithSpaceSeperator()</td>
+                                 </tr>
+                             }
+                             @if (Model.ApprenticeshipUpdates.EmploymentPrice.HasValue)
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Training price for this employment</th>
+                                     <td class="govuk-table__cell">@(Model.EmploymentPrice.HasValue ? Model.EmploymentPrice.FormatCost() : "Not applicable" ) </td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.EmploymentPrice.FormatCost()</td>
+                                 </tr>
+                             }
+            
+                             @if (!string.IsNullOrWhiteSpace(Model.ApprenticeshipUpdates.CourseName))
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Apprenticeship training course</th>
+                                     <td class="govuk-table__cell">@Model.Trainingcourse </td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.CourseName</td>
+                                 </tr>
+                             }
+                             @if (!string.IsNullOrWhiteSpace(Model.ApprenticeshipUpdates.Version) || !string.IsNullOrWhiteSpace(Model.ApprenticeshipUpdates.CourseCode))
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Version</th>
+                                     <td class="govuk-table__cell">
+                                         @(Model.Version != null ? Model.Version : "Not applicable")
+                                     </td>
+                                     <td class="govuk-table__cell">
+                                         @(Model.ApprenticeshipUpdates.Version != null ? Model.ApprenticeshipUpdates.Version : "Not applicable")
+                                     </td>
+                                 </tr>
+                             }
+                             @if (Model.ApprenticeshipUpdates.Option != Model.Option || !string.IsNullOrEmpty(Model.ApprenticeshipUpdates.CourseCode))
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Option</th>
+                                     <td class="govuk-table__cell">
+                                         @if (Model.Option == null)
+                                         {
+                                             <span> Not applicable</span>
+                                         }
+                                         else if (Model.Option == string.Empty)
+                                         {
+                                             <span> To be confirmed </span>
+                                         }
+                                         else
+                                         {
+                                             <span> @Model.Option </span>
+                                         }
+                                     </td>
+                                     <td class="govuk-table__cell">
+                                         @if (Model.ApprenticeshipUpdates.Option == null)
+                                         {
+                                             <span> Not applicable</span>
+                                         }
+                                         else if (Model.ApprenticeshipUpdates.Option == string.Empty)
+                                         {
+                                             <span> To be confirmed </span>
+                                         }
+                                         else
+                                         {
+                                             <span> @Model.ApprenticeshipUpdates.Option </span>
+                                         }
+                                     </td>
+                                 </tr>
+                             }
+                             @if (Model.ApprenticeshipUpdates.StartDate.HasValue)
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Planned training start date</th>
+                                     <td class="govuk-table__cell">@Model.DasTrainingStartDate.Value.ToGdsFormatWithSpaceSeperator() </td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.StartDate.Value.ToGdsFormatWithSpaceSeperator()</td>
+            
+                                 </tr>
+                             }
+                             @if (Model.ApprenticeshipUpdates.EndDate.HasValue)
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Planned training end date</th>
+                                     <td class="govuk-table__cell">@Model.DasTrainingEndDate.Value.ToGdsFormatWithSpaceSeperator() </td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.EndDate.Value.ToGdsFormatWithSpaceSeperator()</td>
+            
+                                 </tr>
+                             }
+                             @if (Model.ApprenticeshipUpdates.Cost.HasValue)
+                             {
+                                 <tr>
+                                     <th scope="row" class="govuk-table__header">Cost</th>
+                                     <td class="govuk-table__cell">@Model.TrainingCost.FormatCost() </td>
+                                     <td class="govuk-table__cell">@Model.ApprenticeshipUpdates.Cost.FormatCost()</td>
+            
+                                 </tr>
+                             }
+                         </tbody>
+                     </table>
+                 }
+             </div>
         </div>
     </div>
 </div>

@@ -59,6 +59,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 StandardUId = source.StandardUId,
                 TrainingCourseVersionConfirmed = source.TrainingCourseVersionConfirmed,
                 TrainingCourseOption = source.TrainingCourseOption,
+                EmploymentPrice = source.FlexibleEmployment?.EmploymentPrice,
+                EmploymentEndDate = source.FlexibleEmployment?.EmploymentEndDate,
+                TrainingCourseVersion = source.TrainingCourseVersion,
             });
         }
 
