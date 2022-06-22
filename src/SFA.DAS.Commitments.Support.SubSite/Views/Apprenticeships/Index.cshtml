@@ -250,7 +250,7 @@
             </div>
             <div id="tab-pending-changes" class="js-tab-pane tabs__pane">
 
-                 <h2 class="heading-medium">Changes requested by training provider or employer</h2>
+                  <h1 class="heading-large">Changes requested by training provider or employer</h1>
                  <div>@pendingChangesRequestedBy</div>
 
                  @if (Model.ApprenticeshipUpdates != null)
@@ -433,7 +433,7 @@
 
             <div id="tab-provider-history" class="js-tab-pane tabs__pane">
 
-                <h2 class="heading-medium">Training provider history</h2>
+                <h1 class="heading-large">Training provider history</h1>
 
                 @if (Model.ApprenticeshipProviderHistory.Count > 1)
                 {
@@ -453,7 +453,7 @@
                             </tr>
                             <tr>
                                 <th scope="row" class="bold">Current planned training dates </th>
-                                <td>@Model.ApprenticeshipProviderHistory.First().StartDate.ToGdsFormatWithoutDay() to @Model.ApprenticeshipProviderHistory.First().StopDate.ToGdsFormatWithoutDay()</td>
+                                <td>@Model.ApprenticeshipProviderHistory.First().StartDate.ToGdsFormatWithoutDay() to @Model.ApprenticeshipProviderHistory.First().EndDate.ToGdsFormatWithoutDay()</td>
                             </tr>
                         </tbody>
                     </table>
