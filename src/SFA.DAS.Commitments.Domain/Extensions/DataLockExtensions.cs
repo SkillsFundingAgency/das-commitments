@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Domain.Extensions
@@ -8,7 +9,7 @@ namespace SFA.DAS.Commitments.Domain.Extensions
     {
         public static bool UnHandled(this DataLockStatus dl)
         {
-            return !dl.IsResolved && dl.Status != Status.Pass;
+            return !dl.IsResolved && dl.Status != Status.Pass && dl.EventStatus != EventStatus.Removed;
         }
 
         public static bool IsPriceOnly(this DataLockStatus dataLockStatus)

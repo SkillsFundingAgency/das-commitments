@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
     {
         public static bool UnHandled(this DataLockStatus dl)
         {
-            return !dl.IsResolved && dl.Status != Status.Pass && !dl.IsExpired;
+            return !dl.IsResolved && dl.Status != Status.Pass && !dl.IsExpired && dl.EventStatus != EventStatus.Removed;
         }
 
         public static bool IsPriceOnly(this DataLockStatus dataLockStatus)
