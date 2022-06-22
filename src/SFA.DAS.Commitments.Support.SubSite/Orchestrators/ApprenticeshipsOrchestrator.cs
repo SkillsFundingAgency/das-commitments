@@ -12,6 +12,8 @@ using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.Commitments.Support.SubSite.Extensions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
+using System.Threading;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
@@ -51,7 +53,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
-            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, 
+            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId,
                 CommitmentsV2.Types.ApprenticeshipUpdateStatus.Pending));
 
             if (response == null)
@@ -62,7 +64,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 throw new Exception(errorMsg);
             }
 
-            var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response);
+            var apprenticeshipProviders = await _mediator.Send(new GetChangeOfProviderChainQuery(apprenticeshipId), CancellationToken.None);
+
+            var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
             result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships.First());
 
             if (result.ApprenticeshipUpdates?.Cost != null)
