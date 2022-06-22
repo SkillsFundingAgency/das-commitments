@@ -108,6 +108,14 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FlexibleEmployment.EmploymentEndDate = null;
             }
 
+            RecognisePriorLearning = source.RecognisePriorLearning;
+            if(RecognisePriorLearning == true)
+            {
+                PriorLearning ??= new ApprenticeshipPriorLearning();
+                PriorLearning.DurationReducedBy = source.DurationReducedBy;
+                PriorLearning.PriceReducedBy = source.PriceReducedBy;
+            }
+            
             ClearPriorLearningWhenStartDateBeforeAug2022();
         }
 

@@ -130,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { ErrorMessage = "UpdateApprenticeshipStopDate is restricted to Employers only - Provider is invalid" });
+            exception.DomainErrors.Should().ContainEquivalentOf(new { ErrorMessage = "UpdateApprenticeshipStopDate is restricted to Employers only - Provider is invalid" });
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = "Apprenticeship must be stopped in order to update stop date" });
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "newStopDate", ErrorMessage = "Apprenticeship must be stopped in order to update stop date" });
         }
 
         [Test]
@@ -159,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = "Invalid Date of Change. Date cannot be in the future." });
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "newStopDate", ErrorMessage = "Invalid Date of Change. Date cannot be in the future." });
         }
 
 
@@ -174,7 +174,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = "The stop month cannot be before the apprenticeship started" });
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "newStopDate", ErrorMessage = "The stop month cannot be before the apprenticeship started" });
         }    
 
         [Test]
@@ -191,7 +191,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { PropertyName = "newStopDate", ErrorMessage = $"The date overlaps with existing dates for the same apprentice" });
+            exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "newStopDate", ErrorMessage = $"The date overlaps with existing dates for the same apprentice" });
         }
 
         [Test]

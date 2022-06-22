@@ -2,9 +2,7 @@ trigger:
   batch: true
   branches:
     include:
-      - "*"
-
-pr: none
+      - "master"
 
 variables:
   - group: 'Prod Management Resources'
@@ -18,7 +16,7 @@ resources:
   - repository: das-platform-building-blocks
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/heads/master
+    ref: refs/tags/0.4.61
     endpoint: SkillsFundingAgency
 
 stages:
@@ -144,7 +142,7 @@ stages:
         command: publish
         publishWebProjects: false
         projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/SFA.DAS.CommitmentsV2.Api.csproj'
-        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'      
+        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
 
     - task: DotNetCoreCLI@2
       displayName: 'publish v2 WebJob'
@@ -154,6 +152,13 @@ stages:
         custom: msbuild
         arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
 
+    - task: DotNetCoreCLI@2
+      displayName: 'publish Support Site'
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
+        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
   
     - task: VSBuild@1
       displayName: 'Publish v1 API'
@@ -170,22 +175,6 @@ stages:
       inputs:
         rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-api'
         archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Api.zip'
-
-    - task: VSBuild@1
-      displayName: 'Publish Support Site'
-      inputs:
-        solution: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
-        vsVersion: 15.0
-        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/support-site"'
-        platform: 'anycpu'
-        configuration: '$(buildConfiguration)'
-        clean: true
-
-    - task: ArchiveFiles@2
-      displayName: 'Archive Support Site'
-      inputs:
-        rootFolderOrFile: '$(build.artifactstagingdirectory)/support-site'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Support.SubSite.zip'
 
     - task: VSBuild@1
       displayName: 'Publish v1 WebJob'
