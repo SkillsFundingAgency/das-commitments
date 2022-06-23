@@ -10,13 +10,30 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
     {
         private IEnumerable<Error> ValidatePriorLearning(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
-            if(csvRecord.StartDate < Constants.RecognisePriorLearningBecomesRequiredOn)
+            if (csvRecord.StartDate < Constants.RecognisePriorLearningBecomesRequiredOn)
             {
+                if (csvRecord.RecognisePriorLearning != null ||
+                    csvRecord.DurationReducedBy != null ||
+                    csvRecord.PriceReducedBy != null)
+                {
+                    yield return new Error("RecognisePriorLearning", "<b>RPL data</b> should not be entered when the start date is before 1 August 2022.");
+                }
+
                 yield break;
             }
 
             if (csvRecord.RecognisePriorLearning == false)
             {
+                if (csvRecord.DurationReducedBy != null)
+                {
+                    yield return new Error("DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning should not be entered when recognise prior learning is false.");
+                }
+
+                if (csvRecord.PriceReducedBy != null)
+                {
+                    yield return new Error("PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning should not be entered when recognise prior learning is false.");
+                }
+                
                 yield break;
             }
 
@@ -24,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             {
                 //This validation cannot be enabled until the bulk upload file format change has been communicated
                 //and software integrators have had time to update their systems.
-                //yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
+                //yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
 
                 // When the above validation is enabled, this one must be kept.
                 // We don't want to return *ReducedBy errors until RPL is confirmed
@@ -33,16 +50,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             if (csvRecord.DurationReducedBy == null)
             {
-                yield return new Error("DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning.");
-            } 
+                yield return new Error("DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning in weeks using numbers only.");
+            }
             else if (csvRecord.DurationReducedBy < 1)
             {
                 yield return new Error("DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must be more than 0.");
             }
+            else if (csvRecord.DurationReducedBy > 999)
+            {
+                yield return new Error("DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must be 999 or less.");
+            }
 
             if (csvRecord.PriceReducedBy == null)
             {
-                yield return new Error("PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning.");
+                yield return new Error("PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning using numbers only.");
             }
             else if (csvRecord.PriceReducedBy < 1)
             {
