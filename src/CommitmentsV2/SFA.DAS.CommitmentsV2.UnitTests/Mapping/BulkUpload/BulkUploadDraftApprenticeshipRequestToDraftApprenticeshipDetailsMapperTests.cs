@@ -166,18 +166,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
                 Assert.AreEqual(_trainingProgramme.EffectiveTo, rs.TrainingProgramme.EffectiveTo);
             }
         }
-
-        [Test]
-        public void PriorLearningIsMappedCorrectly()
-        {
-            foreach (var source in _source.BulkUploadDraftApprenticeships)
-            {
-                var result = _result.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.RecognisePriorLearning, result.RecognisePriorLearning);
-                Assert.AreEqual(source.DurationReducedBy, result.DurationReducedBy);
-                Assert.AreEqual(source.PriceReducedBy, result.PriceReducedBy);
-            }
-        }
     }
 
     public class BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder : ISpecimenBuilder

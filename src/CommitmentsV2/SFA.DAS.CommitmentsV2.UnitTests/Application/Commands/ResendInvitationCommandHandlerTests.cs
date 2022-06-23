@@ -84,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().ContainEquivalentOf(new { ErrorMessage = "Invitation cannot be sent as there is no email associated with apprenticeship" });
+            exception.DomainErrors.Should().BeEquivalentTo(new { ErrorMessage = "Invitation cannot be sent as there is no email associated with apprenticeship" });
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().ContainEquivalentOf(new { ErrorMessage = "Email address has been confirmed" });
+            exception.DomainErrors.Should().BeEquivalentTo(new { ErrorMessage = "Email address has been confirmed" });
         }
 
         private async Task<Apprenticeship> SetupApprenticeship(Party party = Party.Employer, string email = null, bool? emailAddressConfirmed = null)
