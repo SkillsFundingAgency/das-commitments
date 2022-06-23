@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2017-04-01");
+            fixture.SetPriorLearning(null);
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "StartDate", "The <b>start date</b> must not be earlier than May 2017");
         }
@@ -50,6 +51,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2018-04-01").SetIsTransferFunded();
+            fixture.SetPriorLearning(null);
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "StartDate", "The <b>start date</b> for apprenticeships funded through a transfer must not be earlier than May 2018");
         }

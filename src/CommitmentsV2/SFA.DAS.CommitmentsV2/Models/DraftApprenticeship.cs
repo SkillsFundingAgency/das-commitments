@@ -112,8 +112,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             if(RecognisePriorLearning == true)
             {
                 PriorLearning ??= new ApprenticeshipPriorLearning();
-                PriorLearning.DurationReducedBy = source.DurationReducedBy;
-                PriorLearning.PriceReducedBy = source.PriceReducedBy;
+                PriorLearning.DurationReducedBy ??= source.DurationReducedBy;
+                PriorLearning.PriceReducedBy ??= source.PriceReducedBy;
             }
             
             ClearPriorLearningWhenStartDateBeforeAug2022();
