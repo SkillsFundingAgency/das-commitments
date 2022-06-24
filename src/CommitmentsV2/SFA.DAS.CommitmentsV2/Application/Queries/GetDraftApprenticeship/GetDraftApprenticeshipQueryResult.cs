@@ -31,6 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         public bool? RecognisePriorLearning { get; set; }
         public int? DurationReducedBy { get; set; }
         public int? PriceReducedBy { get; set; }
-
+        public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
     }
 }
