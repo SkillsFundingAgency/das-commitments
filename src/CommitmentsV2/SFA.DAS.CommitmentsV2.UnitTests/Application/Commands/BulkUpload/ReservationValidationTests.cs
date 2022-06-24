@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: -1);
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must be more than 0.");
+            fixture.ValidateError(errors, "DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must be between 0 and 999.");
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 1000);
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must be 999 or less.");
+            fixture.ValidateError(errors, "DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must be between 0 and 999.");
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetPriorLearning(recognisePriorLearning: true, priceReducedBy: -1);
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be more than 0.");
+            fixture.ValidateError(errors, "PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be between 0 and £100,000.");
         }
 
         [Test]
@@ -132,10 +132,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
-            fixture.SetPriorLearning(recognisePriorLearning: true, priceReducedBy: 1000);
+            fixture.SetPriorLearning(recognisePriorLearning: true, priceReducedBy: 100001);
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be £100,000 or less.");
+            fixture.ValidateError(errors, "PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be between 0 and £100,000.");
         }
 
         [Test]
