@@ -1,22 +1,19 @@
-﻿using MediatR;
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Authorization.Mvc.Attributes;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
-    [DasAuthorize(Feature.BulkUploadV2)]
     [Route("api/{providerId}/bulkupload")]
     public class BulkUploadController : ControllerBase
     {

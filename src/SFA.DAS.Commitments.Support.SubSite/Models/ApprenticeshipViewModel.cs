@@ -1,7 +1,6 @@
-﻿using System;
+﻿using SFA.DAS.CommitmentsV2.Types;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Models
 {
@@ -45,5 +44,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
         public string CompletionPaymentMonth { get; set; }
         public string PaymentStatusTagColour { get; set; }
         public bool? MadeRedundant { get; set; }
+        public DeliveryModel? DeliveryModel { get; set; }
+        public int? EmploymentPrice { get; set; }
+        public DateTime? EmploymentEndDate { get; set; }
+        public ApprenticeshipUpdateViewModel ApprenticeshipUpdates { get; set; }
+
+        public List<ApprenticeshipProviderHistoryViewModel> ApprenticeshipProviderHistory { get; set; } = new List<ApprenticeshipProviderHistoryViewModel>();
     }
 }

@@ -5,18 +5,15 @@ using SFA.DAS.Commitments.Support.SubSite.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.Encoding;
-using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
+using SFA.DAS.Commitments.Support.SubSite.Extensions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
+using System.Threading;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
@@ -56,6 +53,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
+            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId,
+                CommitmentsV2.Types.ApprenticeshipUpdateStatus.Pending));
+
             if (response == null)
             {
                 var errorMsg = $"Can't find Apprenticeship with Hash Id {hashId}";
@@ -64,7 +64,18 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 throw new Exception(errorMsg);
             }
 
-            return _apprenticeshipMapper.MapToApprenticeshipViewModel(response);
+            var apprenticeshipProviders = await _mediator.Send(new GetChangeOfProviderChainQuery(apprenticeshipId), CancellationToken.None);
+
+            var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
+            result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships.First());
+
+            if (result.ApprenticeshipUpdates?.Cost != null)
+            {
+                var priceEpisodes = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
+                result.TrainingCost = priceEpisodes.PriceEpisodes.GetPrice();
+            }
+
+            return result;
         }
 
         public async Task<UlnSummaryViewModel> GetApprenticeshipsByUln(ApprenticeshipSearchQuery searchQuery)
