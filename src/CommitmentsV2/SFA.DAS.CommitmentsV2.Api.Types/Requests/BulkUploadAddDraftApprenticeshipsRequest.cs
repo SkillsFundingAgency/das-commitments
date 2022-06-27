@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string ProviderRef { get; set; }
         public int RowNumber { get; set; }
         public string CostAsString { get; set; }
-        public int? Cost => int.TryParse(CostAsString, out var result) ? result : null;
+        public int? Cost => int.TryParse(CostAsString, out var result) ? result : default;
         public static DateTime? GetDate(string date, string format, bool isStartDate = false)
         {
             if (!string.IsNullOrWhiteSpace(date) &&
@@ -62,9 +62,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         };
 
         public string DurationReducedByAsString { get; set; }
-        public int? DurationReducedBy => int.TryParse(DurationReducedByAsString, out var result) ? result : null;
+        public int? DurationReducedBy => int.TryParse(DurationReducedByAsString, out var result) ? result : default;
 
         public string PriceReducedByAsString { get; set; }
-        public int? PriceReducedBy => int.TryParse(PriceReducedByAsString, out var result) ? result : null;
+        public int? PriceReducedBy => int.TryParse(PriceReducedByAsString, out var result) ? result : default;
     }
 }
