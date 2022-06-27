@@ -23,12 +23,25 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
         public static async Task<Cohort> GetCohortAggregate(this ProviderCommitmentsDbContext db, long cohortId, CancellationToken cancellationToken)
         {
             var cohort = await db.Cohorts
-                .Include(c => c.Apprenticeships).ThenInclude(a=>a.FlexibleEmployment)
+                .Include(c => c.Apprenticeships).ThenInclude(a => a.FlexibleEmployment)
+                .Include(c => c.Apprenticeships).ThenInclude(a => a.PriorLearning)
                 .Include(c => c.TransferRequests)
                 .SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
             if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
             if (cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
             return cohort;
+        }
+
+        public static async Task<DraftApprenticeship> GetDraftApprenticeshipAggregate(this ProviderCommitmentsDbContext db, long cohortId, long apprenticeshipId, CancellationToken cancellationToken)
+        {
+            var draftApprenticeship = await db.DraftApprenticeships
+                .Include(a => a.Cohort)
+                .Include(a => a.FlexibleEmployment)
+                .Include(a => a.PriorLearning)
+                .SingleOrDefaultAsync(a => a.Id == apprenticeshipId && a.CommitmentId == cohortId, cancellationToken);
+            if (draftApprenticeship == null) throw new BadRequestException($"Draft Apprenticeship {apprenticeshipId}  in Cohort {cohortId} was not found");
+            if (draftApprenticeship.Cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
+            return draftApprenticeship;
         }
 
         public static async Task<Apprenticeship> GetApprenticeshipAggregate(this ProviderCommitmentsDbContext db, long apprenticeshipId, CancellationToken cancellationToken)

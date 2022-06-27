@@ -4,11 +4,13 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
 using System.Collections.Generic;
 using System.Linq;
+using static SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain.GetChangeOfProviderChainQueryResult;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
 {
@@ -21,6 +23,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         private SupportApprenticeshipDetails _mockedApprenticeshipNotConfirmedVersion;
         private SupportApprenticeshipDetails _mockedApprenticeshipNotConfirmedOption;
         private GetSupportApprenticeshipQueryResult SupportApprenticeshipQueryResponse;
+        private GetChangeOfProviderChainQueryResult ChangeOfProviderChainQueryResult;
 
         private ApprenticeshipMapper _mapper;
 
@@ -62,6 +65,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                 }
             };
 
+            ChangeOfProviderChainQueryResult = dataFixture.Build<GetChangeOfProviderChainQueryResult>().Create();
+
             _mapper = new ApprenticeshipMapper(_encodingService.Object);
         }
 
@@ -100,7 +105,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         [Test]
         public void ShouldMapToValidApprenticeshipViewModel()
         {
-            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse);
+            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
             result.Should().NotBeNull();
             result.Should().BeOfType<ApprenticeshipViewModel>();
 
@@ -121,6 +126,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             result.DasTrainingStartDate.Should().Be(_mockedApprenticeship.StartDate);
             result.DasTrainingEndDate.Should().Be(_mockedApprenticeship.EndDate);
             result.TrainingCost.Should().Be(_mockedApprenticeship.Cost);
+            result.ApprenticeshipProviderHistory.Should().NotBeNullOrEmpty();
+            result.ApprenticeshipProviderHistory.Count.Should().Be(ChangeOfProviderChainQueryResult.ChangeOfProviderChain.Count);
         }
 
         [TestCase(CommitmentsV2.Types.PaymentStatus.Active, "Live", "blue")]
@@ -131,7 +138,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         {
             SupportApprenticeshipQueryResponse.Apprenticeships.First().PaymentStatus = paymentStatus;
             SupportApprenticeshipQueryResponse.Apprenticeships.First().StartDate = System.DateTime.Now.AddMonths(-1);
-            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse);
+            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
 
             result.PaymentStatus.Should().Be(expectedPaymentStatusText);
             result.PaymentStatusTagColour.Should().Be(expectedPaymentStatusTagColour);
@@ -140,14 +147,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         [Test]
         public void ShouldMapApprenticeshipVersionToViewModelVersion()
         {
-            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse);
+            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
             result.Version.Should().Be(_mockedApprenticeship.TrainingCourseVersion);
         }
 
         [Test]
         public void ShouldMapApprenticeshipOptionToViewModelOption()
         {
-            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse);
+            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
             result.Option.Should().Be(_mockedApprenticeship.TrainingCourseOption);
         }
 
@@ -161,36 +168,52 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                     _mockedApprenticeshipNotConfirmedVersion
                 }
             };
-            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse);
+            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
             result.Version.Should().BeNullOrEmpty();
-        }
-
-        [Test]
-        public void ShouldMapApprenticeshipNotYetConfirmedOptionToViewModelOptionToBeConfirmed()
-        {
-            SupportApprenticeshipQueryResponse = new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = new List<SupportApprenticeshipDetails>
-                {
-                    _mockedApprenticeshipNotConfirmedOption
-                }
-            };
-            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse);
-            result.Option.Should().Be("To be confirmed");
         }
 
         [Test]
         public void ShouldMapApprenticeshipEmailToApprenticeshipViewModelEmail()
         {
-            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse);
+            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
             result.Email.Should().Be(_mockedApprenticeship.Email);
         }
 
         [Test]
         public void ShouldMapConfirmationStatusToApprenticeshipViewModelConfirmationStatus()
         {
-            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse);
+            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
             result.ConfirmationStatusDescription.Should().Be(_mockedApprenticeship.ConfirmationStatus.ToString());
+        }
+
+        [Test]
+        public void ShouldMapApprenticeshipProviderHistory()
+        {
+            var changeOfProviderChain = new List<ChangeOfProviderLink>
+            {
+                new ChangeOfProviderLink
+                {
+                    ProviderName = "TEST 1",
+                    StartDate = new System.DateTime(1,2,3)
+                }
+            };
+
+            ChangeOfProviderChainQueryResult.ChangeOfProviderChain = changeOfProviderChain.AsReadOnly();
+
+            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
+            result.ApprenticeshipProviderHistory.Should().NotBeNullOrEmpty();
+            result.ApprenticeshipProviderHistory.Count.Should().Be(ChangeOfProviderChainQueryResult.ChangeOfProviderChain.Count);
+
+            result.ApprenticeshipProviderHistory[0].ProviderName.Should().Be(changeOfProviderChain[0].ProviderName);
+            result.ApprenticeshipProviderHistory[0].StartDate.Should().Be(changeOfProviderChain[0].StartDate);
+        }
+
+        [Test]
+        public void WhenChangeOfProviderLinkIsNullShouldCreateNewInstanceForApprenticeshipProviderHistory()
+        {
+            ChangeOfProviderChainQueryResult.ChangeOfProviderChain = null;
+            var result = _mapper.MapToApprenticeshipViewModel(SupportApprenticeshipQueryResponse, ChangeOfProviderChainQueryResult);
+            result.ApprenticeshipProviderHistory.Should().NotBeNull();
         }
     }
 }

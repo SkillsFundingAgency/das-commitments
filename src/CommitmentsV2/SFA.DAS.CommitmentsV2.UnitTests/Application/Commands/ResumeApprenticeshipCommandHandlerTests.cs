@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { ErrorMessage = "Only paused record can be activated" });
+            exception.DomainErrors.Should().ContainEquivalentOf(new { ErrorMessage = "Only paused record can be activated" });
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
 
             // Assert
-            exception.DomainErrors.Should().BeEquivalentTo(new { ErrorMessage = $"Only employers are allowed to edit the end of completed records - {party} is invalid" });
+            exception.DomainErrors.Should().ContainEquivalentOf(new { ErrorMessage = $"Only employers are allowed to edit the end of completed records - {party} is invalid" });
         }
 
         private async Task<Apprenticeship> SetupApprenticeship(Party party = Party.Employer, PaymentStatus paymentStatus = PaymentStatus.Paused, DateTime? startDate = null)

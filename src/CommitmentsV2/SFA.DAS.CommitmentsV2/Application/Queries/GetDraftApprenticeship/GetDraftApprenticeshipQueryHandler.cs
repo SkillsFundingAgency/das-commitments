@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
 
         public GetDraftApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
         {
-            _dbContext = dbContext;
+            _dbContext = dbContext; 
             _authenticationService = authenticationService;
         }
 
@@ -54,6 +54,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                         HasStandardOptions = !string.IsNullOrEmpty(draft.StandardUId) && _dbContext.Value.StandardOptions.Any(c => c.StandardUId.Equals(draft.StandardUId)),
                         EmploymentEndDate = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentEndDate : null,
                         EmploymentPrice = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentPrice : null,
+                        RecognisePriorLearning = draft.RecognisePriorLearning,
+                        DurationReducedBy = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedBy : null,
+                        PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
                     },
                     cancellationToken);
 

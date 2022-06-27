@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             return TestExceptionAsync(f => f.SetAccountLegalEntityDeletedBeforeCommand(), 
                 f => f.Handle(), 
-                (f, r) => r.Should().Throw<InvalidOperationException>());
+                (f, r) => r.Should().ThrowAsync<InvalidOperationException>());
         }
     }
 
