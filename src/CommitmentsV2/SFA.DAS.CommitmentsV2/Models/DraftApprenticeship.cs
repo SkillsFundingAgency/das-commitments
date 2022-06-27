@@ -108,15 +108,14 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FlexibleEmployment.EmploymentEndDate = null;
             }
 
-            // Removed to see if this fixes the update problem (need to review how it will affect bulk upload)
-            //RecognisePriorLearning = source.RecognisePriorLearning;
-            //if(RecognisePriorLearning == true)
-            //{
-            //    PriorLearning ??= new ApprenticeshipPriorLearning();
-            //    PriorLearning.DurationReducedBy ??= source.DurationReducedBy;
-            //    PriorLearning.PriceReducedBy ??= source.PriceReducedBy;
-            //}
-            
+            RecognisePriorLearning ??= source.RecognisePriorLearning;
+            if (RecognisePriorLearning == true)
+            {
+                PriorLearning ??= new ApprenticeshipPriorLearning();
+                PriorLearning.DurationReducedBy ??= source.DurationReducedBy;
+                PriorLearning.PriceReducedBy ??= source.PriceReducedBy;
+            }
+
             ClearPriorLearningWhenStartDateBeforeAug2022();
         }
 

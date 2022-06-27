@@ -587,13 +587,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(Party.Provider, "2022-08-01")]
         [TestCase(Party.Employer, "2022-09-01")]
         [TestCase(Party.Provider, "2022-09-01")]
-        public async Task UpdateDraftApprenticeship_IsSuccessfulAndStartDateIsAfterToAug2022_ThenDraftApprenticeshipIsUpdatedButPriorLearningDataIsRemoved(Party withParty, DateTime startDate)
+        public async Task UpdateDraftApprenticeship_IsSuccessfulAndStartDateIsAfterToAug2022_ThenDraftApprenticeshipIsUpdatedButPriorLearningDataIsStillPresent(Party withParty, DateTime startDate)
         {
             _fixture.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeshipWithPriorLearning();
             _fixture.DraftApprenticeshipDetails.StartDate = startDate;
             _fixture.DraftApprenticeshipDetails.EndDate = startDate.AddYears(1);
             await _fixture.UpdateDraftApprenticeship();
             _fixture.VerifyPriorLearningIsStillPresent();
+        }
+
+        [TestCase(Party.Employer, "2022-08-01")]
+        [TestCase(Party.Provider, "2022-08-01")]
+        public async Task UpdateDraftApprenticeship_IsSuccessfulAndRPLHasPreviouslyBeenSet_ThenDraftApprenticeshipIsUpdatedButPriorLearningDataNotAffected(Party withParty, DateTime startDate)
+        {
+            _fixture.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeshipWithPriorLearning().WithNewRplDetails();
+            _fixture.DraftApprenticeshipDetails.StartDate = startDate;
+            _fixture.DraftApprenticeshipDetails.EndDate = startDate.AddYears(1);
+            await _fixture.UpdateDraftApprenticeship();
+            _fixture.VerifyPriorLearningIsNotSetToNewRPLValues();
+        }
+
+        [TestCase(Party.Employer, "2022-08-01")]
+        [TestCase(Party.Provider, "2022-08-01")]
+        public async Task UpdateDraftApprenticeship_IsSuccessfulAndRPLHasNotPreviouslyBeenSet_ThenDraftApprenticeshipIsUpdatedAndPriorLearningDataIsAdded(Party withParty, DateTime startDate)
+        {
+            _fixture.WithParty(withParty).WithCohortMappedToProviderAndAccountLegalEntity(withParty, withParty).WithExistingDraftApprenticeship().WithNewRplDetails();
+            _fixture.DraftApprenticeshipDetails.StartDate = startDate;
+            _fixture.DraftApprenticeshipDetails.EndDate = startDate.AddYears(1);
+            await _fixture.UpdateDraftApprenticeship();
+            _fixture.VerifyPriorLearningIsNotSetToNewRPLValues();
         }
 
         public class CohortDomainServiceTestFixture
@@ -828,6 +850,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                   new DateTime(2016, 1, 1),
                   null);
                 DraftApprenticeshipDetails.DeliveryModel = DeliveryModel.Regular;
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithNewRplDetails()
+            {
+                var fixture = new Fixture();
+                DraftApprenticeshipDetails.DurationReducedBy = fixture.Create<int>();
+                DraftApprenticeshipDetails.PriceReducedBy = fixture.Create<int>();
+                DraftApprenticeshipDetails.RecognisePriorLearning = true;
                 return this;
             }
 
@@ -1423,6 +1454,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.AreEqual(PriorLearning.PriceReducedBy, updated.PriorLearning.PriceReducedBy);
             }
 
+            public void VerifyPriorLearningIsNotSetToNewRPLValues()
+            {
+                var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
+                Assert.IsFalse(updated.RecognisePriorLearning != DraftApprenticeshipDetails.RecognisePriorLearning &&
+                               updated.PriorLearning?.DurationReducedBy != DraftApprenticeshipDetails.DurationReducedBy &&
+                               updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy);
+            }
+
+            public void VerifyPriorLearningIsSetToNewRPLValues()
+            {
+                var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
+                Assert.IsFalse(updated.RecognisePriorLearning == DraftApprenticeshipDetails.RecognisePriorLearning &&
+                               updated.PriorLearning?.DurationReducedBy == DraftApprenticeshipDetails.DurationReducedBy &&
+                               updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy);
+            }
 
             public void VerifyLastUpdatedFieldsAreSet(Party withParty)
             {
