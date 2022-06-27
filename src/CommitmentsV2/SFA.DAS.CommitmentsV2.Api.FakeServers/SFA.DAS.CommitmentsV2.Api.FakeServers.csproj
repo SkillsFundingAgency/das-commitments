@@ -11,76 +11,58 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="responses\accounts\30060\legalentities\645_get.json">
+    <None Update="Responses\Accounts\30060\LegalEntities\645_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\30060\legalentities_get.json">
+    <None Update="Responses\Accounts\30060\legalentities_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\30060\transfers\connections_get.json">
+    <None Update="Responses\Accounts\30060\Transfers\connections_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\30060\users_get.json">
+    <None Update="Responses\Accounts\30060\users_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\36853\legalentities\701_get.json">
+    <None Update="Responses\Accounts\36853\LegalEntities\701_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\36853\legalentities_get.json">
+    <None Update="Responses\Accounts\36853\legalentities_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\36853\transfers\connections_get.json">
+    <None Update="Responses\Accounts\36853\Transfers\connections_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\36853\users_get.json">
+    <None Update="Responses\Accounts\36853\users_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\8194\legalentities\2817_get.json">
+    <None Update="Responses\Accounts\8194\LegalEntities\2817_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\8194\legalentities\2818_get.json">
+    <None Update="Responses\Accounts\8194\LegalEntities\2818_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\8194\legalentities_get.json">
+    <None Update="Responses\Accounts\8194\legalentities_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\8194\transfers\connections_get.json">
+    <None Update="Responses\Accounts\8194\Transfers\connections_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\accounts\8194\users_get.json">
+    <None Update="Responses\Accounts\8194\users_get.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\provider-relationships\account-provider-legal-entities.json">
+    <None Update="Responses\ProviderRelationships\account-provider-legal-entities.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\provider-relationships\has-permission.json">
+    <None Update="Responses\ProviderRelationships\has-permission.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\provider-relationships\has-relationship-with-permission.json">
+    <None Update="Responses\ProviderRelationships\has-relationship-with-permission.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\provider-relationships\ping.json">
+    <None Update="Responses\ProviderRelationships\ping.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="responses\provider-relationships\revoke-permissions.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="responses\reservations\accounts-bulk-create.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="responses\reservations\accounts-reservations.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="responses\reservations\accounts-status.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="responses\reservations\reservations-change.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="responses\reservations\reservations-select.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="responses\reservations\reservations-validate.json">
+    <None Update="Responses\ProviderRelationships\revoke-permissions.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

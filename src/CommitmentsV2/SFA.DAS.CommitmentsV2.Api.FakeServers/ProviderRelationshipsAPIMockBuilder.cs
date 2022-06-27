@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.RegularExpressions;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
@@ -31,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
             _server.Given
                 (
                     Request.Create()
-                    .WithPath("/api/accountproviderlegalentities$")
+                    .WithPath(s => Regex.IsMatch(s, "/accountproviderlegalentities$"))
                     .UsingGet()
                 )
                 .RespondWith
@@ -39,13 +40,13 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/provider-relationships/account-provider-legal-entities.json")
+                    .WithBodyFromFile("Responses/ProviderRelationships/account-provider-legal-entities.json")
                 );
 
             _server.Given
                 (
                     Request.Create()
-                    .WithPath("/api/permissions/has$")
+                    .WithPath(s => Regex.IsMatch(s, "/permissions/has$"))
                     .UsingGet()
                 )
                 .RespondWith
@@ -53,13 +54,13 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/provider-relationships/has-permission.json")
+                    .WithBodyFromFile("Responses/ProviderRelationships/has-permission.json")
                 );
 
             _server.Given
                 (
                     Request.Create()
-                    .WithPath("/api/permissions/has-relationship-with$")
+                    .WithPath(s => Regex.IsMatch(s, "/permissions/has-relationship-with$"))
                     .UsingGet()
                 )
                 .RespondWith
@@ -67,13 +68,13 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/provider-relationships/has-relationship-with-permission.json")
+                    .WithBodyFromFile("Responses/ProviderRelationships/has-relationship-with-permission.json")
                 );
 
             _server.Given
                 (
                     Request.Create()
-                    .WithPath("/api/ping$")
+                    .WithPath(s => Regex.IsMatch(s, "/ping"))
                     .UsingGet()
                 )
                 .RespondWith
@@ -81,13 +82,13 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/provider-relationships/ping.json")
+                    .WithBodyFromFile("Responses/ProviderRelationships/ping.json")
                 );
 
             _server.Given
                 (
                     Request.Create()
-                    .WithPath("/api/permissions/ping$")
+                    .WithPath(s => Regex.IsMatch(s, "/permissions/ping$"))
                     .UsingGet()
                 )
                 .RespondWith
@@ -95,13 +96,13 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/provider-relationships/ping.json")
+                    .WithBodyFromFile("Responses/ProviderRelationships/ping.json")
                 );
 
             _server.Given
                 (
                     Request.Create()
-                    .WithPath("/api/permissions/revoke$")
+                    .WithPath(s => Regex.IsMatch(s, "/permissions/revoke$"))
                     .UsingGet()
                 )
                 .RespondWith
@@ -109,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/provider-relationships/revoke-permissions.json")
+                    .WithBodyFromFile("Responses/ProviderRelationships/revoke-permissions.json")
                 );
 
             return this;

@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile($"responses/accounts/8194/legalentities/2817_get.json")
+                    .WithBodyFromFile($"Responses/Accounts/8194/LegalEntities/2817_get.json")
                 );
 
             _server.Given
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/8194/legalentities/2818_get.json")
+                    .WithBodyFromFile("Responses/Accounts/8194/LegalEntities/2818_get.json")
                 );
 
             _server.Given
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/8194/transfers/connections_get.json")
+                    .WithBodyFromFile("Responses/Accounts/8194/Transfers/connections_get.json")
                 );
 
             _server.Given
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/8194/legalentities_get.json")
+                    .WithBodyFromFile("Responses/Accounts/8194/legalentities_get.json")
                 );
 
             _server.Given
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/8194/users_get.json")
+                    .WithBodyFromFile("Responses/Accounts/8194/users_get.json")
                 );
 
             _server.Given
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/30060/legalentities/645_get.json")
+                    .WithBodyFromFile("Responses/Accounts/30060/LegalEntities/645_get.json")
                 );
 
             _server.Given
@@ -123,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/30060/transfers/connections_get.json")
+                    .WithBodyFromFile("Responses/Accounts/30060/Transfers/connections_get.json")
                 );
 
             _server.Given
@@ -137,7 +137,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/30060/legalentities_get.json")
+                    .WithBodyFromFile("Responses/Accounts/30060/legalentities_get.json")
                 );
 
             _server.Given
@@ -151,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/30060/users_get.json")
+                    .WithBodyFromFile("Responses/Accounts/30060/users_get.json")
                 );
 
             _server.Given
@@ -165,7 +165,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/36853/transfers/connections_get.json")
+                    .WithBodyFromFile("Responses/Accounts/36853/Transfers/connections_get.json")
                 );
 
             _server.Given
@@ -179,7 +179,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/36853/legalentities_get.json")
+                    .WithBodyFromFile("Responses/Accounts/36853/legalentities_get.json")
                 );
 
             _server.Given
@@ -193,7 +193,7 @@ namespace SFA.DAS.CommitmentsV2.Api.FakeServers
                     Response.Create()
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
-                    .WithBodyFromFile("responses/accounts/36853/users_get.json")
+                    .WithBodyFromFile("Responses/Accounts/36853/users_get.json")
                 );
 
             return this;
