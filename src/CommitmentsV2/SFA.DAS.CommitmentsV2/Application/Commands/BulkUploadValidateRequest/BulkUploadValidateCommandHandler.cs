@@ -157,6 +157,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             domainErrors.AddRange(ValidateProviderRef(csvRecord));
             domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
             domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
+            domainErrors.AddRange(ValidatePriorLearning(csvRecord));
 
             return domainErrors;
         }

@@ -4,8 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SFA.DAS.Authorization.Features.Models;
+using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
@@ -14,9 +18,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly IEmailOptionalService _emailService;
+        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
-        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEmailOptionalService emailService)
-            => (_db, _emailService) = (db, emailService);
+        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEmailOptionalService emailService, IFeatureTogglesService<FeatureToggle> featureTogglesService)
+        {
+            _db = db;
+            _emailService = emailService;
+            _featureTogglesService = featureTogglesService;
+            _emailService = emailService;
+        }
 
         public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
         {
@@ -32,9 +42,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
             }
 
+            var isRPLRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
+
             var result = await db.Cohorts
-                .Include(x => x.Apprenticeships)
-                .ThenInclude(x => x.FlexibleEmployment)
+                .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
+                .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
                 .Select(c => new GetCohortSummaryQueryResult
             {
                 CohortId = c.Id,
@@ -58,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 IsApprovedByEmployer = c.Approvals.HasFlag(Party.Employer), //redundant
                 IsApprovedByProvider = c.Approvals.HasFlag(Party.Provider), //redundant
                 IsCompleteForEmployer = CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired),
-                IsCompleteForProvider = CalculateIsCompleteForProvider(c, apprenticeEmailIsRequired),
+                IsCompleteForProvider = CalculateIsCompleteForProvider(c, apprenticeEmailIsRequired, isRPLRequired),
                 LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
                 ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
                 TransferApprovalStatus = c.TransferApprovalStatus,
@@ -69,10 +81,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
             return result;
         }
 
-        private static bool CalculateIsCompleteForProvider(Models.Cohort c, bool apprenticeEmailIsRequired)
+        private static bool CalculateIsCompleteForProvider(Models.Cohort c, bool apprenticeEmailIsRequired, bool recognisePriorLearningRequired)
         {
             return CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired)
-                && !c.Apprenticeships.Any(a => a.Uln == null);
+                && !c.Apprenticeships.Any(a => a.Uln == null)
+                && PriorLearningHasBeenConsidered(c, recognisePriorLearningRequired);
+        }
+
+        private static bool PriorLearningHasBeenConsidered(Cohort cohort, bool recognisePriorLearningRequired)
+        {
+            if (recognisePriorLearningRequired == false)
+            {
+                return true;
+            }
+            return !cohort.Apprenticeships.Any(a => a.RecognisingPriorLearningStillNeedsToBeConsidered);
         }
 
         private static bool CalculateIsCompleteForEmployer(Models.Cohort c, bool apprenticeEmailIsRequired)

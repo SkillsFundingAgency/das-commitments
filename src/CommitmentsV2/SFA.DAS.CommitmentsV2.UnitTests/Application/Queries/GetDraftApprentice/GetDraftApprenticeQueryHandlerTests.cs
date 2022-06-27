@@ -48,6 +48,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             result.HasStandardOptions.Should().BeTrue();
         }
+
+        [Test]
+        public async Task Then_If_There_is_prior_learning_return_values()
+        {
+            var fixture = new GetDraftApprenticeHandlerTestFixtures()
+                .SetApprentice(Party.Employer, "EMPREF123")
+                .SetApprenticeshipPriorLearning();
+
+            var result = await fixture.Handle();
+
+            result.DurationReducedBy.Should().Be(fixture.PriorLearning.DurationReducedBy);
+            result.PriceReducedBy.Should().Be(fixture.PriorLearning.PriceReducedBy);
+            result.RecognisePriorLearning.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task Then_If_There_is_flexible_employment_return_values()
+        {
+            var fixture = new GetDraftApprenticeHandlerTestFixtures()
+                .SetApprentice(Party.Employer, "EMPREF123")
+                .SetApprenticeshipFlexiJob();
+
+            var result = await fixture.Handle();
+
+            result.DeliveryModel.Should().Be(DeliveryModel.PortableFlexiJob);
+            result.EmploymentEndDate.Should().Be(fixture.FlexibleEmployment.EmploymentEndDate);
+            result.EmploymentPrice.Should().Be(fixture.FlexibleEmployment.EmploymentPrice);
+        }
     }
 
     public class GetDraftApprenticeHandlerTestFixtures
@@ -55,6 +83,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IAuthenticationService> AuthenticationServiceMock { get; set; }
         public GetDraftApprenticeshipQueryHandler Handler { get; set; }
+        public ApprenticeshipPriorLearning PriorLearning { get; set; }
+        public FlexibleEmployment FlexibleEmployment { get; set; }
 
         private long CohortId = 1;
         private long ApprenticeshipId = 1;
@@ -66,6 +96,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Handler = new GetDraftApprenticeshipQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), 
                 AuthenticationServiceMock.Object);
+
+            PriorLearning = new ApprenticeshipPriorLearning {DurationReducedBy = 10, PriceReducedBy = 999};
+            FlexibleEmployment = new FlexibleEmployment {EmploymentEndDate = DateTime.Today, EmploymentPrice = 987};
         }
 
         public Task<GetDraftApprenticeshipQueryResult> Handle()
@@ -128,6 +161,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             ApprenticeshipId = commitment.Apprenticeships.First().Id;
             
             CohortId = commitment.Id;
+
+            return this;
+        }
+
+        public GetDraftApprenticeHandlerTestFixtures SetApprenticeshipPriorLearning()
+        {
+            var apprenticeship = Db.DraftApprenticeships.First();
+            apprenticeship.RecognisePriorLearning = true;
+            apprenticeship.PriorLearning = PriorLearning;
+
+            Db.SaveChanges();
+
+            return this;
+        }
+
+        public GetDraftApprenticeHandlerTestFixtures SetApprenticeshipFlexiJob()
+        {
+            var apprenticeship = Db.DraftApprenticeships.First();
+            apprenticeship.FlexibleEmployment = FlexibleEmployment;
+            apprenticeship.DeliveryModel = DeliveryModel.PortableFlexiJob;
+
+            Db.SaveChanges();
 
             return this;
         }

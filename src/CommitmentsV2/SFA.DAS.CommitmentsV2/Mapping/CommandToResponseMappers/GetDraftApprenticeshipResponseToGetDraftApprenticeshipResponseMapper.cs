@@ -34,6 +34,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 HasStandardOptions = source.HasStandardOptions,
                 EmploymentPrice = source.EmploymentPrice,
                 EmploymentEndDate = source.EmploymentEndDate,
+                RecognisePriorLearning = source.RecognisePriorLearning,
+                DurationReducedBy = source.DurationReducedBy,
+                PriceReducedBy = source.PriceReducedBy
             });
         }
     }
