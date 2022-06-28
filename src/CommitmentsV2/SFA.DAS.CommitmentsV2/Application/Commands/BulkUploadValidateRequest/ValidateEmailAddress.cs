@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using SFA.DAS.EmailValidationService;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
@@ -63,13 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         {
             try
             {
-                var email = new System.Net.Mail.MailAddress(emailAsString);
-                var parts = email.Address.Split('@');
-                if (!parts[1].Contains(".") || parts[1].EndsWith("."))
-                {
-                    return false;
-                }
-                return email.Address == emailAsString;
+               return emailAsString.IsAValidEmailAddress();
             }
             catch
             {
