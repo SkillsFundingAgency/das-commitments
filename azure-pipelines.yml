@@ -9,15 +9,7 @@ variables:
   - name: buildConfiguration
     value: 'release'
   - name: buildPlatform
-    value: 'any cpu'  
-
-resources:
-  repositories:
-  - repository: das-platform-building-blocks
-    type: github
-    name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/tags/0.4.63
-    endpoint: SkillsFundingAgency
+    value: 'any cpu'
 
 stages:
 - stage: v1TestBuild
