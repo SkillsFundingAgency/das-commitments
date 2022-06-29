@@ -93,6 +93,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _fixture.Assert_CorrectEndDateWasUsed(result, expectedUln, expectedEndDate);
         }
+
+        [Test]
+        public async Task WhenCalculatingEndDate_AndApprenticeshipStoppedBeforeCompletedAndEndDate_ThenStoppedDateUsed()
+        {
+            var expectedUln = _fixture.StoppedCompletedApprenticeship.Uln;
+            var expectedEndDate = _fixture.StoppedCompletedApprenticeship.StopDate.Value;
+
+            _fixture
+                .WithApprenticeshipsInDb();
+
+            var result = await _fixture.Act(expectedUln);
+
+            _fixture.Assert_CorrectEndDateWasUsed(result, expectedUln, expectedEndDate);
+        }
     }
 
     public class UlnUtilisationServiceFixture
@@ -102,6 +116,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public Apprenticeship WithdrawnApprenticeship { get; }
         public Apprenticeship LiveApprenticeship { get; }
         public DraftApprenticeship DraftApprenticeshipWithTransferSender { get; }
+        public Apprenticeship StoppedCompletedApprenticeship { get; }
 
         private readonly ProviderCommitmentsDbContext _dbContext;
         private readonly Mock<IDbContextFactory> _iDbContextFactoryMock;
@@ -158,6 +173,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 EndDate = DateTime.UtcNow
             };
 
+            StoppedCompletedApprenticeship = new Apprenticeship
+            {
+                Id = 600,
+                Uln = Guid.NewGuid().ToString(),
+                PaymentStatus = PaymentStatus.Completed,
+                StartDate = DateTime.UtcNow.AddYears(-1),
+                Cohort = new Cohort { TransferSenderId = 1, WithParty = Party.TransferSender },
+                CompletionDate = DateTime.UtcNow.AddMonths(-1),
+                EndDate = DateTime.UtcNow,
+                StopDate = DateTime.UtcNow.AddMonths(-2)
+            };
+
             _dbContext = TestHelper.GetInMemoryDatabase();
 
             _iDbContextFactoryMock = new Mock<IDbContextFactory>();
@@ -177,6 +204,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _dbContext.Apprenticeships.Add(WithdrawnApprenticeship);
             _dbContext.Apprenticeships.Add(LiveApprenticeship);
             _dbContext.DraftApprenticeships.Add(DraftApprenticeshipWithTransferSender);
+            _dbContext.Apprenticeships.Add(StoppedCompletedApprenticeship);
             _dbContext.SaveChanges();
             return this;
         }

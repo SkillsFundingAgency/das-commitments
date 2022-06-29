@@ -50,7 +50,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             _overlapCheckService = overlapCheckService;
             _commitmentsV2Configuration = commitmentsV2Configuration;
         }
-
         
         protected override async Task Handle(UpdateApprenticeshipStopDateCommand command, CancellationToken cancellationToken)
         {
@@ -105,20 +104,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
         {
             if (string.IsNullOrWhiteSpace(apprenticeship.Uln) || !apprenticeship.StartDate.HasValue) return;
 
-            var overlapResult =  _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate), apprenticeship.Id, cancellationToken);
+            var overlapResult = _overlapCheckService.CheckForOverlaps(apprenticeship.Uln, apprenticeship.StartDate.Value.To(command.StopDate), apprenticeship.Id, cancellationToken);
 
             if (!overlapResult.Result.HasOverlaps) return;
 
             var errorMessage = "The date overlaps with existing dates for the same apprentice";
 
-            var errors = new List<DomainError>();        
+            var errors = new List<DomainError>();
 
-            if (overlapResult.Result.HasOverlappingEndDate)
-            {
-                errors.Add(new DomainError("newStopDate", errorMessage));
-            }
-
-            throw new DomainException(errors);
+            errors.Add(new DomainError("newStopDate", errorMessage));
         }
 
         private void CheckPartyIsValid(Party party)
