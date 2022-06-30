@@ -198,17 +198,25 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 throw new DomainException("ReducedDuration", "You must enter the number of weeks");
             }
-            if (durationReducedBy.HasValue && (durationReducedBy.Value < 0 || durationReducedBy.Value > 999))
+            if (durationReducedBy.Value < 0)
             {
-                throw new DomainException("ReducedDuration", "Number of weeks must be between 0 and 999");
+                throw new DomainException("ReducedDuration", "The number can't be negative");
+            }
+            if (durationReducedBy.Value > 999)
+            {
+                throw new DomainException("ReducedDuration", "The number of weeks must be 999 or less");
             }
             if (!priceReducedBy.HasValue)
             {
-                throw new DomainException("ReducedPrice", "You must enter a reduced price");
+                throw new DomainException("ReducedPrice", "You must enter the price");
             }
-            if (priceReducedBy.HasValue && (priceReducedBy.Value < 0 || priceReducedBy.Value > Constants.MaximumApprenticeshipCost))
+            if (priceReducedBy.Value < 0)
             {
-                throw new DomainException("ReducedPrice", "The reduced price must be between £0 and £100,00");
+                throw new DomainException("ReducedPrice", "The number can't be negative");
+            }
+            if (priceReducedBy.Value > Constants.MaximumApprenticeshipCost)
+            {
+                throw new DomainException("ReducedPrice", "The price must be 100,000 or less");
             }
 
             if (RecognisePriorLearning != true)
