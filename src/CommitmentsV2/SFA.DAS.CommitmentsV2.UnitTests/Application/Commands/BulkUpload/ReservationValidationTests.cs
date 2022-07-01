@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: null, priceReducedBy: 1);
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning in weeks using numbers only.");
+            fixture.ValidateError(errors, "DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning.");
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetPriorLearning(recognisePriorLearning: true, priceReducedBy: null);
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning using numbers only.");
+            fixture.ValidateError(errors, "PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning.");
         }
 
         [Test]

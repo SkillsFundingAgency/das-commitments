@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             if (csvRecord.DurationReducedBy == null)
             {
-                yield return new Error("DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning in weeks using numbers only.");
+                yield return new Error("DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning.");
             }
             else if (csvRecord.DurationReducedBy < 0)
             {
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             if (csvRecord.PriceReducedBy == null)
             {
-                yield return new Error("PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning using numbers only.");
+                yield return new Error("PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning.");
             }
             else if (csvRecord.PriceReducedBy < 0)
             {
