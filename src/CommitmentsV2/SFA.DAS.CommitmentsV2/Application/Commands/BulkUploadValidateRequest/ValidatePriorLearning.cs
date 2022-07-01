@@ -52,18 +52,26 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             {
                 yield return new Error("DurationReducedBy", "Enter the <b>duration</b> this apprenticeship has been reduced by due to prior learning in weeks using numbers only.");
             }
-            else if (csvRecord.DurationReducedBy < 0 || csvRecord.DurationReducedBy > 999)
+            else if (csvRecord.DurationReducedBy < 0)
             {
-                yield return new Error("DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must be between 0 and 999.");
+                yield return new Error("DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must 0 or more.");
+            }
+            else if (csvRecord.DurationReducedBy > 999)
+            {
+                yield return new Error("DurationReducedBy", "The <b>duration</b> this apprenticeship has been reduced by due to prior learning must be 999 or less.");
             }
 
             if (csvRecord.PriceReducedBy == null)
             {
                 yield return new Error("PriceReducedBy", "Enter the <b>price</b> this apprenticeship has been reduced by due to prior learning using numbers only.");
             }
-            else if (csvRecord.PriceReducedBy < 0 || csvRecord.PriceReducedBy > 100000)
+            else if (csvRecord.PriceReducedBy < 0)
             {
-                yield return new Error("PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be between 0 and £100,000.");
+                yield return new Error("PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be 0 or more.");
+            }
+            else if (csvRecord.PriceReducedBy > 100000)
+            {
+                yield return new Error("PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be £100,000 or less.");
             }
         }
     }
