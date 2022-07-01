@@ -61,14 +61,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public string EPAOrgId { get; set; }
 
         public string RecognisePriorLearningAsString { get; set; }
-        public bool? RecognisePriorLearning => RecognisePriorLearningAsString?.ToLower() switch
+        public bool? RecognisePriorLearning
         {
-            null => null,
-            "true" => true,
-            "1" => true,
-            "yes" => true,
-            _ => false,
-        };
+            get
+            {
+                if (string.IsNullOrWhiteSpace(RecognisePriorLearningAsString))
+                    return null;
+
+                return RecognisePriorLearningAsString?.ToLower() switch
+                {
+                    "true" => true,
+                    "1" => true,
+                    "yes" => true,
+                    _ => false,
+                };
+            }
+        }
 
         public string DurationReducedByAsString { get; set; }
         public int? DurationReducedBy
