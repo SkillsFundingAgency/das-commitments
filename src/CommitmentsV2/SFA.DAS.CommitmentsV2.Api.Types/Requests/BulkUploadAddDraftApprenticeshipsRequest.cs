@@ -73,7 +73,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
                     "true" => true,
                     "1" => true,
                     "yes" => true,
-                    _ => false,
+                    "false" => false,
+                    "0" => false,
+                    "no" => false,
+                    _ => null,
                 };
             }
         }
