@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.CsvRecords[0].RecognisePriorLearningAsString = "XXX";
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
+            fixture.ValidateError(errors, "RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
         }
 
         [Test]

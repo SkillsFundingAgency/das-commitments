@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
             if (csvRecord.RecognisePriorLearning == null && csvRecord.RecognisePriorLearningAsString != null)
             {
-                yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
+                yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
             }
 
             if (csvRecord.RecognisePriorLearning == null)
