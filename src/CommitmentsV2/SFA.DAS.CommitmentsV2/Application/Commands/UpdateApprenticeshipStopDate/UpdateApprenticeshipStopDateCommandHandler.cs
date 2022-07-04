@@ -113,6 +113,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             var errors = new List<DomainError>();
 
             errors.Add(new DomainError("newStopDate", errorMessage));
+
+            throw new DomainException(errors);
         }
 
         private void CheckPartyIsValid(Party party)
