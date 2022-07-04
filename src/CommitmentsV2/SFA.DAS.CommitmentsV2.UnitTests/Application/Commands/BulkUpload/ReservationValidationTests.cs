@@ -73,6 +73,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         }
 
         [Test]
+        public async Task RecognisePriorLearning_Field_Validation_Error()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStartDate("2022-08-01");
+            fixture.CsvRecords[0].RecognisePriorLearningAsString = "XXX";
+
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, "RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
+        }
+
+        [Test]
         public async Task Prior_Learning_Duration_Validation_Error()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();

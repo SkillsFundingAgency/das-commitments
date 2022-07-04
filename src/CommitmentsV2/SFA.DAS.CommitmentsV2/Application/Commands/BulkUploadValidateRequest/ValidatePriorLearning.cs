@@ -37,6 +37,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 yield break;
             }
 
+            if (csvRecord.RecognisePriorLearning == null && csvRecord.RecognisePriorLearningAsString != null)
+            {
+                yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
+            }
+
             if (csvRecord.RecognisePriorLearning == null)
             {
                 //This validation cannot be enabled until the bulk upload file format change has been communicated
