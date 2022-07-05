@@ -80,25 +80,20 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             var streamWriterField = typeof(CreateCsvService).GetField("_streamWriter", BindingFlags.NonPublic | BindingFlags.Instance);
             createCsvService.GenerateCsvContent(listToWriteToCsv, true);
             var getterMemoryStream = (MemoryStream)memoryStreamField.GetValue(createCsvService);
-            var getterCsvWriter = (CsvWriter)csvStreamField.GetValue(createCsvService);
             var getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
             Assert.IsTrue(getterMemoryStream.CanWrite);
             Assert.IsTrue(getterStream.BaseStream.CanWrite);
-            Assert.IsTrue(((StreamWriter)getterCsvWriter.Context.Writer).BaseStream.CanWrite);
+            //Assert.IsTrue(((StreamWriter)getterCsvWriter.Context.Writer).BaseStream.CanWrite);
 
             //Act
             createCsvService.Dispose();
 
             //Assert
             getterMemoryStream = (MemoryStream)memoryStreamField.GetValue(createCsvService);
-            getterCsvWriter = (CsvWriter)csvStreamField.GetValue(createCsvService);
             getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
             Assert.IsFalse(getterMemoryStream.CanWrite);
-            Assert.IsNull(getterCsvWriter.Context);
             Assert.IsFalse(getterStream.BaseStream.CanWrite);
         }
-
-
     }
 
     public class SomethingToCsv
