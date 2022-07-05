@@ -2,6 +2,7 @@
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
+using SFA.DAS.PAS.Account.Api.ClientV2.Configuration;
 using SFA.DAS.ProviderRelationships.Api.Client.Configuration;
 using StructureMap;
 
@@ -20,6 +21,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             AddConfiguration<EmailOptionalConfiguration>(CommitmentsConfigurationKeys.EmailOptionalConfiguration);
             AddConfiguration<LevyTransferMatchingApiConfiguration>(CommitmentsConfigurationKeys.LevyTransferMatchingApiConfiguration);
             AddConfiguration<Authorization.Features.Configuration.FeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
+            AddConfiguration<PasAccountApiConfiguration>(CommitmentsConfigurationKeys.ProviderAccountApiConfiguration);
         }
 
         private void AddConfiguration<T>(string name) where T : class
