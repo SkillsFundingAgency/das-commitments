@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Authorization.Features.Models;
+using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.ProviderRelationships.Api.Client;
@@ -24,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private readonly IEmployerAgreementService _employerAgreementService;
+        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
         private Dictionary<string, Models.Cohort> _cachedCohortDetails;
 
@@ -36,7 +40,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             IOverlapCheckService overlapService,
             IAcademicYearDateProvider academicYearDateProvider,
             IProviderRelationshipsApiClient providerRelationshipsApiClient,
-            IEmployerAgreementService employerAgreementService)
+            IEmployerAgreementService employerAgreementService,
+            IFeatureTogglesService<FeatureToggle> featureTogglesService)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -45,6 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _academicYearDateProvider = academicYearDateProvider;
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
+            _featureTogglesService = featureTogglesService;
             _cachedCohortDetails = new Dictionary<string, Models.Cohort>();
         }
 
@@ -53,6 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             ProviderId = command.ProviderId;
             var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
             _csvRecords = command.CsvRecords.ToList();
+            var isRplRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
 
             foreach (var csvRecord in command.CsvRecords)
             {
@@ -61,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
                 if (!criticalDomainError.Any())
                 {
-                    var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults);
+                    var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, isRplRequired);
                     await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
                 }
             }
@@ -132,7 +139,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return false;
         }
 
-        private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults)
+        private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, bool isRplRequired)
         {
             var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
             if (!domainErrors.Any())
@@ -157,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             domainErrors.AddRange(ValidateProviderRef(csvRecord));
             domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
             domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
-            domainErrors.AddRange(ValidatePriorLearning(csvRecord));
+            domainErrors.AddRange(ValidatePriorLearning(csvRecord, isRplRequired));
 
             return domainErrors;
         }

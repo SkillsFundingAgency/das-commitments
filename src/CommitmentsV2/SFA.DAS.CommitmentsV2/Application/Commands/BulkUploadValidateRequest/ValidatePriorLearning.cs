@@ -8,8 +8,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
     {
-        private IEnumerable<Error> ValidatePriorLearning(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+        private IEnumerable<Error> ValidatePriorLearning(BulkUploadAddDraftApprenticeshipRequest csvRecord, bool isRplRequired)
         {
+            if (!isRplRequired)
+            {
+                yield break;
+            }
+
             if (csvRecord.StartDate < Constants.RecognisePriorLearningBecomesRequiredOn)
             {
                 if (csvRecord.RecognisePriorLearning != null ||
@@ -37,19 +42,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 yield break;
             }
 
-            if (csvRecord.RecognisePriorLearning == null && csvRecord.RecognisePriorLearningAsString != null)
-            {
-                yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
-            }
-
             if (csvRecord.RecognisePriorLearning == null)
             {
-                //This validation cannot be enabled until the bulk upload file format change has been communicated
-                //and software integrators have had time to update their systems.
-                //yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
-
-                // When the above validation is enabled, this one must be kept.
-                // We don't want to return *ReducedBy errors until RPL is confirmed
+                yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
                 yield break;
             }
 

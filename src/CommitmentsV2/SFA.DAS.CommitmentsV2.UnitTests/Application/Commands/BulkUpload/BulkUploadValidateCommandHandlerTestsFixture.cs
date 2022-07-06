@@ -21,6 +21,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.Authorization.Features.Models;
+using SFA.DAS.Authorization.Features.Services;
+using SFA.DAS.CommitmentsV2.Domain;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
@@ -34,6 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public List<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; }
         public BulkUploadValidateCommand Command { get; set; }
         public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; set; }
+        public Mock<IFeatureTogglesService<FeatureToggle>> FeatureToggleService { get; set; }
         public OverlapCheckResult OverlapCheckResult { get; set; }
         public EmailOverlapCheckResult EmailOverlapCheckResult { get; set; }
         public bool IsAgreementSigned { get; set; } = true;
@@ -89,12 +93,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
             ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
 
+            FeatureToggleService = new Mock<IFeatureTogglesService<FeatureToggle>>();
+            SetupFeatureToggle(Constants.RecognitionOfPriorLearningFeature, true);
+
             Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
                 , new Lazy<ProviderCommitmentsDbContext>(() => Db)
                 , OverlapCheckService.Object
                 , AcademicYearDateProvider.Object
                 , ProviderRelationshipsApiClient.Object
-                , EmployerAgreementService.Object 
+                , EmployerAgreementService.Object
+                , FeatureToggleService.Object
                 );
         }
 
@@ -274,6 +282,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 EndDate = new DateTime(2022, 10, 1),
                 CourseName = "coursename"
             });
+        }
+
+        public void SetupFeatureToggle(string toggle, bool status)
+        {
+            FeatureToggleService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature))
+                .Returns(new FeatureToggle { Feature = toggle, IsEnabled = status });
         }
 
         public async Task<BulkUploadValidateApiResponse> Handle()
