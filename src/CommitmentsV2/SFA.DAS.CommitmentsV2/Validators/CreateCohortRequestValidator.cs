@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
             RuleFor(r => r.OriginatorReference).MaximumLength(20).WithMessage("The Reference must be 20 characters or fewer");
             RuleFor(r => r.ReservationId).NotEmpty().WithMessage("The reservation id must be supplied");
             RuleFor(r => r.UserInfo).SetValidator(new UserInfoValidator()).When(r => r.UserInfo != null);
-            RuleFor(model => (int)model.DeliveryModel).InclusiveBetween(0, 1).WithMessage("Delivery Model can only be 0 or 1").When(model => model.DeliveryModel.HasValue);
+            RuleFor(model => (int)model.DeliveryModel).InclusiveBetween(0, 2).WithMessage("Delivery Model can only be between 0 and 2").When(model => model.DeliveryModel.HasValue);
         }
     }
 }
