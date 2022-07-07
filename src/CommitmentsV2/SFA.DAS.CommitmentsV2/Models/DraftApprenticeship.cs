@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -117,6 +118,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             
             ClearPriorLearningWhenStartDateBeforeAug2022();
+        }
+
+        internal OverlappingTrainingDateRequest CreateOverlappingTrainingDateRequest(Party originatingParty, long previousApprenticeshipId, UserInfo userInfo)
+        {
+            return new OverlappingTrainingDateRequest(this, previousApprenticeshipId, originatingParty, userInfo);
         }
 
         private void ClearPriorLearningWhenStartDateBeforeAug2022()

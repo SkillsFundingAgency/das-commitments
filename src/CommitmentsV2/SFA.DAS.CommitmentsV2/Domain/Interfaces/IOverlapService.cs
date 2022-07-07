@@ -16,5 +16,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
             long? existingApprenticeshipId, long? cohortId, CancellationToken cancellationToken);
 
         Task<List<EmailOverlapCheckResult>> CheckForEmailOverlaps(long cohortId, CancellationToken cancellationToken);
+
+        Task<OverlapCheckResultOnStartDate> CheckForOverlapsOnStartDate(string uln, DateRange range,
+            long? existingApprenticeshipId, CancellationToken cancellationToken);
     }
 }

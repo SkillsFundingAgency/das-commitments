@@ -25,16 +25,10 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<OverlapCheckResult> CheckForOverlaps(string uln, DateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
         {
-            async Task<IEnumerable<UlnUtilisation>> GetCandidateUlnUtilisations()
-            {
-                var utilisations  = await _ulnUtilisationService.GetUlnUtilisations(uln, cancellationToken);
-                return existingApprenticeshipId.HasValue ? utilisations.Where(x => x.ApprenticeshipId != existingApprenticeshipId.Value) : utilisations;
-            }
-
             var overlapStartDate = false;
             var overlapEndDate = false;
 
-            foreach (var utilisation in await GetCandidateUlnUtilisations())
+            foreach (var utilisation in await GetCandidateUlnUtilisations(uln, existingApprenticeshipId, cancellationToken))
             {
                 var overlapStatus = utilisation.DateRange.DetermineOverlap(range);
 
@@ -60,6 +54,43 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             return new OverlapCheckResult(overlapStartDate, overlapEndDate);
+        }
+
+        public async Task<OverlapCheckResultOnStartDate> CheckForOverlapsOnStartDate(string uln, DateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
+        {
+            var overlapStartDate = false;
+            long apprenticeshipId = 0;
+
+            foreach (var utilisation in await GetCandidateUlnUtilisations(uln, existingApprenticeshipId, cancellationToken))
+            {
+                var overlapStatus = utilisation.DateRange.DetermineOverlap(range);
+
+                switch (overlapStatus)
+                {
+                    case OverlapStatus.DateWithin:
+                    case OverlapStatus.DateEmbrace:
+                    case OverlapStatus.OverlappingStartDate:
+                        overlapStartDate = true;
+                        apprenticeshipId = utilisation.ApprenticeshipId;
+                        
+                        break;
+                    default:
+                        break;
+                }
+
+                if (overlapStartDate)
+                {
+                    break;
+                }
+            }
+
+            return new OverlapCheckResultOnStartDate(overlapStartDate, apprenticeshipId);
+        }
+
+        private async Task<IEnumerable<UlnUtilisation>> GetCandidateUlnUtilisations(string uln, long? existingApprenticeshipId, CancellationToken cancellationToken)
+        {
+            var utilisations = await _ulnUtilisationService.GetUlnUtilisations(uln, cancellationToken);
+            return existingApprenticeshipId.HasValue ? utilisations.Where(x => x.ApprenticeshipId != existingApprenticeshipId.Value) : utilisations;
         }
 
         public async Task<EmailOverlapCheckResult> CheckForEmailOverlaps(string email, DateRange range, long? existingApprenticeshipId, long? cohortId,

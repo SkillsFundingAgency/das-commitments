@@ -59,6 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public FlexibleEmployment FlexibleEmployment { get; set; }
         public bool? RecognisePriorLearning { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
+        public virtual ICollection<OverlappingTrainingDateRequest> OverlappingTrainingDateRequests { get; set; }
 
         public bool RecognisingPriorLearningStillNeedsToBeConsidered
         {

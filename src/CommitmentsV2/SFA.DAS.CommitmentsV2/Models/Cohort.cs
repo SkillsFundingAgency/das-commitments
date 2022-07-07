@@ -79,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             int? pledgeApplicationId,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             Party originatingParty,
-            UserInfo userInfo) : this(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId, originatingParty, userInfo)
+            UserInfo userInfo, bool ignoreStartDateOverlap = false) : this(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId, originatingParty, userInfo)
         {
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, false);

@@ -1,25 +1,31 @@
 ﻿using MediatR;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest
 {
-    internal class CreateOverlappingTrainingDateRequestCommandHandler : AsyncRequestHandler<CreateOverlappingTrainingDateRequestCommand>
+    internal class CreateOverlappingTrainingDateRequestCommandHandler : IRequestHandler<CreateOverlappingTrainingDateRequestCommand, CreateOverlappingTrainingDateResult>
     {
-        private readonly IChangeOfPartyRequestDomainService _changeOfPartyRequestDomainService;
+        private readonly IOverlappingTrainingDateRequestDomainService _overlappingTrainingDateRequestDomainService;
 
-        public CreateOverlappingTrainingDateRequestCommandHandler(IChangeOfPartyRequestDomainService changeOfPartyRequestDomainService)
+        public CreateOverlappingTrainingDateRequestCommandHandler(IOverlappingTrainingDateRequestDomainService overlappingTrainingDateRequestDomainService)
         {
-            _changeOfPartyRequestDomainService = changeOfPartyRequestDomainService;
+            _overlappingTrainingDateRequestDomainService = overlappingTrainingDateRequestDomainService;
         }
 
-        protected override Task Handle(CreateOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
+        public async Task<CreateOverlappingTrainingDateResult> Handle(CreateOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var result = await _overlappingTrainingDateRequestDomainService
+                .CreateOverlappingTrainingDateRequest(request.ApprneticeshipId,
+                request.PreviousApprenticeshipId,
+                request.UserInfo,
+                cancellationToken);
+
+            return new CreateOverlappingTrainingDateResult
+            {
+                Id = result.Id
+            };
         }
     }
 }

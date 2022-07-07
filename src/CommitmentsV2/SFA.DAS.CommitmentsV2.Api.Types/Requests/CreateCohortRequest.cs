@@ -24,5 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public int? PledgeApplicationId { get; set; }
         public int? EmploymentPrice { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
+        public bool IgnoreStartDateOverlap { get; set; }
     }
 }

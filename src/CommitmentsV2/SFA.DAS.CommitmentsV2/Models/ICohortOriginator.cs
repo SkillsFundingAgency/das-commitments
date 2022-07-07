@@ -12,7 +12,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             Account transferSender,
             int? pledgeApplicationId,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
-            UserInfo userInfo);
+            UserInfo userInfo,
+            bool ignoreStartDateOverlap = false);
 
         Cohort CreateCohort(long providerId,
            AccountLegalEntity accountLegalEntity,
