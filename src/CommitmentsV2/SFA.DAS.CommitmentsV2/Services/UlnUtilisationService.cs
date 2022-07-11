@@ -59,11 +59,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                     return apprenticeship.StopDate.Value;
 
                 case PaymentStatus.Completed:
-                    if (apprenticeship.CompletionDate <= apprenticeship.EndDate)
-                    {
-                        return apprenticeship.CompletionDate.Value;
-                    }
-                    return apprenticeship.EndDate.Value;
+                    return new[] { apprenticeship.CompletionDate, apprenticeship.EndDate, apprenticeship.StopDate }
+                          .Where(x => x.HasValue).Select(x => x.Value).Min();
 
                 default:
                     return apprenticeship.EndDate.Value;

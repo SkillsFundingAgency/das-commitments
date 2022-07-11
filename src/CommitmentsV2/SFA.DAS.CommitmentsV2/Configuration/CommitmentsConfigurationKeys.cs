@@ -15,5 +15,6 @@
         public static string ApprovalsOuterApiConfiguration => $"{CommitmentsV2}:ApprovalsOuterApiConfiguration";
         public static string EmailOptionalConfiguration => $"{CommitmentsV2}:EmailOptionalConfiguration";
         public static string LevyTransferMatchingApiConfiguration => $"{CommitmentsV2}:LevyTransferMatchingInnerApiConfiguration";
+        public static string ProviderAccountApiConfiguration => $"{CommitmentsV2}:ProviderAccountApiConfiguration";
     }
 }
