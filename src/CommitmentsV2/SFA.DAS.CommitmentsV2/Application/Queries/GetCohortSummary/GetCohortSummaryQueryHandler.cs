@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,65 +46,73 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
             var isRPLRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
 
             var result = await db.Cohorts
-                .Include(x => x.Apprenticeships).ThenInclude(x => x.FlexibleEmployment)
-                .Include(x => x.Apprenticeships).ThenInclude(x => x.PriorLearning)
                 .Select(c => new GetCohortSummaryQueryResult
-            {
-                CohortId = c.Id,
-                AccountId = c.EmployerAccountId,
-                CohortReference = c.Reference,
-                AccountLegalEntityId = c.AccountLegalEntity.Id,
-                AccountLegalEntityPublicHashedId = c.AccountLegalEntity.PublicHashedId,
-                LegalEntityName = c.AccountLegalEntity.Name,
-                ProviderName = c.Provider.Name,
-                TransferSenderId = c.TransferSenderId,
-                TransferSenderName = c.TransferSender.Name,
-                PledgeApplicationId = c.PledgeApplicationId,
-                WithParty = c.WithParty,
-                LatestMessageCreatedByEmployer = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefault(),
-                LatestMessageCreatedByProvider = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefault(),
-                ProviderId = c.ProviderId,
-                LastAction = c.LastAction,
-                LastUpdatedByEmployerEmail = c.LastUpdatedByEmployerEmail,
-                LastUpdatedByProviderEmail = c.LastUpdatedByProviderEmail,
-                Approvals = c.Approvals,
-                IsApprovedByEmployer = c.Approvals.HasFlag(Party.Employer), //redundant
-                IsApprovedByProvider = c.Approvals.HasFlag(Party.Provider), //redundant
-                IsCompleteForEmployer = CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired),
-                IsCompleteForProvider = CalculateIsCompleteForProvider(c, apprenticeEmailIsRequired, isRPLRequired),
-                LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
-                ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
-                TransferApprovalStatus = c.TransferApprovalStatus,
-                ApprenticeEmailIsRequired = apprenticeEmailIsRequired
-            })
+                {
+                    CohortId = c.Id,
+                    AccountId = c.EmployerAccountId,
+                    CohortReference = c.Reference,
+                    AccountLegalEntityId = c.AccountLegalEntity.Id,
+                    AccountLegalEntityPublicHashedId = c.AccountLegalEntity.PublicHashedId,
+                    LegalEntityName = c.AccountLegalEntity.Name,
+                    ProviderName = c.Provider.Name,
+                    TransferSenderId = c.TransferSenderId,
+                    TransferSenderName = c.TransferSender.Name,
+                    PledgeApplicationId = c.PledgeApplicationId,
+                    WithParty = c.WithParty,
+                    LatestMessageCreatedByEmployer = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefault(),
+                    LatestMessageCreatedByProvider = c.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefault(),
+                    ProviderId = c.ProviderId,
+                    LastAction = c.LastAction,
+                    LastUpdatedByEmployerEmail = c.LastUpdatedByEmployerEmail,
+                    LastUpdatedByProviderEmail = c.LastUpdatedByProviderEmail,
+                    Approvals = c.Approvals,
+                    IsApprovedByEmployer = c.Approvals.HasFlag(Party.Employer), //redundant
+                    IsApprovedByProvider = c.Approvals.HasFlag(Party.Provider), //redundant
+                    LevyStatus = c.AccountLegalEntity.Account.LevyStatus,
+                    ChangeOfPartyRequestId = c.ChangeOfPartyRequestId,
+                    TransferApprovalStatus = c.TransferApprovalStatus,
+                    ApprenticeEmailIsRequired = apprenticeEmailIsRequired
+                })
                 .SingleOrDefaultAsync(c => c.CohortId == request.CohortId, cancellationToken);
+
+            if (result != null)
+            {
+                var cohortApprenticeships = await db.DraftApprenticeships
+                    .Include(a => a.PriorLearning)
+                    .Include(a => a.FlexibleEmployment)
+                    .Where(a => a.CommitmentId == request.CohortId)
+                    .ToListAsync();
+
+                result.IsCompleteForEmployer = CalculateIsCompleteForEmployer(cohortApprenticeships, apprenticeEmailIsRequired);
+                result.IsCompleteForProvider = CalculateIsCompleteForProvider(cohortApprenticeships, apprenticeEmailIsRequired, isRPLRequired);
+            }
 
             return result;
         }
 
-        private static bool CalculateIsCompleteForProvider(Models.Cohort c, bool apprenticeEmailIsRequired, bool recognisePriorLearningRequired)
+        private static bool CalculateIsCompleteForProvider(IEnumerable<ApprenticeshipBase> apprenticeships, bool apprenticeEmailIsRequired, bool recognisePriorLearningRequired)
         {
-            return CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired)
-                && !c.Apprenticeships.Any(a => a.Uln == null)
-                && PriorLearningHasBeenConsidered(c, recognisePriorLearningRequired);
+            return CalculateIsCompleteForEmployer(apprenticeships, apprenticeEmailIsRequired)
+                && !apprenticeships.Any(a => a.Uln == null)
+                && PriorLearningHasBeenConsidered(apprenticeships, recognisePriorLearningRequired);
         }
 
-        private static bool PriorLearningHasBeenConsidered(Cohort cohort, bool recognisePriorLearningRequired)
+        private static bool PriorLearningHasBeenConsidered(IEnumerable<ApprenticeshipBase> apprenticeships, bool recognisePriorLearningRequired)
         {
             if (recognisePriorLearningRequired == false)
             {
                 return true;
             }
-            return !cohort.Apprenticeships.Any(a => a.RecognisingPriorLearningStillNeedsToBeConsidered);
+            return !apprenticeships.Any(a => a.RecognisingPriorLearningStillNeedsToBeConsidered);
         }
 
-        private static bool CalculateIsCompleteForEmployer(Models.Cohort c, bool apprenticeEmailIsRequired)
+        private static bool CalculateIsCompleteForEmployer(IEnumerable<ApprenticeshipBase> apprenticeships, bool apprenticeEmailIsRequired)
         {
-            return c.Apprenticeships.Any() && !c.Apprenticeships.Any(HasMissingData);
+            return apprenticeships.Any() && !apprenticeships.Any(HasMissingData);
 
             bool HasMissingData(Models.ApprenticeshipBase a)
             {
-                if(a.FirstName == null
+                if (a.FirstName == null
                     || a.LastName == null
                     || a.DateOfBirth == null
                     || a.CourseName == null
@@ -114,12 +123,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     return true;
                 }
 
-                if(apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)
+                if (apprenticeEmailIsRequired && a.Email == null && a.ContinuationOfId == null)
                 {
                     return true;
                 }
 
-                if(a.DeliveryModel == DeliveryModel.PortableFlexiJob
+                if (a.DeliveryModel == DeliveryModel.PortableFlexiJob
                     && (a.FlexibleEmployment?.EmploymentEndDate == null
                     || a.FlexibleEmployment?.EmploymentPrice == null))
                 {
