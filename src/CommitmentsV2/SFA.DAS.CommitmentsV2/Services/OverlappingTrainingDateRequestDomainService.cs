@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _overlapCheckService = overlapCheckService;
         }
 
-        public async Task<OverlappingTrainingDateRequest> CreateOverlappingTrainingDateRequest(long apprenticeshipId, long previousApprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<OverlappingTrainingDateRequest> CreateOverlappingTrainingDateRequest(long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var party = _authenticationService.GetUserParty();
             CheckPartyIsValid(party);

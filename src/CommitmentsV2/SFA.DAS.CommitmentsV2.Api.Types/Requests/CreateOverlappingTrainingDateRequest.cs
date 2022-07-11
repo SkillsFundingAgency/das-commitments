@@ -4,6 +4,5 @@
     {
         public long ProviderId { get; set; }
         public long DraftApprenticeshipId { get; set; }
-        public long PreviousApprenticeshipId { get; set; }
     }
 }

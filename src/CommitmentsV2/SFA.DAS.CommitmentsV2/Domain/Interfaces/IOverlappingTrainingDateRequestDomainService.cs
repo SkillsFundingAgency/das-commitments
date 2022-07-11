@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {
-    internal interface IOverlappingTrainingDateRequestDomainService
+    public interface IOverlappingTrainingDateRequestDomainService
     {
         Task<OverlappingTrainingDateRequest> CreateOverlappingTrainingDateRequest(long apprenticeshipId,
-          long previousApprenticeshipId,UserInfo userInfo, CancellationToken cancellationToken);
+         UserInfo userInfo, CancellationToken cancellationToken);
     }
 }

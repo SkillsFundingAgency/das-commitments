@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest
 {
-    internal class CreateOverlappingTrainingDateRequestCommandHandler : IRequestHandler<CreateOverlappingTrainingDateRequestCommand, CreateOverlappingTrainingDateResult>
+    public class CreateOverlappingTrainingDateRequestCommandHandler : IRequestHandler<CreateOverlappingTrainingDateRequestCommand, CreateOverlappingTrainingDateResult>
     {
         private readonly IOverlappingTrainingDateRequestDomainService _overlappingTrainingDateRequestDomainService;
 
@@ -17,8 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDa
         public async Task<CreateOverlappingTrainingDateResult> Handle(CreateOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
         {
             var result = await _overlappingTrainingDateRequestDomainService
-                .CreateOverlappingTrainingDateRequest(request.ApprneticeshipId,
-                request.PreviousApprenticeshipId,
+                .CreateOverlappingTrainingDateRequest(request.DraftApprneticeshipId,
                 request.UserInfo,
                 cancellationToken);
 
