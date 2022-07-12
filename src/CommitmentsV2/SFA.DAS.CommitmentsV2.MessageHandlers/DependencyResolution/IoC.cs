@@ -7,6 +7,7 @@ using SFA.DAS.PAS.Account.Api.ClientV2.DependencyResolution;
 using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
 using StructureMap;
 using EncodingRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.EncodingRegistry;
+using SFA.DAS.PAS.Account.Api.ClientV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
 {
@@ -19,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
-            registry.IncludeRegistry<PasAccountApiClientRegistry>();
+            registry.IncludeRegistry(new PasAccountApiClientRegistry(context => context.GetInstance<PasAccountApiConfiguration>()));
             registry.IncludeRegistry<EncodingRegistry>();
             registry.IncludeRegistry<DiffServiceRegistry>();
             registry.IncludeRegistry<EmployerAccountsRegistry>();
