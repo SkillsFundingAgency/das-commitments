@@ -413,6 +413,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             if (apprenticeshipDetails != null)
             {
                 var draftApprenticeship = new DraftApprenticeship(apprenticeshipDetails, Cohort.WithParty);
+                draftApprenticeship.Cohort = Cohort;
+                draftApprenticeship.CommitmentId = CohortId;
                 draftApprenticeship.ContinuationOfId = continuationOfId;
                 Cohort.Apprenticeships.Add(draftApprenticeship);
             }
