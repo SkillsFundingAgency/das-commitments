@@ -12,5 +12,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? NewEndDate { get; set; }
         public DateTime? NewEmploymentEndDate { get; set; }
         public int? NewEmploymentPrice { get; set; }
+        public DeliveryModel? DeliveryModel { get; set; }
     }
 }

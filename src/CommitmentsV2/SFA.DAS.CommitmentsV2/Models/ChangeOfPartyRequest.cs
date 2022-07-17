@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? ActionedOn { get; private set; }
         public DateTime? EmploymentEndDate { get; private set; }
         public int? EmploymentPrice { get; private set; }
+        public DeliveryModel? DeliveryModel { get; private set; }
 
         public byte[] RowVersion { get; private set; }
         public DateTime LastUpdatedOn { get; private set; }
@@ -47,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             DateTime? endDate,
             int? employmentPrice,
             DateTime? employmentEndDate,
+            DeliveryModel? deliveryModel,
             UserInfo userInfo,
             DateTime now)
         {
@@ -66,6 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             EndDate = endDate;
             EmploymentPrice = employmentPrice;
             EmploymentEndDate = employmentEndDate;
+            DeliveryModel = deliveryModel;
             Status = ChangeOfPartyRequestStatus.Pending;
             CreatedOn = now;
             LastUpdatedOn = now;

@@ -191,6 +191,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public DateTime? EndDate { get; private set; }
         public DateTime? EmploymentEndDate { get; private set; }
         public int? EmploymentPrice { get; private set; }
+        public DeliveryModel? DeliveryModel { get; private set; }
         public UserInfo UserInfo { get; private set; }
         public CommitmentsV2.Models.ChangeOfPartyRequest Result { get; private set; }
         public Exception Exception { get; private set; }
@@ -286,6 +287,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
                     EndDate,
                     EmploymentPrice,
                     EmploymentEndDate,
+                    DeliveryModel,
                     UserInfo,
                     Now); ;
             }
