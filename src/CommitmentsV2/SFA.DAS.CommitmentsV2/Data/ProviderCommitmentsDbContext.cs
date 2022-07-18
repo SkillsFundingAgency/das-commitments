@@ -31,7 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<ApprenticeshipConfirmationStatus> ApprenticeshipConfirmationStatus { get; set; }
         public virtual DbSet<OverlappingEmail> OverlappingEmails { get; set; }
         public virtual DbSet<Learner> Learners { get; set; }
-        public virtual DbSet<FlexibleEmployment> FlexibleEmployment { get; set; }
         public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
         {
         }
@@ -76,6 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Data
             modelBuilder.ApplyConfiguration(new StandardFundingPeriodConfiguration());
             modelBuilder.ApplyConfiguration(new LearnerConfiguration());           
             modelBuilder.ApplyConfiguration(new FlexibleEmploymentConfiguration());           
+            modelBuilder.ApplyConfiguration(new ApprenticeshipPriorLearningConfiguration());           
         }
     }
 }

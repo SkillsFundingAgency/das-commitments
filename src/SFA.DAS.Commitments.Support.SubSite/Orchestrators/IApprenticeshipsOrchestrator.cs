@@ -11,6 +11,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
         Task<CommitmentSummaryViewModel> GetCommitmentSummary(ApprenticeshipSearchQuery searchQuery);
 
-        Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashCommitmentId);
+        Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashCommitmentId, string accountHashedId);
     }
 }

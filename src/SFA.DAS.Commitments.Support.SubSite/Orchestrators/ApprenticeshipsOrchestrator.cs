@@ -5,17 +5,15 @@ using SFA.DAS.Commitments.Support.SubSite.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.Encoding;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
+using SFA.DAS.Commitments.Support.SubSite.Extensions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
+using System.Threading;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
@@ -55,6 +53,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
+            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId,
+                CommitmentsV2.Types.ApprenticeshipUpdateStatus.Pending));
+
             if (response == null)
             {
                 var errorMsg = $"Can't find Apprenticeship with Hash Id {hashId}";
@@ -63,7 +64,18 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 throw new Exception(errorMsg);
             }
 
-            return _apprenticeshipMapper.MapToApprenticeshipViewModel(response);
+            var apprenticeshipProviders = await _mediator.Send(new GetChangeOfProviderChainQuery(apprenticeshipId), CancellationToken.None);
+
+            var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
+            result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships.First());
+
+            if (result.ApprenticeshipUpdates?.Cost != null)
+            {
+                var priceEpisodes = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
+                result.TrainingCost = priceEpisodes.PriceEpisodes.GetPrice();
+            }
+
+            return result;
         }
 
         public async Task<UlnSummaryViewModel> GetApprenticeshipsByUln(ApprenticeshipSearchQuery searchQuery)
@@ -126,6 +138,21 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
 
             long commitmentId = 0;
+            long accountId = 0;
+
+            try
+            {
+                accountId = _encodingService.Decode(searchQuery.HashedAccountId, EncodingType.AccountId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to decode Hashed Account Id");
+
+                return new CommitmentSummaryViewModel
+                {
+                    ReponseMessages = { "Problem validating your account Id" }
+                };
+            }
 
             try
             {
@@ -143,7 +170,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             try
             {
-                var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId));
+                var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId, accountId));
 
                 if (cohort == null)
                 {
@@ -153,11 +180,20 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                     };
                 }
 
+                if (!cohort.AccountId.Equals(accountId))
+                {
+                    _logger.LogWarning($"Unauthorised to access Cohort {cohort.CohortId}");
+                    return new CommitmentSummaryViewModel
+                    {
+                        ReponseMessages = { "Account is unauthorised to access this Cohort." }
+                    };
+                }
+
                 _logger.LogInformation($"Commitment Record with Id: {cohort.CohortId}");
 
                 var cohortApprenticeshipsResponse = await _mediator.Send(new GetSupportApprenticeshipQuery
                 {
-                    CohortId = cohort.CohortId
+                    CohortId = cohort.CohortId,
                 });
 
                 return _commitmentMapper.MapToCommitmentSummaryViewModel(cohort, cohortApprenticeshipsResponse);
@@ -172,11 +208,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
         }
 
-        public async Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashCommitmentId)
+        public async Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashCommitmentId, string accountHashedId)
         {
             _logger.LogInformation("Retrieving Commitment Details");
 
             long commitmentId = 0;
+            long accountId;
 
             try
             {
@@ -188,7 +225,17 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 throw;
             }
 
-            var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId));
+            try
+            {
+                accountId = _encodingService.Decode(accountHashedId, EncodingType.AccountId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to decode Hashed Account Id");
+                throw;
+            }
+
+            var cohort = await _mediator.Send(new GetSupportCohortSummaryQuery(commitmentId, accountId));
 
             if (cohort == null)
             {

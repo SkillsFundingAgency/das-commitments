@@ -12,6 +12,8 @@ using SFA.DAS.CommitmentsV2.Mapping;
 
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
+using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -83,6 +85,35 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             await _mediator.Send(command);
 
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{apprenticeshipId}/recognise-prior-learning")]
+        public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] RecognisePriorLearningRequest request)
+        {
+            await _mediator.Send(new RecognisePriorLearningCommand
+            {
+                ApprenticeshipId = apprenticeshipId, 
+                CohortId = cohortId,
+                RecognisePriorLearning = request.RecognisePriorLearning, 
+                UserInfo = request.UserInfo
+            });
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{apprenticeshipId}/prior-learning")]
+        public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDetailsRequest request)
+        {
+            await _mediator.Send(new PriorLearningDetailsCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+                CohortId = cohortId,
+                DurationReducedBy = request.DurationReducedBy,
+                PriceReducedBy = request.PriceReducedBy,
+                UserInfo = request.UserInfo
+            });
             return Ok();
         }
 

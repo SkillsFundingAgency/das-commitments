@@ -15,5 +15,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
         public UserInfo UserInfo { get; set; }
         public int? NewEmploymentPrice { get; set; }
         public DateTime? NewEmploymentEndDate { get; set; }
+        public DeliveryModel? DeliveryModel { get; set; }
     }
 }

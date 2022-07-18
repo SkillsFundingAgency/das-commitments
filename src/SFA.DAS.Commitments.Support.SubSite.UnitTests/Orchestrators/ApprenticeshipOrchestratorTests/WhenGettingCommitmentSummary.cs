@@ -17,6 +17,7 @@ using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.ApprenticeshipOrchestratorTests
@@ -54,6 +55,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             var dataFixture = new Fixture();
             _mockedCommitmentResult = dataFixture.Build<GetSupportCohortSummaryQueryResult>().Create();
             _mockedSupportApprenticeshipResult = dataFixture.Build<GetSupportApprenticeshipQueryResult>().Create();
+
+            _orchestrator = new ApprenticeshipsOrchestrator(Mock.Of<ILogger<ApprenticeshipsOrchestrator>>(),
+                            _mediator.Object,
+                            _apprenticeshipMapper.Object,
+                            _searchValidator.Object,
+                            _encodingService.Object,
+                            _commitmentMapper.Object);
         }
 
         [Test]
@@ -195,13 +203,16 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             const string employerName = "Employer Name";
             ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
             {
-                HashedAccountId = "HASH",
+                HashedAccountId = "HashedAccountId",
                 SearchTerm = "short",
                 SearchType = ApprenticeshipSearchType.SearchByCohort
             };
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportCohortSummaryQueryResult())
+            .ReturnsAsync(new GetSupportCohortSummaryQueryResult
+            {
+                AccountId = 100
+            })
             .Verifiable();
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
@@ -210,11 +221,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 Apprenticeships = new List<CommitmentsV2.Models.SupportApprenticeshipDetails>()
             });
 
+            _encodingService
+            .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
+            .Returns(100);
+
             var validationResult = new Mock<ValidationResult>();
             validationResult.SetupGet(x => x.IsValid).Returns(true);
 
-            _searchValidator.Setup(x => x.Validate(searchQuery))
-                .Returns(validationResult.Object);
+            _searchValidator.Setup(x => x.Validate(searchQuery)).Returns(validationResult.Object);
 
             _orchestrator = new ApprenticeshipsOrchestrator(Mock.Of<ILogger<ApprenticeshipsOrchestrator>>(),
                 _mediator.Object,
@@ -282,6 +296,91 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
 
             result.ReponseMessages.Should().NotBeNull();
             result.ReponseMessages.Should().Contain("Unable to load resource error");
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task GivenAccountHashIdCannotBeDecodedShouldReturnResponseMessage()
+        {
+            // Arrange
+            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
+            {
+                HashedAccountId = "BADHASH",
+                SearchTerm = "short",
+                SearchType = ApprenticeshipSearchType.SearchByCohort
+            };
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
+             .ReturnsAsync(new GetSupportCohortSummaryQueryResult()).Verifiable();
+
+            var validationResult = new Mock<ValidationResult>();
+            validationResult.SetupGet(x => x.IsValid).Returns(true);
+
+            _searchValidator.Setup(x => x.Validate(searchQuery))
+                .Returns(validationResult.Object);
+
+            _encodingService
+                .Setup(x => x.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
+                .Throws<Exception>();
+
+            _orchestrator = new ApprenticeshipsOrchestrator(Mock.Of<ILogger<ApprenticeshipsOrchestrator>>(),
+                 _mediator.Object,
+                _apprenticeshipMapper.Object,
+                _searchValidator.Object,
+                _encodingService.Object,
+                _commitmentMapper.Object);
+
+            // Act
+            var result = await _orchestrator.GetCommitmentSummary(searchQuery);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType<CommitmentSummaryViewModel>();
+
+            result.ReponseMessages.Should().NotBeNull();
+            result.ReponseMessages.Should().Contain("Problem validating your account Id");
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task GivenCohortAccountIdDoNotMatchQueryAccountIdShouldReturnResponseMessage()
+        {
+            // Arrange
+            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
+            {
+                HashedAccountId = "100HASH",
+                SearchTerm = "short",
+                SearchType = ApprenticeshipSearchType.SearchByCohort
+            };
+
+            long cohortCorrectAccountId = 200;
+            long cohortInvalidAccountId = 300;
+
+            GetSupportCohortSummaryQueryResult getSupportCohortSummaryQueryResult = new Fixture().Create<GetSupportCohortSummaryQueryResult>();
+            getSupportCohortSummaryQueryResult.AccountId = cohortCorrectAccountId;
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSupportCohortSummaryQuery>(), CancellationToken.None))
+             .ReturnsAsync(getSupportCohortSummaryQueryResult);
+
+            var validationResult = new Mock<ValidationResult>();
+            validationResult.SetupGet(x => x.IsValid).Returns(true);
+
+            _searchValidator.Setup(x => x.Validate(searchQuery))
+                .Returns(validationResult.Object);
+
+            _encodingService
+                .Setup(x => x.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
+                .Returns(cohortInvalidAccountId);
+
+            // Act
+            var result = await _orchestrator.GetCommitmentSummary(searchQuery);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType<CommitmentSummaryViewModel>();
+
+            result.ReponseMessages.Should().NotBeNull();
+            result.ReponseMessages.Should().Contain("Account is unauthorised to access this Cohort.");
         }
     }
 }

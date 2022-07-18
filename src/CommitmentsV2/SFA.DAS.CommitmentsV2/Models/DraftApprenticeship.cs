@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
@@ -106,6 +107,29 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FlexibleEmployment.EmploymentPrice = null;
                 FlexibleEmployment.EmploymentEndDate = null;
             }
+
+            RecognisePriorLearning = source.RecognisePriorLearning;
+            if(RecognisePriorLearning == true)
+            {
+                PriorLearning ??= new ApprenticeshipPriorLearning();
+                PriorLearning.DurationReducedBy = source.DurationReducedBy;
+                PriorLearning.PriceReducedBy = source.PriceReducedBy;
+            }
+            
+            ClearPriorLearningWhenStartDateBeforeAug2022();
+        }
+
+        private void ClearPriorLearningWhenStartDateBeforeAug2022()
+        {
+            if (StartDate < Constants.RecognisePriorLearningBecomesRequiredOn)
+            {
+                RecognisePriorLearning = null;
+                if (PriorLearning != null)
+                {
+                    PriorLearning.DurationReducedBy = null;
+                    PriorLearning.PriceReducedBy = null;
+                }
+            }
         }
 
         public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update)
@@ -150,6 +174,50 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 throw new DomainException(nameof(LastName), "CourseCode for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
             }
+        }
+
+        public void SetRecognisePriorLearning(bool? recognisePriorLearning)
+        {
+            if (!recognisePriorLearning.HasValue)
+            {
+                throw new DomainException("IsTherePriorLearning", "You must select yes or no");
+            }
+
+            RecognisePriorLearning = recognisePriorLearning;
+
+            if (RecognisePriorLearning == false && PriorLearning != null)
+            {
+                PriorLearning.DurationReducedBy = null;
+                PriorLearning.PriceReducedBy = null;
+            }
+        }
+
+        public void SetPriorLearningDetails(int? durationReducedBy, int? priceReducedBy)
+        {
+            if (!durationReducedBy.HasValue)
+            {
+                throw new DomainException("ReducedDuration", "You must enter the number of weeks");
+            }
+            if (durationReducedBy.HasValue && durationReducedBy.Value < 0)
+            {
+                throw new DomainException("ReducedDuration", "The number can't be negative");
+            }
+            if (!priceReducedBy.HasValue)
+            {
+                throw new DomainException("ReducedPrice", "You must enter the price");
+            }
+            if (priceReducedBy.HasValue && priceReducedBy.Value < 0)
+            {
+                throw new DomainException("ReducedPrice", "The number can't be negative");
+            }
+            if (RecognisePriorLearning != true)
+            {
+                throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
+            }
+
+            PriorLearning ??= new ApprenticeshipPriorLearning();
+            PriorLearning.DurationReducedBy = durationReducedBy;
+            PriorLearning.PriceReducedBy = priceReducedBy;
         }
     }
 }
