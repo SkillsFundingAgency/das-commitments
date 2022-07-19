@@ -168,6 +168,8 @@
     <Build Include="Views\ApprenticeshipLatestCheck.sql" />
     <Build Include="Tables\ApprenticeshipFlexibleEmployment.sql" />
     <Build Include="Tables\ApprenticeshipPriorLearning.sql" />
+    <Build Include="Views\ApprenticeshipsCreated.sql" />
+    <Build Include="Views\FlexibleApprenticeships.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
