@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return TestAsync(
                 f => f.AddDraftApprenticeship(),
                 f => f.CohortDomainService.Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId,
-                    f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.CancellationToken, false)));
+                    f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.CancellationToken)));
         }
 
         [Test]
@@ -61,7 +61,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public AddDraftApprenticeshipCommandHandlerTestsFixture()
         {
             Fixture = new Fixture();
-            DraftApprenticeshipDetails = Fixture.Create<DraftApprenticeshipDetails>();
+            DraftApprenticeshipDetails = Fixture.Build<DraftApprenticeshipDetails>()
+                .With(o => o.IgnoreStartDateOverlap,false)
+                .Create();
             DraftApprenticeship = new DraftApprenticeship().Set(a => a.Id, 123);
             CancellationToken = new CancellationToken();
 
@@ -72,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             CohortDomainService = new Mock<ICohortDomainService>();
             DraftApprenticeshipDetailsMapper = new Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
             UserInfo = Fixture.Create<UserInfo>();
-            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).Create();
+            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).With(o => o.IgnoreStartDateOverlap, false).Create();
 
             Handler = new AddDraftApprenticeshipCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
@@ -81,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 CohortDomainService.Object);
 
             CohortDomainService.Setup(s => s.AddDraftApprenticeship(Command.ProviderId, Command.CohortId,
-                DraftApprenticeshipDetails, Command.UserInfo, CancellationToken, false)).ReturnsAsync(DraftApprenticeship);
+                DraftApprenticeshipDetails, Command.UserInfo, CancellationToken)).ReturnsAsync(DraftApprenticeship);
             DraftApprenticeshipDetailsMapper.Setup(m => m.Map(Command)).ReturnsAsync(DraftApprenticeshipDetails);
         }
 
