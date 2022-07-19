@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using MoreLinq;
+using System.Threading;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -54,6 +55,19 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckNoPendingOrApprovedRequestsForChangeOfParty();
 
             return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, userInfo, now);
+        }
+
+        internal void ResolveTrainingDateRequest(DraftApprenticeship draftApprenticeship, OverlappingTrainingDateRequestResolutionType resolutionType, CancellationToken none)
+        {
+            var oltd = OverlappingTrainingDateRequests.Where(x => x.DraftApprenticeshipId == draftApprenticeship.Id 
+                                && x.Status == OverlappingTrainingDateRequestStatus.Pending)
+                                .FirstOrDefault();
+
+            if (oltd != null)
+            {
+                oltd.ResolutionType = resolutionType;
+                oltd.Status = OverlappingTrainingDateRequestStatus.Resolved;
+            }
         }
 
         private void CheckIsStoppedForChangeOfParty()

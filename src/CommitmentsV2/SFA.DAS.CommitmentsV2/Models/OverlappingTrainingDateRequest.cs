@@ -9,9 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long Id { get; private set; }
         public virtual long DraftApprenticeshipId { get; private set; }
         public virtual long PreviousApprenticeshipId { get; private set; }
-        public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; private set; }
-        public virtual OverlappingTrainingDateRequestStatus Status { get; private set; }
-        public virtual OverlappingTrainingDateRequestEmployerAction? EmployerAction { get; private set; }
+        public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
+        public virtual OverlappingTrainingDateRequestStatus Status { get; set; }
+        public virtual OverlappingTrainingDateRequestEmployerAction? EmployerAction { get; set; }
         public byte[] RowVersion { get; private set; }
 
         public virtual DraftApprenticeship DraftApprenticeship { get; private set; }

@@ -8,7 +8,6 @@
 	[EmployerAction] SMALLINT NULL, 
 	[CreatedOn] DATETIME NOT NULL DEFAULT GETDATE(),
 	[ActionedOn] DATETIME2 NULL,
-	[RowVersion] ROWVERSION NOT NULL,
-    CONSTRAINT [FK_OverlappingTrainingDateRequest_Apprenticeship] FOREIGN KEY ([DraftApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
-	CONSTRAINT [FK_OverlappingTrainingDateRequest_PreviousApprenticeship] FOREIGN KEY ([PreviousApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
+	[RowVersion] ROWVERSION NOT NULL
+   
 )
