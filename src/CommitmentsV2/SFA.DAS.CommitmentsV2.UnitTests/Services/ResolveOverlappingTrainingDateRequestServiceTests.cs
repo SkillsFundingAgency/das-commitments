@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
@@ -29,21 +30,38 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task OverlappingTrainingDateIsResolved_WhenApprenticeshipIsStopped_Doesnt_Resolve_OverlappingRequest_When_There_Is_Still_A_Overlap()
+        {
+            var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture().SetupOverlapCheckService(true, 1);
+            await fixture.ResolveApprenticeshipByStoppingApprenticeship();
+            fixture.VerifyOverlappingServiceIsCalled();
+            Assert.AreEqual(OverlappingTrainingDateRequestStatus.Pending, fixture.OverlappingTrainingDateRequest.Status);
+        }
+
+        [Test]
         public async Task OverlappingTrainingDateIsResolved_WhenApprenticeshipIsStopped_Resolves_OverlappingRequest_Without_Calling_OverlapService()
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture();
             await fixture.ResolveApprenticeshipByStoppingApprenticeship();
-            fixture.VerifyOverlappingServiceIsNotCalled();
+            fixture.VerifyOverlappingServiceIsCalled();
           
         }
 
         [Test]
-        public async Task OverlappingTrainingDateIsResolved_WhenApprenticeshipStopDate_IsUpdated_Resolves_OverlappingRequest_Without_Calling_OverlapService()
+        public async Task OverlappingTrainingDateIsResolved_WhenApprenticeshipStopDateIsUpdated_calls_OverlapService()
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture();
-            await fixture.ResolveApprenticeshipByStoppingApprenticeship();
-            fixture.VerifyOverlappingServiceIsNotCalled();
+            await fixture.ResolveApprenticeshipByUpdatingStopDate();
+            fixture.VerifyOverlappingServiceIsCalled();
+        }
 
+        [Test]
+        public async Task OverlappingTrainingDateIsResolved_WhenApprenticeshipStopDateIsUpdated_Doesnt_Resolve_OverlappingRequest_When_There_Is_Still_A_Overlap()
+        {
+            var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture().SetupOverlapCheckService(true, 1);
+            await fixture.ResolveApprenticeshipByUpdatingStopDate();
+            fixture.VerifyOverlappingServiceIsCalled();
+            Assert.AreEqual(OverlappingTrainingDateRequestStatus.Pending, fixture.OverlappingTrainingDateRequest.Status);
         }
 
         [Test]
@@ -57,6 +75,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         private class ResolveOverlappingTrainingDateRequestServiceTestsFixture
         {
+            private OverlapCheckResultOnStartDate _overlapCheckResultOnStartDate;
             private Fixture _fixture;
             public Apprenticeship ApprenticeshipDetails { get; set; }
             public OverlappingTrainingDateRequest OverlappingTrainingDateRequest { get; set; }
@@ -68,6 +87,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 _fixture = new Fixture();
                 _overlapCheckService = new Mock<IOverlapCheckService>();
+                _overlapCheckResultOnStartDate = new OverlapCheckResultOnStartDate(false, null);
+
+                _overlapCheckService.Setup(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, It.IsAny<CancellationToken>())).ReturnsAsync(() => _overlapCheckResultOnStartDate);
 
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -78,6 +100,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _sut = new ResolveOverlappingTrainingDateRequestService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                         _overlapCheckService.Object,
                         Mock.Of<ILogger<ResolveOverlappingTrainingDateRequestService>>());
+            }
+
+            public ResolveOverlappingTrainingDateRequestServiceTestsFixture SetupOverlapCheckService(bool hasStartDateOverlap, long? apprneticeshipId)
+            {
+                _overlapCheckResultOnStartDate = new OverlapCheckResultOnStartDate(hasStartDateOverlap, apprneticeshipId);
+                return this;
             }
 
             private void SeedData()
@@ -166,9 +194,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 await _sut.Resolve(ApprenticeshipDetails.Id, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
             }
 
-            internal void VerifyOverlappingServiceIsNotCalled()
+            internal void VerifyOverlappingServiceIsCalled()
             {
-                _overlapCheckService.Verify(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, It.IsAny<CancellationToken>()), Times.Never);
+                _overlapCheckService.Verify(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, It.IsAny<CancellationToken>()), Times.Once);
             }
         }
     }

@@ -2,14 +2,14 @@
 {
     public class OverlapCheckResultOnStartDate
     {
-        public OverlapCheckResultOnStartDate(bool hasOverlappingStartDate, long apprenticeshipId)
+        public OverlapCheckResultOnStartDate(bool hasOverlappingStartDate, long? apprenticeshipId)
         {
             HasOverlappingStartDate = hasOverlappingStartDate;
             ApprenticeshipId = apprenticeshipId;
         }
 
         public bool HasOverlappingStartDate { get; }
-        public long ApprenticeshipId { get; }
+        public long? ApprenticeshipId { get; }
 
         public bool HasOverlaps => HasOverlappingStartDate;
     }
