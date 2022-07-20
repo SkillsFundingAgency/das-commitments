@@ -42,6 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
         public DateTime? EmploymentEndDate { get; private set; }
+        public DeliveryModel? DeliveryModel { get; private set; }
         public UserInfo UserInfo { get; private set; }
 
         public ChangeOfPartyRequest ApprenticeshipChangeOfPartyRequestResult { get; private set; }
@@ -81,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             StartDate = Fixture.Create<DateTime?>();
             EndDate = Fixture.Create<DateTime?>();
             EmploymentEndDate = Fixture.Create<DateTime?>();
+            DeliveryModel = Fixture.Create<DeliveryModel>();
             UserInfo = Fixture.Create<UserInfo>();
 
             _domainService = new ChangeOfPartyRequestDomainService(
@@ -109,10 +111,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Apprenticeship.Setup(x => x.Id).Returns(ApprenticeshipId);
             Apprenticeship.Setup(x => x.CommitmentId).Returns(1000);
             Apprenticeship.Setup(x => x.Cohort).Returns(Cohort);
-            Apprenticeship.Setup(x => x.DeliveryModel).Returns(DeliveryModel.Regular);
+            Apprenticeship.Setup(x => x.DeliveryModel).Returns(Types.DeliveryModel.Regular);
             Apprenticeship.Setup(x => x.CreateChangeOfPartyRequest(It.IsAny<ChangeOfPartyRequestType>(),
                     It.IsAny<Party>(), It.IsAny<long>(), It.IsAny<int?>(), It.IsAny<DateTime?>(),
-                    It.IsAny<DateTime?>(), It.IsAny<int?>(), It.IsAny<DateTime?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
+                    It.IsAny<DateTime?>(), It.IsAny<int?>(), It.IsAny<DateTime?>(), It.IsAny<DeliveryModel?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
                 .Returns(ApprenticeshipChangeOfPartyRequestResult);
 
             Db
@@ -161,7 +163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public ChangeOfPartyRequestDomainServiceTestsFixture WithDeliveryModelAsFlexiJobAndChangeOfProvider()
         {
             ChangeOfPartyRequestType = ChangeOfPartyRequestType.ChangeProvider;
-            Apprenticeship.Setup(x => x.DeliveryModel).Returns(DeliveryModel.PortableFlexiJob);
+            Apprenticeship.Setup(x => x.DeliveryModel).Returns(Types.DeliveryModel.PortableFlexiJob);
 
             return this;
         }
@@ -175,7 +177,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 Result = await _domainService.CreateChangeOfPartyRequest(ApprenticeshipId,
                     ChangeOfPartyRequestType, NewPartyId, Price, StartDate, EndDate, UserInfo,
-                    EmploymentPrice, EmploymentEndDate, new CancellationToken());
+                    EmploymentPrice, EmploymentEndDate, DeliveryModel, new CancellationToken());
 
                 Db.Object.SaveChanges();
             }
@@ -197,6 +199,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     It.Is<DateTime?>(e => e == EndDate),
                     It.Is<int?>(p => p == EmploymentPrice),
                     It.Is<DateTime?>(e => e == EmploymentEndDate),
+                    It.Is<DeliveryModel?>(d => d == DeliveryModel),
                     It.Is<UserInfo>(u => u == UserInfo),
                     It.Is<DateTime>(n => n == Now))
                 , Times.Once);

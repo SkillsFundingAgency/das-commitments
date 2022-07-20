@@ -74,7 +74,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             CohortDomainService = new Mock<ICohortDomainService>();
             DraftApprenticeshipDetailsMapper = new Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
             UserInfo = Fixture.Create<UserInfo>();
-            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).With(o => o.IgnoreStartDateOverlap, false).Create();
+
+            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).Without(x => x.IgnoreStartDateOverlap).Create();
 
             Handler = new AddDraftApprenticeshipCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),

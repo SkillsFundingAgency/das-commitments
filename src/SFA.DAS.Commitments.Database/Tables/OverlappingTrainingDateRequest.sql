@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[OverlappingTrainingDateRequest]
 (
-	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY,
 	[DraftApprenticeshipId] BIGINT NOT NULL,
 	[PreviousApprenticeshipId] BIGINT NOT NULL,
 	[ResolutionType] SMALLINT NULL,
