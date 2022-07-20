@@ -10,7 +10,6 @@
 
         public bool HasOverlappingStartDate { get; }
         public long? ApprenticeshipId { get; }
-
         public bool HasOverlaps => HasOverlappingStartDate;
     }
 }

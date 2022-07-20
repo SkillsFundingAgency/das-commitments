@@ -42,7 +42,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             await _mediator.Send(command);
             return Ok();
         }
-
-
     }
 }
