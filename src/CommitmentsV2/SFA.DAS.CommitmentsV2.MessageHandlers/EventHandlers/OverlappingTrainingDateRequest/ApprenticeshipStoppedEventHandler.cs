@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
 
         public async Task Handle(ApprenticeshipStoppedEvent message, IMessageHandlerContext context)
         {
-            await _resolveOverlappingTrainingDateRequestService.Resolve(message.ApprenticeshipId, Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped);
+            await _resolveOverlappingTrainingDateRequestService.ResolveByApprenticeship(message.ApprenticeshipId, Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped);
         }
   
     }

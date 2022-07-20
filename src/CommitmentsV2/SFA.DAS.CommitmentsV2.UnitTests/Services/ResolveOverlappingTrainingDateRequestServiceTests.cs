@@ -146,6 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                    .With(s => s.CompletionDate, DateTime.UtcNow.AddDays(10))
                    .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
                    .With(s => s.PriceHistory, priceHistory)
+                   .With(s => s.Uln, "XXXXX")
                    .Without(s => s.ApprenticeshipUpdate)
                    .Without(s => s.DataLockStatus)
                    .Without(s => s.EpaOrg)
@@ -158,11 +159,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 Db.Apprenticeships.Add(ApprenticeshipDetails);
 
-                var existingApprenticeshipDetails = _fixture.Build<DraftApprenticeship>()
+                var draftApprenticeshipDetails = _fixture.Build<DraftApprenticeship>()
                  .With(s => s.Id, 2)
                  .With(s => s.Cohort, cohort1)
                  .With(s => s.EndDate, DateTime.UtcNow)
                  .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
+                 .With(s => s.Uln, "XXXXX")
                  .Without(s => s.ApprenticeshipUpdate)
                  .Without(s => s.EpaOrg)
                  .Without(s => s.PreviousApprenticeship)
@@ -171,11 +173,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                  .Without(s => s.OverlappingTrainingDateRequests)
                  .Create();
 
-                Db.DraftApprenticeships.Add(existingApprenticeshipDetails);
+                Db.DraftApprenticeships.Add(draftApprenticeshipDetails);
 
                 OverlappingTrainingDateRequest = new OverlappingTrainingDateRequest()
                     .Set(s => s.Id, 1)
-                    .Set(s => s.DraftApprenticeshipId, existingApprenticeshipDetails.Id)
+                    .Set(s => s.DraftApprenticeshipId, draftApprenticeshipDetails.Id)
                     .Set(s => s.PreviousApprenticeshipId, ApprenticeshipDetails.Id)
                     .Set(s => s.Status, OverlappingTrainingDateRequestStatus.Pending);
 
@@ -186,12 +188,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             internal async Task ResolveApprenticeshipByStoppingApprenticeship()
             {
-                await _sut.Resolve(ApprenticeshipDetails.Id, OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped);
+                await _sut.ResolveByApprenticeship(ApprenticeshipDetails.Id, OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped);
             }
 
             internal async Task ResolveApprenticeshipByUpdatingStopDate()
             {
-                await _sut.Resolve(ApprenticeshipDetails.Id, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
+                await _sut.ResolveByApprenticeship(ApprenticeshipDetails.Id, OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
             }
 
             internal void VerifyOverlappingServiceIsCalled()

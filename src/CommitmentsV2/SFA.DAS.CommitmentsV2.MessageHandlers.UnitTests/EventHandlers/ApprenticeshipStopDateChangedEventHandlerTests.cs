@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void Verify_OverlappingTrainingDateRequest_Resolved()
             {
-                _resolveOverlappingTrainingDateRequestService.Verify(x => x.Resolve(_apprenticeshipStopDateChangedEvent.ApprenticeshipId, Types.OverlappingTrainingDateRequestResolutionType.StopDateUpdate), Times.Once);
+                _resolveOverlappingTrainingDateRequestService.Verify(x => x.ResolveByApprenticeship(_apprenticeshipStopDateChangedEvent.ApprenticeshipId, Types.OverlappingTrainingDateRequestResolutionType.StopDateUpdate), Times.Once);
             }
         }
     }

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IOverlapCheckService _overlapCheckService;
         private readonly ILogger<ResolveOverlappingTrainingDateRequestService> _logger;
 
-        public ResolveOverlappingTrainingDateRequestService(Lazy<ProviderCommitmentsDbContext> dbContext, 
+        public ResolveOverlappingTrainingDateRequestService(Lazy<ProviderCommitmentsDbContext> dbContext,
             IOverlapCheckService overlapCheckService,
             ILogger<ResolveOverlappingTrainingDateRequestService> logger)
         {
@@ -25,33 +25,89 @@ namespace SFA.DAS.CommitmentsV2.Services
             _logger = logger;
         }
 
-        public async Task Resolve(long apprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
+        public async Task ResolveByApprenticeship(long apprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
         {
-            var overlappingTrainingDateRequestAggregate = await _dbContext.Value.GetOverlappingTrainingDateRequestAggregate(apprenticeshipId, CancellationToken.None);
-            if (overlappingTrainingDateRequestAggregate != null)
+            var result = await _dbContext.Value.OverlappingTrainingDateRequests
+                .Include(r => r.DraftApprenticeship)
+                .Include(r => r.PreviousApprenticeship)
+                .SingleOrDefaultAsync(c => c.PreviousApprenticeshipId == apprenticeshipId
+                && c.Status == OverlappingTrainingDateRequestStatus.Pending);
+
+            await ResolveOverlap(result, resolutionType);
+        }
+
+        public async Task ResolveByDraftApprenticeshp(long draftAppretniceshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
+        {
+            var result = await _dbContext.Value.OverlappingTrainingDateRequests
+               .Include(r => r.DraftApprenticeship)
+               .Include(r => r.PreviousApprenticeship)
+               .SingleOrDefaultAsync(c => c.DraftApprenticeshipId == draftAppretniceshipId
+               && c.Status == OverlappingTrainingDateRequestStatus.Pending);
+
+            await ResolveOverlap(result, resolutionType);
+        }
+
+        private async Task ResolveOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequest, OverlappingTrainingDateRequestResolutionType resolutionType)
+        {
+            if (overlappingTrainingDateRequest != null)
             {
-                _logger.LogInformation($"OverlappingTrainingDateRequest found Apprenticeship-Id:{apprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequestAggregate.DraftApprenticeshipId}");
-                var apprenticeship = overlappingTrainingDateRequestAggregate.PreviousApprenticeship;
+                _logger.LogInformation($"OverlappingTrainingDateRequest found Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
 
-                if (await IsThereStillAOverlap(overlappingTrainingDateRequestAggregate, apprenticeship))
+                if (await CheckCanResolveOverlap(overlappingTrainingDateRequest))
                 {
-                    // Don't resolve if there is still an overlap.
-                    return;
+                    var apprenticeship = overlappingTrainingDateRequest.PreviousApprenticeship;
+                    apprenticeship.ResolveTrainingDateRequest(overlappingTrainingDateRequest.DraftApprenticeship, resolutionType, CancellationToken.None);
+                    _logger.LogInformation($"OverlappingTrainingDateRequest resolved Apprenticeship-Id:{apprenticeship.Id}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
                 }
-
-                apprenticeship.ResolveTrainingDateRequest(overlappingTrainingDateRequestAggregate.DraftApprenticeship, resolutionType, CancellationToken.None);
-                _logger.LogInformation($"OverlappingTrainingDateRequest resolved Apprenticeship-Id:{apprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequestAggregate.DraftApprenticeshipId}");
             }
         }
 
-        private async Task<bool> IsThereStillAOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequestAggregate, Apprenticeship apprenticeship)
+        private async Task<bool> CheckCanResolveOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
         {
+            if (IsDraftApprenticeshipDeleted(overlappingTrainingDateRequest))
+            {
+                return true;
+            }
+            if (Has_StartDate_EndDate_UlN_Removed_On_DraftApprenticeship(overlappingTrainingDateRequest))
+            {
+                return true;
+            }
+            if (await IsThereStillAOverlap(overlappingTrainingDateRequest))
+            {
+                // Don't resolve if there is still an overlap.
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool Has_StartDate_EndDate_UlN_Removed_On_DraftApprenticeship(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
+        {
+            var draftApprenticeship = overlappingTrainingDateRequest.DraftApprenticeship;
+            if (!draftApprenticeship.StartDate.HasValue || !draftApprenticeship.EndDate.HasValue || string.IsNullOrWhiteSpace(draftApprenticeship.Uln))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsDraftApprenticeshipDeleted(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
+        {
+            return overlappingTrainingDateRequest.DraftApprenticeship == null;
+        }
+
+        private async Task<bool> IsThereStillAOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequestAggregate)
+        {
+            var apprenticeship = overlappingTrainingDateRequestAggregate.PreviousApprenticeship;
             var result = await _overlapCheckService.CheckForOverlapsOnStartDate(apprenticeship.Uln,
                 new Domain.Entities.DateRange(overlappingTrainingDateRequestAggregate.DraftApprenticeship.StartDate.Value, overlappingTrainingDateRequestAggregate.DraftApprenticeship.EndDate.Value),
                 null,
                 CancellationToken.None);
 
-            return result != null && result.HasOverlappingStartDate;
+            return result != null 
+                && result.HasOverlappingStartDate 
+                && result.ApprenticeshipId == overlappingTrainingDateRequestAggregate.PreviousApprenticeshipId;
         }
     }
 }
