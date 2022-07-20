@@ -18,6 +18,7 @@
 	[NewApprenticeshipId] BIGINT NULL,
 	[EmploymentPrice] INT NULL, 
     [EmploymentEndDate] DATETIME2 NULL, 
+	[DeliveryModel] TINYINT NULL,
     CONSTRAINT [FK_ChangeOfPartyRequest_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
 	CONSTRAINT [FK_ChangeOfPartyRequest_AccountLegalEntityId] FOREIGN KEY ([AccountLegalEntityId]) REFERENCES [AccountLegalEntities]([Id]),
 	CONSTRAINT [FK_ChangeOfPartyRequest_ProviderId] FOREIGN KEY ([ProviderId]) REFERENCES [Providers]([Ukprn]),

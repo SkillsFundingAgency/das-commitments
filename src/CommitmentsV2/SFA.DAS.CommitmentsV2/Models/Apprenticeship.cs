@@ -46,6 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             DateTime? endDate,
             int? employmentPrice,
             DateTime? employmentEndDate,
+            DeliveryModel? deliveryModel,
             UserInfo userInfo,
             DateTime now)
         {
@@ -53,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckStartDateForChangeOfParty(startDate, changeOfPartyType, originatingParty);
             CheckNoPendingOrApprovedRequestsForChangeOfParty();
 
-            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, userInfo, now);
+            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, userInfo, now);
         }
 
         private void CheckIsStoppedForChangeOfParty()
@@ -503,7 +504,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 StartDate = changeOfPartyRequest.StartDate,
                 EndDate = changeOfPartyRequest.EndDate,
                 Uln = this.Uln,
-                DeliveryModel = this.DeliveryModel,
+                DeliveryModel = changeOfPartyRequest.DeliveryModel ?? DeliveryModel,
                 CourseCode = this.CourseCode,
                 CourseName = this.CourseName,
                 ProgrammeType = this.ProgrammeType,
