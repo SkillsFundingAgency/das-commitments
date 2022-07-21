@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     return;
                 }
 
-                apprenticeship.ResolveTrainingDateRequest(overlappingTrainingDateRequestAggregate.DraftApprenticeship, resolutionType, CancellationToken.None);
+                apprenticeship.ResolveTrainingDateRequest(overlappingTrainingDateRequestAggregate.DraftApprenticeship, resolutionType);
                 _logger.LogInformation($"OverlappingTrainingDateRequest resolved Apprenticeship-Id:{apprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequestAggregate.DraftApprenticeshipId}");
             }
         }

@@ -7,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.Testing;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.OverlappingTrainingDateRequest
 {
     [TestFixture]
     [Parallelizable]
@@ -27,15 +27,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private Mock<IResolveOverlappingTrainingDateRequestService> _resolveOverlappingTrainingDateRequestService;
             private ApprenticeshipStopDateChangedEventHandler _sut;
-            
+
             public ApprenticeshipStopDateChangedEventHandlerTestsFixture()
             {
                 _apprenticeshipStopDateChangedEvent = new ApprenticeshipStopDateChangedEvent()
                 {
-                     ApprenticeshipId = 1
+                    ApprenticeshipId = 1
                 };
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
-                _resolveOverlappingTrainingDateRequestService= new Mock<IResolveOverlappingTrainingDateRequestService>();
+                _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
                 _sut = new ApprenticeshipStopDateChangedEventHandler(_resolveOverlappingTrainingDateRequestService.Object);
             }
 
