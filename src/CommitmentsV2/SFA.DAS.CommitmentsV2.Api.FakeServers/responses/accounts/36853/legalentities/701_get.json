@@ -1,0 +1,25 @@
+{
+  "DasAccountId": "MBWGGD",
+  "LegalEntityId": 701,
+  "Address": "1 High Street",
+  "Source": "Companies House",
+  "Status": null,
+  "Name": "Positivity Ltd",
+  "Code": "70110101",
+  "DateOfInception": "2016-10-05T00:00:00",
+  "PublicSectorDataSource": "",
+  "Sector": "",
+  "Agreements": [
+    {
+      "Id": 1,
+      "TemplateVersionNumber": 1,
+      "Status": 1,
+      "SignedByName": null,
+      "SignedDate": null
+    }],
+  "AgreementStatus": 1,
+  "AgreementSignedByName": "Chris Foster",
+  "AgreementSignedDate": "2017-11-07T11:20:52.02",
+  "SourceNumeric": 1,
+  "AccountLegalEntityPublicHashedId": "XKD5Z2"
+}
