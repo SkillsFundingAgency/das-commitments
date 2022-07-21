@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Commitments.Support.SubSite.Configuration;
-using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Authentication
 {
