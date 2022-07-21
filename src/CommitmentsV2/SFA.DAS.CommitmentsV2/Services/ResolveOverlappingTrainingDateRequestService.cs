@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IOverlapCheckService _overlapCheckService;
         private readonly ILogger<ResolveOverlappingTrainingDateRequestService> _logger;
 
+
         public ResolveOverlappingTrainingDateRequestService(Lazy<ProviderCommitmentsDbContext> dbContext,
             IOverlapCheckService overlapCheckService,
             ILogger<ResolveOverlappingTrainingDateRequestService> logger)
@@ -25,24 +26,28 @@ namespace SFA.DAS.CommitmentsV2.Services
             _logger = logger;
         }
 
-        public async Task ResolveByApprenticeship(long apprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
+
+        public async Task Resolve(long? apprenticeshipId,long? draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
         {
-            var result = await _dbContext.Value.OverlappingTrainingDateRequests
+            OverlappingTrainingDateRequest result = null;
+            var oltd = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(r => r.DraftApprenticeship)
-                .Include(r => r.PreviousApprenticeship)
-                .SingleOrDefaultAsync(c => c.PreviousApprenticeshipId == apprenticeshipId
-                && c.Status == OverlappingTrainingDateRequestStatus.Pending);
+                .Include(r => r.PreviousApprenticeship);
 
-            await ResolveOverlap(result, resolutionType);
-        }
-
-        public async Task ResolveByDraftApprenticeshp(long draftAppretniceshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
-        {
-            var result = await _dbContext.Value.OverlappingTrainingDateRequests
-               .Include(r => r.DraftApprenticeship)
-               .Include(r => r.PreviousApprenticeship)
-               .SingleOrDefaultAsync(c => c.DraftApprenticeshipId == draftAppretniceshipId
-               && c.Status == OverlappingTrainingDateRequestStatus.Pending);
+            if (apprenticeshipId.HasValue && apprenticeshipId.Value > 0)
+            {
+                result = await oltd.SingleOrDefaultAsync(c => c.PreviousApprenticeshipId == apprenticeshipId
+                    && c.Status == OverlappingTrainingDateRequestStatus.Pending);
+            }
+            else if (draftApprenticeshipId.HasValue && draftApprenticeshipId.Value > 0)
+            {
+                result = await oltd.SingleOrDefaultAsync(c => c.DraftApprenticeshipId == draftApprenticeshipId
+                    && c.Status == OverlappingTrainingDateRequestStatus.Pending);
+            }
+            else
+            {
+                throw new InvalidOperationException("Draft apprenticeship and apprenticehsip ids are null");
+            }
 
             await ResolveOverlap(result, resolutionType);
         }
@@ -68,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 _logger.LogInformation($"OverlappingTrainingDateRequest found Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
 
-                if (await CheckCanResolveOverlap(overlappingTrainingDateRequest))
+                if (await CheckCanResolveOverlap(overlappingTrainingDateRequest, resolutionType))
                 {
                     var apprenticeship = overlappingTrainingDateRequest.PreviousApprenticeship;
                     apprenticeship.ResolveTrainingDateRequest(overlappingTrainingDateRequest.DraftApprenticeship.Id, resolutionType, CancellationToken.None);
@@ -77,13 +82,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private async Task<bool> CheckCanResolveOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
+        private async Task<bool> CheckCanResolveOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequest, OverlappingTrainingDateRequestResolutionType resolutionType)
         {
             if (Has_StartDate_EndDate_UlN_Removed_On_DraftApprenticeship(overlappingTrainingDateRequest))
             {
                 return true;
             }
-            if (await IsThereStillAOverlap(overlappingTrainingDateRequest))
+            if (OverlapCheckRequired(resolutionType) &&
+                await IsThereStillAOverlap(overlappingTrainingDateRequest))
             {
                 // Don't resolve if there is still an overlap.
                 return false;
@@ -114,6 +120,18 @@ namespace SFA.DAS.CommitmentsV2.Services
             return result != null 
                 && result.HasOverlappingStartDate 
                 && result.ApprenticeshipId == overlappingTrainingDateRequestAggregate.PreviousApprenticeshipId;
+        }
+
+        private bool OverlapCheckRequired(OverlappingTrainingDateRequestResolutionType resolutionType)
+        {
+            switch (resolutionType)
+            {
+                case OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped:
+                case OverlappingTrainingDateRequestResolutionType.StopDateUpdate:
+                    return false;
+            }
+
+            return true;
         }
     }
 }
