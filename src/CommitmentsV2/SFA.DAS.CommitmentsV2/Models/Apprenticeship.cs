@@ -58,9 +58,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, userInfo, now);
         }
 
-        internal void ResolveTrainingDateRequest(DraftApprenticeship draftApprenticeship, OverlappingTrainingDateRequestResolutionType resolutionType, CancellationToken none)
+        internal void ResolveTrainingDateRequest(long draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType, CancellationToken none)
         {
-            var oltd = OverlappingTrainingDateRequests.Where(x => x.DraftApprenticeshipId == draftApprenticeship.Id 
+            var oltd = OverlappingTrainingDateRequests.Where(x => x.DraftApprenticeshipId == draftApprenticeshipId
                                 && x.Status == OverlappingTrainingDateRequestStatus.Pending)
                                 .FirstOrDefault();
 
@@ -68,6 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 oltd.ResolutionType = resolutionType;
                 oltd.Status = OverlappingTrainingDateRequestStatus.Resolved;
+                oltd.ActionedOn = DateTime.UtcNow;
             }
         }
 

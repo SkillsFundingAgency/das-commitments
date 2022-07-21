@@ -7,5 +7,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     {
         Task ResolveByApprenticeship(long apprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType);
         Task ResolveByDraftApprenticeshp(long draftAppretniceshipId, OverlappingTrainingDateRequestResolutionType resolutionType);
+        Task DraftApprenticeshpDeleted(long draftAppretniceshipId, OverlappingTrainingDateRequestResolutionType resolutionType);
     }
 }
