@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Payments.ProviderPayments.Messages;
 
@@ -13,11 +14,13 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<RecordedAct1CompletionPaymentEventHandler> _logger;
+        private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
 
-        public RecordedAct1CompletionPaymentEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<RecordedAct1CompletionPaymentEventHandler> logger)
+        public RecordedAct1CompletionPaymentEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<RecordedAct1CompletionPaymentEventHandler> logger, IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
         {
             _dbContext = dbContext;
             _logger = logger;
+            _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
         }
 
         public async Task Handle(RecordedAct1CompletionPayment message, IMessageHandlerContext context)
@@ -45,6 +48,8 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers
                             _logger.LogWarning($"Warning {nameof(RecordedAct1CompletionPaymentEventHandler)} - Cannot process CompletionEvent for apprenticeshipId {apprentice.Id} as status is {status}");
                             break;
                     }
+
+                    await _resolveOverlappingTrainingDateRequestService.Resolve(message.ApprenticeshipId, null, OverlappingTrainingDateRequestResolutionType.CompletionDateEvent);
                 }
                 else
                 {

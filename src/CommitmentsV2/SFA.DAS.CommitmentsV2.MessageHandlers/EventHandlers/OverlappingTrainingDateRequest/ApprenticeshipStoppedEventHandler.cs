@@ -18,6 +18,5 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
         {
             await _resolveOverlappingTrainingDateRequestService.Resolve(message.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped);
         }
-  
     }
 }
