@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new InvalidOperationException("Draft apprenticeship and apprenticehsip ids are null");
             }
 
-            await ResolveOverlap(result, resolutionType);
+            await CheckAndResolveOverlap(result, resolutionType);
         }
 
         public async Task DraftApprenticeshpDeleted(long draftAppretniceshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
@@ -61,13 +61,11 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (result != null)
             {
-                var apprenticeship = result.PreviousApprenticeship;
-                apprenticeship.ResolveTrainingDateRequest(draftAppretniceshipId, resolutionType, CancellationToken.None);
-                _logger.LogInformation($"OverlappingTrainingDateRequest resolved Apprenticeship-Id:{apprenticeship.Id}, DraftApprenticeshipId : {draftAppretniceshipId}");
+                Resolve(result, resolutionType);
             }
         }
 
-        private async Task ResolveOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequest, OverlappingTrainingDateRequestResolutionType resolutionType)
+        private async Task CheckAndResolveOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequest, OverlappingTrainingDateRequestResolutionType resolutionType)
         {
             if (overlappingTrainingDateRequest != null)
             {
@@ -75,11 +73,16 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                 if (await CheckCanResolveOverlap(overlappingTrainingDateRequest, resolutionType))
                 {
-                    var apprenticeship = overlappingTrainingDateRequest.PreviousApprenticeship;
-                    apprenticeship.ResolveTrainingDateRequest(overlappingTrainingDateRequest.DraftApprenticeship.Id, resolutionType, CancellationToken.None);
-                    _logger.LogInformation($"OverlappingTrainingDateRequest resolved Apprenticeship-Id:{apprenticeship.Id}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+                    Resolve(overlappingTrainingDateRequest, resolutionType);
                 }
             }
+        }
+
+        private void Resolve(OverlappingTrainingDateRequest overlappingTrainingDateRequest, OverlappingTrainingDateRequestResolutionType resolutionType)
+        {
+            var apprenticeship = overlappingTrainingDateRequest.PreviousApprenticeship;
+            apprenticeship.ResolveTrainingDateRequest(overlappingTrainingDateRequest.DraftApprenticeshipId, resolutionType, CancellationToken.None);
+            _logger.LogInformation($"OverlappingTrainingDateRequest resolved Apprenticeship-Id:{apprenticeship.Id}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
         }
 
         private async Task<bool> CheckCanResolveOverlap(OverlappingTrainingDateRequest overlappingTrainingDateRequest, OverlappingTrainingDateRequestResolutionType resolutionType)
