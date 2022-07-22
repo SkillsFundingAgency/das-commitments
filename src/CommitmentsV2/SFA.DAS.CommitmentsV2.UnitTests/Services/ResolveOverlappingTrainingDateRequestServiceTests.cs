@@ -185,8 +185,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             internal async Task<ResolveOverlappingTrainingDateRequestServiceTestsFixture> UpdateDraftApprenticeship(string startDate, string endDate, string uln)
             {
                 var dftAp = await Db.DraftApprenticeships.FirstAsync();
-                dftAp.StartDate = string.IsNullOrWhiteSpace(startDate) ? null : DateTime.Parse(startDate);
-                dftAp.EndDate = string.IsNullOrWhiteSpace(endDate) ? null : DateTime.Parse(endDate);
+                dftAp.StartDate = string.IsNullOrWhiteSpace(startDate) ? (DateTime?) null : DateTime.Parse(startDate);
+                dftAp.EndDate = string.IsNullOrWhiteSpace(endDate) ? (DateTime?)null : DateTime.Parse(endDate);
                 dftAp.Uln = uln;
 
                 await Db.SaveChangesAsync();
