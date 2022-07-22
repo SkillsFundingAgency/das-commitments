@@ -1,0 +1,12 @@
+[
+  {
+    "AccountProviderId": 10000896,
+    "AccountId": 30060,
+    "AccountPublicHashedId": "7Y94BK",
+    "AccountName": "Rapid Logistics Co Ltd",
+    "AccountLegalEntityId": 645,
+    "AccountLegalEntityPublicHashedId": "X9JE72",
+    "AccountLegalEntityName": "Rapid Logistics Co Ltd",
+    "Permissions": [ "CreateCohort" ]
+  }
+]
