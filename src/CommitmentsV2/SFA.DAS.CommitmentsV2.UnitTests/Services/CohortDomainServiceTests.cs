@@ -680,7 +680,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountLegalEntity = new Mock<AccountLegalEntity>(()=>
                     new AccountLegalEntity(EmployerAccount,AccountLegalEntityId,MaLegalEntityId,"test","ABC","Test",OrganisationType.CompaniesHouse,"test",DateTime.UtcNow));
                 AccountLegalEntity.Setup(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
-                        It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), false))
+                        It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
                 AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
                         It.IsAny<string>(), It.IsAny<UserInfo>()))
@@ -716,7 +716,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
-                    FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular
+                    FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false
                 };
 
                 ExistingDraftApprenticeship = new DraftApprenticeship {
@@ -1317,13 +1317,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 if (party == Party.Provider)
                 {
                     Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p=>p == AccountLegalEntity.Object), null, null,
-                        DraftApprenticeshipDetails, UserInfo, false));
+                        DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
                     AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
-                        DraftApprenticeshipDetails, UserInfo, false));
+                        DraftApprenticeshipDetails, UserInfo));
                 }
             }
 
@@ -1345,7 +1345,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 if (party == Party.Employer)
                 {
                     AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName), It.Is<int?>(p => p == pledgeApplicationId),
-                        DraftApprenticeshipDetails, UserInfo, false));
+                        DraftApprenticeshipDetails, UserInfo));
                 }
             }
 
@@ -1354,13 +1354,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 if (party == Party.Provider)
                 {
                     Provider.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                        DraftApprenticeshipDetails, UserInfo, false));
+                        DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
                     AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                        DraftApprenticeshipDetails, UserInfo, false));
+                        DraftApprenticeshipDetails, UserInfo));
                 }
             }
 
