@@ -36,7 +36,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 EmploymentEndDate = source.EmploymentEndDate,
                 RecognisePriorLearning = source.RecognisePriorLearning,
                 DurationReducedBy = source.DurationReducedBy,
-                PriceReducedBy = source.PriceReducedBy
+                PriceReducedBy = source.PriceReducedBy,
+                RecognisingPriorLearningStillNeedsToBeConsidered = source.RecognisingPriorLearningStillNeedsToBeConsidered
             });
         }
     }
