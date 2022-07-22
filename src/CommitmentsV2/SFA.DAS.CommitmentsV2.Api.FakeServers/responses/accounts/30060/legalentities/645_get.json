@@ -1,0 +1,26 @@
+{
+  "DasAccountId": "VNR6P9",
+  "LegalEntityId": 1234,
+  "Address": "18 Soho Square, London, W1D 3QL",
+  "Source": "Companies House",
+  "Status": null,
+  "Name": "Rapid Logistics Co Ltd",
+  "Code": "06344082",
+  "DateOfInception": "2007-08-15T00:00:00",
+  "PublicSectorDataSource": "",
+  "Sector": null,
+  "Agreements": [
+    {
+      "Id": 3,
+      "TemplateVersionNumber": 3,
+      "Status": 2,
+      "SignedByName": null,
+      "SignedDate": null
+    }
+  ],
+  "AgreementStatus": 2,
+  "AgreementSignedByName": "Chris Foster",
+  "AgreementSignedDate": "2017-11-07T11:20:52.02",
+  "SourceNumeric": 1,
+  "AccountLegalEntityPublicHashedId": "X9JE72"
+}
