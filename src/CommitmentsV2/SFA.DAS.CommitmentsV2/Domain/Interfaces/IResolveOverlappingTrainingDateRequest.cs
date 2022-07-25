@@ -6,6 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     public interface IResolveOverlappingTrainingDateRequestService
     {
         Task Resolve(long? apprenticeshipId, long? draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType);
-        Task DraftApprenticeshpDeleted(long draftAppretniceshipId, OverlappingTrainingDateRequestResolutionType resolutionType);
+        Task DraftApprenticeshpDeleted(long draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType);
     }
 }

@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, userInfo, now);
         }
 
-        internal void ResolveTrainingDateRequest(long draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType, CancellationToken none)
+        internal void ResolveTrainingDateRequest(long draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
         {
             var oltd = OverlappingTrainingDateRequests.Where(x => x.DraftApprenticeshipId == draftApprenticeshipId
                                 && x.Status == OverlappingTrainingDateRequestStatus.Pending)
