@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -45,15 +46,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{providerId}/apprenticeship/details")]
-        public async Task<IActionResult> GetOverlappingApprenticeshipDetails(long providerId, long draftApprenticeshipId)
+        [Route("{providerId}/validateUlnOverlap")]
+        public async Task<IActionResult> ValidateUlnOverlapOnStartDate(long providerId, string uln, string startDate, string endDate)
         {
-            var query = new GetOverlappingApprenticeshipDetailsQuery { DraftApprenticeshipId = draftApprenticeshipId, ProviderId = providerId };
+            var query = new ValidateUlnOverlapOnStartDateQuery { ProviderId = providerId, Uln = uln, StartDate = startDate , EndDate = endDate };
             var result = await _mediator.Send(query);
-            return Ok(new GetOverlappingApprenticeshipDetailsResponse
+            return Ok(new ValidateUlnOverlapOnStartDateResponse
             {
-                ApprenticeshipId = result.ApprenticeshipId,
-                Status = result.Status
+                HasOverlapWithApprenticeshipId = result.HasOverlapWithApprenticeshipId,
+                HasStartDateOverlap = result.HasStartDateOverlap
             });
         }
     }

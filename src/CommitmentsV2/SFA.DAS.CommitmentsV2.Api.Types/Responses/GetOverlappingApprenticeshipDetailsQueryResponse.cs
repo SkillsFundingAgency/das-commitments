@@ -1,10 +1,8 @@
-﻿using SFA.DAS.CommitmentsV2.Types;
-
-namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
+﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
-    public class GetOverlappingApprenticeshipDetailsResponse
+    public class ValidateUlnOverlapOnStartDateResponse
     {
-        public long ApprenticeshipId { get; set; }
-        public ApprenticeshipStatus Status { get; set; }
+        public long? HasOverlapWithApprenticeshipId { get; set; }
+        public bool HasStartDateOverlap { get; set; }
     }
 }
