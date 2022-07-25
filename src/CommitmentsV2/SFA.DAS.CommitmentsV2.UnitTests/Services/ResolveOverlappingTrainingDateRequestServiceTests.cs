@@ -119,8 +119,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [TestCase("2020-12-01", "2022-12-01", "")]
-        //[TestCase("", "2022-12-01", "XXXX")]
-        //[TestCase("2020-12.01", "", "XXXX")]
+        [TestCase("", "2022-12-01", "XXXX")]
+        [TestCase("2020-12.01", "", "XXXX")]
         public async Task OverlappingTrainingDateIsResolved_WhenDraftApprenticeshipUpdated_And_StartDate_EndDate_Or_ULN_Are_Removed(string startDate, string endDate, string uln)
         {
             var fixture = await new ResolveOverlappingTrainingDateRequestServiceTestsFixture().UpdateDraftApprenticeship(startDate, endDate, uln); 
@@ -305,7 +305,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 _overlapCheckService.Verify(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, It.IsAny<CancellationToken>()), Times.Never);
             }
-           
         }
     }
 }
