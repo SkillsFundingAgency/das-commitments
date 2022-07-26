@@ -59,6 +59,48 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentPrice_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateDraftApprenticeshipEmploymentPrice();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentEndDate_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateDraftApprenticeshipEmploymentEndDate();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_DeliveryModel_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateDraftApprenticeshipDeliveryModel();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
         public void UpdateDraftApprenticeship_Tracks_State_Changes(Party modifyingParty)
         {
             var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
@@ -169,6 +211,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
                         DeliveryModel = DeliveryModel.Regular,
+                        FlexibleEmployment = new FlexibleEmployment
+                        {
+                            EmploymentEndDate = _autoFixture.Create<DateTime>(),
+                            EmploymentPrice = _autoFixture.Create<int>()
+                        },
                         DateOfBirth = _autoFixture.Create<DateTime>(),
                     };
                     
@@ -193,6 +240,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.Cost = details.Cost + 1 ?? 1;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipEmploymentPrice()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.EmploymentPrice = details.EmploymentPrice + 1 ?? 1;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipEmploymentEndDate()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.EmploymentEndDate = details.EmploymentEndDate.Value.AddDays(1);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipDeliveryModel()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.DeliveryModel = details.DeliveryModel != DeliveryModel.Regular ? DeliveryModel.Regular :
+                    details.DeliveryModel != DeliveryModel.PortableFlexiJob ? DeliveryModel.FlexiJobAgency :
+                    DeliveryModel.PortableFlexiJob;
                 Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
             }
 
@@ -293,6 +363,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                     TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(draftApprenticeship.CourseCode, "", ProgrammeType.Framework,
                         null, null),
                     DeliveryModel = draftApprenticeship.DeliveryModel,
+                    EmploymentPrice = draftApprenticeship.FlexibleEmployment.EmploymentPrice,                    
+                    EmploymentEndDate = draftApprenticeship.FlexibleEmployment.EmploymentEndDate,                    
                     Cost = (int?)draftApprenticeship.Cost,
                     StartDate = draftApprenticeship.StartDate,
                     EndDate = draftApprenticeship.EndDate,
