@@ -122,7 +122,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         internal OverlappingTrainingDateRequest CreateOverlappingTrainingDateRequest(Party originatingParty, long previousApprenticeshipId, UserInfo userInfo)
         {
-            return new OverlappingTrainingDateRequest(this, previousApprenticeshipId, originatingParty, userInfo);
+            var overlap = new OverlappingTrainingDateRequest(this, previousApprenticeshipId, originatingParty, userInfo);
+            OverlappingTrainingDateRequests.Add(overlap);
+            return overlap;
         }
 
         private void ClearPriorLearningWhenStartDateBeforeAug2022()
