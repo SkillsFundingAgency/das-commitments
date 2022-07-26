@@ -146,6 +146,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (StartDate != update.StartDate) return true;
             if (EndDate != update.EndDate) return true;
             if (DateOfBirth != update.DateOfBirth) return true;
+            if (DeliveryModel != update.DeliveryModel) return true;
+            if (FlexibleEmployment?.EmploymentEndDate != update.EmploymentEndDate) return true;
+            if (FlexibleEmployment?.EmploymentPrice != update.EmploymentPrice) return true;
 
             if (string.IsNullOrWhiteSpace(CourseCode))
             {
