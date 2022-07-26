@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         protected ApprenticeshipBase()
         {
             ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>();
         }
 
         public bool IsApproved { get; set; }
