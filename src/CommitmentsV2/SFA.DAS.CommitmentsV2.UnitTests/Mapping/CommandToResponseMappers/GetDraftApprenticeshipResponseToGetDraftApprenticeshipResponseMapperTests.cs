@@ -151,5 +151,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             int? priceReducedBy = 9;
             return AssertPropertySet(input => input.PriceReducedBy, priceReducedBy);
         }
+
+        [Test]
+        public Task Map_ContinuationOfId_ShouldBeSet()
+        {
+            long? continuationOfId = 9;
+            return AssertPropertySet(input => input.ContinuationOfId, continuationOfId);
+        }
+
+        [Test]
+        public Task Map_EmployerReference_ShouldBeSet()
+        {
+            var employerReference = "employer";
+            return AssertPropertySet(input => input.EmployerReference, employerReference);
+        }
+
+        [Test]
+        public Task Map_ProviderReference_ShouldBeSet()
+        {
+            var providerReference = "provider";
+            return AssertPropertySet(input => input.ProviderReference, providerReference);
+        }
     }
 }
