@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public StubAccountApiClient()
         {
-            _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:3999/accounts-api/api/") };
+            _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:34901/accounts-api/api") };
         }
 
         public Task<AccountDetailViewModel> GetAccount(string hashedAccountId)

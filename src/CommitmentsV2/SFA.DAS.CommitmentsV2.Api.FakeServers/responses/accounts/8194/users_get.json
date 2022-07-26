@@ -1,0 +1,14 @@
+[
+  {
+    "UserRef": "37e9761e-1dc9-42b7-9054-787794ad6442",
+    "Roles": ["Owner"]
+  },
+  {
+    "UserRef": "C072F9FF-3AB5-4DE4-B232-51B2ECABE642",
+    "Roles": ["Owner"]
+  },
+  {
+    "UserRef": "9fd88d02-57c2-42b1-a128-59187402a46d",
+    "Roles": ["Viewer"]
+  }
+]
