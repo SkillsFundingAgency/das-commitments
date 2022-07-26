@@ -122,7 +122,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         internal OverlappingTrainingDateRequest CreateOverlappingTrainingDateRequest(Party originatingParty, long previousApprenticeshipId, UserInfo userInfo)
         {
-            return new OverlappingTrainingDateRequest(this, previousApprenticeshipId, originatingParty, userInfo);
+            var overlap = new OverlappingTrainingDateRequest(this, previousApprenticeshipId, originatingParty, userInfo);
+            OverlappingTrainingDateRequests.Add(overlap);
+            return overlap;
         }
 
         private void ClearPriorLearningWhenStartDateBeforeAug2022()
@@ -146,6 +148,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (StartDate != update.StartDate) return true;
             if (EndDate != update.EndDate) return true;
             if (DateOfBirth != update.DateOfBirth) return true;
+            if (DeliveryModel != update.DeliveryModel) return true;
+            if (FlexibleEmployment?.EmploymentEndDate != update.EmploymentEndDate) return true;
+            if (FlexibleEmployment?.EmploymentPrice != update.EmploymentPrice) return true;
 
             if (string.IsNullOrWhiteSpace(CourseCode))
             {
