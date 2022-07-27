@@ -36,7 +36,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
                 Reference = source.Reference,
-                ReservationId = source.ReservationId
+                ReservationId = source.ReservationId,
+                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
             };
 
             // Only populate standard version specific items if start is specified.
