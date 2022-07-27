@@ -46,11 +46,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.VerifyException<DomainException>();
         }
 
+        [TestCase(-1)]
+        [TestCase(1000)]
+        public async Task Handle_WhenDurationIsSetOutsideValidRange_ExceptionIsThrown(int newDuration)
+        {
+            fixture = new PriorLearningDetailsHandlerTestsFixture();
+            fixture.Command.DurationReducedBy = newDuration;
+            await fixture.Handle();
+
+            fixture.VerifyException<DomainException>();
+        }
+
         [Test]
         public async Task Handle_WhenNoPriceIsSet_ExceptionIsThrown()
         {
             fixture = new PriorLearningDetailsHandlerTestsFixture();
             fixture.Command.PriceReducedBy = null;
+            await fixture.Handle();
+
+            fixture.VerifyException<DomainException>();
+        }
+
+        [TestCase(-1)]
+        [TestCase(100001)]
+        public async Task Handle_WhenPriceIsSetOutOfValidRange_ExceptionIsThrown(int newPrice)
+        {
+            fixture = new PriorLearningDetailsHandlerTestsFixture();
+            fixture.Command.PriceReducedBy = newPrice;
             await fixture.Handle();
 
             fixture.VerifyException<DomainException>();
