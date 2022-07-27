@@ -159,11 +159,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 FirstName = "Mark",
                 DateOfBirthAsString = "2000-01-02",
                 CourseCode = "59",
-                StartDateAsString = "2019-05-01",
-                EndDateAsString = "2020-05",
+                StartDateAsString = "2023-05-01",
+                EndDateAsString = "2024-05",
                 CostAsString = "2000",
                 ProviderRef = "ZB88",
-                Email = "abc34628125987@abc.com"
+                Email = "abc34628125987@abc.com",
+                RecognisePriorLearningAsString = "false",
             });
         }
 
@@ -458,9 +459,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null)
         {
-            CsvRecords[0].RecognisePriorLearning = recognisePriorLearning;
-            CsvRecords[0].DurationReducedBy = durationReducedBy;
-            CsvRecords[0].PriceReducedBy = priceReducedBy;
+            CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();
+            CsvRecords[0].DurationReducedByAsString = durationReducedBy.ToString();
+            CsvRecords[0].PriceReducedByAsString = priceReducedBy.ToString();
         }
 
         internal void SetUpIncompleteRecord()

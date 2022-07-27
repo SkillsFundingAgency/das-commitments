@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using CsvHelper;
+using CsvHelper.Configuration;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Shared.Services
@@ -16,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
         {
             _memoryStream = new MemoryStream();
             _streamWriter = new StreamWriter(_memoryStream);
-            _csvWriter = new CsvWriter(_streamWriter, new CsvHelper.Configuration.Configuration
+            _csvWriter = new CsvWriter(_streamWriter, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 HasHeaderRecord = hasHeader
             });

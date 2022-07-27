@@ -3,9 +3,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using SFA.DAS.Authorization.Features.Models;
+using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
@@ -14,54 +18,58 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
+        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
-        public GetDraftApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
+        public GetDraftApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, IFeatureTogglesService<FeatureToggle> featureTogglesService)
         {
             _dbContext = dbContext; 
             _authenticationService = authenticationService;
+            _featureTogglesService = featureTogglesService;
         }
 
         public async Task<GetDraftApprenticeshipQueryResult> Handle(GetDraftApprenticeshipQuery request, CancellationToken cancellationToken)
         {
             var requestingParty = _authenticationService.GetUserParty();
 
-            var x = await _dbContext.Value
-                .DraftApprenticeships.GetById(
-                    request.CohortId,
-                    request.DraftApprenticeshipId,
-                    draft => new GetDraftApprenticeshipQueryResult
-                    {
-                        CourseCode = draft.CourseCode,
-                        TrainingCourseVersion = draft.TrainingCourseVersion,
-                        TrainingCourseVersionConfirmed = draft.TrainingCourseVersionConfirmed,
-                        TrainingCourseName = draft.CourseName,
-                        TrainingCourseOption = draft.TrainingCourseOption,
-                        StandardUId = draft.StandardUId,
-                        DeliveryModel = draft.DeliveryModel,
-                        StartDate = draft.StartDate,
-                        Id = draft.Id,
-                        Cost = (int?)draft.Cost,
-                        DateOfBirth = draft.DateOfBirth,
-                        EndDate = draft.EndDate,
-                        FirstName = draft.FirstName,
-                        LastName = draft.LastName,
-                        Email = draft.Email,
-                        Reference = requestingParty == Party.Provider ? draft.ProviderRef : draft.EmployerRef,
-                        EmployerReference = draft.EmployerRef,
+            var isRplRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
+
+            var query = _dbContext.Value.DraftApprenticeships
+                .Include(x => x.PriorLearning)
+                .Where(x => x.Id == request.DraftApprenticeshipId && x.CommitmentId == request.CohortId);
+
+            var x = await query.Select(draft => new GetDraftApprenticeshipQueryResult
+            {
+                CourseCode = draft.CourseCode,
+                TrainingCourseVersion = draft.TrainingCourseVersion,
+                TrainingCourseVersionConfirmed = draft.TrainingCourseVersionConfirmed,
+                TrainingCourseName = draft.CourseName,
+                TrainingCourseOption = draft.TrainingCourseOption,
+                StandardUId = draft.StandardUId,
+                DeliveryModel = draft.DeliveryModel,
+                StartDate = draft.StartDate,
+                Id = draft.Id,
+                Cost = (int?) draft.Cost,
+                DateOfBirth = draft.DateOfBirth,
+                EndDate = draft.EndDate,
+                FirstName = draft.FirstName,
+                LastName = draft.LastName,
+                Email = draft.Email,
+                Reference = requestingParty == Party.Provider ? draft.ProviderRef : draft.EmployerRef,
+ 						EmployerReference = draft.EmployerRef,
                         ProviderReference = draft.ProviderRef,
-                        ReservationId = draft.ReservationId,
-                        Uln = draft.Uln,
-                        IsContinuation = draft.ContinuationOfId.HasValue,
-                        ContinuationOfId = draft.ContinuationOfId,
-                        OriginalStartDate = draft.OriginalStartDate,
-                        HasStandardOptions = !string.IsNullOrEmpty(draft.StandardUId) && _dbContext.Value.StandardOptions.Any(c => c.StandardUId.Equals(draft.StandardUId)),
-                        EmploymentEndDate = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentEndDate : null,
-                        EmploymentPrice = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentPrice : null,
-                        RecognisePriorLearning = draft.RecognisePriorLearning,
-                        DurationReducedBy = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedBy : null,
-                        PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
-                    },
-                    cancellationToken);
+                ReservationId = draft.ReservationId,
+                Uln = draft.Uln,
+                IsContinuation = draft.ContinuationOfId.HasValue,
+                ContinuationOfId = draft.ContinuationOfId,
+                OriginalStartDate = draft.OriginalStartDate,
+                HasStandardOptions = !string.IsNullOrEmpty(draft.StandardUId) && _dbContext.Value.StandardOptions.Any(c => c.StandardUId.Equals(draft.StandardUId)),
+                EmploymentEndDate = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentEndDate : null,
+                EmploymentPrice = draft.FlexibleEmployment != null ? draft.FlexibleEmployment.EmploymentPrice : null,
+                RecognisePriorLearning = draft.RecognisePriorLearning,
+                DurationReducedBy = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedBy : null,
+                PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
+                RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && draft.RecognisingPriorLearningStillNeedsToBeConsidered
+            }).SingleOrDefaultAsync(cancellationToken);
 
             return x;
         }
