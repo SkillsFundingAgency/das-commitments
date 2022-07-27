@@ -241,6 +241,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             var apprenticeDetails = new Fixture()
                 .Build<DraftApprenticeshipDetails>()
                 .With(x => x.Email, email)
+                .With(x => x.StartDate, new DateTime(2022, 08, 01))
+                .With(x=>x.RecognisePriorLearning, false)
                 .Create();
 
             await CheckQueryResponse(response =>
@@ -249,6 +251,40 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
                 response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
             },
                 apprenticeDetails, arrange);
+        }
+
+        [TestCase(false, AllowedApproval.BothCanApprove)]
+        [TestCase(true, AllowedApproval.CannotApprove)]
+        public async Task Handle_WithRplDetails_ShouldReturnExpectedProviderCanApproveStatus(bool recognisePriorLearning, AllowedApproval allowedApproval)
+        {
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.StartDate, new DateTime(2022, 08, 01))
+                .With(x => x.RecognisePriorLearning, false)
+                .Create();
+
+            await CheckQueryResponse(response =>
+                {
+                    response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
+                },
+                apprenticeDetails, null, null, recognisePriorLearning);
+        }
+
+        [TestCase(false, AllowedApproval.BothCanApprove)]
+        [TestCase(true, AllowedApproval.EmployerCanApprove)]
+        public async Task Handle_WithRplDetails_ShouldReturnExpectedEmployerCanApproveStatus(bool recognisePriorLearning, AllowedApproval allowedApproval)
+        {
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.StartDate, new DateTime(2022, 08, 01))
+                .With(x => x.RecognisePriorLearning, false)
+                .Create();
+
+            await CheckQueryResponse(response =>
+                {
+                    response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
+                },
+                apprenticeDetails, null, null, recognisePriorLearning);
         }
 
         [TestCase(null, null, AllowedApproval.CannotApprove)]
@@ -296,7 +332,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
 
         private async Task CheckQueryResponse(Action<GetSupportCohortSummaryQueryResult> assert,
             DraftApprenticeshipDetails apprenticeshipDetails = null,
-            Action<GetSupportCohortSummaryHandlerTestFixtures> arrange = null, long? continuationOfId = null)
+            Action<GetSupportCohortSummaryHandlerTestFixtures> arrange = null, long? continuationOfId = null, bool? recognisePriorLearning = false)
         {
             var autoFixture = new Fixture();
 
@@ -326,6 +362,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             {
                 var draftApprenticeship = new DraftApprenticeship(apprenticeshipDetails, Cohort.WithParty);
                 draftApprenticeship.ContinuationOfId = continuationOfId;
+                draftApprenticeship.RecognisePriorLearning = recognisePriorLearning;
                 Cohort.Apprenticeships.Add(draftApprenticeship);
             }
 

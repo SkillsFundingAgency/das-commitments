@@ -151,5 +151,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             int? priceReducedBy = 9;
             return AssertPropertySet(input => input.PriceReducedBy, priceReducedBy);
         }
+
+        [Test]
+        public Task Map_RecognisingPriorLearningStillNeedsToBeConsidered_ShouldBeSet()
+        {
+            bool rplConsidered = true;
+            return AssertPropertySet(input => input.RecognisingPriorLearningStillNeedsToBeConsidered, true);
+        }
     }
 }

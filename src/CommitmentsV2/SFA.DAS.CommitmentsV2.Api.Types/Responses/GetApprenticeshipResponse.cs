@@ -49,5 +49,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public int? PledgeApplicationId { get; set; }
         public int? EmploymentPrice { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
+        public bool? RecognisePriorLearning { get; set; }
+        public int? DurationReducedBy { get; set; }
+        public int? PriceReducedBy { get; set; }
     }
 }
