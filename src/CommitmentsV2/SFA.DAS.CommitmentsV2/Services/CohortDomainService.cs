@@ -487,7 +487,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var errors = new List<DomainError>();
 
-            if (!ignoreStartDateOverlap && overlapResult.HasOverlappingStartDate)
+            if ((!ignoreStartDateOverlap || overlapResult.HasOverlappingEndDate) && overlapResult.HasOverlappingStartDate)
             {
                 errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
             }

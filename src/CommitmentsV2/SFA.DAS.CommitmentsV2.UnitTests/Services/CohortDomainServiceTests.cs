@@ -347,10 +347,37 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         [TestCase(Party.Provider, "employer")]
         [TestCase(Party.Employer, "provider")]
+        public async Task OverlapOnStartDate_Validation_WithIgnore(Party party)
+        {
+            await _fixture
+                .WithParty(party)
+                .WithUlnOverlapOnStartDate()
+                .CreateCohort(ignoreStartDateOverlap: true);
+
+            _fixture.VerifyNoUlnOverlaps();
+        }
+
+        [TestCase(Party.Provider, "employer")]
+        [TestCase(Party.Employer, "provider")]
         public async Task OverlapOnEndDate_Validation(Party party, string otherPartyInMessage)
         {
             await _fixture.WithParty(party).WithUlnOverlapOnEndDate().CreateCohort();
             _fixture.VerifyOverlapExceptionOnEndDate(otherPartyInMessage);
+        }
+
+        [TestCase(Party.Provider, "employer", true)]
+        [TestCase(Party.Provider, "employer", false)]
+        [TestCase(Party.Employer, "provider", true)]
+        [TestCase(Party.Employer, "provider", false)]
+        public async Task OverlapOnStartDateAndEndDateEmbraceWithin_Validation(Party party, string otherPartyInMessage, bool ignoreStartDateOverlap)
+        {
+            await _fixture
+                .WithParty(party)
+                .WithUlnOverlapOnStartAndEndDate()
+                .CreateCohort(ignoreStartDateOverlap: ignoreStartDateOverlap);
+
+            _fixture.VerifyOverlapExceptionOnEndDate(otherPartyInMessage);
+            _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
         }
 
         [TestCase(Party.Provider, true)]
@@ -909,6 +936,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithUlnOverlapOnStartAndEndDate()
+            {
+                DraftApprenticeshipDetails.Uln = "X";
+                DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
+                DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
+
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == DraftApprenticeshipDetails.Uln), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new OverlapCheckResult(true, true));
+
+                return this;
+            }
+
             public CohortDomainServiceTestFixture WithEmailOverlapWithApprenticeship(bool isApproved)
             {
                 DraftApprenticeshipDetails.Email = "test@test.com";
@@ -1173,7 +1212,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-            public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null, long? transferSenderId = null, int? pledgeApplicationId = null)
+            public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null, long? transferSenderId = null, int? pledgeApplicationId = null, bool ignoreStartDateOverlap = false)
             {
                 Db.SaveChanges();
                 DomainErrors.Clear();
@@ -1184,7 +1223,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 try
                 {
                     var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                        DraftApprenticeshipDetails, UserInfo, new CancellationToken());
+                        DraftApprenticeshipDetails, UserInfo, new CancellationToken(), ignoreStartDateOverlap);
                     await Db.SaveChangesAsync();
                     return result;
                 }
@@ -1584,6 +1623,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     ? "You need to enter a unique email address."
                     : "You need to enter a unique email address for each apprentice.";
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage));
+            }
+
+            public void VerifyNoUlnOverlaps()
+            {
+                Assert.IsFalse(DomainErrors.Any(x => x.PropertyName == "StartDate"));
+                Assert.IsFalse(DomainErrors.Any(x => x.PropertyName == "EndDate"));
             }
 
             public void VerifyException<T>()
