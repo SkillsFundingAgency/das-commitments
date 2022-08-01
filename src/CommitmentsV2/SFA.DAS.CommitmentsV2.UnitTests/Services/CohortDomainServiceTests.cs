@@ -345,8 +345,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
         }
 
-        [TestCase(Party.Provider, "employer")]
-        [TestCase(Party.Employer, "provider")]
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public async Task OverlapOnStartDate_Validation_WithIgnore(Party party)
         {
             await _fixture
