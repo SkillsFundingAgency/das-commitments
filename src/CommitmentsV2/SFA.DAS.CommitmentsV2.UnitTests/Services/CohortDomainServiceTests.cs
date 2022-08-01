@@ -284,7 +284,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public void AddDraftApprenticeship_CohortNotFound_ShouldThrowException()
         {
-            Assert.ThrowsAsync<BadRequestException>(_fixture.AddDraftApprenticeship,
+            Assert.ThrowsAsync<BadRequestException>(() => _fixture.AddDraftApprenticeship(false),
                 $"Cohort {_fixture.CohortId} was not found");
         }
 
@@ -339,7 +339,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         [TestCase(Party.Provider, "employer")]
         [TestCase(Party.Employer, "provider")]
-        public async Task OverlapOnStartDate_Validation(Party party, string otherPartyInMessage)
+        public async Task CreateCohort_OverlapOnStartDate_Validation(Party party, string otherPartyInMessage)
         {
             await _fixture.WithParty(party).WithUlnOverlapOnStartDate().CreateCohort();
             _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
@@ -347,7 +347,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
-        public async Task OverlapOnStartDate_Validation_WithIgnore(Party party)
+        public async Task CreateCohort_OverlapOnStartDate_Validation_WithIgnore(Party party)
         {
             await _fixture
                 .WithParty(party)
@@ -359,7 +359,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         [TestCase(Party.Provider, "employer")]
         [TestCase(Party.Employer, "provider")]
-        public async Task OverlapOnEndDate_Validation(Party party, string otherPartyInMessage)
+        public async Task CreateCohort_OverlapOnEndDate_Validation(Party party, string otherPartyInMessage)
         {
             await _fixture.WithParty(party).WithUlnOverlapOnEndDate().CreateCohort();
             _fixture.VerifyOverlapExceptionOnEndDate(otherPartyInMessage);
@@ -369,7 +369,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(Party.Provider, "employer", false)]
         [TestCase(Party.Employer, "provider", true)]
         [TestCase(Party.Employer, "provider", false)]
-        public async Task OverlapOnStartDateAndEndDateEmbraceWithin_Validation(Party party, string otherPartyInMessage, bool ignoreStartDateOverlap)
+        public async Task CreateCohort_OverlapOnStartDateAndEndDateEmbraceWithin_Validation(Party party, string otherPartyInMessage, bool ignoreStartDateOverlap)
         {
             await _fixture
                 .WithParty(party)
@@ -378,6 +378,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _fixture.VerifyOverlapExceptionOnEndDate(otherPartyInMessage);
             _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task Provider_AddDraftApprenticeship_OverlapOnStartDateAndEndDateEmbraceWithin_Validation(bool ignoreStartDateOverlap)
+        {
+            await _fixture
+                .WithParty(Party.Provider)
+                .WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider)
+                .WithUlnOverlapOnStartAndEndDate()
+                .AddDraftApprenticeship(ignoreStartDateOverlap: ignoreStartDateOverlap);
+
+            _fixture.VerifyOverlapExceptionOnEndDate("employer");
+            _fixture.VerifyOverlapExceptionOnStartDate("employer");
         }
 
         [TestCase(Party.Provider, true)]
@@ -1287,8 +1301,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
-            public async Task AddDraftApprenticeship()
+            public async Task AddDraftApprenticeship(bool ignoreStartDateOverlap = false)
             {
+                DraftApprenticeshipDetails.IgnoreStartDateOverlap = ignoreStartDateOverlap;
+
                 Db.SaveChanges();
                 DomainErrors.Clear();
 
@@ -1344,8 +1360,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
-            public async Task UpdateDraftApprenticeship()
+            public async Task UpdateDraftApprenticeship(bool ignoreStartDateOverlap = false)
             {
+                DraftApprenticeshipDetails.IgnoreStartDateOverlap = ignoreStartDateOverlap;
                 if (Party == Party.Employer)
                 {
                     DraftApprenticeshipDetails.Uln = ExistingDraftApprenticeship.Uln;
