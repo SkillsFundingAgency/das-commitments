@@ -254,7 +254,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
             }
 
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken, draftApprenticeshipDetails.IgnoreStartDateOverlap);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
 
             return cohort;
         }

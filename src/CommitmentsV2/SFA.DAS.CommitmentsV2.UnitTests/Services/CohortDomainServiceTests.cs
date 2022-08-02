@@ -1228,6 +1228,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null, long? transferSenderId = null, int? pledgeApplicationId = null, bool ignoreStartDateOverlap = false)
             {
+                DraftApprenticeshipDetails.IgnoreStartDateOverlap = ignoreStartDateOverlap;
                 Db.SaveChanges();
                 DomainErrors.Clear();
 
@@ -1237,7 +1238,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 try
                 {
                     var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                        DraftApprenticeshipDetails, UserInfo, new CancellationToken(), ignoreStartDateOverlap);
+                        DraftApprenticeshipDetails, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
