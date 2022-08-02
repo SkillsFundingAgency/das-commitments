@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
 
             public async Task BulkUploadDraftApprenticeshipsRequest()
             {
-                await _controller.ValidateDraftAppretniceship(ProviderId, _postRequest);
+                await _controller.ValidateDraftApprenticeship(ProviderId, _postRequest);
             }
 
             public void VerifyCommandSend()

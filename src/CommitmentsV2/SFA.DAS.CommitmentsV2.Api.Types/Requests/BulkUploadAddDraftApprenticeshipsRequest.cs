@@ -38,14 +38,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         {
             get
             {
-                if (int.TryParse(CostAsString, out var price))
-                {
-                    return price;
-                }
-
+                if (int.TryParse(CostAsString, out var result))
+                    return result;
                 return null;
             }
         }
+
         public static DateTime? GetDate(string date, string format, bool isStartDate = false)
         {
             if (!string.IsNullOrWhiteSpace(date) &&
@@ -62,10 +60,47 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         }
         public string EPAOrgId { get; set; }
 
-        public bool? RecognisePriorLearning { get; set; }
+        public string RecognisePriorLearningAsString { get; set; }
+        public bool? RecognisePriorLearning
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(RecognisePriorLearningAsString))
+                    return null;
 
-        public int? DurationReducedBy { get; set; }
+                return RecognisePriorLearningAsString?.ToLower() switch
+                {
+                    "true" => true,
+                    "1" => true,
+                    "yes" => true,
+                    "false" => false,
+                    "0" => false,
+                    "no" => false,
+                    _ => null,
+                };
+            }
+        }
 
-        public int? PriceReducedBy { get; set; }
+        public string DurationReducedByAsString { get; set; }
+        public int? DurationReducedBy
+        {
+            get
+            {
+                if(int.TryParse(DurationReducedByAsString, out var result))
+                    return result;
+                return  null;
+            }
+        }
+
+        public string PriceReducedByAsString { get; set; }
+        public int? PriceReducedBy
+        {
+            get
+            {
+                if(int.TryParse(PriceReducedByAsString, out var result))
+                    return result;
+                return null;
+            }
+        }
     }
 }

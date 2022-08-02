@@ -254,7 +254,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
             }
 
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken, draftApprenticeshipDetails.IgnoreStartDateOverlap);
 
             return cohort;
         }
@@ -488,7 +488,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var errors = new List<DomainError>();
 
-            if (!details.IgnoreStartDateOverlap && overlapResult.HasOverlappingStartDate)
+            if ((!details.IgnoreStartDateOverlap || overlapResult.HasOverlappingEndDate) && overlapResult.HasOverlappingStartDate)
             {
                 errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
             }
