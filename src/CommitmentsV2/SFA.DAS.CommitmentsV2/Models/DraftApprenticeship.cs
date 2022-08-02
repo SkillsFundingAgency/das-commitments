@@ -109,14 +109,14 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FlexibleEmployment.EmploymentEndDate = null;
             }
 
-            RecognisePriorLearning = source.RecognisePriorLearning;
-            if(RecognisePriorLearning == true)
+            RecognisePriorLearning ??= source.RecognisePriorLearning;
+            if (RecognisePriorLearning == true)
             {
                 PriorLearning ??= new ApprenticeshipPriorLearning();
-                PriorLearning.DurationReducedBy = source.DurationReducedBy;
-                PriorLearning.PriceReducedBy = source.PriceReducedBy;
+                PriorLearning.DurationReducedBy ??= source.DurationReducedBy;
+                PriorLearning.PriceReducedBy ??= source.PriceReducedBy;
             }
-            
+
             ClearPriorLearningWhenStartDateBeforeAug2022();
         }
 
@@ -209,18 +209,27 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 throw new DomainException("ReducedDuration", "You must enter the number of weeks");
             }
-            if (durationReducedBy.HasValue && durationReducedBy.Value < 0)
+            if (durationReducedBy.Value < 0)
             {
                 throw new DomainException("ReducedDuration", "The number can't be negative");
+            }
+            if (durationReducedBy.Value > 999)
+            {
+                throw new DomainException("ReducedDuration", "The number of weeks must be 999 or less");
             }
             if (!priceReducedBy.HasValue)
             {
                 throw new DomainException("ReducedPrice", "You must enter the price");
             }
-            if (priceReducedBy.HasValue && priceReducedBy.Value < 0)
+            if (priceReducedBy.Value < 0)
             {
                 throw new DomainException("ReducedPrice", "The number can't be negative");
             }
+            if (priceReducedBy.Value > Constants.MaximumApprenticeshipCost)
+            {
+                throw new DomainException("ReducedPrice", "The price must be 100,000 or less");
+            }
+
             if (RecognisePriorLearning != true)
             {
                 throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");

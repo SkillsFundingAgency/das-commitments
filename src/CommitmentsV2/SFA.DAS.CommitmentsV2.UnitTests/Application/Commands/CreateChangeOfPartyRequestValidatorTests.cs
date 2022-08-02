@@ -19,7 +19,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [SetUp]
         public void Arrange()
         {
-            _currentAcademicYearEndDate = new DateTime(2021, 7, 31);
+            var academicEndYear = DateTime.UtcNow.Month > 7 ? DateTime.UtcNow.AddYears(1).Year : DateTime.UtcNow.Year;
+            _currentAcademicYearEndDate = new DateTime(academicEndYear, 7, 31);
            
             _mockAcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
             _mockAcademicYearDateProvider.Setup(p => p.CurrentAcademicYearEndDate).Returns(_currentAcademicYearEndDate);
@@ -113,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var command = new CreateChangeOfPartyRequestCommand
             {
                 NewStartDate = DateTime.Today,
-                NewEndDate = DateTime.Today.AddYears(1)
+                NewEndDate = DateTime.Today.AddMonths(10)
             };
 
             AssertValidationResult(r => r.NewStartDate, command, true);

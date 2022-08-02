@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpPost]
         [Route("{providerId}/validate")]
-        public async Task<IActionResult> ValidateDraftAppretniceship(long providerId, [FromBody] ValidateDraftApprenticeshipRequest request)
+        public async Task<IActionResult> ValidateDraftApprenticeship(long providerId, [FromBody] ValidateDraftApprenticeshipRequest request)
         {
             var command = new ValidateDraftApprenticeshipDetailsCommand { DraftApprenticeshipRequest = request };
             await _mediator.Send(command);
