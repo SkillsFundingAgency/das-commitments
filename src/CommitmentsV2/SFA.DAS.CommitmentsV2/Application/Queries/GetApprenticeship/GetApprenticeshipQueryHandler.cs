@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
             var x = await _dbContext.Value
                 .Apprenticeships
                 .Include(x => x.FlexibleEmployment)
+                .Include(x => x.PriorLearning)
                 .GetById(request.ApprenticeshipId, apprenticeship =>
                     new GetApprenticeshipQueryResult
                     {
@@ -75,6 +76,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                             apprenticeship.ApprenticeshipConfirmationStatus != null ? apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn : null),
                         PledgeApplicationId = apprenticeship.Cohort.PledgeApplicationId,
                         FlexibleEmployment = apprenticeship.FlexibleEmployment,
+                        RecognisePriorLearning = apprenticeship.RecognisePriorLearning,
+                        ApprenticeshipPriorLearning = apprenticeship.PriorLearning,
                     },
                     cancellationToken);
 
