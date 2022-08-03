@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class OverlappingTrainingDateRequestController : ControllerBase
     {
         private readonly IMediator _mediator;
+
         public OverlappingTrainingDateRequestController(IMediator mediator)
         {
             _mediator = mediator;
@@ -44,12 +45,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok();
         }
 
-        /// TODO : Unit tests
         [HttpGet]
         [Route("{providerId}/validateUlnOverlap")]
         public async Task<IActionResult> ValidateUlnOverlapOnStartDate(long providerId, string uln, string startDate, string endDate)
         {
-            var query = new ValidateUlnOverlapOnStartDateQuery { ProviderId = providerId, Uln = uln, StartDate = startDate , EndDate = endDate };
+            var query = new ValidateUlnOverlapOnStartDateQuery { ProviderId = providerId, Uln = uln, StartDate = startDate, EndDate = endDate };
             var result = await _mediator.Send(query);
             return Ok(new ValidateUlnOverlapOnStartDateResponse
             {
