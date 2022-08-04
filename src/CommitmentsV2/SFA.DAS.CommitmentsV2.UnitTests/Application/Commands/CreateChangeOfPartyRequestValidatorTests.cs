@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var academicEndYear = DateTime.UtcNow.Month > 7 ? DateTime.UtcNow.AddYears(1).Year : DateTime.UtcNow.Year;
             _currentAcademicYearEndDate = new DateTime(academicEndYear, 7, 31);
-           
+
             _mockAcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
             _mockAcademicYearDateProvider.Setup(p => p.CurrentAcademicYearEndDate).Returns(_currentAcademicYearEndDate);
         }
