@@ -34,12 +34,12 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (apprenticeshipId.HasValue && apprenticeshipId.Value > 0)
             {
-                result = await oltd.SingleOrDefaultAsync(c => c.PreviousApprenticeshipId == apprenticeshipId
+                result = await oltd.SingleOrDefaultAsync(c => c.PreviousApprenticeshipId == apprenticeshipId.Value
                     && c.Status == OverlappingTrainingDateRequestStatus.Pending);
             }
             else if (draftApprenticeshipId.HasValue && draftApprenticeshipId.Value > 0)
             {
-                result = await oltd.SingleOrDefaultAsync(c => c.DraftApprenticeshipId == draftApprenticeshipId
+                result = await oltd.SingleOrDefaultAsync(c => c.DraftApprenticeshipId == draftApprenticeshipId.Value
                     && c.Status == OverlappingTrainingDateRequestStatus.Pending);
             }
             else

@@ -60,6 +60,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("V - ApprenticeshipConfirmationCommencedEvent Event");
                 Console.WriteLine("W - ApprenticeshipConfirmedEvent Event");
                 Console.WriteLine("Y - ApprenticeshipEmailAddressChangedEvent Event");
+                Console.WriteLine("Z - ApprenticeshipStopDateChangedEvent Event");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -213,7 +214,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(ApprenticeshipEmailAddressChangedEvent)}");
                             break;
-
+                        case ConsoleKey.Z:
+                            await _publisher.Publish(new ApprenticeshipStopDateChangedEvent()
+                            {
+                                ApprenticeshipId = 113938,
+                                StopDate = DateTime.Now.AddMonths(-1),
+                            });
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(ApprenticeshipStopDateChangedEvent)}");
+                            break;
                     }
                 }
                 catch (Exception e)
