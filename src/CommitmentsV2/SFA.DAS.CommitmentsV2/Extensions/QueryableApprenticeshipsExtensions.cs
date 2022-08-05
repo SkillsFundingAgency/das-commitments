@@ -241,7 +241,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     return FilterApprenticeshipByAlertForChangesForReview(apprenticeships, alert, isProvider);
 
                 case Alerts.ConfirmDates:
-                    return FilterApprenticeshipByAlertForConfirmDates(apprenticeships);
+                    return FilterApprenticeshipByAlertForConfirmDates(apprenticeships, alert, isProvider);
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(alert), alert, null);
@@ -380,8 +380,13 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             );
         }
 
-        public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForConfirmDates(IQueryable<Apprenticeship> apprenticeships)
+        public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForConfirmDates(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
         {
+            if (isProvider)
+            {
+                return apprenticeships;
+            }
+
             return apprenticeships.Where(a => a.OverlappingTrainingDateRequests.Any(c => c.Status == OverlappingTrainingDateRequestStatus.Pending));
         }
     }
