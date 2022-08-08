@@ -17,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             _client = client;
         }
+
         public Task Ping()
         {
             return _client.Get("api/ping");
@@ -46,6 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
         }
+
         public Task<GetApprenticeshipsResponse> GetApprenticeships(GetApprenticeshipsRequest request, CancellationToken cancellationToken = default)
         {
             if (request.ProviderId.HasValue && request.AccountId.HasValue)
@@ -96,6 +98,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<GetDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", null, cancellationToken);
         }
+
         public Task<GetDraftApprenticeshipsResponse> GetDraftApprenticeships(long cohortId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetDraftApprenticeshipsResponse>($"api/cohorts/{cohortId}/draft-apprenticeships", null, cancellationToken);
@@ -292,6 +295,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
             return pageQuery;
         }
+
         public Task<GetApprovedProvidersResponse> GetApprovedProviders(long accountId, CancellationToken cancellationToken)
         {
             return _client.Get<GetApprovedProvidersResponse>($"api/accounts/{accountId}/providers/approved", null, cancellationToken);
@@ -351,7 +355,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/datalocks/accept-changes", request, cancellationToken);
         }
-        
+
         public Task RejectDataLockChanges(long apprenticeshipId, RejectDataLocksRequestChangesRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/{apprenticeshipId}/datalocks/reject-changes", request, cancellationToken);
@@ -401,6 +405,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<GetAllTrainingProgrammesResponse>($"api/TrainingProgramme/all", null, cancellationToken);
         }
+
         public Task<GetAllTrainingProgrammeStandardsResponse> GetAllTrainingProgrammeStandards(CancellationToken cancellationToken = default)
         {
             return _client.Get<GetAllTrainingProgrammeStandardsResponse>($"api/TrainingProgramme/standards", null, cancellationToken);
@@ -439,8 +444,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task UpdateApprenticeshipStopDate(long apprenticeshipId, ApprenticeshipStopDateRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PutAsJson($"api/apprenticeships/{apprenticeshipId}/stopdate", request, cancellationToken);
-		}
-		     
+        }
+
         public Task ValidateApprenticeshipForEdit(ValidateApprenticeshipForEditRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/apprenticeships/edit/validate", request, cancellationToken);
@@ -464,7 +469,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<EditApprenticeshipResponse> EditApprenticeship(EditApprenticeshipApiRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<EditApprenticeshipApiRequest, EditApprenticeshipResponse>($"api/apprenticeships/edit", request, cancellationToken);
-
         }
 
         public Task<GetTransferRequestResponse> GetTransferRequestForSender(long transferSenderId, long transferRequestId, CancellationToken cancellationToken = default)
@@ -513,7 +517,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         }
 
         public Task<GetTransferRequestSummaryResponse> GetTransferRequests(long accountId, CancellationToken cancellationToken = default)
-        {            
+        {
             return _client.Get<GetTransferRequestSummaryResponse>($"api/accounts/{accountId}/transfers", cancellationToken);
         }
 
@@ -525,6 +529,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task PriorLearningDetails(long cohortId, long apprenticeshipId, PriorLearningDetailsRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}/prior-learning", request, cancellationToken);
+        }
+
+        public Task<GetOverlappingTrainingDateRequestResponce> GetOverlappingTrainingDateRequest(long apprenticeshipId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetOverlappingTrainingDateRequestResponce>($"api/overlapping-training-date-request/{apprenticeshipId}", cancellationToken);
         }
     }
 }
