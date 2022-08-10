@@ -1,12 +1,13 @@
-﻿using System;
+using System;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
-    public class CreateCohortRequest : SaveDataRequest
+    public class ValidateDraftApprenticeshipRequest : SaveDataRequest
     {
-        public long AccountId { get; set; }
-        public long AccountLegalEntityId { get; set; }
+        public long Id { get; set; }
+        public long? CohortId { get; set; }
+        public string UserId { get; set; }
         public long ProviderId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -20,8 +21,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? EndDate { get; set; }
         public string OriginatorReference { get; set; }
         public Guid? ReservationId { get; set; }
-        public long? TransferSenderId { get; set; }
-        public int? PledgeApplicationId { get; set; }
         public int? EmploymentPrice { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
         public bool IgnoreStartDateOverlap { get; set; }

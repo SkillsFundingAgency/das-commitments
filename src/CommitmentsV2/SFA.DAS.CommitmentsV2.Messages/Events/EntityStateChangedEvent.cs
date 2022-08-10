@@ -54,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         UpdateCourse,
         AcceptDataLockChange,
         RejectDataLockChange,
-        TriageDataLocks
+        TriageDataLocks,
+        CreateOverlappingTrainingDateRequest
     }
 }

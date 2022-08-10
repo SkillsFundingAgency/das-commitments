@@ -21,5 +21,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public Guid? ReservationId { get; set; }
         public int? EmploymentPrice { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
+        public bool IgnoreStartDateOverlap { get; set; }
     }
 }

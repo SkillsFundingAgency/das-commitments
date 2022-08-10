@@ -26,11 +26,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public int? EmploymentPrice { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
         public UserInfo UserInfo { get; }
+        public bool IgnoreStartDateOverlap { get; set; }
 
-        public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode, DeliveryModel? deliveryModel, int? cost, DateTime? startDate, DateTime? endDate, 
-            string originatorReference, Guid? reservationId, string firstName, 
+        public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode, DeliveryModel? deliveryModel, int? cost, DateTime? startDate, DateTime? endDate,
+            string originatorReference, Guid? reservationId, string firstName,
             string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId, int? pledgeApplicationId,
-            int? employmentPrice, DateTime? employmentEndDate, UserInfo userInfo)
+            int? employmentPrice, DateTime? employmentEndDate, UserInfo userInfo, bool ignoreStartDateOverlap = false)
         {
             AccountId = accountId;
             AccountLegalEntityId = accountLegalEntityId;
@@ -53,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             EmploymentEndDate = employmentEndDate;
 
             UserInfo = userInfo ?? throw new ArgumentNullException(nameof(userInfo));
+            IgnoreStartDateOverlap = ignoreStartDateOverlap;
         }
     }
 }

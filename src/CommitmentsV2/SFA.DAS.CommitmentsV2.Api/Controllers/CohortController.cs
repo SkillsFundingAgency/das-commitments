@@ -62,7 +62,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.PledgeApplicationId,
                 request.EmploymentPrice,
                 request.EmploymentEndDate,
-                request.UserInfo);
+                request.UserInfo,
+                request.IgnoreStartDateOverlap);
             
             var result = await _mediator.Send(command);
 

@@ -26,7 +26,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 Uln = source.Uln,
                 EmploymentEndDate = source.EmploymentEndDate,
                 EmploymentPrice = source.EmploymentPrice,
-                UserInfo = source.UserInfo
+                UserInfo = source.UserInfo,
+                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap
             });
         }
     }

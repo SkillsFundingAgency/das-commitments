@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         protected ApprenticeshipBase()
         {
             ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>();
         }
 
         public bool IsApproved { get; set; }
@@ -59,6 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public FlexibleEmployment FlexibleEmployment { get; set; }
         public bool? RecognisePriorLearning { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
+        public virtual ICollection<OverlappingTrainingDateRequest> OverlappingTrainingDateRequests { get; set; }
 
         public bool RecognisingPriorLearningStillNeedsToBeConsidered
         {

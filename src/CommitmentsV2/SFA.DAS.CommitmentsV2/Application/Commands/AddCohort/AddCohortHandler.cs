@@ -49,7 +49,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 command.PledgeApplicationId,
                 draftApprenticeshipDetails,
                 command.UserInfo,
-                cancellationToken);
+                cancellationToken,
+                command.IgnoreStartDateOverlap);
 
             db.Cohorts.Add(cohort);
             await db.SaveChangesAsync(cancellationToken);
