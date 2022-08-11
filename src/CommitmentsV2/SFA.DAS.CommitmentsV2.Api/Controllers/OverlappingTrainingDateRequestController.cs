@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
@@ -73,6 +74,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             var response = await _modelMapper.Map<GetOverlappingTrainingDateRequestResponce>(result);
             return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("resolve")]
+        public async Task<IActionResult> Resolve([FromBody] ResolveApprenticeshipOverlappingTrainingDateRequest request)
+        {
+            var response = await _mediator.Send(new ResolveOverlappingTrainingDateRequestCommand
+            {
+                ApprenticeshipId = request.ApprenticeshipId,
+                ResolutionType = request.ResolutionType,
+            });
+
+            return Ok();
         }
     }
 }
