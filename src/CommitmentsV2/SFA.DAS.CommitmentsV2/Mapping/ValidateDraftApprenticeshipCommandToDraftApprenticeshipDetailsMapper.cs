@@ -1,43 +1,47 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
+using SFA.DAS.Authorization.Services;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
-    public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper : IOldMapper<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails>
+    public class ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper : IMapper<ValidateDraftApprenticeshipDetailsCommand, DraftApprenticeshipDetails>
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
 
-        public UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup)
+        public ValidateDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(IAuthorizationService authorizationService, ITrainingProgrammeLookup trainingProgrammeLookup)
         {
+            _authorizationService = authorizationService;
             _trainingProgrammeLookup = trainingProgrammeLookup;
         }
 
-        public async Task<DraftApprenticeshipDetails> Map(UpdateDraftApprenticeshipCommand source)
+        public async Task<DraftApprenticeshipDetails> Map(ValidateDraftApprenticeshipDetailsCommand comand)
         {
-            var trainingProgramme = await GetCourse(source.CourseCode, source.StartDate);
+            var source = comand.DraftApprenticeshipRequest;
+            var trainingProgrammeTask = GetCourse(source.CourseCode, source.StartDate);
+            var trainingProgramme = await trainingProgrammeTask;
+
             var result = new DraftApprenticeshipDetails
             {
-                Id = source.ApprenticeshipId,
+                Id = source.Id,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 Email = source.Email,
                 Uln = source.Uln,
                 TrainingProgramme = trainingProgramme,
-                TrainingCourseOption = source.CourseOption,
                 DeliveryModel = source.DeliveryModel,
-                EmploymentPrice = source.EmploymentPrice,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
-                EmploymentEndDate = source.EmploymentEndDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
-                Reference = source.Reference,
+                Reference = source.OriginatorReference,
                 ReservationId = source.ReservationId,
-                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
+                EmploymentEndDate = source.EmploymentEndDate,
+                EmploymentPrice = source.EmploymentPrice,
             };
 
             // Only populate standard version specific items if start is specified.

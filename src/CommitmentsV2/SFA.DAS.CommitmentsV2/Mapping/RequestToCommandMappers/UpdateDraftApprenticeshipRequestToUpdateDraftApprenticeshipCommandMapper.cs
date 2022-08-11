@@ -25,7 +25,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 EndDate = source.EndDate,
                 Reference = source.Reference,
                 ReservationId = source.ReservationId,
-                UserInfo = source.UserInfo
+                UserInfo = source.UserInfo,
+                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
             });
         }
     }

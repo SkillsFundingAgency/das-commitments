@@ -20,5 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? EndDate { get; set; }
         public string Reference { get; set; }
         public Guid? ReservationId { get; set; }
+        public bool IgnoreStartDateOverlap { get; set; }
     }
 }

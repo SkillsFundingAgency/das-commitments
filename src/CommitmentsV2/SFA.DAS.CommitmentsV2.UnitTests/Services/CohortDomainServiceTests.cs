@@ -284,7 +284,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public void AddDraftApprenticeship_CohortNotFound_ShouldThrowException()
         {
-            Assert.ThrowsAsync<BadRequestException>(_fixture.AddDraftApprenticeship,
+            Assert.ThrowsAsync<BadRequestException>(() => _fixture.AddDraftApprenticeship(false),
                 $"Cohort {_fixture.CohortId} was not found");
         }
 
@@ -339,18 +339,59 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         [TestCase(Party.Provider, "employer")]
         [TestCase(Party.Employer, "provider")]
-        public async Task OverlapOnStartDate_Validation(Party party, string otherPartyInMessage)
+        public async Task CreateCohort_OverlapOnStartDate_Validation(Party party, string otherPartyInMessage)
         {
             await _fixture.WithParty(party).WithUlnOverlapOnStartDate().CreateCohort();
             _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task CreateCohort_OverlapOnStartDate_Validation_WithIgnore(Party party)
+        {
+            await _fixture
+                .WithParty(party)
+                .WithUlnOverlapOnStartDate()
+                .CreateCohort(ignoreStartDateOverlap: true);
+
+            _fixture.VerifyNoUlnOverlaps();
+        }
+
         [TestCase(Party.Provider, "employer")]
         [TestCase(Party.Employer, "provider")]
-        public async Task OverlapOnEndDate_Validation(Party party, string otherPartyInMessage)
+        public async Task CreateCohort_OverlapOnEndDate_Validation(Party party, string otherPartyInMessage)
         {
             await _fixture.WithParty(party).WithUlnOverlapOnEndDate().CreateCohort();
             _fixture.VerifyOverlapExceptionOnEndDate(otherPartyInMessage);
+        }
+
+        [TestCase(Party.Provider, "employer", true)]
+        [TestCase(Party.Provider, "employer", false)]
+        [TestCase(Party.Employer, "provider", true)]
+        [TestCase(Party.Employer, "provider", false)]
+        public async Task CreateCohort_OverlapOnStartDateAndEndDateEmbraceWithin_Validation(Party party, string otherPartyInMessage, bool ignoreStartDateOverlap)
+        {
+            await _fixture
+                .WithParty(party)
+                .WithUlnOverlapOnStartAndEndDate()
+                .CreateCohort(ignoreStartDateOverlap: ignoreStartDateOverlap);
+
+            _fixture.VerifyOverlapExceptionOnEndDate(otherPartyInMessage);
+            _fixture.VerifyOverlapExceptionOnStartDate(otherPartyInMessage);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task Provider_AddDraftApprenticeship_OverlapOnStartDateAndEndDateEmbraceWithin_Validation(bool ignoreStartDateOverlap)
+        {
+            await _fixture
+                .WithParty(Party.Provider)
+                .WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Provider)
+                .WithUlnOverlapOnStartAndEndDate()
+                .AddDraftApprenticeship(ignoreStartDateOverlap: ignoreStartDateOverlap);
+
+            _fixture.VerifyOverlapExceptionOnEndDate("employer");
+            _fixture.VerifyOverlapExceptionOnStartDate("employer");
         }
 
         [TestCase(Party.Provider, true)]
@@ -702,7 +743,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountLegalEntity = new Mock<AccountLegalEntity>(()=>
                     new AccountLegalEntity(EmployerAccount,AccountLegalEntityId,MaLegalEntityId,"test","ABC","Test",OrganisationType.CompaniesHouse,"test",DateTime.UtcNow));
                 AccountLegalEntity.Setup(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
-                        It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
+                        It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), false))
                     .Returns(NewCohort);
                 AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
                         It.IsAny<string>(), It.IsAny<UserInfo>()))
@@ -905,6 +946,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => new OverlapCheckResult(false, true));
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithUlnOverlapOnStartAndEndDate()
+            {
+                DraftApprenticeshipDetails.Uln = "X";
+                DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
+                DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
+
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == DraftApprenticeshipDetails.Uln), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new OverlapCheckResult(true, true));
 
                 return this;
             }
@@ -1173,7 +1226,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-            public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null, long? transferSenderId = null, int? pledgeApplicationId = null)
+            public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null, long? transferSenderId = null, int? pledgeApplicationId = null, bool ignoreStartDateOverlap = false)
             {
                 Db.SaveChanges();
                 DomainErrors.Clear();
@@ -1184,7 +1237,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 try
                 {
                     var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                        DraftApprenticeshipDetails, UserInfo, new CancellationToken());
+                        DraftApprenticeshipDetails, UserInfo, new CancellationToken(), ignoreStartDateOverlap);
                     await Db.SaveChangesAsync();
                     return result;
                 }
@@ -1248,8 +1301,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
-            public async Task AddDraftApprenticeship()
+            public async Task AddDraftApprenticeship(bool ignoreStartDateOverlap = false)
             {
+                DraftApprenticeshipDetails.IgnoreStartDateOverlap = ignoreStartDateOverlap;
+
                 Db.SaveChanges();
                 DomainErrors.Clear();
 
@@ -1305,8 +1360,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
-            public async Task UpdateDraftApprenticeship()
+            public async Task UpdateDraftApprenticeship(bool ignoreStartDateOverlap = false)
             {
+                DraftApprenticeshipDetails.IgnoreStartDateOverlap = ignoreStartDateOverlap;
                 if (Party == Party.Employer)
                 {
                     DraftApprenticeshipDetails.Uln = ExistingDraftApprenticeship.Uln;
@@ -1348,13 +1404,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 if (party == Party.Provider)
                 {
                     Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p=>p == AccountLegalEntity.Object), null, null,
-                        DraftApprenticeshipDetails, UserInfo));
+                        DraftApprenticeshipDetails, UserInfo, false));
                 }
 
                 if (party == Party.Employer)
                 {
                     AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
-                        DraftApprenticeshipDetails, UserInfo));
+                        DraftApprenticeshipDetails, UserInfo, false));
                 }
             }
 
@@ -1376,7 +1432,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 if (party == Party.Employer)
                 {
                     AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName), It.Is<int?>(p => p == pledgeApplicationId),
-                        DraftApprenticeshipDetails, UserInfo));
+                        DraftApprenticeshipDetails, UserInfo, false));
                 }
             }
 
@@ -1385,13 +1441,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 if (party == Party.Provider)
                 {
                     Provider.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                        DraftApprenticeshipDetails, UserInfo));
+                        DraftApprenticeshipDetails, UserInfo, false));
                 }
 
                 if (party == Party.Employer)
                 {
                     AccountLegalEntity.Verify(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null), It.Is<int?>(p => p == null),
-                        DraftApprenticeshipDetails, UserInfo));
+                        DraftApprenticeshipDetails, UserInfo, false));
                 }
             }
 
@@ -1584,6 +1640,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     ? "You need to enter a unique email address."
                     : "You need to enter a unique email address for each apprentice.";
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage));
+            }
+
+            public void VerifyNoUlnOverlaps()
+            {
+                Assert.IsFalse(DomainErrors.Any(x => x.PropertyName == "StartDate"));
+                Assert.IsFalse(DomainErrors.Any(x => x.PropertyName == "EndDate"));
             }
 
             public void VerifyException<T>()

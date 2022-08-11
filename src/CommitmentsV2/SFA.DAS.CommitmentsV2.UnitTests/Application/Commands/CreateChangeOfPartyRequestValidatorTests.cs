@@ -114,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var command = new CreateChangeOfPartyRequestCommand
             {
                 NewStartDate = DateTime.Today,
-                NewEndDate = DateTime.Today.AddYears(1)
+                NewEndDate = DateTime.Today.AddMonths(10)
             };
 
             AssertValidationResult(r => r.NewStartDate, command, true);
