@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var query = new GetOverlappingTrainingDateRequestQuery(apprenticeshipId);
             var result = await _mediator.Send(query);
 
-            if (result == null) { return NotFound(); }
+            if (result == null) { return Ok(null); }
 
             var response = await _modelMapper.Map<GetOverlappingTrainingDateRequestResponce>(result);
             return Ok(response);
