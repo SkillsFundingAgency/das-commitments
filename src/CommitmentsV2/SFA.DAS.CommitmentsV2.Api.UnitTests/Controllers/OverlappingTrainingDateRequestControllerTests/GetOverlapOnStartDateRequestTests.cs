@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
         public async Task GetForNoOverlapOnStartDateRequest_VerifyResponse()
         {
             await _fixture.GetForNoOverlapOnStartDateRequest();
-            _fixture.VerifyNotFoundResponseWhenResponseIsNull();
+            _fixture.VerifyNotFoundReturnNull();
         }
 
         private class GetOverlapOnStartDateTestsFixture
@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
 
                 _controller = new OverlappingTrainingDateRequestController(_mediator.Object, _mapper.Object);
 
-                _actionResult = await _controller.Get(ApprenticeshipId) as NotFoundResult;
+                _actionResult = await _controller.Get(ApprenticeshipId) as ActionResult;
             }
 
             public void VerifyQuerySent()
@@ -83,10 +83,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
                     It.IsAny<CancellationToken>()), Times.Once);
             }
 
-            public void VerifyNotFoundResponseWhenResponseIsNull()
+            public void VerifyNotFoundReturnNull()
             {
+                var vm = _actionResult as ViewResult;
                 //Assert
-                Assert.IsNotNull(_actionResult);
+
+                Assert.IsNull(vm);
             }
         }
     }
