@@ -535,5 +535,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<GetOverlappingTrainingDateRequestResponce>($"api/overlapping-training-date-request/{apprenticeshipId}", cancellationToken);
         }
+
+        public Task ResolveOverlappingTrainingDateRequest(ResolveApprenticeshipOverlappingTrainingDateRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/overlapping-training-date-request/resolve", request, cancellationToken);
+        }
     }
 }
