@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
             public DateTime PauseDate { get; set; }
+            public DateTime StopDate { get; set; }
             public DateTime DateOfBirth { get; set; }
             public PaymentStatus PaymentStatus { get; set; }
             public ApprenticeshipStatus ApprenticeshipStatus { get; set; }
