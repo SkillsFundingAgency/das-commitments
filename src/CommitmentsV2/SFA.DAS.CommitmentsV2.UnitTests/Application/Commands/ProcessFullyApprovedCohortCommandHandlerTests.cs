@@ -12,6 +12,8 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
@@ -93,6 +95,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         e => e.ContinuationOfId == f.PreviousApprenticeshipId)),
                     Times.Once));
         }
+
+        [Test]
+        public void Handle_WhenHandlingCommand_ThenShouldAddFundingBandMaximumToApprenticeCreatedEvents()
+        {
+            var f = new ProcessFullyApprovedCohortCommandFixture();
+            f.SetApprenticeshipEmployerType(ApprenticeshipEmployerType.Levy)
+                .SetApprovedApprenticeships(false)
+                .Handle();
+
+            f.Apprenticeships.ForEach(
+                a => f.EventPublisher.Verify(
+                    p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
+                        e => f.HasValidFundingBandMaximum(a, e))),
+                    Times.Once));
+        }
     }
 
     public class ProcessFullyApprovedCohortCommandFixture
@@ -105,7 +122,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public List<Apprenticeship> Apprenticeships { get; set; }
         public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
         public long PreviousApprenticeshipId { get; set; }
-        
+        public Mock<IFundingCapService> FundingCapService { get; set; }
+        public int FundingBandMaximum1 { get; set; }
+        public int FundingBandMaximum2 { get; set; }
+        public string CourseName1 { get; set; }
+        public string CourseName2 { get; set; }
+
         public ProcessFullyApprovedCohortCommandFixture()
         {
             AutoFixture = new Fixture();
@@ -115,12 +137,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
             EventPublisher = new Mock<IEventPublisher>();
             Apprenticeships = new List<Apprenticeship>();
-            Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
+            FundingCapService = new Mock<IFundingCapService>();
+
+            Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>(), FundingCapService.Object);
             
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
             Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<object[]>())).Returns(Task.CompletedTask);
             EventPublisher.Setup(p => p.Publish(It.IsAny<object>())).Returns(Task.CompletedTask);
             PreviousApprenticeshipId = AutoFixture.Create<long>();
+            FundingBandMaximum1 = AutoFixture.Create<int>();
+            FundingBandMaximum2 = AutoFixture.Create<int>();
+            CourseName1 = AutoFixture.Create<string>();
+            CourseName2 = AutoFixture.Create<string>();
+            SetFundingBandMaximum();
         }
 
         public Task Handle()
@@ -174,10 +203,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var cohort1 = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
             var cohort2 = cohortBuilder.Create();
+
+
             
-            var apprenticeship1 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create(); 
-            var apprenticeship2 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
-            var apprenticeship3 = apprenticeshipBuilder.With(a => a.Cohort, cohort2).Create();
+            var apprenticeship1 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).With(a => a.CourseName, CourseName1).Create(); 
+            var apprenticeship2 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).With(a => a.CourseName, CourseName2).Create();
+            var apprenticeship3 = apprenticeshipBuilder.With(a => a.Cohort, cohort2).With(a => a.CourseName, CourseName2).Create();
             
             var apprenticeships1 = new[] { apprenticeship1, apprenticeship2 };
             var apprenticeships2 = new[] { apprenticeship1, apprenticeship2, apprenticeship3 };
@@ -233,6 +264,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
+        private void SetFundingBandMaximum()
+        {
+            FundingCapService.Setup(c => c.FundingCourseSummary(It.IsAny<IEnumerable<ApprenticeshipBase>>()))
+                .ReturnsAsync(new List<FundingCapCourseSummary> {
+                    new FundingCapCourseSummary
+                    {
+                        ActualCap = FundingBandMaximum1,
+                        CourseTitle = CourseName1
+                    },
+                    new FundingCapCourseSummary
+                    {
+                        ActualCap = FundingBandMaximum2,
+                        CourseTitle = CourseName2
+                    }
+                });
+        }
+
         public bool IsValid(ApprenticeshipEmployerType apprenticeshipEmployerType, Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
         {
             var isValid = apprenticeshipCreatedEvent.ApprenticeshipId == apprenticeship.Id &&
@@ -270,6 +318,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             return apprenticeship.Id == changeOfPartyCreatedEvent.ApprenticeshipId
             && Command.ChangeOfPartyRequestId == changeOfPartyCreatedEvent.ChangeOfPartyRequestId;
+        }
+
+        public bool HasValidFundingBandMaximum(Apprenticeship apprenticeship,
+            ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+        {
+            return (apprenticeshipCreatedEvent.FundingBandMaximum == FundingBandMaximum1 && apprenticeship.CourseName == CourseName1)
+                || (apprenticeshipCreatedEvent.FundingBandMaximum == FundingBandMaximum2 && apprenticeship.CourseName == CourseName2);
         }
     }
 }
