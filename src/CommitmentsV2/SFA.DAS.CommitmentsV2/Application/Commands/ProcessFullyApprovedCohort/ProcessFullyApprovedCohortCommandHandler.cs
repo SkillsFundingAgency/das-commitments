@@ -8,8 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.NServiceBus.Services;
@@ -22,13 +24,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly IEventPublisher _eventPublisher;
         private readonly ILogger<ProcessFullyApprovedCohortCommandHandler> _logger;
+        private readonly IFundingCapService _fundingCapService;
 
-        public ProcessFullyApprovedCohortCommandHandler(IAccountApiClient accountApiClient, Lazy<ProviderCommitmentsDbContext> db, IEventPublisher eventPublisher, ILogger<ProcessFullyApprovedCohortCommandHandler> logger)
+        public ProcessFullyApprovedCohortCommandHandler(IAccountApiClient accountApiClient, Lazy<ProviderCommitmentsDbContext> db, IEventPublisher eventPublisher, ILogger<ProcessFullyApprovedCohortCommandHandler> logger, IFundingCapService fundingCapService)
         {
             _accountApiClient = accountApiClient;
             _db = db;
             _eventPublisher = eventPublisher;
             _logger = logger;
+            _fundingCapService = fundingCapService;
         }
 
         protected override async Task Handle(ProcessFullyApprovedCohortCommand request, CancellationToken cancellationToken)
@@ -43,9 +47,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
             var creationDate = DateTime.UtcNow;
 
             await _db.Value.ProcessFullyApprovedCohort(request.CohortId, request.AccountId, apprenticeshipEmployerType);
-            
-            var events = await _db.Value.Apprenticeships
+
+            var apprenticeships = await _db.Value.Apprenticeships
                 .Where(a => a.Cohort.Id == request.CohortId)
+                .ToListAsync(cancellationToken);
+
+            var summaries = await _fundingCapService.FundingCourseSummary(apprenticeships);
+
+            var events = apprenticeships
                 .Select(a => new ApprenticeshipCreatedEvent
                 {
                     ApprenticeshipId = a.Id,
@@ -75,11 +84,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                             Cost = p.Cost
                         })
                         .ToArray(),
-                    ContinuationOfId = a.ContinuationOfId
+                    ContinuationOfId = a.ContinuationOfId,
+                    FundingBandMaximum = summaries.FirstOrDefault(s => s.CourseTitle == a.CourseName)?.ActualCap ?? 0
                 })
-                .ToListAsync(cancellationToken);
+                .ToList();
 
-            _logger.LogInformation($"Created {events.Count} ApprenticeshipCreatedEvent(s) for Cohort {request.CohortId}");
+            _logger.LogInformation($"Created {events.Count()} ApprenticeshipCreatedEvent(s) for Cohort {request.CohortId}");
 
             var tasks = events.Select(e =>
             {
