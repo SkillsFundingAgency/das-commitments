@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _logger = logger;
         }
 
-        public async Task Resolve(long? apprenticeshipId,long? draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
+        public async Task Resolve(long? apprenticeshipId, long? draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
         {
             OverlappingTrainingDateRequest result = null;
             var oltd = _dbContext.Value.OverlappingTrainingDateRequests
@@ -72,7 +72,6 @@ namespace SFA.DAS.CommitmentsV2.Services
                 if (await CheckCanResolveOverlap(overlappingTrainingDateRequest, resolutionType))
                 {
                     Resolve(overlappingTrainingDateRequest, resolutionType);
-
                 }
             }
         }
@@ -91,6 +90,10 @@ namespace SFA.DAS.CommitmentsV2.Services
                 // resolve overlap if any of the mandatory fields missing
                 return true;
             }
+
+            if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive)
+                return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
+
             if (OverlapCheckRequired(resolutionType) &&
                 await IsThereStillAOverlap(overlappingTrainingDateRequest))
             {
@@ -120,8 +123,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                 null,
                 CancellationToken.None);
 
-            return result != null 
-                && result.HasOverlappingStartDate 
+            return result != null
+                && result.HasOverlappingStartDate
                 && result.ApprenticeshipId == overlappingTrainingDateRequestAggregate.PreviousApprenticeshipId;
         }
 

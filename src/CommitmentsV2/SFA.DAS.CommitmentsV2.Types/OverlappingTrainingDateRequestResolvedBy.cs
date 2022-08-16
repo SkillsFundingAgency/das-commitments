@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.CommitmentsV2.Types
 {
-    public enum OverlappingTrainingDateRequestResolutionType
+    public enum OverlappingTrainingDateRequestResolutionType : short
     {
         CompletionDateEvent = 0,
         ApprenticeshipUpdate = 1,
