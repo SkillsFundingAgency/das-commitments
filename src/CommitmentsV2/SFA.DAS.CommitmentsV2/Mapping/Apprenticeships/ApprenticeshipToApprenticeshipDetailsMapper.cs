@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 StartDate = source.StartDate.GetValueOrDefault(),
                 EndDate = source.EndDate.GetValueOrDefault(),                
                 PauseDate = source.PauseDate.GetValueOrDefault(),
-                StopDate = source.StopDate.GetValueOrDefault(),
+                StopDate = source.StopDate,
                 EmployerRef = source.EmployerRef,
                 ProviderRef = source.ProviderRef,
                 CohortReference = source.Cohort.Reference,
