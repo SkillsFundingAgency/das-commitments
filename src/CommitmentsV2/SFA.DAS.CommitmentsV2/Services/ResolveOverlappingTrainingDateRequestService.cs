@@ -123,11 +123,11 @@ namespace SFA.DAS.CommitmentsV2.Services
                 null,
                 CancellationToken.None);
 
-            var isThereAOverlap = result != null
+            var isThereStillAoverlap = result != null
                 && result.HasOverlappingStartDate
                 && result.ApprenticeshipId == overlappingTrainingDateRequestAggregate.PreviousApprenticeshipId;
 
-            if (isThereAOverlap)
+            if (isThereStillAoverlap)
             {
                 _logger.LogInformation($"OverlappingTrainingDateRequest - still overlap persent, Apprenticeship-Id {overlappingTrainingDateRequestAggregate.PreviousApprenticeshipId}, DraftApprenticeshipId - {overlappingTrainingDateRequestAggregate.DraftApprenticeshipId}");
             }
@@ -136,7 +136,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 _logger.LogInformation($"OverlappingTrainingDateRequest - no overlap found, Apprenticeship-Id {overlappingTrainingDateRequestAggregate.PreviousApprenticeshipId}, DraftApprenticeshipId - {overlappingTrainingDateRequestAggregate.DraftApprenticeshipId}");
             }
 
-            return isThereAOverlap;
+            return isThereStillAoverlap;
         }
 
         private bool OverlapCheckRequired(OverlappingTrainingDateRequestResolutionType resolutionType)
