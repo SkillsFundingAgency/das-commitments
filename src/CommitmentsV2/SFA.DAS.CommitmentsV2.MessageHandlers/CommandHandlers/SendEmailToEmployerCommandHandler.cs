@@ -64,8 +64,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                 {
                     _logger.LogInformation($"Calling SendEmailCommand for {emails.Count()} emails");
 
-                    emails.Add(("ratheesh.ri@education.gov.uk", "Ratheesh"));
-
                     var emailTasks = emails.Select(email =>
                     {
                         var tokens = new Dictionary<string, string>(message.Tokens);
