@@ -28,5 +28,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
         }
+        public void EmitOverlappingTrainingDateNotificationEvent(long apprenticeshipId, string uln)
+        {
+            Publish(() => new OverlappingTrainingDateEvent(apprenticeshipId, uln));
+        }
     }
 }
