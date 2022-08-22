@@ -97,15 +97,15 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
                 _logger = new FakeLogger<RecordedAct1CompletionPaymentEventHandler>();
                 _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
 
-                _handler = new RecordedAct1CompletionPaymentEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _logger, _resolveOverlappingTrainingDateRequestService.Object);
+                _handler = new RecordedAct1CompletionPaymentEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _logger);
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
                 _event = autoFixture.Create<RecordedAct1CompletionPayment>();
 
-                _cohort = new Cohort() {Id = 1};
+                _cohort = new Cohort() { Id = 1 };
 
-                _apprenticeship = new FakeApprenticeship {Id = _event.ApprenticeshipId.Value, CommitmentId = 1};
+                _apprenticeship = new FakeApprenticeship { Id = _event.ApprenticeshipId.Value, CommitmentId = 1 };
                 _dbContext.Object.Apprenticeships.Add(_apprenticeship);
 
                 _cohort.Apprenticeships.Add(_apprenticeship);
