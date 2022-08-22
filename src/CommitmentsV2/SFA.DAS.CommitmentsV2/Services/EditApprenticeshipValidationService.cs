@@ -119,13 +119,17 @@ namespace SFA.DAS.CommitmentsV2.Services
                 }
             }
 
-            if (IsLockedForUpdate(apprenticeship) || IsUpdateLockedForStartDateAndCourse(apprenticeship) || apprenticeship.IsContinuation)
+            if (IsLockedForUpdate(apprenticeship) || IsUpdateLockedForStartDateAndCourse(apprenticeship))
             {
                 if (request.CourseCode != apprenticeship.CourseCode)
                 {
                     throw new InvalidOperationException("Invalid operation - training code can't change for the current state of the object.");
                 }
-                if (request.DeliveryModel != (apprenticeship.DeliveryModel ?? DeliveryModel.Regular))
+            }
+
+            if (apprenticeship.IsContinuation && request.DeliveryModel != (apprenticeship.DeliveryModel ?? DeliveryModel.Regular))
+            {
+                if(apprenticeship.DeliveryModel == DeliveryModel.PortableFlexiJob || request.DeliveryModel == DeliveryModel.PortableFlexiJob)
                 {
                     throw new InvalidOperationException("Invalid operation - delivery model can't change for the current state of the object.");
                 }

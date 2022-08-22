@@ -117,6 +117,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(new GetCohortResponse
             {
                 CohortId = result.CohortId,
+                AccountId = result.AccountId,
                 AccountLegalEntityId = result.AccountLegalEntityId,
                 LegalEntityName = result.LegalEntityName,
                 ProviderId = result.ProviderId,

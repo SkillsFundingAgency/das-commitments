@@ -22,8 +22,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public DateTime? EndDate { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string Reference { get; set; }
+        public string EmployerReference { get; set; }
+        public string ProviderReference { get; set; }
         public Guid? ReservationId { get; set; }
         public bool IsContinuation { get; set; }
+        public long? ContinuationOfId { get; set; }
         public DateTime? OriginalStartDate { get; set; }
         public bool HasStandardOptions { get; set; }
         public int? EmploymentPrice { get; set; }
