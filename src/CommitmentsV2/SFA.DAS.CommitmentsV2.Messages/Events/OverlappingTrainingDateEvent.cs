@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
     public class OverlappingTrainingDateEvent
     {
         public long ApprenticeshipId { get; }
-        public string Uln { get; }
+        public string Uln { get; set; }
 
         public OverlappingTrainingDateEvent(long apprenticeshipId, string uln)
         {

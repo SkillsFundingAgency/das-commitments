@@ -43,9 +43,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
                     c.Template == "OverlappingTrainingDate" &&
                     c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateEventHandlerTestsFixture.EmployerName &&
-                    c.Tokens["ULN"] == "1234567899" &&
+                    c.Tokens["ULN"] == OverlappingTrainingDateEventHandlerTestsFixture.Uln &&
                     c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateEventHandlerTestsFixture.FirstName} {OverlappingTrainingDateEventHandlerTestsFixture.LastName}" &&
-                    c.Tokens["URL"] == $"{OverlappingTrainingDateEventHandlerTestsFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateEventHandlerTestsFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateEventHandlerTestsFixture.HashedApprenticeshipId}"
+                    c.Tokens["URL"] == $"{OverlappingTrainingDateEventHandlerTestsFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateEventHandlerTestsFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateEventHandlerTestsFixture.HashedApprenticeshipId}/details"
                     )
                   , It.IsAny<SendOptions>()), Times.Once);
         }
@@ -63,6 +63,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public readonly DateTime PausedDate;
         public const string FirstName = "TestFirst";
         public const string LastName = "TestLast";
+        public const string Uln = "1234567899";
         public const string HashedEmployerAccountId = "1";
         public const string EmployerName = "TestEmployerName";
         public const string HashedApprenticeshipId = "ABC";
@@ -75,6 +76,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var autoFixture = new Fixture();
 
             Event = autoFixture.Create<OverlappingTrainingDateEvent>();
+            Event.Uln = Uln;
+
             var accountLegalEntity = new AccountLegalEntity();
             accountLegalEntity.SetValue(x => x.Name, EmployerName);
 

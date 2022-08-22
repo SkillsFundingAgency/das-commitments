@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
 
                 var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-                var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship);
+                var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
 
                 await context.Send(sendEmailToEmployerCommand, new SendOptions());
 
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
             }
         }
 
-        private SendEmailToEmployerCommand BuildEmailToEmployerCommand(Apprenticeship apprenticeship)
+        private SendEmailToEmployerCommand BuildEmailToEmployerCommand(Apprenticeship apprenticeship, OverlappingTrainingDateEvent message)
         {
 
             var sendEmailToEmployerCommand = new SendEmailToEmployerCommand(apprenticeship.Cohort.EmployerAccountId,
@@ -57,9 +57,9 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
                 new Dictionary<string, string>
                 {
                         {"EMPLOYERNAME", apprenticeship.Cohort.AccountLegalEntity.Name},
-                        {"ULN", "1234567899" },
+                        {"ULN",message.Uln},
                         {"APPRENTICENAME", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
-                        {"URL", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}"}
+                        {"URL", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
                 }
             );
 
