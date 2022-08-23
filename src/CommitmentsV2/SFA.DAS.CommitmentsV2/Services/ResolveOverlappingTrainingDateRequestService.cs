@@ -93,6 +93,12 @@ namespace SFA.DAS.CommitmentsV2.Services
                 // resolve overlap if any of the mandatory fields missing
                 return true;
             }
+            if (ULN_Changed(overlappingTrainingDateRequest))
+            {
+                _logger.LogInformation($"OverlappingTrainingDateRequest Uln changed, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+                // resolve overlap if the draft apprenticeship uln has changed.
+                return true;
+            }
             if (OverlapCheckRequired(resolutionType) &&
                 await IsThereStillAOverlap(overlappingTrainingDateRequest))
             {
@@ -102,6 +108,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             return true;
+        }
+
+        private bool ULN_Changed(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
+        {
+            return overlappingTrainingDateRequest.DraftApprenticeship.Uln != overlappingTrainingDateRequest.PreviousApprenticeship.Uln;
         }
 
         private bool Mandatory_Fields_Missing(OverlappingTrainingDateRequest overlappingTrainingDateRequest)

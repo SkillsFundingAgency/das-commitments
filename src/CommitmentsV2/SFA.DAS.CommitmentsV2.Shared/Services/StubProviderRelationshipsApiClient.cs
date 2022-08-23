@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
         public StubProviderRelationshipsApiClient()
         {
-            _httpClient = new HttpClient { BaseAddress = new System.Uri("http://localhost:34900/provider-relationships/api") };
+            _httpClient = new HttpClient { BaseAddress = new System.Uri("http://localhost:3999/provider-relationships/api/") };
         }
 
         private async Task<IList<AccountProviderLegalEntityDto>> GetPermissionsForProvider(long providerId, Operation operation, CancellationToken cancellationToken)
