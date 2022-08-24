@@ -181,6 +181,7 @@ stages:
     - task: ArchiveFiles@2
       displayName: 'Archive v1 Webjob'
       inputs:
+        includeRootFolder: false
         rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-webjob'
         archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Host.WebJob.zip'
 
