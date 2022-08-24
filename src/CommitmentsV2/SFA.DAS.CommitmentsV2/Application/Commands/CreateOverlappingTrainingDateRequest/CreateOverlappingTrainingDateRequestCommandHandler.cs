@@ -21,8 +21,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDa
                 request.UserInfo,
                 cancellationToken);
 
-            result.EmitOverlappingTrainingDateNotificationEvent(result.PreviousApprenticeshipId, result.DraftApprenticeship.Uln);
-
             return new CreateOverlappingTrainingDateResult
             {
                 Id = result.Id
