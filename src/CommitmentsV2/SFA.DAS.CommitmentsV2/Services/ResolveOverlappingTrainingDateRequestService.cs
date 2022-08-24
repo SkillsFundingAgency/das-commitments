@@ -71,6 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                 if (await CheckCanResolveOverlap(overlappingTrainingDateRequest, resolutionType))
                 {
+                    _logger.LogInformation($"OverlappingTrainingDateRequest Resolving Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
                     Resolve(overlappingTrainingDateRequest, resolutionType);
                 }
             }
@@ -87,6 +88,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (Mandatory_Fields_Missing(overlappingTrainingDateRequest))
             {
+                _logger.LogInformation($"OverlappingTrainingDateRequest Mandatory field missing, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
                 // resolve overlap if any of the mandatory fields missing
                 return true;
             }
@@ -94,14 +96,26 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive)
                 return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
 
+            if (ULN_Changed(overlappingTrainingDateRequest))
+            {
+                _logger.LogInformation($"OverlappingTrainingDateRequest Uln changed, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+                // resolve overlap if the draft apprenticeship uln has changed.
+                return true;
+            }
             if (OverlapCheckRequired(resolutionType) &&
                 await IsThereStillAOverlap(overlappingTrainingDateRequest))
             {
+                _logger.LogInformation($"OverlappingTrainingDateRequest not resolving, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
                 // Don't resolve if there is still an overlap.
                 return false;
             }
 
             return true;
+        }
+
+        private bool ULN_Changed(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
+        {
+            return overlappingTrainingDateRequest.DraftApprenticeship.Uln != overlappingTrainingDateRequest.PreviousApprenticeship.Uln;
         }
 
         private bool Mandatory_Fields_Missing(OverlappingTrainingDateRequest overlappingTrainingDateRequest)
@@ -123,9 +137,20 @@ namespace SFA.DAS.CommitmentsV2.Services
                 null,
                 CancellationToken.None);
 
-            return result != null
+            var isThereStillAoverlap = result != null
                 && result.HasOverlappingStartDate
                 && result.ApprenticeshipId == overlappingTrainingDateRequestAggregate.PreviousApprenticeshipId;
+
+            if (isThereStillAoverlap)
+            {
+                _logger.LogInformation($"OverlappingTrainingDateRequest - still overlap persent, Apprenticeship-Id {overlappingTrainingDateRequestAggregate.PreviousApprenticeshipId}, DraftApprenticeshipId - {overlappingTrainingDateRequestAggregate.DraftApprenticeshipId}");
+            }
+            else
+            {
+                _logger.LogInformation($"OverlappingTrainingDateRequest - no overlap found, Apprenticeship-Id {overlappingTrainingDateRequestAggregate.PreviousApprenticeshipId}, DraftApprenticeshipId - {overlappingTrainingDateRequestAggregate.DraftApprenticeshipId}");
+            }
+
+            return isThereStillAoverlap;
         }
 
         private bool OverlapCheckRequired(OverlappingTrainingDateRequestResolutionType resolutionType)
@@ -134,9 +159,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 case OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped:
                 case OverlappingTrainingDateRequestResolutionType.StopDateUpdate:
+                    _logger.LogInformation($"OverlappingTrainingDateRequest overlapcheck is not required as the resolution type is {resolutionType}");
                     return false;
             }
 
+            _logger.LogInformation($"OverlappingTrainingDateRequest overlapcheck is required as the resolution type is {resolutionType}");
             return true;
         }
     }

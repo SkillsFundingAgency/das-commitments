@@ -70,14 +70,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             _fixture.VerifyHasWarning();
         }
 
-        [Test]
-        public async Task Handle_WhenHandlingCompletionEventIsReceived_ThenItCallsResolveOverlapService()
-        {
-            _fixture.WithApprenticeshipStatus(ApprenticeshipStatus.WaitingToStart);
-            await _fixture.Handle();
-            _fixture.VerifyCallsResolveOverlappingTrainingDateRequestService();
-        }
-
         public class RecordedAct1CompletionPaymentEventHandlerTestsFixture
         {
             private RecordedAct1CompletionPaymentEventHandler _handler;
@@ -85,7 +77,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             public Mock<ProviderCommitmentsDbContext> _dbContext { get; set; }
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<RecordedAct1CompletionPaymentEventHandler> _logger;
-            private Mock<IResolveOverlappingTrainingDateRequestService> _resolveOverlappingTrainingDateRequestService;
             private FakeApprenticeship _apprenticeship;
             private Cohort _cohort;
 
@@ -95,17 +86,16 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
                 _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
                 _logger = new FakeLogger<RecordedAct1CompletionPaymentEventHandler>();
-                _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
 
-                _handler = new RecordedAct1CompletionPaymentEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _logger, _resolveOverlappingTrainingDateRequestService.Object);
+                _handler = new RecordedAct1CompletionPaymentEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _logger);
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
                 _event = autoFixture.Create<RecordedAct1CompletionPayment>();
 
-                _cohort = new Cohort() {Id = 1};
+                _cohort = new Cohort() { Id = 1 };
 
-                _apprenticeship = new FakeApprenticeship {Id = _event.ApprenticeshipId.Value, CommitmentId = 1};
+                _apprenticeship = new FakeApprenticeship { Id = _event.ApprenticeshipId.Value, CommitmentId = 1 };
                 _dbContext.Object.Apprenticeships.Add(_apprenticeship);
 
                 _cohort.Apprenticeships.Add(_apprenticeship);
@@ -179,11 +169,6 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
             public void VerifyHasInfo()
             {
                 Assert.IsTrue(_logger.HasInfo);
-            }
-
-            internal void VerifyCallsResolveOverlappingTrainingDateRequestService()
-            {
-                _resolveOverlappingTrainingDateRequestService.Verify(x => x.Resolve(_event.ApprenticeshipId, null, OverlappingTrainingDateRequestResolutionType.CompletionDateEvent), Times.Once);
             }
         }
 

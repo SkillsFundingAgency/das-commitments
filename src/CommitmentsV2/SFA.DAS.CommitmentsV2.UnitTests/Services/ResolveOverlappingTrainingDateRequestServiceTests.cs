@@ -128,6 +128,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task OverlappingTrainingDateIsResolved_WhenDraftApprenticeshipUpdated_And_Uln_Is_Changed()
+        {
+            var fixture = await new ResolveOverlappingTrainingDateRequestServiceTestsFixture().UpdateDraftApprenticeship("2020-12-01", "2022-12-01", "YYYY");
+            await fixture.ResolveApprenticeshipByDraftApprenticeshipUpdate();
+            Assert.AreEqual(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated, fixture.OverlappingTrainingDateRequest.ResolutionType);
+            Assert.AreEqual(OverlappingTrainingDateRequestStatus.Resolved, fixture.OverlappingTrainingDateRequest.Status);
+        }
+
+        [Test]
         public async Task WhenDraftApprenticeshipUpdateIsDeleted_Doesnt_call_OverlapService()
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture();
