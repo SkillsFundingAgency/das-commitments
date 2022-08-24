@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using System;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -9,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long Id { get; private set; }
         public virtual long DraftApprenticeshipId { get; private set; }
         public virtual long PreviousApprenticeshipId { get; private set; }
+        public virtual DateTime CreatedOn { get; private set; }
         public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; private set; }
         public virtual OverlappingTrainingDateRequestStatus Status { get; private set; }
         public virtual OverlappingTrainingDateRequestEmployerAction? EmployerAction { get; private set; }
@@ -19,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public OverlappingTrainingDateRequest() { }
 
-        public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship,  long previousApprenticeshipId,Party originatingParty, UserInfo userInfo)
+        public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship, long previousApprenticeshipId, Party originatingParty, UserInfo userInfo)
         {
             StartTrackingSession(UserAction.CreateOverlappingTrainingDateRequest, originatingParty, draftApprenticeship.Cohort.AccountLegalEntityId, draftApprenticeship.Cohort.ProviderId, userInfo);
             PreviousApprenticeshipId = previousApprenticeshipId;

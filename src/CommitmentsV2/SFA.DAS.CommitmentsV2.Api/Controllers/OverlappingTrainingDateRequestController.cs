@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlapRequests;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -42,5 +43,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             await _mediator.Send(command);
             return Ok();
         }
+
+        [HttpGet]
+        [Route("{apprenticeshipId}/get")]
+        public async Task<IActionResult> GetRequest(long apprenticeshipId)
+        {
+            var result = await _mediator.Send(new GetOverlapRequestsQuery(apprenticeshipId));
+
+            return Ok(new GetOverlapRequestsResponse 
+            { 
+                DraftApprenticeshipId = result.DraftApprenticeshipId.Value,
+                PreviousApprenticeshipId = result.PreviousApprenticeshipId.Value,
+                CreatedOn = result.CreatedOn.Value
+            });
+        }
+
     }
 }
