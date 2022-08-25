@@ -94,7 +94,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive)
+            {
+                _logger.LogInformation($"OverlappingTrainingDateRequest  employer confirm that Apprentieship is still active, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
                 return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
+            }
 
             if (ULN_Changed(overlappingTrainingDateRequest))
             {

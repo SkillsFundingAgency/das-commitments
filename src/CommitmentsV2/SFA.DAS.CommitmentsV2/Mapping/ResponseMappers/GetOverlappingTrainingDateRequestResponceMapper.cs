@@ -18,7 +18,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 PreviousApprenticeshipId = source.PreviousApprenticeshipId,
                 ResolutionType = source.ResolutionType,
                 Status = source.Status,
-                EmployerAction = source.EmployerAction,
                 ActionedOn = source.ActionedOn
             });
         }

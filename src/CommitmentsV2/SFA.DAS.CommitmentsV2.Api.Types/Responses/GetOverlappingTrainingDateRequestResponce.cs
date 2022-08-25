@@ -12,7 +12,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public long PreviousApprenticeshipId { get; set; }
         public OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
         public OverlappingTrainingDateRequestStatus Status { get; set; }
-        public OverlappingTrainingDateRequestEmployerAction? EmployerAction { get; set; }
         public DateTime? ActionedOn { get; set; }
     }
 }

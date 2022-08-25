@@ -11,8 +11,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingD
         {
             RuleFor(model => model.ResolutionType).NotNull();
             RuleFor(model => model)
-                .Must(x => x.ApprenticeshipId.GetValueOrDefault() > 0 || x.DraftApprenticeshipId.GetValueOrDefault() > 0)
-                .WithMessage("ApprenticeshipId and DraftApprenticeshipId cannot be null");
+                .Must(x => x.ApprenticeshipId.GetValueOrDefault() > 0)
+                .WithMessage("Apprenticeship Id must be greater than zero");
         }
     }
 }

@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingD
 
         protected override async Task Handle(ResolveOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
         {
-            await _resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, request.DraftApprenticeshipId, Types.OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive);
+            await _resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive);
         }
     }
 }

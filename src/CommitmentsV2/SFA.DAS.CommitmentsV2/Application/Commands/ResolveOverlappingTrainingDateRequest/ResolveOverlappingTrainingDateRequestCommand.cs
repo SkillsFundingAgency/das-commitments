@@ -9,7 +9,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingD
     public class ResolveOverlappingTrainingDateRequestCommand : IRequest
     {
         public long? ApprenticeshipId { get; set; }
-        public long? DraftApprenticeshipId { get; set; }
         public OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
     }
 }
