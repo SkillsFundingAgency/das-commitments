@@ -52,5 +52,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool? RecognisePriorLearning { get; set; }
         public int? DurationReducedBy { get; set; }
         public int? PriceReducedBy { get; set; }
+        public long? TransferSenderId { get; set; }
     }
 }

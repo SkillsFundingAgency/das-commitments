@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 
@@ -12,17 +11,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
     public class GetApprenticeshipQueryHandler: IRequestHandler<GetApprenticeshipQuery, GetApprenticeshipQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IAuthenticationService _authenticationService;
 
-        public GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
+        public GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
-            _authenticationService = authenticationService;
         }
 
         public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
         {
-            var x = await _dbContext.Value
+            var result = await _dbContext.Value
                 .Apprenticeships
                 .Include(x => x.FlexibleEmployment)
                 .Include(x => x.PriorLearning)
@@ -78,10 +75,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         FlexibleEmployment = apprenticeship.FlexibleEmployment,
                         RecognisePriorLearning = apprenticeship.RecognisePriorLearning,
                         ApprenticeshipPriorLearning = apprenticeship.PriorLearning,
+                        TransferSenderId = apprenticeship.Cohort.TransferSenderId
                     },
                     cancellationToken);
 
-            return x;
+            return result;
         }
     }
 }
