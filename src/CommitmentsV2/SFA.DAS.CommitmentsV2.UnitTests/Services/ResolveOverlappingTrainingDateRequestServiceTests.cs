@@ -157,9 +157,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public async Task OverlappingTrainingDateIsResolved_WhenApprentieshipIsStillActive()
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture().SetupOverlapCheckService(true, 1);
-            await fixture.ResolveApprenticeshipByApprentieshipIsStillActivee();
+            await fixture.ResolveApprenticeshipByApprentieshipIsStillActive();
             Assert.AreEqual(OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive, fixture.OverlappingTrainingDateRequest.ResolutionType);
-            Assert.AreEqual(OverlappingTrainingDateRequestStatus.Resolved, fixture.OverlappingTrainingDateRequest.Status);
+            Assert.AreEqual(OverlappingTrainingDateRequestStatus.Rejected, fixture.OverlappingTrainingDateRequest.Status);
         }
 
         private class ResolveOverlappingTrainingDateRequestServiceTestsFixture
@@ -303,7 +303,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 await _sut.Resolve(ApprenticeshipDetails.Id, null, OverlappingTrainingDateRequestResolutionType.ApprenticeshipUpdate);
             }
 
-            internal async Task ResolveApprenticeshipByApprentieshipIsStillActivee()
+            internal async Task ResolveApprenticeshipByApprentieshipIsStillActive()
             {
                 await _sut.Resolve(ApprenticeshipDetails.Id, null, OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive);
             }

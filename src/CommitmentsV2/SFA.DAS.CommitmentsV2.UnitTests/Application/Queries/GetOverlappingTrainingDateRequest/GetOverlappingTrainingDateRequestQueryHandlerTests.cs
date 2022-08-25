@@ -75,7 +75,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
                 _overlappingTrainingDateRequest.SetValue(x => x.DraftApprenticeshipId, _autoFixture.Create<long?>());
                 _overlappingTrainingDateRequest.SetValue(x => x.ResolutionType, _autoFixture.Create<OverlappingTrainingDateRequestResolutionType>());
                 _overlappingTrainingDateRequest.SetValue(x => x.Status, _autoFixture.Create<OverlappingTrainingDateRequestStatus>());
-                _overlappingTrainingDateRequest.SetValue(x => x.EmployerAction, _autoFixture.Create<OverlappingTrainingDateRequestEmployerAction>());
                 _overlappingTrainingDateRequest.SetValue(x => x.ActionedOn, _autoFixture.Create<DateTime>());
 
                 _db.OverlappingTrainingDateRequests.Add(_overlappingTrainingDateRequest);
@@ -95,7 +94,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
             Assert.AreEqual(source.PreviousApprenticeshipId, result.PreviousApprenticeshipId);
             Assert.AreEqual(source.Status, result.Status);
             Assert.AreEqual(source.ResolutionType, result.ResolutionType);
-            Assert.AreEqual(source.EmployerAction, result.EmployerAction);
             Assert.AreEqual(source.ActionedOn, result.ActionedOn);
         }
     }
