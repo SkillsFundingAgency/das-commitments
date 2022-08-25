@@ -27,6 +27,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
+            if (cohortSummary == null) { return; }
+
             if (cohortSummary.ChangeOfPartyRequestId.HasValue) return;
 
             var tokens = new Dictionary<string, string>
