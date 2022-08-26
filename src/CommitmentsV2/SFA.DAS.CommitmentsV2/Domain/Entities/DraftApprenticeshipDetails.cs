@@ -49,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public int? DurationReducedBy { get; set; }
 
         public int? PriceReducedBy { get; set; }
+
         public bool IgnoreStartDateOverlap { get; set; }
     }
 }

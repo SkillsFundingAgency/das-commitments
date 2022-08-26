@@ -13,6 +13,10 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.DependencyResolution
             For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
             For<ITopicClientFactory>().Use<TopicClientFactory>();
             For<ILegacyTopicMessagePublisher>().Use<LegacyTopicMessagePublisher>().Ctor<string>("connectionString").Is(ctx => ctx.GetInstance<CommitmentsV2Configuration>().MessageServiceBusConnectionString);
+            For<IResolveOverlappingTrainingDateRequestService>().Use<ResolveOverlappingTrainingDateRequestService>();
+            For<IUlnUtilisationService>().Use<UlnUtilisationService>();
+            For<IOverlapCheckService>().Use<OverlapCheckService>();
+            For<IEmailOverlapService>().Use<EmailOverlapService>();
         }
     }
 }

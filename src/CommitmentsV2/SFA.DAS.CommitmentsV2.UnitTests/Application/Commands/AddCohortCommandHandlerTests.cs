@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId,
                 It.IsAny<DraftApprenticeshipDetails>(),
                 fixtures.UserInfo,
-                It.IsAny<CancellationToken>(), false));
+                It.IsAny<CancellationToken>()));
 
             Assert.AreEqual(expectedHash, response.Reference);
         }
@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
             CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(), It.IsAny<int?>(),
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>(), false))
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(commitment);
 
             Logger = new TestLogger();
