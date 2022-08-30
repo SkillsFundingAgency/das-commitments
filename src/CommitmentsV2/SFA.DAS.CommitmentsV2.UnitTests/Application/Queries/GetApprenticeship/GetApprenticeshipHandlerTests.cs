@@ -4,10 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
-using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -48,7 +46,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             private readonly GetApprenticeshipQueryHandler _handler;
             private readonly GetApprenticeshipQuery _query;
             private GetApprenticeshipQueryResult _result;
-            private readonly Mock<IAuthenticationService> AuthenticationService;
 
             public GetApprenticeshipHandlerTestsFixture()
             {
@@ -56,16 +53,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
 
                 AccountLegalEntityId = _autoFixture.Create<long>();
 
-                AuthenticationService = new Mock<IAuthenticationService>();
-                AuthenticationService.Setup(x => x.GetUserParty()).Returns(Party.Employer);
-
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
                 SeedData();
 
                 _query = new GetApprenticeshipQuery(ApprenticeshipId);
 
-                _handler = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db),
-                    AuthenticationService.Object);
+                _handler = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
             private void SeedData()
@@ -226,6 +219,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.RecognisePriorLearning, _result.RecognisePriorLearning);
                 Assert.AreEqual(Apprenticeship.PriorLearning.DurationReducedBy, _result.ApprenticeshipPriorLearning.DurationReducedBy);
                 Assert.AreEqual(Apprenticeship.PriorLearning.PriceReducedBy, _result.ApprenticeshipPriorLearning.PriceReducedBy);
+                Assert.AreEqual(Apprenticeship.Cohort.TransferSenderId, _result.TransferSenderId);
             }
         }
     }
