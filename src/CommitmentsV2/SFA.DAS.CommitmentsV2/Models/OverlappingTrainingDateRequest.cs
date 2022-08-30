@@ -1,5 +1,4 @@
-﻿using System;
-using SFA.DAS.CommitmentsV2.Messages.Events;
+﻿using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
@@ -12,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long DraftApprenticeshipId { get; private set; }
         public virtual long PreviousApprenticeshipId { get; private set; }
         public virtual DateTime CreatedOn { get; private set; }
-public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
+        public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
         public virtual OverlappingTrainingDateRequestStatus Status { get; set; }
         public virtual OverlappingTrainingDateRequestEmployerAction? EmployerAction { get; set; }
         public byte[] RowVersion { get; private set; }
