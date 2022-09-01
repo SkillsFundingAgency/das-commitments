@@ -67,9 +67,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             return Ok(new GetOverlapRequestsResponse 
             { 
-                DraftApprenticeshipId = result.DraftApprenticeshipId.Value,
-                PreviousApprenticeshipId = result.PreviousApprenticeshipId.Value,
-                CreatedOn = result.CreatedOn.Value
+                DraftApprenticeshipId = result?.DraftApprenticeshipId,
+                PreviousApprenticeshipId = result?.PreviousApprenticeshipId,
+                CreatedOn = result?.CreatedOn
             });
         }
 
