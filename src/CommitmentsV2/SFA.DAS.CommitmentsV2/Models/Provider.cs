@@ -30,10 +30,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             Account transferSender,
             int? pledgeApplicationId,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
-            UserInfo userInfo,
-            bool ignoreStartDateOverlap = false)
+            UserInfo userInfo)
         {
-            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Provider, userInfo, ignoreStartDateOverlap);
+            return new Cohort(providerId, accountLegalEntity.AccountId, accountLegalEntity.Id, transferSender?.Id, pledgeApplicationId, draftApprenticeshipDetails, Party.Provider, userInfo);
         }
 
         public virtual Cohort CreateCohort(long providerId, AccountLegalEntity accountLegalEntity, UserInfo userInfo)

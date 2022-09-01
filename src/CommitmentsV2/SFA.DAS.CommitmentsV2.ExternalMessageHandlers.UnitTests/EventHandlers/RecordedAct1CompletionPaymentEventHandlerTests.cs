@@ -6,6 +6,7 @@ using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -92,9 +93,9 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.UnitTests.EventHandlers
 
                 _event = autoFixture.Create<RecordedAct1CompletionPayment>();
 
-                _cohort = new Cohort() {Id = 1};
+                _cohort = new Cohort() { Id = 1 };
 
-                _apprenticeship = new FakeApprenticeship {Id = _event.ApprenticeshipId.Value, CommitmentId = 1};
+                _apprenticeship = new FakeApprenticeship { Id = _event.ApprenticeshipId.Value, CommitmentId = 1 };
                 _dbContext.Object.Apprenticeships.Add(_apprenticeship);
 
                 _cohort.Apprenticeships.Add(_apprenticeship);

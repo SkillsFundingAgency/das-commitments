@@ -40,12 +40,12 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var overlapResult =  await _overlapCheckService.CheckForOverlapsOnStartDate(draftApprenticeship.Uln, new Domain.Entities.DateRange(draftApprenticeship.StartDate.Value, draftApprenticeship.EndDate.Value), draftApprenticeship.Id, cancellationToken);
 
-            if (!overlapResult.HasOverlappingStartDate)
+            if (!overlapResult.HasOverlappingStartDate || overlapResult.ApprenticeshipId == null)
             {
                 throw new InvalidOperationException($"Can't create Overlapping Training Date Request. Draft apprentiecship {draftApprenticeship.Id} doesn't have overlap with another apprenticeship.");
             }
 
-            var result = draftApprenticeship.CreateOverlappingTrainingDateRequest(party, overlapResult.ApprenticeshipId, userInfo);
+            var result = draftApprenticeship.CreateOverlappingTrainingDateRequest(party, overlapResult.ApprenticeshipId.Value, userInfo);
             await _dbContext.Value.SaveChangesAsync();
             return result;
         }

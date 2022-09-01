@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SFA.DAS.CommitmentsV2.Types
+﻿namespace SFA.DAS.CommitmentsV2.Types
 {
-    public enum OverlappingTrainingDateRequestStatus
+    public enum OverlappingTrainingDateRequestStatus : short
     {
         Pending = 0,
         Resolved = 1,

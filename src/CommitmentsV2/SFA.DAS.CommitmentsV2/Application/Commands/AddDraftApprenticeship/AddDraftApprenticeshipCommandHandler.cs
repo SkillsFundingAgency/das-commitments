@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         {
             var db = _dbContext.Value;
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(request);
-            var draftApprenticeship = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, request.CohortId, draftApprenticeshipDetails, request.UserInfo, cancellationToken, request.IgnoreStartDateOverlap);
+            var draftApprenticeship = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, request.CohortId, draftApprenticeshipDetails, request.UserInfo, cancellationToken);
             
             await db.SaveChangesAsync(cancellationToken);
             

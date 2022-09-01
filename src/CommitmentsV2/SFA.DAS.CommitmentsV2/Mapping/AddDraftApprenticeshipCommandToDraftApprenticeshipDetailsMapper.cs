@@ -4,7 +4,6 @@ using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using DeliveryModel = SFA.DAS.CommitmentsV2.Types.DeliveryModel;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
@@ -40,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 ReservationId = source.ReservationId,
                 EmploymentEndDate = source.EmploymentEndDate,
                 EmploymentPrice = source.EmploymentPrice,
+                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
             };
 
             // Only populate standard version specific items if start is specified.

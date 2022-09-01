@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task<OverlapCheckResultOnStartDate> CheckForOverlapsOnStartDate(string uln, DateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
         {
             var overlapStartDate = false;
-            long apprenticeshipId = 0;
+            long? apprenticeshipId = null;
 
             foreach (var utilisation in await GetCandidateUlnUtilisations(uln, existingApprenticeshipId, cancellationToken))
             {
