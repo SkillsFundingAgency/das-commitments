@@ -36,10 +36,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
                     c.Template == "OverlappingTrainingDateResolved" &&
-                    c.Tokens["PROVIDERNAME"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderName &&
-                    c.Tokens["COHORTREFERENCE"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference &&
+                    c.Tokens["ProviderName"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderName &&
+                    c.Tokens["CohortReference"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference &&
                     c.EmailAddress == OverlappingTrainingDateResolvedEventHandlerTestsFixture.Email &&
-                    c.Tokens["URL"] == $"{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderId}/unapproved/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference}/details"
+                    c.Tokens["Url"] == $"{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderId}/unapproved/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference}/details"
                     )
                   , It.IsAny<SendOptions>()), Times.Once);
         }
