@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.Encoding;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,16 +15,13 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
     {
         private readonly ILogger<OverlappingTrainingDateResolvedEventHandler> _logger;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
-        private readonly IEncodingService _encodingService;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         public OverlappingTrainingDateResolvedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<OverlappingTrainingDateResolvedEventHandler> logger,
-            IEncodingService encodingService,
             CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _logger = logger;
             _commitmentsV2Configuration = commitmentsV2Configuration;
-            _encodingService = encodingService;
             _dbContext = dbContext;
         }
 
@@ -57,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
                 {
                         {"PROVIDERNAME", draftApprenticeship.Cohort.Provider.Name},
                         {"COHORTREFERENCE",draftApprenticeship.Cohort.Reference},
-                        {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{_encodingService.Encode(draftApprenticeship.Cohort.ProviderId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(draftApprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
+                        {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{draftApprenticeship.Cohort.ProviderId}/unapproved/{draftApprenticeship.Cohort.Reference}/details"}
                 }, draftApprenticeship.Cohort.LastUpdatedByProviderEmail
             );
 

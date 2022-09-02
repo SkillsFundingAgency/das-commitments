@@ -30,13 +30,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        public async Task WhenHandlingOverlappingTrainingDateResolvedEvent_ThenEncodingServiceIsCalled()
-        {
-            await _fixture.Handle();
-            _fixture.MockEncodingService.Verify(x => x.Encode(_fixture.Event.ApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
-        }
-
-        [Test]
         public async Task WhenHandlingOverlappingTrainingDateResolvedEvent_ThenSendEmailToProviderIsCalled()
         {
             await _fixture.Handle();
@@ -46,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     c.Tokens["PROVIDERNAME"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderName &&
                     c.Tokens["COHORTREFERENCE"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference &&
                     c.EmailAddress == OverlappingTrainingDateResolvedEventHandlerTestsFixture.Email &&
-                    c.Tokens["URL"] == $"{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.HashedProviderId}/apprentices/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.HashedApprenticeshipId}/details"
+                    c.Tokens["URL"] == $"{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderId}/unapproved/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference}/details"
                     )
                   , It.IsAny<SendOptions>()), Times.Once);
         }
@@ -61,11 +54,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         private readonly DraftApprenticeship _draftApprenticeship;
         private readonly ProviderCommitmentsDbContext _db;
         public const string CohortReference = "1234567899";
-        public const string HashedProviderId = "1";
         public const long ProviderId = 1;
         public const string ProviderName = "TestEmployerName";
         public const string Email = "Test@education.com";
-        public const string HashedApprenticeshipId = "ABC";
         public const string ProviderCommitmentsBaseUrl = "https://approvals/";
 
         public OverlappingTrainingDateResolvedEventHandlerTestsFixture() : base((m) => null)
@@ -102,11 +93,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _db.DraftApprenticeships.Add(_draftApprenticeship);
             _db.SaveChanges();
 
-            MockEncodingService = new Mock<IEncodingService>();
-            MockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns(HashedApprenticeshipId);
-            MockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns(HashedProviderId);
-
-            Handler = new OverlappingTrainingDateResolvedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Logger.Object, MockEncodingService.Object,
+            Handler = new OverlappingTrainingDateResolvedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Logger.Object,
                 new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl });
         }
 
