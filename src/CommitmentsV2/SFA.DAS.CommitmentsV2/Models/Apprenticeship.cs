@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 oltd.ActionedOn = DateTime.UtcNow;
             }
       
-            EmitOverlappingTrainingDateResolvedNotificationEvent(draftApprenticeshipId, oltd.DraftApprenticeship.CommitmentId);
+            Publish(() => new OverlappingTrainingDateResolvedEvent(draftApprenticeshipId, oltd.DraftApprenticeship.CommitmentId));
         }
 
         private void CheckIsStoppedForChangeOfParty()
@@ -312,11 +312,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             return newPriceHistory.ToList();
-        }
-
-        public void EmitOverlappingTrainingDateResolvedNotificationEvent(long apprenticeshipId, long cohortId)
-        {
-            Publish(() => new OverlappingTrainingDateResolvedEvent(apprenticeshipId, cohortId));
         }
 
         private void ApplyApprenticeshipUpdatesToApprenticeship(ApprenticeshipUpdate update, DateTime approvedOn)
