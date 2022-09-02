@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
                 {
                         {"ProviderName", draftApprenticeship.Cohort.Provider.Name},
                         {"CohortReference",draftApprenticeship.Cohort.Reference},
-                        {"Url", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{draftApprenticeship.Cohort.ProviderId}/unapproved/{draftApprenticeship.Cohort.Reference}/details"}
+                        {"Url", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{draftApprenticeship.Cohort.ProviderId}/unapproved/{draftApprenticeship.Cohort.Reference}/details"}
                 }, draftApprenticeship.Cohort.LastUpdatedByProviderEmail
             );
 

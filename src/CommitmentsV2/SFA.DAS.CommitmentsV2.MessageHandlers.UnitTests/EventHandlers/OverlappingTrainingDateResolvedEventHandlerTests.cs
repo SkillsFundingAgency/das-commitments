@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     c.Tokens["ProviderName"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderName &&
                     c.Tokens["CohortReference"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference &&
                     c.EmailAddress == OverlappingTrainingDateResolvedEventHandlerTestsFixture.Email &&
-                    c.Tokens["Url"] == $"{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderId}/unapproved/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference}/details"
+                    c.Tokens["Url"] == $"{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderId}/unapproved/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference}/details"
                     )
                   , It.IsAny<SendOptions>()), Times.Once);
         }
