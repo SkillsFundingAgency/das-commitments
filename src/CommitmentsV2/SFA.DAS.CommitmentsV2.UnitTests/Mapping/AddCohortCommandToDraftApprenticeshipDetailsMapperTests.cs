@@ -42,6 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
             Assert.AreEqual(fixture.Command.EmploymentPrice, draftApprenticeshipDetails.EmploymentPrice);
             Assert.AreEqual(fixture.Command.EmploymentEndDate, draftApprenticeshipDetails.EmploymentEndDate);
+            Assert.AreEqual(fixture.Command.IsOnFlexiPaymentPilot, draftApprenticeshipDetails.IsOnFlexiPaymentPilot);
         }
 
         [Test]
@@ -73,6 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
             Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
+            Assert.AreEqual(fixture.Command.IsOnFlexiPaymentPilot, draftApprenticeshipDetails.IsOnFlexiPaymentPilot);
         }
 
         [Test]
@@ -94,6 +96,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
+            Assert.AreEqual(fixture.Command.IsOnFlexiPaymentPilot, draftApprenticeshipDetails.IsOnFlexiPaymentPilot);
         }
 
         [Test]
@@ -116,6 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
+            Assert.AreEqual(fixture.Command.IsOnFlexiPaymentPilot, draftApprenticeshipDetails.IsOnFlexiPaymentPilot);
         }
     }
 
@@ -153,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command = new AddCohortCommand(command.AccountId, command.AccountLegalEntityId, command.ProviderId,
                 courseCode, command.DeliveryModel, command.Cost, command.StartDate, command.EndDate, command.OriginatorReference,
                 command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
-                command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo);
+                command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo, true, true);
 
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
