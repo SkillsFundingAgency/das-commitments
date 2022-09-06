@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRe
         public long? ApprenticeshipId { get; }
         public long? DraftApprenticeshipId { get; set; }
 
-        public GetOverlappingTrainingDateRequestQuery(long? apprenticeshipId = null, long? draftApprenticeshipId = null)
+        public GetOverlappingTrainingDateRequestQuery(long? apprenticeshipId = null)
         {
             ApprenticeshipId = apprenticeshipId;
         }
