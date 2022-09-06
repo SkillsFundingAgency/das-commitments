@@ -194,7 +194,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
                 Command.CourseCode, Command.DeliveryModel, Command.Cost, null, null, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
-                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo);
+                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, false, false);
         }
 
         public Task<DraftApprenticeshipDetails> MapWithFramework()
@@ -217,7 +217,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
                 frameworkId, Command.DeliveryModel, Command.Cost, Command.StartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
-                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo);
+                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, false, false);
         }
     }
 }
