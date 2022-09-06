@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateR
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,6 +24,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             fixture.Verify_OverlappingTrainingDateRequest_Resolved();
         }
 
+        [Test]
+        public void Handle__Throw_Exception_When_RequestResolutionType_IsNull()
+        {
+            var fixture = new ResolveOverlappingTrainingDateRequestCommandHandlerTestsFixture();
+            fixture.WithNullRequestResolutionType();
+            Assert.ThrowsAsync<ArgumentNullException>(() => fixture.Handle());
+        }
+
         private class ResolveOverlappingTrainingDateRequestCommandHandlerTestsFixture
         {
             private ResolveOverlappingTrainingDateRequestCommand _command;
@@ -33,10 +42,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 _command = new ResolveOverlappingTrainingDateRequestCommand()
                 {
-                    ApprenticeshipId = 1
+                    ApprenticeshipId = 1,
+                    ResolutionType = Types.OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive
                 };
+
                 _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
                 _sut = new ResolveOverlappingTrainingDateRequestCommandHandler(_resolveOverlappingTrainingDateRequestService.Object);
+            }
+
+            public ResolveOverlappingTrainingDateRequestCommandHandlerTestsFixture WithNullRequestResolutionType()
+            {
+                _command = new ResolveOverlappingTrainingDateRequestCommand()
+                {
+                    ApprenticeshipId = 1,
+                    ResolutionType = null
+                };
+
+                return this;
             }
 
             public async Task Handle()

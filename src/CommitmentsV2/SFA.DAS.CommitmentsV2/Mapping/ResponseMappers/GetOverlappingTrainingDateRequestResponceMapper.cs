@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
 {
@@ -13,12 +14,15 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
         {
             return Task.FromResult(new GetOverlappingTrainingDateRequestResponce
             {
-                Id = source.Id,
-                DraftApprenticeshipId = source.DraftApprenticeshipId,
-                PreviousApprenticeshipId = source.PreviousApprenticeshipId,
-                ResolutionType = source.ResolutionType,
-                Status = source.Status,
-                ActionedOn = source.ActionedOn
+                OverlappingTrainingDateRequest = source.OverlappingTrainingDateRequests.Select(x => new ApprenticeshipOverlappingTrainingDateRequest
+                {
+                    Id = x.Id,
+                    DraftApprenticeshipId = x.DraftApprenticeshipId,
+                    PreviousApprenticeshipId = x.PreviousApprenticeshipId,
+                    ResolutionType = x.ResolutionType,
+                    Status = x.Status,
+                    ActionedOn = x.ActionedOn
+                }).ToList()
             });
         }
     }

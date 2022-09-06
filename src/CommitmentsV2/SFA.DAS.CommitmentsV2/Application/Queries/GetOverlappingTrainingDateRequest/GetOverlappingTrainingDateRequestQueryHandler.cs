@@ -19,37 +19,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRe
 
         public async Task<GetOverlappingTrainingDateRequestQueryResult> Handle(GetOverlappingTrainingDateRequestQuery request, CancellationToken cancellationToken)
         {
-            Models.OverlappingTrainingDateRequest overlappingTrainingDateRequest = null;
-
-            if (request.ApprenticeshipId.HasValue)
-            {
-              overlappingTrainingDateRequest =   await _dbContext.Value
-                .OverlappingTrainingDateRequests.
-                FirstOrDefaultAsync(x => x.PreviousApprenticeshipId == request.ApprenticeshipId, cancellationToken);
-            }
-            else if (request.DraftApprenticeshipId.HasValue)
-            {
-                overlappingTrainingDateRequest = await _dbContext.Value
-               .OverlappingTrainingDateRequests.
-               FirstOrDefaultAsync(x => x.PreviousApprenticeshipId == request.ApprenticeshipId, cancellationToken);
-            }
-            else
-            {
-                throw new InvalidOperationException("Passed apprenticeship Id and draftapprenticeship id are null");
-            }
+            var overlappingTrainingDateRequest = await _dbContext.Value.OverlappingTrainingDateRequests
+                .Where(x => x.PreviousApprenticeshipId == request.ApprenticeshipId)
+                .ToListAsync(cancellationToken);
 
             if (overlappingTrainingDateRequest == null)
-                return null;
+                return new GetOverlappingTrainingDateRequestQueryResult();
 
             return new GetOverlappingTrainingDateRequestQueryResult
             {
-                Id = overlappingTrainingDateRequest.Id,
-                DraftApprenticeshipId = overlappingTrainingDateRequest.DraftApprenticeshipId,
-                PreviousApprenticeshipId = overlappingTrainingDateRequest.PreviousApprenticeshipId,
-                ResolutionType = overlappingTrainingDateRequest.ResolutionType,
-                Status = overlappingTrainingDateRequest.Status,
-                ActionedOn = overlappingTrainingDateRequest.ActionedOn,
-                CreatedOn = overlappingTrainingDateRequest.CreatedOn
+                OverlappingTrainingDateRequests = overlappingTrainingDateRequest.Select(x => new GetOverlappingTrainingDateRequestQueryResult.OverlappingTrainingDateRequest
+                {
+                    Id = x.Id,
+                    DraftApprenticeshipId = x.DraftApprenticeshipId,
+                    PreviousApprenticeshipId = x.PreviousApprenticeshipId,
+                    ResolutionType = x.ResolutionType,
+                    Status = x.Status,
+                    ActionedOn = x.ActionedOn
+                }).ToList()
             };
         }
     }

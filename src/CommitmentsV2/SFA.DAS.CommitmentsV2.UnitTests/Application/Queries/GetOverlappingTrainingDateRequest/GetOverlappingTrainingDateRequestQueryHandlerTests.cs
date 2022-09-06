@@ -89,12 +89,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
 
         private static void AssertEquality(OverlappingTrainingDateRequest source, GetOverlappingTrainingDateRequestQueryResult result)
         {
-            Assert.AreEqual(source.Id, result.Id);
-            Assert.AreEqual(source.DraftApprenticeshipId, result.DraftApprenticeshipId);
-            Assert.AreEqual(source.PreviousApprenticeshipId, result.PreviousApprenticeshipId);
-            Assert.AreEqual(source.Status, result.Status);
-            Assert.AreEqual(source.ResolutionType, result.ResolutionType);
-            Assert.AreEqual(source.ActionedOn, result.ActionedOn);
+            Assert.AreEqual(1, result.OverlappingTrainingDateRequests.Count);
+
+            Assert.AreEqual(source.Id, result.OverlappingTrainingDateRequests.First().Id);
+            Assert.AreEqual(source.DraftApprenticeshipId, result.OverlappingTrainingDateRequests.First().DraftApprenticeshipId);
+            Assert.AreEqual(source.PreviousApprenticeshipId, result.OverlappingTrainingDateRequests.First().PreviousApprenticeshipId);
+            Assert.AreEqual(source.Status, result.OverlappingTrainingDateRequests.First().Status);
+            Assert.AreEqual(source.ResolutionType, result.OverlappingTrainingDateRequests.First().ResolutionType);
+            Assert.AreEqual(source.ActionedOn, result.OverlappingTrainingDateRequests.First().ActionedOn);
         }
     }
 }
