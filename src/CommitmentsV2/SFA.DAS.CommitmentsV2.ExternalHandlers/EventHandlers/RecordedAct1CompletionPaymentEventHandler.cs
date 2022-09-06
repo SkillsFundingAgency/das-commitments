@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.EventHandlers
             {
                 if (message.ApprenticeshipId.HasValue)
                 {
-                    var apprentice = await _dbContext.Value.Apprenticeships.Include(x=>x.Cohort).SingleAsync(x => x.Id == message.ApprenticeshipId);
+                    var apprentice = await _dbContext.Value.Apprenticeships.Include(x => x.Cohort).SingleAsync(x => x.Id == message.ApprenticeshipId);
                     var status = apprentice.GetApprenticeshipStatus(message.EventTime.UtcDateTime);
 
                     switch (status)

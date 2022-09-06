@@ -71,5 +71,15 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
             if (result == null) throw new BadRequestException($"ChangeOfPartyRequest {changeOfPartyId} was not found");
             return result;
         }
+
+        public static async Task<OverlappingTrainingDateRequest> GetOverlappingTrainingDateRequestAggregate(this ProviderCommitmentsDbContext db, long previousApprenticeshipId, CancellationToken cancellationToken)
+        {
+            var result = await db.OverlappingTrainingDateRequests
+                .Include(r => r.DraftApprenticeship)
+                .Include(r => r.PreviousApprenticeship)
+                .SingleOrDefaultAsync(c => c.PreviousApprenticeshipId == previousApprenticeshipId 
+                && c.Status == OverlappingTrainingDateRequestStatus.Pending, cancellationToken);
+            return result;
+        }
     }
 }
