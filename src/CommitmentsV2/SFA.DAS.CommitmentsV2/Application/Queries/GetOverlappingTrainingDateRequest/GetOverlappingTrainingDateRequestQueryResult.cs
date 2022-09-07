@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRe
             public OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
             public OverlappingTrainingDateRequestStatus Status { get; set; }
             public DateTime? ActionedOn { get; set; }
+            public DateTime CreatedOn { get; set; }
         }
     }
 }
