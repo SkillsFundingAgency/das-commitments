@@ -22,21 +22,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         }
 
         [Test]
-        public void AndRequestResolutionTypeIs_DraftApprenticeshipUpdated_ThenShouldNotPublishOltdResolvedEvent()
+        public void AndRequestResolutionTypeIs_DraftApprenticeshipUpdated_ThenShouldNotPublishOltdResolvedNotificationEvent()
         {
             _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated);
             _fixture.UnitOfWorkContext.GetEvents().OfType<OverlappingTrainingDateResolvedEvent>().Count().Should().Be(0);
         }
 
         [Test]
-        public void AndRequestResolutionTypeIs_DraftApprentieshipDeleted_ThenShouldNotPublishOltdResolvedEvent()
+        public void AndRequestResolutionTypeIs_DraftApprentieshipDeleted_ThenShouldNotPublishOltdResolvedNotificationEvent()
         {
             _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.DraftApprentieshipDeleted);
             _fixture.UnitOfWorkContext.GetEvents().OfType<OverlappingTrainingDateResolvedEvent>().Count().Should().Be(0);
         }
 
         [Test]
-        public void AndRequestResolutionTypeIs_ApprenticeshipStopped_ThenShouldPublishOltdResolvedEvent()
+        public void AndRequestResolutionTypeIs_ApprenticeshipStopped_ThenShouldPublishOltdResolvedNotificationEvent()
         {
             _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped);
 
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         }
 
         [Test]
-        public void AndRequestResolutionTypeIs_ApprenticeshipUpdate_ThenShouldPublishOltdResolvedEvent()
+        public void AndRequestResolutionTypeIs_ApprenticeshipUpdate_ThenShouldPublishOltdResolvedNotificationEvent()
         {
             _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.ApprenticeshipUpdate);
 
@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         }
 
         [Test]
-        public void AndRequestResolutionTypeIs_CompletionDateEvent_ThenShouldPublishOltdResolvedEvent()
+        public void AndRequestResolutionTypeIs_CompletionDateEvent_ThenShouldPublishOltdResolvedNotificationEvent()
         {
             _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.CompletionDateEvent);
 
@@ -75,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         }
 
         [Test]
-        public void AndRequestResolutionTypeIs_StopDateUpdate_ThenShouldPublishOltdResolvedEvent()
+        public void AndRequestResolutionTypeIs_StopDateUpdate_ThenShouldPublishOltdResolvedNotificationEvent()
         {
             _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
