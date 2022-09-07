@@ -22,14 +22,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         }
 
         [Test]
-        public void AndRequestResolutionTypeIs_DraftApprenticeshipUpdated_ThenShouldPublishOltdResolvedEvent()
+        public void AndRequestResolutionTypeIs_DraftApprenticeshipUpdated_ThenShouldNotPublishOltdResolvedEvent()
         {
             _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated);
             _fixture.UnitOfWorkContext.GetEvents().OfType<OverlappingTrainingDateResolvedEvent>().Count().Should().Be(0);
         }
 
         [Test]
-        public void AndRequestResolutionTypeIs_DraftApprentieshipDeleted_ThenShouldPublishOltdResolvedEvent()
+        public void AndRequestResolutionTypeIs_DraftApprentieshipDeleted_ThenShouldNotPublishOltdResolvedEvent()
         {
             _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.DraftApprentieshipDeleted);
             _fixture.UnitOfWorkContext.GetEvents().OfType<OverlappingTrainingDateResolvedEvent>().Count().Should().Be(0);
