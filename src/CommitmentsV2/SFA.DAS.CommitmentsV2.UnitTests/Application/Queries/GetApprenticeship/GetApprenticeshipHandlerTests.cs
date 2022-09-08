@@ -17,17 +17,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
     {
         private GetApprenticeshipHandlerTestsFixture _fixture;
 
-        [SetUp]
-        public void Arrange()
-        {
-            _fixture = new GetApprenticeshipHandlerTestsFixture();
-        }
-
         [Test]
         public async Task Handle_ThenShouldReturnResult()
         {
+            _fixture = new GetApprenticeshipHandlerTestsFixture();
+            _fixture.SeedData();
             await _fixture.Handle();
             _fixture.VerifyResultMapping();
+        }
+
+        [TestCase(ApprenticeshipStatus.Live)]
+        [TestCase(ApprenticeshipStatus.WaitingToStart)]
+        public async Task Handle_ThenShouldReturnStatusResultForLiveAndWaitingToStart(ApprenticeshipStatus status)
+        {
+            _fixture = new GetApprenticeshipHandlerTestsFixture();
+            _fixture.SeedData(status);
+            await _fixture.Handle();
+            _fixture.VerifyStatusMapping(status);
         }
 
         private class GetApprenticeshipHandlerTestsFixture
@@ -52,20 +58,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 _autoFixture = new Fixture();
 
                 AccountLegalEntityId = _autoFixture.Create<long>();
+                ApprenticeshipId = _autoFixture.Create<long>();
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
-                SeedData();
 
                 _query = new GetApprenticeshipQuery(ApprenticeshipId);
-
                 _handler = new GetApprenticeshipQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
-            private void SeedData()
+            internal void SeedData(ApprenticeshipStatus? status = null)
             {
-
-                ApprenticeshipId = _autoFixture.Create<long>();
-
                 Provider = new Provider
                 {
                     UkPrn = _autoFixture.Create<long>(),
@@ -160,6 +162,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     PriorLearning = _autoFixture.Create<ApprenticeshipPriorLearning>(),
                 };
 
+                if (status != null)
+                {
+                    Apprenticeship.PaymentStatus = PaymentStatus.Active;
+                    Apprenticeship.StartDate = status == ApprenticeshipStatus.WaitingToStart
+                        ? DateTime.Today.AddDays(10)
+                        : DateTime.Today.AddDays(-10);
+                }
+
                 switch (Apprenticeship.PaymentStatus)
                 {
                     case PaymentStatus.Withdrawn:
@@ -220,6 +230,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.PriorLearning.DurationReducedBy, _result.ApprenticeshipPriorLearning.DurationReducedBy);
                 Assert.AreEqual(Apprenticeship.PriorLearning.PriceReducedBy, _result.ApprenticeshipPriorLearning.PriceReducedBy);
                 Assert.AreEqual(Apprenticeship.Cohort.TransferSenderId, _result.TransferSenderId);
+            }
+
+            public void VerifyStatusMapping(ApprenticeshipStatus status)
+            {
+                Assert.AreEqual(status, _result.Status);
             }
         }
     }
