@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AcademicYearEndProcessor\PriceHistory.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="FluentValidation" Version="10.3.4" />
     <PackageReference Include="MediatR" Version="6.0.0" />
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.0.0" />
@@ -36,6 +41,7 @@
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.77" />
     <PackageReference Include="StructureMap" Version="4.7.1" />
     <PackageReference Include="StructureMap.Microsoft.DependencyInjection" Version="2.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +53,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Domain\Data\" />
+    <Folder Include="Events\" />
     <Folder Include="SFA\DAS\CommitmentsV2\Domain\Entities\" />
   </ItemGroup>
 

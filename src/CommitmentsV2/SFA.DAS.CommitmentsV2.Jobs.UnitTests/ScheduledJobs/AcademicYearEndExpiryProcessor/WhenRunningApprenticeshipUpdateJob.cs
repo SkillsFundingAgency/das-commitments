@@ -1,0 +1,175 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoFixture;
+using AutoFixture.NUnit3;
+using Microsoft.Extensions.Logging;
+using Moq;
+
+using NUnit.Framework;
+
+using SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater;
+using SFA.DAS.CommitmentsV2.Domain.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Events;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.NServiceBus.Services;
+
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
+{
+    [TestFixture]
+    public class WhenRunningApprenticeshipUpdateJob
+    {
+        private Mock<ILogger<AcademicYearEndExpiryProcessor>> _logger;
+        private Mock<IAcademicYearDateProvider> _academicYearProvider;
+        private Mock<IDataLockRepository> _dataLockRepository;
+        private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
+        private Mock<ICurrentDateTime> _currentDateTime;
+        private Mock<IEventPublisher> _mockMessageBuilder;
+        private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
+
+
+        private AcademicYearEndExpiryProcessor _sut;
+
+        [SetUp]
+        public void Arrange()
+        {
+            // ARRANGE
+            _logger = new Mock<ILogger<AcademicYearEndExpiryProcessor>>();
+            _academicYearProvider = new Mock<IAcademicYearDateProvider>();
+            _dataLockRepository = new Mock<IDataLockRepository>();
+            _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
+            _currentDateTime = new Mock<ICurrentDateTime>();
+            _mockMessageBuilder = new Mock<IEventPublisher>();
+            _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+
+            _sut = new AcademicYearEndExpiryProcessor(
+                _logger.Object, 
+                _academicYearProvider.Object, 
+                _dataLockRepository.Object, 
+                _apprenticeshipUpdateRepository.Object,
+                _currentDateTime.Object,
+                _mockApprenticeshipRepository.Object);
+
+        }
+
+        [Test]
+        public async Task WhenNoUpdatesFound()
+        {
+            _apprenticeshipUpdateRepository.Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
+                .ReturnsAsync(new List<ApprenticeshipUpdate_new>());
+
+            await _sut.RunApprenticeshipUpdateJob(null);
+
+            await _sut.RunApprenticeshipUpdateJob(null);
+
+
+            _apprenticeshipUpdateRepository.Verify(m => m.GetExpiredApprenticeshipUpdates(It.IsAny<DateTime>()), Times.Exactly(2), failMessage: "Should call one time to get all updates and one to verify that all have been updated");
+            _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()), Times.Never, failMessage: "Should be called once for each update record");
+        }
+
+        [Test]
+        public async Task WhenApprenticeshpUpdatesFound()
+        {
+            var recordCount = 4;
+            var apprenticeshipUpdates = new List<ApprenticeshipUpdate_new>();
+            var apprenticeships = new List<Apprenticeship_new>();
+            var fixture = new Fixture();
+            fixture.AddManyTo(apprenticeshipUpdates, recordCount);
+
+            apprenticeshipUpdates.ForEach(update =>
+                apprenticeships.Add(
+                    fixture.Build<Apprenticeship_new>()
+                        .With(a => a.Id, update.ApprenticeshipId)
+                        .Create()));
+            
+            _apprenticeshipUpdateRepository
+                .Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
+                .ReturnsAsync(apprenticeshipUpdates);
+
+            _apprenticeshipUpdateRepository
+                .Setup(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()))
+                .Callback(
+                    () =>
+                        {
+                            // Setting data source to empty
+                            _apprenticeshipUpdateRepository
+                                .Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
+                                .ReturnsAsync(new List<ApprenticeshipUpdate_new>());
+                        })
+                .Returns(Task.FromResult(0));
+
+            _mockApprenticeshipRepository
+                .Setup(repository =>
+                    repository.GetApprenticeship(
+                        It.IsIn(apprenticeshipUpdates.Select(update => update.ApprenticeshipId))))
+                .ReturnsAsync((long apprenticeshipId) =>
+                    apprenticeships.Single(apprenticeship => apprenticeship.Id == apprenticeshipId));
+
+            await _sut.RunApprenticeshipUpdateJob(null);
+
+            _apprenticeshipUpdateRepository
+                .Verify(m => m.GetExpiredApprenticeshipUpdates(It.IsAny<DateTime>()), Times.Exactly(2), 
+                "Should call one time to get all updates and one to verify that all have been updated");
+            _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()), 
+                Times.Exactly(recordCount), 
+                "Should be called once for each update record");
+            apprenticeshipUpdates.ForEach(update =>
+            {
+                var apprenticeship = apprenticeships.Single(a => a.Id == update.ApprenticeshipId);
+                _mockMessageBuilder.Verify(m =>
+                    m.Publish(It.Is<ApprenticeshipUpdateCancelled>(cancelled =>
+                        cancelled.ApprenticeshipId == apprenticeship.Id &&
+                        cancelled.AccountId == apprenticeship.EmployerAccountId &&
+                        cancelled.ProviderId == apprenticeship.ProviderId)),
+                    "Should be called once for each update record, with correct params");
+            });
+        }
+
+        [Test, AutoData]
+        public async Task ShouldOnlyUpdateRecordsWithCostOrTrainingChanges(
+            Apprenticeship_new apprenticeship)
+        {
+            var apprenticeshipUpdates = new List<ApprenticeshipUpdate_new>
+                                            {
+                                                new ApprenticeshipUpdate_new {  FirstName = "Abba1", Cost = null, TrainingCode = null, StartDate = null},
+                                                new ApprenticeshipUpdate_new {  FirstName = "Abba2", Cost = 2000, TrainingCode = null, StartDate = null },
+                                                new ApprenticeshipUpdate_new {  FirstName = "Abba3", Cost = null, TrainingCode = null, StartDate = null },
+                                                new ApprenticeshipUpdate_new {  FirstName = "Abba4", Cost = null, TrainingCode = "123-1-1-", StartDate = null },
+                                                new ApprenticeshipUpdate_new {  FirstName = "Abba5", Cost = 3000, TrainingCode = "123-1-1-", StartDate = null },
+                                                new ApprenticeshipUpdate_new {  FirstName = "Abba5", Cost = null, TrainingCode = null, StartDate = new DateTime(DateTime.Now.Year, 06, 01)}
+
+                                            };
+
+            _apprenticeshipUpdateRepository.Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
+                .ReturnsAsync(apprenticeshipUpdates);
+
+            _apprenticeshipUpdateRepository.Setup(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()))
+                .Callback(
+                    () =>
+                    {
+                        // Setting data source to empty after the first call
+                        _apprenticeshipUpdateRepository
+                            .Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
+                            .ReturnsAsync(new List<ApprenticeshipUpdate_new>());
+                    })
+                .Returns(Task.FromResult(0));
+
+            _mockApprenticeshipRepository
+                .Setup(repository => repository.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(apprenticeship);
+
+            await _sut.RunApprenticeshipUpdateJob(null);
+
+            _apprenticeshipUpdateRepository
+                .Verify(m => m.GetExpiredApprenticeshipUpdates(It.IsAny<DateTime>()), Times.Exactly(2),
+                "Should call one time to get all updates and one to verify that all have been updated");
+            _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()),
+                Times.Exactly(4),
+                "Should be called once for each record with Cost or TrainingCode changes");
+
+        }
+    }
+}

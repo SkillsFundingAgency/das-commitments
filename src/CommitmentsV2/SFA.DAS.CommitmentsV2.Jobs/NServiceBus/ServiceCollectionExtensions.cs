@@ -11,6 +11,7 @@ using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.Configuration.NLog;
 using SFA.DAS.NServiceBus.Configuration.StructureMap;
 using SFA.DAS.NServiceBus.Hosting;
+using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using StructureMap;
 
