@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         EndpointAssessorName = apprenticeship.EpaOrg.Name,
                         EmployerReference = apprenticeship.EmployerRef,
                         ProviderReference = apprenticeship.ProviderRef,
-                        Status = apprenticeship.GetApprenticeshipStatus(null),
+                        Status = apprenticeship.GetApprenticeshipStatus(DateTime.Today),
                         StopDate = apprenticeship.StopDate,
                         PauseDate = apprenticeship.PauseDate,
                         HasHadDataLockSuccess = apprenticeship.HasHadDataLockSuccess,
