@@ -14,13 +14,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<AddDraftApprenticeshipCommandHandler> _logger;
-        private readonly IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
+        private readonly IOldMapper<DraftApprenticeshipCommandBase, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
         private readonly ICohortDomainService _cohortDomainService;
 
         public AddDraftApprenticeshipCommandHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<AddDraftApprenticeshipCommandHandler> logger,
-            IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
+            IOldMapper<DraftApprenticeshipCommandBase, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
             ICohortDomainService cohortDomainService)
         {
             _dbContext = dbContext;

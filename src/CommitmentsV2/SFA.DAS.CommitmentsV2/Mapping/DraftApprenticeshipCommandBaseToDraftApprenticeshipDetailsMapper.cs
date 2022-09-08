@@ -1,24 +1,21 @@
 using System;
 using System.Threading.Tasks;
-using SFA.DAS.Authorization.Services;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
-    public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper : IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>
+    public class DraftApprenticeshipCommandBaseToDraftApprenticeshipDetailsMapper : IOldMapper<DraftApprenticeshipCommandBase, DraftApprenticeshipDetails>
     {
-        private readonly IAuthorizationService _authorizationService;
         private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
 
-        public AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(IAuthorizationService authorizationService, ITrainingProgrammeLookup trainingProgrammeLookup)
+        public DraftApprenticeshipCommandBaseToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup)
         {
-            _authorizationService = authorizationService;
             _trainingProgrammeLookup = trainingProgrammeLookup;
         }
 
-        public async Task<DraftApprenticeshipDetails> Map(AddDraftApprenticeshipCommand source)
+        public async Task<DraftApprenticeshipDetails> Map(DraftApprenticeshipCommandBase source)
         {
             var trainingProgrammeTask = GetCourse(source.CourseCode, source.StartDate);
             var trainingProgramme = await trainingProgrammeTask;
