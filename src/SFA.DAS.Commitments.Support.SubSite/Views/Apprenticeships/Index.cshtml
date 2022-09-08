@@ -442,11 +442,15 @@
 
                 @if (Model.OverlappingTrainingDateRequest != null)
                 {
-                      <b>Overlapping training date</b>
-                      <br />
-                      <p>Requested by training provider @Model.OverlappingTrainingDateRequest.CreatedOn.ToGdsFormatWithSpaceSeperator() </p>
-                      <br />
-                      <p>Employer needs to confirm leave date. </p>
+                    <h3 class="govuk-heading-m">
+                      Overlapping training date
+                      <span class="govuk-caption-m">
+                        Requested by training provider @Model.OverlappingTrainingDateRequest.CreatedOn.ToGdsFormatWithSpaceSeperator()
+                      </span> 
+                    </h3>
+                    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                    <p>Employer needs to confirm leave date.</p>
+                    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                 }
             </div>
                     
