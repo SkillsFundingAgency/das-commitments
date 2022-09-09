@@ -1,13 +1,13 @@
-﻿using MediatR;
+﻿using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlapRequests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
-using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlapRequests;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -65,13 +65,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             var result = await _mediator.Send(new GetOverlapRequestsQuery(draftApprenticeshipId));
 
-            return Ok(new GetOverlapRequestsResponse 
-            { 
+            return Ok(new GetOverlapRequestsResponse
+            {
                 DraftApprenticeshipId = result?.DraftApprenticeshipId,
                 PreviousApprenticeshipId = result?.PreviousApprenticeshipId,
                 CreatedOn = result?.CreatedOn
             });
         }
-
     }
 }
