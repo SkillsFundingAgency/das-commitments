@@ -7,7 +7,12 @@ using SFA.DAS.CommitmentsV2.Infrastructure.Data;
 using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 using SFA.DAS.CommitmentsV2.Services.Shared;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.NServiceBus.Services;
+using SFA.DAS.UnitOfWork.DependencyResolution.StructureMap;
 using StructureMap;
+using SFA.DAS.UnitOfWork.NServiceBus.Services;
+using SFA.DAS.UnitOfWork.Pipeline;
+
 
 namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
 {
@@ -33,6 +38,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
 
             For<IAcademicYearDateProvider>()
                 .Use<AcademicYearDateProvider>();
+
+            For<IEventPublisher>()
+                .Use<EventPublisher>();
 
             For<ImportProvidersJobs>();
             For<ImportStandardsJob>();
