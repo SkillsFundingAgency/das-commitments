@@ -3,7 +3,7 @@
 SELECT 
 	CASE WHEN TransferApprovalActionedOn IS NOT NULL THEN C.TransferApprovalActionedOn
 	ELSE C.EmployerAndProviderApprovedOn 
-	END AS ApprenticeshipApprovedOm, 
+	END AS ApprovedOn, 
 	A.Id, 
 	ISNULL(A.DeliveryModel,0) AS DeliveryModel, 
 	ISNULL(PL.IsAccelerated, 0) AS AcceleratedDelivery

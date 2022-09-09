@@ -1,7 +1,9 @@
 ﻿CREATE VIEW [DashboardReporting].[ApprenticeshipsWithNoEmail]
 	AS 
 SELECT 
-	C.EmployerAndProviderApprovedOn AS ApprovedOn,
+	CASE WHEN TransferApprovalActionedOn IS NOT NULL THEN C.TransferApprovalActionedOn
+	ELSE C.EmployerAndProviderApprovedOn 
+	END AS ApprovedOn, 
 	A.Id AS ApprenticeshipId
 FROM Apprenticeship A
 INNER JOIN Commitment C ON A.CommitmentId = C.Id
