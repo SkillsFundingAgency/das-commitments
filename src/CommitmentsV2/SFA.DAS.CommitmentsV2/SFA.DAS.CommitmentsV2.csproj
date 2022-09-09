@@ -7,7 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="AcademicYearEndProcessor\PriceHistory.cs" />
+    <Compile Remove="AcademicYearEndProcessor\AgreementStatus.cs" />
+    <Compile Remove="AcademicYearEndProcessor\ApprenticeshipTransactions.cs" />
+    <Compile Remove="AcademicYearEndProcessor\ApprenticeshipUpdateTransactions.cs" />
+    <Compile Remove="AcademicYearEndProcessor\Caller.cs" />
+    <Compile Remove="AcademicYearEndProcessor\CallerType.cs" />
+    <Compile Remove="AcademicYearEndProcessor\DataLockTransactions.cs" />
+    <Compile Remove="AcademicYearEndProcessor\DataLock\DataLockEventError.cs" />
+    <Compile Remove="AcademicYearEndProcessor\DataLock\DataLockUpdateType.cs" />
+    <Compile Remove="AcademicYearEndProcessor\DataLock\Status.cs" />
+    <Compile Remove="AcademicYearEndProcessor\EventStatus.cs" />
+    <Compile Remove="AcademicYearEndProcessor\IApprenticeshipTransactions.cs" />
+    <Compile Remove="AcademicYearEndProcessor\IApprenticeshipUpdateTransactions.cs" />
+    <Compile Remove="AcademicYearEndProcessor\ICommitmentsLogger.cs" />
+    <Compile Remove="AcademicYearEndProcessor\IDataLockTransactions.cs" />
   </ItemGroup>
 
   <ItemGroup>

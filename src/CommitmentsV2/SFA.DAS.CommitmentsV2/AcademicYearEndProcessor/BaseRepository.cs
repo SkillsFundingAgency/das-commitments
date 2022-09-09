@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using NServiceBus.Logging;
 using Polly;
 using Polly.Retry;
-//using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.CommitmentsV2.Infrastructure.Data
 {
@@ -43,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure.Data
                 {
                     using (var connection = GetSqlConnection(_connectionString))
                     {
-                        
+
                         await connection.OpenAsync();
                         return await getData(connection);
                     }

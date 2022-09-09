@@ -2,16 +2,18 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using NServiceBus.Logging;
+using SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
+//using NServiceBus.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Data;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Events;
 using SFA.DAS.NServiceBus.Services;
-using Microsoft.Azure.WebJobs;
-using SFA.DAS.CommitmentsV2.Models;
+
 
 namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater
 {
-    public class AcademicYearEndExpiryProcessor 
+    public class AcademicYearEndExpiryProcessor : IAcademicYearEndExpiryProcessor
     {
         private readonly IAcademicYearDateProvider _academicYearProvider;
         private readonly IDataLockRepository _dataLockRepository;
@@ -26,56 +28,36 @@ namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater
             IDataLockRepository dataLockRepository,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
             ICurrentDateTime currentDateTime,
-            IApprenticeshipRepository apprenticeshipRepository
-            
-
-           )
+            IEventPublisher eventPublisher,
+            IApprenticeshipRepository apprenticeshipRepository)
         {
-
-           
-                _academicYearProvider = academicYearProvider;
-
             _logger = logger;
             _dataLockRepository = dataLockRepository;
-
-            _currentDateTime = currentDateTime;
-
-            //
-            //_eventPublisher = eventPublisher;
-            //IEventPublisher eventPublisher
-
-            _eventPublisher = null;
-
-
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
-
-
- 
+            _currentDateTime = currentDateTime;
+            _eventPublisher = eventPublisher;
             _apprenticeshipRepository = apprenticeshipRepository;
-          
-
+            _academicYearProvider = academicYearProvider;
         }
 
-        public async Task RunDataLock([TimerTrigger("0 22 23 08 09 *", RunOnStartup = false)] TimerInfo timer)
+        public async Task RunDataLock(string jobId)
         {
-
-            _logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.UtcNow} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}");
+            _logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.UtcNow} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}, JobId: {jobId}");
 
             var expirableDatalocks = await _dataLockRepository.GetExpirableDataLocks(_academicYearProvider.CurrentAcademicYearStartDate);
 
             foreach (var expirableDatalock in expirableDatalocks)
             {
-                _logger.LogInformation($"Updating DataLockStatus for apprenticeshipId: {expirableDatalock.ApprenticeshipId} and PriceEpisodeIdentifier: {expirableDatalock.ApprenticeshipId}");
+                _logger.LogInformation($"Updating DataLockStatus for apprenticeshipId: {expirableDatalock.ApprenticeshipId} and PriceEpisodeIdentifier: {expirableDatalock.ApprenticeshipId}, JobId: {jobId}");
                 await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId,
                     expirableDatalock.PriceEpisodeIdentifier, _currentDateTime.UtcNow);
             }
-            _logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessor)} expired {expirableDatalocks.Count} items");
+            _logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessor)} expired {expirableDatalocks.Count} items, JobId: {jobId}");
         }
 
-        public async Task RunApprenticeshipUpdateJob([TimerTrigger("0 27 18 08 09 *", RunOnStartup = false)] TimerInfo timer)
+        public async Task RunApprenticeshipUpdateJob(string jobId)
         {
-
-            _logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.UtcNow} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}");
+            _logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.UtcNow} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}, JobId: {jobId}");
 
 
             var expiredApprenticeshipUpdates =
@@ -85,11 +67,11 @@ namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater
                 .ToArray();
 
 
-            _logger.LogInformation($"Found {expiredApprenticeshipUpdates.Length} apprenticeship updates that will be set to expired");
+            _logger.LogInformation($"Found {expiredApprenticeshipUpdates.Length} apprenticeship updates that will be set to expired, JobId: {jobId}");
 
             foreach (var update in expiredApprenticeshipUpdates)
             {
-                _logger.LogInformation($"Updating ApprenticeshipUpdate to expired, ApprenticeshipUpdateId: {update.Id}");
+                _logger.LogInformation($"Updating ApprenticeshipUpdate to expired, ApprenticeshipUpdateId: {update.Id}, JobId: {jobId}");
                 await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(update.Id);
 
                 var apprenticeship =
@@ -109,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater
 
             if (expiredApprenticeshipUpdatesAfterJob.Length != 0)
             {
-                throw new Exception($"AcademicYearEndProcessor not completed successfull, Should not be any pending ApprenticeshipUpdates after job done, There are {expiredApprenticeshipUpdatesAfterJob.Length}");
+                throw new Exception($"AcademicYearEndProcessor not completed successfull, Should not be any pending ApprenticeshipUpdates after job done, There are {expiredApprenticeshipUpdatesAfterJob.Length} , JobId: {jobId}");
             }
         }
     }

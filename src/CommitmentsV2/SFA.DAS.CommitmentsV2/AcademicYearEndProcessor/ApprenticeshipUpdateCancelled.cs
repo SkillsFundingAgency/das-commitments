@@ -1,15 +1,10 @@
-﻿//using SFA.DAS.Messaging.Attributes;
-
-namespace SFA.DAS.CommitmentsV2.Events
+﻿namespace SFA.DAS.CommitmentsV2.Events
 {
-    //[MessageGroup("apprenticeship_update_cancelled")]
     public class ApprenticeshipUpdateCancelled
     {
-
-        //Needs a parameterless constructor to work with the message processing
         public ApprenticeshipUpdateCancelled()
         {
-            
+
         }
 
         public ApprenticeshipUpdateCancelled(long accountId, long providerId, long apprenticeshipId)

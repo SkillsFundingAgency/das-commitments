@@ -4,8 +4,9 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Data;
 using SFA.DAS.CommitmentsV2.Infrastructure.Data;
-using SFA.DAS.CommitmentsV2.Infrastructure.Data.Transactions;
 using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
+using SFA.DAS.CommitmentsV2.Services.Shared;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
@@ -27,13 +28,15 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
                 .Use<ApprenticeshipRepository>()
                 .Ctor<string>("connectionString").Is(ctx => ctx.GetInstance<CommitmentsV2Configuration>().DatabaseConnectionString);
 
-            For<IApprenticeshipTransactions>().Use<ApprenticeshipTransactions>();
-            For<IApprenticeshipUpdateTransactions>().Use<ApprenticeshipUpdateTransactions>();
-            For<IDataLockTransactions>().Use<DataLockTransactions>();
+            For<IAcademicYearEndExpiryProcessor>()
+                .Use<AcademicYearEndExpiryProcessor>();
+
+            For<IAcademicYearDateProvider>()
+                .Use<AcademicYearDateProvider>();
+
             For<ImportProvidersJobs>();
             For<ImportStandardsJob>();
             For<ImportFrameworksJob>();
-            For<AcademicYearEndExpiryProcessor>();
             For<Job>();
             For<IDbContextFactory>().Use<DbContextFactory>();
 

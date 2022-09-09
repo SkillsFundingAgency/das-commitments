@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Domain.Entities.DataLock;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Entities
 {
-    public class Apprenticeship_new
+    public class ApprenticeshipDetails
     {
-        public Apprenticeship_new()
+        public ApprenticeshipDetails()
         {
-            //PriceHistory = new List<PriceHistory>();
+            PriceHistory = new List<PriceHistoryDetails>();
             DataLocks = new List<DataLockStatusSummary>();
-            //ChangeOfPartyRequests = new List<ChangeOfPartyRequest>();
         }
 
         public long Id { get; set; }
@@ -59,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public bool DataLockCourse { get; set; }
         public bool DataLockCourseTriaged { get; set; }
         public bool DataLockCourseChangeTriaged { get; set; }
-        public List<PriceHistory> PriceHistory { get; set; }
+        public List<PriceHistoryDetails> PriceHistory { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public string EndpointAssessorName { get; set; }
         public Guid? ReservationId { get; set; }
@@ -67,14 +66,13 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public long? ContinuationOfId { get; set; }
         public List<DataLockStatusSummary> DataLocks { get; set; }
         public bool? MadeRedundant { get; set; }
-        //public IEnumerable<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public bool IsChangeOfProviderContinuation { get; set; }
         public string Email { get; set; }
         public string ConfirmationStatusDescription { get; set; }
-        public Apprenticeship_new Clone()
+        public ApprenticeshipDetails Clone()
         {
             var json = JsonConvert.SerializeObject(this);
-            return JsonConvert.DeserializeObject<Apprenticeship_new>(json);
+            return JsonConvert.DeserializeObject<ApprenticeshipDetails>(json);
         }
     }
 

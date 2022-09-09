@@ -3,7 +3,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Entities
 {
-    public class ApprenticeshipUpdate_new
+    public class ApprenticeshipUpdateDetails
     {
         public long Id { get; set; }
         public long ApprenticeshipId { get; set; }

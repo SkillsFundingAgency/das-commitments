@@ -1,5 +1,4 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-//using SFA.DAS.Messaging.AzureServiceBus.StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Configuration
 {
