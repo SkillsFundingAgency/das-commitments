@@ -238,7 +238,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             ValidateDraftApprenticeshipRequest = new AddDraftApprenticeshipRequest();
             ValidateDraftApprenticeshipCommand = new ValidateDraftApprenticeshipCommand();
-            ValidateDraftApprenticeshipMapper.Setup(m => m.Map(AddDraftApprenticeshipRequest)).ReturnsAsync(ValidateDraftApprenticeshipCommand);
+            ValidateDraftApprenticeshipMapper.Setup(m => m.Map(ValidateDraftApprenticeshipRequest)).ReturnsAsync(ValidateDraftApprenticeshipCommand);
             Mediator.Setup(m => m.Send(ValidateDraftApprenticeshipCommand, CancellationToken.None)).ReturnsAsync(new ValidateDraftApprenticeshipResult());
 
             return this;
