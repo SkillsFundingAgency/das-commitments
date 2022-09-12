@@ -60,6 +60,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             return AssertPropertySet(input => input.StartDate = startDate, output => output.StartDate == startDate);
         }
 
+        [Test]
+        public Task Map_ActualStartDate_ShouldBeSet()
+        {
+            DateTime startDate = DateTime.Now;
+            return AssertPropertySet(input => input.ActualStartDate = startDate, output => output.ActualStartDate == startDate);
+        }
+
         [TestCase(null)]
         [TestCase(DeliveryModel.Regular)]
         [TestCase(DeliveryModel.PortableFlexiJob)]

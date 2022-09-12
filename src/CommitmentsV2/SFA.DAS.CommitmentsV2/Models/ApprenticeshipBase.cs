@@ -31,6 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual DeliveryModel? DeliveryModel { get; set; }
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public DateTime? DateOfBirth { get; set; }
