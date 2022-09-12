@@ -14,6 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands
         public DateTime? EmploymentEndDate { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string OriginatorReference { get; set; }
         public Guid? ReservationId { get; set; }
