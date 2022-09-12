@@ -36,7 +36,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
                     c.Template == "OverlappingTrainingDateResolved" &&
-                    c.Tokens["ProviderName"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderName &&
                     c.Tokens["CohortReference"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference &&
                     c.EmailAddress == OverlappingTrainingDateResolvedEventHandlerTestsFixture.Email &&
                     c.Tokens["Url"] == $"{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderId}/unapproved/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference}/details"
@@ -55,7 +54,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         private readonly ProviderCommitmentsDbContext _db;
         public const string CohortReference = "1234567899";
         public const long ProviderId = 1;
-        public const string ProviderName = "TestEmployerName";
         public const string Email = "Test@education.com";
         public const string ProviderCommitmentsBaseUrl = "https://approvals/";
 
@@ -83,8 +81,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _draftApprenticeship.Cohort.SetValue(x => x.Reference, CohortReference);
             _draftApprenticeship.Cohort.SetValue(x => x.Id, Event.CohortId);
             _draftApprenticeship.Cohort.SetValue(x => x.WithParty, Party.Provider);
-            _draftApprenticeship.Cohort.Provider.SetValue(x => x.Name, ProviderName);
-
+            
 
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
