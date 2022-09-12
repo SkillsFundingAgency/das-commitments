@@ -8,28 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
     {
         public Task<AddDraftApprenticeshipCommand> Map(AddDraftApprenticeshipRequest source)
         {
-            return Task.FromResult(new AddDraftApprenticeshipCommand
-            {
-                UserId = source.UserId,
-                ProviderId = source.ProviderId,
-                CourseCode = source.CourseCode,
-                DeliveryModel = source.DeliveryModel,
-                Cost = source.Cost,
-                StartDate = source.StartDate,
-                EndDate = source.EndDate,
-                OriginatorReference = source.OriginatorReference,
-                ReservationId = source.ReservationId,
-                FirstName = source.FirstName,
-                LastName = source.LastName,
-                Email = source.Email,
-                DateOfBirth = source.DateOfBirth,
-                Uln = source.Uln,
-                EmploymentEndDate = source.EmploymentEndDate,
-                EmploymentPrice = source.EmploymentPrice,
-                UserInfo = source.UserInfo,
-                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
-                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
-            });
+            return new DraftApprenticeshipCommandBaseMapper().Map<AddDraftApprenticeshipCommand>(source);
         }
     }
 }

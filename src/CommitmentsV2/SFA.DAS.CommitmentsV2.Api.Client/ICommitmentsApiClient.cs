@@ -12,6 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task Ping();
         Task<WhoAmIResponse> WhoAmI();
         Task<AddDraftApprenticeshipResponse> AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
+        Task ValidateDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
         Task ApproveCohort(long cohortId, ApproveCohortRequest request, CancellationToken cancellationToken = default);
         Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default);
         Task<CreateCohortResponse> CreateCohort(CreateEmptyCohortRequest request, CancellationToken cancellationToken = default);

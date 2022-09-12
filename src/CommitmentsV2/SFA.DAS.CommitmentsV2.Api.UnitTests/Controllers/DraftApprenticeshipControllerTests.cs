@@ -18,6 +18,7 @@ using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeship;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -125,6 +126,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
 
         [Test]
+        public async Task Validate_ValidateCommandHandler_CalledWith_CorrectParameter()
+        {
+            //Arrange
+            var fixture = new DraftApprenticeshipControllerTestsFixture().WithValidateDraftApprenticeshipCommandResponse();
+
+            //Act
+            await fixture.Validate();
+
+            //Assert
+            fixture.Verify_ValidateCommandHandler_CalledWith_CorrectParameter();
+        }
+
+        [Test]
         public async Task Set_RecognisePriorLearning_ShouldMapToCommandObjectAndReturnOkResponse()
         {
             //Arrange
@@ -158,6 +172,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; set; }
         public AddDraftApprenticeshipRequest AddDraftApprenticeshipRequest { get; set; }
+        public AddDraftApprenticeshipRequest ValidateDraftApprenticeshipRequest { get; set; }
 
         public UpdateDraftApprenticeshipCommand UpdateDraftApprenticeshipCommand { get; set; }
         public AddDraftApprenticeshipCommand AddDraftApprenticeshipCommand { get; set; }
@@ -166,12 +181,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public PriorLearningDetailsRequest PriorLearningDetailsRequest { get; set; }
         public RecognisePriorLearningRequest RecognisePriorLearningRequest { get; set; }
         public DeleteDraftApprenticeshipCommand DeleteDraftApprenticeshipCommand { get; set; }
+        public ValidateDraftApprenticeshipCommand ValidateDraftApprenticeshipCommand { get; set; }
 
         public Mock<IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>> UpdateDraftApprenticeshipMapper { get; set; }
         public Mock<IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>> AddDraftApprenticeshipMapper { get; set; }
         public Mock<IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse>> GetDraftApprenticeshipMapper { get; }
         public Mock<IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse>> GetDraftApprenticeshipsMapper { get; set; }
         public Mock<IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand>> DeleteDraftApprenticeshipMapper { get; set; }
+        public Mock<IOldMapper<AddDraftApprenticeshipRequest, ValidateDraftApprenticeshipCommand>> ValidateDraftApprenticeshipMapper { get; set; }
 
         public const long CohortId = 123;
         public const long DraftApprenticeshipId = 456;
@@ -184,6 +201,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             AddDraftApprenticeshipMapper = new Mock<IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>>();
             GetDraftApprenticeshipsMapper = new Mock<IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse>>();
             DeleteDraftApprenticeshipMapper = new Mock<IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand>>();
+            ValidateDraftApprenticeshipMapper = new Mock<IOldMapper<AddDraftApprenticeshipRequest, ValidateDraftApprenticeshipCommand>>();
 
             Controller = new DraftApprenticeshipController(
                 Mediator.Object,
@@ -191,7 +209,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 GetDraftApprenticeshipMapper.Object,
                 AddDraftApprenticeshipMapper.Object,
                 GetDraftApprenticeshipsMapper.Object,
-                DeleteDraftApprenticeshipMapper.Object
+                DeleteDraftApprenticeshipMapper.Object,
+                ValidateDraftApprenticeshipMapper.Object
                 );
         }
 
@@ -212,6 +231,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             AddDraftApprenticeshipMapper.Setup(m => m.Map(AddDraftApprenticeshipRequest)).ReturnsAsync(AddDraftApprenticeshipCommand);
             Mediator.Setup(m => m.Send(AddDraftApprenticeshipCommand, CancellationToken.None)).ReturnsAsync(new AddDraftApprenticeshipResult { Id = DraftApprenticeshipId });
             
+            return this;
+        }
+
+        public DraftApprenticeshipControllerTestsFixture WithValidateDraftApprenticeshipCommandResponse()
+        {
+            ValidateDraftApprenticeshipRequest = new AddDraftApprenticeshipRequest();
+            ValidateDraftApprenticeshipCommand = new ValidateDraftApprenticeshipCommand();
+            ValidateDraftApprenticeshipMapper.Setup(m => m.Map(AddDraftApprenticeshipRequest)).ReturnsAsync(ValidateDraftApprenticeshipCommand);
+            Mediator.Setup(m => m.Send(ValidateDraftApprenticeshipCommand, CancellationToken.None)).ReturnsAsync(new ValidateDraftApprenticeshipResult());
+
             return this;
         }
 
@@ -287,6 +316,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return Controller.Add(CohortId, AddDraftApprenticeshipRequest);
         }
 
+        public Task<IActionResult> Validate()
+        {
+            return Controller.Validate(CohortId, ValidateDraftApprenticeshipRequest);
+        }
+
         public Task<IActionResult> Get()
         {
             return Controller.Get(CohortId, DraftApprenticeshipId);
@@ -309,6 +343,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                It.Is<DeleteDraftApprenticeshipCommand>(command =>
                command.ApprenticeshipId == DraftApprenticeshipId && command.CohortId == CohortId),
                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        public void Verify_ValidateCommandHandler_CalledWith_CorrectParameter()
+        {
+            Mediator.Verify(x =>
+                x.Send(
+                    It.Is<ValidateDraftApprenticeshipCommand>(command =>
+                        command.CohortId == CohortId),
+                    It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
