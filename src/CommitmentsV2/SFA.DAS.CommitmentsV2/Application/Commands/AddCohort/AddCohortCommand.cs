@@ -13,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public DeliveryModel? DeliveryModel { get; }
         public int? Cost { get; }
         public DateTime? StartDate { get; }
+        public DateTime? ActualStartDate { get; }
         public DateTime? EndDate { get; }
         public string OriginatorReference { get; }
         public Guid? ReservationId { get; }
@@ -30,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public bool? IsOnFlexiPaymentPilot { get; set; }
 
         public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode,
-            DeliveryModel? deliveryModel, int? cost, DateTime? startDate, DateTime? endDate,
+            DeliveryModel? deliveryModel, int? cost, DateTime? startDate, DateTime? actualStartDate, DateTime? endDate,
             string originatorReference, Guid? reservationId, string firstName,
             string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId,
             int? pledgeApplicationId,
