@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
                       {
                           {"CohortReference", oltd.DraftApprenticeship.Cohort.Reference},
                           {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{oltd.DraftApprenticeship.Cohort.ProviderId}/unapproved/{oltd.DraftApprenticeship.Cohort.Reference}/details" }
-                      });
+                      }, oltd.DraftApprenticeship.Cohort.LastUpdatedByProviderEmail);
 
             return sendEmailToProviderCommand;
         }
