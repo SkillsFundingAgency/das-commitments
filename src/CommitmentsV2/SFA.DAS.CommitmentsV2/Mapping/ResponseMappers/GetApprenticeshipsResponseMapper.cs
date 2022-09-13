@@ -39,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 PauseDate = source.PauseDate,
+                StopDate = source.StopDate,
                 DateOfBirth = source.DateOfBirth,
                 EmployerRef = source.EmployerRef,
                 ProviderRef = source.ProviderRef,
