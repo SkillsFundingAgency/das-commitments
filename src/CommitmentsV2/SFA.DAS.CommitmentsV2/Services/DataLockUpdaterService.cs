@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task RunUpdate()
         {
             _logger.LogInformation("Retrieving last DataLock Event Id from repository");
-            var lastId = GetLastDataLockEventId();
+            var lastId = await GetLastDataLockEventId();
 
             _logger.LogInformation($"Retrieving page of data from Payment Events Service since Event Id {lastId}");
             var stopwatch = Stopwatch.StartNew();
@@ -176,9 +176,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             dataLockStatus.ErrorCode = whitelisted;
         }
 
-        private long GetLastDataLockEventId()
+        private async Task<long> GetLastDataLockEventId()
         {
-            var maxDataLockEventId = _db.Value.DataLocks.Max(x => x.DataLockEventId);
+            var maxDataLockEventId = await _db.Value.DataLocks.MaxAsync(x => x.DataLockEventId);
             return maxDataLockEventId;
         }
 

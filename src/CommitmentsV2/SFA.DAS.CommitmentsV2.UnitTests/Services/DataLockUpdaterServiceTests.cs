@@ -1,5 +1,10 @@
-﻿using Moq;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage;
+using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -13,15 +18,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     [TestFixture]
     public class DataLockUpdaterServiceTests
     {
-        private IDataLockUpdater _dataLockUpdater;
-        private Mock<IPaymentEvents> _paymentEvents;
+        private ProviderCommitmentsDbContext Db { get; set; }
+        private Mock<IApprovalsOuterApiClient> _outerApiClient;
+        private CommitmentPaymentsWebJobConfiguration _config;
+        private Mock<IFilterOutAcademicYearRollOverDataLocks> _filterOutAcademicYearRollOverDataLocks;
 
-        [SetUp]
         public void Arrange()
         {
-            _paymentEvents = new Mock<IPaymentEvents>();
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), new InMemoryDatabaseRoot())
+                 .EnableSensitiveDataLogging()
+                 .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
+                 .Options);
 
-            _paymentEvents.Setup(x => x.GetDataLockEvents(
+            _outerApiClient = new Mock<IApprovalsOuterApiClient>();
+
+            _outerApiClient.Setup(x => x.Get(
                 It.IsAny<long>(),
                 It.IsAny<DateTime?>(),
                 It.IsAny<string>(),
@@ -29,7 +41,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 It.IsAny<int>()))
                 .ReturnsAsync(new List<DataLockStatus>());
 
-            _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+            _outerApiClient.Setup(x => x.Get<StandardResponse>(It.IsAny<GetStandardsRequest>())).ReturnsAsync(apiResponse);
+
+            _apprenticeshipUpdateRepository
+                .Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync((ApprenticeshipUpdate)null);
 
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
@@ -40,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 });
 
             _dataLockUpdater = new DataLockUpdater(
-                Mock.Of<ILog>(),
+                Mock.Of<ILogger<DataLockUpdaterService>>(),
                 _paymentEvents.Object,
                 _dataLockRepository.Object,
                 _apprenticeshipUpdateRepository.Object,
