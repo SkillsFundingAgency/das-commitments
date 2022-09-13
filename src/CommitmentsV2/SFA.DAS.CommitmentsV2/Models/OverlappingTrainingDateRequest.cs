@@ -19,14 +19,20 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual Apprenticeship PreviousApprenticeship { get; private set; }
         public OverlappingTrainingDateRequest() { }
 
-        public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship,  long previousApprenticeshipId,Party originatingParty, UserInfo userInfo)
+        public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship, long previousApprenticeshipId, Party originatingParty, UserInfo userInfo)
         {
             StartTrackingSession(UserAction.CreateOverlappingTrainingDateRequest, originatingParty, draftApprenticeship.Cohort.AccountLegalEntityId, draftApprenticeship.Cohort.ProviderId, userInfo);
             PreviousApprenticeshipId = previousApprenticeshipId;
             Status = OverlappingTrainingDateRequestStatus.Pending;
 
+            EmitOverlappingTrainingDateNotificationEvent(previousApprenticeshipId, draftApprenticeship.Uln);
+
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
+        }
+        public void EmitOverlappingTrainingDateNotificationEvent(long apprenticeshipId, string uln)
+        {
+            Publish(() => new OverlappingTrainingDateEvent(apprenticeshipId, uln));
         }
     }
 }
