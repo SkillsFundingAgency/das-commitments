@@ -73,6 +73,14 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                 oltd.ActionedOn = DateTime.UtcNow;
             }
+
+            if (resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated &&
+                resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprentieshipDeleted)
+            {
+                Publish(() =>
+                    new OverlappingTrainingDateResolvedEvent(draftApprenticeshipId,
+                        oltd.DraftApprenticeship.CommitmentId));
+            }
         }
 
         private void CheckIsStoppedForChangeOfParty()

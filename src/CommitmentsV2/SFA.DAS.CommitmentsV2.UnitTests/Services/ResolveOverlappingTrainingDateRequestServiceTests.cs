@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -171,11 +172,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public OverlappingTrainingDateRequest OverlappingTrainingDateRequest { get; set; }
             private readonly ResolveOverlappingTrainingDateRequestService _sut;
             private readonly Mock<IOverlapCheckService> _overlapCheckService;
+            private UnitOfWorkContext UnitOfWorkContext { get; set; }
             public ProviderCommitmentsDbContext Db { get; set; }
 
             public ResolveOverlappingTrainingDateRequestServiceTestsFixture()
             {
                 _fixture = new Fixture();
+                UnitOfWorkContext = new UnitOfWorkContext();
                 _overlapCheckService = new Mock<IOverlapCheckService>();
                 _overlapCheckResultOnStartDate = new OverlapCheckResultOnStartDate(false, null);
 
