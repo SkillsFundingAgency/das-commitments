@@ -169,6 +169,7 @@
     <Build Include="Tables\ApprenticeshipFlexibleEmployment.sql" />
     <Build Include="Tables\ApprenticeshipPriorLearning.sql" />
     <Build Include="Tables\OverlappingTrainingDateRequest.sql" />
+    <Build Include="Views\ApprenticeshipsCreatedSummary.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
