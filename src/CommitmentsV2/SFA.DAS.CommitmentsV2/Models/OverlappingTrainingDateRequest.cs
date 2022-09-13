@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartTrackingSession(UserAction.CreateOverlappingTrainingDateRequest, originatingParty, draftApprenticeship.Cohort.AccountLegalEntityId, draftApprenticeship.Cohort.ProviderId, userInfo);
             PreviousApprenticeshipId = previousApprenticeshipId;
             Status = OverlappingTrainingDateRequestStatus.Pending;
-
+            CreatedOn = DateTime.UtcNow;
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
         }
