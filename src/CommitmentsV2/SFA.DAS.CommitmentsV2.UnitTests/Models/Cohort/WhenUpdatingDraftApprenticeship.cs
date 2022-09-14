@@ -78,7 +78,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 StartDate = DateTime.Today.AddMonths(-6),
                 EndDate = DateTime.Today.AddMonths(6),
                 DateOfBirth = DateTime.Today.AddYears(-18),
-                DeliveryModel = DeliveryModel.Regular
+                DeliveryModel = DeliveryModel.Regular,
+                IsOnFlexiPaymentPilot = false
             }, Party.Provider);
         }
 
@@ -92,7 +93,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     StartDate = SafeUpdate(draftApprenticeship.StartDate),
                     EndDate = SafeUpdate(draftApprenticeship.EndDate),
                     DateOfBirth = SafeUpdate(draftApprenticeship.DateOfBirth),
-                    DeliveryModel = draftApprenticeship.DeliveryModel
+                    DeliveryModel = draftApprenticeship.DeliveryModel,
+                    IsOnFlexiPaymentPilot = false
                 }, Party.Provider);
         }
 
@@ -112,7 +114,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 EndDate = draftApprenticeship.EndDate,
                 DateOfBirth = draftApprenticeship.DateOfBirth,
                 Reference = draftApprenticeship.ProviderRef,
-                ReservationId = draftApprenticeship.ReservationId
+                ReservationId = draftApprenticeship.ReservationId,
+                IsOnFlexiPaymentPilot = draftApprenticeship.IsOnFlexiPaymentPilot
             };
         }
 
@@ -128,6 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             AssertSameProperty(expected, actual, da => da.Uln);
             AssertSameProperty(expected, actual, da => da.FirstName);
             AssertSameProperty(expected, actual, da => da.LastName);
+            AssertSameProperty(expected, actual, da => da.IsOnFlexiPaymentPilot);
         }
 
         private void AssertSameProperty<P>(DraftApprenticeship expected, DraftApprenticeship actual, Expression<Func<DraftApprenticeship, P>> action)

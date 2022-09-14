@@ -76,13 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             var userInfo = new UserInfo { UserId = "EE", UserDisplayName = "Name", UserEmail = "a@a.com" };
             AssertValidationResult(request => request.UserInfo, userInfo, true);
         }
-
-        [Test]
-        public void Validate_IsOnFlexiPaymentPilotIsNull_ShouldBeInvalid()
-        {
-            AssertValidationResult(request => request.IsOnFlexiPaymentPilot, (bool?)null, false);
-        }
-
+        
         private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
         {
             // Arrange
