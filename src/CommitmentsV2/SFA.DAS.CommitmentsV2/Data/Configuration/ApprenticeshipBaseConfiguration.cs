@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         public void Configure(EntityTypeBuilder<ApprenticeshipBase> builder)
         {
             SetTablePerHierarchy(builder);
-            
+
             builder.Property(e => e.Cost).HasColumnType("decimal(18, 0)");
             builder.Property(e => e.CreatedOn).HasColumnType("datetime");
             builder.Property(e => e.DateOfBirth).HasColumnType("datetime");
@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasColumnName("NINumber")
                 .HasMaxLength(10);
 
-            
+
             builder.Property(e => e.ProviderRef).HasMaxLength(50);
             builder.Property(e => e.StartDate).HasColumnType("datetime");
 
@@ -96,6 +96,9 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithOne(c => c.Apprenticeship)
                 .HasForeignKey<ApprenticeshipPriorLearning>()
                 .IsRequired(false);
+
+            builder.Ignore(e => e.EmployerAccountId);
+            builder.Ignore(e => e.ProviderId);
         }
 
         private void SetTablePerHierarchy(EntityTypeBuilder<ApprenticeshipBase> builder)

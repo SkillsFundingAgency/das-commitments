@@ -2,14 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NServiceBus.Logging;
-using SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort;
-//using NServiceBus.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Data;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Events;
 using SFA.DAS.NServiceBus.Services;
-
 
 namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater
 {
@@ -49,8 +45,8 @@ namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater
             foreach (var expirableDatalock in expirableDatalocks)
             {
                 _logger.LogInformation($"Updating DataLockStatus for apprenticeshipId: {expirableDatalock.ApprenticeshipId} and PriceEpisodeIdentifier: {expirableDatalock.ApprenticeshipId}, JobId: {jobId}");
-                await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId,
-                    expirableDatalock.PriceEpisodeIdentifier, _currentDateTime.UtcNow);
+
+                await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock);
             }
             _logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessor)} expired {expirableDatalocks.Count} items, JobId: {jobId}");
         }
@@ -66,13 +62,13 @@ namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater
                 .Where(m => m.Cost != null || m.TrainingCode != null || m.StartDate != null)
                 .ToArray();
 
-
             _logger.LogInformation($"Found {expiredApprenticeshipUpdates.Length} apprenticeship updates that will be set to expired, JobId: {jobId}");
 
             foreach (var update in expiredApprenticeshipUpdates)
             {
                 _logger.LogInformation($"Updating ApprenticeshipUpdate to expired, ApprenticeshipUpdateId: {update.Id}, JobId: {jobId}");
-                await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(update.Id);
+
+                await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(update);
 
                 var apprenticeship =
                     await _apprenticeshipRepository.GetApprenticeship(update.ApprenticeshipId);

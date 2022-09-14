@@ -1,5 +1,4 @@
 ﻿using System.Data.Common;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
@@ -11,7 +10,6 @@ using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.Configuration.NLog;
 using SFA.DAS.NServiceBus.Configuration.StructureMap;
 using SFA.DAS.NServiceBus.Hosting;
-using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using StructureMap;
 

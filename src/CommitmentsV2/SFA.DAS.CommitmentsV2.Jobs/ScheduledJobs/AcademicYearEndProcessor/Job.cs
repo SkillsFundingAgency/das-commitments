@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob
             _jobId = $"AcademicYearEnd.WebJob.{DateTime.UtcNow.Ticks}";
         }
 
-        public void Run([TimerTrigger("0 27 08 09 09 *", RunOnStartup = false)] TimerInfo timerD)
+        public void Run([TimerTrigger("0 0 1 1 11 *", RunOnStartup = false)] TimerInfo timerD)
         {
             if (_currentDateTime.UtcNow < _academicYearProvider.LastAcademicYearFundingPeriod)
             {
@@ -42,10 +42,13 @@ namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob
                 var t1 = _academicYearProcessor.RunApprenticeshipUpdateJob($"{_jobId}.ChangeOfCircs")
                     .ContinueWith(t => WhenDone(t, _logger, "ChangeOfCircs"));
 
+
                 var t2 = _academicYearProcessor.RunDataLock($"{_jobId}.DataLocks")
                     .ContinueWith(t => WhenDone(t, _logger, "DataLocks"));
 
                 Task.WaitAll(t1, t2);
+
+                Task.WaitAll(t2);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob;
+﻿using System;
+using SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob;
 using SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -11,8 +12,6 @@ using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.UnitOfWork.DependencyResolution.StructureMap;
 using StructureMap;
 using SFA.DAS.UnitOfWork.NServiceBus.Services;
-using SFA.DAS.UnitOfWork.Pipeline;
-
 
 namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
 {

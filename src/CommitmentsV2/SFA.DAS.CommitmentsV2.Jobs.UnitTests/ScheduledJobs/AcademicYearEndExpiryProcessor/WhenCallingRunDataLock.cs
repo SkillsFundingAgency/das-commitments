@@ -6,6 +6,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests;
 using SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.CommitmentsV2.Domain.Data;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.CommitmentsV2.TestHelpers;
@@ -79,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.UnitTests
 
             _dataLockRepository.Verify(x => x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate), Times.Once);
 
-            _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<DateTime>()), Times.Exactly(testDatalockStatusItems.Count));
+            _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<DataLockStatus>()), Times.Exactly(testDatalockStatusItems.Count));
 
             _logger.VerifyLogging($"{nameof(AcademicYearEndExpiryProcessor)} expired {testDatalockStatusItems.Count} items, JobId: {id}", LogLevel.Information, Times.Once);
 

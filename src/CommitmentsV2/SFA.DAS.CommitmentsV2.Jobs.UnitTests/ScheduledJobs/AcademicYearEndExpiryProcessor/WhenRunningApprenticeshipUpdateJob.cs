@@ -3,21 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
-using AutoFixture.NUnit3;
+using AutoFixture.Kernel;
 using Microsoft.Extensions.Logging;
 using Moq;
-
 using NUnit.Framework;
-
 using SFA.DAS.CommitmentsV2.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.CommitmentsV2.Domain.Data;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Events;
-//using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-//using SFA.DAS.Messaging.Interfaces;
-//using SFA.DAS.NLog.Logger;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
@@ -63,43 +57,50 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         public async Task WhenNoUpdatesFound()
         {
             _apprenticeshipUpdateRepository.Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
-                .ReturnsAsync(new List<ApprenticeshipUpdateDetails>());
+                .ReturnsAsync(new List<ApprenticeshipUpdate>());
 
             await _sut.RunApprenticeshipUpdateJob("jobId");
 
 
             _apprenticeshipUpdateRepository.Verify(m => m.GetExpiredApprenticeshipUpdates(It.IsAny<DateTime>()), Times.Exactly(2), failMessage: "Should call one time to get all updates and one to verify that all have been updated");
-            _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()), Times.Never, failMessage: "Should be called once for each update record");
+            _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>()), Times.Never, failMessage: "Should be called once for each update record");
         }
 
         [Test]
         public async Task WhenApprenticeshpUpdatesFound()
         {
             var recordCount = 4;
-            var apprenticeshipUpdates = new List<ApprenticeshipUpdateDetails>();
-            var apprenticeships = new List<ApprenticeshipDetails>();
+            var apprenticeshipUpdates = new List<ApprenticeshipUpdate>();
+            var apprenticeships = new List<Apprenticeship>();
             var fixture = new Fixture();
+
+            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+            fixture.Customizations.Add(
+                new TypeRelay(
+                    typeof(SFA.DAS.CommitmentsV2.Models.ApprenticeshipBase),
+                    typeof(Apprenticeship)));
+
             fixture.AddManyTo(apprenticeshipUpdates, recordCount);
 
             apprenticeshipUpdates.ForEach(update =>
-                apprenticeships.Add(
-                    fixture.Build<ApprenticeshipDetails>()
-                        .With(a => a.Id, update.ApprenticeshipId)
-                        .Create()));
+                          apprenticeships.Add(
+                              fixture.Build<Apprenticeship>()
+                                  .With(a => a.Id, update.ApprenticeshipId)
+                                  .Create()));
 
             _apprenticeshipUpdateRepository
                 .Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
                 .ReturnsAsync(apprenticeshipUpdates);
 
             _apprenticeshipUpdateRepository
-                .Setup(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()))
+                .Setup(m => m.ExpireApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>()))
                 .Callback(
                     () =>
                     {
                         // Setting data source to empty
                         _apprenticeshipUpdateRepository
                             .Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
-                            .ReturnsAsync(new List<ApprenticeshipUpdateDetails>());
+                            .ReturnsAsync(new List<ApprenticeshipUpdate>());
                     })
                 .Returns(Task.FromResult(0));
 
@@ -115,7 +116,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             _apprenticeshipUpdateRepository
                 .Verify(m => m.GetExpiredApprenticeshipUpdates(It.IsAny<DateTime>()), Times.Exactly(2),
                 "Should call one time to get all updates and one to verify that all have been updated");
-            _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()),
+            _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>()),
                 Times.Exactly(recordCount),
                 "Should be called once for each update record");
             apprenticeshipUpdates.ForEach(update =>
@@ -130,32 +131,34 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             });
         }
 
-        [Test, AutoData]
-        public async Task ShouldOnlyUpdateRecordsWithCostOrTrainingChanges(
-            ApprenticeshipDetails apprenticeship)
+        [Test]
+        public async Task ShouldOnlyUpdateRecordsWithCostOrTrainingChanges()
         {
-            var apprenticeshipUpdates = new List<ApprenticeshipUpdateDetails>
+
+            var apprenticeship = new Apprenticeship();
+
+            var apprenticeshipUpdates = new List<ApprenticeshipUpdate>
                                             {
-                                                new ApprenticeshipUpdateDetails {  FirstName = "Abba1", Cost = null, TrainingCode = null, StartDate = null},
-                                                new ApprenticeshipUpdateDetails {  FirstName = "Abba2", Cost = 2000, TrainingCode = null, StartDate = null },
-                                                new ApprenticeshipUpdateDetails {  FirstName = "Abba3", Cost = null, TrainingCode = null, StartDate = null },
-                                                new ApprenticeshipUpdateDetails {  FirstName = "Abba4", Cost = null, TrainingCode = "123-1-1-", StartDate = null },
-                                                new ApprenticeshipUpdateDetails {  FirstName = "Abba5", Cost = 3000, TrainingCode = "123-1-1-", StartDate = null },
-                                                new ApprenticeshipUpdateDetails {  FirstName = "Abba5", Cost = null, TrainingCode = null, StartDate = new DateTime(DateTime.Now.Year, 06, 01)}
+                                                new ApprenticeshipUpdate {  FirstName = "Abba1", Cost = null, TrainingCode = null, StartDate = null},
+                                                new ApprenticeshipUpdate {  FirstName = "Abba2", Cost = 2000, TrainingCode = null, StartDate = null },
+                                                new ApprenticeshipUpdate {  FirstName = "Abba3", Cost = null, TrainingCode = null, StartDate = null },
+                                                new ApprenticeshipUpdate {  FirstName = "Abba4", Cost = null, TrainingCode = "123-1-1-", StartDate = null },
+                                                new ApprenticeshipUpdate {  FirstName = "Abba5", Cost = 3000, TrainingCode = "123-1-1-", StartDate = null },
+                                                new ApprenticeshipUpdate {  FirstName = "Abba5", Cost = null, TrainingCode = null, StartDate = new DateTime(DateTime.Now.Year, 06, 01)}
 
                                             };
 
             _apprenticeshipUpdateRepository.Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
                 .ReturnsAsync(apprenticeshipUpdates);
 
-            _apprenticeshipUpdateRepository.Setup(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()))
+            _apprenticeshipUpdateRepository.Setup(m => m.ExpireApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>()))
                 .Callback(
                     () =>
                     {
                         // Setting data source to empty after the first call
                         _apprenticeshipUpdateRepository
                             .Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.UtcNow))
-                            .ReturnsAsync(new List<ApprenticeshipUpdateDetails>());
+                            .ReturnsAsync(new List<ApprenticeshipUpdate>());
                     })
                 .Returns(Task.FromResult(0));
 
@@ -168,7 +171,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             _apprenticeshipUpdateRepository
                 .Verify(m => m.GetExpiredApprenticeshipUpdates(It.IsAny<DateTime>()), Times.Exactly(2),
                 "Should call one time to get all updates and one to verify that all have been updated");
-            _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()),
+            _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>()),
                 Times.Exactly(4),
                 "Should be called once for each record with Cost or TrainingCode changes");
 

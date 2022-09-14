@@ -12,7 +12,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
             OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>();
         }
-
+        public long EmployerAccountId { get; set; }
+        public long ProviderId { get; set; }
         public bool IsApproved { get; set; }
         public virtual long Id { get; set; }
         public virtual long CommitmentId { get; set; }

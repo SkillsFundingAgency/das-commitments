@@ -1,58 +1,57 @@
-﻿using System.Data;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Data;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Infrastructure.Data
 {
-    public class ApprenticeshipRepository : BaseRepository, IApprenticeshipRepository
+    public class ApprenticeshipRepository : IApprenticeshipRepository
     {
         private readonly ILogger<ApprenticeshipRepository> _logger;
-        private readonly ICurrentDateTime _currentDateTime;
+        private readonly ProviderCommitmentsDbContext _dbContext;
 
-        public ApprenticeshipRepository(string connectionString,
-            ILogger<ApprenticeshipRepository> logger,
-            ICurrentDateTime currentDateTime) : base(connectionString, logger)
+        public ApprenticeshipRepository(ILogger<ApprenticeshipRepository> logger,
+            ProviderCommitmentsDbContext dbContext)
         {
             _logger = logger;
-            _currentDateTime = currentDateTime;
+            _dbContext = dbContext;
 
         }
 
-        public async Task<ApprenticeshipDetails> GetApprenticeship(long apprenticeshipId)
+        public async Task<Apprenticeship> GetApprenticeship(long apprenticeshipId)
         {
-            return await WithConnection(async c =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@id", apprenticeshipId);
-                parameters.Add("@now", _currentDateTime.UtcNow);
+            var apprenticeships = from a in this._dbContext.Apprenticeships
+                                  join c in _dbContext.Cohorts
+                              on a.CommitmentId equals c.Id
+                                  where a.Id == apprenticeshipId
+                                  select new Apprenticeship
+                                  {
+                                      EmployerAccountId = c.EmployerAccountId,
+                                      ProviderId = c.ProviderId,
+                                      Id = a.Id,
+                                  };
 
-                const string sql = "GetApprenticeshipWithPriceHistory";
+            var apprenticeship = await apprenticeships.FirstOrDefaultAsync();
 
-                ApprenticeshipDetails result = null;
+            if (apprenticeship != null) return apprenticeship;
 
-                await c.QueryAsync<ApprenticeshipDetails, PriceHistoryDetails, ApprenticeshipDetails>
-                (sql, (apprenticeship, history) =>
-                {
-                    if (result == null)
-                    {
-                        result = apprenticeship;
-                    }
+            var draftsApprenticeships = from a in this._dbContext.DraftApprenticeships
+                                        join c in _dbContext.Cohorts
+                                            on a.CommitmentId equals c.Id
+                                        where a.Id == apprenticeshipId
+                                        select new Apprenticeship
+                                        {
+                                            EmployerAccountId = c.EmployerAccountId,
+                                            ProviderId = c.ProviderId,
+                                            Id = a.Id,
+                                        };
 
-                    if (history.ApprenticeshipId != 0)
-                    {
-                        result.PriceHistory.Add(history);
-                    }
+            var draftsApprenticeship = await draftsApprenticeships.FirstOrDefaultAsync();
 
-                    return apprenticeship;
-                }, parameters, commandType: CommandType.StoredProcedure);
-
-                return result;
-            });
+            return draftsApprenticeship;
         }
     }
 }

@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Configuration\CommitmentsAcademicYearEndProcessorConfiguration.cs" />
     <Compile Remove="DependencyResolution\AcademicYearEndExpiryProcessorRegistry.cs" />
   </ItemGroup>
 
@@ -55,6 +56,10 @@
     <None Update="run.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuration\" />
   </ItemGroup>
 
 </Project>

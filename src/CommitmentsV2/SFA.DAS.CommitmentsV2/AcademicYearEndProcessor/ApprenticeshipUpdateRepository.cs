@@ -1,64 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Data;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SFA.DAS.CommitmentsV2.Infrastructure.Data
 {
-    public class ApprenticeshipUpdateRepository : BaseRepository, IApprenticeshipUpdateRepository
+    public class ApprenticeshipUpdateRepository : IApprenticeshipUpdateRepository
     {
         private readonly ILogger<ApprenticeshipUpdateRepository> _logger;
+        private readonly ProviderCommitmentsDbContext _dbContext;
         public ApprenticeshipUpdateRepository(
-            string connectionString,
-            ILogger<ApprenticeshipUpdateRepository> logger
-           ) : base(connectionString, logger)
+            ILogger<ApprenticeshipUpdateRepository> logger,
+            ProviderCommitmentsDbContext dbContext
+           ) 
         {
             _logger = logger;
+            _dbContext = dbContext;
         }
 
-        private async Task UpdateApprenticeshipUpdate(IDbConnection connection, IDbTransaction trans, long apprenticeshipUpdateId, ApprenticeshipUpdateStatus updateStatus)
+        public async Task<int> ExpireApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("@id", apprenticeshipUpdateId, DbType.Int64);
-            parameters.Add("@status", updateStatus, DbType.Int16);
+            apprenticeshipUpdate.Status = ApprenticeshipUpdateStatus.Expired;
 
-            await connection.ExecuteAsync(
-                    sql: "[UpdateApprenticeshipUpdateStatus]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure,
-                    transaction: trans);
+            var apprenticeship = await _dbContext.Apprenticeships.SingleAsync(a => a.Id == apprenticeshipUpdate.ApprenticeshipId);
+
+            apprenticeship.PendingUpdateOriginator = null;
+
+            return await _dbContext.SaveChangesAsync();
         }
-        public async Task<IEnumerable<ApprenticeshipUpdateDetails>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate)
+        public async Task<IEnumerable<ApprenticeshipUpdate>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate)
         {
+
             _logger.LogInformation("Getting all expired apprenticeship update");
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@status", ApprenticeshipUpdateStatus.Pending, DbType.Int16);
-            parameters.Add("@date", currentAcademicYearStartDate, DbType.DateTime);
+            List<ApprenticeshipUpdate> results = await (from au in _dbContext.ApprenticeshipUpdates
+                                                        join a in _dbContext.Apprenticeships
+                                                               on au.ApprenticeshipId equals a.Id
+                                                        where au.Status == ApprenticeshipUpdateStatus.Pending && a.StartDate < currentAcademicYearStartDate
+                                                        select au).ToListAsync().ConfigureAwait(false);
 
-            return await WithTransaction(
-                async (connection, trans) => await
-                    connection.QueryAsync<ApprenticeshipUpdateDetails>(
-                        sql: $"[dbo].[GetApprenticeshipUpdatesByDateAndStatus]",
-                        param: parameters,
-                        commandType: CommandType.StoredProcedure,
-                        transaction: trans));
-        }
-
-        public async Task ExpireApprenticeshipUpdate(long apprenticeshipUpdateId)
-        {
-            _logger.LogInformation($"Updating apprenticeship update {apprenticeshipUpdateId} - to expired");
-
-            await WithConnection(async connection =>
-            {
-                await UpdateApprenticeshipUpdate(connection, null, apprenticeshipUpdateId, ApprenticeshipUpdateStatus.Expired);
-                return 1L;
-            });
+            return results;
         }
     }
 }
