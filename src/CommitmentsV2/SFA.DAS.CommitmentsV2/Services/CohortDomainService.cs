@@ -82,15 +82,15 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task ValidateDraftApprenticeshipForOverlappingTrainingDateRequest(long providerId, long? cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
         {
             Cohort cohort = null;
-            draftApprenticeshipDetails.IgnoreStartDateOverlap = true;
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
             if (cohortId.HasValue && cohortId.Value > 0)
             {
                 cohort = await _dbContext.Value.GetCohortAggregate(cohortId.Value, cancellationToken: cancellationToken);
             }
-
             var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(false, cohort?.TransferSenderId, cohort?.Apprenticeships);
             errors.ThrowIfAny();
+
+            draftApprenticeshipDetails.IgnoreStartDateOverlap = true;
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
         }
 
         public async Task<IEnumerable<Cohort>> AddDraftApprenticeships(List<DraftApprenticeshipDetails> draftApprenticeships, List<BulkUploadAddDraftApprenticeshipRequest> csvBulkUploadApprenticehips, long providerId, UserInfo userInfo, CancellationToken cancellationToken)

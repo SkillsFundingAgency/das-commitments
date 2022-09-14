@@ -50,6 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.DeliveryModel,
                 request.Cost,
                 request.StartDate,
+                request.ActualStartDate,
                 request.EndDate,
                 request.OriginatorReference,
                 request.ReservationId,
@@ -63,7 +64,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.EmploymentPrice,
                 request.EmploymentEndDate,
                 request.UserInfo,
-                request.IgnoreStartDateOverlap);
+                request.IgnoreStartDateOverlap,
+                request.IsOnFlexiPaymentPilot);
             
             var result = await _mediator.Send(command);
 

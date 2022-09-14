@@ -83,8 +83,10 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             Cost = source.Cost;
             StartDate = source.StartDate;
+            ActualStartDate = source.ActualStartDate;
             EndDate = source.EndDate;
             DateOfBirth = source.DateOfBirth;
+            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot.Value;
 
             switch (modifyingParty)
             {

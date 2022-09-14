@@ -123,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             //Assert
             fixture.Verify_DeleteCommandHandler_CalledWith_CorrectParameter();
         }
-
+        
         [Test]
         public async Task Set_RecognisePriorLearning_ShouldMapToCommandObjectAndReturnOkResponse()
         {
@@ -158,6 +158,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; set; }
         public AddDraftApprenticeshipRequest AddDraftApprenticeshipRequest { get; set; }
+        public AddDraftApprenticeshipRequest ValidateDraftApprenticeshipRequest { get; set; }
 
         public UpdateDraftApprenticeshipCommand UpdateDraftApprenticeshipCommand { get; set; }
         public AddDraftApprenticeshipCommand AddDraftApprenticeshipCommand { get; set; }
@@ -214,7 +215,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             
             return this;
         }
-
+        
         public DraftApprenticeshipControllerTestsFixture WithRecognisePriorLearningRequest()
         {
             RecognisePriorLearningRequest = new RecognisePriorLearningRequest { RecognisePriorLearning = true};
@@ -286,7 +287,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             return Controller.Add(CohortId, AddDraftApprenticeshipRequest);
         }
-
+        
         public Task<IActionResult> Get()
         {
             return Controller.Get(CohortId, DraftApprenticeshipId);

@@ -55,7 +55,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.AreEqual(_fixture.DraftApprenticeshipDetails.Cost, result.Cost);
         }
 
-
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public void ThenStartDateIsMappedCorrectly(Party modifyingParty)
@@ -64,6 +63,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.AreEqual(_fixture.DraftApprenticeshipDetails.StartDate, result.StartDate);
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenActualStartDateIsMappedCorrectly(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
+            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.ActualStartDate, result.ActualStartDate);
+        }
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
@@ -186,7 +192,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             public DraftApprenticeshipUpdateTestFixture()
             {
                 _autoFixture = new Fixture();
-                _draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(_autoFixture.Build<DraftApprenticeshipDetails>().Without(o=>o.Uln).Create(), Party.Provider);
+                _draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(_autoFixture.Build<DraftApprenticeshipDetails>().With(x => x.IsOnFlexiPaymentPilot, false).Without(o=>o.Uln).Create(), Party.Provider);
                 DraftApprenticeshipDetails = _autoFixture.Build<DraftApprenticeshipDetails>().Without(o => o.Uln).Create();
             }
 
@@ -269,7 +275,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
                     StartDate = _draftApprenticeship.StartDate,
                     EndDate = _draftApprenticeship.EndDate,
                     Id = _draftApprenticeship.Id,
-                    Reference = _modifyingParty == Party.Employer ? _draftApprenticeship.EmployerRef : _draftApprenticeship.ProviderRef
+                    Reference = _modifyingParty == Party.Employer ? _draftApprenticeship.EmployerRef : _draftApprenticeship.ProviderRef,
+                    IsOnFlexiPaymentPilot = _draftApprenticeship.IsOnFlexiPaymentPilot
                 };
             }
         }

@@ -4,7 +4,6 @@ using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -16,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
     [TestFixture]
     [Parallelizable]
-    public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTests : FluentTest<AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture>
+    public class DraftApprenticeshipCommandBaseToDraftApprenticeshipDetailsMapperTests : FluentTest<DraftApprenticeshipCommandBaseToDraftApprenticeshipDetailsMapperTestsFixture>
     {
         [Test]
         public Task Map_WhenMapping_ThenShouldSetProperties()
@@ -30,6 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.Uln.Should().Be(f.Command.Uln);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
@@ -39,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
                 });
         }
 
@@ -54,6 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.Uln.Should().Be(f.Command.Uln);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
@@ -64,6 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.TrainingCourseVersionConfirmed.Should().BeTrue();
                     r.EmploymentPrice.Should().Be(f.Command.EmploymentPrice);
                     r.EmploymentEndDate.Should().Be(f.Command.EmploymentEndDate);
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
                 });
         }
 
@@ -79,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.Uln.Should().Be(f.Command.Uln);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
@@ -87,6 +91,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
                 });
         }
 
@@ -102,6 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.Uln.Should().Be(f.Command.Uln);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
@@ -110,29 +116,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().BeNull();
                     r.TrainingCourseVersion.Should().BeNull();
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
                 });
         }
     }
 
-    public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture
+    public class DraftApprenticeshipCommandBaseToDraftApprenticeshipDetailsMapperTestsFixture
     {
         public Fixture Fixture { get; set; }
         public AddDraftApprenticeshipCommand Command { get; set; }
-        public Mock<IAuthorizationService> AuthorizationService { get; set; }
         public TrainingProgramme TrainingProgramme { get; set; }
         public TrainingProgramme TrainingProgramme2 { get; set; }
         public Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup { get; set; }
-        public AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper Mapper { get; set; }
+        public DraftApprenticeshipCommandBaseToDraftApprenticeshipDetailsMapper Mapper { get; set; }
 
-        public AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture()
+        public DraftApprenticeshipCommandBaseToDraftApprenticeshipDetailsMapperTestsFixture()
         {
             Fixture = new Fixture();
-            Command = Fixture.Create<AddDraftApprenticeshipCommand>();
-            AuthorizationService = new Mock<IAuthorizationService>();
+            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(x => x.IsOnFlexiPaymentPilot, true).Create();
             TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
             TrainingProgramme2 = new TrainingProgramme("12345", "TESTStandard", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
-            Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object, TrainingProgrammeLookup.Object);
+            Mapper = new DraftApprenticeshipCommandBaseToDraftApprenticeshipDetailsMapper(TrainingProgrammeLookup.Object);
 
             int standardCodeOut;
             TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == true))).ReturnsAsync(TrainingProgramme2);

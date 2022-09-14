@@ -69,7 +69,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 LastName = _autoFixture.Create<string>(),
                 ReservationId = Guid.NewGuid(),
                 Email = email,
-                DeliveryModel = DeliveryModel.Regular
+                DeliveryModel = DeliveryModel.Regular,
+                IsOnFlexiPaymentPilot = false
             };
 
             return this;

@@ -372,7 +372,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue),
-                DeliveryModel = DeliveryModel.Regular
+                DeliveryModel = DeliveryModel.Regular,
+                IsOnFlexiPaymentPilot = false
             };
             SetupMinimumNameProperties();
             Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
@@ -460,7 +461,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public AddDraftApprenticeshipValidationTestsFixture WithApprenticeship(long id, string uln)
         {
-            var draftApprenticeshipDetails = new DraftApprenticeshipDetails().Set(d => d.Uln, uln);
+            var draftApprenticeshipDetails = new DraftApprenticeshipDetails().Set(d => d.Uln, uln).Set(d => d.IsOnFlexiPaymentPilot, false); ;
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Party.Provider).Set(d => d.Id, id);
             
             Cohort.Apprenticeships.Add(draftApprenticeship);

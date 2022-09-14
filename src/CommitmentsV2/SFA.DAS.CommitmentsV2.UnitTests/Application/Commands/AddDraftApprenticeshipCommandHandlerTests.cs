@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Commands;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -52,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public CancellationToken CancellationToken { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
 
-        public Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
+        public Mock<IOldMapper<DraftApprenticeshipCommandBase, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
 
         public Mock<ICohortDomainService> CohortDomainService { get; set; }
         public IRequestHandler<AddDraftApprenticeshipCommand, AddDraftApprenticeshipResult> Handler { get; set; }
@@ -72,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Options);
 
             CohortDomainService = new Mock<ICohortDomainService>();
-            DraftApprenticeshipDetailsMapper = new Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
+            DraftApprenticeshipDetailsMapper = new Mock<IOldMapper<DraftApprenticeshipCommandBase, DraftApprenticeshipDetails>>();
             UserInfo = Fixture.Create<UserInfo>();
 
             Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).Without(x => x.IgnoreStartDateOverlap).Create();

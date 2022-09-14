@@ -779,7 +779,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
-                    FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false
+                    FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false, IsOnFlexiPaymentPilot = false
                 };
 
                 ExistingDraftApprenticeship = new DraftApprenticeship {

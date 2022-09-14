@@ -60,6 +60,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             return AssertPropertySet(input => input.StartDate = startDate, output => output.StartDate == startDate);
         }
 
+        [Test]
+        public Task Map_ActualStartDate_ShouldBeSet()
+        {
+            DateTime startDate = DateTime.Now;
+            return AssertPropertySet(input => input.ActualStartDate = startDate, output => output.ActualStartDate == startDate);
+        }
+
         [TestCase(null)]
         [TestCase(DeliveryModel.Regular)]
         [TestCase(DeliveryModel.PortableFlexiJob)]
@@ -80,6 +87,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         {
             int employmentPrice = 456;
             return AssertPropertySet(input => input.EmploymentPrice = employmentPrice, output => output.EmploymentPrice == employmentPrice);
+        }
+
+        [Test]
+        public Task Map_IsOnFlexiPaymentPilot_ShouldBeSet()
+        {
+            bool isOnFlexiPaymentPilot = true;
+            return AssertPropertySet(input => input.IsOnFlexiPaymentPilot = isOnFlexiPaymentPilot, output => output.IsOnFlexiPaymentPilot == isOnFlexiPaymentPilot);
         }
     }
 }

@@ -217,6 +217,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                             EmploymentPrice = _autoFixture.Create<int>()
                         },
                         DateOfBirth = _autoFixture.Create<DateTime>(),
+                        IsOnFlexiPaymentPilot = false
                     };
                     
                     Cohort.Apprenticeships.Add(apprenticeship);
@@ -370,7 +371,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                     EndDate = draftApprenticeship.EndDate,
                     DateOfBirth = draftApprenticeship.DateOfBirth,
                     Reference = draftApprenticeship.ProviderRef,
-                    ReservationId = draftApprenticeship.ReservationId
+                    ReservationId = draftApprenticeship.ReservationId,
+                    IsOnFlexiPaymentPilot = draftApprenticeship.IsOnFlexiPaymentPilot
                 };
             }
         }

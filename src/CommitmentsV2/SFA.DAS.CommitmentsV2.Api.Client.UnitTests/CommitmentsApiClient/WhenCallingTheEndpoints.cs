@@ -763,6 +763,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public Client.CommitmentsApiClient CommitmentsApiClient { get; }
         public Mock<IRestHttpClient> MockRestHttpClient { get; }
         public AddDraftApprenticeshipRequest AddDraftApprenticeshipRequest { get; set; }
+        public ValidateDraftApprenticeshipRequest ValidateDraftApprenticeshipRequest { get; set; }
         public ApproveCohortRequest ApproveCohortRequest { get; }
         public CreateCohortRequest CreateCohortRequest { get; }
         public CreateCohortWithOtherPartyRequest CreateCohortWithOtherPartyRequest { get; }
@@ -778,6 +779,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             MockRestHttpClient = new Mock<IRestHttpClient>();
             CommitmentsApiClient = new Client.CommitmentsApiClient(MockRestHttpClient.Object);
             AddDraftApprenticeshipRequest = new AddDraftApprenticeshipRequest();
+            ValidateDraftApprenticeshipRequest = new ValidateDraftApprenticeshipRequest();
             ApproveCohortRequest = new ApproveCohortRequest();
             CreateCohortRequest = new CreateCohortRequest();
             CreateCohortWithOtherPartyRequest = new CreateCohortWithOtherPartyRequest();
