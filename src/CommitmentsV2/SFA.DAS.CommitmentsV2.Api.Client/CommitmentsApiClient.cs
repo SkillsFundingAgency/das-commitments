@@ -32,9 +32,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<AddDraftApprenticeshipRequest, AddDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-apprenticeships", request, cancellationToken);
         }
 
-        public Task ValidateDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
+        public Task ValidateDraftApprenticeship(ValidateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/validate", request, cancellationToken);
+            return _client.PostAsJson($"api/overlapping-training-date-request/{request.ProviderId}/validate", request, cancellationToken);
         }
 
         public Task ApproveCohort(long cohortId, ApproveCohortRequest request, CancellationToken cancellationToken = default)
