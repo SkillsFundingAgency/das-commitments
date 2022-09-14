@@ -56,6 +56,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             return AssertPropertySet(from => from.StartDate, (DateTime?)DateTime.Now);
         }
 
+
+        [Test]
+        public Task Map_ActualStartDateWithoutValue_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.ActualStartDate, (DateTime?)null);
+        }
+
+        [Test]
+        public Task Map_ActualStartDateWithValue_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.ActualStartDate, (DateTime?)DateTime.Now);
+        }
+
         [Test]
         public Task Map_EndDateWithoutValue_ShouldBeSet()
         {
@@ -126,12 +139,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         public Task Map_DateOfBirthWithValue_ShouldBeSet()
         {
             return AssertPropertySet(from => from.DateOfBirth, (DateTime?)DateTime.Now);
-        }
-
-        [Test]
-        public Task Map_Uln_ShouldBeSet()
-        {
-            return AssertPropertySet(from => from.Uln, "1234567890");
         }
 
         [TestCase(DeliveryModel.Regular)]

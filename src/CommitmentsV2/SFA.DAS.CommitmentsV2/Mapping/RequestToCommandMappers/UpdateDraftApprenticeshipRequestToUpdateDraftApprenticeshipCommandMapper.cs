@@ -21,6 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 EmploymentPrice = source.EmploymentPrice,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
+                ActualStartDate = source.ActualStartDate,
                 EmploymentEndDate = source.EmploymentEndDate,
                 EndDate = source.EndDate,
                 Reference = source.Reference,
