@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         private Mock<IApprovalsOuterApiClient> _outerApiClient;
         private CommitmentPaymentsWebJobConfiguration _config;
         private Mock<IFilterOutAcademicYearRollOverDataLocks> _filterOutAcademicYearRollOverDataLocks;
+
+        private DataLockUpdaterService _dataLockUpdater;
 
         public void Arrange()
         {
