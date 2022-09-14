@@ -27,8 +27,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             PreviousApprenticeshipId = previousApprenticeshipId;
             Status = OverlappingTrainingDateRequestStatus.Pending;
             CreatedOn = DateTime.UtcNow;
+            EmitOverlappingTrainingDateNotificationEvent(previousApprenticeshipId, draftApprenticeship.Uln);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        private void EmitOverlappingTrainingDateNotificationEvent(long apprenticeshipId, string uln)
+        {
+            Publish(() => new OverlappingTrainingDateEvent(apprenticeshipId, uln));
         }
     }
 }
