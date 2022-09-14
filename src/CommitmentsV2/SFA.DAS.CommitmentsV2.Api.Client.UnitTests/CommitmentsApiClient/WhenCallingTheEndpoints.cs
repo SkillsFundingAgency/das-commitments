@@ -46,13 +46,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
-        public async Task ValidateDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
-        {
-            await _fixture.CommitmentsApiClient.ValidateDraftApprenticeship(_fixture.ValidateDraftApprenticeshipRequest, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<ValidateDraftApprenticeshipRequest>($"api/overlapping-training-date-request/{_fixture.ValidateDraftApprenticeshipRequest.ProviderId}/validate", _fixture.ValidateDraftApprenticeshipRequest, CancellationToken.None));
-        }
-
-        [Test]
         public async Task Approve_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.ApproveCohort(123, _fixture.ApproveCohortRequest, CancellationToken.None);
