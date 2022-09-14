@@ -49,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     DeliveryModel = a.DeliveryModel ?? DeliveryModel.Regular,
                     DateOfBirth =  a.DateOfBirth,
                     StartDate = a.StartDate,
+                    ActualStartDate = a.ActualStartDate,
                     EndDate = a.EndDate,
                     Uln = a.Uln,
                     OriginalStartDate = a.OriginalStartDate,
