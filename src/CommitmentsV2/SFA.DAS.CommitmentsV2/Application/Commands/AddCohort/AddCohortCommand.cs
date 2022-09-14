@@ -45,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             DeliveryModel = deliveryModel;
             Cost = cost;
             StartDate = startDate;
+            ActualStartDate = actualStartDate;
             EndDate = endDate;
             OriginatorReference = originatorReference;
             ReservationId = reservationId;
