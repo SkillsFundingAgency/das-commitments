@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Jobs\SFA.DAS.CommitmentsV2.Jobs.csproj" />
-    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj" />
   </ItemGroup>
 
 
