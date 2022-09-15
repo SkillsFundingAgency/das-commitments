@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<DbConnection>().Use($"Build DbConnection", c => {
                 var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-                return environmentName.Equals("L", StringComparison.CurrentCultureIgnoreCase)
+                return environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase)
                     ? new SqlConnection(GetConnectionString(c))
                     : new SqlConnection
                     {
