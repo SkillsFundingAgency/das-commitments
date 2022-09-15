@@ -86,6 +86,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         }
 
         [Test]
+        public Task Map_ActualStartDate_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.ActualStartDate, (DateTime?) DateTime.Now);
+        }
+
+        [Test]
         public Task Map_EndDate_ShouldBeSet()
         {
             return AssertPropertySet(input => input.EndDate, (DateTime?) DateTime.Now);

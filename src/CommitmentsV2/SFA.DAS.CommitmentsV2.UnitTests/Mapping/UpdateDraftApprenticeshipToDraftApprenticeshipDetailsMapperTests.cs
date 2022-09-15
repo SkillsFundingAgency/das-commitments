@@ -30,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.EmploymentPrice.Should().Be(f.Command.EmploymentPrice);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EmploymentEndDate.Should().Be(f.Command.EmploymentEndDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
