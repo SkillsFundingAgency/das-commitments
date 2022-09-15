@@ -353,19 +353,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_ThenResolveOltd()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
+            var apprenticeship = await SetupApprenticeship();
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
             var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
 
             // Act
             await _handler.Handle(command, new CancellationToken());
-            // Simulate Unit of Work context transaction ending in http request.
+            // Simulate Unit of Work contex transaction ending in http request.
             await _dbContext.SaveChangesAsync();
 
             // Assert
             _resolveOverlappingTrainingDateRequestService
-                .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<Types.OverlappingTrainingDateRequestResolutionType>()), Times.Once);
+                .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped), Times.Once);
         }
 
         private bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
