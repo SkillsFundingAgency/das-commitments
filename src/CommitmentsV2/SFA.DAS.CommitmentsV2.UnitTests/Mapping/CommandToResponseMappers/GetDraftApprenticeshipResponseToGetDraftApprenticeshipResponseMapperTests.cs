@@ -139,7 +139,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         [Test]
         public Task Map_IsOnFlexiPaymentPilot_ShouldBeSet()
         {
-            return AssertPropertySet(input => input.IsOnFlexiPaymentPilot, true);
+            return AssertPropertySet(input => input.IsOnFlexiPaymentPilot, (bool?)true);
         }
 
         [TestCase(true)]
