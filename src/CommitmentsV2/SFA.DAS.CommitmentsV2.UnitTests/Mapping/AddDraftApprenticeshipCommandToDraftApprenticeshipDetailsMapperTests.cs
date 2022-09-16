@@ -30,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.Uln.Should().Be(f.Command.Uln);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
@@ -55,6 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.Uln.Should().Be(f.Command.Uln);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
@@ -81,6 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.Uln.Should().Be(f.Command.Uln);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
@@ -105,6 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.Uln.Should().Be(f.Command.Uln);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);

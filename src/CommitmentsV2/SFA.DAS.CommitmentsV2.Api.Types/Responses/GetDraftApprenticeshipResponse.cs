@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string StandardUId { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string Reference { get; set; }

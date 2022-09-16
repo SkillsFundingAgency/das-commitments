@@ -32,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 EmploymentPrice = source.EmploymentPrice,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
+                ActualStartDate = source.ActualStartDate,
                 EmploymentEndDate = source.EmploymentEndDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,

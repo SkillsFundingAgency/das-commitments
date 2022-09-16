@@ -14,6 +14,7 @@
     [StandardUId] NVARCHAR(20) NULL,
     [Cost] DECIMAL NULL, 
     [StartDate] DATETIME NULL, 
+    [ActualStartDate] DATETIME NULL, 
     [EndDate] DATETIME NULL, 
     [AgreementStatus] SMALLINT NOT NULL DEFAULT 0, 
     [PaymentStatus] SMALLINT NOT NULL DEFAULT 0, 
