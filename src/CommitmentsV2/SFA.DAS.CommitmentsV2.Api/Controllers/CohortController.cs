@@ -63,7 +63,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.EmploymentPrice,
                 request.EmploymentEndDate,
                 request.UserInfo,
-                request.IgnoreStartDateOverlap);
+                request.IgnoreStartDateOverlap,
+                request.IsOnFlexiPaymentPilot);
             
             var result = await _mediator.Send(command);
 

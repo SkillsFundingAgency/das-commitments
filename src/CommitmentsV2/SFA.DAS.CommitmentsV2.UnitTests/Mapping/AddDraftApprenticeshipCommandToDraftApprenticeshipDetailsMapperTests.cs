@@ -39,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
                 });
         }
 
@@ -64,6 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.TrainingCourseVersionConfirmed.Should().BeTrue();
                     r.EmploymentPrice.Should().Be(f.Command.EmploymentPrice);
                     r.EmploymentEndDate.Should().Be(f.Command.EmploymentEndDate);
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
                 });
         }
 
@@ -87,6 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
                 });
         }
 
@@ -110,6 +113,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.StandardUId.Should().BeNull();
                     r.TrainingCourseVersion.Should().BeNull();
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
                 });
         }
     }
@@ -127,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture()
         {
             Fixture = new Fixture();
-            Command = Fixture.Create<AddDraftApprenticeshipCommand>();
+            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(x => x.IsOnFlexiPaymentPilot, true).Create();
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
             TrainingProgramme2 = new TrainingProgramme("12345", "TESTStandard", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);

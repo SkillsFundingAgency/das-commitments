@@ -51,5 +51,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public int? PriceReducedBy { get; set; }
 
         public bool IgnoreStartDateOverlap { get; set; }
+        public bool IsOnFlexiPaymentPilot { get; set; }
     }
 }

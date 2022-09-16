@@ -81,5 +81,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             int employmentPrice = 456;
             return AssertPropertySet(input => input.EmploymentPrice = employmentPrice, output => output.EmploymentPrice == employmentPrice);
         }
+
+        [Test]
+        public Task Map_IsOnFlexiPaymentPilot_ShouldBeSet()
+        {
+            bool isOnFlexiPaymentPilot = true;
+            return AssertPropertySet(input => input.IsOnFlexiPaymentPilot = isOnFlexiPaymentPilot, output => output.IsOnFlexiPaymentPilot == isOnFlexiPaymentPilot);
+        }
     }
 }

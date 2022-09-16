@@ -38,7 +38,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 ReservationId = source.ReservationId,
                 EmploymentEndDate = source.EmploymentEndDate,
                 EmploymentPrice = source.EmploymentPrice,
-                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap
+                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot.Value
             };
 
             // Only populate standard version specific items if start is specified.
