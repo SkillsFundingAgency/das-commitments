@@ -26,5 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
         public string Uln { get; set; }
         public UserInfo UserInfo { get; set; }
         public bool IgnoreStartDateOverlap { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
     }
 }

@@ -129,11 +129,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             var standardUId = "IdValue";
             return AssertPropertySet(input => input.StandardUId, standardUId);
         }
-                
+
         [Test]
         public Task Map_StandardHasOptions_ShouldBeSet()
         {
             return AssertPropertySet(input => input.HasStandardOptions, true);
+        }
+
+        [Test]
+        public Task Map_IsOnFlexiPaymentPilot_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.IsOnFlexiPaymentPilot, true);
         }
 
         [TestCase(true)]
