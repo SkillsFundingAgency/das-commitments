@@ -24,9 +24,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             public long ProviderId { get; set; }
             public string CourseName { get; set; }
             public DeliveryModel DeliveryModel { get; set; }
-            public DateTime StartDate { get; set; }
+            public DateTime StartDate { get; set; }            
             public DateTime EndDate { get; set; }
             public DateTime PauseDate { get; set; }
+            public DateTime? StopDate { get; set; }
             public PaymentStatus PaymentStatus { get; set; }
             public ApprenticeshipStatus ApprenticeshipStatus { get; set; }
             public IEnumerable<Alerts> Alerts { get; set; }
