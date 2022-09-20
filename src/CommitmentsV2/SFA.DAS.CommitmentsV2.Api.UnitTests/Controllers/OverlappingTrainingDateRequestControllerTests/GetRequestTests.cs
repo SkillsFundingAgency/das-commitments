@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlapRequests;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
                     .Setup(x => x.Send(It.IsAny<GetOverlapRequestsQuery>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(queryResult);
 
-                _controller = new OverlappingTrainingDateRequestController(_mediator.Object);
+                _controller = new OverlappingTrainingDateRequestController(_mediator.Object, Mock.Of<IModelMapper>());
             }
 
             public async Task GetRequest()

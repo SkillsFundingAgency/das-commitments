@@ -9,9 +9,8 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateR
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlapRequests;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
