@@ -21,11 +21,12 @@ namespace SFA.DAS.CommitmentsV2.Models
         public OverlappingTrainingDateRequest()
         { }
 
-        public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship, long previousApprenticeshipId, Party originatingParty, UserInfo userInfo)
+        public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship, long previousApprenticeshipId, Party originatingParty, UserInfo userInfo, DateTime createdDate)
         {
             StartTrackingSession(UserAction.CreateOverlappingTrainingDateRequest, originatingParty, draftApprenticeship.Cohort.AccountLegalEntityId, draftApprenticeship.Cohort.ProviderId, userInfo);
             PreviousApprenticeshipId = previousApprenticeshipId;
             Status = OverlappingTrainingDateRequestStatus.Pending;
+            CreatedOn = createdDate;
 
             EmitOverlappingTrainingDateNotificationEvent(previousApprenticeshipId, draftApprenticeship.Uln);
 
