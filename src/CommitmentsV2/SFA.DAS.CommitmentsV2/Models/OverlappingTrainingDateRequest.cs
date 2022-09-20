@@ -13,12 +13,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual DateTime CreatedOn { get; private set; }
         public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
         public virtual OverlappingTrainingDateRequestStatus Status { get; set; }
-        public virtual OverlappingTrainingDateRequestEmployerAction? EmployerAction { get; set; }
         public byte[] RowVersion { get; private set; }
         public DateTime? ActionedOn { get; set; }
         public virtual DraftApprenticeship DraftApprenticeship { get; private set; }
         public virtual Apprenticeship PreviousApprenticeship { get; private set; }
-        public OverlappingTrainingDateRequest() { }
+
+        public OverlappingTrainingDateRequest()
+        { }
 
         public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship, long previousApprenticeshipId, Party originatingParty, UserInfo userInfo)
         {

@@ -24,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -42,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -62,6 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -84,6 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -104,6 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -125,6 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -145,6 +151,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -165,6 +172,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.IsProviderSearch = true;
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -187,6 +195,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             });
             source.DataLockStatus = new List<DataLockStatus>();
             source.IsProviderSearch = true;
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -207,6 +216,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus>();
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.IsProviderSearch = false;
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -229,6 +239,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             });
             source.DataLockStatus = new List<DataLockStatus>();
             source.IsProviderSearch = false;
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -246,6 +257,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.ApprenticeshipUpdate = null;
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -265,6 +277,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -287,6 +300,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             //Act
             var result = await mapper.Map(source);
@@ -317,6 +331,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus, dataLockStatus2 };
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             //Act
             var result = await mapper.Map(source);
@@ -341,6 +356,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             //Act
             var result = await mapper.Map(source);
@@ -348,7 +364,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             //Assert
             result.Alerts.Should().BeNullOrEmpty();
         }
-
 
         [Test, RecursiveMoqAutoData]
         public async Task And_Has_ErrorCode_DLock07_And_TriageStatus_Unknown_And_DataLock_HasExpired_Then_No_Alert(
@@ -367,6 +382,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -388,11 +404,80 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             source.PriceHistory = new List<PriceHistory> { priceHistory };
             source.DataLockStatus = new List<DataLockStatus> { dataLockStatus };
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
             result.Alerts.Should().BeNullOrEmpty();
         }
 
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_PendingOverlappingTrainingDateRequests_Employer_And_IsNotProviderSearch_Then_ConfirmDates_Alert(
+          Apprenticeship source,
+          ApprenticeshipUpdate apprenticeshipUpdate,
+          OverlappingTrainingDateRequest overlappingTrainingDateRequest,
+          ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.IsProviderSearch = false;
+
+            overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Pending;
+
+            source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
+            {
+                overlappingTrainingDateRequest
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ConfirmDates });
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_NoPendingOverlappingTrainingDateRequests_Is_Employer_And_IsNotProviderSearch_Then_No_ConfirmDates_Alert(
+          Apprenticeship source,
+          ApprenticeshipUpdate apprenticeshipUpdate,
+          OverlappingTrainingDateRequest overlappingTrainingDateRequest,
+          ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.DataLockStatus = new List<DataLockStatus>();
+            source.IsProviderSearch = false;
+
+            overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Resolved;
+
+            source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
+            {
+                overlappingTrainingDateRequest
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_PendingOverlappingTrainingDateRequests_Is_Employer_And_IsProviderSearch_Then_No_ConfirmDates_Alert(
+         Apprenticeship source,
+         ApprenticeshipUpdate apprenticeshipUpdate,
+         OverlappingTrainingDateRequest overlappingTrainingDateRequest,
+         ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>();
+            source.DataLockStatus = new List<DataLockStatus>();
+
+            overlappingTrainingDateRequest.Status = OverlappingTrainingDateRequestStatus.Pending;
+            source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
+            {
+                overlappingTrainingDateRequest
+            };
+
+            source.IsProviderSearch = true;
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEmpty();
+        }
     }
 }

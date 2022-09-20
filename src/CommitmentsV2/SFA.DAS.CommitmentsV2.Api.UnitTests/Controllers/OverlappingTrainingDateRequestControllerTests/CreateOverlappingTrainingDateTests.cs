@@ -5,6 +5,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,6 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
         private class CreateOverlappingTrainingDateFixture
         {
             private readonly Mock<IMediator> _mediator;
+            private Mock<IModelMapper> _mapper;
             private readonly OverlappingTrainingDateRequestController _controller;
 
             private readonly Fixture _autoFixture;
@@ -40,14 +42,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
             public CreateOverlappingTrainingDateFixture()
             {
                 _mediator = new Mock<IMediator>();
+                _mapper = new Mock<IModelMapper>();
                 _autoFixture = new Fixture();
                 _postRequest = _autoFixture.Create<CreateOverlappingTrainingDateRequest>();
                 _result = _autoFixture.Create<CreateOverlappingTrainingDateResult>();
 
-                _mediator.Setup(x => x.Send(It.IsAny<CreateOverlappingTrainingDateRequestCommand>(), 
+                _mediator.Setup(x => x.Send(It.IsAny<CreateOverlappingTrainingDateRequestCommand>(),
                     It.IsAny<CancellationToken>())).ReturnsAsync(() => _result);
 
-                _controller = new OverlappingTrainingDateRequestController(_mediator.Object);
+                _controller = new OverlappingTrainingDateRequestController(_mediator.Object, _mapper.Object);
             }
 
             public async Task BulkUploadDraftApprenticeshipsRequest()

@@ -5,8 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlapRequests;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -17,10 +21,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class OverlappingTrainingDateRequestController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IModelMapper _modelMapper;
 
-        public OverlappingTrainingDateRequestController(IMediator mediator)
+        public OverlappingTrainingDateRequestController(IMediator mediator, IModelMapper modelMapper)
         {
             _mediator = mediator;
+            _modelMapper = modelMapper;
         }
 
         [HttpPost]
@@ -71,6 +77,32 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 PreviousApprenticeshipId = result?.PreviousApprenticeshipId,
                 CreatedOn = result?.CreatedOn
             });
+        }
+
+        [HttpGet]
+        [Route("{apprenticeshipId}")]
+        public async Task<IActionResult> Get(long apprenticeshipId)
+        {
+            var query = new GetOverlappingTrainingDateRequestQuery(apprenticeshipId);
+            var result = await _mediator.Send(query);
+
+            if (result == null) { return Ok(null); }
+
+            var response = await _modelMapper.Map<GetOverlappingTrainingDateRequestResponce>(result);
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("resolve")]
+        public async Task<IActionResult> Resolve([FromBody] ResolveApprenticeshipOverlappingTrainingDateRequest request)
+        {
+            var response = await _mediator.Send(new ResolveOverlappingTrainingDateRequestCommand
+            {
+                ApprenticeshipId = request.ApprenticeshipId,
+                ResolutionType = request.ResolutionType,
+            });
+
+            return Ok();
         }
     }
 }

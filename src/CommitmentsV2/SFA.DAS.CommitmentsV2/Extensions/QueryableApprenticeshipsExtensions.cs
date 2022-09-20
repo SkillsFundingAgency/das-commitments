@@ -79,6 +79,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     case ApprenticeshipStatus.WaitingToStart:
                         apprenticeships = apprenticeships.Where(c => c.StartDate.HasValue && c.StartDate >= DateTime.UtcNow);
                         break;
+
                     case ApprenticeshipStatus.Live:
                         apprenticeships = apprenticeships.Where(c => c.StartDate.HasValue && c.StartDate <= DateTime.UtcNow);
                         break;
@@ -176,6 +177,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 !apprenticeship.DataLockStatus.Any(c => !c.IsResolved && c.Status == Status.Fail && c.EventStatus != EventStatus.Removed && !c.IsExpired) &&
                 (!apprenticeship.ApprenticeshipUpdate.Any() || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
         }
+
         private static IQueryable<Apprenticeship> WithAlertsEmployer(this IQueryable<Apprenticeship> apprenticeships, bool hasAlerts)
         {
             if (hasAlerts)
@@ -184,20 +186,24 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                                                                                                       && c.Status == Status.Fail
                                                                                                       && c.EventStatus != EventStatus.Removed
                                                                                                       && c.TriageStatus != TriageStatus.Unknown
-                                                                                                      && !c.IsExpired) ||
-                                                               apprenticeship.ApprenticeshipUpdate.Any(
-                                                                   c => c.Status == ApprenticeshipUpdateStatus.Pending
-                                                                        && (c.Originator == Originator.Employer
-                                                                            || c.Originator == Originator.Provider)));
+                                                                                                      && !c.IsExpired)
+                                                                ||
+                                                               apprenticeship.ApprenticeshipUpdate.Any(c => c.Status == ApprenticeshipUpdateStatus.Pending
+                                                                                                       && (c.Originator == Originator.Employer || c.Originator == Originator.Provider))
+                                                               ||
+                                                                apprenticeship.OverlappingTrainingDateRequests.Any(c => c.Status == OverlappingTrainingDateRequestStatus.Pending)
+                                                               );
             }
             return apprenticeships.Where(apprenticeship =>
-                !apprenticeship.DataLockStatus.Any(c => !c.IsResolved 
-                                                        && c.Status == Status.Fail 
+                !apprenticeship.DataLockStatus.Any(c => !c.IsResolved
+                                                        && c.Status == Status.Fail
                                                         && c.EventStatus != EventStatus.Removed
                                                         && c.TriageStatus != TriageStatus.Unknown
-                                                        && !c.IsExpired) &&
-
-                (!apprenticeship.ApprenticeshipUpdate.Any() || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending)));
+                                                        && !c.IsExpired)
+                &&
+                (!apprenticeship.ApprenticeshipUpdate.Any() || apprenticeship.ApprenticeshipUpdate.All(c => c.Status != ApprenticeshipUpdateStatus.Pending))
+                &&
+                (!apprenticeship.OverlappingTrainingDateRequests.Any() || apprenticeship.OverlappingTrainingDateRequests.All(c => c.Status != OverlappingTrainingDateRequestStatus.Pending)));
         }
 
         public static IQueryable<Apprenticeship> WithProviderOrEmployerId(this IQueryable<Apprenticeship> apprenticeships, IEmployerProviderIdentifier identifier)
@@ -224,16 +230,22 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             {
                 case Alerts.IlrDataMismatch:
                     return FilterApprenticeshipByAlertForIlrDataMismatch(apprenticeships, alert);
+
                 case Alerts.ChangesPending:
                     return FilterApprenticeshipByAlertForChangesPending(apprenticeships, alert, isProvider);
+
                 case Alerts.ChangesRequested:
                     return FilterApprenticeshipByAlertForChangesRequested(apprenticeships, alert, isProvider);
+
                 case Alerts.ChangesForReview:
                     return FilterApprenticeshipByAlertForChangesForReview(apprenticeships, alert, isProvider);
+
+                case Alerts.ConfirmDates:
+                    return FilterApprenticeshipByAlertForConfirmDates(apprenticeships, alert, isProvider);
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(alert), alert, null);
             }
-
         }
 
         public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForIlrDataMismatch(IQueryable<Apprenticeship> apprenticeships, Alerts alert)
@@ -294,7 +306,6 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             }
             else
             {
-
                 return apprenticeships.Where(a =>
                          (
                             //HasCourseDataLockPendingChanges
@@ -357,7 +368,6 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
         public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForChangesForReview(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
         {
-
             if (isProvider)
             {
                 return apprenticeships.Where(a =>
@@ -368,6 +378,16 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             return apprenticeships.Where(a =>
                 a.ApprenticeshipUpdate.Any(c => c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending)
             );
+        }
+
+        public static IQueryable<Apprenticeship> FilterApprenticeshipByAlertForConfirmDates(IQueryable<Apprenticeship> apprenticeships, Alerts alert, bool isProvider)
+        {
+            if (isProvider)
+            {
+                return apprenticeships;
+            }
+
+            return apprenticeships.Where(a => a.OverlappingTrainingDateRequests.Any(c => c.Status == OverlappingTrainingDateRequestStatus.Pending));
         }
     }
 }
