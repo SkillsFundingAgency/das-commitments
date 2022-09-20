@@ -25,6 +25,7 @@ BEGIN
 			WHEN A.IsApproved = 1 THEN 1
 			ELSE 0
 		END = 1
+		AND NOT (A.StopDate IS NOT NULL AND A.StartDate = A.StopDate)
 		AND A.Id != ISNULL(E.ApprenticeshipId,0) 
 		AND A.Email = E.Email 
 		AND dbo.CourseDatesOverlap(A.StartDate, dbo.GetEndDateForOverlapChecks(A.PaymentStatus, A.EndDate, A.StopDate, A.CompletionDate), E.StartDate, E.EndDate) >= 1 
