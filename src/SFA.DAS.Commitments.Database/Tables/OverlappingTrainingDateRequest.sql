@@ -6,6 +6,6 @@
 	[ResolutionType] SMALLINT NULL,
 	[Status] SMALLINT NOT NULL DEFAULT 0, 
 	[CreatedOn] DATETIME NOT NULL DEFAULT GETDATE(),
-	[ActionedOn] DATETIME2 NULL,
+	[ActionedOn] DATETIME NULL,
 	[RowVersion] ROWVERSION NOT NULL,
 )
