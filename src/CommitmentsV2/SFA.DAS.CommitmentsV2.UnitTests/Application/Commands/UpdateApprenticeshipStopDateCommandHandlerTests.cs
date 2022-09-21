@@ -42,11 +42,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         private Mock<IMessageSession> _nserviceBusContext;
         private Mock<IEncodingService> _encodingService;
         private Mock<IOverlapCheckService> _overlapCheckService;
-        ProviderCommitmentsDbContext _dbContext;
-        ProviderCommitmentsDbContext _confirmationDbContext;
+        private ProviderCommitmentsDbContext _dbContext;
+        private ProviderCommitmentsDbContext _confirmationDbContext;
         private UnitOfWorkContext _unitOfWorkContext { get; set; }
         private IRequestHandler<UpdateApprenticeshipStopDateCommand> _handler;
         private static CommitmentsV2Configuration commitmentsV2Configuration;
+        private Mock<IResolveOverlappingTrainingDateRequestService> _resolveOverlappingTrainingDateRequestService;
+
         private readonly string ProviderCommitmentsBaseUrl = "https://approvals.ResourceEnvironmentName-pas.apprenticeships.education.gov.uk/";
 
         [SetUp]
@@ -66,6 +68,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _nserviceBusContext = new Mock<IMessageSession>();
             _encodingService = new Mock<IEncodingService>();
             _overlapCheckService = new Mock<IOverlapCheckService>();
+            _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
+
+            _resolveOverlappingTrainingDateRequestService
+                .Setup(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<Types.OverlappingTrainingDateRequestResolutionType>()))
+                .Returns(Task.CompletedTask);
+
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
             _logger = new Mock<ILogger<UpdateApprenticeshipStopDateCommandHandler>>();
             _unitOfWorkContext = new UnitOfWorkContext();
@@ -81,8 +89,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                  _nserviceBusContext.Object,
                 _encodingService.Object,
                 _overlapCheckService.Object,
-                commitmentsV2Configuration);
-                
+                commitmentsV2Configuration,
+                _resolveOverlappingTrainingDateRequestService.Object);
         }
 
         [Test]
@@ -119,7 +127,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 });
         }
 
-
         [Test, MoqAutoData]
         public async Task Handle_WhenHandlingCommand_WithInvalidCallingParty_ThenShouldThrowDomainException(UpdateApprenticeshipStopDateCommand command)
         {
@@ -152,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             // Arrange
             var stopDate = DateTime.UtcNow.AddMonths(1);
-            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);            
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, new UserInfo());
 
             // Act
@@ -162,12 +169,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "newStopDate", ErrorMessage = "Invalid Date of Change. Date cannot be in the future." });
         }
 
-
         [Test]
         public async Task Handle_WhenHandlingCommand_WhenValidatingApprenticeship_WithStopDateBeforeStartDate_ThenShouldThrowDomainException()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn, startDate: DateTime.UtcNow.AddMonths(2));            
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn, startDate: DateTime.UtcNow.AddMonths(2));
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, DateTime.UtcNow, new UserInfo());
 
             // Act
@@ -175,7 +181,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // Assert
             exception.DomainErrors.Should().ContainEquivalentOf(new { PropertyName = "newStopDate", ErrorMessage = "The stop month cannot be before the apprenticeship started" });
-        }    
+        }
 
         [Test]
         public async Task Handle_WhenHandlingCommand_WithValidateEndDateOverlap_ThenShouldThrowDomainException()
@@ -201,7 +207,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var newStopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
-            var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, newStopDate,  new UserInfo());
+            var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, newStopDate, new UserInfo());
 
             // Act
             await _handler.Handle(command, new CancellationToken());
@@ -210,7 +216,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // Assert
             var apprenticeshipAssertion = await _confirmationDbContext.Apprenticeships.FirstAsync(a => a.Id == apprenticeship.Id);
-            apprenticeshipAssertion.StopDate.Should().Be(newStopDate);            
+            apprenticeshipAssertion.StopDate.Should().Be(newStopDate);
             apprenticeshipAssertion.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
         }
 
@@ -230,7 +236,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var stoppedEvent = _unitOfWorkContext.GetEvents().OfType<ApprenticeshipStopDateChangedEvent>().First();
 
             stoppedEvent.Should().BeEquivalentTo(new ApprenticeshipStopDateChangedEvent
-            {  
+            {
                 StopDate = stopDate,
                 ApprenticeshipId = apprenticeship.Id,
                 ChangedOn = _currentDateTime.Object.UtcNow
@@ -261,10 +267,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_CreatesAddHistoryEvent()
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);            
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
             var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
-            var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate,  new UserInfo());
+            var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, new UserInfo());
 
             // Act
             await _handler.Handle(command, new CancellationToken());
@@ -278,7 +284,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var definition = new { StopDate = DateTime.MinValue, PaymentStatus = PaymentStatus.Withdrawn };
             var historyState = JsonConvert.DeserializeAnonymousType(historyEvent.UpdatedState, definition);
 
-            historyState.StopDate.Should().Be(stopDate);            
+            historyState.StopDate.Should().Be(stopDate);
             historyState.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
         }
 
@@ -292,7 +298,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _encodingService.Setup(a => a.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)).Returns(hashedAppId);
             var newStopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
             var templateName = "ProviderApprenticeshipStopEditNotification";
-            var tokenUrl = $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{hashedAppId}";                
+            var tokenUrl = $"{commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{hashedAppId}";
 
             var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, newStopDate, new UserInfo());
 
@@ -313,6 +319,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 x.ProviderId == apprenticeship.Cohort.ProviderId &&
                 x.Template == templateName &&
                 VerifyTokens(x.Tokens, tokens)), It.IsAny<SendOptions>()));
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingCommand_UpdateApprenticeshipStopDate_ThenResolveOltd()
+        {
+            // Arrange
+            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+
+            var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, new UserInfo());
+
+            // Act
+            await _handler.Handle(command, new CancellationToken());
+            // Simulate Unit of Work context transaction ending in http request.
+            await _dbContext.SaveChangesAsync();
+
+            // Assert
+            _resolveOverlappingTrainingDateRequestService
+                .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<Types.OverlappingTrainingDateRequestResolutionType>()), Times.Once);
         }
 
         private bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
@@ -389,6 +414,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             return new List<DataLockStatus> { activeDataLock4, activeDataLock5, inactiveDataLock6, dataLockForApprenticeshipBeforeStart };
         }
-
     }
 }
