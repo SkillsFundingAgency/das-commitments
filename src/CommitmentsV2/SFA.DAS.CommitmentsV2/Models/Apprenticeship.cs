@@ -80,14 +80,13 @@ namespace SFA.DAS.CommitmentsV2.Models
                         OverlappingTrainingDateRequestId = oltd.Id
                     });
                 }
-            }
-
-            if (resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated &&
+                else if (resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated &&
                 resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprentieshipDeleted)
-            {
-                Publish(() =>
-                    new OverlappingTrainingDateResolvedEvent(draftApprenticeshipId,
-                        oltd.DraftApprenticeship.CommitmentId));
+                {
+                    Publish(() =>
+                        new OverlappingTrainingDateResolvedEvent(draftApprenticeshipId,
+                            oltd.DraftApprenticeship.CommitmentId));
+                }
             }
         }
 
