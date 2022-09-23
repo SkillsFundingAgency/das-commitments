@@ -9,7 +9,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateR
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlapRequests;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -66,9 +66,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("{draftApprenticeshipId}/getOverlapRequest")]
-        public async Task<IActionResult> GetRequest(long draftApprenticeshipId)
+        public async Task<IActionResult> GetPendingOverlappingTrainingDateRequest(long draftApprenticeshipId)
         {
-            var result = await _mediator.Send(new GetOverlapRequestsQuery(draftApprenticeshipId));
+            var result = await _mediator.Send(new GetPendingOverlapRequestsQuery(draftApprenticeshipId));
 
             return Ok(new GetOverlapRequestsResponse
             {
