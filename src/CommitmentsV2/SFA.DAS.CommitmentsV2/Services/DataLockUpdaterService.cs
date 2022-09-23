@@ -15,6 +15,8 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Configuration;
 using System.Data.SqlClient;
 using System.Data;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -58,9 +60,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             _logger.LogInformation($"Retrieving page of data from Payment Events Service since Event Id {lastId}");
             var stopwatch = Stopwatch.StartNew();
 
-            // TODO GetDataLockEvents
-            var page = await _outerApiClient.Get<List<DataLockStatus>>(null);
-            // var page = (await _paymentEventsSerivce.GetDataLockEvents(lastId)).ToList();
+            var datalockStatusResponse = await _outerApiClient.GetWithRetry<GetDataLockStatusListResponse>(new GetDataLockEventsRequest(lastId));
+
+            var page = datalockStatusResponse?.DataLockStatuses ?? new List<DataLockStatus>();
 
             stopwatch.Stop();
             _logger.LogInformation($"Response took {stopwatch.ElapsedMilliseconds}ms");
@@ -71,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return;
             }
 
-            _logger.LogInformation($"{page.Count} records returned in page");
+            _logger.LogInformation($"{page.Count()} records returned in page");
 
             foreach (var dataLockStatus in page)
             {
@@ -208,7 +210,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var datalock = await _db.Value.DataLocks
                  .FirstOrDefaultAsync(x => x.ApprenticeshipId == dataLockStatus.ApprenticeshipId
-                 && x.PriceEpisodeIdentifier == dataLockStatus.PriceEpisodeIdentifier);
+                 && x.PriceEpisodeIdentifier.ToLower() == dataLockStatus.PriceEpisodeIdentifier.ToLower());
 
             if (datalock == null)
             {
@@ -252,6 +254,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                 datalock.ApprenticeshipUpdateId = dataLockStatus.ApprenticeshipUpdateId;
                 datalock.IsResolved = dataLockStatus.IsResolved;
                 datalock.EventStatus = dataLockStatus.EventStatus;
+
+                _db.Value.DataLocks.Update(datalock);
             }
 
             var updatedRows = await _db.Value.SaveChangesAsync();
@@ -269,6 +273,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             foreach (var apprenticeship in apprenticeships)
             {
                 apprenticeship.HasHadDataLockSuccess = true;
+                _db.Value.Apprenticeships.Update(apprenticeship);
             }
 
             await _db.Value.SaveChangesAsync();
@@ -287,9 +292,13 @@ namespace SFA.DAS.CommitmentsV2.Services
                  .FirstOrDefault(x => x.Id == apprenticeshipUpdate.ApprenticeshipId);
 
             if (apprenticeship != null)
+            {
                 apprenticeship.PendingUpdateOriginator = null;
+                _db.Value.Apprenticeships.Update(apprenticeship);
+            }
 
             apprenticeshipUpdate.Status = ApprenticeshipUpdateStatus.Expired;
+            _db.Value.ApprenticeshipUpdates.Update(apprenticeshipUpdate);
 
             await _db.Value.SaveChangesAsync();
         }

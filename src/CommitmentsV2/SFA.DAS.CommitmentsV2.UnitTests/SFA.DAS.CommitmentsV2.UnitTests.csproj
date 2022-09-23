@@ -33,6 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\DataLockUpdaterrJobService\" />
+    <Folder Include="Services\DataLockUpdate\" />
   </ItemGroup>
 </Project>
