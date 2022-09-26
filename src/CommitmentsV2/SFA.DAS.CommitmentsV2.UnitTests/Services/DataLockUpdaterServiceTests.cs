@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services.DataLockUpdate
+namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
     [TestFixture]
     [Parallelizable(ParallelScope.None)]
