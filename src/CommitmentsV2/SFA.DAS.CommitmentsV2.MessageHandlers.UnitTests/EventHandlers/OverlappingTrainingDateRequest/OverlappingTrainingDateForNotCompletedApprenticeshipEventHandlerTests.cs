@@ -19,14 +19,14 @@ using SFA.DAS.CommitmentsV2.Types;
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.OverlappingTrainingDateRequest
 {
     [TestFixture]
-    class OverlappingTrainingDateEventHandlerTests
+    class OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerTests
     {
-        private OverlappingTrainingDateEventHandlerTestsFixture _fixture;
+        private OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new OverlappingTrainingDateEventHandlerTestsFixture();
+            _fixture = new OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture();
 
         }
 
@@ -46,10 +46,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
                     c.Template == "OverlappingTrainingDate" &&
-                    c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateEventHandlerTestsFixture.EmployerName &&
-                    c.Tokens["ULN"] == OverlappingTrainingDateEventHandlerTestsFixture.Uln &&
-                    c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateEventHandlerTestsFixture.FirstName} {OverlappingTrainingDateEventHandlerTestsFixture.LastName}" &&
-                    c.Tokens["URL"] == $"{OverlappingTrainingDateEventHandlerTestsFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateEventHandlerTestsFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateEventHandlerTestsFixture.HashedApprenticeshipId}/details"
+                    c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.EmployerName &&
+                    c.Tokens["ULN"] == OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.Uln &&
+                    c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.LastName}" &&
+                    c.Tokens["URL"] == $"{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.HashedApprenticeshipId}/details"
                     )
                   , It.IsAny<SendOptions>()), Times.Once);
         }
@@ -62,18 +62,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
                     c.Template == "OverlappingTrainingDate" &&
-                    c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateEventHandlerTestsFixture.EmployerName &&
-                    c.Tokens["ULN"] == OverlappingTrainingDateEventHandlerTestsFixture.Uln &&
-                    c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateEventHandlerTestsFixture.FirstName} {OverlappingTrainingDateEventHandlerTestsFixture.LastName}" &&
-                    c.Tokens["URL"] == $"{OverlappingTrainingDateEventHandlerTestsFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateEventHandlerTestsFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateEventHandlerTestsFixture.HashedApprenticeshipId}/details"
+                    c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.EmployerName &&
+                    c.Tokens["ULN"] == OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.Uln &&
+                    c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.LastName}" &&
+                    c.Tokens["URL"] == $"{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.HashedApprenticeshipId}/details"
                 )
                 , It.IsAny<SendOptions>()), Times.Never);
         }
     }
 
-    public class OverlappingTrainingDateEventHandlerTestsFixture : EventHandlerTestsFixture<OverlappingTrainingDateEvent, OverlappingTrainingDateEventHandler>
+    public class OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture : EventHandlerTestsFixture<OverlappingTrainingDateEvent, OverlappingTrainingDateForNotCompletedApprenticeshipEventHandler>
     {
-        public Mock<ILogger<OverlappingTrainingDateEventHandler>> Logger { get; set; }
+        public Mock<ILogger<OverlappingTrainingDateForNotCompletedApprenticeshipEventHandler>> Logger { get; set; }
         public Mock<IEncodingService> MockEncodingService { get; set; }
 
         public OverlappingTrainingDateEvent Event { get; set; }
@@ -89,9 +89,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
         public const string HashedApprenticeshipId = "ABC";
         public const string EmployerCommitmentsBaseUrl = "https://approvals/";
 
-        public OverlappingTrainingDateEventHandlerTestsFixture() : base((m) => null)
+        public OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture() : base((m) => null)
         {
-            Logger = new Mock<ILogger<OverlappingTrainingDateEventHandler>>();
+            Logger = new Mock<ILogger<OverlappingTrainingDateForNotCompletedApprenticeshipEventHandler>>();
 
             var autoFixture = new Fixture();
 
@@ -123,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             MockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns(HashedApprenticeshipId);
             MockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns(HashedEmployerAccountId);
 
-            Handler = new OverlappingTrainingDateEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Logger.Object, MockEncodingService.Object,
+            Handler = new OverlappingTrainingDateForNotCompletedApprenticeshipEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Logger.Object, MockEncodingService.Object,
                 new CommitmentsV2Configuration { EmployerCommitmentsBaseUrl = EmployerCommitmentsBaseUrl });
         }
 
@@ -132,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             return Handler.Handle(Event, MessageHandlerContext.Object);
         }
 
-        public OverlappingTrainingDateEventHandlerTestsFixture WithApprenticeshipStatus(PaymentStatus paymentStatus)
+        public OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture WithApprenticeshipStatus(PaymentStatus paymentStatus)
         {
             _apprenticeship.SetValue(x => x.PaymentStatus, paymentStatus);
             _db.SaveChanges();
