@@ -11,16 +11,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Messages.Events
+namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
 {
-    public class OverlappingTrainingDateEditEndDateEventHandler : IHandleMessages<OverlappingTrainingDateEvent>
+    public class OverlappingTrainingDateEventHandler : IHandleMessages<OverlappingTrainingDateEvent>
     {
-        private readonly ILogger<OverlappingTrainingDateEditEndDateEventHandler> _logger;
+        private readonly ILogger<OverlappingTrainingDateEventHandler> _logger;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
         private readonly IEncodingService _encodingService;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        public OverlappingTrainingDateEditEndDateEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-            ILogger<OverlappingTrainingDateEditEndDateEventHandler> logger,
+        public OverlappingTrainingDateEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+            ILogger<OverlappingTrainingDateEventHandler> logger,
             IEncodingService encodingService,
             CommitmentsV2Configuration commitmentsV2Configuration)
         {
@@ -37,16 +37,12 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
                 _logger.LogInformation($"Received {nameof(OverlappingTrainingDateEvent)} for Uln {message?.Uln}");
 
                 var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-
-                if (apprenticeship.PaymentStatus == PaymentStatus.Completed)
+                if (apprenticeship.PaymentStatus != PaymentStatus.Completed)
                 {
-
                     var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
 
                     await context.Send(sendEmailToEmployerCommand, new SendOptions());
-
                 }
-
             }
             catch (Exception e)
             {
@@ -59,14 +55,13 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         {
 
             var sendEmailToEmployerCommand = new SendEmailToEmployerCommand(apprenticeship.Cohort.EmployerAccountId,
-                "OverlappingTrainingDateEditEndDate",
+                "OverlappingTrainingDate",
                 new Dictionary<string, string>
                 {
-                        {"FirstName", apprenticeship.Cohort.AccountLegalEntity.Name},
-                        {"Uln",message.Uln},
-                        {"Apprentice", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
-                        {"EndDate",apprenticeship.EndDate?.ToString("dd/MM/yyyy")},
-                        {"Url", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
+                        {"EMPLOYERNAME", apprenticeship.Cohort.AccountLegalEntity.Name},
+                        {"ULN",message.Uln},
+                        {"APPRENTICENAME", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
+                        {"URL", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
                 }
             );
 
