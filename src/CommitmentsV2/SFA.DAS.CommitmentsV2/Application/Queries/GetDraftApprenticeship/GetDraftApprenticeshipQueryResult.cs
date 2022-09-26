@@ -36,5 +36,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         public int? DurationReducedBy { get; set; }
         public int? PriceReducedBy { get; set; }
         public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
     }
 }

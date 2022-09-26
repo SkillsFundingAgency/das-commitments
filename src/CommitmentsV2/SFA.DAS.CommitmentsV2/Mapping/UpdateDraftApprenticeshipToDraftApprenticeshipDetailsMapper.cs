@@ -4,7 +4,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
     public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper : IOldMapper<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails>
@@ -39,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 Reference = source.Reference,
                 ReservationId = source.ReservationId,
                 IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
             };
 
             // Only populate standard version specific items if start is specified.

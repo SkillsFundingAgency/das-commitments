@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 ReservationId = source.ReservationId,
                 UserInfo = source.UserInfo,
                 IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
             });
         }
     }

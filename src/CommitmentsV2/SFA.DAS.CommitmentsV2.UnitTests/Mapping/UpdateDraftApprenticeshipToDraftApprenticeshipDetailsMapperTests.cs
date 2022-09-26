@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
                     r.DeliveryModel.Should().Be(f.Command.DeliveryModel);
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot);
                 });
         }
 

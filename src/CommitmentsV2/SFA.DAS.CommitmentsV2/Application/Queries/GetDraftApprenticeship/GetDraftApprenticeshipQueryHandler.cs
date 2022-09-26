@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Types;
@@ -56,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 LastName = draft.LastName,
                 Email = draft.Email,
                 Reference = requestingParty == Party.Provider ? draft.ProviderRef : draft.EmployerRef,
- 				EmployerReference = draft.EmployerRef,
+                EmployerReference = draft.EmployerRef,
                 ProviderReference = draft.ProviderRef,
                 ReservationId = draft.ReservationId,
                 Uln = draft.Uln,
@@ -69,7 +68,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 RecognisePriorLearning = draft.RecognisePriorLearning,
                 DurationReducedBy = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedBy : null,
                 PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
-                RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && draft.RecognisingPriorLearningStillNeedsToBeConsidered
+                RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && draft.RecognisingPriorLearningStillNeedsToBeConsidered,
+                IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot
             }).SingleOrDefaultAsync(cancellationToken);
 
             return x;
