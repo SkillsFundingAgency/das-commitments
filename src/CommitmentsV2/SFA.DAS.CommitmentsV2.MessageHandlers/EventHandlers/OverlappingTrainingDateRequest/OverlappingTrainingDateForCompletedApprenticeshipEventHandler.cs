@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
                         {"Apprentice", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
                         {"EndDate",apprenticeship.EndDate?.ToString("dd/MM/yyyy")},
                         {"Url", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
-                },null, "FirstName"
+                },null, "Name"
             );
 
             return sendEmailToEmployerCommand;

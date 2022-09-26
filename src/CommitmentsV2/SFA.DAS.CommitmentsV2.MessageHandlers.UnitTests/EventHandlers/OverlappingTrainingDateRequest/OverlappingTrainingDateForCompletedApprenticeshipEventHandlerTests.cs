@@ -16,7 +16,7 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.OverlappingTrainingDateRequest
 {
     [TestFixture]
     class OverlappingTrainingDateForCompletedApprenticeshipEventHandlerTests
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
                     c.Template == "OverlappingTrainingDateForCompletedApprenticeship" &&
-                    c.NameToken== "FirstName" &&
+                    c.NameToken== "Name" &&
                     c.Tokens["Uln"] == OverlappingTrainingDateForCompletedApprenticeshipEventHandlerFixture.Uln &&
                     c.Tokens["Apprentice"] == $"{OverlappingTrainingDateForCompletedApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForCompletedApprenticeshipEventHandlerFixture.LastName}" &&
                     c.Tokens["EndDate"] == _fixture.EndDate.ToString("dd/MM/yyyy") &&
@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
                     c.Template == "OverlappingTrainingDateForCompletedApprenticeship" &&
-                    c.NameToken == "FirstName" &&
+                    c.NameToken == "Name" &&
                     c.Tokens["Uln"] == OverlappingTrainingDateForCompletedApprenticeshipEventHandlerFixture.Uln &&
                     c.Tokens["Apprentice"] == $"{OverlappingTrainingDateForCompletedApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForCompletedApprenticeshipEventHandlerFixture.LastName}" &&
                     c.Tokens["EndDate"] == _fixture.EndDate.ToString("dd/MM/yyyy") &&
