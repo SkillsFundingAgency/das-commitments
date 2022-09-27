@@ -69,6 +69,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                 )
                 , It.IsAny<SendOptions>()), Times.Never);
         }
+        [Test]
+        public async Task WhenHandlingOverlappingTrainingDateEvent_If_PaymentStaus_Is_Stopped__ThenSendEmailToEmployerIsNotCalled()
+        {
+            _fixture.WithApprenticeshipStatus(PaymentStatus.Withdrawn);
+
+            await _fixture.Handle();
+
+            _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
+                    c.Template == "OverlappingTrainingDate" &&
+                    c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.EmployerName &&
+                    c.Tokens["ULN"] == OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.Uln &&
+                    c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.LastName}" &&
+                    c.Tokens["URL"] == $"{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture.HashedApprenticeshipId}/details"
+                )
+                , It.IsAny<SendOptions>()), Times.Never);
+        }
     }
 
     public class OverlappingTrainingDateForNotCompletedApprenticeshipEventHandlerFixture : EventHandlerTestsFixture<OverlappingTrainingDateEvent, OverlappingTrainingDateForNotCompletedApprenticeshipEventHandler>

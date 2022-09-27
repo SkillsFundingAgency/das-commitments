@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
                 _logger.LogInformation($"Received {nameof(OverlappingTrainingDateEvent)} for Uln {message?.Uln}");
 
                 var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-                if (apprenticeship.PaymentStatus != PaymentStatus.Completed)
+                if (apprenticeship.PaymentStatus != PaymentStatus.Completed && apprenticeship.PaymentStatus != PaymentStatus.Withdrawn)
                 {
                     var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
 
