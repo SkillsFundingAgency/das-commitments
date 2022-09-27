@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SFA.DAS.CommitmentsV2.Domain.Entities.AddEpaToApprenticeship
+namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
 {
     public class SubmissionEvent
     {

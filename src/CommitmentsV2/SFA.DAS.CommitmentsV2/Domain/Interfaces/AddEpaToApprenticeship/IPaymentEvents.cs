@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Entities.AddEpaToApprenticeship;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

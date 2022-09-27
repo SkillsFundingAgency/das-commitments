@@ -36,7 +36,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateCacheOfAssessmentOrga
 
             _logger.LogInformation($"Fetched {allOrganisationSummaries.Count()} OrganisationSummaries");
 
-            var latestCachedEPAOrgId = _providerDbContext.Value.AssessmentOrganisations.Max(x => x.EpaOrgId);
+            var latestCachedEPAOrgId = _providerDbContext.Value.AssessmentOrganisations.Select(x => x.EpaOrgId).OrderByDescending(x => x).FirstOrDefault();
+
             _logger.LogInformation($"Latest EPAOrgId in cache is {latestCachedEPAOrgId ?? "N/A. Cache is Empty"}");
 
             // assumes summaries are returned ordered asc by Id

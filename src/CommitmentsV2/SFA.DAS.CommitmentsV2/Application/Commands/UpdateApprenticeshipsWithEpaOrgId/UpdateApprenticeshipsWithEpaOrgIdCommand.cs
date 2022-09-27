@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Domain.Entities.AddEpaToApprenticeship;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipsWithEpaOrgId
@@ -10,6 +10,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipsWithEp
         public UpdateApprenticeshipsWithEpaOrgIdCommand(IEnumerable<SubmissionEvent> submissionEvents)
         {
             SubmissionEvents = submissionEvents;
+        }
+
+        public UpdateApprenticeshipsWithEpaOrgIdCommand()
+        {
         }
     }
 }

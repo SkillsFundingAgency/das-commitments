@@ -20,14 +20,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddLastSubmissionEventId
         }
         public async Task<Unit> Handle(AddLastSubmissionEventIdCommand request, CancellationToken cancellationToken)
         {
-            var jobProgress = _dbContext.Value.JobProgress.FirstOrDefault(x => x.AddEpaLastSubmissionEventId == request.LastSubmissionEventId);
+            var jobProgress = _dbContext.Value.JobProgress.FirstOrDefault(x => x.Lock == "X");
             if (jobProgress != null)
             {
                 jobProgress.AddEpaLastSubmissionEventId = request.LastSubmissionEventId;
             }
             else
             {
-               _dbContext.Value.JobProgress.Add(new Models.JobProgress { AddEpaLastSubmissionEventId = request.LastSubmissionEventId });    
+               _dbContext.Value.JobProgress.Add(new Models.JobProgress { AddEpaLastSubmissionEventId = request.LastSubmissionEventId, Lock = "X" });    
             }
 
             await _dbContext.Value.SaveChangesAsync();
