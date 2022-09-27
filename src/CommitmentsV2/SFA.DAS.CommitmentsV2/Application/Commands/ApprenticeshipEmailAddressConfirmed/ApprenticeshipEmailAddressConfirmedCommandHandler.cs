@@ -43,15 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressC
 
                 var status = apprenticeship.GetApprenticeshipStatus(DateTime.Now);
 
-                if (status != ApprenticeshipStatus.Stopped && status != ApprenticeshipStatus.Completed)
-                {
-                    _logger.LogInformation("Setting Email Address for apprenticeship {0}", request.ApprenticeshipId);
-                    apprenticeship.ConfirmEmailAddress(apprentice.Email);
-                }
-                else
-                {
-                    _logger.LogInformation($"ApprenticeshipEmailAddressConfirmed not recorded as apprenticeshipId {request.ApprenticeshipId}, has ApprenticeshipStatus of {status.GetDescription()}");
-                }
+                _logger.LogInformation("Setting Email Address for apprenticeship {0}", request.ApprenticeshipId);
+                apprenticeship.ConfirmEmailAddress(apprentice.Email);
             }
             catch (Exception e)
             {

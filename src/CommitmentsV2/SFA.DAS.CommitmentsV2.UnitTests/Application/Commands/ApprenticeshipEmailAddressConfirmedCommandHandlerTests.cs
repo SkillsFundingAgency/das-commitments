@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task Handle_WhenApprenticeshipIsStopped_ThenEmailAddressDoesNotGetConfirmed()
+        public async Task Handle_WhenApprenticeshipIsStopped_ThenEmailAddressDoesGetConfirmed()
         {
             var command = _fixture.ApprenticeshipEmailAddressConfirmedCommand;
             _fixture.SeedData(true);
@@ -43,11 +43,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
             apprenticeship.ShouldNotBeNull();
-            apprenticeship.EmailAddressConfirmed.Should().BeNull();
+            apprenticeship.EmailAddressConfirmed.Should().BeTrue();
         }
 
         [Test]
-        public async Task Handle_WhenApprenticeshipIsCompleted_ThenEmailAddressDoesNotGetConfirmed()
+        public async Task Handle_WhenApprenticeshipIsCompleted_ThenEmailAddressDoesGetConfirmed()
         {
             var command = _fixture.ApprenticeshipEmailAddressConfirmedCommand;
             _fixture.SeedData(completed: true);
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
             apprenticeship.ShouldNotBeNull();
-            apprenticeship.EmailAddressConfirmed.Should().BeNull();
+            apprenticeship.EmailAddressConfirmed.Should().BeTrue();
         }
 
         [Test]
