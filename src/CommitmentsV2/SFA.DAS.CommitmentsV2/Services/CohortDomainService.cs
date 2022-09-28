@@ -439,17 +439,19 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private void ValidateApprenticeshipDate(DraftApprenticeshipDetails details)
         {
-            if (!details.StartDate.HasValue) return;
+            if (!details.StartDate.HasValue && !details.ActualStartDate.HasValue) return;
 
-            if (details.StartDate.Value > _academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+            var startDate = details.StartDate.HasValue ? details.StartDate.Value : details.ActualStartDate.Value;
+            var startDateField = details.StartDate.HasValue ? nameof(details.StartDate) : nameof(details.ActualStartDate);
+
+            if (startDate > _academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
             {
-                throw new DomainException(nameof(details.StartDate),
-                    "The start date must be no later than one year after the end of the current teaching year");
+                throw new DomainException(startDateField, "The start date must be no later than one year after the end of the current teaching year");
             }
 
-            if (details.StartDate.Value < Domain.Constants.DasStartDate)
+            if (startDate < Domain.Constants.DasStartDate)
             {
-                throw new DomainException(nameof(details.StartDate), "The start date must not be earlier than May 2017");
+                throw new DomainException(startDateField, "The start date must not be earlier than May 2017");
             }
 
             if (!details.EndDate.HasValue) return;
