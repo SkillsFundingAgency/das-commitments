@@ -42,6 +42,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 ReservationId = source.ReservationId,
                 EmploymentEndDate = source.EmploymentEndDate,
                 EmploymentPrice = source.EmploymentPrice,
+                ActualStartDate = source.ActualStartDate,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
             };
 
             // Only populate standard version specific items if start is specified.

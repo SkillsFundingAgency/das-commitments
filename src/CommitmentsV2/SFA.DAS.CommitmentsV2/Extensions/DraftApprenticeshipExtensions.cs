@@ -24,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildEmailValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildIsOnFlexiPaymentPilotValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails, transferSenderId));
                 errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, apprenticeships));
@@ -56,6 +57,14 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.Email), "Please enter a valid email address");
                 }
+            }
+        }
+
+        private static IEnumerable<DomainError> BuildIsOnFlexiPaymentPilotValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (!draftApprenticeshipDetails.IsOnFlexiPaymentPilot.HasValue)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.IsOnFlexiPaymentPilot), "Select whether this apprentice will be on the pilot programme");
             }
         }
 
