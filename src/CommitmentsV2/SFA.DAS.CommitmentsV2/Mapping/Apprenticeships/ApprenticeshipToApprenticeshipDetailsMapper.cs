@@ -56,6 +56,5 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 PledgeApplicationId = source.Cohort.PledgeApplicationId
             });
         }
-
     }
 }
