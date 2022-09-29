@@ -105,10 +105,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.CommitmentPayments.WebJob\SFA.DAS.CommitmentPayments.WebJob.csproj">
-      <Project>{42c9280d-cdaa-45b8-9a02-eb629288798d}</Project>
-      <Name>SFA.DAS.CommitmentPayments.WebJob</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
       <Project>{880cdaf6-d9ee-481b-b4d8-7de9c215a770}</Project>
       <Name>SFA.DAS.Commitments.Application</Name>

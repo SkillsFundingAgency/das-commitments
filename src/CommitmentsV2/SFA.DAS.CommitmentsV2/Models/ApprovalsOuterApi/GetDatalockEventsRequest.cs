@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi
 
         private string BuildUrl()
         {
-            var url = $"datalock/events?page={PageNumber}";
+            var url = $"datalock/statuses?page={PageNumber}";
             if (SinceEventId > 0)
             {
                 url += $"&sinceEventId={SinceEventId}";
