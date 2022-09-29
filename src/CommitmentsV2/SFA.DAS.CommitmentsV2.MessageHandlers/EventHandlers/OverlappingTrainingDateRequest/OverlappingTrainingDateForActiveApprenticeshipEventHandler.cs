@@ -13,14 +13,14 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
 {
-    public class OverlappingTrainingDateForNotCompletedApprenticeshipEventHandler : IHandleMessages<OverlappingTrainingDateEvent>
+    public class OverlappingTrainingDateForActiveApprenticeshipEventHandler : IHandleMessages<OverlappingTrainingDateEvent>
     {
-        private readonly ILogger<OverlappingTrainingDateForNotCompletedApprenticeshipEventHandler> _logger;
+        private readonly ILogger<OverlappingTrainingDateForActiveApprenticeshipEventHandler> _logger;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
         private readonly IEncodingService _encodingService;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        public OverlappingTrainingDateForNotCompletedApprenticeshipEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-            ILogger<OverlappingTrainingDateForNotCompletedApprenticeshipEventHandler> logger,
+        public OverlappingTrainingDateForActiveApprenticeshipEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+            ILogger<OverlappingTrainingDateForActiveApprenticeshipEventHandler> logger,
             IEncodingService encodingService,
             CommitmentsV2Configuration commitmentsV2Configuration)
         {
@@ -37,7 +37,11 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
                 _logger.LogInformation($"Received {nameof(OverlappingTrainingDateEvent)} for Uln {message?.Uln}");
 
                 var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-                if (apprenticeship.PaymentStatus != PaymentStatus.Completed)
+
+                if (apprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Live
+                    || apprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.WaitingToStart
+                    || apprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Paused)
+
                 {
                     var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
 
@@ -55,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
         {
 
             var sendEmailToEmployerCommand = new SendEmailToEmployerCommand(apprenticeship.Cohort.EmployerAccountId,
-                "OverlappingTrainingDate",
+                "OverlappingTrainingDateForActiveApprenticeship",
                 new Dictionary<string, string>
                 {
                         {"EMPLOYERNAME", apprenticeship.Cohort.AccountLegalEntity.Name},
