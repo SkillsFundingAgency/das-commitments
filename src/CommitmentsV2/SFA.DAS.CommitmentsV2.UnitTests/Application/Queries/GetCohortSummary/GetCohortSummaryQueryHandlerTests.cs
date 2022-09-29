@@ -345,7 +345,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             var apprenticeDetails = new Fixture()
                 .Build<DraftApprenticeshipDetails>()
                 .With(x => x.StartDate, startDate)
+                .Without(x => x.ActualStartDate)
                 .With(x => x.EndDate, startDate.AddYears(1))
+                .Create();
+
+            await CheckQueryResponse(response =>
+                {
+                    response.IsCompleteForEmployer.Should().Be(allowedApproval.HasFlag(AllowedApproval.EmployerCanApprove));
+                },
+                apprenticeDetails, arrange);
+        }
+
+
+        [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", null, null, null, AllowedApproval.EmployerCanApprove)]
+        [TestCase("2022-08-01", false, null, null, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", true, 10, 100, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", true, null, null, AllowedApproval.EmployerCanApprove)]
+        public async Task Handle_WithApprenticeRPLConsidered_ShouldReturnExpectedEmployerCanApproveOnFlexiPaymentPilot(DateTime actualStartDate, bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
+        {
+            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
+            {
+                f.SetupRPLData(recognisePriorLearning, durationReducedBy, priceReducedBy);
+            });
+
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .Without(x => x.StartDate)
+                .With(x => x.ActualStartDate, actualStartDate)
+                .With(x => x.EndDate, actualStartDate.AddYears(1))
                 .Create();
 
             await CheckQueryResponse(response =>
