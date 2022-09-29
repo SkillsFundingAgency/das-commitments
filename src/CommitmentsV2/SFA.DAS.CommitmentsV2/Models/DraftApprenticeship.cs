@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             FirstName != null &&
             LastName != null &&
             Cost != null &&
-            StartDate != null &&
+            (StartDate != null || ActualStartDate != null) &&
             EndDate != null &&
             CourseCode != null &&
             DateOfBirth != null &&
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             LastName != null &&
             Uln != null &&
             Cost != null &&
-            StartDate != null &&
+            (StartDate != null || ActualStartDate != null) &&
             EndDate != null &&
             CourseCode != null &&
             DateOfBirth != null &&
