@@ -250,7 +250,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.DeliveryModel == apprenticeship.DeliveryModel &&
                           apprenticeshipCreatedEvent.StartDate == apprenticeship.StartDate.Value &&
                           apprenticeshipCreatedEvent.EndDate == apprenticeship.EndDate.Value &&
-                          apprenticeshipCreatedEvent.PriceEpisodes.Count() == apprenticeship.PriceHistory.Count;
+                          apprenticeshipCreatedEvent.PriceEpisodes.Count() == apprenticeship.PriceHistory.Count &&
+                          apprenticeshipCreatedEvent.DateOfBirth == apprenticeship.DateOfBirth;
 
             for (var i = 0; i < apprenticeship.PriceHistory.Count; i++)
             {
