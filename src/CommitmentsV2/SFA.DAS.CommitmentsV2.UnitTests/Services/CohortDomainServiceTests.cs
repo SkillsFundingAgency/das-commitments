@@ -9,10 +9,14 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Authorization.Features.Models;
+using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -28,6 +32,7 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
+using Constants = SFA.DAS.CommitmentsV2.Domain.Constants;
 using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -518,7 +523,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.AreEqual(1, _fixture.DomainErrors.Count);
             Assert.AreEqual("Cannot approve this cohort because one or more emails are failing the overlap check", _fixture.DomainErrors[0].ErrorMessage);
         }
-         
+
+        [Test]
+        public async Task ApproveCohort_WhenRPLIsRequiredButNoRPLData_ShouldThrowException()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithExistingDraftApprenticeship()
+                .WithRPLRequired();
+
+            await _fixture.WithParty(Party.Provider).ApproveCohort();
+
+            Assert.AreEqual(1, _fixture.DomainErrors.Count);
+            Assert.AreEqual("Cohort must be complete for Provider", _fixture.DomainErrors[0].ErrorMessage);
+        }
+
+        [Test]
+        public async Task ApproveCohort_WhenRPLIsRequiredAndRPLDataIsPresent_ShouldSuceed()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithExistingDraftApprenticeship()
+                .WithPriorLearning().WithRPLRequired();
+
+            await _fixture.WithParty(Party.Provider).ApproveCohort();
+
+            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+        }
+
         [Test]
         public async Task DeleteDraftApprenticeship_WhenCohortIsWithEmployer()
         {
@@ -722,6 +754,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
             public Mock<IAccountApiClient> AccountApiClient { get; set; }
             public Mock<ILevyTransferMatchingApiClient> LevyTransferMatchingApiClient { get; set; }
+            public Mock<IFeatureTogglesService<FeatureToggle>> FeatureTogglesService { get; set; }
             public PledgeApplication PledgeApplication { get; set; }
             public List<TransferConnectionViewModel> TransferConnections { get; }
 
@@ -805,7 +838,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
-                    FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false
+                   FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false
                 };
 
                 ExistingDraftApprenticeship = new DraftApprenticeship {
@@ -868,6 +901,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 PriorLearning = fixture.Create<ApprenticeshipPriorLearning>();
 
+                FeatureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
+                FeatureTogglesService.Setup(x=>x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature)).Returns(new FeatureToggle { IsEnabled = false });
+
                 Exception = null;
                 DomainErrors = new List<DomainError>();
                 UserInfo = fixture.Create<UserInfo>();
@@ -884,9 +920,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     EncodingService.Object,
                     AccountApiClient.Object,
                     EmailOptionalService.Object,
-                    LevyTransferMatchingApiClient.Object);
+                    LevyTransferMatchingApiClient.Object,
+                    FeatureTogglesService.Object);
 
                 Db.SaveChanges();
+            }
+
+            public CohortDomainServiceTestFixture WithPriorLearning()
+            {
+                ExistingDraftApprenticeship.SetValue(x=>x.RecognisePriorLearning, true);
+                ExistingDraftApprenticeship.SetPriorLearningDetails(10, 100);
+                return this;
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
@@ -1194,6 +1238,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithRPLRequired()
+            {
+                FeatureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature))
+                    .Returns(new FeatureToggle { IsEnabled = true });
+                return this;
+            }
+            
             public void VerifyCheckForEmailOverlapsOnCohortIsCalledCorrectlyWhenApproving()
             {
                 OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(CohortId, It.IsAny<CancellationToken>()));

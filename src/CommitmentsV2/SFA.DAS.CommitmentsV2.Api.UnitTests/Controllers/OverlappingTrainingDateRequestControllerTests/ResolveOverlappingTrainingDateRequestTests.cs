@@ -4,65 +4,66 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDateRequestControllerTests
 {
-    public class ValidateDraftApprenticeshipDetailsTests
+    public class ResolveOverlappingTrainingDateRequestTests
     {
-        private ValidateDraftApprenticeshipFixture _fixture;
+        private ResolveOverlappingTrainingDateRequestFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new ValidateDraftApprenticeshipFixture();
+            _fixture = new ResolveOverlappingTrainingDateRequestFixture();
         }
 
         [Test]
-        public async Task BulkUploadValidate_VerifyCommandSend()
+        public async Task ResolveOverlappingTrainingDateRequest_VerifyCommandSend()
         {
-            await _fixture.BulkUploadDraftApprenticeshipsRequest();
+            await _fixture.ResolveOverlappingTrainingDateRequest();
             _fixture.VerifyCommandSend();
         }
 
-        private class ValidateDraftApprenticeshipFixture
+        private class ResolveOverlappingTrainingDateRequestFixture
         {
             private readonly Mock<IMediator> _mediator;
             private Mock<IModelMapper> _mapper;
             private readonly OverlappingTrainingDateRequestController _controller;
 
             private readonly Fixture _autoFixture;
-            private readonly ValidateDraftApprenticeshipRequest _postRequest;
-            private readonly ValidateDraftApprenticeshipDetailsCommand _command;
+            private readonly ResolveApprenticeshipOverlappingTrainingDateRequest _postRequest;
+            private readonly ResolveOverlappingTrainingDateRequestCommand _command;
             public const int ProviderId = 1;
 
-            public ValidateDraftApprenticeshipFixture()
+            public ResolveOverlappingTrainingDateRequestFixture()
             {
                 _mediator = new Mock<IMediator>();
                 _mapper = new Mock<IModelMapper>();
                 _autoFixture = new Fixture();
-                _postRequest = _autoFixture.Create<ValidateDraftApprenticeshipRequest>();
+                _postRequest = _autoFixture.Create<ResolveApprenticeshipOverlappingTrainingDateRequest>();
 
-                _command = _autoFixture.Create<ValidateDraftApprenticeshipDetailsCommand>();
+                _command = _autoFixture.Create<ResolveOverlappingTrainingDateRequestCommand>();
 
                 _mediator.Setup(x => x.Send(_command, It.IsAny<CancellationToken>()));
                 _controller = new OverlappingTrainingDateRequestController(_mediator.Object, _mapper.Object);
             }
 
-            public async Task BulkUploadDraftApprenticeshipsRequest()
+            public async Task ResolveOverlappingTrainingDateRequest()
             {
-                await _controller.ValidateDraftApprenticeship(ProviderId, _postRequest);
+                await _controller.Resolve(_postRequest);
             }
 
             public void VerifyCommandSend()
             {
                 _mediator.Verify(
                     m => m.Send(
-                        It.Is<ValidateDraftApprenticeshipDetailsCommand>(
-                            p => p.DraftApprenticeshipRequest == _postRequest),
+                        It.Is<ResolveOverlappingTrainingDateRequestCommand>(
+                            p => p.ApprenticeshipId == _postRequest.ApprenticeshipId &&
+                            p.ResolutionType == _postRequest.ResolutionType),
                         It.IsAny<CancellationToken>()), Times.Once);
             }
         }
