@@ -190,7 +190,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.LastName));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.TrainingProgramme));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.Cost));
-                    yield return (AllowedApproval.CannotApprove, completeApprenticeship.With(x => x.StartDate, (DateTime?)null).Without(x => x.ActualStartDate));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.EndDate));
                     yield return (AllowedApproval.CannotApprove, completeApprenticeship.Without(x => x.DateOfBirth));
 
@@ -225,6 +224,59 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(
                 response => response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove)),
                 apprenticeship);
+        }
+
+        [Test]
+        public async Task Handle_WithNoStartDateIsProvided_ShouldReturnFalse()
+        {
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.StartDate, (DateTime?)null)
+                .With(x => x.ActualStartDate, (DateTime?)null)
+                 .With(x => x.EndDate, DateTime.Now.AddYears(1))
+                .Create();
+
+            await CheckQueryResponse(response =>
+                {
+                    response.IsCompleteForProvider.Should().BeFalse();
+                },
+                apprenticeDetails);
+        }
+
+        [Test]
+        public async Task Handle_WithEstimatedStartDateIsProvided_ShouldReturnTrue()
+        {
+            var startDate = new DateTime(2022, 07, 01);
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.StartDate, startDate)
+                .With(x => x.ActualStartDate, (DateTime?)null)
+                 .With(x => x.EndDate, startDate.AddYears(1))
+                .Create();
+
+            await CheckQueryResponse(response =>
+                {
+                    response.IsCompleteForProvider.Should().BeTrue();
+                },
+                apprenticeDetails);
+        }
+
+        [Test]
+        public async Task Handle_WithActualStartDateIsProvided_ShouldReturnTrue()
+        {
+            var startDate = new DateTime(2022, 07, 01);
+            var apprenticeDetails = new Fixture()
+                .Build<DraftApprenticeshipDetails>()
+                .With(x => x.StartDate, (DateTime?)null)
+                .With(x => x.ActualStartDate, startDate)
+                 .With(x => x.EndDate, startDate.AddYears(1))
+                .Create();
+
+            await CheckQueryResponse(response =>
+                {
+                    response.IsCompleteForProvider.Should().BeTrue();
+                },
+                apprenticeDetails);
         }
 
         [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
