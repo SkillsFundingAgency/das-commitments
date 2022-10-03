@@ -75,7 +75,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                             Cost = p.Cost
                         })
                         .ToArray(),
-                    ContinuationOfId = a.ContinuationOfId
+                    ContinuationOfId = a.ContinuationOfId,
+                    DateOfBirth = a.DateOfBirth.Value
                 })
                 .ToListAsync(cancellationToken);
 
