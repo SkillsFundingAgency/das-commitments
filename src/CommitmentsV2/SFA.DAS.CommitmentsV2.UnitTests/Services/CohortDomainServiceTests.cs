@@ -838,7 +838,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
-                   FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false
+                   FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false, IsOnFlexiPaymentPilot = false
                 };
 
                 ExistingDraftApprenticeship = new DraftApprenticeship {
@@ -850,7 +850,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         StartDate = DateTime.UtcNow,
                         EndDate = DateTime.UtcNow.AddYears(1),
                         CourseCode = fixture.Create<string>(),
-                        Cost = fixture.Create<int>()
+                        Cost = fixture.Create<int>(),
+                        IsOnFlexiPaymentPilot = false
                 };
                 ExistingDraftApprenticeship.SetValue(x => x.DateOfBirth, ExistingDraftApprenticeship.StartDate.Value.AddYears(-16));
 
