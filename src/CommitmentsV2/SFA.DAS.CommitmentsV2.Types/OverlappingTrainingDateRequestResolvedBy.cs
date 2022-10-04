@@ -8,6 +8,7 @@
         ApprenticeshipStopped = 3,
         DraftApprenticeshipUpdated = 4,
         DraftApprentieshipDeleted = 5,
-        ApprentieshipIsStillActive = 6
+        ApprentieshipIsStillActive = 6,
+        ApprenticeshipEndDateUpdate = 7
     }
 }

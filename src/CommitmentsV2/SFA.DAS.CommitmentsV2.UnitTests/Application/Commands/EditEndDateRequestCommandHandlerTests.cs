@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -18,11 +17,13 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     public class EditEndDateRequestCommandHandlerTests
     {
+
         [TestCase(Party.Provider)]
         [TestCase(Party.None)]
         [TestCase(Party.TransferSender)]
@@ -31,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var f = new EditEndDateRequestCommandHandlerTestsFixture();
             f.Party = party;
 
-            Assert.ThrowsAsync<DomainException>(async () => await f.Handle()); 
+            Assert.ThrowsAsync<DomainException>(async () => await f.Handle());
         }
 
         [Test]
@@ -41,6 +42,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await f.Handle();
             f.VerifyEndDateUpdated();
         }
+
+        [Test]
+        public async Task Handle_WhenHandlingCommand_UpdatingTheEndDate_ThenResolveOltd()
+        {
+            var f = new EditEndDateRequestCommandHandlerTestsFixture();
+            await f.Handle();
+            f.VerifyEndDateUpdated();
+
+            f._resolveOverlappingTrainingDateRequestService
+                 .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateUpdate), Times.Once);
+        }
+
     }
 
     public class EditEndDateRequestCommandHandlerTestsFixture
@@ -54,6 +67,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Party Party { get; set; }
 
         public long ApprenticeshipId { get; set; }
+
+        public Mock<IResolveOverlappingTrainingDateRequestService> _resolveOverlappingTrainingDateRequestService;
 
         public EditEndDateRequestCommandHandlerTestsFixture()
         {
@@ -104,10 +119,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 UserInfo = new UserInfo()
             };
 
+            _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
+
+            _resolveOverlappingTrainingDateRequestService
+                .Setup(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<Types.OverlappingTrainingDateRequestResolutionType>()))
+                .Returns(Task.CompletedTask);
+
             Handler = new EditEndDateRequestCommandHandler(lazyProviderDbContext,
                 Mock.Of<ICurrentDateTime>(),
                 authenticationService.Object,
-                Mock.Of<ILogger<EditEndDateRequestCommandHandler>>());
+                Mock.Of<ILogger<EditEndDateRequestCommandHandler>>(),
+                _resolveOverlappingTrainingDateRequestService.Object);
         }
 
         public async Task Handle()

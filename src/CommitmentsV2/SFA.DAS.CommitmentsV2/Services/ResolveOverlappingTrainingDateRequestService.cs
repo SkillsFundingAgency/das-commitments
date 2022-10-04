@@ -164,6 +164,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                 case OverlappingTrainingDateRequestResolutionType.StopDateUpdate:
                     _logger.LogInformation($"OverlappingTrainingDateRequest overlapcheck is not required as the resolution type is {resolutionType}");
                     return false;
+                case OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateUpdate:
+                    _logger.LogInformation($"OverlappingTrainingDateRequest overlapcheck is not required as the resolution type is {resolutionType}");
+                    return false;
             }
 
             _logger.LogInformation($"OverlappingTrainingDateRequest overlapcheck is required as the resolution type is {resolutionType}");
