@@ -13,7 +13,7 @@ BEGIN
     WHERE CommitmentId = @cohortId
     
     INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate)
-    SELECT Id, Cost, StartDate
+    SELECT Id, Cost, ISNULL(ActualStartDate, StartDate)
     FROM [dbo].[Apprenticeship]
     WHERE CommitmentId = @cohortId
 
