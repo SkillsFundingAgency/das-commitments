@@ -12,13 +12,17 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long PreviousApprenticeshipId { get; private set; }
         public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
         public virtual OverlappingTrainingDateRequestStatus Status { get; set; }
+        public virtual DateTime? NotifiedServiceDeskOn { get; set; }
         public byte[] RowVersion { get; private set; }
         public DateTime? ActionedOn { get; set; }
+        public DateTime CreatedOn { get; set; }
         public virtual DraftApprenticeship DraftApprenticeship { get; private set; }
         public virtual Apprenticeship PreviousApprenticeship { get; private set; }
 
         public OverlappingTrainingDateRequest()
-        { }
+        {
+            CreatedOn = DateTime.UtcNow;
+        }
 
         public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship, long previousApprenticeshipId, Party originatingParty, UserInfo userInfo)
         {
@@ -31,7 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
         }
-        public void EmitOverlappingTrainingDateNotificationEvent(long apprenticeshipId, string uln)
+
+        private void EmitOverlappingTrainingDateNotificationEvent(long apprenticeshipId, string uln)
         {
             Publish(() => new OverlappingTrainingDateEvent(apprenticeshipId, uln));
         }
