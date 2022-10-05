@@ -78,5 +78,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         {
             Assert.AreEqual(_source.ApprenticeshipPriorLearning.PriceReducedBy, _result.PriceReducedBy);
         }
+
+        [Test]
+        public void StartDateIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.ActualStartDate, _result.ActualStartDate);
+        }
     }
 }

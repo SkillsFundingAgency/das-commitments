@@ -45,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         Email = apprenticeship.Email,
                         Uln = apprenticeship.Uln,
                         StartDate = apprenticeship.StartDate.Value,
+                        ActualStartDate = apprenticeship.ActualStartDate,
                         EndDate = apprenticeship.EndDate.Value,
                         EndpointAssessorName = apprenticeship.EpaOrg.Name,
                         EmployerReference = apprenticeship.EmployerRef,
