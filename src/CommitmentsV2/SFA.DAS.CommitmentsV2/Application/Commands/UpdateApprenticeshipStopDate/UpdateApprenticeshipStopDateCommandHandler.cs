@@ -23,34 +23,37 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
     public class UpdateApprenticeshipStopDateCommandHandler : AsyncRequestHandler<UpdateApprenticeshipStopDateCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<UpdateApprenticeshipStopDateCommandHandler> _logger;        
+        private readonly ILogger<UpdateApprenticeshipStopDateCommandHandler> _logger;
         private readonly ICurrentDateTime _currentDate;
         private readonly IAuthenticationService _authenticationService;
         private readonly IMessageSession _nserviceBusContext;
         private readonly IEncodingService _encodingService;
         private readonly IOverlapCheckService _overlapCheckService;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
+        private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
         private const string StopEditNotificationEmailTemplate = "ProviderApprenticeshipStopEditNotification";
 
         public UpdateApprenticeshipStopDateCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-            ILogger<UpdateApprenticeshipStopDateCommandHandler> logger,            
+            ILogger<UpdateApprenticeshipStopDateCommandHandler> logger,
             ICurrentDateTime currentDate,
             IAuthenticationService authenticationService,
             IMessageSession nserviceBusContext,
             IEncodingService encodingService,
             IOverlapCheckService overlapCheckService,
-            CommitmentsV2Configuration commitmentsV2Configuration)
+            CommitmentsV2Configuration commitmentsV2Configuration,
+            IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
         {
             _dbContext = dbContext;
-            _logger = logger;            
+            _logger = logger;
             _currentDate = currentDate;
             _authenticationService = authenticationService;
             _nserviceBusContext = nserviceBusContext;
             _encodingService = encodingService;
             _overlapCheckService = overlapCheckService;
             _commitmentsV2Configuration = commitmentsV2Configuration;
+            _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
         }
-        
+
         protected override async Task Handle(UpdateApprenticeshipStopDateCommand command, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Employer: {command.AccountId} has called UpdateApprenticeshipStopDateCommand ApprenticeshipId : {command.ApprenticeshipId} ");
@@ -64,21 +67,22 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
 
             ValidateChangeDateForStop(command.StopDate, apprenticeship);
 
-            ValidateEndDateOverlap(command, apprenticeship, cancellationToken); 
+            ValidateEndDateOverlap(command, apprenticeship, cancellationToken);
 
             apprenticeship.ApprenticeshipStopDate(command, _currentDate, party);
 
             _logger.LogInformation($"Update apprenticeship stop date. Apprenticeship-Id:{command.ApprenticeshipId}");
 
-            _logger.LogInformation($"Sending email to Provider {apprenticeship.Cohort.ProviderId}, template {StopEditNotificationEmailTemplate}");
+            await _resolveOverlappingTrainingDateRequestService.Resolve(command.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
+            _logger.LogInformation($"Sending email to Provider {apprenticeship.Cohort.ProviderId}, template {StopEditNotificationEmailTemplate}");
             await NotifyProvider(apprenticeship, command.StopDate);
-        }    
+        }
 
         private static void CheckAuthorization(UpdateApprenticeshipStopDateCommand message, Apprenticeship apprenticeship)
         {
             if (apprenticeship.Cohort.EmployerAccountId != message.AccountId)
-                throw new DomainException(nameof(apprenticeship),  $"Employer {message.AccountId} not authorised to access commitment {apprenticeship.Cohort.Id}, expected employer {apprenticeship.Cohort.EmployerAccountId}");
+                throw new DomainException(nameof(apprenticeship), $"Employer {message.AccountId} not authorised to access commitment {apprenticeship.Cohort.Id}, expected employer {apprenticeship.Cohort.EmployerAccountId}");
         }
 
         private void ValidateChangeDateForStop(DateTime newStopDate, Apprenticeship apprenticeship)
@@ -123,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             {
                 throw new DomainException(nameof(party), $"UpdateApprenticeshipStopDate is restricted to Employers only - {party} is invalid");
             }
-        }      
+        }
 
         private async Task NotifyProvider(Apprenticeship apprenticeship, DateTime newStopDate)
         {

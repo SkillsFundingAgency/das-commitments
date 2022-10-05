@@ -32,20 +32,23 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 result.Add(Alerts.ChangesRequested);
             }
 
-            if (source.ApprenticeshipUpdate == null)
+            if (source.ApprenticeshipUpdate != null)
             {
-                return result;
+                if (source.ApprenticeshipUpdate.Any(c =>
+                c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending))
+                {
+                    result.Add(source.IsProviderSearch ? Alerts.ChangesForReview : Alerts.ChangesPending);
+                }
+                else if (source.ApprenticeshipUpdate.Any(c =>
+                    c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending))
+                {
+                    result.Add(source.IsProviderSearch ? Alerts.ChangesPending : Alerts.ChangesForReview);
+                }
             }
 
-            if (source.ApprenticeshipUpdate.Any(c =>
-                c.Originator == Originator.Employer && c.Status == ApprenticeshipUpdateStatus.Pending))
+            if (HasOverlappingTrainingDateRequests(source))
             {
-                result.Add(source.IsProviderSearch ? Alerts.ChangesForReview : Alerts.ChangesPending);
-            }
-            else if (source.ApprenticeshipUpdate.Any(c =>
-                c.Originator == Originator.Provider && c.Status == ApprenticeshipUpdateStatus.Pending))
-            {
-                result.Add(source.IsProviderSearch ? Alerts.ChangesPending : Alerts.ChangesForReview);
+                result.Add(Alerts.ConfirmDates);
             }
 
             return result;
@@ -96,7 +99,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 !x.IsExpired);
         }
 
-
         private static bool EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(Apprenticeship source)
         {
             return !source.IsProviderSearch && source.DataLockStatus.Any(x =>
@@ -104,6 +106,13 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                 (x.TriageStatus != TriageStatus.Unknown && x.TriageStatus != TriageStatus.Change) &&
                 !x.IsResolved &&
                 !x.IsExpired);
+        }
+
+        private static bool HasOverlappingTrainingDateRequests(Apprenticeship source)
+        {
+            return
+                !source.IsProviderSearch &&
+                source.OverlappingTrainingDateRequests?.Any(x => x.Status == OverlappingTrainingDateRequestStatus.Pending) == true;
         }
     }
 }

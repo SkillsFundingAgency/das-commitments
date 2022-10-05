@@ -6,12 +6,13 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDateRequestControllerTests
 {
-    public class ValidateUlnOverlapOnStartDateTests
+    public class GetOverlapOnStartDateTests
     {
         private ValidateUlnOverlapOnStartDateFixture _fixture;
 
@@ -32,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
         {
             private readonly Mock<IMediator> _mediator;
             private readonly OverlappingTrainingDateRequestController _controller;
-
+            private Mock<IModelMapper> _mapper;
             private readonly Fixture _autoFixture;
             public const int ProviderId = 1;
             public string Uln;
@@ -42,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
             public ValidateUlnOverlapOnStartDateFixture()
             {
                 _mediator = new Mock<IMediator>();
+                _mapper = new Mock<IModelMapper>();
                 _autoFixture = new Fixture();
 
                 Uln = "9235610906";
@@ -53,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
                     .Setup(x => x.Send(It.IsAny<ValidateUlnOverlapOnStartDateQuery>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(queryResult);
 
-                _controller = new OverlappingTrainingDateRequestController(_mediator.Object);
+                _controller = new OverlappingTrainingDateRequestController(_mediator.Object, _mapper.Object);
             }
 
             public async Task ValidateUlnOverlapOnStartDate()
