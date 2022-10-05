@@ -35,7 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRe
                     PreviousApprenticeshipId = x.PreviousApprenticeshipId,
                     ResolutionType = x.ResolutionType,
                     Status = x.Status,
-                    ActionedOn = x.ActionedOn
+                    ActionedOn = x.ActionedOn,
+                    CreatedOn = x.CreatedOn,
                 }).ToList()
             };
         }
