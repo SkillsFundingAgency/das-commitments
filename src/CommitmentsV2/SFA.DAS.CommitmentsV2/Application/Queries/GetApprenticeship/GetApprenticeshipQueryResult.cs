@@ -24,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public string CourseName { get; set; }
         public DeliveryModel? DeliveryModel { get; set; }
         public DateTime StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string EmployerReference { get; set; }
