@@ -7,5 +7,7 @@
 	[Status] SMALLINT NOT NULL DEFAULT 0, 
 	[CreatedOn] DATETIME NOT NULL DEFAULT GETDATE(),
 	[ActionedOn] DATETIME2 NULL,
+	[NotifiedServiceDeskOn] DATETIME2 NULL,
 	[RowVersion] ROWVERSION NOT NULL,
+    [RequestCreatedByProviderEmail] NVARCHAR(255) NULL,
 )

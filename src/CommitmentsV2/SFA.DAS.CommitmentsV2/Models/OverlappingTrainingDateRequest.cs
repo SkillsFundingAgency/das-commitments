@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long Id { get; private set; }
         public virtual long DraftApprenticeshipId { get; private set; }
         public virtual long PreviousApprenticeshipId { get; private set; }
+        public virtual string RequestCreatedByProviderEmail { get; set; }
         public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
         public virtual OverlappingTrainingDateRequestStatus Status { get; set; }
         public virtual DateTime? NotifiedServiceDeskOn { get; set; }
