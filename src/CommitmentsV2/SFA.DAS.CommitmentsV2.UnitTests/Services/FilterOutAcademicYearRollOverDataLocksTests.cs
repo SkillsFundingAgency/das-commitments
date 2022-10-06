@@ -195,7 +195,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _filter.Filter(123);
 
-            _dbContextMock.Verify(context => context.DataLocks.Remove(It.Is<DataLockStatus>((a => a.DataLockEventId == 2))), Times.Never);
+            _dbContextMock.Verify(context => context.DataLocks.Remove(It.Is<DataLockStatus>((a => a.DataLockEventId == 2))), Times.Once);
         }
     }
 }
