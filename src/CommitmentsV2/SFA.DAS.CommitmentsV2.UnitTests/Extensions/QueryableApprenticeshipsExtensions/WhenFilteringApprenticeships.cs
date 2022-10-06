@@ -566,6 +566,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         [TestCase(Alerts.ChangesPending, "2", true)]
         [TestCase(Alerts.ChangesRequested, "3", true)]
         [TestCase(Alerts.ChangesForReview, "4", true)]
+        [TestCase(Alerts.ConfirmDates, "5", false)]
         public void ThenShouldFilterAlert(Alerts alert, string validApprenticeshipUln, bool isProvider)
         {
             //Arrange
@@ -717,7 +718,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                     Email = null,
                     ApprenticeshipConfirmationStatus = new ApprenticeshipConfirmationStatus
                     {
-                        ApprenticeshipConfirmedOn = null                        
+                        ApprenticeshipConfirmedOn = null
                     }
                 },
                 new Apprenticeship
@@ -748,11 +749,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Act
             var resultConfirmed = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Confirmed }).ToList();
-            var resultUnconfirmed = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Unconfirmed }).ToList();            
+            var resultUnconfirmed = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Unconfirmed }).ToList();
             var resultOverdue = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.Overdue }).ToList();
             var resultNA = apprenticeships.Filter(new ApprenticeshipSearchFilters { ApprenticeConfirmationStatus = ConfirmationStatus.NA }).ToList();
 
-            //Assert 
+            //Assert
             Assert.AreEqual(1, resultConfirmed.Count);
             Assert.AreEqual(2, resultUnconfirmed.Count);
             Assert.AreEqual(3, resultOverdue.Count);
@@ -763,7 +764,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
         public void ThenShouldNotReturnExpiredDataLock()
         {
             //Arrange
-             var apprenticeships = new List<Apprenticeship>
+            var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
                 {
@@ -788,7 +789,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 },
                 new Apprenticeship
                 {
-
                     Uln =  "2",
                     DataLockStatus = new List<DataLockStatus>
                     {
@@ -849,7 +849,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 },
                 new Apprenticeship
                 {
-
                     Uln =  "2",
                     DataLockStatus = new List<DataLockStatus>
                     {
@@ -869,7 +868,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 },
                 new Apprenticeship
                 {
-
                     Uln =  "3",
                     DataLockStatus = new List<DataLockStatus>
                     {
@@ -885,23 +883,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                 {
                     Uln =  "4",
                     ApprenticeshipUpdate = new List<ApprenticeshipUpdate>{
-
                             new ApprenticeshipUpdate {
-
                                     Originator = Originator.Employer,
                                     Status = ApprenticeshipUpdateStatus.Pending
                             }
-
+                    }
+                },
+                new Apprenticeship
+                {
+                    Uln =  "5",
+                    OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest> {
+                            new OverlappingTrainingDateRequest
+                            {
+                                Status = OverlappingTrainingDateRequestStatus.Pending,
+                            }
                     }
                 },
                 new Apprenticeship
                 {
                     Uln =  "100"
-                }
+                },
             }.AsQueryable();
 
             return apprenticeships;
         }
-
     }
 }
