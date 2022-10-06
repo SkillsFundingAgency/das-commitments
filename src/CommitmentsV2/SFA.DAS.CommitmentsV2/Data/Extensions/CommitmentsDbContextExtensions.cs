@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
                 .Include(a => a.FlexibleEmployment)
                 .SingleOrDefaultAsync(a => a.Id == apprenticeshipId, cancellationToken);
 
-            if(apprenticeship == null) throw new BadRequestException($"Apprenticeship {apprenticeshipId} was not found");
+            if (apprenticeship == null) throw new BadRequestException($"Apprenticeship {apprenticeshipId} was not found");
 
             return apprenticeship;
         }
@@ -77,9 +77,19 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
             var result = await db.OverlappingTrainingDateRequests
                 .Include(r => r.DraftApprenticeship)
                 .Include(r => r.PreviousApprenticeship)
-                .SingleOrDefaultAsync(c => c.PreviousApprenticeshipId == previousApprenticeshipId 
+                .SingleOrDefaultAsync(c => c.PreviousApprenticeshipId == previousApprenticeshipId
                 && c.Status == OverlappingTrainingDateRequestStatus.Pending, cancellationToken);
             return result;
+        }
+
+        public static async Task<DraftApprenticeship> GetOLTDResolvedDraftApprenticeshipAggregate(this ProviderCommitmentsDbContext db, long cohortId, long apprenticeshipId, CancellationToken cancellationToken)
+        {
+            var draftApprenticeship = await db.DraftApprenticeships
+                .Include(a => a.Cohort).ThenInclude(c => c.Provider)
+                .SingleOrDefaultAsync(a => a.Id == apprenticeshipId && a.CommitmentId == cohortId, cancellationToken);
+            if (draftApprenticeship == null) throw new BadRequestException($"Draft Apprenticeship {apprenticeshipId}  in Cohort {cohortId} was not found");
+            if (draftApprenticeship.Cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
+            return draftApprenticeship;
         }
     }
 }

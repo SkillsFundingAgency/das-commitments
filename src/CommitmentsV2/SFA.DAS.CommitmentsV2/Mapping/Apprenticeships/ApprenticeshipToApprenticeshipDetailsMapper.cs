@@ -31,8 +31,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 EmployerName = source.Cohort.AccountLegalEntity.Name,
                 ProviderName = source.Cohort.Provider.Name,
                 StartDate = source.StartDate.GetValueOrDefault(),
-                EndDate = source.EndDate.GetValueOrDefault(),
+                EndDate = source.EndDate.GetValueOrDefault(),                
                 PauseDate = source.PauseDate.GetValueOrDefault(),
+                StopDate = source.StopDate,
                 EmployerRef = source.EmployerRef,
                 ProviderRef = source.ProviderRef,
                 CohortReference = source.Cohort.Reference,
@@ -55,6 +56,5 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 PledgeApplicationId = source.Cohort.PledgeApplicationId
             });
         }
-
     }
 }

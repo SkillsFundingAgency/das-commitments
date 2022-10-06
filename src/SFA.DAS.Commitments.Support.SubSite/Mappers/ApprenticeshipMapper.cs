@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.GetApprenticeshipsQueryResult;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
@@ -188,6 +189,22 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 StartDate = x.StartDate,
                 StopDate = x.StopDate
             }).ToList();
+        }
+
+        public OverlappingTrainingDateRequestViewModel MapToOverlappingTrainingDateRequest(GetOverlappingTrainingDateRequestQueryResult.OverlappingTrainingDateRequest overlappingTrainingDateRequest)
+        {
+            if (overlappingTrainingDateRequest != null)
+            {
+                if (overlappingTrainingDateRequest.Status == OverlappingTrainingDateRequestStatus.Pending)
+                {
+                    return new OverlappingTrainingDateRequestViewModel
+                    {
+                        CreatedOn = overlappingTrainingDateRequest.CreatedOn
+                    };
+                }
+            }
+
+            return null;
         }
     }
 }
