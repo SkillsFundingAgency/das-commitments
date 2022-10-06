@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces.AddEpaToApprenticeship;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs.AddEpaToApprenticeships
+namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {
     public class AddEpaToApprenticeshipsJob
     {
