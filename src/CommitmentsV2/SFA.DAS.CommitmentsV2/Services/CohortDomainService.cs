@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -21,6 +22,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.Authorization.Features.Models;
+using SFA.DAS.Authorization.Features.Services;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -39,6 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IAccountApiClient _accountApiClient;        
         private readonly IEmailOptionalService _emailService;
         private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
+        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -52,7 +56,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             IEncodingService encodingService,
             IAccountApiClient accountApiClient,            
             IEmailOptionalService emailOptionalService,
-            ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
+            ILevyTransferMatchingApiClient levyTransferMatchingApiClient,
+            IFeatureTogglesService<FeatureToggle> featureTogglesService)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -67,6 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _accountApiClient = accountApiClient;
             _emailService = emailOptionalService;
             _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
+            _featureTogglesService = featureTogglesService;
         }
 
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -156,6 +162,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
             var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
+            var isRPLRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
 
             if (party == Party.Employer)
             {
@@ -165,7 +172,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             await ValidateUlnOverlap(cohort);
 
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
-            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
+            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired, isRPLRequired);
         }
 
         private async Task ValidateUlnOverlap(Cohort cohort)

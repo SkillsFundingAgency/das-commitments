@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -40,10 +41,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         private Mock<IAuthenticationService> _authenticationService;
         private Mock<IMessageSession> _nserviceBusContext;
         private Mock<IEncodingService> _encodingService;
-        ProviderCommitmentsDbContext _dbContext;
-        ProviderCommitmentsDbContext _confirmationDbContext;
+        private ProviderCommitmentsDbContext _dbContext;
+        private ProviderCommitmentsDbContext _confirmationDbContext;
         private UnitOfWorkContext _unitOfWorkContext { get; set; }
         private IRequestHandler<StopApprenticeshipCommand> _handler;
+        private Mock<IResolveOverlappingTrainingDateRequestService> _resolveOverlappingTrainingDateRequestService;
         private const string ProviderCommitmentsBaseUrl = "https://approvals";
 
         [SetUp]
@@ -65,13 +67,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _logger = new Mock<ILogger<StopApprenticeshipCommandHandler>>();
             _unitOfWorkContext = new UnitOfWorkContext();
 
+            _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
+            _resolveOverlappingTrainingDateRequestService
+             .Setup(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<Types.OverlappingTrainingDateRequestResolutionType>()))
+             .Returns(Task.CompletedTask);
+
             _handler = new StopApprenticeshipCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext),
                 _currentDateTime.Object,
                 _authenticationService.Object,
                 _nserviceBusContext.Object,
                 _encodingService.Object,
                 _logger.Object,
-                new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl });
+                new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl },
+                _resolveOverlappingTrainingDateRequestService.Object);
         }
 
         [Test]
@@ -339,6 +347,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             historyState.StopDate.Should().Be(stopDate);
             historyState.MadeRedundant.Should().Be(false);
             historyState.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingCommand_StoppingApprenticeship_ThenResolveOltd()
+        {
+            // Arrange
+            var apprenticeship = await SetupApprenticeship();
+            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+
+            var command = new StopApprenticeshipCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, false, new UserInfo());
+
+            // Act
+            await _handler.Handle(command, new CancellationToken());
+            // Simulate Unit of Work contex transaction ending in http request.
+            await _dbContext.SaveChangesAsync();
+
+            // Assert
+            _resolveOverlappingTrainingDateRequestService
+                .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped), Times.Once);
         }
 
         private bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
