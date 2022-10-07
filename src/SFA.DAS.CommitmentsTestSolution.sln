@@ -20,11 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AEF29222
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Infrastructure.UnitTests", "SFA.DAS.Commitments.Infrastructure.UnitTests\SFA.DAS.Commitments.Infrastructure.UnitTests.csproj", "{6669C64D-7DAE-47C2-A469-7636C89C0974}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.WebJob", "SFA.DAS.CommitmentPayments.WebJob\SFA.DAS.CommitmentPayments.WebJob.csproj", "{42C9280D-CDAA-45B8-9A02-EB629288798D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Host.WebJob", "SFA.DAS.Commitments.Host.WebJob\SFA.DAS.Commitments.Host.WebJob.csproj", "{00F79506-1368-4A99-A8F7-D922AE0B231C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.WebJob.UnitTests", "SFA.DAS.CommitmentPayments.WebJob.UnitTests\SFA.DAS.CommitmentPayments.WebJob.UnitTests.csproj", "{F682E16D-2919-4A26-8DF8-12C608F54E39}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Notification.WebJob", "SFA.DAS.Commitments.Notification.WebJob\SFA.DAS.Commitments.Notification.WebJob.csproj", "{59B9F340-4489-4942-8EA2-0DF38C4DB3B9}"
 EndProject
