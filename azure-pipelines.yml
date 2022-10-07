@@ -45,7 +45,7 @@ stages:
       - task: VSBuild@1
         displayName: 'Build solution'
         inputs:
-          solution: 'src/SFA.DAS.CommitmentsTestSolution.sln'
+          solution: 'src/SFA.DAS.Commitments.sln'
           vsVersion: 15.0
           platform: '$(buildPlatform)'
           configuration: '$(buildConfiguration)'
