@@ -72,6 +72,14 @@ namespace SFA.DAS.CommitmentsV2.Models
                      OverlappingTrainingDateRequestStatus.Resolved;
 
                 oltd.ActionedOn = DateTime.UtcNow;
+
+                if (oltd.Status == OverlappingTrainingDateRequestStatus.Rejected)
+                {
+                    Publish(() => new OverlappingTrainingDateRequestRejectedEvent
+                    {
+                        OverlappingTrainingDateRequestId = oltd.Id
+                    });
+                }
             }
 
             if (resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated &&
