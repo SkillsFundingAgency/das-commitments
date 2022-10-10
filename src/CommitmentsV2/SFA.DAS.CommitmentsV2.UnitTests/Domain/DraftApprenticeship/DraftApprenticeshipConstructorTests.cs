@@ -110,5 +110,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
             Assert.AreEqual(_source.IsOnFlexiPaymentPilot, result.IsOnFlexiPaymentPilot);
         }
+
+        [Test]
+        public void ThenIsProviderOnFlexiPaymentPilotIsMappedCorrectly()
+        {
+            var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
+            Assert.AreEqual(_source.IsProviderOnFlexiPaymentPilot, result.IsProviderOnFlexiPaymentPilot);
+        }
     }
 }

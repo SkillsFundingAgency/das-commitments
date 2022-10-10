@@ -29,6 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public UserInfo UserInfo { get; }
         public bool IgnoreStartDateOverlap { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
+        public bool? IsProviderOnFlexiPaymentPilot { get; set; }
 
         public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode,
             DeliveryModel? deliveryModel, int? cost, DateTime? startDate, DateTime? actualStartDate, DateTime? endDate,
@@ -36,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId,
             int? pledgeApplicationId,
             int? employmentPrice, DateTime? employmentEndDate, UserInfo userInfo, bool ignoreStartDateOverlap,
-            bool? isOnFlexiPaymentPilot)
+            bool? isOnFlexiPaymentPilot, bool? isProviderOnFlexiPaymentPilot)
         {
             AccountId = accountId;
             AccountLegalEntityId = accountLegalEntityId;
@@ -59,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             EmploymentPrice = employmentPrice;
             EmploymentEndDate = employmentEndDate;
             IsOnFlexiPaymentPilot = isOnFlexiPaymentPilot;
-
+            IsProviderOnFlexiPaymentPilot = isProviderOnFlexiPaymentPilot;
             UserInfo = userInfo ?? throw new ArgumentNullException(nameof(userInfo));
             IgnoreStartDateOverlap = ignoreStartDateOverlap;
         }

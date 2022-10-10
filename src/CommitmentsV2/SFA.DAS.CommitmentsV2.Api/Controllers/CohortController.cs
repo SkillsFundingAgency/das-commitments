@@ -65,7 +65,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.EmploymentEndDate,
                 request.UserInfo,
                 request.IgnoreStartDateOverlap,
-                request.IsOnFlexiPaymentPilot);
+                request.IsOnFlexiPaymentPilot,
+                request.IsProviderOnFlexiPaymentPilot
+                );
             
             var result = await _mediator.Send(command);
 
