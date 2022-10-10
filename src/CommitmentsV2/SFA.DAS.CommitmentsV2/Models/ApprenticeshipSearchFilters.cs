@@ -16,5 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateRange StartDateRange { get; set; }
         public Alerts? Alert { get; set; }
         public ConfirmationStatus? ApprenticeConfirmationStatus { get; set; }
+        public DeliveryModel? DeliveryModel { get; set; }
     }
 }

@@ -73,7 +73,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     AccountLegalEntityId = request.AccountLegalEntityId,
                     StartDateRange = new DateRange { From = request.StartDateRangeFrom, To = request.StartDateRangeTo },
                     Alert = request.Alert,
-                    ApprenticeConfirmationStatus = request.ApprenticeConfirmationStatus
+                    ApprenticeConfirmationStatus = request.ApprenticeConfirmationStatus,
+                    DeliveryModel = request.DeliveryModel,                    
                 };
 
                 var queryResult = await _mediator.Send(new GetApprenticeshipsQuery
