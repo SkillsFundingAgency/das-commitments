@@ -228,6 +228,19 @@
                                 @endDate
                             </td>
                         </tr>
+                        @if (Model.OverlappingTrainingDateRequest != null)
+                        {
+                            <tr>
+                                <th scope="row" class="bold">Overlapping training date requested</th>
+                                <td>
+                                    @{
+                                        var overlappingTrainingDateRequestCreatedOn = Model.OverlappingTrainingDateRequest?.CreatedOn.ToGdsFormatWithSpaceSeperator() ?? "";
+                                    }
+
+                                    @overlappingTrainingDateRequestCreatedOn
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
 
@@ -426,7 +439,18 @@
                          </tbody>
                      </table>
                  }
-             </div>
+
+                @if (Model.OverlappingTrainingDateRequest != null)
+                {
+                    <h3 class="heading-medium">
+                        Overlapping training date
+                    <span class="form-hint">Requested by training provider @Model.OverlappingTrainingDateRequest.CreatedOn.ToGdsFormatWithSpaceSeperator()</span>
+                    </h3>
+                    <hr />
+                    <p>Employer needs to confirm leave date.</p>
+                    <hr />
+                }
+            </div>
                     
                 
             
