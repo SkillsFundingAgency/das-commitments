@@ -129,10 +129,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob\SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.csproj">
-      <Project>{72DEEA89-6555-4AAB-B48B-63C050E16B95}</Project>
-      <Name>SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>
@@ -140,10 +136,6 @@
     <ProjectReference Include="..\SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj">
       <Project>{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}</Project>
       <Name>SFA.DAS.Commitments.Events</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Commitments.Notification.WebJob\SFA.DAS.Commitments.Notification.WebJob.csproj">
-      <Project>{59b9f340-4489-4942-8ea2-0df38c4db3b9}</Project>
-      <Name>SFA.DAS.Commitments.Notification.WebJob</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -184,10 +184,6 @@
       <Project>{7C2C2688-ABF9-4A08-9FC3-BA169A5888C4}</Project>
       <Name>SFA.DAS.Commitments.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Commitments.Notification.WebJob\SFA.DAS.Commitments.Notification.WebJob.csproj">
-      <Project>{59B9F340-4489-4942-8EA2-0DF38C4DB3B9}</Project>
-      <Name>SFA.DAS.Commitments.Notification.WebJob</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
