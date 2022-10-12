@@ -2,6 +2,7 @@
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces.AddEpaToApprenticeship;
 using SFA.DAS.CommitmentsV2.Services;
 using StructureMap;
 
@@ -31,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IProviderAlertSummaryEmailService>().Use<ProviderAlertSummaryEmailService>();
             For<IOverlappingTrainingDateRequestDomainService>().Use<OverlappingTrainingDateRequestDomainService>();
             For<IResolveOverlappingTrainingDateRequestService>().Use<ResolveOverlappingTrainingDateRequestService>();
+            For<IAddEpaToApprenticeshipService>().Use<AddEpaToApprenticeshipsService>();
 
             //todo: below line doesn't belong here. ideally, push this into a registry in the package itself, or an extension thereof
             For<Learners.Validators.IUlnValidator>().Use<Learners.Validators.UlnValidator>();
