@@ -48,7 +48,6 @@ namespace SFA.DAS.CommitmentsV2.Services
                     lastId = pageLastId.Value;
                 }
             } while (pageLastId.HasValue && page.TotalNumberOfPages > page.PageNumber);
-
         }
     }
 }
