@@ -8,7 +8,7 @@ For Commitments V2, see: https://github.com/SkillsFundingAgency/das-commitments/
 ## Getting started Api (covering v1 and v2) ##
 * Clone das-commitments repo
 * Open das-commitments solution - build fails. This is due to a Slow Cheetah issue. To workaround, change build configuration to Release and build, then back to Debug and build. Solution will then build ok.
-* Run the SFA.DAS.CommitmentsV2.Api project (this is for Commitments v1 and v2 respectively)
+* Run the SFA.DAS.CommitmentsV2.Api project.
 * Publish the database project to local db server (use default db name "SFA.DAS.Commitments.Database")
 * Execute sql to seed data - see https://github.com/SkillsFundingAgency/das-commitments/tree/master/src/CommitmentsV2 
 * Obtain cloud config
