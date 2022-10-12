@@ -67,16 +67,26 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (oltd != null)
             {
                 oltd.ResolutionType = resolutionType;
-                oltd.Status = OverlappingTrainingDateRequestStatus.Resolved;
-                oltd.ActionedOn = DateTime.UtcNow;
-            }
+                oltd.Status = resolutionType == OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive ?
+                     OverlappingTrainingDateRequestStatus.Rejected :
+                     OverlappingTrainingDateRequestStatus.Resolved;
 
-            if (resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated &&
+                oltd.ActionedOn = DateTime.UtcNow;
+
+                if (oltd.Status == OverlappingTrainingDateRequestStatus.Rejected)
+                {
+                    Publish(() => new OverlappingTrainingDateRequestRejectedEvent
+                    {
+                        OverlappingTrainingDateRequestId = oltd.Id
+                    });
+                }
+                else if (resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated &&
                 resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprentieshipDeleted)
-            {
-                Publish(() =>
-                    new OverlappingTrainingDateResolvedEvent(draftApprenticeshipId,
-                        oltd.DraftApprenticeship.CommitmentId));
+                {
+                    Publish(() =>
+                        new OverlappingTrainingDateResolvedEvent(draftApprenticeshipId,
+                            oltd.DraftApprenticeship.CommitmentId));
+                }
             }
         }
 
@@ -394,10 +404,10 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseVersionConfirmed = true;
             }
 
-            // ApprenticeshipUpdate.TrainingCourseOption can be null when 
+            // ApprenticeshipUpdate.TrainingCourseOption can be null when
             // a - the option hasn't changed
             // b - the new course doesn't have any options
-            // If the training course or version has changed then the option can be set to the chosen option, string.Empty (Choose later) or null 
+            // If the training course or version has changed then the option can be set to the chosen option, string.Empty (Choose later) or null
             // If the training course and version has not changed then the option can only be updated to the chosen option or string.Empty
             // Else the course has not changed and the option is null then the option should not be changed
             var shouldUpdateOption = !string.IsNullOrEmpty(update.TrainingCode) || !string.IsNullOrEmpty(update.TrainingCourseVersion) || update.TrainingCourseOption != null;
@@ -503,12 +513,16 @@ namespace SFA.DAS.CommitmentsV2.Models
                     return (effectiveDate ?? DateTime.UtcNow) < StartDate
                         ? ApprenticeshipStatus.WaitingToStart
                         : ApprenticeshipStatus.Live;
+
                 case PaymentStatus.Withdrawn:
                     return ApprenticeshipStatus.Stopped;
+
                 case PaymentStatus.Paused:
                     return ApprenticeshipStatus.Paused;
+
                 case PaymentStatus.Completed:
                     return ApprenticeshipStatus.Completed;
+
                 default:
                     return ApprenticeshipStatus.Unknown;
             }
@@ -674,7 +688,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                     Cost = x.Cost
                 }).ToArray();
         }
-
 
         private void ValidateApprenticeshipForStop(DateTime stopDate, long accountId, ICurrentDateTime currentDate)
         {

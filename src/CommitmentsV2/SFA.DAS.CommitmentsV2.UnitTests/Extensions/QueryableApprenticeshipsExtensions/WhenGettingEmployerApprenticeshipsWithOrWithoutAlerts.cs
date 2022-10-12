@@ -27,9 +27,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
             var result = _apprenticeships.WithAlerts(true, _parameters).ToList();
 
             //Assert
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(3, result.Count);
             Assert.AreEqual(1, result[0].Id);
             Assert.AreEqual(3, result[1].Id);
+            Assert.AreEqual(10, result[2].Id);
         }
 
         [Test]
@@ -153,7 +154,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
                                 ErrorCode = DataLockErrorCode.Dlock03,
                                 TriageStatus = TriageStatus.Unknown,
                                 IsResolved = false
-
+                            }
+                        }
+                },
+                new Apprenticeship
+                {
+                    Id = 10,
+                    OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
+                        {
+                            new OverlappingTrainingDateRequest
+                            {
+                                Status = OverlappingTrainingDateRequestStatus.Pending,
                             }
                         }
                 }

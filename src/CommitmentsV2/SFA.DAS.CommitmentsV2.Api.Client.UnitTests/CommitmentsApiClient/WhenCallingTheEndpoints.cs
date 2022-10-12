@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         [SetUp]
         public void Arrange()
         {
-            _fixture = new WhenCallingTheEndpointsFixture(); 
+            _fixture = new WhenCallingTheEndpointsFixture();
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.WhoAmI();
             _fixture.MockRestHttpClient.Verify(x => x.Get<WhoAmIResponse>("api/whoami", null, CancellationToken.None));
         }
-        
+
         [Test]
         public async Task AddDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetLegalEntity_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.GetAccountLegalEntity(123);
-            _fixture.MockRestHttpClient.Verify(x=>x.Get<AccountLegalEntityResponse>("api/accountlegalentity/123", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<AccountLegalEntityResponse>("api/accountlegalentity/123", null, CancellationToken.None));
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         [Test]
         public async Task GetCohorts_VerifyUrlAndDataIsCorrectPassedIn()
         {
-            var request = new GetCohortsRequest {AccountId = 123};
+            var request = new GetCohortsRequest { AccountId = 123 };
             await _fixture.CommitmentsApiClient.GetCohorts(request);
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetCohortsResponse>("api/cohorts", request, CancellationToken.None));
         }
@@ -91,11 +91,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         [Test]
         public async Task CreateCohort_VerifyUrlAndDataIsCorrectPassedIn()
         {
-
             await _fixture.CommitmentsApiClient.CreateCohort(_fixture.CreateCohortRequest, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<CreateCohortRequest, CreateCohortResponse>("api/cohorts", _fixture.CreateCohortRequest, CancellationToken.None));
         }
-        
+
         [Test]
         public async Task CreateCohort_VerifyResponseWasReturned()
         {
@@ -107,7 +106,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         [Test]
         public async Task CreateCohortWithOtherParty_VerifyUrlAndDataIsCorrectPassedIn()
         {
-
             await _fixture.CommitmentsApiClient.CreateCohort(_fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", _fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None));
         }
@@ -222,7 +220,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?providerId={request.ProviderId}&reverseSort=False", null, CancellationToken.None));
         }
 
-        
         [Test]
         public async Task GetApprenticeshipsForEmployer_VerifyUrlAndDataIsCorrectPassedIn()
         {
@@ -239,7 +236,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/?accountId={request.AccountId}&reverseSort=False", null, CancellationToken.None));
         }
 
-         
         [Test]
         public void GetApprenticeships_WillThrowExceptionIfBothProviderIdAndEmployerAccountIdAreUsed()
         {
@@ -263,7 +259,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 ProviderId = 10,
                 PageNumber = 2
             };
-            
 
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeships(request);
@@ -282,7 +277,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 ProviderId = 10,
                 PageItemCount = 3
             };
-            
+
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeships(request);
 
@@ -319,7 +314,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 ProviderId = 10,
                 SortField = "test"
             };
-            
+
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeships(request);
 
@@ -337,7 +332,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 SortField = "test",
                 ReverseSort = true
             };
-             
+
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeships(request);
 
@@ -388,7 +383,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetApprenticeshipFilterValues_VerifyUrlAndDataIsCorrectForProvider()
         {
             //Arrange
-            var request = new GetApprenticeshipFiltersRequest{ ProviderId = 10 };
+            var request = new GetApprenticeshipFiltersRequest { ProviderId = 10 };
 
             //Act
             await _fixture.CommitmentsApiClient.GetApprenticeshipsFilterValues(request, CancellationToken.None);
@@ -421,7 +416,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             };
 
             //Act
-            Assert.ThrowsAsync<NotSupportedException>(() =>_fixture.CommitmentsApiClient.GetApprenticeshipsFilterValues(request, CancellationToken.None));
+            Assert.ThrowsAsync<NotSupportedException>(() => _fixture.CommitmentsApiClient.GetApprenticeshipsFilterValues(request, CancellationToken.None));
         }
 
         [Test]
@@ -448,10 +443,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
                 ProviderPriorities = new List<UpdateProviderPaymentsPriorityRequest.ProviderPaymentPriorityUpdateItem>(),
                 UserInfo = new UserInfo()
             };
-            
+
             //Act
             await _fixture.CommitmentsApiClient.UpdateProviderPaymentsPriority(accountId, request, CancellationToken.None);
-            
+
             // Assert
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/accounts/{accountId}/update-provider-payments-priority", request, CancellationToken.None));
         }
@@ -581,7 +576,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetAllStandards()
         {
             await _fixture.CommitmentsApiClient.GetAllTrainingProgrammeStandards();
-            
+
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetAllTrainingProgrammeStandardsResponse>("api/TrainingProgramme/standards", null, CancellationToken.None));
         }
 
@@ -597,7 +592,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetAllTrainingProgrammes()
         {
             await _fixture.CommitmentsApiClient.GetAllTrainingProgrammes();
-                
+
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetAllTrainingProgrammesResponse>("api/TrainingProgramme/all", null, CancellationToken.None));
         }
 
@@ -605,7 +600,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetTrainingProgrammeById()
         {
             await _fixture.CommitmentsApiClient.GetTrainingProgramme("123");
-            
+
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetTrainingProgrammeResponse>("api/TrainingProgramme/123", null, CancellationToken.None));
         }
 
@@ -686,10 +681,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             var providerId = 11;
 
             //Act
-            await _fixture.CommitmentsApiClient.GetProviderCommitmentAgreement(providerId,  CancellationToken.None);
+            await _fixture.CommitmentsApiClient.GetProviderCommitmentAgreement(providerId, CancellationToken.None);
 
             //Assert
-            _fixture.MockRestHttpClient.Verify(x => x.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{ providerId}/commitmentagreements", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetProviderCommitmentAgreementResponse>($"api/providers/{providerId}/commitmentagreements", null, CancellationToken.None));
         }
 
         public async Task GetEmployerAccountSummary_VerifyUrlAndDataIsCorrectlyPassedIn()
@@ -716,7 +711,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetTransferRequestSummaryResponse>($"api/accounts/{employerAccountId}/transfers", CancellationToken.None, CancellationToken.None));
         }
-
 
         [Test]
         public async Task RecognisePriorLearningUpdate_VerifyUrlAndDataIsCorrectPassedIn()
@@ -756,6 +750,23 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Assert
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}/prior-learning", request, CancellationToken.None));
         }
+
+        [Test]
+        public async Task ResolveOverlappingTrainingDateRequest_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var request = new ResolveApprenticeshipOverlappingTrainingDateRequest
+            {
+                ApprenticeshipId = 1,
+                ResolutionType = OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive
+            };
+
+            //Act
+            await _fixture.CommitmentsApiClient.ResolveOverlappingTrainingDateRequest(request, CancellationToken.None);
+
+            //Assert
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson($"api/overlapping-training-date-request/resolve", request, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture
@@ -772,7 +783,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public BulkUploadValidateApiRequest BulkUploadValidateApiRequest { get; set; }
         public UserInfo UserInfo { get; }
         public long CohortId { get; set; }
-        
+
         public WhenCallingTheEndpointsFixture()
         {
             MockRestHttpClient = new Mock<IRestHttpClient>();
@@ -807,7 +818,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             MockRestHttpClient.Setup(x => x.PostAsJson(It.IsAny<string>(), It.IsAny<AddDraftApprenticeshipRequest>(), CancellationToken.None))
                 .ReturnsAsync("");
- 
+
             return this;
         }
     }

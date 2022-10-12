@@ -73,7 +73,6 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     _logger.LogInformation($"OverlappingTrainingDateRequest Resolving Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
                     Resolve(overlappingTrainingDateRequest, resolutionType);
-
                 }
             }
         }
@@ -93,6 +92,13 @@ namespace SFA.DAS.CommitmentsV2.Services
                 // resolve overlap if any of the mandatory fields missing
                 return true;
             }
+
+            if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive)
+            {
+                _logger.LogInformation($"OverlappingTrainingDateRequest  employer confirm that Apprentieship is still active, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+                return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
+            }
+
             if (ULN_Changed(overlappingTrainingDateRequest))
             {
                 _logger.LogInformation($"OverlappingTrainingDateRequest Uln changed, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
