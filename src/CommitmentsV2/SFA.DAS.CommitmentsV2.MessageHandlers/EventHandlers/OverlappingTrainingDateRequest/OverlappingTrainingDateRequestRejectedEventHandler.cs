@@ -45,12 +45,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
         private SendEmailToProviderCommand BuildEmailToProviderCommand(Models.OverlappingTrainingDateRequest oltd)
         {
             var sendEmailToProviderCommand = new SendEmailToProviderCommand(oltd.DraftApprenticeship.Cohort.ProviderId,
-                "OverlapTrainingDateRequestRejected",
+                "OverlappingTrainingDateRequestRejected",
                       new Dictionary<string, string>
                       {
                           {"CohortReference", oltd.DraftApprenticeship.Cohort.Reference},
                           {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}{oltd.DraftApprenticeship.Cohort.ProviderId}/unapproved/{oltd.DraftApprenticeship.Cohort.Reference}/details" }
-                      });
+                      }, oltd.DraftApprenticeship.Cohort.LastUpdatedByProviderEmail);
 
             return sendEmailToProviderCommand;
         }
