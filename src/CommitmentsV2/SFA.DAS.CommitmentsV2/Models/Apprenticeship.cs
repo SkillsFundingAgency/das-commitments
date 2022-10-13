@@ -72,14 +72,21 @@ namespace SFA.DAS.CommitmentsV2.Models
                      OverlappingTrainingDateRequestStatus.Resolved;
 
                 oltd.ActionedOn = DateTime.UtcNow;
-            }
 
-            if (resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated &&
+                if (oltd.Status == OverlappingTrainingDateRequestStatus.Rejected)
+                {
+                    Publish(() => new OverlappingTrainingDateRequestRejectedEvent
+                    {
+                        OverlappingTrainingDateRequestId = oltd.Id
+                    });
+                }
+                else if (resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated &&
                 resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprentieshipDeleted)
-            {
-                Publish(() =>
-                    new OverlappingTrainingDateResolvedEvent(draftApprenticeshipId,
-                        oltd.DraftApprenticeship.CommitmentId));
+                {
+                    Publish(() =>
+                        new OverlappingTrainingDateResolvedEvent(draftApprenticeshipId,
+                            oltd.DraftApprenticeship.CommitmentId));
+                }
             }
         }
 
@@ -549,6 +556,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseOption = this.TrainingCourseOption,
                 FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
                 ApprenticeshipConfirmationStatus = ApprenticeshipConfirmationStatus?.Copy(),
+                IsOnFlexiPaymentPilot = this.IsOnFlexiPaymentPilot
             };
 
             return result;

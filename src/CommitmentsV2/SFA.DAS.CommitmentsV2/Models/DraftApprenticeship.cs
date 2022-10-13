@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             FirstName != null &&
             LastName != null &&
             Cost != null &&
-            StartDate != null &&
+            (StartDate != null || ActualStartDate != null) &&
             EndDate != null &&
             CourseCode != null &&
             DateOfBirth != null &&
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             LastName != null &&
             Uln != null &&
             Cost != null &&
-            StartDate != null &&
+            (StartDate != null || ActualStartDate != null) &&
             EndDate != null &&
             CourseCode != null &&
             DateOfBirth != null &&
@@ -124,9 +124,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             ClearPriorLearningWhenStartDateBeforeAug2022();
         }
 
-        internal OverlappingTrainingDateRequest CreateOverlappingTrainingDateRequest(Party originatingParty, long previousApprenticeshipId, UserInfo userInfo)
+        internal OverlappingTrainingDateRequest CreateOverlappingTrainingDateRequest(Party originatingParty, long previousApprenticeshipId, UserInfo userInfo, DateTime createdDate)
         {
-            var overlap = new OverlappingTrainingDateRequest(this, previousApprenticeshipId, originatingParty, userInfo);
+            var overlap = new OverlappingTrainingDateRequest(this, previousApprenticeshipId, originatingParty, userInfo, createdDate);
             OverlappingTrainingDateRequests.Add(overlap);
             return overlap;
         }

@@ -5,7 +5,7 @@
 	[PreviousApprenticeshipId] BIGINT NOT NULL,
 	[ResolutionType] SMALLINT NULL,
 	[Status] SMALLINT NOT NULL DEFAULT 0, 
-	[CreatedOn] DATETIME NOT NULL DEFAULT GETDATE(),
+	[CreatedOn] DATETIME2 NOT NULL DEFAULT GETDATE(),
 	[ActionedOn] DATETIME2 NULL,
 	[RowVersion] ROWVERSION NOT NULL,
 )

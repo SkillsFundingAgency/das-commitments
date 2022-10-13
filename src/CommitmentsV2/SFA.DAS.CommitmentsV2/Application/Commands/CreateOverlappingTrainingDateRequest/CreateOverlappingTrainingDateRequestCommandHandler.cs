@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDa
         public async Task<CreateOverlappingTrainingDateResult> Handle(CreateOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
         {
             var result = await _overlappingTrainingDateRequestDomainService
-                .CreateOverlappingTrainingDateRequest(request.DraftApprneticeshipId,
+                .CreateOverlappingTrainingDateRequest(request.DraftApprenticeshipId,
                 request.UserInfo,
                 cancellationToken);
 

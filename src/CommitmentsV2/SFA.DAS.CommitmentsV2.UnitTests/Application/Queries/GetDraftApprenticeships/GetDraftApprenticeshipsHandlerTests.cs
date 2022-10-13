@@ -168,6 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.RecognisePriorLearning, result.RecognisePriorLearning);
             Assert.AreEqual(source.PriorLearning.DurationReducedBy, result.DurationReducedBy);
             Assert.AreEqual(source.PriorLearning.PriceReducedBy, result.PriceReducedBy);
+            Assert.AreEqual(source.IsOnFlexiPaymentPilot, result.IsOnFlexiPaymentPilot);
         }
     }
 }

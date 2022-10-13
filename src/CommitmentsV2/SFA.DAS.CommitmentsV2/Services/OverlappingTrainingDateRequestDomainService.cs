@@ -1,14 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -17,12 +18,14 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
         private readonly IOverlapCheckService _overlapCheckService;
+        private readonly ICurrentDateTime _currentDateTime;
 
-        public OverlappingTrainingDateRequestDomainService(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, IOverlapCheckService overlapCheckService)
+        public OverlappingTrainingDateRequestDomainService(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, IOverlapCheckService overlapCheckService, ICurrentDateTime currentDateTime)
         {
             _dbContext = dbContext;
             _authenticationService = authenticationService;
             _overlapCheckService = overlapCheckService;
+            _currentDateTime = currentDateTime;
         }
 
         public async Task<OverlappingTrainingDateRequest> CreateOverlappingTrainingDateRequest(long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken)
@@ -42,10 +45,10 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (!overlapResult.HasOverlappingStartDate || overlapResult.ApprenticeshipId == null)
             {
-                throw new InvalidOperationException($"Can't create Overlapping Training Date Request. Draft apprentiecship {draftApprenticeship.Id} doesn't have overlap with another apprenticeship.");
+                throw new InvalidOperationException($"Can't create Overlapping Training Date Request. Draft apprenticeship {draftApprenticeship.Id} doesn't have overlap with another apprenticeship.");
             }
 
-            var result = draftApprenticeship.CreateOverlappingTrainingDateRequest(party, overlapResult.ApprenticeshipId.Value, userInfo);
+            var result = draftApprenticeship.CreateOverlappingTrainingDateRequest(party, overlapResult.ApprenticeshipId.Value, userInfo, _currentDateTime.UtcNow);
             await _dbContext.Value.SaveChangesAsync();
             return result;
         }

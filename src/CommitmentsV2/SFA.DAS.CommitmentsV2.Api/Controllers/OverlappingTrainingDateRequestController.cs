@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
@@ -8,8 +9,8 @@ using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateR
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingOverlapRequests;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -34,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var result = await _mediator.Send(new CreateOverlappingTrainingDateRequestCommand
             {
                 ProviderId = providerId,
-                DraftApprneticeshipId = request.DraftApprenticeshipId,
+                DraftApprenticeshipId = request.DraftApprenticeshipId,
                 UserInfo = request.UserInfo
             });
 
@@ -60,6 +61,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 HasOverlapWithApprenticeshipId = result.HasOverlapWithApprenticeshipId,
                 HasStartDateOverlap = result.HasStartDateOverlap
+            });
+        }
+
+        [HttpGet]
+        [Route("{draftApprenticeshipId}/getOverlapRequest")]
+        public async Task<IActionResult> GetPendingOverlappingTrainingDateRequest(long draftApprenticeshipId)
+        {
+            var result = await _mediator.Send(new GetPendingOverlapRequestsQuery(draftApprenticeshipId));
+
+            return Ok(new GetOverlapRequestsResponse
+            {
+                DraftApprenticeshipId = result?.DraftApprenticeshipId,
+                PreviousApprenticeshipId = result?.PreviousApprenticeshipId,
+                CreatedOn = result?.CreatedOn
             });
         }
 
