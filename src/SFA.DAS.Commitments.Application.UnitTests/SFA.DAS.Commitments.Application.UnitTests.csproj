@@ -349,14 +349,6 @@
       <Project>{3c2b457c-fbd1-494d-91d8-e0f614bba99f}</Project>
       <Name>SFA.DAS.CommitmentsV2.Types</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
-      <Project>{AA3B3870-F97A-443B-8429-663DE064A8AD}</Project>
-      <Name>SFA.DAS.Commitments.Api.Types</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
-      <Project>{880CDAF6-D9EE-481B-B4D8-7DE9C215A770}</Project>
-      <Name>SFA.DAS.Commitments.Application</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>
@@ -364,10 +356,6 @@
     <ProjectReference Include="..\SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj">
       <Project>{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}</Project>
       <Name>SFA.DAS.Commitments.Events</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj">
-      <Project>{7c2c2688-abf9-4a08-9fc3-ba169a5888c4}</Project>
-      <Name>SFA.DAS.Commitments.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\CommitmentsV2\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj">
       <Project>{1c575645-72a6-4912-ab53-a58f0d28d5cd}</Project>

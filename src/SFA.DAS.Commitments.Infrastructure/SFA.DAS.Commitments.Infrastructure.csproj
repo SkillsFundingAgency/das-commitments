@@ -266,10 +266,6 @@
       <Project>{3c2b457c-fbd1-494d-91d8-e0f614bba99f}</Project>
       <Name>SFA.DAS.CommitmentsV2.Types</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
-      <Project>{880CDAF6-D9EE-481B-B4D8-7DE9C215A770}</Project>
-      <Name>SFA.DAS.Commitments.Application</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>
