@@ -156,13 +156,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         [Test]
         public Task Map_IsProviderOnFlexiPaymentPilotWithoutValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.IsProviderOnFlexiPaymentPilot, (bool?)null);
+            return AssertPropertySet(from => from.IsProviderOnFlexiPaymentPilot, false);
         }
 
         [Test]
         public Task Map_IsProviderOnFlexiPaymentPilotWithValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.IsProviderOnFlexiPaymentPilot, (bool?)true);
+            return AssertPropertySet(from => from.IsProviderOnFlexiPaymentPilot, true);
         }
 
         [TestCase(DeliveryModel.Regular)]

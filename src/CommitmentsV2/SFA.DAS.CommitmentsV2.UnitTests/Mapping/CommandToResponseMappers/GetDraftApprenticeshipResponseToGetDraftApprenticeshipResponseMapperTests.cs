@@ -106,7 +106,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         [Test]
         public Task Map_ReservationId_ShouldBeSet()
         {
-            Guid reservationId = Guid.NewGuid();
             return AssertPropertySet(input => input.ReservationId, (Guid?) Guid.NewGuid());
         }
 
@@ -145,7 +144,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         [Test]
         public Task Map_IsProviderOnFlexiPaymentPilot_ShouldBeSet()
         {
-            return AssertPropertySet(input => input.IsProviderOnFlexiPaymentPilot, (bool?)true);
+            return AssertPropertySet(input => input.IsProviderOnFlexiPaymentPilot, true);
         }
 
         [TestCase(true)]
