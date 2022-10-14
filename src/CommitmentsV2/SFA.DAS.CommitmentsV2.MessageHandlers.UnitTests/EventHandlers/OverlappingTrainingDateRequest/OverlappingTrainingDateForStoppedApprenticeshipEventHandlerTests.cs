@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.OverlappingTrainingDateRequest
@@ -49,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                     c.NameToken == "Name" &&
                     c.Tokens["Uln"] == OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.Uln &&
                     c.Tokens["Apprentice"] == $"{OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.LastName}" &&
-                    c.Tokens["StopDate"] == _fixture.StopDate.ToString("dd/MM/yyyy") &&
+                    c.Tokens["StopDate"] == _fixture.StopDate.ToGdsFormatLongMonthWithoutDay() &&
                     c.Tokens["Url"] == $"{OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.HashedApprenticeshipId}/details"
                 )
                 , It.IsAny<SendOptions>()), Times.Once);
@@ -69,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                     c.NameToken == "Name" &&
                     c.Tokens["Uln"] == OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.Uln &&
                     c.Tokens["Apprentice"] == $"{OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.LastName}" &&
-                    c.Tokens["StopDate"] == _fixture.StopDate.ToString("dd/MM/yyyy") &&
+                    c.Tokens["StopDate"] == _fixture.StopDate.ToGdsFormatLongMonthWithoutDay() &&
                     c.Tokens["Url"] == $"{OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture.HashedApprenticeshipId}/details"
                     )
                   , It.IsAny<SendOptions>()), Times.Never);

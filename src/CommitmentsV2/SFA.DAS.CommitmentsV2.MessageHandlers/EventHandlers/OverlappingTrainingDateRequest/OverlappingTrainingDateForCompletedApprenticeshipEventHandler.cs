@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
 {
@@ -64,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
                 {
                         {"Uln",message.Uln},
                         {"Apprentice", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
-                        {"EndDate",apprenticeship.EndDate?.ToString("dd/MM/yyyy")},
+                        {"EndDate",apprenticeship.EndDate?.ToGdsFormatLongMonthWithoutDay()},
                         {"Url", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
                 },null, "Name"
             );
