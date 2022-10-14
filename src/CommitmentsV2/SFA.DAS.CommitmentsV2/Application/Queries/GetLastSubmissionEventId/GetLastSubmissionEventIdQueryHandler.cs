@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using System;
@@ -19,11 +20,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetLastSubmissionEventId
             _logger = logger;
         }
 
-        public Task<long?> Handle(GetLastSubmissionEventIdQuery request, CancellationToken cancellationToken)
+        public async Task<long?> Handle(GetLastSubmissionEventIdQuery request, CancellationToken cancellationToken)
         {
-            var result = _dbContext.Value.JobProgress.Select(x => x.AddEpaLastSubmissionEventId).FirstOrDefault();
+            var result = await _dbContext.Value.JobProgress.Select(x => x.AddEpaLastSubmissionEventId).FirstOrDefaultAsync();
             _logger.LogInformation($"Last SubmissionEventId processed by previous job run is {result ?? 0}");
-            return Task.FromResult(result);
+            return result;
         }
     }
 }

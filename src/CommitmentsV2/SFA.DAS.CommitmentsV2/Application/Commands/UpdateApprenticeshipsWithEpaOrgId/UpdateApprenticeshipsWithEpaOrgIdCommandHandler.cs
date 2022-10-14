@@ -40,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipsWithEp
                     }
                 }
             }
+
             await _dbContext.Value.SaveChangesAsync();
             return command.SubmissionEvents.LastOrDefault()?.Id;
         }

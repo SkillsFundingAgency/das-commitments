@@ -37,7 +37,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             public UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture()
             {
-                // var autoFixture = new AutoFixture.Fixture();
                 _epaoResponse = new EpaoResponse();
                 _epaoResponse.Epaos = new List<OrganisationSummary>()
                 {
