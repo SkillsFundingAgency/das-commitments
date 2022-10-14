@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="4.11.0" />
+    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="SFA.DAS.Testing" Version="3.0.169" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommitmentsV2\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj" />
+    <ProjectReference Include="..\SFA.DAS.ReservationsV2.Api.Types\SFA.DAS.ReservationsV2.Api.Types.csproj" />
+  </ItemGroup>
+
+</Project>

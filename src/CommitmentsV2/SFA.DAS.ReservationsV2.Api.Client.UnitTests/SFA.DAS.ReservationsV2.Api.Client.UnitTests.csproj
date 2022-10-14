@@ -18,7 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj" />
-    <ProjectReference Include="..\..\SFA.DAS.Reservations.API.Types\SFA.DAS.Reservations.Api.Types.csproj" />
   </ItemGroup>
 
 </Project>

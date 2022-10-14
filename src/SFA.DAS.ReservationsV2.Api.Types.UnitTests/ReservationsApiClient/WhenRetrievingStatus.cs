@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
