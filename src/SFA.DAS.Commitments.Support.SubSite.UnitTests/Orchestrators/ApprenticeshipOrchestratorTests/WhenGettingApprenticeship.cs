@@ -5,12 +5,10 @@ using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using FluentValidation;
-using FluentValidation.Results;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
@@ -204,193 +202,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             result.OverlappingTrainingDateRequest.Should().Be(overlappingTrainingDateRequestViewModel);
         }
 
-        [Test, MoqAutoData]
-        public async Task GivenValidUlnForAccountShouldGetApprenticeships(UlnSummaryViewModel ulnSummary)
-        {
-            // Arrange
-            const long decodedAccountId = 843;
-
-            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
-            {
-                SearchTerm = "1000201219",
-                SearchType = ApprenticeshipSearchType.SearchByUln,
-                HashedAccountId = "ABC1234"
-            };
-
-            _mediator.Setup(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(q => q.Uln == searchQuery.SearchTerm && q.AccountId == decodedAccountId), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            }).Verifiable();
-
-            var validationResult = new Mock<ValidationResult>();
-            validationResult.SetupGet(x => x.IsValid).Returns(true);
-
-            _searchValidator.Setup(x => x.Validate(searchQuery))
-                .Returns(validationResult.Object)
-                .Verifiable();
-
-            _apprenticeshipMapper
-                .Setup(o => o.MapToUlnResultView(It.IsAny<GetSupportApprenticeshipQueryResult>()))
-                .Returns(ulnSummary)
-                .Verifiable();
-
-            _encodingService
-              .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
-              .Returns(decodedAccountId);
-
-            // Act
-            var result = await _sut.GetApprenticeshipsByUln(searchQuery);
-
-            // Assert
-            _encodingService.VerifyAll();
-            _searchValidator.VerifyAll();
-            _mediator.VerifyAll();
-            _apprenticeshipMapper.VerifyAll();
-
-            result.Should().Be(ulnSummary);
-        }
-
-        [Test]
-        public async Task GivenInvalidHashedAccountIdReturnErrorResponseMessage()
-        {
-            // Arrange
-            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
-            {
-                SearchTerm = "1000201219",
-                SearchType = ApprenticeshipSearchType.SearchByUln
-            };
-
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            });
-
-            var validationResult = new Mock<ValidationResult>();
-            validationResult.SetupGet(x => x.IsValid).Returns(true);
-
-            _searchValidator.Setup(x => x.Validate(searchQuery))
-                .Returns(validationResult.Object)
-                .Verifiable();
-
-            _encodingService
-              .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
-              .Throws(new Exception());
-
-            // Act
-            var result = await _sut.GetApprenticeshipsByUln(searchQuery);
-
-            // Assert
-            _searchValidator.VerifyAll();
-            _mediator.Verify(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None), Times.Never);
-
-            result.Should().NotBeNull();
-            result.Should().BeOfType<UlnSummaryViewModel>();
-
-            result.ReponseMessages.Should().NotBeNull();
-            result.ReponseMessages.Should().HaveCount(1);
-        }
-
-        [Test]
-        public async Task GivenInvalidUlnShouldReturnResponseMessageAndNotCallSearchService()
-        {
-            // Arrange
-            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
-            {
-                SearchTerm = "000000001",
-                SearchType = ApprenticeshipSearchType.SearchByUln
-            };
-
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            });
-
-            var validationFailures = new List<ValidationFailure>
-            {
-                new ValidationFailure("SearchTerm","Invalid Uln")
-            };
-
-            var validationResult = new ValidationResult(validationFailures);
-
-            _searchValidator.Setup(x => x.Validate(searchQuery))
-                .Returns(validationResult)
-                .Verifiable();
-
-            // Act
-            var result = await _sut.GetApprenticeshipsByUln(searchQuery);
-
-            // Assert
-            _searchValidator.VerifyAll();
-            _mediator.Verify(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None), Times.Never);
-
-            result.Should().NotBeNull();
-            result.Should().BeOfType<UlnSummaryViewModel>();
-
-            result.ReponseMessages.Should().NotBeNull();
-            result.ReponseMessages.Should().HaveCount(1);
-        }
-
-        [Test]
-        public async Task WhenNoUlnRecordIsFoundShouldReturnResponseMessages()
-        {
-            // Arrange
-            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
-            {
-                SearchTerm = "1000201219",
-                SearchType = ApprenticeshipSearchType.SearchByUln
-            };
-
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-             .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-             {
-                 Apprenticeships = null
-             });
-
-            var validationResult = new Mock<ValidationResult>();
-            validationResult.SetupGet(x => x.IsValid).Returns(true);
-
-            _searchValidator.Setup(x => x.Validate(searchQuery))
-                .Returns(validationResult.Object)
-                .Verifiable();
-
-            // Act
-            var result = await _sut.GetApprenticeshipsByUln(searchQuery);
-
-            // Assert
-            _searchValidator.VerifyAll();
-            _mediator.Verify(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None), Times.Once);
-
-            result.Should().NotBeNull();
-            result.Should().BeOfType<UlnSummaryViewModel>();
-
-            result.ReponseMessages.Should().NotBeNull();
-            result.ReponseMessages.Should().HaveCount(1);
-        }
-
-        private List<SupportApprenticeshipDetails> GetApprenticeships()
-        {
-            return new List<SupportApprenticeshipDetails>
-            {
-                new SupportApprenticeshipDetails
-                {
-                    FirstName = "Testoo1",
-                    StartDate = new DateTime(2020,1,1)
-                }
-            };
-        }
-
         private static void SetupEncodingMocks(string hashedApprenticeshipId, string hashedAccountId, long decodedApprenticeshipId, long decodedAccountId, Mock<IEncodingService> encodingServiceMock)
         {
             encodingServiceMock
-                          .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
-                          .Returns(decodedApprenticeshipId);
+                .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
+                .Returns(decodedApprenticeshipId);
 
             encodingServiceMock
-              .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
-              .Returns(decodedAccountId);
+                .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
+                .Returns(decodedAccountId);
         }
 
         private static void SetupMapperMocks(

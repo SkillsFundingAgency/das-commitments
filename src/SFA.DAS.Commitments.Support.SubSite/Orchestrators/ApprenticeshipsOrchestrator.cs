@@ -200,6 +200,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
                 var cohortApprenticeshipsResponse = await _mediator.Send(new GetSupportApprenticeshipQuery
                 {
+                    AccountId = accountId,
                     CohortId = cohort.CohortId,
                 });
 
@@ -215,7 +216,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
         }
 
-        public async Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashCommitmentId, string accountHashedId)
+        public async Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashedCommitmentId, string hashedAccountId)
         {
             _logger.LogInformation("Retrieving Commitment Details");
 
@@ -224,7 +225,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             try
             {
-                commitmentId = _encodingService.Decode(hashCommitmentId, EncodingType.CohortReference);
+                commitmentId = _encodingService.Decode(hashedCommitmentId, EncodingType.CohortReference);
             }
             catch (Exception ex)
             {
@@ -234,7 +235,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             try
             {
-                accountId = _encodingService.Decode(accountHashedId, EncodingType.AccountId);
+                accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
             }
             catch (Exception ex)
             {
@@ -246,7 +247,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             if (cohort == null)
             {
-                var errorMsg = $"Can't find Commitment with Hash Id {hashCommitmentId}";
+                var errorMsg = $"Can't find Commitment with Hash Id {hashedCommitmentId}";
                 _logger.LogWarning(errorMsg);
 
                 throw new Exception(errorMsg);
@@ -254,6 +255,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             var cohortApprenticeshipsResponse = await _mediator.Send(new GetSupportApprenticeshipQuery
             {
+                AccountId = accountId,
                 CohortId = cohort.CohortId
             });
 
