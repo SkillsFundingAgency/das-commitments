@@ -42,24 +42,24 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             _commitmentMapper = commitmentMapper;
         }
 
-        public async Task<ApprenticeshipViewModel> GetApprenticeship(string hashId, string accountHashedId)
+        public async Task<ApprenticeshipViewModel> GetApprenticeship(string hashedApprenticeshipId, string hashedAccountId)
         {
             _logger.LogInformation("Retrieving Apprenticeship Details");
 
-            var apprenticeshipId = _encodingService.Decode(hashId, EncodingType.ApprenticeshipId);
-            _ = _encodingService.Decode(accountHashedId, EncodingType.AccountId);
+            var apprenticeshipId = _encodingService.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId);
+            var accountId = _encodingService.Decode(hashedAccountId, EncodingType.AccountId);
 
             var response = await _mediator.Send(new GetSupportApprenticeshipQuery
             {
+                AccountId = accountId,
                 ApprenticeshipId = apprenticeshipId
             });
 
-            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId,
-                CommitmentsV2.Types.ApprenticeshipUpdateStatus.Pending));
+            var apprenticeshipUpdate = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, CommitmentsV2.Types.ApprenticeshipUpdateStatus.Pending));
 
-            if (response == null)
+            if (response == null || !response.Apprenticeships.Any())
             {
-                var errorMsg = $"Can't find Apprenticeship with Hash Id {hashId}";
+                var errorMsg = $"Can't find Apprenticeship with Hash Id {hashedApprenticeshipId}";
                 _logger.LogWarning(errorMsg);
 
                 throw new Exception(errorMsg);

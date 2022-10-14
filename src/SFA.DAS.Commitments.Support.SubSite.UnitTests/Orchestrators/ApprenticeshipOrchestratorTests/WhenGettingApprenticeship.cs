@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture.NUnit3;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -15,6 +16,8 @@ using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
@@ -55,80 +58,150 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 _commitmentMapper.Object);
         }
 
-        [Test]
-        public async Task GivenValidApprenticeshipIdShouldCallRequiredServices()
+        [Test, MoqAutoData]
+        public void GivenValidApprenticeshipId_NoApprenticeshipsReturned_ShouldError(
+            string hashedApprenticeshipId,
+            string hashedAccountId,
+            ApprenticeshipsOrchestrator sut)
         {
-            // Arrasnge
-            string hashedApprenticeshipId = "ABC001";
-            string hashedAccountId = "ACCOUNT001";
-
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            }).Verifiable();
-
-            _apprenticeshipMapper
-                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
-                .Returns(new ApprenticeshipViewModel())
-                .Verifiable();
-
-            _encodingService
-              .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
-              .Returns(100);
-
-            _encodingService
-              .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
-              .Returns(100);
+            // Arrange
 
             // Act
-            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+            Assert.ThrowsAsync<Exception>(() => sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId));
 
             // Assert
-            _encodingService.Verify(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
-            _encodingService.Verify(o => o.Decode(hashedAccountId, EncodingType.AccountId), Times.Once);
-
-            _mediator
-                .Verify(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
-            _apprenticeshipMapper
-                .Verify(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()), Times.Once);
         }
 
-        [Test]
-        public async Task GivenValidApprenticeshipIdShouldGetApprenticeshipUpdate()
+        [Test, MoqAutoData]
+        public async Task GivenValidApprenticeshipId_ApprenticeshipsReturned_ShouldReturnApprenticeships(
+           string hashedApprenticeshipId,
+           string hashedAccountId,
+           long decodedApprenticeshipId,
+           long decodedAccountId,
+           [Frozen] Mock<IEncodingService> encodingServiceMock,
+           [Frozen] Mock<IMediator> mediatorMock,
+           [Frozen] Mock<IApprenticeshipMapper> apprenticeshipMapperMock,
+           GetSupportApprenticeshipQueryResult supportApprenticeshipQueryResult,
+           ApprenticeshipViewModel apprenticeshipViewModel,
+           ApprenticeshipsOrchestrator sut)
         {
-            // Arrasnge
-            string hashedApprenticeshipId = "ABC001";
-            string hashedAccountId = "ACCOUNT001";
+            // Arrange
+            SetupEncodingMocks(hashedApprenticeshipId, hashedAccountId, decodedApprenticeshipId, decodedAccountId, encodingServiceMock);
 
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-            .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-            {
-                Apprenticeships = GetApprenticeships()
-            }).Verifiable();
+            mediatorMock
+                .Setup(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(q => q.ApprenticeshipId == decodedApprenticeshipId && q.AccountId == decodedAccountId), CancellationToken.None))
+                .ReturnsAsync(supportApprenticeshipQueryResult);
 
-            _apprenticeshipMapper
-                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
-                .Returns(new ApprenticeshipViewModel())
-                .Verifiable();
-
-            _apprenticeshipMapper
-              .Setup(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()))
-              .Returns(new ApprenticeshipUpdateViewModel());
-
-            _encodingService
-              .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
-              .Returns(100);
-
-            _encodingService
-              .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
-              .Returns(100);
+            SetupMapperMocks(apprenticeshipMapperMock, apprenticeshipViewModel);
 
             // Act
-            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+            var result = await sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
             // Assert
-            _apprenticeshipMapper.Verify(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()), Times.Once);
+            result.Should().Be(apprenticeshipViewModel);
+        }
+
+        [Test, MoqAutoData]
+        public async Task GivenValidApprenticeshipId_ApprenticeshipsReturned_WithUpdate_NotCost_ShouldReturnApprenticeshipWithUpdate(
+           string hashedApprenticeshipId,
+           string hashedAccountId,
+           long decodedApprenticeshipId,
+           long decodedAccountId,
+           [Frozen] Mock<IEncodingService> encodingServiceMock,
+           [Frozen] Mock<IMediator> mediatorMock,
+           [Frozen] Mock<IApprenticeshipMapper> apprenticeshipMapperMock,
+           GetSupportApprenticeshipQueryResult supportApprenticeshipQueryResult,
+           ApprenticeshipViewModel apprenticeshipViewModel,
+           ApprenticeshipUpdateViewModel apprenticeshipUpdateViewModel,
+           ApprenticeshipsOrchestrator sut)
+        {
+            // Arrange
+            apprenticeshipUpdateViewModel.Cost = null;
+
+            SetupEncodingMocks(hashedApprenticeshipId, hashedAccountId, decodedApprenticeshipId, decodedAccountId, encodingServiceMock);
+
+            mediatorMock
+                .Setup(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(q => q.ApprenticeshipId == decodedApprenticeshipId && q.AccountId == decodedAccountId), CancellationToken.None))
+                .ReturnsAsync(supportApprenticeshipQueryResult);
+
+            SetupMapperMocks(apprenticeshipMapperMock, apprenticeshipViewModel, apprenticeshipUpdateViewModel);
+
+            // Act
+            var result = await sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+
+            // Assert
+            result.ApprenticeshipUpdates.Should().Be(apprenticeshipUpdateViewModel);
+        }
+
+        [Test, MoqAutoData]
+        public async Task GivenValidApprenticeshipId_ApprenticeshipsReturned_WithUpdate_WithCost_ShouldReturnApprenticeshipWithUpdate_And_TrainingCost(
+           string hashedApprenticeshipId,
+           string hashedAccountId,
+           long decodedApprenticeshipId,
+           long decodedAccountId,
+           decimal trainingCost,
+           [Frozen] Mock<IEncodingService> encodingServiceMock,
+           [Frozen] Mock<IMediator> mediatorMock,
+           [Frozen] Mock<IApprenticeshipMapper> apprenticeshipMapperMock,
+           GetSupportApprenticeshipQueryResult supportApprenticeshipQueryResult,
+
+           ApprenticeshipViewModel apprenticeshipViewModel,
+           ApprenticeshipUpdateViewModel apprenticeshipUpdateViewModel,
+           ApprenticeshipsOrchestrator sut)
+        {
+            // Arrange
+            GetPriceEpisodesQueryResult getPriceEpisodesQueryResult = CreatePriceEpisodesForApprenticeship(decodedApprenticeshipId, trainingCost);
+
+            SetupEncodingMocks(hashedApprenticeshipId, hashedAccountId, decodedApprenticeshipId, decodedAccountId, encodingServiceMock);
+
+            mediatorMock
+                .Setup(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(q => q.ApprenticeshipId == decodedApprenticeshipId && q.AccountId == decodedAccountId), CancellationToken.None))
+                .ReturnsAsync(supportApprenticeshipQueryResult);
+
+            SetupMapperMocks(apprenticeshipMapperMock, apprenticeshipViewModel, apprenticeshipUpdateViewModel);
+
+            mediatorMock
+                .Setup(x => x.Send(It.Is<GetPriceEpisodesQuery>(q => q.ApprenticeshipId == decodedApprenticeshipId), CancellationToken.None))
+                .ReturnsAsync(getPriceEpisodesQueryResult);
+
+            // Act
+            var result = await sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+
+            // Assert
+            result.TrainingCost.Should().Be(trainingCost);
+        }
+
+        [Test, MoqAutoData]
+        public async Task GivenValidApprenticeshipId_ApprenticeshipsReturned_WithOLTD__ShouldReturnApprenticeshipWithOLTD(
+           string hashedApprenticeshipId,
+           string hashedAccountId,
+           long decodedApprenticeshipId,
+           long decodedAccountId,
+           [Frozen] Mock<IEncodingService> encodingServiceMock,
+           [Frozen] Mock<IMediator> mediatorMock,
+           [Frozen] Mock<IApprenticeshipMapper> apprenticeshipMapperMock,
+           GetSupportApprenticeshipQueryResult supportApprenticeshipQueryResult,
+           ApprenticeshipViewModel apprenticeshipViewModel,
+           ApprenticeshipUpdateViewModel apprenticeshipUpdateViewModel,
+           OverlappingTrainingDateRequestViewModel overlappingTrainingDateRequestViewModel,
+           ApprenticeshipsOrchestrator sut)
+        {
+            // Arrange
+            apprenticeshipUpdateViewModel.Cost = null;
+
+            SetupEncodingMocks(hashedApprenticeshipId, hashedAccountId, decodedApprenticeshipId, decodedAccountId, encodingServiceMock);
+
+            mediatorMock
+                .Setup(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(q => q.ApprenticeshipId == decodedApprenticeshipId && q.AccountId == decodedAccountId), CancellationToken.None))
+                .ReturnsAsync(supportApprenticeshipQueryResult);
+
+            SetupMapperMocks(apprenticeshipMapperMock, apprenticeshipViewModel, apprenticeshipUpdateViewModel, overlappingTrainingDateRequestViewModel);
+
+            // Act
+            var result = await sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+
+            // Assert
+            result.OverlappingTrainingDateRequest.Should().Be(overlappingTrainingDateRequestViewModel);
         }
 
         [Test, MoqAutoData]
@@ -305,6 +378,61 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 {
                     FirstName = "Testoo1",
                     StartDate = new DateTime(2020,1,1)
+                }
+            };
+        }
+
+        private static void SetupEncodingMocks(string hashedApprenticeshipId, string hashedAccountId, long decodedApprenticeshipId, long decodedAccountId, Mock<IEncodingService> encodingServiceMock)
+        {
+            encodingServiceMock
+                          .Setup(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId))
+                          .Returns(decodedApprenticeshipId);
+
+            encodingServiceMock
+              .Setup(o => o.Decode(hashedAccountId, EncodingType.AccountId))
+              .Returns(decodedAccountId);
+        }
+
+        private static void SetupMapperMocks(
+            Mock<IApprenticeshipMapper> apprenticeshipMapperMock,
+            ApprenticeshipViewModel apprenticeshipViewModel,
+            ApprenticeshipUpdateViewModel apprenticeshipUpdateViewModel = null,
+            OverlappingTrainingDateRequestViewModel overlappingTrainingDateRequestViewModel = null)
+        {
+            apprenticeshipMapperMock
+                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
+                .Returns(apprenticeshipViewModel);
+
+            apprenticeshipMapperMock
+                .Setup(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()))
+                .Returns(apprenticeshipUpdateViewModel);
+
+            apprenticeshipMapperMock
+                .Setup(o => o.MapToOverlappingTrainingDateRequest(It.IsAny<GetOverlappingTrainingDateRequestQueryResult.OverlappingTrainingDateRequest>()))
+                .Returns(overlappingTrainingDateRequestViewModel);
+        }
+
+        private static GetPriceEpisodesQueryResult CreatePriceEpisodesForApprenticeship(long decodedApprenticeshipId, decimal latestPriceEpisodeCost)
+        {
+            return new GetPriceEpisodesQueryResult
+            {
+                PriceEpisodes = new List<GetPriceEpisodesQueryResult.PriceEpisode>
+                {
+                    new GetPriceEpisodesQueryResult.PriceEpisode
+                    {
+                        Id = 1,
+                        ApprenticeshipId = decodedApprenticeshipId,
+                        FromDate = DateTime.Now.AddYears(-1),
+                        ToDate = DateTime.Now.AddMonths(-6).AddDays(-1),
+                        Cost = 11229944
+                    },
+                    new GetPriceEpisodesQueryResult.PriceEpisode
+                    {
+                        Id = 2,
+                        ApprenticeshipId = decodedApprenticeshipId,
+                        FromDate = DateTime.Now.AddMonths(-6),
+                        Cost = latestPriceEpisodeCost
+                    }
                 }
             };
         }
