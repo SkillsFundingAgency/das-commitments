@@ -38,10 +38,11 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
 
                 var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-                if (apprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Live
-                    || apprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.WaitingToStart
-                    || apprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Paused)
+                var currentApprenticeshipStatus = apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow);
 
+                if (currentApprenticeshipStatus == ApprenticeshipStatus.Live
+                    || currentApprenticeshipStatus == ApprenticeshipStatus.WaitingToStart
+                    || currentApprenticeshipStatus == ApprenticeshipStatus.Paused)
                 {
                     var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
 

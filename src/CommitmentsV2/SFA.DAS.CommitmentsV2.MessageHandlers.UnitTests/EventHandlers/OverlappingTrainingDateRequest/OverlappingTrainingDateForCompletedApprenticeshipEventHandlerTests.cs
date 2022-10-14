@@ -38,9 +38,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
         }
 
         [Test]
-        public async Task WhenHandlingOverlappingTrainingDateEvent_If_ApprenticeshipStatus_Is_Completed_ThenSendEmailToEmployerIsCalled()
+        public async Task WhenHandlingOverlappingTrainingDateEvent_If_PaymentStatus_Is_Completed_ThenSendEmailToEmployerIsCalled()
         {
-            _fixture.WithApprenticeshipStatus(ApprenticeshipStatus.Completed);
+            _fixture.WithPaymentStatus(PaymentStatus.Completed);
 
             await _fixture.Handle();
 
@@ -55,13 +55,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
                 , It.IsAny<SendOptions>()), Times.Once);
         }
 
-        [TestCase(ApprenticeshipStatus.Live)]
-        [TestCase(ApprenticeshipStatus.WaitingToStart)]
-        [TestCase(ApprenticeshipStatus.Paused)]
-        [TestCase(ApprenticeshipStatus.Stopped)]
-        public async Task WhenHandlingOverlappingTrainingDateEvent_If_ApprenticeshipStatus_Is_Not_Completed_ThenSendEmailToEmployerIsNotCalled(ApprenticeshipStatus apprenticeshipStatus)
+        [TestCase(PaymentStatus.Active)]
+        [TestCase(PaymentStatus.Paused)]
+        [TestCase(PaymentStatus.Withdrawn)]
+        public async Task WhenHandlingOverlappingTrainingDateEvent_If_PaymentStatus_Is_Not_Completed_ThenSendEmailToEmployerIsNotCalled(PaymentStatus paymentStatus)
         {
-            _fixture.WithApprenticeshipStatus(apprenticeshipStatus);
+            _fixture.WithPaymentStatus(paymentStatus);
 
             await _fixture.Handle();
 
@@ -115,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             _apprenticeship.SetValue(x => x.FirstName, FirstName);
             _apprenticeship.SetValue(x => x.LastName, LastName);
             _apprenticeship.SetValue(x => x.EndDate, EndDate);
-            _apprenticeship.SetValue(x => x.ApprenticeshipStatus, ApprenticeshipStatus.Completed);
+            _apprenticeship.SetValue(x => x.PaymentStatus, PaymentStatus.Completed);
             _apprenticeship.SetValue(x => x.Cohort, new Cohort
             {
                 AccountLegalEntity = accountLegalEntity,
@@ -141,9 +140,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
         {
             return Handler.Handle(Event, MessageHandlerContext.Object);
         }
-        public OverlappingTrainingDateForCompletedApprenticeshipEventHandlerFixture WithApprenticeshipStatus(ApprenticeshipStatus apprenticeshipStatus)
+        public OverlappingTrainingDateForCompletedApprenticeshipEventHandlerFixture WithPaymentStatus(PaymentStatus paymentStatus)
         {
-            _apprenticeship.SetValue(x => x.ApprenticeshipStatus, apprenticeshipStatus);
+            _apprenticeship.SetValue(x => x.PaymentStatus, paymentStatus);
             _db.SaveChanges();
 
             return this;

@@ -38,7 +38,9 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
 
                 var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-                if (apprenticeship.ApprenticeshipStatus == ApprenticeshipStatus.Stopped)
+                var currentApprenticeshipStatus = apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow);
+
+                if (currentApprenticeshipStatus == ApprenticeshipStatus.Stopped)
                 {
                     var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
 
