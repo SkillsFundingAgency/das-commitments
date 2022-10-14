@@ -73,8 +73,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.TestH
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Types", "SFA.DAS.Reservations.API.Types\SFA.DAS.Reservations.Api.Types.csproj", "{515D7191-32EC-4CE7-BEBC-444689F27591}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Client", "SFA.DAS.Reservations.API.Client\SFA.DAS.Reservations.Api.Client.csproj", "{BFA13EE6-7663-4682-97CC-9F37090CB516}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Types.UnitTests", "SFA.DAS.Reservations.Api.Types.UnitTests\SFA.DAS.Reservations.Api.Types.UnitTests.csproj", "{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notification Templates", "Notification Templates", "{46E55DE2-FF6C-4D97-8651-A62F62820290}"
@@ -221,10 +219,6 @@ Global
 		{515D7191-32EC-4CE7-BEBC-444689F27591}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{515D7191-32EC-4CE7-BEBC-444689F27591}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{515D7191-32EC-4CE7-BEBC-444689F27591}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Release|Any CPU.Build.0 = Release|Any CPU
 		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
