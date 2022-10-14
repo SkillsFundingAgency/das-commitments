@@ -106,11 +106,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Api.F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MockServer", "MockServer", "{9CF15C2A-FD29-4A75-AEBD-F261DE482D31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Events", "SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj", "{437547B2-1A7E-4AE9-B4B6-012EA72C5FEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Commitments.Events", "SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj", "{437547B2-1A7E-4AE9-B4B6-012EA72C5FEB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ReservationsV2.Api.Types", "SFA.DAS.ReservationsV2.Api.Types\SFA.DAS.ReservationsV2.Api.Types.csproj", "{2DF7D08E-1EF3-4D93-B3B4-0DD4DCFDDE8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.Types", "SFA.DAS.ReservationsV2.Api.Types\SFA.DAS.ReservationsV2.Api.Types.csproj", "{2DF7D08E-1EF3-4D93-B3B4-0DD4DCFDDE8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ReservationsV2.Api.Types.UnitTests", "SFA.DAS.ReservationsV2.Api.Types.UnitTests\SFA.DAS.ReservationsV2.Api.Types.UnitTests.csproj", "{EB448FED-F679-419C-AADF-53F3E76353C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ReservationsV2.Api.Types.UnitTests", "SFA.DAS.ReservationsV2.Api.Types.UnitTest\SFA.DAS.ReservationsV2.Api.Types.UnitTests.csproj", "{1D0F929C-C803-40A1-A8C3-D9C9428B6D5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -247,10 +247,10 @@ Global
 		{2DF7D08E-1EF3-4D93-B3B4-0DD4DCFDDE8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DF7D08E-1EF3-4D93-B3B4-0DD4DCFDDE8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DF7D08E-1EF3-4D93-B3B4-0DD4DCFDDE8B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB448FED-F679-419C-AADF-53F3E76353C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB448FED-F679-419C-AADF-53F3E76353C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB448FED-F679-419C-AADF-53F3E76353C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB448FED-F679-419C-AADF-53F3E76353C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D0F929C-C803-40A1-A8C3-D9C9428B6D5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D0F929C-C803-40A1-A8C3-D9C9428B6D5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D0F929C-C803-40A1-A8C3-D9C9428B6D5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D0F929C-C803-40A1-A8C3-D9C9428B6D5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -292,7 +292,7 @@ Global
 		{406699AD-F466-4487-8D55-63D4BEF7E41B} = {9CF15C2A-FD29-4A75-AEBD-F261DE482D31}
 		{9CF15C2A-FD29-4A75-AEBD-F261DE482D31} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{2DF7D08E-1EF3-4D93-B3B4-0DD4DCFDDE8B} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
-		{EB448FED-F679-419C-AADF-53F3E76353C3} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
+		{1D0F929C-C803-40A1-A8C3-D9C9428B6D5D} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}
