@@ -1,23 +1,24 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
-using System.Threading;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
 {
@@ -83,7 +84,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             // Act
             var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
-            // Arrange
+            // Assert
             _encodingService.Verify(o => o.Decode(hashedApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
             _encodingService.Verify(o => o.Decode(hashedAccountId, EncodingType.AccountId), Times.Once);
 
@@ -126,13 +127,16 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             // Act
             var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
+            // Assert
             _apprenticeshipMapper.Verify(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()), Times.Once);
         }
 
-        [Test]
-        public async Task GivenValidUlnShouldCallRequiredServices()
+        [Test, MoqAutoData]
+        public async Task GivenValidUlnForAccountShouldGetApprenticeships(UlnSummaryViewModel ulnSummary)
         {
-            // Arrasnge
+            // Arrange
+            const long decodedAccountId = 843;
+
             ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "1000201219",
@@ -140,7 +144,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 HashedAccountId = "ABC1234"
             };
 
-            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
+            _mediator.Setup(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(q => q.Uln == searchQuery.SearchTerm && q.AccountId == decodedAccountId), CancellationToken.None))
             .ReturnsAsync(new GetSupportApprenticeshipQueryResult
             {
                 Apprenticeships = GetApprenticeships()
@@ -155,28 +159,29 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
 
             _apprenticeshipMapper
                 .Setup(o => o.MapToUlnResultView(It.IsAny<GetSupportApprenticeshipQueryResult>()))
-                .Returns(new UlnSummaryViewModel())
+                .Returns(ulnSummary)
                 .Verifiable();
 
             _encodingService
               .Setup(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId))
-              .Returns(100);
+              .Returns(decodedAccountId);
 
             // Act
             var result = await _sut.GetApprenticeshipsByUln(searchQuery);
 
-            // Arrange
-            _encodingService.Verify(o => o.Decode(searchQuery.HashedAccountId, EncodingType.AccountId), Times.Once);
-
+            // Assert
+            _encodingService.VerifyAll();
             _searchValidator.VerifyAll();
             _mediator.VerifyAll();
             _apprenticeshipMapper.VerifyAll();
+
+            result.Should().Be(ulnSummary);
         }
 
         [Test]
         public async Task GivenInvalidHashedAccountIdReturnErrorResponseMessage()
         {
-            // Arrasnge
+            // Arrange
             ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "1000201219",
@@ -217,7 +222,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         [Test]
         public async Task GivenInvalidUlnShouldReturnResponseMessageAndNotCallSearchService()
         {
-            // Arrasnge
+            // Arrange
             ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "000000001",
@@ -258,7 +263,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         [Test]
         public async Task WhenNoUlnRecordIsFoundShouldReturnResponseMessages()
         {
-            // Arrasnge
+            // Arrange
             ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "1000201219",

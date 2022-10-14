@@ -88,6 +88,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             _logger.LogInformation("Retrieving Apprenticeships Record");
 
             var validationResult = _searchValidator.Validate(searchQuery);
+            long accountId;
 
             if (!validationResult.IsValid)
             {
@@ -99,7 +100,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             try
             {
-                _ = _encodingService.Decode(searchQuery.HashedAccountId, EncodingType.AccountId);
+                accountId = _encodingService.Decode(searchQuery.HashedAccountId, EncodingType.AccountId);
             }
             catch (Exception ex)
             {
@@ -113,6 +114,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             var response = await _mediator.Send(new GetSupportApprenticeshipQuery
             {
+                AccountId = accountId,
                 Uln = searchQuery.SearchTerm
             });
 
