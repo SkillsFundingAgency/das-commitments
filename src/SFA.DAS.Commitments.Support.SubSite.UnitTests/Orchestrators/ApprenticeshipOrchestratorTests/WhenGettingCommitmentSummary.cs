@@ -9,7 +9,6 @@ using FluentValidation.Results;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NServiceBus.Logging;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Mappers;
@@ -17,7 +16,6 @@ using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
-using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.ApprenticeshipOrchestratorTests
