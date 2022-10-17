@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,27 +28,30 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task Resolve(long? apprenticeshipId, long? draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
         {
-            OverlappingTrainingDateRequest result = null;
             var oltd = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(r => r.DraftApprenticeship)
                 .Include(r => r.PreviousApprenticeship);
 
             if (apprenticeshipId.HasValue && apprenticeshipId.Value > 0)
             {
-                result = await oltd.SingleOrDefaultAsync(c => c.PreviousApprenticeshipId == apprenticeshipId.Value
-                    && c.Status == OverlappingTrainingDateRequestStatus.Pending);
+                var results = await oltd.Where(c => c.PreviousApprenticeshipId == apprenticeshipId.Value
+                    && c.Status == OverlappingTrainingDateRequestStatus.Pending).ToListAsync();
+
+                foreach (var result in results)
+                {
+                    await CheckAndResolveOverlap(result, resolutionType);
+                }
             }
             else if (draftApprenticeshipId.HasValue && draftApprenticeshipId.Value > 0)
             {
-                result = await oltd.SingleOrDefaultAsync(c => c.DraftApprenticeshipId == draftApprenticeshipId.Value
+                var result = await oltd.SingleOrDefaultAsync(c => c.DraftApprenticeshipId == draftApprenticeshipId.Value
                     && c.Status == OverlappingTrainingDateRequestStatus.Pending);
+                await CheckAndResolveOverlap(result, resolutionType);
             }
             else
             {
                 throw new InvalidOperationException("Draft apprenticeship and apprenticeship ids are null");
             }
-
-            await CheckAndResolveOverlap(result, resolutionType);
         }
 
         public async Task DraftApprenticeshpDeleted(long draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)
