@@ -76,7 +76,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
             public long AccountLegalEntityId { get; private set; }
 
             public Cohort Cohort { get; private set; }
-            public long _cohortId { get; set; }
+            public readonly long _cohortId;
+            private readonly long _accountId;
 
             public Provider Provider { get; private set; }
             public AccountLegalEntity AccountLegalEntity { get; private set; }
@@ -91,8 +92,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
 
                 _autoFixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
                 _cohortId = _autoFixture.Create<long>();
+                _accountId = _autoFixture.Create<long>();
 
-                _query = new GetSupportApprenticeshipQuery { CohortId = _cohortId };
+                _query = new GetSupportApprenticeshipQuery { AccountId = _accountId, CohortId = _cohortId };
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
                 var lazyDb = new Lazy<ProviderCommitmentsDbContext>(() => _db);
@@ -108,6 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
             {
                 _query = new GetSupportApprenticeshipQuery
                 {
+                    AccountId = _accountId,
                     Uln = ApprenticeshipUln1
                 };
                 return this;
@@ -117,6 +120,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
             {
                 _query = new GetSupportApprenticeshipQuery
                 {
+                    AccountId = _accountId,
                     ApprenticeshipId = ApprenticeshipId1
                 };
                 return this;
@@ -126,7 +130,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
             {
                 _query = new GetSupportApprenticeshipQuery
                 {
-                    CohortId = _cohortId + 1
+                    CohortId = _cohortId + 1,
+                    AccountId = _accountId
                 };
 
                 return this;
@@ -153,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                     Name = _autoFixture.Create<string>()
                 };
 
-                var account = new Account(1, "", "", "", DateTime.UtcNow);
+                var account = new Account(_accountId, "", "", "", DateTime.UtcNow);
 
                 AccountLegalEntity = new AccountLegalEntity(account,
                     AccountLegalEntityId,
@@ -169,7 +174,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                 {
                     Id = _cohortId,
                     AccountLegalEntity = AccountLegalEntity,
-                    EmployerAccountId = _autoFixture.Create<long>(),
+                    EmployerAccountId = _accountId,
                     ProviderId = Provider.UkPrn,
                     Provider = Provider,
                     ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy
