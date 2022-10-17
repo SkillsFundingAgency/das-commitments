@@ -1,5 +1,8 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Authentication;
@@ -7,17 +10,10 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.NServiceBus.Services;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
 {
@@ -30,7 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
         private readonly IEncodingService _encodingService;
         private readonly ILogger<StopApprenticeshipCommandHandler> _logger;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
-        private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
         private const string StopNotificationEmailTemplate = "ProviderApprenticeshipStopNotification";
 
         public StopApprenticeshipCommandHandler(
@@ -40,8 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             IMessageSession nserviceBusContext,
             IEncodingService encodingService,
             ILogger<StopApprenticeshipCommandHandler> logger,
-            CommitmentsV2Configuration commitmentsV2Configuration,
-            IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
+            CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _dbContext = dbContext;
             _currentDate = currentDate;
@@ -50,7 +44,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             _encodingService = encodingService;
             _logger = logger;
             _commitmentsV2Configuration = commitmentsV2Configuration;
-            _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
         }
 
         protected override async Task Handle(StopApprenticeshipCommand request, CancellationToken cancellationToken)
@@ -66,8 +59,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
 
                 apprenticeship.StopApprenticeship(request.StopDate, request.AccountId, request.MadeRedundant, request.UserInfo, _currentDate, party);
                 _logger.LogInformation($"Stopped apprenticeship. Apprenticeship-Id:{request.ApprenticeshipId}");
-
-                await _resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped);
 
                 _logger.LogInformation($"Sending email to Provider {apprenticeship.Cohort.ProviderId}, template {StopNotificationEmailTemplate}");
                 await NotifyProvider(apprenticeship.Cohort.ProviderId, apprenticeship.Id, apprenticeship.Cohort.AccountLegalEntity.Name, apprenticeship.ApprenticeName, request.StopDate);

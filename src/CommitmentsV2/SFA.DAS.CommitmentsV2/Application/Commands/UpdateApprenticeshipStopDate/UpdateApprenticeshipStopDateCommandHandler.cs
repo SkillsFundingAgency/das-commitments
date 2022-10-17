@@ -30,7 +30,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
         private readonly IEncodingService _encodingService;
         private readonly IOverlapCheckService _overlapCheckService;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
-        private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
         private const string StopEditNotificationEmailTemplate = "ProviderApprenticeshipStopEditNotification";
 
         public UpdateApprenticeshipStopDateCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
@@ -40,8 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             IMessageSession nserviceBusContext,
             IEncodingService encodingService,
             IOverlapCheckService overlapCheckService,
-            CommitmentsV2Configuration commitmentsV2Configuration,
-            IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
+            CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -51,7 +49,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             _encodingService = encodingService;
             _overlapCheckService = overlapCheckService;
             _commitmentsV2Configuration = commitmentsV2Configuration;
-            _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
         }
 
         protected override async Task Handle(UpdateApprenticeshipStopDateCommand command, CancellationToken cancellationToken)
@@ -72,8 +69,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             apprenticeship.ApprenticeshipStopDate(command, _currentDate, party);
 
             _logger.LogInformation($"Update apprenticeship stop date. Apprenticeship-Id:{command.ApprenticeshipId}");
-
-            await _resolveOverlappingTrainingDateRequestService.Resolve(command.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.StopDateUpdate);
 
             _logger.LogInformation($"Sending email to Provider {apprenticeship.Cohort.ProviderId}, template {StopEditNotificationEmailTemplate}");
             await NotifyProvider(apprenticeship, command.StopDate);
