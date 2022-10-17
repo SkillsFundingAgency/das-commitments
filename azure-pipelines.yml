@@ -31,10 +31,10 @@ stages:
         inputs:
           versionSpec: 4.x
 
-      - task: NuGetCommand@2
-        displayName: 'NuGet restore'
-        inputs:
-          restoreSolution: 'src/SFA.DAS.CommitmentsTestSolution.sln'
+      #- task: NuGetCommand@2
+      #  displayName: 'NuGet restore'
+      #  inputs:
+      #    restoreSolution: 'src/SFA.DAS.CommitmentsTestSolution.sln'
 
       - task: DotNetCoreCLI@2
         displayName: Restore
@@ -42,14 +42,14 @@ stages:
           command: restore
           projects: "src/**/*.csproj"  
 
-      - task: VSBuild@1
-        displayName: 'Build solution'
-        inputs:
-          solution: 'src/SFA.DAS.CommitmentsTestSolution.sln'
-          vsVersion: 15.0
-          platform: '$(buildPlatform)'
-          configuration: '$(buildConfiguration)'
-          clean: true
+      #- task: VSBuild@1
+      #  displayName: 'Build solution'
+      #  inputs:
+      #    solution: 'src/SFA.DAS.CommitmentsTestSolution.sln'
+      #    vsVersion: 15.0
+      #    platform: '$(buildPlatform)'
+      #    configuration: '$(buildConfiguration)'
+      #    clean: true
 
       - task: VSTest@2
         displayName: 'VS test'
@@ -102,10 +102,10 @@ stages:
       inputs:
         versionSpec: 4.x
 
-    - task: NuGetCommand@2
-      displayName: 'NuGet restore'
-      inputs:
-        restoreSolution: 'src/SFA.DAS.Commitments.sln'
+    #- task: NuGetCommand@2
+    #  displayName: 'NuGet restore'
+    #  inputs:
+    #    restoreSolution: 'src/SFA.DAS.Commitments.sln'
 
     - task: DotNetCoreCLI@2
       displayName: Restore
@@ -113,14 +113,14 @@ stages:
         command: restore
         projects: "src/**/*.csproj"   
 
-    - task: VSBuild@1
-      displayName: 'Build solution'
-      inputs:
-        solution: 'src/SFA.DAS.Commitments.sln'
-        vsVersion: 15.0
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
-        clean: true
+    #- task: VSBuild@1
+    #  displayName: 'Build solution'
+    #  inputs:
+    #    solution: 'src/SFA.DAS.Commitments.sln'
+    #    vsVersion: 15.0
+    #    platform: '$(buildPlatform)'
+    #    configuration: '$(buildConfiguration)'
+    #    clean: true
 
     - task: DotNetCoreCLI@2
       displayName: 'dotnet test'
@@ -152,37 +152,37 @@ stages:
         projects: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
         arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
   
-    - task: VSBuild@1
-      displayName: 'Publish v1 API'
-      inputs:
-        solution: 'src/SFA.DAS.Commitments.Api/SFA.DAS.Commitments.Api.csproj'
-        vsVersion: 15.0
-        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/v1-api"'
-        platform: 'anycpu'
-        configuration: '$(buildConfiguration)'
-        clean: true
+    #- task: VSBuild@1
+    #  displayName: 'Publish v1 API'
+    #  inputs:
+    #    solution: 'src/SFA.DAS.Commitments.Api/SFA.DAS.Commitments.Api.csproj'
+    #    vsVersion: 15.0
+    #    msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/v1-api"'
+    #    platform: 'anycpu'
+    #    configuration: '$(buildConfiguration)'
+    #    clean: true
 
-    - task: ArchiveFiles@2
-      displayName: 'Archive v1 API'
-      inputs:
-        rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-api'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Api.zip'
+    #- task: ArchiveFiles@2
+    #  displayName: 'Archive v1 API'
+    #  inputs:
+    #    rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-api'
+    #    archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Api.zip'
 
-    - task: VSBuild@1
-      displayName: 'Publish v1 WebJob'
-      inputs:
-        solution: 'src/SFA.DAS.Commitments.Host.WebJob/SFA.DAS.Commitments.Host.WebJob.csproj'
-        vsVersion: 15.0
-        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/v1-webjob"'
-        platform: 'anycpu'
-        configuration: '$(buildConfiguration)'
-        clean: true
+    #- task: VSBuild@1
+    #  displayName: 'Publish v1 WebJob'
+    #  inputs:
+    #    solution: 'src/SFA.DAS.Commitments.Host.WebJob/SFA.DAS.Commitments.Host.WebJob.csproj'
+    #    vsVersion: 15.0
+    #    msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/v1-webjob"'
+    #    platform: 'anycpu'
+    #    configuration: '$(buildConfiguration)'
+    #    clean: true
 
-    - task: ArchiveFiles@2
-      displayName: 'Archive v1 Webjob'
-      inputs:
-        rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-webjob'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Host.WebJob.zip'
+    #- task: ArchiveFiles@2
+    #  displayName: 'Archive v1 Webjob'
+    #  inputs:
+    #    rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-webjob'
+    #    archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Host.WebJob.zip'
 
     - task: NuGetCommand@2
       displayName: 'NuGet pack'
@@ -192,14 +192,14 @@ stages:
         packDestination: '$(build.artifactstagingdirectory)/publish/nuget-publish'
         versioningScheme: byBuildNumber
 
-    - task: DotNetCoreCLI@2
-      displayName: 'dotnet pack'
-      inputs:
-        command: pack
-        packagesToPack: 'src/SFA.DAS.Commitments.Api.Client/SFA.DAS.Commitments.Api.Client.csproj;src/SFA.DAS.Commitments.Api.Types/SFA.DAS.Commitments.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Client/SFA.DAS.ReservationsV2.Api.Client.csproj;src/SFA.DAS.Reservations.API.Types/SFA.DAS.Reservations.Api.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
-        packDirectory: 'nuget-publish'
-        versioningScheme: byBuildNumber
-        buildProperties: 'Version="$(Build.BuildNumber)"'  
+    #- task: DotNetCoreCLI@2
+    #  displayName: 'dotnet pack'
+    #  inputs:
+    #    command: pack
+    #    packagesToPack: 'src/SFA.DAS.Commitments.Api.Client/SFA.DAS.Commitments.Api.Client.csproj;src/SFA.DAS.Commitments.Api.Types/SFA.DAS.Commitments.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Client/SFA.DAS.ReservationsV2.Api.Client.csproj;src/SFA.DAS.Reservations.API.Types/SFA.DAS.Reservations.Api.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
+    #    packDirectory: 'nuget-publish'
+    #    versioningScheme: byBuildNumber
+    #    buildProperties: 'Version="$(Build.BuildNumber)"'  
     
     - task: VSBuild@1
       displayName: 'Build DACPAC'
