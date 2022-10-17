@@ -192,14 +192,14 @@ stages:
         packDestination: '$(build.artifactstagingdirectory)/publish/nuget-publish'
         versioningScheme: byBuildNumber
 
-    #- task: DotNetCoreCLI@2
-    #  displayName: 'dotnet pack'
-    #  inputs:
-    #    command: pack
-    #    packagesToPack: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Client/SFA.DAS.ReservationsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Types/SFA.DAS.Reservations.Api.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
-    #    packDirectory: 'nuget-publish'
-    #    versioningScheme: byBuildNumber
-    #    buildProperties: 'Version="$(Build.BuildNumber)"'  
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet pack'
+      inputs:
+        command: pack
+        packagesToPack: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Client/SFA.DAS.ReservationsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Types/SFA.DAS.ReservationsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
+        packDirectory: 'nuget-publish'
+        versioningScheme: byBuildNumber
+        buildProperties: 'Version="$(Build.BuildNumber)"'  
     
     - task: VSBuild@1
       displayName: 'Build DACPAC'
