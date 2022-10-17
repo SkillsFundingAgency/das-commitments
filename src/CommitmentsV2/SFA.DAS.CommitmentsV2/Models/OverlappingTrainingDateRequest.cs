@@ -1,7 +1,7 @@
-﻿using System;
-using SFA.DAS.CommitmentsV2.Messages.Events;
+﻿using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using System;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long Id { get; private set; }
         public virtual long DraftApprenticeshipId { get; private set; }
         public virtual long PreviousApprenticeshipId { get; private set; }
+        public virtual DateTime CreatedOn { get; private set; }
         public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
         public virtual OverlappingTrainingDateRequestStatus Status { get; set; }
         public byte[] RowVersion { get; private set; }
@@ -20,18 +21,18 @@ namespace SFA.DAS.CommitmentsV2.Models
         public OverlappingTrainingDateRequest()
         { }
 
-        public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship, long previousApprenticeshipId, Party originatingParty, UserInfo userInfo)
+        public OverlappingTrainingDateRequest(DraftApprenticeship draftApprenticeship, long previousApprenticeshipId, Party originatingParty, UserInfo userInfo, DateTime createdDate)
         {
             StartTrackingSession(UserAction.CreateOverlappingTrainingDateRequest, originatingParty, draftApprenticeship.Cohort.AccountLegalEntityId, draftApprenticeship.Cohort.ProviderId, userInfo);
             PreviousApprenticeshipId = previousApprenticeshipId;
             Status = OverlappingTrainingDateRequestStatus.Pending;
-
+            CreatedOn = createdDate;
             EmitOverlappingTrainingDateNotificationEvent(previousApprenticeshipId, draftApprenticeship.Uln);
-
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
         }
-        public void EmitOverlappingTrainingDateNotificationEvent(long apprenticeshipId, string uln)
+
+        private void EmitOverlappingTrainingDateNotificationEvent(long apprenticeshipId, string uln)
         {
             Publish(() => new OverlappingTrainingDateEvent(apprenticeshipId, uln));
         }
