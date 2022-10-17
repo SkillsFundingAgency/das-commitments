@@ -70,10 +70,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _overlapCheckService = new Mock<IOverlapCheckService>();
             _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
 
-            _resolveOverlappingTrainingDateRequestService
-                .Setup(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<Types.OverlappingTrainingDateRequestResolutionType>()))
-                .Returns(Task.CompletedTask);
-
             _overlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
             _logger = new Mock<ILogger<UpdateApprenticeshipStopDateCommandHandler>>();
             _unitOfWorkContext = new UnitOfWorkContext();
@@ -89,8 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                  _nserviceBusContext.Object,
                 _encodingService.Object,
                 _overlapCheckService.Object,
-                commitmentsV2Configuration,
-                _resolveOverlappingTrainingDateRequestService.Object);
+                commitmentsV2Configuration);
         }
 
         [Test]
@@ -319,25 +314,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 x.ProviderId == apprenticeship.Cohort.ProviderId &&
                 x.Template == templateName &&
                 VerifyTokens(x.Tokens, tokens)), It.IsAny<SendOptions>()));
-        }
-
-        [Test]
-        public async Task Handle_WhenHandlingCommand_UpdateApprenticeshipStopDate_ThenResolveOltd()
-        {
-            // Arrange
-            var apprenticeship = await SetupApprenticeship(paymentStatus: PaymentStatus.Withdrawn);
-            var stopDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
-
-            var command = new UpdateApprenticeshipStopDateCommand(apprenticeship.Cohort.EmployerAccountId, apprenticeship.Id, stopDate, new UserInfo());
-
-            // Act
-            await _handler.Handle(command, new CancellationToken());
-            // Simulate Unit of Work context transaction ending in http request.
-            await _dbContext.SaveChangesAsync();
-
-            // Assert
-            _resolveOverlappingTrainingDateRequestService
-                .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<Types.OverlappingTrainingDateRequestResolutionType>()), Times.Once);
         }
 
         private bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)

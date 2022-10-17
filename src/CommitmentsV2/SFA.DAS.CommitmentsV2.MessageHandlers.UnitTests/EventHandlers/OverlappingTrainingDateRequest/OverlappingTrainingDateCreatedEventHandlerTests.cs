@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using System;
+using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
@@ -6,18 +7,18 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using System;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.OverlappingTrainingDateRequest
 {
     [TestFixture]
-    class OverlappingTrainingDateEventHandlerTests
+    class OverlappingTrainingDateCreatedEventHandlerTests
     {
         private OverlappingTrainingDateEventHandlerTestsFixture _fixture;
 
@@ -51,12 +52,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
     }
 
-    public class OverlappingTrainingDateEventHandlerTestsFixture : EventHandlerTestsFixture<OverlappingTrainingDateEvent, OverlappingTrainingDateEventHandler>
+    public class OverlappingTrainingDateEventHandlerTestsFixture : EventHandlerTestsFixture<OverlappingTrainingDateCreatedEvent, OverlappingTrainingDateCreatedEventHandler>
     {
-        public Mock<ILogger<OverlappingTrainingDateEventHandler>> Logger { get; set; }
+        public Mock<ILogger<OverlappingTrainingDateCreatedEventHandler>> Logger { get; set; }
         public Mock<IEncodingService> MockEncodingService { get; set; }
 
-        public OverlappingTrainingDateEvent Event { get; set; }
+        public OverlappingTrainingDateCreatedEvent Event { get; set; }
 
         private readonly Apprenticeship _apprenticeship;
         private readonly ProviderCommitmentsDbContext _db;
@@ -71,11 +72,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public OverlappingTrainingDateEventHandlerTestsFixture() : base((m) => null)
         {
-            Logger = new Mock<ILogger<OverlappingTrainingDateEventHandler>>();
+            Logger = new Mock<ILogger<OverlappingTrainingDateCreatedEventHandler>>();
 
             var autoFixture = new Fixture();
 
-            Event = autoFixture.Create<OverlappingTrainingDateEvent>();
+            Event = autoFixture.Create<OverlappingTrainingDateCreatedEvent>();
             Event.Uln = Uln;
 
             var accountLegalEntity = new AccountLegalEntity();
@@ -103,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             MockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns(HashedApprenticeshipId);
             MockEncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns(HashedEmployerAccountId);
 
-            Handler = new OverlappingTrainingDateEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Logger.Object, MockEncodingService.Object,
+            Handler = new OverlappingTrainingDateCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), Logger.Object, MockEncodingService.Object,
                 new CommitmentsV2Configuration { EmployerCommitmentsBaseUrl = EmployerCommitmentsBaseUrl });
         }
 
