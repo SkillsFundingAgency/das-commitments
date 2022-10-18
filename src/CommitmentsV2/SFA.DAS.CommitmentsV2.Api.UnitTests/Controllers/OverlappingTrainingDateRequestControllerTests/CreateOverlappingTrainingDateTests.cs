@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.OverlappingTrainingDat
                     m => m.Send(
                         It.Is<CreateOverlappingTrainingDateRequestCommand>(
                             p => p.UserInfo == _postRequest.UserInfo
-                            && p.DraftApprneticeshipId == _postRequest.DraftApprenticeshipId
+                            && p.DraftApprenticeshipId == _postRequest.DraftApprenticeshipId
                             && p.ProviderId == ProviderId),
                         It.IsAny<CancellationToken>()), Times.Once);
             }

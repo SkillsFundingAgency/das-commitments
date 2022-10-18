@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDa
     public class CreateOverlappingTrainingDateRequestCommand : IRequest<CreateOverlappingTrainingDateResult>
     {
         public long ProviderId { get; set; }
-        public long DraftApprneticeshipId { get; set; }
+        public long DraftApprenticeshipId { get; set; }
         public UserInfo UserInfo { get; set; }
     }
 }

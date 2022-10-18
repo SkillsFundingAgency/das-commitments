@@ -48,6 +48,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
         public int? EmploymentPrice { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
         public ApprenticeshipUpdateViewModel ApprenticeshipUpdates { get; set; }
+        public OverlappingTrainingDateRequestViewModel OverlappingTrainingDateRequest { get; set; }
 
         public List<ApprenticeshipProviderHistoryViewModel> ApprenticeshipProviderHistory { get; set; } = new List<ApprenticeshipProviderHistoryViewModel>();
     }
