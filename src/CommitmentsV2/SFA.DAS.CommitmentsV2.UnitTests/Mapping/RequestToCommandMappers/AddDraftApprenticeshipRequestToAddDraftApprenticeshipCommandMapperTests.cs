@@ -95,5 +95,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             bool isOnFlexiPaymentPilot = true;
             return AssertPropertySet(input => input.IsOnFlexiPaymentPilot = isOnFlexiPaymentPilot, output => output.IsOnFlexiPaymentPilot == isOnFlexiPaymentPilot);
         }
+
+        [Test]
+        public Task Map_IsProviderOnFlexiPaymentPilot_ShouldBeSet()
+        {
+            bool isProviderOnFlexiPaymentPilot = true;
+            return AssertPropertySet(input => input.IsOnFlexiPaymentPilot = isProviderOnFlexiPaymentPilot, output => output.IsOnFlexiPaymentPilot == isProviderOnFlexiPaymentPilot);
+        }
     }
 }

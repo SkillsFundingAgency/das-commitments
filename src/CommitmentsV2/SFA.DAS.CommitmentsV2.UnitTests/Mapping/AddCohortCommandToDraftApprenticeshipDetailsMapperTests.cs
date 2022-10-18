@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
             Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
             Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
+            Assert.AreEqual(fixture.Command.ActualStartDate, draftApprenticeshipDetails.ActualStartDate);
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
@@ -43,6 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.EmploymentPrice, draftApprenticeshipDetails.EmploymentPrice);
             Assert.AreEqual(fixture.Command.EmploymentEndDate, draftApprenticeshipDetails.EmploymentEndDate);
             Assert.AreEqual(fixture.Command.IsOnFlexiPaymentPilot, draftApprenticeshipDetails.IsOnFlexiPaymentPilot);
+            Assert.AreEqual(fixture.Command.IsProviderOnFlexiPaymentPilot, draftApprenticeshipDetails.IsProviderOnFlexiPaymentPilot);
         }
 
         [Test]
@@ -66,6 +68,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
             Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
             Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
+            Assert.AreEqual(fixture.Command.ActualStartDate, draftApprenticeshipDetails.ActualStartDate);
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
@@ -75,6 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
             Assert.AreEqual(fixture.Command.DeliveryModel, draftApprenticeshipDetails.DeliveryModel);
             Assert.AreEqual(fixture.Command.IsOnFlexiPaymentPilot, draftApprenticeshipDetails.IsOnFlexiPaymentPilot);
+            Assert.AreEqual(fixture.Command.IsProviderOnFlexiPaymentPilot, draftApprenticeshipDetails.IsProviderOnFlexiPaymentPilot);
         }
 
         [Test]
@@ -89,6 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
             Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
             Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
+            Assert.AreEqual(fixture.Command.ActualStartDate, draftApprenticeshipDetails.ActualStartDate);
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
@@ -97,6 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             Assert.AreEqual(fixture.Command.IsOnFlexiPaymentPilot, draftApprenticeshipDetails.IsOnFlexiPaymentPilot);
+            Assert.AreEqual(fixture.Command.IsProviderOnFlexiPaymentPilot, draftApprenticeshipDetails.IsProviderOnFlexiPaymentPilot);
         }
 
         [Test]
@@ -111,6 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
             Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
             Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
+            Assert.AreEqual(fixture.Command.ActualStartDate, draftApprenticeshipDetails.ActualStartDate);
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
@@ -120,6 +127,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
             Assert.AreEqual(fixture.Command.IsOnFlexiPaymentPilot, draftApprenticeshipDetails.IsOnFlexiPaymentPilot);
+            Assert.AreEqual(fixture.Command.IsProviderOnFlexiPaymentPilot, draftApprenticeshipDetails.IsProviderOnFlexiPaymentPilot);
         }
     }
 
@@ -157,7 +165,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command = new AddCohortCommand(command.AccountId, command.AccountLegalEntityId, command.ProviderId,
                 courseCode, command.DeliveryModel, command.Cost, command.StartDate, command.ActualStartDate, command.EndDate, command.OriginatorReference,
                 command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
-                command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo, true, true);
+                command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo, true, true, true);
 
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
@@ -194,7 +202,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return new AddCohortCommand(Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
                 Command.CourseCode, Command.DeliveryModel, Command.Cost, null, null, null, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
-                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, false, false);
+                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, false, false, false);
         }
 
         public Task<DraftApprenticeshipDetails> MapWithFramework()
