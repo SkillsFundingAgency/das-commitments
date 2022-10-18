@@ -141,21 +141,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 _messageSession.Verify(y => y.Send(It.Is<SendEmailCommand>(z =>
                z.RecipientsAddress == _configuration.ZenDeskEmailAddress &&
                z.TemplateId == OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler.TemplateId &&
-               z.Tokens["ApprenticeName"] == (x.DraftApprenticeship.FirstName + " " + x.DraftApprenticeship.LastName) &&
-               z.Tokens["NewProviderName"] == x.DraftApprenticeship.Cohort.Provider.Name &&
                z.Tokens["NewProviderUkprn"] == x.DraftApprenticeship.Cohort.ProviderId.ToString() &&
-               z.Tokens["NewEmployerName"] == x.DraftApprenticeship.Cohort.AccountLegalEntity.Account.Name &&
-               z.Tokens["DOB"] == x.DraftApprenticeship.DateOfBirth.Value.ToString("dd-MM-YYYY") &&
-               z.Tokens["ShowDOB"] == "Yes" &&
                z.Tokens["ULN"] == x.DraftApprenticeship.Uln &&
-               z.Tokens["ULN"] == x.DraftApprenticeship.Uln &&
-               z.Tokens["ULN"] == x.DraftApprenticeship.Uln &&
-               z.Tokens["OldProviderName"] == x.PreviousApprenticeship.Cohort.Provider.Name &&
                z.Tokens["OldProviderUkprn"] == x.PreviousApprenticeship.Cohort.ProviderId.ToString() &&
-               z.Tokens["OldEmployerName"] == x.PreviousApprenticeship.Cohort.AccountLegalEntity.Account.Name &&
-               z.Tokens["RequestCreatedByProviderEmail"] == x.RequestCreatedByProviderEmail &&
-               z.Tokens["CourseName"] == x.DraftApprenticeship.CourseName &&
-               z.Tokens["StartDate"] == x.DraftApprenticeship.StartDate.Value.ToString("dd-MM-YYYY")
+               z.Tokens["RequestCreatedByProviderEmail"] == x.RequestCreatedByProviderEmail
                ), It.IsAny<SendOptions>()), Times.Once);
             }
 

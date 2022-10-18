@@ -42,18 +42,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             var sendEmailToServiceDeskForRecords = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(oltd => oltd.DraftApprenticeship)
                     .ThenInclude(draftApprenticeshp => draftApprenticeshp.Cohort)
-                        .ThenInclude(cohort => cohort.Provider)
-                .Include(oltd => oltd.DraftApprenticeship)
-                    .ThenInclude(draftApprenticeshp => draftApprenticeshp.Cohort)
-                        .ThenInclude(cohort => cohort.AccountLegalEntity)
-                            .ThenInclude(accountLegalEntity => accountLegalEntity.Account)
                .Include(oltd => oltd.PreviousApprenticeship)
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
-                        .ThenInclude(cohort => cohort.Provider)
-                .Include(oltd => oltd.PreviousApprenticeship)
-                    .ThenInclude(draftApprenticeshp => draftApprenticeshp.Cohort)
-                        .ThenInclude(cohort => cohort.AccountLegalEntity)
-                            .ThenInclude(accountLegalEntity => accountLegalEntity.Account)
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
                             && x.CreatedOn < dateTime)
@@ -67,23 +57,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 var showDOB = x.DraftApprenticeship.DateOfBirth.HasValue ? "Yes" : "No";
                 var tokens = new Dictionary<string, string>
                 {
-                    { "ApprenticeName", x.DraftApprenticeship.FirstName + " " + x.DraftApprenticeship.LastName },
+                    { "RequestCreatedByProviderEmail", x.RequestCreatedByProviderEmail },
                     { "ULN", x.DraftApprenticeship.Uln },
-
-                    { "NewProviderName", x.DraftApprenticeship.Cohort.Provider.Name },
                     { "NewProviderUkprn", x.DraftApprenticeship.Cohort.ProviderId.ToString() },
-                    { "NewEmployerName", x.DraftApprenticeship.Cohort.AccountLegalEntity.Account.Name },
-
-                    { "DOB", x.DraftApprenticeship.DateOfBirth?.ToString("dd-MM-YYYY") ?? "" },
-                    { "ShowDOB", showDOB },
-
-                    { "CourseName", x.DraftApprenticeship.CourseName },
-                    { "StartDate", x.DraftApprenticeship.StartDate?.ToString("dd-MM-YYYY") ?? "" },
-
-                    { "OldProviderName", x.PreviousApprenticeship.Cohort.Provider.Name },
-                    { "OldProviderUkprn", x.PreviousApprenticeship.Cohort.ProviderId.ToString() },
-                    { "OldEmployerName", x.PreviousApprenticeship.Cohort.AccountLegalEntity.Account.Name },
-                    { "RequestCreatedByProviderEmail", x.RequestCreatedByProviderEmail }
+                    { "OldProviderUkprn", x.PreviousApprenticeship.Cohort.ProviderId.ToString() }
                 };
 
                 var emailCommand = new SendEmailCommand(TemplateId,_configuration.ZenDeskEmailAddress, tokens);
