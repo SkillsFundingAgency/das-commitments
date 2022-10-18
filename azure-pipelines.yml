@@ -102,10 +102,10 @@ stages:
       inputs:
         versionSpec: 4.x
 
-    #- task: NuGetCommand@2
-    #  displayName: 'NuGet restore'
-    #  inputs:
-    #    restoreSolution: 'src/SFA.DAS.Commitments.sln'
+    - task: NuGetCommand@2
+      displayName: 'NuGet restore'
+      inputs:
+        restoreSolution: 'src/SFA.DAS.Commitments.sln'
 
     - task: DotNetCoreCLI@2
       displayName: Restore
@@ -113,14 +113,14 @@ stages:
         command: restore
         projects: "src/**/*.csproj"   
 
-    #- task: VSBuild@1
-    #  displayName: 'Build solution'
-    #  inputs:
-    #    solution: 'src/SFA.DAS.Commitments.sln'
-    #    vsVersion: 15.0
-    #    platform: '$(buildPlatform)'
-    #    configuration: '$(buildConfiguration)'
-    #    clean: true
+    - task: VSBuild@1
+      displayName: 'Build solution'
+      inputs:
+        solution: 'src/SFA.DAS.Commitments.sln'
+        vsVersion: 15.0
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+        clean: true
 
     - task: DotNetCoreCLI@2
       displayName: 'dotnet test'
