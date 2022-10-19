@@ -98,7 +98,7 @@ stages:
 
 
     - task: NuGetToolInstaller@0
-      displayName: 'Use NuGet 4.3.0'
+      displayName: 'Use NuGet 5.11.3'
       inputs:
         versionSpec: 5.x
 
