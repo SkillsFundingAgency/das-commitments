@@ -7,8 +7,10 @@
         StopDateUpdate = 2,
         ApprenticeshipStopped = 3,
         DraftApprenticeshipUpdated = 4,
-        DraftApprentieshipDeleted = 5,
-        ApprentieshipIsStillActive = 6,
-        ApprenticeshipEndDateUpdate = 7
+        DraftApprenticeshipDeleted = 5,
+        ApprenticeshipIsStillActive = 6,
+        ApprenticeshipEndDateUpdate = 7,
+        ApprenticeshipStopDateIsCorrect = 8,
+        ApprenticeshipEndDateIsCorrect = 9,
     }
 }
