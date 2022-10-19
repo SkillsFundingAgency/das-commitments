@@ -18,6 +18,6 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Release\SFA.DAS.Commitments.Events.dll" target="lib\net45\SFA.DAS.Commitments.Events.dll" />
+        <file src="bin\Release\netstandard2.1\SFA.DAS.Commitments.Events.dll" target="lib\netstandard2.1\SFA.DAS.Commitments.Events.dll" />
     </files>
 </package>
