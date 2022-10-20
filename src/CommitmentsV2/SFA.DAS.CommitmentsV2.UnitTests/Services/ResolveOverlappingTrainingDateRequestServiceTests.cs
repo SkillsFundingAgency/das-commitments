@@ -166,7 +166,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task OverlappingTrainingDateIsRejected_WhenApprenticeshipStopDateIsCorrect()
         {
-            var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture().SetupOverlapCheckService(true, 1);
+            var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture()
+                .SetupOverlapCheckService(true, 1);
+
             await fixture.ResolveApprenticeshipByApprenticeshipStopDateIsCorrect();
             Assert.AreEqual(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopDateIsCorrect, fixture.OverlappingTrainingDateRequest.ResolutionType);
             Assert.AreEqual(OverlappingTrainingDateRequestStatus.Rejected, fixture.OverlappingTrainingDateRequest.Status);
