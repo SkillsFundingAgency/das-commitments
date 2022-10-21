@@ -53,6 +53,5 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
 
         public bool IgnoreStartDateOverlap { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
-        public bool IsProviderOnFlexiPaymentPilot { get; set; }
     }
 }

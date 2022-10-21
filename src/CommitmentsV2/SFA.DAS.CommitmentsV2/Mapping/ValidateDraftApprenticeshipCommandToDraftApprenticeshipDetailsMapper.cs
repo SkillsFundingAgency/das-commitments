@@ -43,8 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 EmploymentEndDate = source.EmploymentEndDate,
                 EmploymentPrice = source.EmploymentPrice,
                 ActualStartDate = source.ActualStartDate,
-                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
-                IsProviderOnFlexiPaymentPilot = source.IsProviderOnFlexiPaymentPilot,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
             };
 
             // Only populate standard version specific items if start is specified.

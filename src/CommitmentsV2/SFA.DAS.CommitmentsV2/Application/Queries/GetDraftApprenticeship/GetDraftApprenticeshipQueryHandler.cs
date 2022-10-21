@@ -69,8 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 DurationReducedBy = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedBy : null,
                 PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
                 RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && draft.RecognisingPriorLearningStillNeedsToBeConsidered,
-                IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot,
-                IsProviderOnFlexiPaymentPilot = draft.IsProviderOnFlexiPaymentPilot
+                IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot
             }).SingleOrDefaultAsync(cancellationToken);
 
             return x;

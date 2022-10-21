@@ -29,8 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 EmploymentPrice = source.EmploymentPrice,
                 UserInfo = source.UserInfo,
                 IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
-                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
-                IsProviderOnFlexiPaymentPilot = source.IsProviderOnFlexiPaymentPilot,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
             });
         }
     }

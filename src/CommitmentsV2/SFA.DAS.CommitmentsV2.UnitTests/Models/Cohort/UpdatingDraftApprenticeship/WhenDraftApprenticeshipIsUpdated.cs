@@ -471,8 +471,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                     DateOfBirth = draftApprenticeship.DateOfBirth,
                     Reference = draftApprenticeship.ProviderRef,
                     ReservationId = draftApprenticeship.ReservationId,
-                    IsOnFlexiPaymentPilot = draftApprenticeship.IsOnFlexiPaymentPilot,
-                    IsProviderOnFlexiPaymentPilot = draftApprenticeship.IsProviderOnFlexiPaymentPilot
+                    IsOnFlexiPaymentPilot = draftApprenticeship.IsOnFlexiPaymentPilot
                 };
             }
         }

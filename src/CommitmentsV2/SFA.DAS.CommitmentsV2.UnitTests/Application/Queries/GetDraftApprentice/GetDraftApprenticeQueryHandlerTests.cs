@@ -169,8 +169,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 LastName = "ALastName",
                 DeliveryModel = DeliveryModel.Regular,
                 StartDate = startDate,
-                IsOnFlexiPaymentPilot = false,
-                IsProviderOnFlexiPaymentPilot = false
+                IsOnFlexiPaymentPilot = false
             };
 
             if (hasOptions)
