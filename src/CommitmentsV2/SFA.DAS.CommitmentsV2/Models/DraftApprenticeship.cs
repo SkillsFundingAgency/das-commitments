@@ -149,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (LastName != update.LastName) return true;
             if (Cost != update.Cost) return true;
 
-            if (IsOnFlexiPaymentPilot is not true && update.IsOnFlexiPaymentPilot is not true && StartDate != update.StartDate) return true;
+            if (IsNotTrue(IsOnFlexiPaymentPilot) && IsNotTrue(update.IsOnFlexiPaymentPilot) && StartDate != update.StartDate) return true;
             if (update.ActualStartDate.HasValue && StartDate.HasValue && StartDateMonthOrYearIsChanged(update)) return true;
             if (update.StartDate.HasValue && ActualStartDate.HasValue && ActualStartDateMonthOrYearIsChanged(update)) return true;
        
@@ -170,6 +170,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             return false;
         }
+
+        private static bool IsNotTrue(bool? value) => !value.HasValue || !value.Value;
 
         private bool StartDateMonthOrYearIsChanged(DraftApprenticeshipDetails update)
         {
