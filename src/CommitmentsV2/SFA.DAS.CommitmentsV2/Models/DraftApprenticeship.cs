@@ -149,9 +149,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (LastName != update.LastName) return true;
             if (Cost != update.Cost) return true;
 
+            if (IsOnFlexiPaymentPilot is not true && update.IsOnFlexiPaymentPilot is not true && StartDate != update.StartDate) return true;
             if (update.ActualStartDate.HasValue && StartDate.HasValue && StartDateMonthOrYearIsChanged(update)) return true;
-            if (update.ActualStartDate is null && StartDate != update.StartDate) return true;
-            
+            if (update.StartDate.HasValue && ActualStartDate.HasValue && ActualStartDateMonthOrYearIsChanged(update)) return true;
+       
             if (EndDate != update.EndDate) return true;
             if (DateOfBirth != update.DateOfBirth) return true;
             if (DeliveryModel != update.DeliveryModel) return true;
@@ -173,6 +174,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         private bool StartDateMonthOrYearIsChanged(DraftApprenticeshipDetails update)
         {
             return StartDate.Value.Month != update.ActualStartDate.Value.Month || StartDate.Value.Year != update.ActualStartDate.Value.Year;
+        }
+
+        private bool ActualStartDateMonthOrYearIsChanged(DraftApprenticeshipDetails update)
+        {
+            return ActualStartDate.Value.Month != update.StartDate.Value.Month || ActualStartDate.Value.Year != update.StartDate.Value.Year;
         }
 
         public void ValidateUpdateForChangeOfParty(DraftApprenticeshipDetails update)
