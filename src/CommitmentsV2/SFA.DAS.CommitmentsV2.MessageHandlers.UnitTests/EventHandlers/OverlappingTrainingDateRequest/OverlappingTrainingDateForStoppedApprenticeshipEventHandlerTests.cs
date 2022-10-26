@@ -77,12 +77,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
         }
     }
 
-    public class OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture : EventHandlerTestsFixture<OverlappingTrainingDateEvent, OverlappingTrainingDateForStoppedApprenticeshipEventHandler>
+    public class OverlappingTrainingDateForStoppedApprenticeshipEventHandlerFixture : EventHandlerTestsFixture<OverlappingTrainingDateCreatedEvent, OverlappingTrainingDateForStoppedApprenticeshipEventHandler>
     {
         public Mock<ILogger<OverlappingTrainingDateForStoppedApprenticeshipEventHandler>> Logger { get; set; }
         public Mock<IEncodingService> MockEncodingService { get; set; }
 
-        public OverlappingTrainingDateEvent Event { get; set; }
+        public OverlappingTrainingDateCreatedEvent Event { get; set; }
 
         private readonly Apprenticeship _apprenticeship;
         private readonly ProviderCommitmentsDbContext _db;
@@ -103,7 +103,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
 
             var autoFixture = new Fixture();
 
-            Event = autoFixture.Create<OverlappingTrainingDateEvent>();
+            Event = autoFixture.Create<OverlappingTrainingDateCreatedEvent>();
             Event.Uln = Uln;
 
             var accountLegalEntity = new AccountLegalEntity();
