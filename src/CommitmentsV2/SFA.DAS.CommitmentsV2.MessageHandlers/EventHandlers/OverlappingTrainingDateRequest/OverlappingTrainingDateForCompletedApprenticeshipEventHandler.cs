@@ -14,7 +14,7 @@ using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
 {
-    public class OverlappingTrainingDateForCompletedApprenticeshipEventHandler : IHandleMessages<OverlappingTrainingDateEvent>
+    public class OverlappingTrainingDateForCompletedApprenticeshipEventHandler : IHandleMessages<OverlappingTrainingDateCreatedEvent>
     {
         private readonly ILogger<OverlappingTrainingDateForCompletedApprenticeshipEventHandler> _logger;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
@@ -31,11 +31,11 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
             _dbContext = dbContext;
         }
 
-        public async Task Handle(OverlappingTrainingDateEvent message, IMessageHandlerContext context)
+        public async Task Handle(OverlappingTrainingDateCreatedEvent message, IMessageHandlerContext context)
         {
             try
             {
-                _logger.LogInformation($"Received {nameof(OverlappingTrainingDateEvent)} for Uln {message?.Uln}");
+                _logger.LogInformation($"Received {nameof(OverlappingTrainingDateCreatedEvent)} for Uln {message?.Uln}");
 
                 var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
             }
         }
 
-        private SendEmailToEmployerCommand BuildEmailToEmployerCommand(Apprenticeship apprenticeship, OverlappingTrainingDateEvent message)
+        private SendEmailToEmployerCommand BuildEmailToEmployerCommand(Apprenticeship apprenticeship, OverlappingTrainingDateCreatedEvent message)
         {
 
             var sendEmailToEmployerCommand = new SendEmailToEmployerCommand(apprenticeship.Cohort.EmployerAccountId,
