@@ -67,7 +67,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (oltd != null)
             {
                 oltd.ResolutionType = resolutionType;
-                oltd.Status = resolutionType == OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive ?
+                oltd.Status = (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipIsStillActive ||
+                    resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopDateIsCorrect ||
+                    resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateIsCorrect) ?
                      OverlappingTrainingDateRequestStatus.Rejected :
                      OverlappingTrainingDateRequestStatus.Resolved;
 
@@ -81,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     });
                 }
                 else if (resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated &&
-                resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprentieshipDeleted)
+                resolutionType != OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipDeleted)
                 {
                     Publish(() =>
                         new OverlappingTrainingDateResolvedEvent(draftApprenticeshipId,

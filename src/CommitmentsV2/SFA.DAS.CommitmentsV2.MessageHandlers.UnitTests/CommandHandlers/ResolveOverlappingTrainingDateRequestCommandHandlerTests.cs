@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _command = new ResolveOverlappingTrainingDateRequestCommand()
                 {
                     ApprenticeshipId = 1,
-                    ResolutionType = Types.OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive
+                    ResolutionType = Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipIsStillActive
                 };
 
                 _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
@@ -68,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             public void Verify_OverlappingTrainingDateRequest_Resolved()
             {
-                _resolveOverlappingTrainingDateRequestService.Verify(x => x.Resolve(_command.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive), Times.Once);
+                _resolveOverlappingTrainingDateRequestService.Verify(x => x.Resolve(_command.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipIsStillActive), Times.Once);
             }
         }
     }
