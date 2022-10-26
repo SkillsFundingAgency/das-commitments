@@ -146,6 +146,52 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             fixture.VerifyCohortIsUnapproved();
         }
 
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentActualStartDate_Day_Change_Does_Not_Reset_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithActualStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateDay();
+
+            fixture.VerifyCohortIsApprovedByOtherParty();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentActualStartDate_Month_Change_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithActualStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateMonth();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentActualStartDate_Year_Change_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithActualStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateYear();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
         public void UpdateDraftApprenticeship_EmploymentStartDate_Resets_OtherParty_Approval(Party modifyingParty)
@@ -385,6 +431,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.ActualStartDate = details.StartDate.Value.AddYears(1);
+                details.StartDate = null;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateDay()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.ActualStartDate = details.ActualStartDate.Value.AddDays(1);
+                details.StartDate = null;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateMonth()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.ActualStartDate = details.ActualStartDate.Value.AddMonths(1);
+                details.StartDate = null;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateYear()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.ActualStartDate = details.ActualStartDate.Value.AddYears(1);
                 details.StartDate = null;
                 Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
             }

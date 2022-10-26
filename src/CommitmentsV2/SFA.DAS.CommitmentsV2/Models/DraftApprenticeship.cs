@@ -148,11 +148,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (FirstName != update.FirstName) return true;
             if (LastName != update.LastName) return true;
             if (Cost != update.Cost) return true;
-
-            if (IsNotTrue(IsOnFlexiPaymentPilot) && IsNotTrue(update.IsOnFlexiPaymentPilot) && StartDate != update.StartDate) return true;
-            if (update.ActualStartDate.HasValue && StartDate.HasValue && StartDateMonthOrYearIsChanged(update)) return true;
-            if (update.StartDate.HasValue && ActualStartDate.HasValue && ActualStartDateMonthOrYearIsChanged(update)) return true;
-       
+            if (StartDateIsChanged(update)) return true;
             if (EndDate != update.EndDate) return true;
             if (DateOfBirth != update.DateOfBirth) return true;
             if (DeliveryModel != update.DeliveryModel) return true;
@@ -168,6 +164,15 @@ namespace SFA.DAS.CommitmentsV2.Models
                 if (update.TrainingProgramme?.CourseCode != CourseCode) return true;
             }
 
+            return false;
+        }
+
+        private bool StartDateIsChanged(DraftApprenticeshipDetails update)
+        {
+            if (IsNotTrue(IsOnFlexiPaymentPilot) && IsNotTrue(update.IsOnFlexiPaymentPilot) && StartDate != update.StartDate) return true;
+            if (ActualStartDate.HasValue && update.ActualStartDate.HasValue && (ActualStartDate.Value.Year != update.ActualStartDate.Value.Year || ActualStartDate.Value.Month != update.ActualStartDate.Value.Month)) return true;
+            if (update.ActualStartDate.HasValue && StartDate.HasValue && StartDateMonthOrYearIsChanged(update)) return true;
+            if (update.StartDate.HasValue && ActualStartDate.HasValue && ActualStartDateMonthOrYearIsChanged(update)) return true;
             return false;
         }
 
