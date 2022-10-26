@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
 

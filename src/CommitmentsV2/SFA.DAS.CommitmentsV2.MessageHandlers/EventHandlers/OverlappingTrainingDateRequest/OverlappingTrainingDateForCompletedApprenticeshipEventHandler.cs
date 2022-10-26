@@ -4,23 +4,24 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest
+namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
 {
-    public class OverlappingTrainingDateCreatedEventHandler : IHandleMessages<OverlappingTrainingDateCreatedEvent>
+    public class OverlappingTrainingDateForCompletedApprenticeshipEventHandler : IHandleMessages<OverlappingTrainingDateCreatedEvent>
     {
-        private readonly ILogger<OverlappingTrainingDateCreatedEventHandler> _logger;
+        private readonly ILogger<OverlappingTrainingDateForCompletedApprenticeshipEventHandler> _logger;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
         private readonly IEncodingService _encodingService;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        public OverlappingTrainingDateCreatedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-            ILogger<OverlappingTrainingDateCreatedEventHandler> logger,
+        public OverlappingTrainingDateForCompletedApprenticeshipEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+            ILogger<OverlappingTrainingDateForCompletedApprenticeshipEventHandler> logger,
             IEncodingService encodingService,
             CommitmentsV2Configuration commitmentsV2Configuration)
         {
@@ -38,9 +39,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
 
                 var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-                var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
+                var currentApprenticeshipStatus = apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow);
 
-                await context.Send(sendEmailToEmployerCommand, new SendOptions());
+                if (currentApprenticeshipStatus == ApprenticeshipStatus.Completed)
+                {
+                    var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
+
+                    await context.Send(sendEmailToEmployerCommand, new SendOptions());
+                }
 
             }
             catch (Exception e)
@@ -54,14 +60,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
         {
 
             var sendEmailToEmployerCommand = new SendEmailToEmployerCommand(apprenticeship.Cohort.EmployerAccountId,
-                "OverlappingTrainingDate",
+                "OverlappingTrainingDateForCompletedApprenticeship",
                 new Dictionary<string, string>
                 {
-                        {"EMPLOYERNAME", apprenticeship.Cohort.AccountLegalEntity.Name},
-                        {"ULN",message.Uln},
-                        {"APPRENTICENAME", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
-                        {"URL", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
-                }
+                        {"Uln",message.Uln},
+                        {"Apprentice", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
+                        {"EndDate",apprenticeship.EndDate?.ToGdsFormatLongMonthWithoutDay()},
+                        {"Url", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
+                },null, "Name"
             );
 
             return sendEmailToEmployerCommand;
