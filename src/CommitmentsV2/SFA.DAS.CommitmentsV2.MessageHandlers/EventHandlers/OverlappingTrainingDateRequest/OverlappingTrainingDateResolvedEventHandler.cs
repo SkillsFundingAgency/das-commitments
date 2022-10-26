@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.Messages.Events
+namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
 {
     public class OverlappingTrainingDateResolvedEventHandler : IHandleMessages<OverlappingTrainingDateResolvedEvent>
     {
