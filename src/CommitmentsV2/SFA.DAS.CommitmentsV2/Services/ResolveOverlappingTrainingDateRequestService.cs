@@ -93,9 +93,21 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return true;
             }
 
-            if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive)
+            if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipIsStillActive)
             {
                 _logger.LogInformation($"OverlappingTrainingDateRequest  employer confirm that Apprentieship is still active, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+                return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
+            }
+
+            if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopDateIsCorrect)
+            {
+                _logger.LogInformation($"OverlappingTrainingDateRequest  employer confirm that Apprenticeship Stop Date Is Correct, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
+                return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
+            }
+
+            if (resolutionType == OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateIsCorrect)
+            {
+                _logger.LogInformation($"OverlappingTrainingDateRequest  employer confirm that Apprenticeship End Date Is Correct, Apprenticeship-Id:{overlappingTrainingDateRequest.PreviousApprenticeshipId}, DraftApprenticeshipId : {overlappingTrainingDateRequest.DraftApprenticeshipId}");
                 return true; // resolve if employer has confirmed that the apprenticeship Is Stil lActive
             }
 
@@ -162,6 +174,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 case OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped:
                 case OverlappingTrainingDateRequestResolutionType.StopDateUpdate:
+                    _logger.LogInformation($"OverlappingTrainingDateRequest overlapcheck is not required as the resolution type is {resolutionType}");
+                    return false;
+
+                case OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateUpdate:
                     _logger.LogInformation($"OverlappingTrainingDateRequest overlapcheck is not required as the resolution type is {resolutionType}");
                     return false;
             }
