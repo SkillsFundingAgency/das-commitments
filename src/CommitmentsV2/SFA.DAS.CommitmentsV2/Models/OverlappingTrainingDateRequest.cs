@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void EmitOverlappingTrainingDateNotificationEvent(long apprenticeshipId, string uln)
         {
-            Publish(() => new OverlappingTrainingDateEvent(apprenticeshipId, uln));
+            Publish(() => new OverlappingTrainingDateCreatedEvent(apprenticeshipId, uln));
         }
     }
 }
