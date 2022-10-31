@@ -116,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     || a.LastName == null
                     || a.DateOfBirth == null
                     || a.CourseName == null
-                    || a.StartDate == null
+                    || (a.StartDate == null && a.ActualStartDate == null)
                     || a.EndDate == null
                     || a.Cost == null)
                 {

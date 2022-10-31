@@ -157,6 +157,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.DateOfBirth, result.DateOfBirth);
             Assert.AreEqual(source.Cost, result.Cost);
             Assert.AreEqual(source.StartDate, result.StartDate);
+            Assert.AreEqual(source.ActualStartDate, result.ActualStartDate);
             Assert.AreEqual(source.EndDate, result.EndDate);
             Assert.AreEqual(source.Uln, result.Uln);
             Assert.AreEqual(source.CourseCode, result.CourseCode);
@@ -167,6 +168,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.RecognisePriorLearning, result.RecognisePriorLearning);
             Assert.AreEqual(source.PriorLearning.DurationReducedBy, result.DurationReducedBy);
             Assert.AreEqual(source.PriorLearning.PriceReducedBy, result.PriceReducedBy);
+            Assert.AreEqual(source.IsOnFlexiPaymentPilot, result.IsOnFlexiPaymentPilot);
         }
     }
 }
