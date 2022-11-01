@@ -168,4 +168,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="PriceReducedBy" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="b90a166a-ebb8-4b58-834c-01448633e6fc" ChangeDateTime="08/31/2022 09:02:08">
+    <Property Name="ElementName" Value="[dbo].[Apprenticeship].[FlexiPaymentPilot]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Apprenticeship]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsFlexiPaymentPilot" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="22ef507f-5e9e-447c-8566-058c26ea2373" ChangeDateTime="08/31/2022 09:02:11">
+    <Property Name="ElementName" Value="[dbo].[Apprenticeship].[IsFlexiPaymentPilot]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Apprenticeship]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsOnFlexiPaymentPilot" />
+  </Operation>
 </Operations>

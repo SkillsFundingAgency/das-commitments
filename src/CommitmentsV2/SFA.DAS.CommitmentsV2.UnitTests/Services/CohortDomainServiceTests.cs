@@ -615,6 +615,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyStartDateException(pass);
         }
 
+        [TestCase("2018-04-30", false)]
+        [TestCase("2018-05-01", true)]
+        public async Task AddDraftApprenticeship_Verify_ActualStartDate_ForTransferSender_Is_After_May_2018(DateTime startDate, bool pass)
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort()
+                .WithActualStartDate(startDate)
+                .WithTrainingProgramme();
+
+            await _fixture.AddDraftApprenticeship();
+
+            _fixture.VerifyActualStartDateException(pass);
+        }
+
+        [TestCase("0022-01-01", false)]
+        [TestCase("1300-01-01", false)]
+        [TestCase("2000-12-01", false)]
+        public async Task AddDraftApprenticeship_Verify_ActualStartDate_IsNot_Earlier_Than_May_2017(DateTime startDate, bool pass)
+        {
+            _fixture.WithParty(Party.Employer)
+                .WithActualStartDate(startDate)
+                .WithTrainingProgramme();
+
+            await _fixture.CreateCohort();
+
+            _fixture.VerifyActualStartDateException(pass);
+        }
+
         [TestCase("0022-01-01", false)]
         [TestCase("1300-01-01", false)]
         [TestCase("2000-12-01", false)]
@@ -811,7 +838,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
-                   FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false
+                   FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false, IsOnFlexiPaymentPilot = false
                 };
 
                 ExistingDraftApprenticeship = new DraftApprenticeship {
@@ -823,7 +850,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         StartDate = DateTime.UtcNow,
                         EndDate = DateTime.UtcNow.AddYears(1),
                         CourseCode = fixture.Create<string>(),
-                        Cost = fixture.Create<int>()
+                        Cost = fixture.Create<int>(),
+                        IsOnFlexiPaymentPilot = false
                 };
                 ExistingDraftApprenticeship.SetValue(x => x.DateOfBirth, ExistingDraftApprenticeship.StartDate.Value.AddYears(-16));
 
@@ -1041,6 +1069,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     : default(DateTime?);
 
                 DraftApprenticeshipDetails.StartDate = utcStartDate;
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithActualStartDate(DateTime? startDate)
+            {
+                var utcStartDate = startDate.HasValue
+                    ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                    : default(DateTime?);
+
+                DraftApprenticeshipDetails.ActualStartDate = utcStartDate;
                 return this;
             }
 
@@ -1611,6 +1649,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate"));
+            }
+
+            public void VerifyActualStartDateException(bool passes)
+            {
+                if (passes)
+                {
+                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    return;
+                }
+
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "ActualStartDate"));
             }
 
             public void VerifyEndDateException(bool passes)

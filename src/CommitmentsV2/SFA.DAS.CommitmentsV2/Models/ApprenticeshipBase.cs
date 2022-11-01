@@ -31,6 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual DeliveryModel? DeliveryModel { get; set; }
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public DateTime? DateOfBirth { get; set; }
@@ -61,6 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool? RecognisePriorLearning { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public virtual ICollection<OverlappingTrainingDateRequest> OverlappingTrainingDateRequests { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
 
         public bool RecognisingPriorLearningStillNeedsToBeConsidered
         {
