@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Http;
@@ -34,11 +33,27 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
             }
 
             var loggerFactory = ctx.GetInstance<ILoggerFactory>();
-            var activeDirectoryConfig = new ReservationsClientApiConfigurationADAdapter(config);
-            var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(activeDirectoryConfig, loggerFactory);
+
+            IHttpClientFactory httpClientFactory;
+
+            if (IsClientCredentialConfiguration(config.ClientId, config.ClientSecret, config.Tenant))
+            {
+                var activeDirectoryConfig = new ReservationsClientApiConfigurationADAdapter(config);
+                httpClientFactory = new AzureActiveDirectoryHttpClientFactory(activeDirectoryConfig, loggerFactory);
+            }
+            else
+            {
+                var miConfig = new ReservationsClientApiConfigurationMIAdapter(config);
+                httpClientFactory = new ManagedIdentityHttpClientFactory(miConfig, loggerFactory);
+            }
+
             return httpClientFactory.CreateHttpClient();
         }
 
+        private bool IsClientCredentialConfiguration(string clientId, string clientSecret, string tenant)
+        {
+            return !string.IsNullOrWhiteSpace(clientId) && !string.IsNullOrWhiteSpace(clientSecret) && !string.IsNullOrWhiteSpace(tenant);
+        }
         private static ReservationsClientApiConfiguration GetConfig(IContext context)
         {
             var configuration = context.GetInstance<IConfiguration>();
