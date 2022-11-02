@@ -1,4 +1,6 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Threading.Tasks;
+using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
@@ -6,16 +8,16 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using System;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
+namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.OverlappingTrainingDateRequest
 {
     [TestFixture]
     class OverlappingTrainingDateResolvedEventHandlerTests
@@ -81,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _draftApprenticeship.Cohort.SetValue(x => x.Reference, CohortReference);
             _draftApprenticeship.Cohort.SetValue(x => x.Id, Event.CohortId);
             _draftApprenticeship.Cohort.SetValue(x => x.WithParty, Party.Provider);
-            
+
 
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -100,4 +102,3 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
     }
 }
-

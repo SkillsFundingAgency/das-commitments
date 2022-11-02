@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 DeliveryModel = source.DeliveryModel,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
+                ActualStartDate = source.ActualStartDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
                 Reference = source.OriginatorReference,
@@ -40,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 EmploymentEndDate = source.EmploymentEndDate,
                 EmploymentPrice = source.EmploymentPrice,
                 IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot.Value
             };
 
             // Only populate standard version specific items if start is specified.

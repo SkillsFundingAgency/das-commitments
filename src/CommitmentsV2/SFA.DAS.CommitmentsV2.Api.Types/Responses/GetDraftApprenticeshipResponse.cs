@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string StandardUId { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string Reference { get; set; }
@@ -35,5 +36,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public int? DurationReducedBy { get; set; }
         public int? PriceReducedBy { get; set; }
         public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
     }
 }
