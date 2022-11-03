@@ -99,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain
                             EmployerAccountId = c.EmployerAccountId,
                             EmployerIsDeleted = ale.Deleted.HasValue,
                             ProviderName = p.Name,
-                            StartDate = a.StartDate,
+                            StartDate = a.ActualStartDate ?? a.StartDate,
                             EndDate = a.EndDate,
                             StopDate = a.StopDate,
                             ContinuationOfId = a.ContinuationOfId,

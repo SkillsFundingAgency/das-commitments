@@ -178,6 +178,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
                 Assert.AreEqual(source.PriceReducedBy, result.PriceReducedBy);
             }
         }
+
+        [Test]
+        public void IsOnFlexiPaymentPilotIsFalse()
+        {
+            _source.BulkUploadDraftApprenticeships.ForEach(source =>
+            {
+                var result = _result.First(y => y.Uln == source.Uln);
+                Assert.IsFalse(result.IsOnFlexiPaymentPilot);
+            });
+        }
     }
 
     public class BulkUploadAddDraftApprenticeshipRequestSpecimenBuilder : ISpecimenBuilder

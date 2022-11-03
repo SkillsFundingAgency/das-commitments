@@ -1,28 +1,30 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoFixture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     public class EditEndDateRequestCommandHandlerTests
     {
+
         [TestCase(Party.Provider)]
         [TestCase(Party.None)]
         [TestCase(Party.TransferSender)]
@@ -31,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var f = new EditEndDateRequestCommandHandlerTestsFixture();
             f.Party = party;
 
-            Assert.ThrowsAsync<DomainException>(async () => await f.Handle()); 
+            Assert.ThrowsAsync<DomainException>(async () => await f.Handle());
         }
 
         [Test]
@@ -41,20 +43,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await f.Handle();
             f.VerifyEndDateUpdated();
         }
-    }
 
+        [Test]
+        public async Task Handle_WhenHandlingCommand_UpdatingTheEndDate_ThenResolveOltd()
+        {
+            var f = new EditEndDateRequestCommandHandlerTestsFixture();
+            await f.Handle();
+            f.VerifyEndDateUpdated();
+
+            f._resolveOverlappingTrainingDateRequestService
+                .Verify(x => x.Resolve(f.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateUpdate), Times.Once);
+        }
+    }
     public class EditEndDateRequestCommandHandlerTestsFixture
     {
         public EditEndDateRequestCommand Command { get; set; }
         public IRequestHandler<EditEndDateRequestCommand> Handler { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
-
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
-
         public Party Party { get; set; }
-
         public long ApprenticeshipId { get; set; }
 
+        public Mock<IResolveOverlappingTrainingDateRequestService> _resolveOverlappingTrainingDateRequestService;
         public EditEndDateRequestCommandHandlerTestsFixture()
         {
             Party = Party.Employer;
@@ -104,18 +114,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 UserInfo = new UserInfo()
             };
 
+            _resolveOverlappingTrainingDateRequestService = new Mock<IResolveOverlappingTrainingDateRequestService>();
+
+            _resolveOverlappingTrainingDateRequestService
+                .Setup(x => x.Resolve(Apprenticeship.Id, null,
+                    Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateUpdate))
+                .Returns(Task.CompletedTask);
+
             Handler = new EditEndDateRequestCommandHandler(lazyProviderDbContext,
                 Mock.Of<ICurrentDateTime>(),
                 authenticationService.Object,
-                Mock.Of<ILogger<EditEndDateRequestCommandHandler>>());
+                Mock.Of<ILogger<EditEndDateRequestCommandHandler>>(),
+                _resolveOverlappingTrainingDateRequestService.Object);
         }
-
         public async Task Handle()
         {
             await Handler.Handle(Command, CancellationToken.None);
             await Db.SaveChangesAsync();
         }
-
         internal void VerifyEndDateUpdated()
         {
             Assert.AreEqual(Command.EndDate, Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).EndDate);

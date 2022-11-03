@@ -78,7 +78,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 StartDate = DateTime.Today.AddMonths(-6),
                 EndDate = DateTime.Today.AddMonths(6),
                 DateOfBirth = DateTime.Today.AddYears(-18),
-                DeliveryModel = DeliveryModel.Regular
+                DeliveryModel = DeliveryModel.Regular,
+                IsOnFlexiPaymentPilot = false
             }, Party.Provider);
         }
 
@@ -92,7 +93,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     StartDate = SafeUpdate(draftApprenticeship.StartDate),
                     EndDate = SafeUpdate(draftApprenticeship.EndDate),
                     DateOfBirth = SafeUpdate(draftApprenticeship.DateOfBirth),
-                    DeliveryModel = draftApprenticeship.DeliveryModel
+                    DeliveryModel = draftApprenticeship.DeliveryModel,
+                    IsOnFlexiPaymentPilot = draftApprenticeship.IsOnFlexiPaymentPilot
                 }, Party.Provider);
         }
 
@@ -112,7 +114,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 EndDate = draftApprenticeship.EndDate,
                 DateOfBirth = draftApprenticeship.DateOfBirth,
                 Reference = draftApprenticeship.ProviderRef,
-                ReservationId = draftApprenticeship.ReservationId
+                ReservationId = draftApprenticeship.ReservationId,
+                IsOnFlexiPaymentPilot = draftApprenticeship.IsOnFlexiPaymentPilot
             };
         }
 
