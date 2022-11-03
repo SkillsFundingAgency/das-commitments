@@ -58,6 +58,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         }
 
         [TestCase(null, true)]
+        [TestCase("2017-04-30", false)]
+        [TestCase("2017-05-01", true)]
+        public void ActualStartDate_CheckNotBeforeMay2017_Validation(DateTime? startDate, bool passes)
+        {
+            var utcStartDate = startDate.HasValue
+                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                : default(DateTime?);
+
+            _fixture
+                .AssertValidationForProperty(
+                    () =>
+                        _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
+                            .WithApprenticeship(1, "AAA").WithId(1).WithActualStartDate(utcStartDate).WithStartDate(null),
+                    nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate),
+                    passes);
+        }
+
+        [TestCase(null, true)]
         [TestCase("valid@email.com", true)]
         [TestCase("valid@email", false)]
         [TestCase("invalidemail@", false)]
@@ -89,7 +107,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue),
-                DeliveryModel = DeliveryModel.Regular
+                DeliveryModel = DeliveryModel.Regular,
+                IsOnFlexiPaymentPilot = false
             };
             SetupMinimumNameProperties();
             Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1};
@@ -143,7 +162,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public UpdateDraftApprenticeshipValidationTestsFixture WithStartDate(DateTime? startDate)
         {
+            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = false;
             DraftApprenticeshipDetails.StartDate = startDate;
+            return this;
+        }
+
+        public UpdateDraftApprenticeshipValidationTestsFixture WithActualStartDate(DateTime? startDate)
+        {
+            DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+            DraftApprenticeshipDetails.ActualStartDate = startDate;
             return this;
         }
 
@@ -160,6 +187,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public UpdateDraftApprenticeshipValidationTestsFixture WithApprenticeship(long id, string uln)
         {
             var draftApprenticeshipDetails = new DraftApprenticeshipDetails().Set(d => d.Uln, uln);
+            draftApprenticeshipDetails.Set(x => x.IsOnFlexiPaymentPilot, false);
             draftApprenticeshipDetails.Set(x => x.FirstName, "TEST");
             draftApprenticeshipDetails.Set(x => x.LastName, "TEST");
             draftApprenticeshipDetails.Set(x => x.TrainingProgramme,

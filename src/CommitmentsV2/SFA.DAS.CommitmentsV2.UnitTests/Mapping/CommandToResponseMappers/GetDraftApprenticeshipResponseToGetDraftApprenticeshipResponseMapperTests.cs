@@ -86,6 +86,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         }
 
         [Test]
+        public Task Map_ActualStartDate_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.ActualStartDate, (DateTime?) DateTime.Now);
+        }
+
+        [Test]
         public Task Map_EndDate_ShouldBeSet()
         {
             return AssertPropertySet(input => input.EndDate, (DateTime?) DateTime.Now);
@@ -123,11 +129,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             var standardUId = "IdValue";
             return AssertPropertySet(input => input.StandardUId, standardUId);
         }
-                
+
         [Test]
         public Task Map_StandardHasOptions_ShouldBeSet()
         {
             return AssertPropertySet(input => input.HasStandardOptions, true);
+        }
+
+        [Test]
+        public Task Map_IsOnFlexiPaymentPilot_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.IsOnFlexiPaymentPilot, (bool?)true);
         }
 
         [TestCase(true)]

@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 DeliveryModel = source.DeliveryModel,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
+                ActualStartDate = source.ActualStartDate,
                 EndDate = source.EndDate,
                 OriginatorReference = source.OriginatorReference,
                 ReservationId = source.ReservationId,
@@ -27,7 +28,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 EmploymentEndDate = source.EmploymentEndDate,
                 EmploymentPrice = source.EmploymentPrice,
                 UserInfo = source.UserInfo,
-                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap
+                IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
             });
         }
     }
