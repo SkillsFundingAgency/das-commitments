@@ -46,27 +46,30 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && x.CreatedOn < dateTime)
+                            && x.CreatedOn < dateTime
+                            )
                 .ToList();
 
             _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
 
             foreach (var pendingRecord in pendingRecords)
             {
-                var showDOB = pendingRecord.DraftApprenticeship.DateOfBirth.HasValue ? "Yes" : "No";
-                var tokens = new Dictionary<string, string>
+                if (pendingRecord.DraftApprenticeship != null)
                 {
-                    { "RequestCreatedByProviderEmail", pendingRecord.RequestCreatedByProviderEmail },
-                    { "LastUpdatedByProviderEmail", pendingRecord.DraftApprenticeship.Cohort.LastUpdatedByProviderEmail },
-                    { "ULN", pendingRecord.DraftApprenticeship.Uln },
-                    { "NewProviderUkprn", pendingRecord.DraftApprenticeship.Cohort.ProviderId.ToString() },
-                    { "OldProviderUkprn", pendingRecord.PreviousApprenticeship.Cohort.ProviderId.ToString() }
-                };
+                    var tokens = new Dictionary<string, string>
+                    {
+                        { "RequestCreatedByProviderEmail", pendingRecord.RequestCreatedByProviderEmail },
+                        { "LastUpdatedByProviderEmail", pendingRecord.DraftApprenticeship?.Cohort?.LastUpdatedByProviderEmail },
+                        { "ULN", pendingRecord.DraftApprenticeship?.Uln },
+                        { "NewProviderUkprn", pendingRecord.DraftApprenticeship?.Cohort?.ProviderId.ToString() },
+                        { "OldProviderUkprn", pendingRecord.PreviousApprenticeship?.Cohort?.ProviderId.ToString() }
+                    };
 
-                var emailCommand = new SendEmailCommand(TemplateId,_configuration.ZenDeskEmailAddress, tokens);
-                await _messageSession.Send(emailCommand);
+                    var emailCommand = new SendEmailCommand(TemplateId, _configuration.ZenDeskEmailAddress, tokens);
+                    await _messageSession.Send(emailCommand);
 
-                pendingRecord.NotifiedServiceDeskOn = _currentDateTime.UtcNow;
+                    pendingRecord.NotifiedServiceDeskOn = _currentDateTime.UtcNow;
+                }
             }
 
             await _dbContext.Value.SaveChangesAsync();
