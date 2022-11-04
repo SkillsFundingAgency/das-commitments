@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
                     RecognisePriorLearning = source.RecognisePriorLearning,
                     DurationReducedBy = source.DurationReducedBy,
                     PriceReducedBy = source.PriceReducedBy,
-                    
+                    IsOnFlexiPaymentPilot = false
                 };
                 await MapTrainingProgramme(source, result);
                 draftApprenticeshipDetailsList.Add(result);

@@ -24,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildEmailValidationFailures(draftApprenticeshipDetails));
+                errors.AddRange(BuildIsOnFlexiPaymentPilotValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails, transferSenderId));
                 errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, apprenticeships));
@@ -56,6 +57,14 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.Email), "Please enter a valid email address");
                 }
+            }
+        }
+
+        private static IEnumerable<DomainError> BuildIsOnFlexiPaymentPilotValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (!draftApprenticeshipDetails.IsOnFlexiPaymentPilot.HasValue)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.IsOnFlexiPaymentPilot), "Select whether this apprentice will be on the pilot programme");
             }
         }
 
@@ -124,17 +133,20 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
         private static IEnumerable<DomainError> BuildStartDateValidationFailures(DraftApprenticeshipDetails details, long? transferSenderId)
         {
-            if (!details.StartDate.HasValue) yield break;
+            if (!details.StartDate.HasValue && !details.ActualStartDate.HasValue) yield break;
+
+            var startDate = details.StartDate.HasValue ? details.StartDate.Value : details.ActualStartDate.Value;
+            var startDateField = details.StartDate.HasValue ? nameof(details.StartDate) : nameof(details.ActualStartDate);
 
             var courseStartedBeforeDas = details.TrainingProgramme != null &&
                                          (!details.TrainingProgramme.EffectiveFrom.HasValue ||
                                           details.TrainingProgramme.EffectiveFrom.Value < Constants.DasStartDate);
 
-            var trainingProgrammeStatus = details.TrainingProgramme?.GetStatusOn(details.StartDate.Value);
+            var trainingProgrammeStatus = details.TrainingProgramme?.GetStatusOn(startDate);
 
-            if ((details.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
+            if ((startDate < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
             {
-                yield return new DomainError(nameof(details.StartDate), "The start date must not be earlier than May 2017");
+                yield return new DomainError(startDateField, "The start date must not be earlier than May 2017");
                 yield break;
             }
 
@@ -146,16 +158,16 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
                 var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
 
-                yield return new DomainError(nameof(details.StartDate), errorMessage);
+                yield return new DomainError(startDateField, errorMessage);
                 yield break;
             }
 
             if (trainingProgrammeStatus.HasValue && transferSenderId.HasValue
-                && details.StartDate.Value < Constants.TransferFeatureStartDate)
+                && startDate < Constants.TransferFeatureStartDate)
             {
                 var errorMessage = $"Apprentices funded through a transfer can't start earlier than May 2018";
 
-                yield return new DomainError(nameof(details.StartDate), errorMessage);
+                yield return new DomainError(startDateField, errorMessage);
             }
         }
 

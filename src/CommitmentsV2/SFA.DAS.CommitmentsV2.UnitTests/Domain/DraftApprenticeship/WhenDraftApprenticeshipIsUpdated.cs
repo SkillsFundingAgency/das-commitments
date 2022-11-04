@@ -55,7 +55,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.AreEqual(_fixture.DraftApprenticeshipDetails.Cost, result.Cost);
         }
 
-
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public void ThenStartDateIsMappedCorrectly(Party modifyingParty)
@@ -64,6 +63,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.AreEqual(_fixture.DraftApprenticeshipDetails.StartDate, result.StartDate);
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenActualStartDateIsMappedCorrectly(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
+            Assert.AreEqual(_fixture.DraftApprenticeshipDetails.ActualStartDate, result.ActualStartDate);
+        }
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]

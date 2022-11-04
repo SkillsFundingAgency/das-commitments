@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             FirstName != null &&
             LastName != null &&
             Cost != null &&
-            StartDate != null &&
+            (StartDate != null || ActualStartDate != null) &&
             EndDate != null &&
             CourseCode != null &&
             DateOfBirth != null &&
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             LastName != null &&
             Uln != null &&
             Cost != null &&
-            StartDate != null &&
+            (StartDate != null || ActualStartDate != null) &&
             EndDate != null &&
             CourseCode != null &&
             DateOfBirth != null &&
@@ -84,8 +84,10 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             Cost = source.Cost;
             StartDate = source.StartDate;
+            ActualStartDate = source.ActualStartDate;
             EndDate = source.EndDate;
             DateOfBirth = source.DateOfBirth;
+            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot;
 
             switch (modifyingParty)
             {
@@ -146,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (FirstName != update.FirstName) return true;
             if (LastName != update.LastName) return true;
             if (Cost != update.Cost) return true;
-            if (StartDate != update.StartDate) return true;
+            if (StartDateIsChanged(update)) return true;
             if (EndDate != update.EndDate) return true;
             if (DateOfBirth != update.DateOfBirth) return true;
             if (DeliveryModel != update.DeliveryModel) return true;
@@ -163,6 +165,27 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             return false;
+        }
+
+        private bool StartDateIsChanged(DraftApprenticeshipDetails update)
+        {
+            if (IsNotTrue(IsOnFlexiPaymentPilot) && IsNotTrue(update.IsOnFlexiPaymentPilot) && StartDate != update.StartDate) return true;
+            if (ActualStartDate.HasValue && update.ActualStartDate.HasValue && (ActualStartDate.Value.Year != update.ActualStartDate.Value.Year || ActualStartDate.Value.Month != update.ActualStartDate.Value.Month)) return true;
+            if (update.ActualStartDate.HasValue && StartDate.HasValue && StartDateMonthOrYearIsChanged(update)) return true;
+            if (update.StartDate.HasValue && ActualStartDate.HasValue && ActualStartDateMonthOrYearIsChanged(update)) return true;
+            return false;
+        }
+
+        private static bool IsNotTrue(bool? value) => !value.HasValue || !value.Value;
+
+        private bool StartDateMonthOrYearIsChanged(DraftApprenticeshipDetails update)
+        {
+            return StartDate.Value.Month != update.ActualStartDate.Value.Month || StartDate.Value.Year != update.ActualStartDate.Value.Year;
+        }
+
+        private bool ActualStartDateMonthOrYearIsChanged(DraftApprenticeshipDetails update)
+        {
+            return ActualStartDate.Value.Month != update.StartDate.Value.Month || ActualStartDate.Value.Year != update.StartDate.Value.Year;
         }
 
         public void ValidateUpdateForChangeOfParty(DraftApprenticeshipDetails update)

@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         public DateTime? EmploymentEndDate { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string OriginatorReference { get; set; }
         public Guid? ReservationId { get; set; }
@@ -25,5 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         public string Uln { get; set; }
         public UserInfo UserInfo { get; set; }
         public bool IgnoreStartDateOverlap { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
     }
 }
