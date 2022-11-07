@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
 {
     public class OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler : IRequestHandler<OverlappingTrainingDateRequestNotificationToServiceDeskCommand>
     {
-        public const string TemplateId = "OverlappingTraingDateRequestNotificationForServiceDesk";
+        public const string TemplateId = "ExpiredOverlappingTrainingDateForServiceDesk";
         private ICurrentDateTime _currentDateTime;
         private Lazy<ProviderCommitmentsDbContext> _dbContext;
         private IMessageSession _messageSession;
