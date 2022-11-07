@@ -143,8 +143,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                z.TemplateId == OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler.TemplateId &&
                z.Tokens["NewProviderUkprn"] == x.DraftApprenticeship.Cohort.ProviderId.ToString() &&
                z.Tokens["ULN"] == x.DraftApprenticeship.Uln &&
-               z.Tokens["OldProviderUkprn"] == x.PreviousApprenticeship.Cohort.ProviderId.ToString() &&
-               z.Tokens["RequestCreatedByProviderEmail"] == x.RequestCreatedByProviderEmail
+               z.Tokens["OldProviderUkprn"] == x.PreviousApprenticeship.Cohort.ProviderId.ToString()
                ), It.IsAny<SendOptions>()), Times.Once);
             }
 
