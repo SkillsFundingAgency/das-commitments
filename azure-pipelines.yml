@@ -196,7 +196,7 @@ stages:
       displayName: 'dotnet pack'
       inputs:
         command: pack
-        packagesToPack: 'src/SFA.DAS.Commitments.Api.Client/SFA.DAS.Commitments.Api.Client.csproj;src/SFA.DAS.Commitments.Api.Types/SFA.DAS.Commitments.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Client/SFA.DAS.ReservationsV2.Api.Client.csproj;src/SFA.DAS.Reservations.API.Types/SFA.DAS.Reservations.Api.Types.csproj;src/SFA.DAS.Reservations.Api.Client/SFA.DAS.Reservations.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
+        packagesToPack: 'src/SFA.DAS.Commitments.Api.Client/SFA.DAS.Commitments.Api.Client.csproj;src/SFA.DAS.Commitments.Api.Types/SFA.DAS.Commitments.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
         packDirectory: 'nuget-publish'
         versioningScheme: byBuildNumber
         buildProperties: 'Version="$(Build.BuildNumber)"'  
