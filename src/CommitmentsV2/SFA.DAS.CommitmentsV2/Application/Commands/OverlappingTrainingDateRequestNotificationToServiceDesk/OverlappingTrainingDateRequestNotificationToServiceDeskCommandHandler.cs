@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 {
                     var tokens = new Dictionary<string, string>
                     {
-                        { "RequestCreatedByProviderEmail", pendingRecord.RequestCreatedByProviderEmail },
+                        { "RequestCreatedByProviderEmail", string.IsNullOrWhiteSpace(pendingRecord.RequestCreatedByProviderEmail) ? "Not available" : pendingRecord.RequestCreatedByProviderEmail },
                         { "LastUpdatedByProviderEmail", pendingRecord.DraftApprenticeship?.Cohort?.LastUpdatedByProviderEmail },
                         { "ULN", pendingRecord.DraftApprenticeship?.Uln },
                         { "NewProviderUkprn", pendingRecord.DraftApprenticeship?.Cohort?.ProviderId.ToString() },
