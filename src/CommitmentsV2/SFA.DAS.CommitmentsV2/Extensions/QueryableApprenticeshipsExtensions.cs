@@ -152,6 +152,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 }
             }
 
+            if (filters.DeliveryModel.HasValue)
+            {
+                apprenticeships = apprenticeships.Where(x => x.DeliveryModel != null && x.DeliveryModel == filters.DeliveryModel.Value);
+            }
+
             return apprenticeships;
         }
 
