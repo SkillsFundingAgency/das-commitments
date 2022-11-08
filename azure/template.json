@@ -120,12 +120,12 @@
     "deploySupportApp": {
       "type": "bool"
     },
+    "oltdNotificationToServiceDeskJobSchedule": {
+      "type": "string"
+    },
     "utcValue": {
       "type": "string",
       "defaultValue": "[utcNow()]"
-    },
-    "overlappingTrainingDateRequestNotificationToServiceDeskJobSchedule": {
-      "type":"string"
     }
   },
     "variables": {
@@ -438,8 +438,8 @@
                               "value": "dotnet"
                             },
                             {
-                              "name": "OverlappingTrainingDateRequestNotificationToServiceDeskJobSchedule",
-                              "value": "[parameters('overlappingTrainingDateRequestNotificationToServiceDeskJobSchedule')]"
+                              "name": "OLTDNotificationToServiceDeskJobSchedule",
+                              "value": "[parameters('oltdNotificationToServiceDeskJobSchedule')]"
                             }
                           ]
                         }
