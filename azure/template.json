@@ -1,130 +1,133 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json",
     "contentVersion": "1.0.0.0",
-    "parameters": {
-        "serviceName": {
-            "type": "string"
-        },
-        "tags": {
-            "type": "object"
-        },
-        "resourceGroupLocation": {
-            "type": "string"
-        },
-        "configurationStorageConnectionString": {
-            "type": "securestring"
-        },
-        "environmentName": {
-            "type": "string"
-        },
-        "resourceEnvironmentName": {
-            "type": "string"
-        },
-        "sharedServiceBusName": {
-            "type": "string"
-        },
-        "sharedEnvResourceGroup": {
-            "type": "string"
-        },
-        "sharedBackEndAppServicePlanName": {
-            "type": "string"
-        },
-        "sharedBackEndSubnetResourceId": {
-            "type": "string"
-        },
-        "sharedApimResourceGroup": {
-            "type": "string"
-        },
-        "sharedApimName": {
-            "type": "string"
-        },
-        "aspSize": {
-            "type": "string",
-            "defaultValue": "1"
-        },
-        "aspInstances": {
-            "type": "int",
-            "defaultValue": 1
-        },
-        "aspSku": {
-            "type": "string",
-            "defaultValue": "Standard"
-        },
-        "loggingRedisConnectionString": {
-            "type": "securestring"
-        },
-        "loggingRedisKey": {
-            "type": "string"
-        },
-        "apiV2CustomHostName": {
-            "type": "string"
-        },
-        "apiV2CertificateName": {
-            "type": "string"
-        },
-        "supportCustomHostName": {
-            "type": "string"
-        },
-        "supportCertificateName": {
-            "type": "string"
-        },
-        "backEndAccessRestrictions": {
-            "type": "array"
-        },
-        "workerAccessRestrictions": {
-            "type": "array"
-        },
-        "supportAppAccessRestrictions": {
-            "type": "array"
-        },
-        "sharedKeyVaultName": {
-            "type": "string"
-        },
-        "sharedManagementResourceGroup": {
-            "type": "string"
-        },
-        "sharedSQLServerName": {
-            "type": "string"
-        },
-        "elasticPoolName": {
-            "type": "string"
-        },
-        "databaseSkuName": {
-            "type": "string"
-        },
-        "databaseTier": {
-            "type": "string"
-        },
-        "logAnalyticsSubscriptionId": {
-            "type": "string",
-            "defaultValue": "[subscription().subscriptionId]"
-        },
-        "logAnalyticsWorkspaceName": {
-            "type": "string"
-        },
-        "serviceBusTopicsArray": {
-            "type": "array"
-        },
-        "sharedEnvVirtualNetworkName": {
-            "type": "string"
-        },
-        "subnetObject": {
-            "type": "object"
-        },
-        "subnetServiceEndpointList": {
-            "type": "array"
-        },
-        "subnetDelegations": {
-            "type": "array"
-        },
-        "deploySupportApp": {
-            "type": "bool"
-        },
-        "utcValue": {
-            "type": "string",
-            "defaultValue": "[utcNow()]"
-        }
+  "parameters": {
+    "serviceName": {
+      "type": "string"
     },
+    "tags": {
+      "type": "object"
+    },
+    "resourceGroupLocation": {
+      "type": "string"
+    },
+    "configurationStorageConnectionString": {
+      "type": "securestring"
+    },
+    "environmentName": {
+      "type": "string"
+    },
+    "resourceEnvironmentName": {
+      "type": "string"
+    },
+    "sharedServiceBusName": {
+      "type": "string"
+    },
+    "sharedEnvResourceGroup": {
+      "type": "string"
+    },
+    "sharedBackEndAppServicePlanName": {
+      "type": "string"
+    },
+    "sharedBackEndSubnetResourceId": {
+      "type": "string"
+    },
+    "sharedApimResourceGroup": {
+      "type": "string"
+    },
+    "sharedApimName": {
+      "type": "string"
+    },
+    "aspSize": {
+      "type": "string",
+      "defaultValue": "1"
+    },
+    "aspInstances": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "aspSku": {
+      "type": "string",
+      "defaultValue": "Standard"
+    },
+    "loggingRedisConnectionString": {
+      "type": "securestring"
+    },
+    "loggingRedisKey": {
+      "type": "string"
+    },
+    "apiV2CustomHostName": {
+      "type": "string"
+    },
+    "apiV2CertificateName": {
+      "type": "string"
+    },
+    "supportCustomHostName": {
+      "type": "string"
+    },
+    "supportCertificateName": {
+      "type": "string"
+    },
+    "backEndAccessRestrictions": {
+      "type": "array"
+    },
+    "workerAccessRestrictions": {
+      "type": "array"
+    },
+    "supportAppAccessRestrictions": {
+      "type": "array"
+    },
+    "sharedKeyVaultName": {
+      "type": "string"
+    },
+    "sharedManagementResourceGroup": {
+      "type": "string"
+    },
+    "sharedSQLServerName": {
+      "type": "string"
+    },
+    "elasticPoolName": {
+      "type": "string"
+    },
+    "databaseSkuName": {
+      "type": "string"
+    },
+    "databaseTier": {
+      "type": "string"
+    },
+    "logAnalyticsSubscriptionId": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]"
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string"
+    },
+    "serviceBusTopicsArray": {
+      "type": "array"
+    },
+    "sharedEnvVirtualNetworkName": {
+      "type": "string"
+    },
+    "subnetObject": {
+      "type": "object"
+    },
+    "subnetServiceEndpointList": {
+      "type": "array"
+    },
+    "subnetDelegations": {
+      "type": "array"
+    },
+    "deploySupportApp": {
+      "type": "bool"
+    },
+    "utcValue": {
+      "type": "string",
+      "defaultValue": "[utcNow()]"
+    },
+    "overlappingTrainingDateRequestNotificationToServiceDeskJobSchedule": {
+      "type":"string"
+    }
+  },
     "variables": {
         "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
@@ -435,8 +438,8 @@
                               "value": "dotnet"
                             },
                             {
-                              "name": "OverlappingTrainingDateRequestNotificationToServiceDeskJobSchdule",
-                              "value": "*/5 * * * *"
+                              "name": "OverlappingTrainingDateRequestNotificationToServiceDeskJobSchedule",
+                              "value": "[parameters('overlappingTrainingDateRequestNotificationToServiceDeskJobSchedule')]"
                             }
                           ]
                         }
