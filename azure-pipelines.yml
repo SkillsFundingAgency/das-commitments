@@ -151,16 +151,22 @@ stages:
         publishWebProjects: false
         projects: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
         arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
-
     - task: VSBuild@1
       displayName: 'Publish v1 WebJob'
       inputs:
         solution: 'src/SFA.DAS.Commitments.Host.WebJob/SFA.DAS.Commitments.Host.WebJob.csproj'
         vsVersion: 15.0
-        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+        msbuildArgs: '/p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:SkipInvalidConfigurations=true /p:publishUrl="$(build.artifactstagingdirectory)/v1-webjob"'
         platform: 'anycpu'
         configuration: '$(buildConfiguration)'
         clean: true
+
+    - task: ArchiveFiles@2
+      displayName: 'Archive v1 Webjob'
+      inputs:
+        includeRootFolder: false
+        rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-webjob'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Host.WebJob.zip'
 
     - task: NuGetCommand@2
       displayName: 'NuGet pack'
