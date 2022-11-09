@@ -162,12 +162,6 @@ stages:
         configuration: '$(buildConfiguration)'
         clean: true
 
-    - task: ArchiveFiles@2
-      displayName: 'Archive v1 Webjob'
-      inputs:
-        rootFolderOrFile: '$(build.artifactstagingdirectory)/v1-webjob'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/publish/SFA.DAS.Commitments.Host.WebJob.zip'
-
     - task: NuGetCommand@2
       displayName: 'NuGet pack'
       inputs:
