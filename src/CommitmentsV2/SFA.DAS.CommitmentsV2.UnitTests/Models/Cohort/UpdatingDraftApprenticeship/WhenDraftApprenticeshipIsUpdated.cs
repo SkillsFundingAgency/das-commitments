@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AutoFixture;
+using MoreLinq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
@@ -81,6 +82,127 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithExistingDraftApprenticeships()
                 .WithPriorApprovalOfOtherParty()
                 .UpdateDraftApprenticeshipEmploymentEndDate();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_PilotStatusChange_Does_Not_Reset_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithActualStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotStatusAndCopyStartDate();
+
+            fixture.VerifyCohortIsApprovedByOtherParty();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentStartDate_Day_Change_Does_Not_Reset_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotDraftApprenticeshipStartDateDay();
+
+            fixture.VerifyCohortIsApprovedByOtherParty();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentStartDate_Month_Change_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotDraftApprenticeshipStartDateMonth();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentStartDate_Year_Change_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotDraftApprenticeshipStartDateYear();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentActualStartDate_Day_Change_Does_Not_Reset_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithActualStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateDay();
+
+            fixture.VerifyCohortIsApprovedByOtherParty();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentActualStartDate_Month_Change_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithActualStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateMonth();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentActualStartDate_Year_Change_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithActualStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateYear();
+
+            fixture.VerifyCohortIsUnapproved();
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void UpdateDraftApprenticeship_EmploymentStartDate_Resets_OtherParty_Approval(Party modifyingParty)
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithStartDate()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateDraftApprenticeshipStartDate();
 
             fixture.VerifyCohortIsUnapproved();
         }
@@ -216,11 +338,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                             EmploymentEndDate = _autoFixture.Create<DateTime>(),
                             EmploymentPrice = _autoFixture.Create<int>()
                         },
-                        DateOfBirth = _autoFixture.Create<DateTime>(),
+                        DateOfBirth = DateTime.Now.AddYears(-17),
+                        IsOnFlexiPaymentPilot = false
                     };
                     
                     Cohort.Apprenticeships.Add(apprenticeship);
                 }
+                return this;
+            }
+
+            public UpdatingDraftApprenticeshipTestFixture WithStartDate()
+            {
+                var nextMonth = DateTime.Now.AddMonths(1);
+                Cohort.Apprenticeships.ForEach(c => c.StartDate = new DateTime(nextMonth.Year, nextMonth.Month, 1));
+                return this;
+            }
+
+            public UpdatingDraftApprenticeshipTestFixture WithActualStartDate()
+            {
+                var nextMonth = DateTime.Now.AddMonths(1);
+                Cohort.Apprenticeships.ForEach(c => c.ActualStartDate = new DateTime(nextMonth.Year, nextMonth.Month, 15));
                 return this;
             }
 
@@ -254,6 +391,71 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
                 details.EmploymentEndDate = details.EmploymentEndDate.Value.AddDays(1);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipStartDate()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.StartDate = details.StartDate.Value.AddMonths(1);
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateFlexiPaymentPilotDraftApprenticeshipStartDateDay()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.ActualStartDate = details.StartDate.Value.AddDays(14);
+                details.StartDate = null;
+                details.IsOnFlexiPaymentPilot = true;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateFlexiPaymentPilotStatusAndCopyStartDate()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.IsOnFlexiPaymentPilot = !details.IsOnFlexiPaymentPilot;
+                details.StartDate = details.ActualStartDate.Value;
+                details.ActualStartDate = null;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateFlexiPaymentPilotDraftApprenticeshipStartDateMonth()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.ActualStartDate = details.StartDate.Value.AddMonths(1);
+                details.StartDate = null;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+            
+            public void UpdateFlexiPaymentPilotDraftApprenticeshipStartDateYear()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.ActualStartDate = details.StartDate.Value.AddYears(1);
+                details.StartDate = null;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateDay()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.ActualStartDate = details.ActualStartDate.Value.AddDays(1);
+                details.StartDate = null;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateMonth()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.ActualStartDate = details.ActualStartDate.Value.AddMonths(1);
+                details.StartDate = null;
+                Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateFlexiPaymentPilotDraftApprenticeshipActualStartDateYear()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.ActualStartDate = details.ActualStartDate.Value.AddYears(1);
+                details.StartDate = null;
                 Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
             }
 
@@ -367,10 +569,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                     EmploymentEndDate = draftApprenticeship.FlexibleEmployment.EmploymentEndDate,                    
                     Cost = (int?)draftApprenticeship.Cost,
                     StartDate = draftApprenticeship.StartDate,
+                    ActualStartDate = draftApprenticeship.ActualStartDate,
                     EndDate = draftApprenticeship.EndDate,
                     DateOfBirth = draftApprenticeship.DateOfBirth,
                     Reference = draftApprenticeship.ProviderRef,
-                    ReservationId = draftApprenticeship.ReservationId
+                    ReservationId = draftApprenticeship.ReservationId,
+                    IsOnFlexiPaymentPilot = draftApprenticeship.IsOnFlexiPaymentPilot
                 };
             }
         }

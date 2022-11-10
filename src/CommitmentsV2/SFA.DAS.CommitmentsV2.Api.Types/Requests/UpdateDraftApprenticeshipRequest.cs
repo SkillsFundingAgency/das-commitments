@@ -16,10 +16,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public int? EmploymentPrice { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EmploymentEndDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string Reference { get; set; }
         public Guid? ReservationId { get; set; }
         public bool IgnoreStartDateOverlap { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
     }
 }

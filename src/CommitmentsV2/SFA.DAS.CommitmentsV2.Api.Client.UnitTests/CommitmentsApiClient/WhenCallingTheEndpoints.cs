@@ -758,7 +758,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             var request = new ResolveApprenticeshipOverlappingTrainingDateRequest
             {
                 ApprenticeshipId = 1,
-                ResolutionType = OverlappingTrainingDateRequestResolutionType.ApprentieshipIsStillActive
+                ResolutionType = OverlappingTrainingDateRequestResolutionType.ApprenticeshipIsStillActive
             };
 
             //Act

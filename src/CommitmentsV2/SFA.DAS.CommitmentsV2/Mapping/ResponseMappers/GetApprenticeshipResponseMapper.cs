@@ -30,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 CourseName = source.CourseName,
                 DeliveryModel = source.DeliveryModel ?? DeliveryModel.Regular,
                 StartDate = source.StartDate,
+                ActualStartDate = source.ActualStartDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
                 EmployerReference = source.EmployerReference,
