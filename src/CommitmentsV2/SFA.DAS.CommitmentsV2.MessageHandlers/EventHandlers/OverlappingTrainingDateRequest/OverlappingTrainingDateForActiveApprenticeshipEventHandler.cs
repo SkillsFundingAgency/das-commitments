@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
         {
 
             var sendEmailToEmployerCommand = new SendEmailToEmployerCommand(apprenticeship.Cohort.EmployerAccountId,
-                "OverlappingTrainingDateForActiveApprenticeship",
+                "EmployerOverlappingTrainingDateForActiveApprenticeship",
                 new Dictionary<string, string>
                 {
                         {"EMPLOYERNAME", apprenticeship.Cohort.AccountLegalEntity.Name},

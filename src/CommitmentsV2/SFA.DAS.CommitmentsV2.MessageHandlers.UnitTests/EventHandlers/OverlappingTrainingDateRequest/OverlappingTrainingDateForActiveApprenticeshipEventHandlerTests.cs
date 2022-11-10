@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             await _fixture.Handle();
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
-                    c.Template == "OverlappingTrainingDateForActiveApprenticeship" &&
+                    c.Template == "EmployerOverlappingTrainingDateForActiveApprenticeship" &&
                     c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.EmployerName &&
                     c.Tokens["ULN"] == OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.Uln &&
                     c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.LastName}" &&
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             await _fixture.Handle();
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
-                    c.Template == "OverlappingTrainingDateForActiveApprenticeship" &&
+                    c.Template == "EmployerOverlappingTrainingDateForActiveApprenticeship" &&
                     c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.EmployerName &&
                     c.Tokens["ULN"] == OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.Uln &&
                     c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.LastName}" &&
