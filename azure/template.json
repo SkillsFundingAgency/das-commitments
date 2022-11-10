@@ -123,6 +123,9 @@
     "oltdNotificationToEmployerJobSchedule": {
       "type": "string"
     },
+    "oltdNotificationToServiceDeskJobSchedule": {
+      "type": "string"
+    },
     "utcValue": {
       "type": "string",
       "defaultValue": "[utcNow()]"
@@ -440,6 +443,10 @@
                             {
                               "name": "OLTDRequestNotificationToEmployerJobSchedule",
                               "value": "[parameters('oltdNotificationToEmployerJobSchedule')]"
+                            },
+                            {
+                              "name": "OLTDNotificationToServiceDeskJobSchedule",
+                              "value": "[parameters('oltdNotificationToServiceDeskJobSchedule')]"
                             }
                           ]
                         }

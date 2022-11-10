@@ -1,47 +1,43 @@
-﻿using MediatR;
+﻿using System;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
-using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.Encoding;
-using System;
+using SFA.DAS.Notifications.Messages.Commands;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Configuration;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToEmployer
+namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk
 {
-    internal class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler : IRequestHandler<OverlappingTrainingDateRequestNotificationToEmployerCommand>
+    public class OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler : IRequestHandler<OverlappingTrainingDateRequestNotificationToServiceDeskCommand>
     {
         public const string TemplateId = "ExpiredOverlappingTrainingDateForServiceDesk";
         private ICurrentDateTime _currentDateTime;
         private Lazy<ProviderCommitmentsDbContext> _dbContext;
         private IMessageSession _messageSession;
         private readonly CommitmentsV2Configuration _configuration;
-        private ILogger<OverlappingTrainingDateRequestNotificationToEmployerCommandHandler> _logger;
-        private readonly IEncodingService _encodingService;
+        private ILogger<OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler> _logger;
 
-        public OverlappingTrainingDateRequestNotificationToEmployerCommandHandler(Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,
+        public OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler(Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,
             ICurrentDateTime currentDateTime,
             IMessageSession messageSession,
             CommitmentsV2Configuration configuration,
-            IEncodingService encodingService,
-            ILogger<OverlappingTrainingDateRequestNotificationToEmployerCommandHandler> logger)
+            ILogger<OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler> logger)
         {
             _dbContext = commitmentsDbContext;
             _currentDateTime = currentDateTime;
             _messageSession = messageSession;
             _configuration = configuration;
             _logger = logger;
-            _encodingService = encodingService;
         }
-        public async Task<Unit> Handle(OverlappingTrainingDateRequestNotificationToEmployerCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(OverlappingTrainingDateRequestNotificationToServiceDeskCommand request, CancellationToken cancellationToken)
         {
-            var dateTime = _currentDateTime.UtcNow.AddDays(-14).Date;
+            var dateTime = _currentDateTime.UtcNow.AddDays(-28).Date;
 
             var pendingRecords = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(oltd => oltd.DraftApprenticeship)
@@ -49,7 +45,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                .Include(oltd => oltd.PreviousApprenticeship)
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
                 .Where(x => x.NotifiedServiceDeskOn == null
-                            && x.NotifiedEmployerOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
                             && x.CreatedOn < dateTime
                             )
@@ -59,21 +54,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
 
             foreach (var pendingRecord in pendingRecords)
             {
-                _logger.LogInformation($"Sending chaser email to employer - with cohort ref:{pendingRecord.PreviousApprenticeship.Cohort.Reference} for apprentice with ULN:{pendingRecord.PreviousApprenticeship.Uln}");
                 if (pendingRecord.DraftApprenticeship != null)
                 {
                     var tokens = new Dictionary<string, string>
                     {
-                        { "RequestRaisedDate", pendingRecord.CreatedOn.ToString("dd-MM-yyyy") },
-                        { "Apprentice", pendingRecord.PreviousApprenticeship.FirstName + " " + pendingRecord.PreviousApprenticeship.LastName },
+                        { "RequestCreatedByProviderEmail", string.IsNullOrWhiteSpace(pendingRecord.RequestCreatedByProviderEmail) ? "Not available" : pendingRecord.RequestCreatedByProviderEmail },
+                        { "LastUpdatedByProviderEmail", pendingRecord.DraftApprenticeship?.Cohort?.LastUpdatedByProviderEmail },
                         { "ULN", pendingRecord.DraftApprenticeship?.Uln },
-                        { "URL", $"{_configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(pendingRecord.PreviousApprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(pendingRecord.PreviousApprenticeshipId, EncodingType.ApprenticeshipId)}/details"}
+                        { "NewProviderUkprn", pendingRecord.DraftApprenticeship?.Cohort?.ProviderId.ToString() },
+                        { "OldProviderUkprn", pendingRecord.PreviousApprenticeship?.Cohort?.ProviderId.ToString() }
                     };
 
-                    var emailCommand = new SendEmailToEmployerCommand(pendingRecord.PreviousApprenticeship.Cohort.EmployerAccountId,  TemplateId, tokens);
+                    var emailCommand = new SendEmailCommand(TemplateId, _configuration.ZenDeskEmailAddress, tokens);
                     await _messageSession.Send(emailCommand);
 
-                    pendingRecord.NotifiedEmployerOn = _currentDateTime.UtcNow;
+                    pendingRecord.NotifiedServiceDeskOn = _currentDateTime.UtcNow;
                 }
             }
 
