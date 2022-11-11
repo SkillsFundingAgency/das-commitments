@@ -68,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
                         {"ULN",message.Uln},
                         {"APPRENTICENAME", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
                         {"URL", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
-                }, null, "Name"
+                }, null, "NAME"
             );
 
             return sendEmailToEmployerCommand;
