@@ -15,9 +15,9 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToEmployer
 {
-    internal class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler : IRequestHandler<OverlappingTrainingDateRequestNotificationToEmployerCommand>
+    public class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler : IRequestHandler<OverlappingTrainingDateRequestNotificationToEmployerCommand>
     {
-        public const string TemplateId = "ExpiredOverlappingTrainingDateForServiceDesk";
+        public const string TemplateId = "ChaseEmployerForOverlappingTrainingDateRequest";
         private ICurrentDateTime _currentDateTime;
         private Lazy<ProviderCommitmentsDbContext> _dbContext;
         private IMessageSession _messageSession;
@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                     {
                         { "RequestRaisedDate", pendingRecord.CreatedOn.ToString("dd-MM-yyyy") },
                         { "Apprentice", pendingRecord.PreviousApprenticeship.FirstName + " " + pendingRecord.PreviousApprenticeship.LastName },
-                        { "ULN", pendingRecord.DraftApprenticeship?.Uln },
+                        { "ULN", pendingRecord.PreviousApprenticeship.Uln },
                         { "URL", $"{_configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(pendingRecord.PreviousApprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(pendingRecord.PreviousApprenticeshipId, EncodingType.ApprenticeshipId)}/details"}
                     };
 
