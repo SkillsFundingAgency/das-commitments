@@ -17,9 +17,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _logger = logger;
         }
 
-        public async Task Notify([TimerTrigger("%OLTDNotificationToEmployerJobSchedule%", RunOnStartup = false)] TimerInfo timer)
+        public async Task Notify([TimerTrigger("%SFA.DAS.CommitmentsV2:OLTDNotificationToEmployerJobSchedule%", RunOnStartup = false)] TimerInfo timer)
         {
-            _logger.LogInformation("Starting OverlappingTrainingDateRequestNotificationToServiceDeskJob");
+            _logger.LogInformation("Starting OverlappingTrainingDateRequestNotificationToEmployerJob");
             await _mediator.Send(new OverlappingTrainingDateRequestNotificationToEmployerCommand());
         }
     }

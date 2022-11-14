@@ -120,9 +120,6 @@
     "deploySupportApp": {
       "type": "bool"
     },
-    "oltdNotificationToEmployerJobSchedule": {
-      "type": "string"
-    },
     "oltdNotificationToServiceDeskJobSchedule": {
       "type": "string"
     },
@@ -439,10 +436,6 @@
                             {
                               "name": "FUNCTIONS_WORKER_RUNTIME",
                               "value": "dotnet"
-                            },
-                            {
-                              "name": "OLTDNotificationToEmployerJobSchedule",
-                              "value": "[parameters('oltdNotificationToEmployerJobSchedule')]"
                             },
                             {
                               "name": "OLTDNotificationToServiceDeskJobSchedule",
