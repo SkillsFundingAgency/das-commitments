@@ -441,7 +441,7 @@
                               "value": "dotnet"
                             },
                             {
-                              "name": "OLTDRequestNotificationToEmployerJobSchedule",
+                              "name": "OLTDNotificationToEmployerJobSchedule",
                               "value": "[parameters('oltdNotificationToEmployerJobSchedule')]"
                             },
                             {
