@@ -53,7 +53,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 CourseCode = source.CourseCode,
                 Cost = source.Cost,
-                PledgeApplicationId = source.Cohort.PledgeApplicationId
+                PledgeApplicationId = source.Cohort.PledgeApplicationId,
+                ActualStartDate = source.ActualStartDate,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
             });
         }
     }
