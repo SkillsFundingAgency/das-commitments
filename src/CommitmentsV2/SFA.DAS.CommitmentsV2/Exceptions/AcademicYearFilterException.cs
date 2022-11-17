@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace SFA.DAS.CommitmentPayments.WebJob.Updater
+namespace SFA.DAS.CommitmentsV2.Exceptions
 {
     public class AcademicYearFilterException : Exception
     {

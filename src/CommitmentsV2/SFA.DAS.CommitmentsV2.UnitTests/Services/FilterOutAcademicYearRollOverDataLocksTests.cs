@@ -1,39 +1,70 @@
-﻿using Moq;
-using NUnit.Framework;
-using SFA.DAS.CommitmentPayments.WebJob.Updater;
-using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
-using SFA.DAS.NLog.Logger;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using SFA.DAS.CommitmentsV2.Models;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Services;
+using Moq;
+using SFA.DAS.CommitmentsV2.Data;
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using AutoFixture;
+using SFA.DAS.CommitmentsV2.Types;
+using System.Linq;
+using SFA.DAS.Testing.Builders;
+using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
+using System.Threading;
 
-namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
+namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
     [TestFixture]
-    public sealed class WhenFilteringAcademicYearRolloverDatalocks
+    public class FilterOutAcademicYearRollOverDataLocksTests
     {
-        private Mock<IDataLockRepository> _mockDataLockRepository;
-        private Mock<ILog> _mockLogger;
+        private Mock<ProviderCommitmentsDbContext> _dbContextMock;
         private FilterOutAcademicYearRollOverDataLocks _filter;
+        private IFixture _fixture;
+        public string LegalEntityIdentifier;
+        public OrganisationType organisationType;
+        public List<Apprenticeship> SeedApprenticeships;
+        public List<DataLockStatus> DataLockRecordss;
+        public List<ApprenticeshipUpdate> SeedApprenticeshipUpdates;
 
         [SetUp]
         public void Setup()
         {
-            _mockDataLockRepository = new Mock<IDataLockRepository>();
-            _mockLogger = new Mock<ILog>();
-            _filter = new FilterOutAcademicYearRollOverDataLocks(_mockDataLockRepository.Object, _mockLogger.Object);
+            _fixture = new Fixture();
+            _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+            LegalEntityIdentifier = "SC171417";
+            organisationType = OrganisationType.CompaniesHouse;
+            SeedApprenticeships = new List<Apprenticeship>();
+            SeedApprenticeshipUpdates = new List<ApprenticeshipUpdate>();
+            DataLockRecordss = new List<DataLockStatus>();
+
+            _dbContextMock = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options)
+            {
+                CallBase = true
+            };
+
+            _filter = new FilterOutAcademicYearRollOverDataLocks(
+               new Lazy<ProviderCommitmentsDbContext>(() => _dbContextMock.Object),
+                Mock.Of<ILogger<FilterOutAcademicYearRollOverDataLocks>>());
         }
 
         [Test(Description = "No datalocks for apprenticeship so nothing to do")]
         public async Task WhenNoDataLocks()
         {
-            List<DataLockStatus> apprenticeshipDataLocks = new List<DataLockStatus>();
+            _dbContextMock
+                .Setup(context => context.DataLocks)
+                .ReturnsDbSet(DataLockRecordss);
+
+            _dbContextMock
+                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
 
             await _filter.Filter(123);
 
-            _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Never);
+            _dbContextMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Test(Description = "When has data locks but there are none with the same effective date then do nothing")]
@@ -47,11 +78,21 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/08/2017", IlrEffectiveFromDate = new DateTime(2017, 8, 1), Status = Status.Pass }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
+            _dbContextMock
+               .Setup(context => context.DataLocks)
+               .ReturnsDbSet(apprenticeshipDataLocks);
+
+            _dbContextMock
+             .Setup(context => context.DataLocks.Remove(It.IsAny<DataLockStatus>()));
+
+            _dbContextMock
+                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
 
             await _filter.Filter(123);
 
-            _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Never);
+            _dbContextMock
+            .Verify(context => context.DataLocks.Remove(It.Is<DataLockStatus>((a => a.DataLockEventId == 4))), Times.Never);
         }
 
         [Test(Description = "When there are duplicate datalocks with the same effective date then delete the latest if it's for August price period.")]
@@ -67,11 +108,14 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/08/2017", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate,  IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000}
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
+            _dbContextMock
+             .Setup(context => context.DataLocks)
+             .ReturnsDbSet(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 
-            _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Once);
+            _dbContextMock
+            .Verify(context => context.DataLocks.Remove(It.Is<DataLockStatus>((a => a.DataLockEventId == 4))), Times.Once);
         }
 
         [Test(Description = "When there are duplicate datalocks with the same effective date but the price identifider for first is alphabetically laster than august one then delete the latest if it's for August price period.")]
@@ -87,11 +131,13 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/08/2017", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000 }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
+            _dbContextMock.Setup(context => context.DataLocks)
+             .ReturnsDbSet(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 
-            _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Once);
+            _dbContextMock
+           .Verify(context => context.DataLocks.Remove(It.Is<DataLockStatus>((a => a.DataLockEventId == 4))), Times.Once);
         }
 
         [Test(Description = "When there are duplicate datalocks with the same effective date but the price episode isn't august do nothing other than log an error")]
@@ -107,12 +153,12 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/09/2017", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000 }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
+            _dbContextMock.Setup(context => context.DataLocks)
+          .ReturnsDbSet(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 
-            _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Never);
-            _mockLogger.Verify(x => x.Error(It.IsAny<AcademicYearFilterException>(), It.IsAny<string>()), Times.Once);
+            _dbContextMock.Verify(context => context.DataLocks.Remove(It.Is<DataLockStatus>((a => a.DataLockEventId == 4))), Times.Never);
         }
 
         [Test(Description = "When there are duplicate datalocks with the same effective date but the price is not the same for the duplicates")]
@@ -128,12 +174,10 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/09/2017", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 5000 }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
+            _dbContextMock.Setup(context => context.DataLocks).ReturnsDbSet(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
-
-            _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Never);
-            _mockLogger.Verify(x => x.Error(It.IsAny<AcademicYearFilterException>(), It.IsAny<string>()), Times.Never);
+            _dbContextMock.Verify(context => context.DataLocks.Remove(It.Is<DataLockStatus>((a => a.DataLockEventId == 4))), Times.Never);
         }
 
         [Test(Description = "When there data lock roll over events for next year it should delete these")]
@@ -147,11 +191,11 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 2, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/08/2018", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000 }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
+            _dbContextMock.Setup(context => context.DataLocks).ReturnsDbSet(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 
-            _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 2)), Times.Once);
+            _dbContextMock.Verify(context => context.DataLocks.Remove(It.Is<DataLockStatus>((a => a.DataLockEventId == 2))), Times.Once);
         }
     }
 }
