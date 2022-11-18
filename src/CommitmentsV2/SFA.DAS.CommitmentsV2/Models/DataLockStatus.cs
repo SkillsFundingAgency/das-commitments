@@ -24,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public EventStatus EventStatus { get; set; }
         public DateTime? Expired { get; set; }
         public bool IsExpired { get; set; }
+        public TrainingType IlrTrainingType { get; set; }
 
         public virtual Apprenticeship Apprenticeship { get; set; }
         public virtual ApprenticeshipUpdate ApprenticeshipUpdate { get; set; }
@@ -32,5 +33,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             IsResolved = true;
         }
+    }
+
+    public enum TrainingType : byte
+    {
+        Standard = 0,
+        Framework = 1
     }
 }

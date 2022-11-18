@@ -33,6 +33,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
                 });
 
             var config = GetConfiguration("SFA.DAS.Commitments.AddEpaToApprenticeships");
+            For<AddEpaToApprenticeshipsConfiguration>().Use(config);
+
             For<ApprovalsOuterApiConfiguration>().Use(c => config.ApprovalsOuterApiConfiguration);
             For<IApprovalsOuterApiConfiguration>().Use(c => c.GetInstance<ApprovalsOuterApiConfiguration>());
             

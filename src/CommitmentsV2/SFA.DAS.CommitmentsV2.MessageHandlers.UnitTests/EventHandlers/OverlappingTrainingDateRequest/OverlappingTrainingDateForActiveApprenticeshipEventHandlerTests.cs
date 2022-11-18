@@ -48,7 +48,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
                     c.Template == "OverlappingTrainingDateForActiveApprenticeship" &&
-                    c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.EmployerName &&
                     c.Tokens["ULN"] == OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.Uln &&
                     c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.LastName}" &&
                     c.Tokens["URL"] == $"{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.HashedApprenticeshipId}/details"

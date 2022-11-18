@@ -15,7 +15,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob
 
             logger.Info($"Starting {nameof(AcademicYearEndExpiryProcessor)}.WebJob");
 
-            job.Run();
+            //job.Run();
         }   
     }
 }

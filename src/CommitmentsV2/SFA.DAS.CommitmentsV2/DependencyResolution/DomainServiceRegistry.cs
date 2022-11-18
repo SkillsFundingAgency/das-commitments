@@ -26,14 +26,15 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IUlnValidator>().Use<UlnValidator>();
             For<IEditApprenticeshipValidationService>().Use<EditApprenticeshipValidationService>();
             For<IEmailOptionalService>().Use<EmailOptionalService>();
-            
+
             For<IEmployerAlertSummaryEmailService>().Use<EmployerAlertSummaryEmailService>();
             For<IEmployerTransferRequestPendingEmailService>().Use<EmployerTransferRequestPendingEmailService>();
             For<IProviderAlertSummaryEmailService>().Use<ProviderAlertSummaryEmailService>();
             For<IOverlappingTrainingDateRequestDomainService>().Use<OverlappingTrainingDateRequestDomainService>();
             For<IResolveOverlappingTrainingDateRequestService>().Use<ResolveOverlappingTrainingDateRequestService>();
             For<IAddEpaToApprenticeshipService>().Use<AddEpaToApprenticeshipsService>();
-
+            For<IDataLockUpdaterService>().Use<DataLockUpdaterService>();
+            For<IFilterOutAcademicYearRollOverDataLocks>().Use<FilterOutAcademicYearRollOverDataLocks>();
             //todo: below line doesn't belong here. ideally, push this into a registry in the package itself, or an extension thereof
             For<Learners.Validators.IUlnValidator>().Use<Learners.Validators.UlnValidator>();
             For<IFeatureTogglesService<FeatureToggle>>().Use<FeatureTogglesService<FeaturesConfiguration, FeatureToggle>>();
