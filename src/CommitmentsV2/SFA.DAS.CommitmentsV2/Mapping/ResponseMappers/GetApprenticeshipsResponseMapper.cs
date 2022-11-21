@@ -54,7 +54,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 CourseCode = source.CourseCode,
                 Cost = source.Cost,
-                PledgeApplicationId = source.PledgeApplicationId
+                PledgeApplicationId = source.PledgeApplicationId,
+                ActualStartDate = source.ActualStartDate,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
             };
         }
     }

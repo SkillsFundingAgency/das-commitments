@@ -47,6 +47,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             result.TotalAgreedPrice.Should().Be(cost);
             result.CohortReference.Should().Be(source.Cohort.Reference);
             result.AccountLegalEntityId.Should().Be(source.Cohort.AccountLegalEntityId);
+            result.ActualStartDate.Should().Be(source.ActualStartDate);
+            result.IsOnFlexiPaymentPilot.Should().Be(source.IsOnFlexiPaymentPilot);
         }
 
         [Test, RecursiveMoqAutoData]

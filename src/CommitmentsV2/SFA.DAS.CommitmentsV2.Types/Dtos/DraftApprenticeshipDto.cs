@@ -11,6 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public DateTime? DateOfBirth { get; set; }
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string Uln { get; set; }
         public string CourseCode { get; set; }
@@ -23,5 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public int? DurationReducedBy { get; set; }
         public int? PriceReducedBy { get; set; }
         public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
     }
 }

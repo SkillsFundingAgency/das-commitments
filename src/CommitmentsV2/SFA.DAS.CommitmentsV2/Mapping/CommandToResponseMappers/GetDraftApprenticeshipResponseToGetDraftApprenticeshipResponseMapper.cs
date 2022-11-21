@@ -26,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 DeliveryModel = source.DeliveryModel ?? DeliveryModel.Regular,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
+                ActualStartDate = source.ActualStartDate,
                 EndDate = source.EndDate,
                 Reference = source.Reference,
                 EmployerReference = source.EmployerReference,
@@ -40,7 +41,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 RecognisePriorLearning = source.RecognisePriorLearning,
                 DurationReducedBy = source.DurationReducedBy,
                 PriceReducedBy = source.PriceReducedBy,
-                RecognisingPriorLearningStillNeedsToBeConsidered = source.RecognisingPriorLearningStillNeedsToBeConsidered
+                RecognisingPriorLearningStillNeedsToBeConsidered = source.RecognisingPriorLearningStillNeedsToBeConsidered,
+                IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot
             });
         }
     }

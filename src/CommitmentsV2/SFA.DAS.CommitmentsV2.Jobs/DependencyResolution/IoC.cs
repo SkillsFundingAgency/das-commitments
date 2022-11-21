@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.DependencyResolution;
+using SFA.DAS.UnitOfWork.DependencyResolution.StructureMap;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
@@ -13,6 +14,10 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
             registry.IncludeRegistry<DefaultRegistry>();
             registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<EncodingRegistry>();
+            registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
+            registry.IncludeRegistry<UnitOfWorkRegistry>();
+            registry.IncludeRegistry<MediatorRegistry>();
+            registry.IncludeRegistry<CurrentDateTimeRegistry>();
         }
     }
 }

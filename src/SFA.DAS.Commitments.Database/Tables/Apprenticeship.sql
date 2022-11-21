@@ -14,6 +14,7 @@
     [StandardUId] NVARCHAR(20) NULL,
     [Cost] DECIMAL NULL, 
     [StartDate] DATETIME NULL, 
+    [ActualStartDate] DATETIME NULL, 
     [EndDate] DATETIME NULL, 
     [AgreementStatus] SMALLINT NOT NULL DEFAULT 0, 
     [PaymentStatus] SMALLINT NOT NULL DEFAULT 0, 
@@ -46,6 +47,7 @@
     [LastUpdated] AS ISNULL([UpdatedOn],[CreatedOn]),
     [DeliveryModel] TINYINT NULL, 
     [RecognisePriorLearning] BIT NULL, 
+    [IsOnFlexiPaymentPilot] BIT NOT NULL DEFAULT 0, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )

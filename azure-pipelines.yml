@@ -137,7 +137,7 @@ stages:
         publishWebProjects: false
         projects: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
         arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
-  
+
     - task: NuGetCommand@2
       displayName: 'NuGet pack'
       inputs:
