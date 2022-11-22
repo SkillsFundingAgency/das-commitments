@@ -14,9 +14,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
             registry.IncludeRegistry<DefaultRegistry>();
             registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<EncodingRegistry>();
+            registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
             registry.IncludeRegistry<UnitOfWorkRegistry>();
-            registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<CurrentDateTimeRegistry>();
         }
     }

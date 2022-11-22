@@ -48,6 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\AddEpaToApprenticeship\" />
     <Folder Include="Domain\Data\" />
     <Folder Include="SFA\DAS\CommitmentsV2\Domain\Entities\" />
   </ItemGroup>
