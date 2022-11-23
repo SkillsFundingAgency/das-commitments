@@ -65,11 +65,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
                 "OverlappingTrainingDateForActiveApprenticeship",
                 new Dictionary<string, string>
                 {
-                        {"EMPLOYERNAME", apprenticeship.Cohort.AccountLegalEntity.Name},
                         {"ULN",message.Uln},
                         {"APPRENTICENAME", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
                         {"URL", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
-                }
+                }, null, "NAME"
             );
 
             return sendEmailToEmployerCommand;

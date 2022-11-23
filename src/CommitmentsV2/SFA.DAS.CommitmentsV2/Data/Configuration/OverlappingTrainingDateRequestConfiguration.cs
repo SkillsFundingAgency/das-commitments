@@ -15,12 +15,14 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.HasOne(d => d.DraftApprenticeship)
                 .WithMany(p => p.OverlappingTrainingDateRequests)
                 .HasForeignKey(d => d.DraftApprenticeshipId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .IsRequired(false);
 
             builder.HasOne(d => d.PreviousApprenticeship)
                 .WithMany(p => p.OverlappingTrainingDateRequests)
                 .HasForeignKey(d => d.PreviousApprenticeshipId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .IsRequired(false); ;
         }
     }
 }
