@@ -76,7 +76,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                         })
                         .ToArray(),
                     ContinuationOfId = a.ContinuationOfId,
-                    DateOfBirth = a.DateOfBirth.Value
+                    DateOfBirth = a.DateOfBirth.Value,
+                    ActualStartDate = a.ActualStartDate,
+                    IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot
                 })
                 .ToListAsync(cancellationToken);
 
