@@ -41,7 +41,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
                 // Remove existing claim for Role of Provider or Employer
                 var claimsIdentity = principal.Identity as ClaimsIdentity;
                 var claimsToRemove = claimsIdentity.Claims.Where(x => x.Type == ClaimTypes.Role && (x.Value.ToLower() == "provider" || x.Value.ToLower() == "employer"));
-                foreach (var c in claimsToRemove)
+
+                foreach (var c in claimsToRemove.ToList())
                 {
                     claimsIdentity.RemoveClaim(c);
                 }
