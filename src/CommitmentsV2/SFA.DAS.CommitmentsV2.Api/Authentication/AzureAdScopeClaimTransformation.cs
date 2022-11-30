@@ -35,8 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
 
         private void AddProviderOrEmployerClaim(ClaimsPrincipal principal)
         {
-            var role = _httpContextAccessor.HttpContext.Request.Headers["RoleClaim"].FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(role) && (role.ToLower() == "provider" || role.ToLower() == "employer"))
+            var userParty = _httpContextAccessor.HttpContext.Request.Headers["x-party"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(userParty) && (userParty.ToLower() == "provider" || userParty.ToLower() == "employer"))
             {
                 // Remove existing claim for Role of Provider or Employer
                 var claimsIdentity = principal.Identity as ClaimsIdentity;
@@ -48,9 +48,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
                 }
 
                 // Add a new claim with provider or employer for role
-                var roleEmployerOrProvider = role.ToLower() == "provider" ? "Provider" : "Employer";
-                var roleClaim = new Claim(ClaimTypes.Role, roleEmployerOrProvider);
-                claimsIdentity.AddClaim(roleClaim);
+                var userPartyEmployerOrProvider = userParty.ToLower() == "provider" ? "Provider" : "Employer";
+                var userPartyClaim = new Claim(ClaimTypes.Role, userPartyEmployerOrProvider);
+                claimsIdentity.AddClaim(userPartyClaim);
             }
         }
 

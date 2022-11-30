@@ -47,11 +47,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet("role")]
+        [Authorize]
         public ActionResult<string> GetRole([FromServices] IAuthenticationService authenticationService)
         {
             var party = authenticationService.GetUserParty();
-            return Ok($"user party : { party.ToString()}");
+            return Ok(new ResponseRole { Role = party.ToString()});
         }
 
+    }
+
+    public class ResponseRole
+    {
+        public string Role { get; set; }
     }
 }
