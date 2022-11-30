@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
+using SFA.DAS.CommitmentsV2.Authentication;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -43,6 +44,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             _logger.LogInformation("Reached secure endpoint");
             return "Secure Endpoint reached";
+        }
+
+        [HttpGet("role")]
+        public ActionResult<string> GetRole([FromServices] IAuthenticationService authenticationService)
+        {
+            var party = authenticationService.GetUserParty();
+            return Ok($"user party : { party.ToString()}");
         }
 
     }
