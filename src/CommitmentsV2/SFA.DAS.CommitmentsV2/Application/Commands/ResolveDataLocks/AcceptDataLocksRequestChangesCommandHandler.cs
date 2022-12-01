@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
 
                     _logger.LogInformation($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.CourseCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
 
-                    apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo);
+                    apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo, training.StandardUId);
                 }
             }
 
