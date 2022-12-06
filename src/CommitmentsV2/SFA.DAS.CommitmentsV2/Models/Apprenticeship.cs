@@ -255,6 +255,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             ProgrammeType = programmeType;
             StandardUId = standardUId;
 
+            Publish(() =>
+            new ApprenticeshipUpdatedApprovedEvent
+            {
+                ApprenticeshipId = Id,
+                StandardUId = standardUId,
+            });
+
             ChangeTrackingSession.CompleteTrackingSession();
         }
 

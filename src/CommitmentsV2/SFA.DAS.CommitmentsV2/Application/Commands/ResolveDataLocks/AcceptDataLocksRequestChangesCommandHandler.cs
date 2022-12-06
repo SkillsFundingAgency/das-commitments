@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
                 var dataLockWithUpdatedTraining = dataLocksToBeAccepted.FirstOrDefault(m => m.IlrTrainingCourseCode != apprenticeship.CourseCode);
                 if (dataLockWithUpdatedTraining != null)
                 {
-                    var training = await _trainingProgrammeLookup.GetTrainingProgramme(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+                    var training = await _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(dataLockWithUpdatedTraining.IlrTrainingCourseCode, dataLockWithUpdatedTraining.IlrActualStartDate.GetValueOrDefault());
 
                     _logger.LogInformation($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.CourseCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
 
