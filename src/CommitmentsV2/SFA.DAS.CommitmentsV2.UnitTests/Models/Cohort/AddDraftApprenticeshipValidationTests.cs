@@ -2,9 +2,6 @@
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.AspNetCore.JsonPatch.Internal;
-using Microsoft.Azure.Amqp.Framing;
-using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -133,6 +130,62 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     _fixture.UserInfo));
 
             var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
+
+            Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
+        }
+
+        [TestCase(null, true)]
+        [TestCase("2017-04-30", false)]
+        [TestCase("2017-05-01", true)]
+        public void ActualStartDate_CheckNotBeforeMay2017_Validation(DateTime? startDate, bool passes)
+        {
+            var utcStartDate = startDate.HasValue
+                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                : default(DateTime?);
+
+            _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
+                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.ActualStartDate = utcStartDate,
+                    nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate)
+                    , passes);
+        }
+
+        [TestCase(null, "2019-01-01", "2019-12-31", true, Description = "Start date not specified")]
+        [TestCase("2019-06-01", "2019-01-01", "2019-12-31", true, Description = "Active")]
+        [TestCase("2018-06-01", "2019-01-01", "2019-12-31", false, Description = "Pending")]
+        [TestCase("2020-01-01", "2019-01-01", "2019-12-31", false, Description = "Expired")]
+        [TestCase("2020-01-01", "2000-01-01", "2019-12-31", false, Description =
+            "Expired but course effective from before DAS")]
+        public void ActualStartDate_CheckTrainingProgrammeActive_Validation(DateTime? startDate,
+            DateTime courseEffectiveFromDate, DateTime courseEffectiveToDate, bool passes)
+        {
+            var utcStartDate = startDate.HasValue
+                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                : default(DateTime?);
+
+            _fixture.WithTrainingProgrammeEffectiveBetween(courseEffectiveFromDate, courseEffectiveToDate)
+                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.ActualStartDate = utcStartDate,
+                    nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate),
+                    passes);
+        }
+
+        [TestCase("2015-08-01", "The start date must not be earlier than May 2017", Description =
+            "Course effective before DAS")]
+        [TestCase("2018-08-01", "This training course is only available to apprentices with a start date after 07 2018",
+            Description = "Course effective after DAS")]
+        public void ActualStartDate_CheckTrainingProgrammeActive_BeforeOrAfterDas_Validation(DateTime courseEffectiveFromDate,
+            string expectedErrorMessage)
+        {
+
+            _fixture.DraftApprenticeshipDetails = new DraftApprenticeshipDetails
+            {
+                ActualStartDate = new DateTime(1950, 01, 01),
+                TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1))
+            };
+
+            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider,
+                    _fixture.UserInfo));
+
+            var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate));
 
             Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
         }
@@ -372,7 +425,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue),
-                DeliveryModel = DeliveryModel.Regular
+                DeliveryModel = DeliveryModel.Regular,
+                IsOnFlexiPaymentPilot = false
             };
             SetupMinimumNameProperties();
             Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};

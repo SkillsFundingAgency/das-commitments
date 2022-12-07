@@ -17,5 +17,6 @@
         public static string LevyTransferMatchingApiConfiguration => $"{CommitmentsV2}:LevyTransferMatchingInnerApiConfiguration";
         public static string ProviderAccountApiConfiguration => $"{CommitmentsV2}:ProviderAccountApiConfiguration";
         public static string ReservationsClientApiConfiguration => $"{CommitmentsV2}:ReservationsClientApi";
+        public static string CommitmentPaymentsWebJobConfiguration => $"{CommitmentsV2}:CommitmentPaymentsWebJobConfiguration";
     }
 }

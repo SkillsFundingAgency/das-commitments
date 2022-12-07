@@ -30,6 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.EmploymentPrice.Should().Be(f.Command.EmploymentPrice);
                     r.Cost.Should().Be(f.Command.Cost);
                     r.StartDate.Should().Be(f.Command.StartDate);
+                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EmploymentEndDate.Should().Be(f.Command.EmploymentEndDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
@@ -40,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
                     r.TrainingCourseVersionConfirmed.Should().BeFalse();
                     r.DeliveryModel.Should().Be(f.Command.DeliveryModel);
+                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot);
                 });
         }
 

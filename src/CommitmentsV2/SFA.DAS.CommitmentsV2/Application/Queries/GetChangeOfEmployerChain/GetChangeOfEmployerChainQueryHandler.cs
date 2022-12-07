@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfEmployerChain
                             Ukprn = c.ProviderId,
                             EmployerIsDeleted = ale.Deleted.HasValue,
                             EmployerName = ale.Name,
-                            StartDate = a.StartDate,
+                            StartDate = a.ActualStartDate ?? a.StartDate,
                             EndDate = a.EndDate,
                             StopDate = a.StopDate,
                             ContinuationOfId = a.ContinuationOfId,

@@ -137,7 +137,7 @@ stages:
         publishWebProjects: false
         projects: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
         arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
-  
+
     - task: NuGetCommand@2
       displayName: 'NuGet pack'
       inputs:
@@ -150,7 +150,7 @@ stages:
       displayName: 'dotnet pack'
       inputs:
         command: pack
-        packagesToPack: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Client/SFA.DAS.ReservationsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.ReservationsV2.Api.Types/SFA.DAS.ReservationsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
+        packagesToPack: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
         packDirectory: 'nuget-publish'
         versioningScheme: byBuildNumber
         buildProperties: 'Version="$(Build.BuildNumber)"'  

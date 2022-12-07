@@ -18,6 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         public bool TrainingCourseVersionConfirmed { get; set; }
         public string StandardUId { get; set; }
         public int? Cost { get; set; }
+        public DateTime? ActualStartDate { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? DateOfBirth { get; set; }
@@ -35,5 +36,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         public int? DurationReducedBy { get; set; }
         public int? PriceReducedBy { get; set; }
         public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
     }
 }
