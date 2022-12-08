@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public long AccountLegalEntityId { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public string LegalEntityName { get; set; }
-        public DateTime? StartDate { get; set; }
+        public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public PriceEpisode[] PriceEpisodes { get; set; }
         public ProgrammeType TrainingType { get; set; }

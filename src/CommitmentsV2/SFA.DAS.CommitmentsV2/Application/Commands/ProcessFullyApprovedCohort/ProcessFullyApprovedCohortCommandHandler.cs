@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     StandardUId = a.StandardUId,
                     TrainingCourseOption = a.TrainingCourseOption,
                     TrainingCourseVersion = a.TrainingCourseVersion,
-                    StartDate = a.StartDate,
+                    StartDate = a.StartDate.GetValueOrDefault(),
                     EndDate = a.EndDate.Value,
                     PriceEpisodes = a.PriceHistory
                         .Select(p => new PriceEpisode
