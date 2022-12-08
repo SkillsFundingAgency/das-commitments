@@ -65,7 +65,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     StandardUId = a.StandardUId,
                     TrainingCourseOption = a.TrainingCourseOption,
                     TrainingCourseVersion = a.TrainingCourseVersion,
-                    StartDate = a.IsOnFlexiPaymentPilot.GetValueOrDefault() ? a.ActualStartDate : a.StartDate,
+                    StartDate = a.IsOnFlexiPaymentPilot.GetValueOrDefault() ?
+                        new DateTime(a.ActualStartDate.Value.Year, a.ActualStartDate.Value.Month, 1)
+                        : a.StartDate,
                     EndDate = a.EndDate.Value,
                     PriceEpisodes = a.PriceHistory
                         .Select(p => new PriceEpisode

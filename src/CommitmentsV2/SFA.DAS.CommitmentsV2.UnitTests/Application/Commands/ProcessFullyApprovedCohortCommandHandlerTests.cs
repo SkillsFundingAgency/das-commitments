@@ -262,7 +262,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.TrainingType == apprenticeship.ProgrammeType.Value &&
                           apprenticeshipCreatedEvent.TrainingCode == apprenticeship.CourseCode &&
                           apprenticeshipCreatedEvent.DeliveryModel == apprenticeship.DeliveryModel &&
-                          apprenticeshipCreatedEvent.StartDate == (isPilot ? apprenticeship.ActualStartDate.Value : apprenticeship.StartDate.Value) &&
+                          apprenticeshipCreatedEvent.StartDate == (
+                              isPilot ?
+                                  new DateTime(apprenticeship.ActualStartDate.Value.Year, apprenticeship.ActualStartDate.Value.Month, 1)
+                                  : apprenticeship.StartDate.Value) &&
                           apprenticeshipCreatedEvent.EndDate == apprenticeship.EndDate.Value &&
                           apprenticeshipCreatedEvent.PriceEpisodes.Count() == apprenticeship.PriceHistory.Count &&
                           apprenticeshipCreatedEvent.DateOfBirth == apprenticeship.DateOfBirth &&
