@@ -43,21 +43,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Times.Once);
         }
         
-        [TestCase(ApprenticeshipEmployerType.NonLevy, false)]
-        [TestCase(ApprenticeshipEmployerType.NonLevy, true)]
-        [TestCase(ApprenticeshipEmployerType.Levy, false)]
-        [TestCase(ApprenticeshipEmployerType.Levy, true)]
-        public void Handle_WhenHandlingCommand_ThenShouldPublishEvents(ApprenticeshipEmployerType apprenticeshipEmployerType, bool isFundedByTransfer)
+        [TestCase(ApprenticeshipEmployerType.NonLevy, false, false)]
+        [TestCase(ApprenticeshipEmployerType.NonLevy, true, false)]
+        [TestCase(ApprenticeshipEmployerType.Levy, false, false)]
+        [TestCase(ApprenticeshipEmployerType.Levy, true, false)]
+        [TestCase(ApprenticeshipEmployerType.Levy, false, true)]
+        public void Handle_WhenHandlingCommand_ThenShouldPublishEvents(ApprenticeshipEmployerType apprenticeshipEmployerType, bool isFundedByTransfer, bool isPilot)
         {
             var f = new ProcessFullyApprovedCohortCommandFixture();
             f.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
-                .SetApprovedApprenticeships(isFundedByTransfer)
+                .SetApprovedApprenticeships(isFundedByTransfer, isPilot)
                 .Handle();
             
             f.Apprenticeships.ForEach(
                 a => f.EventPublisher.Verify(
                     p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                        e => f.IsValid(apprenticeshipEmployerType, a, e))),
+                        e => f.IsValid(apprenticeshipEmployerType, a, e, isPilot))),
                     Times.Once));
         }
 
@@ -68,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var f = new ProcessFullyApprovedCohortCommandFixture();
             f.SetChangeOfPartyRequest(true)
                 .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.NonLevy)
-                .SetApprovedApprenticeships(false)
+                .SetApprovedApprenticeships(false, false)
                 .Handle();
 
             f.Apprenticeships.ForEach(
@@ -145,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeships(bool isFundedByTransfer)
+        public ProcessFullyApprovedCohortCommandFixture SetApprovedApprenticeships(bool isFundedByTransfer, bool isPilot)
         {
             var provider = new Provider {Name = "Test Provider"};
             var account = new Account(1, "", "", "", DateTime.UtcNow);
@@ -171,6 +172,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Without(a => a.Continuation)
                 .Without(s => s.ApprenticeshipConfirmationStatus)
                 .Without(a => a.PreviousApprenticeship);
+
+            if (isPilot)
+            {
+                apprenticeshipBuilder = apprenticeshipBuilder
+                    .With(a => a.StartDate, new DateTime(01, 01, 0001))
+                    .With(a => a.IsOnFlexiPaymentPilot, true);
+            }
+            else
+            {
+                apprenticeshipBuilder = apprenticeshipBuilder
+                    .With(a => a.ActualStartDate, new DateTime(01, 01, 0001))
+                    .With(a => a.IsOnFlexiPaymentPilot, false);
+            }
 
             var cohort1 = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
             var cohort2 = cohortBuilder.Create();
@@ -233,7 +247,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public bool IsValid(ApprenticeshipEmployerType apprenticeshipEmployerType, Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+        public bool IsValid(ApprenticeshipEmployerType apprenticeshipEmployerType, Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent, bool isPilot)
         {
             var isValid = apprenticeshipCreatedEvent.ApprenticeshipId == apprenticeship.Id &&
                           apprenticeshipCreatedEvent.CreatedOn.Date == DateTime.UtcNow.Date &&
@@ -248,11 +262,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.TrainingType == apprenticeship.ProgrammeType.Value &&
                           apprenticeshipCreatedEvent.TrainingCode == apprenticeship.CourseCode &&
                           apprenticeshipCreatedEvent.DeliveryModel == apprenticeship.DeliveryModel &&
-                          apprenticeshipCreatedEvent.StartDate == apprenticeship.StartDate.Value &&
+                          apprenticeshipCreatedEvent.StartDate == (isPilot ? null : apprenticeship.StartDate.Value) &&
                           apprenticeshipCreatedEvent.EndDate == apprenticeship.EndDate.Value &&
                           apprenticeshipCreatedEvent.PriceEpisodes.Count() == apprenticeship.PriceHistory.Count &&
                           apprenticeshipCreatedEvent.DateOfBirth == apprenticeship.DateOfBirth &&
-                          apprenticeshipCreatedEvent.ActualStartDate == apprenticeship.ActualStartDate &&
+                          apprenticeshipCreatedEvent.ActualStartDate == (isPilot ? apprenticeship.ActualStartDate : null) &&
                           apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot == apprenticeship.IsOnFlexiPaymentPilot;
 
             for (var i = 0; i < apprenticeship.PriceHistory.Count; i++)
