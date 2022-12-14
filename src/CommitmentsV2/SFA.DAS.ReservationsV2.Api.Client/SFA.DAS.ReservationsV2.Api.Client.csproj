@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SFA.DAS.Reservations.API.Types\SFA.DAS.Reservations.Api.Types.csproj" />
+    <ProjectReference Include="..\SFA.DAS.ReservationsV2.Api.Types\SFA.DAS.ReservationsV2.Api.Types.csproj" />
   </ItemGroup>
 
 </Project>
