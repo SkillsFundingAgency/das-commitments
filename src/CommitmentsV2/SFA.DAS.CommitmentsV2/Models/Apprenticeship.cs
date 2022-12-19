@@ -255,6 +255,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CourseName = courseName;
             ProgrammeType = programmeType;
             StandardUId = standardUId;
+            TrainingCourseOption = null;
 
             Publish(() =>
             new ApprenticeshipUpdatedApprovedEvent
