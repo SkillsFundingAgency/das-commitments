@@ -48,6 +48,41 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 passes);
         }
 
+        [Test]
+        public void IfEndDateIsLessThan365DaysAfterStartDateForAPilotApprenticeshipValidationFails()
+        {
+            var endDate = new DateTime(2022, 01, 1);
+            var assumedEndDate = new DateTime(2022, 1, 31);
+            var startDate = assumedEndDate.AddDays(-364);
+
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+                    _fixture.DraftApprenticeshipDetails.EndDate = endDate;
+                    _fixture.DraftApprenticeshipDetails.ActualStartDate = startDate;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
+                false);
+        }
+
+        [TestCase(365)]
+        [TestCase(366)]
+        public void IfEndDateIs365DaysAfterStartDateForAPilotApprenticeshipValidationPasses(int daysAfterStartDate)
+        {
+            var endDate = new DateTime(2022, 01, 1);
+            var assumedEndDate = new DateTime(2022, 1, 31);
+            var startDate = assumedEndDate.AddDays(-daysAfterStartDate);
+
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+                    _fixture.DraftApprenticeshipDetails.EndDate = endDate;
+                    _fixture.DraftApprenticeshipDetails.ActualStartDate = startDate;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
+                true);
+        }
+
         [TestCase(null, true)]
         [TestCase(-1, false)]
         [TestCase(0, false)]
