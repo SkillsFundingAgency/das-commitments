@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using MoreLinq;
 using System.Threading;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -246,7 +247,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         }
 
         public void UpdateCourse(Party party, string courseCode, string courseName, ProgrammeType programmeType, UserInfo userInfo, string standardUId)
-        {
+        { 
             StartTrackingSession(UserAction.UpdateCourse, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
@@ -260,6 +261,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 ApprenticeshipId = Id,
                 StandardUId = standardUId,
+                StartDate = StartDate.Value,
+                EndDate = EndDate.Value,
+                PriceEpisodes = GetPriceEpisodes(),
+                TrainingType = ProgrammeType.Value,
+                TrainingCode = CourseCode,
+                TrainingCourseVersion = TrainingCourseVersion,
+                TrainingCourseOption = TrainingCourseOption,
+                Uln = Uln
+                
             });
 
             ChangeTrackingSession.CompleteTrackingSession();
