@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -219,7 +218,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 app => app.ApprenticeshipUpdate.First().TrainingCode);
             fixture.VerifyApprenticeshipUpdateCreated("CourseName",
               app => app.ApprenticeshipUpdate.First().TrainingName);
-            fixture.VerifyApprenticeshipUpdateCreated((int)Commitments.Api.Types.Apprenticeship.Types.TrainingType.Standard,
+            fixture.VerifyApprenticeshipUpdateCreated((int)ProgrammeType.Standard,
             app => (int) app.ApprenticeshipUpdate.First().TrainingType);
         }
 

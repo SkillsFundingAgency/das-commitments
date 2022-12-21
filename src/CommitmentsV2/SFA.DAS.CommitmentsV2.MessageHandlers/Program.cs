@@ -7,7 +7,6 @@ using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
 using SFA.DAS.CommitmentsV2.Startup;
-using SFA.DAS.Configuration.AzureTableStorage;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers
@@ -22,7 +21,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                 hostBuilder
                     .UseDasEnvironment()
                     .ConfigureDasAppConfiguration(args)
-                    .ConfigureAppConfiguration(c => c.AddAzureTableStorage(Reservations.Api.Types.Configuration.ConfigurationKeys.ReservationsClientApiConfiguration))
                     .UseConsoleLifetime()
                     .ConfigureLogging(b => b.AddNLog())
                     .UseStructureMap()
