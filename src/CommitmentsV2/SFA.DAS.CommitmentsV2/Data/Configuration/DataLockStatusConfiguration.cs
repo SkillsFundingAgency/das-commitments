@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.IlrPriceEffectiveToDate).HasColumnType("datetime");
             builder.Property(e => e.IlrTotalCost).HasColumnType("decimal(18, 0)");
             builder.Property(e => e.IlrTrainingCourseCode).HasMaxLength(20);
+            builder.Property(e => e.IlrTrainingType).HasColumnType("tinyint");
 
             builder.Property(e => e.PriceEpisodeIdentifier)
                 .IsRequired()
