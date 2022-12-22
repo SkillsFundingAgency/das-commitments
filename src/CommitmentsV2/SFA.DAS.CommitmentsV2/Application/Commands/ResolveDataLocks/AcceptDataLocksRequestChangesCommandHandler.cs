@@ -61,6 +61,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
                 if (dataLockWithUpdatedTraining != null)
                 {
                     var training = await _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(dataLockWithUpdatedTraining.IlrTrainingCourseCode, apprenticeship.StartDate.GetValueOrDefault());
+                    // PA-599 This is a temp fix, which will allow frameworks to be accepted
+                    if (training == null)
+                    {
+                        training = await _trainingProgrammeLookup.GetTrainingProgramme(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+                    }
 
                     if (training != null)
                     {
