@@ -13,7 +13,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainingDateRequest;
 
@@ -47,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             await _fixture.Handle();
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
-                    c.Template == "OverlappingTrainingDateForActiveApprenticeship" &&
+                    c.Template == "EmployerOverlappingTrainingDateForActiveApprenticeship" &&
                     c.Tokens["ULN"] == OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.Uln &&
                     c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.LastName}" &&
                     c.Tokens["URL"] == $"{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.HashedApprenticeshipId}/details"
@@ -64,8 +63,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             await _fixture.Handle();
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToEmployerCommand>(c =>
-                    c.Template == "OverlappingTrainingDateForActiveApprenticeship" &&
-                    c.Tokens["EMPLOYERNAME"] == OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.EmployerName &&
+                    c.Template == "EmployerOverlappingTrainingDateForActiveApprenticeship" &&
                     c.Tokens["ULN"] == OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.Uln &&
                     c.Tokens["APPRENTICENAME"] == $"{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.FirstName} {OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.LastName}" &&
                     c.Tokens["URL"] == $"{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.EmployerCommitmentsBaseUrl}/{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.HashedEmployerAccountId}/apprentices/{OverlappingTrainingDateForActiveApprenticeshipEventHandlerFixture.HashedApprenticeshipId}/details"

@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             List<Error> errors = new List<Error>();
             if (!(await IsSigned(csvRecord.AgreementId)).GetValueOrDefault(false))
             {
-                errors.Add(new Error(LegalAgreementIdIssue, "You cannot add apprentices for this employer as they need to <b>accept the agreement</b> with the ESFA."));
+                errors.Add(new Error(LegalAgreementIdIssue, "You cannot add apprentices for this employer as they need to <b>accept the agreement</b> with the DfE."));
             }
 
             return errors;
