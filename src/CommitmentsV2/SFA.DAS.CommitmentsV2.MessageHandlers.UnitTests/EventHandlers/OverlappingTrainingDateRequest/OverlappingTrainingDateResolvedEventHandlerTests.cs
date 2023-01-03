@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             await _fixture.Handle();
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
-                    c.Template == "OverlappingTrainingDateResolved" &&
+                    c.Template == "ProviderOverlappingTrainingDateClosed" &&
                     c.Tokens["CohortReference"] == OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference &&
                     c.EmailAddress == OverlappingTrainingDateResolvedEventHandlerTestsFixture.Email &&
                     c.Tokens["Url"] == $"{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}{OverlappingTrainingDateResolvedEventHandlerTestsFixture.ProviderId}/unapproved/{OverlappingTrainingDateResolvedEventHandlerTestsFixture.CohortReference}/details"

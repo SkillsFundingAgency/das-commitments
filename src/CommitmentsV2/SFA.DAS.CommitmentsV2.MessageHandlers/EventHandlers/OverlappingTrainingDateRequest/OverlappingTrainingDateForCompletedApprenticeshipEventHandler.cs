@@ -60,14 +60,14 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events.OverlappingTrainingDateRequest
         {
 
             var sendEmailToEmployerCommand = new SendEmailToEmployerCommand(apprenticeship.Cohort.EmployerAccountId,
-                "OverlappingTrainingDateForCompletedApprenticeship",
+                "EmployerOverlappingTrainingDateForCompletedApprenticeship",
                 new Dictionary<string, string>
                 {
                         {"Uln",message.Uln},
                         {"Apprentice", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
                         {"EndDate",apprenticeship.EndDate?.ToGdsFormatLongMonthWithoutDay()},
                         {"Url", $"{_commitmentsV2Configuration.EmployerCommitmentsBaseUrl}/{_encodingService.Encode(apprenticeship.Cohort.EmployerAccountId,EncodingType.AccountId)}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}/details"}
-                },null, "Name"
+                }, null, "Name"
             );
 
             return sendEmailToEmployerCommand;
