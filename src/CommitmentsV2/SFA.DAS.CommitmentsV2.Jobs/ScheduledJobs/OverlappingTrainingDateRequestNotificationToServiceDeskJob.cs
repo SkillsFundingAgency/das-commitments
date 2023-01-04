@@ -2,9 +2,6 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
@@ -20,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _logger = logger;
         }
 
-        public async Task Notify([TimerTrigger("%OLTDNotificationToServiceDeskJobSchedule%", RunOnStartup = false)] TimerInfo timer)
+        public async Task Notify([TimerTrigger("%SFA.DAS.CommitmentsV2:OLTDNotificationToServiceDeskJobSchedule%", RunOnStartup = false)] TimerInfo timer)
         {
             _logger.LogInformation("Starting OverlappingTrainingDateRequestNotificationToServiceDeskJob");
             await _mediator.Send(new OverlappingTrainingDateRequestNotificationToServiceDeskCommand());
