@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Linq;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraftApprenticeships
 {
@@ -43,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraf
             foreach (var result in results.BulkUploadAddDraftApprenticeshipsResponse)
             {
                 var cohort = await _providerDbContext.Cohorts.SingleAsync(c => c.Reference == result.CohortReference);
-                await _cohortDomainService.ApproveCohort(cohort.Id, "", request.UserInfo, cancellationToken);
+                await _cohortDomainService.ApproveCohort(cohort.Id, "", request.UserInfo, Party.Provider, cancellationToken);
                 _logger.LogInformation($"Bulk upload - Added and Approved  draft apprenticeship. Commitment-Reference:{cohort.Reference} Commitment-Id:{cohort.Id}");
             }
 

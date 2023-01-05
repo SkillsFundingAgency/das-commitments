@@ -173,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{cohortId}/approve")]
         public async Task<IActionResult> Approve(long cohortId, [FromBody]ApproveCohortRequest request)
         {
-            var command = new ApproveCohortCommand(cohortId, request.Message, request.UserInfo);
+            var command = new ApproveCohortCommand(cohortId, request.Message, request.UserInfo, request.RequestingParty);
             await _mediator.Send(command);
 
             return Ok();

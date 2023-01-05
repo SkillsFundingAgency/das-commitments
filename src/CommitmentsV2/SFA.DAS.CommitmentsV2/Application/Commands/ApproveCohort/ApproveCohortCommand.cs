@@ -9,12 +9,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort
         public long CohortId { get; }
         public string Message { get; }
         public UserInfo UserInfo { get; }
+        public Party? RequestingParty { get; }
 
-        public ApproveCohortCommand(long cohortId, string message, UserInfo userInfo)
+        public ApproveCohortCommand(long cohortId, string message, UserInfo userInfo, Party? requestingParty)
         {
             CohortId = cohortId;
             Message = message;
             UserInfo = userInfo ?? throw new ArgumentNullException(nameof(userInfo));
+            RequestingParty = requestingParty;
         }
     }
 }
