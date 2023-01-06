@@ -83,6 +83,41 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 true);
         }
 
+        [Test]
+        public void IfEndDateIsMoreThan10YearsAfterStartDateForAPilotApprenticeshipValidationFails()
+        {
+            var endDate = new DateTime(2032, 01, 1);
+            var assumedEndDate = new DateTime(2032, 1, 31);
+            var startDate = new DateTime(2022, 01, 30);
+
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+                    _fixture.DraftApprenticeshipDetails.EndDate = endDate;
+                    _fixture.DraftApprenticeshipDetails.ActualStartDate = startDate;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
+                false);
+        }
+
+        [TestCase(365)]
+        [TestCase(366)]
+        public void IfEndDateIsLessThan10YearsAfterStartDateForAPilotApprenticeshipValidationPasses(int daysAfterStartDate)
+        {
+            var endDate = new DateTime(2032, 01, 1);
+            var assumedEndDate = new DateTime(2032, 1, 31);
+            var startDate = new DateTime(2022, 02, 1);
+
+            _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture.DraftApprenticeshipDetails.IsOnFlexiPaymentPilot = true;
+                    _fixture.DraftApprenticeshipDetails.EndDate = endDate;
+                    _fixture.DraftApprenticeshipDetails.ActualStartDate = startDate;
+                },
+                nameof(_fixture.DraftApprenticeshipDetails.EndDate),
+                true);
+        }
+
         [TestCase(null, true)]
         [TestCase(-1, false)]
         [TestCase(0, false)]
