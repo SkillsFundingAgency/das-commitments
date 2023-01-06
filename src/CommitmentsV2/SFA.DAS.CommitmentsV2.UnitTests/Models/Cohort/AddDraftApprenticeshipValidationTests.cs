@@ -51,9 +51,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [Test]
         public void IfEndDateIsLessThan365DaysAfterStartDateForAPilotApprenticeshipValidationFails()
         {
-            var endDate = new DateTime(2022, 01, 1);
-            var assumedEndDate = new DateTime(2022, 1, 31);
-            var startDate = assumedEndDate.AddDays(-364);
+            var endDate = new DateTime(2023, 12, 1);
+            var assumedEndDate = new DateTime(2023, 12, 31);
+            var startDate = new DateTime(2023, 1, 2);
 
             _fixture.AssertValidationForProperty(() =>
                 {
@@ -69,9 +69,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [TestCase(366)]
         public void IfEndDateIs365DaysAfterStartDateForAPilotApprenticeshipValidationPasses(int daysAfterStartDate)
         {
-            var endDate = new DateTime(2022, 01, 1);
-            var assumedEndDate = new DateTime(2022, 1, 31);
-            var startDate = assumedEndDate.AddDays(-daysAfterStartDate);
+            var endDate = new DateTime(2023, 12, 1);
+            var assumedEndDate = new DateTime(2023, 12, 31);
+            var startDate = assumedEndDate.AddDays(-(daysAfterStartDate - 1));
 
             _fixture.AssertValidationForProperty(() =>
                 {

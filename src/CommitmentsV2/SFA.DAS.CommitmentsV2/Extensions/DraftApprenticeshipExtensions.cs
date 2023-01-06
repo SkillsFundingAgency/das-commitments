@@ -86,6 +86,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 var assumedEndDate = new DateTime(draftApprenticeshipDetails.EndDate.Value.Year, draftApprenticeshipDetails.EndDate.Value.Month, 1);
                 assumedEndDate = assumedEndDate.AddMonths(1).AddDays(-1);
                 var differenceBetweenStartAndEnd = assumedEndDate - draftApprenticeshipDetails.ActualStartDate.Value;
+                differenceBetweenStartAndEnd = differenceBetweenStartAndEnd.Add(new TimeSpan(1, 0, 0, 0));
                 if (differenceBetweenStartAndEnd.Days < 365)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The duration of an apprenticeship must be at least 365 days");
