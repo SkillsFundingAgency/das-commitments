@@ -120,9 +120,6 @@
     "deploySupportApp": {
       "type": "bool"
     },
-    "oltdNotificationToServiceDeskJobSchedule": {
-      "type": "string"
-    },
     "utcValue": {
       "type": "string",
       "defaultValue": "[utcNow()]"
@@ -333,10 +330,6 @@
                             {
                               "name": "FUNCTIONS_WORKER_RUNTIME",
                               "value": "dotnet"
-                            },
-                            {
-                              "name": "OLTDNotificationToServiceDeskJobSchedule",
-                              "value": "[parameters('oltdNotificationToServiceDeskJobSchedule')]"
                             }
                           ]
                         }

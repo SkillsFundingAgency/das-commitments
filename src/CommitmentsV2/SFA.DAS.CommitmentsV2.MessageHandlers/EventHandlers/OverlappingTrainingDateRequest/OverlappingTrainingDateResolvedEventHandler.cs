@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
         private SendEmailToProviderCommand BuildEmailToEmployerCommand(DraftApprenticeship draftApprenticeship, OverlappingTrainingDateResolvedEvent message)
         {
             var sendEmailToProviderCommand = new SendEmailToProviderCommand(draftApprenticeship.Cohort.ProviderId,
-                "OverlappingTrainingDateResolved",
+                "ProviderOverlappingTrainingDateClosed",
                 new Dictionary<string, string>
                 {
                         {"CohortReference",draftApprenticeship.Cohort.Reference},
