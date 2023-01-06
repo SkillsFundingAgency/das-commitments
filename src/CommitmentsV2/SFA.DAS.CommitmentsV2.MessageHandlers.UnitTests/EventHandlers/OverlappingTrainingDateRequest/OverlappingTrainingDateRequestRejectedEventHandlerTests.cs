@@ -68,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers.Overlapp
             public void Verify_EmailToProviderCommand_Sent()
             {
                 _messageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
-                   c.Template == "OverlappingTrainingDateRequestRejected" &&
+                   c.Template == "ProviderOverlappingTrainingDateRequestRejected" &&
                    c.Tokens["CohortReference"] == _draftApprenticeship.Cohort.Reference &&
                    c.Tokens["URL"] == $"{_configuration.ProviderCommitmentsBaseUrl}{_draftApprenticeship.Cohort.ProviderId}/unapproved/{_draftApprenticeship.Cohort.Reference}/details"
                    )

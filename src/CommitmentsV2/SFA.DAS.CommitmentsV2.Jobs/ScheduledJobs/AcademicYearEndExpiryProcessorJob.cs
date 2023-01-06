@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _jobId = $"AcademicYearEnd.WebJob.{DateTime.UtcNow.Ticks}";
         }
 
-        public async Task Run([TimerTrigger("0 0 1 1 11 *", RunOnStartup = true)] TimerInfo timer)
+        public async Task Run([TimerTrigger("0 0 1 1 11 *", RunOnStartup = false)] TimerInfo timer)
         {
             if (_currentDateTime.UtcNow < _academicYearProvider.LastAcademicYearFundingPeriod)
             {

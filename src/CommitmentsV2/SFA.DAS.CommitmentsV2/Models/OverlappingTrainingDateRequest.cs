@@ -14,6 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual DateTime CreatedOn { get; set; }
         public virtual OverlappingTrainingDateRequestResolutionType? ResolutionType { get; set; }
         public virtual OverlappingTrainingDateRequestStatus Status { get; set; }
+        public virtual DateTime? NotifiedEmployerOn { get; set; }
         public virtual DateTime? NotifiedServiceDeskOn { get; set; }
         public byte[] RowVersion { get; private set; }
         public DateTime? ActionedOn { get; set; }
