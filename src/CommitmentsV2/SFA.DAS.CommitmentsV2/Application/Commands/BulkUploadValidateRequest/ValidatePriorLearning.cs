@@ -42,15 +42,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
             }
 
-            if (csvRecord.RecognisePriorLearning == null)
+            if (csvRecord.RecognisePriorLearning == null && csvRecord.StartDate >= Constants.RecognisePriorLearningBecomesRequiredOn)
             {
-                //This validation cannot be enabled until the bulk upload file format change has been communicated
-                //and software integrators have had time to update their systems.
-                //yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
-
-                // When the above validation is enabled, this one must be kept.
-                // We don't want to return *ReducedBy errors until RPL is confirmed
-                yield break;
+                yield return new Error("RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
             }
 
             if (csvRecord.DurationReducedBy == null)
