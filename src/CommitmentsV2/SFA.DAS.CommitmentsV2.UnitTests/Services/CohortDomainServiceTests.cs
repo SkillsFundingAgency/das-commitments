@@ -1443,7 +1443,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.SendCohortToOtherParty(CohortId, Message, UserInfo, new CancellationToken());
+                    await CohortDomainService.SendCohortToOtherParty(CohortId, Message, UserInfo, RequestingParty, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)
