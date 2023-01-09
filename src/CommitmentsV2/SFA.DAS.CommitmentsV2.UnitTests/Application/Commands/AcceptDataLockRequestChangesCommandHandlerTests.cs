@@ -281,13 +281,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task ShouldPublishDataLockTriage(ShouldUpdatePriceHistoryDataCases.Setup setup, ShouldUpdatePriceHistoryDataCases.InputDataLock[] inputDataLocks,
             ShouldUpdatePriceHistoryDataCases.ExpectedOutput expectedOutput)
         {
-
             // Arrange
             _fixture.SeedData()
                 .WithHasHadDataLockSuccess(setup.HasHadDataLockSuccess)
                 .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
                 .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
                 .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07);
+
 
             inputDataLocks.ToList().ForEach(p =>
                 _fixture.WithDataLock(p.ApprenticeshipId, p.EventDataLockId, p.IlrTrainingCourseCode, p.IlrEffectiveFromDate, p.IlrTotalCost, p.IsExpired,
@@ -711,15 +711,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             CurrentDateTimeService.Setup(x => x.UtcNow).Returns(ProxyCurrentDateTime);
 
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
-
             TrainingProgrammeLookup.Setup(x => x.GetTrainingProgramme(TrainingCourseCode100))
                 .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode100, TrainingCourseName100, ProgrammeType.Standard, DateTime.Now, DateTime.Now));
             TrainingProgrammeLookup.Setup(x => x.GetTrainingProgramme(TrainingCourseCode200))
-                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode200, TrainingCourseName200, ProgrammeType.Standard, DateTime.Now, DateTime.Now));
-
-            TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode100, It.IsAny<DateTime>()))
-                .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode100, TrainingCourseName100, ProgrammeType.Standard, DateTime.Now, DateTime.Now));
-            TrainingProgrammeLookup.Setup(x => x.GetCalculatedTrainingProgrammeVersion(TrainingCourseCode200, It.IsAny<DateTime>()))
                 .ReturnsAsync(new CommitmentsV2.Domain.Entities.TrainingProgramme(TrainingCourseCode200, TrainingCourseName200, ProgrammeType.Standard, DateTime.Now, DateTime.Now));
 
             UserInfo = AutoFixture.Create<UserInfo>();
