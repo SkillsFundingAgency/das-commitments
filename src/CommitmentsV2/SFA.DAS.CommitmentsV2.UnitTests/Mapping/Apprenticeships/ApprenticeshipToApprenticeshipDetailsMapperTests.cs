@@ -47,23 +47,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             result.TotalAgreedPrice.Should().Be(cost);
             result.CohortReference.Should().Be(source.Cohort.Reference);
             result.AccountLegalEntityId.Should().Be(source.Cohort.AccountLegalEntityId);
+            result.ActualStartDate.Should().Be(source.ActualStartDate);
+            result.IsOnFlexiPaymentPilot.Should().Be(source.IsOnFlexiPaymentPilot);
         }
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_IlrMismatch_When_Course_DataLock(
-    Apprenticeship source,
-    ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.DataLockStatus = new List<DataLockStatus>
             {
-                new DataLockStatus 
+                new DataLockStatus
                 {
                     TriageStatus = TriageStatus.Unknown,
                     IsResolved = false,
-                    ErrorCode = DataLockErrorCode.Dlock03 
+                    ErrorCode = DataLockErrorCode.Dlock03
                 }
             };
             source.ApprenticeshipUpdate.Clear();
+            source.OverlappingTrainingDateRequests.Clear();
 
             var result = await mapper.Map(source);
 
@@ -73,20 +76,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_IlrMismatch_When_Price_DataLock(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.IsProviderSearch = true;
-            source.DataLockStatus = new List<DataLockStatus> 
-            { 
+            source.DataLockStatus = new List<DataLockStatus>
+            {
                 new DataLockStatus
                 {
                     TriageStatus = TriageStatus.Unknown,
                     IsResolved = false,
-                    ErrorCode = DataLockErrorCode.Dlock07 
+                    ErrorCode = DataLockErrorCode.Dlock07
                 }
             };
             source.ApprenticeshipUpdate.Clear(); // isprovidesearch true
+            source.OverlappingTrainingDateRequests.Clear();
 
             var result = await mapper.Map(source);
 
@@ -96,19 +100,20 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_ChangesPending_When_Course_DataLock_PendingChanges(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.DataLockStatus = new List<DataLockStatus>
             {
                 new DataLockStatus
                 {
-                    TriageStatus = TriageStatus.Change, 
+                    TriageStatus = TriageStatus.Change,
                     IsResolved = false,
-                    ErrorCode = DataLockErrorCode.Dlock03 
+                    ErrorCode = DataLockErrorCode.Dlock03
                 }
             };
             source.ApprenticeshipUpdate.Clear();
+            source.OverlappingTrainingDateRequests.Clear();
 
             var result = await mapper.Map(source);
 
@@ -118,8 +123,8 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_ChangesPending_When_Price_DataLock_PendingChanges(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.DataLockStatus = new List<DataLockStatus>
             {
@@ -131,6 +136,7 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
                 }
             };
             source.ApprenticeshipUpdate.Clear();
+            source.OverlappingTrainingDateRequests.Clear();
 
             var result = await mapper.Map(source);
 
@@ -140,8 +146,8 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_ChangesRequested_When_Course_DataLock(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.DataLockStatus = new List<DataLockStatus>
             {
@@ -153,6 +159,7 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
                 }
             };
             source.ApprenticeshipUpdate.Clear();
+            source.OverlappingTrainingDateRequests.Clear();
 
             var result = await mapper.Map(source);
 
@@ -162,8 +169,8 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_When_EmployerHasUnresolvedErrorsThatHaveKnownTriageStatus(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.DataLockStatus = new List<DataLockStatus>
             {
@@ -176,6 +183,7 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
             };
             source.IsProviderSearch = false;
             source.ApprenticeshipUpdate.Clear();
+            source.OverlappingTrainingDateRequests.Clear();
 
             var result = await mapper.Map(source);
 
@@ -185,10 +193,11 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_No_Apprenticeship_Alerts_When_No_ApprenticeshipUpdate(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.ApprenticeshipUpdate = null;
+            source.OverlappingTrainingDateRequests = null;
 
             var result = await mapper.Map(source);
 
@@ -197,8 +206,8 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_ChangesForReview_When_ProviderSearch_On_EmployerOriginated_PendingChanges(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.IsProviderSearch = true;
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
@@ -209,6 +218,7 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
                     Status = ApprenticeshipUpdateStatus.Pending
                 }
             };
+            source.OverlappingTrainingDateRequests.Clear();
 
             var result = await mapper.Map(source);
 
@@ -218,8 +228,8 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_ChangesPending_When_EmployerSearch_On_EmployerOriginated_PendingChanges(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.IsProviderSearch = false;
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
@@ -230,6 +240,7 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
                     Status = ApprenticeshipUpdateStatus.Pending
                 }
             };
+            source.OverlappingTrainingDateRequests.Clear();
 
             var result = await mapper.Map(source);
 
@@ -239,8 +250,8 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_ChangesPending_When_ProviderSearch_On_ProviderOriginated_PendingChanges(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             source.IsProviderSearch = true;
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
@@ -251,6 +262,7 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
                     Status = ApprenticeshipUpdateStatus.Pending
                 }
             };
+            source.OverlappingTrainingDateRequests.Clear();
 
             var result = await mapper.Map(source);
 
@@ -260,9 +272,67 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_Alerts_ChangesForReview_When_EmployerSearch_On_ProviderOriginated_PendingChanges(
-Apprenticeship source,
-ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
+            source.IsProviderSearch = false;
+            source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
+            {
+                new ApprenticeshipUpdate
+                {
+                    Originator = Originator.Provider,
+                    Status = ApprenticeshipUpdateStatus.Pending
+                }
+            };
+            source.OverlappingTrainingDateRequests.Clear();
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ChangesForReview);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_No_Apprenticeship_Alerts_When_No_OverlappingTrainingDateRequests(
+        Apprenticeship source,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.ApprenticeshipUpdate = null;
+            source.OverlappingTrainingDateRequests = null;
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(0);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_Apprenticeship_Alerts_ConfirmDates_When_EmployerSearch_On_ConfirmDates(
+        Apprenticeship source,
+        OverlappingTrainingDateRequest overlappingTrainingDateRequest,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.ApprenticeshipUpdate = null;
+            source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
+            {
+                overlappingTrainingDateRequest
+            };
+
+            var result = await mapper.Map(source);
+
+            result.Alerts.Count().Should().Be(1);
+            result.Alerts.First().Should().Be(Alerts.ConfirmDates);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Maps_All_Apprenticeship_Alerts_When_EmployerSearch(
+        Apprenticeship source,
+        OverlappingTrainingDateRequest overlappingTrainingDateRequest,
+        ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.OverlappingTrainingDateRequests = new List<OverlappingTrainingDateRequest>
+            {
+                overlappingTrainingDateRequest
+            };
             source.IsProviderSearch = false;
             source.ApprenticeshipUpdate = new List<ApprenticeshipUpdate>
             {
@@ -275,8 +345,8 @@ ApprenticeshipToApprenticeshipDetailsMapper mapper)
 
             var result = await mapper.Map(source);
 
-            result.Alerts.Count().Should().Be(1);
-            result.Alerts.First().Should().Be(Alerts.ChangesForReview);
+            result.Alerts.Count().Should().Be(2);
+            result.Alerts.Should().BeEquivalentTo(new List<Alerts> { Alerts.ConfirmDates, Alerts.ChangesForReview });
         }
     }
 }

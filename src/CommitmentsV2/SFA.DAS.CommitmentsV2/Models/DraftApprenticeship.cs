@@ -10,12 +10,12 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
     {
-        public bool IsCompleteForParty(Party party, bool apprenticeEmailRequired)
+        public bool IsCompleteForParty(Party party, bool apprenticeEmailRequired, bool recognitionOfPriorLearningRequired)
         {
             switch (party)
             {
                 case Party.Employer: return IsCompleteForEmployer(apprenticeEmailRequired);
-                case Party.Provider: return IsCompleteForProvider(apprenticeEmailRequired);
+                case Party.Provider: return IsCompleteForProvider(apprenticeEmailRequired, recognitionOfPriorLearningRequired);
                 default:
                     throw new InvalidOperationException($"Cannot determine completeness for Party {party}");
             }
@@ -25,22 +25,23 @@ namespace SFA.DAS.CommitmentsV2.Models
             FirstName != null &&
             LastName != null &&
             Cost != null &&
-            StartDate != null &&
+            (StartDate != null || ActualStartDate != null) &&
             EndDate != null &&
             CourseCode != null &&
             DateOfBirth != null &&
             (!apprenticeEmailRequired || Email != null || ContinuationOfId != null);
 
-        private bool IsCompleteForProvider(bool apprenticeEmailRequired) => 
+        private bool IsCompleteForProvider(bool apprenticeEmailRequired, bool recognitionOfPriorLearningRequired) => 
             FirstName != null &&
             LastName != null &&
             Uln != null &&
             Cost != null &&
-            StartDate != null &&
+            (StartDate != null || ActualStartDate != null) &&
             EndDate != null &&
             CourseCode != null &&
             DateOfBirth != null &&
-            (!apprenticeEmailRequired || Email != null || ContinuationOfId != null);
+            (!apprenticeEmailRequired || Email != null || ContinuationOfId != null) &&
+            (!recognitionOfPriorLearningRequired || !RecognisingPriorLearningStillNeedsToBeConsidered);
 
         public DraftApprenticeship()
         {
@@ -83,8 +84,10 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             Cost = source.Cost;
             StartDate = source.StartDate;
+            ActualStartDate = source.ActualStartDate;
             EndDate = source.EndDate;
             DateOfBirth = source.DateOfBirth;
+            IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot;
 
             switch (modifyingParty)
             {
@@ -120,9 +123,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             ClearPriorLearningWhenStartDateBeforeAug2022();
         }
 
-        internal OverlappingTrainingDateRequest CreateOverlappingTrainingDateRequest(Party originatingParty, long previousApprenticeshipId, UserInfo userInfo)
+        internal OverlappingTrainingDateRequest CreateOverlappingTrainingDateRequest(Party originatingParty, long previousApprenticeshipId, UserInfo userInfo, DateTime createdDate)
         {
-            var overlap = new OverlappingTrainingDateRequest(this, previousApprenticeshipId, originatingParty, userInfo);
+            var overlap = new OverlappingTrainingDateRequest(this, previousApprenticeshipId, originatingParty, userInfo, createdDate);
             OverlappingTrainingDateRequests.Add(overlap);
             return overlap;
         }
@@ -145,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (FirstName != update.FirstName) return true;
             if (LastName != update.LastName) return true;
             if (Cost != update.Cost) return true;
-            if (StartDate != update.StartDate) return true;
+            if (StartDateIsChanged(update)) return true;
             if (EndDate != update.EndDate) return true;
             if (DateOfBirth != update.DateOfBirth) return true;
             if (DeliveryModel != update.DeliveryModel) return true;
@@ -162,6 +165,27 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             return false;
+        }
+
+        private bool StartDateIsChanged(DraftApprenticeshipDetails update)
+        {
+            if (IsNotTrue(IsOnFlexiPaymentPilot) && IsNotTrue(update.IsOnFlexiPaymentPilot) && StartDate != update.StartDate) return true;
+            if (ActualStartDate.HasValue && update.ActualStartDate.HasValue && (ActualStartDate.Value.Year != update.ActualStartDate.Value.Year || ActualStartDate.Value.Month != update.ActualStartDate.Value.Month)) return true;
+            if (update.ActualStartDate.HasValue && StartDate.HasValue && StartDateMonthOrYearIsChanged(update)) return true;
+            if (update.StartDate.HasValue && ActualStartDate.HasValue && ActualStartDateMonthOrYearIsChanged(update)) return true;
+            return false;
+        }
+
+        private static bool IsNotTrue(bool? value) => !value.HasValue || !value.Value;
+
+        private bool StartDateMonthOrYearIsChanged(DraftApprenticeshipDetails update)
+        {
+            return StartDate.Value.Month != update.ActualStartDate.Value.Month || StartDate.Value.Year != update.ActualStartDate.Value.Year;
+        }
+
+        private bool ActualStartDateMonthOrYearIsChanged(DraftApprenticeshipDetails update)
+        {
+            return ActualStartDate.Value.Month != update.StartDate.Value.Month || ActualStartDate.Value.Year != update.StartDate.Value.Year;
         }
 
         public void ValidateUpdateForChangeOfParty(DraftApprenticeshipDetails update)

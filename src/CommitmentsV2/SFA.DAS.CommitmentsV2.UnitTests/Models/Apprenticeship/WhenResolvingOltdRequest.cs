@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         [Test]
         public void AndRequestResolutionTypeIs_DraftApprentieshipDeleted_ThenShouldNotPublishOltdResolvedNotificationEvent()
         {
-            _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.DraftApprentieshipDeleted);
+            _fixture.ResolveTrainingDateRequest(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipDeleted);
             _fixture.UnitOfWorkContext.GetEvents().OfType<OverlappingTrainingDateResolvedEvent>().Count().Should().Be(0);
         }
 

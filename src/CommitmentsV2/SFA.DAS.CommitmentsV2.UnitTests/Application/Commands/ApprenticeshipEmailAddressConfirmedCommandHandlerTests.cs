@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressConfirmed;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -13,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Linq;
 using System.Threading;
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task Handle_WhenApprenticeshipIsStopped_ThenEmailAddressDoesNotGetConfirmed()
+        public async Task Handle_WhenApprenticeshipIsStopped_ThenEmailAddressDoesGetConfirmed()
         {
             var command = _fixture.ApprenticeshipEmailAddressConfirmedCommand;
             _fixture.SeedData(true);
@@ -43,11 +43,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
             apprenticeship.ShouldNotBeNull();
-            apprenticeship.EmailAddressConfirmed.Should().BeNull();
+            apprenticeship.EmailAddressConfirmed.Should().BeTrue();
         }
 
         [Test]
-        public async Task Handle_WhenApprenticeshipIsCompleted_ThenEmailAddressDoesNotGetConfirmed()
+        public async Task Handle_WhenApprenticeshipIsCompleted_ThenEmailAddressDoesGetConfirmed()
         {
             var command = _fixture.ApprenticeshipEmailAddressConfirmedCommand;
             _fixture.SeedData(completed: true);
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
             apprenticeship.ShouldNotBeNull();
-            apprenticeship.EmailAddressConfirmed.Should().BeNull();
+            apprenticeship.EmailAddressConfirmed.Should().BeTrue();
         }
 
         [Test]

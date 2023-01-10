@@ -9,17 +9,20 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Authorization.Features.Models;
+using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
-using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -29,6 +32,7 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
+using Constants = SFA.DAS.CommitmentsV2.Domain.Constants;
 using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -519,7 +523,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.AreEqual(1, _fixture.DomainErrors.Count);
             Assert.AreEqual("Cannot approve this cohort because one or more emails are failing the overlap check", _fixture.DomainErrors[0].ErrorMessage);
         }
-         
+
+        [Test]
+        public async Task ApproveCohort_WhenRPLIsRequiredButNoRPLData_ShouldThrowException()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithExistingDraftApprenticeship()
+                .WithRPLRequired();
+
+            await _fixture.WithParty(Party.Provider).ApproveCohort();
+
+            Assert.AreEqual(1, _fixture.DomainErrors.Count);
+            Assert.AreEqual("Cohort must be complete for Provider", _fixture.DomainErrors[0].ErrorMessage);
+        }
+
+        [Test]
+        public async Task ApproveCohort_WhenRPLIsRequiredAndRPLDataIsPresent_ShouldSuceed()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithExistingDraftApprenticeship()
+                .WithPriorLearning().WithRPLRequired();
+
+            await _fixture.WithParty(Party.Provider).ApproveCohort();
+
+            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+        }
+
         [Test]
         public async Task DeleteDraftApprenticeship_WhenCohortIsWithEmployer()
         {
@@ -582,6 +613,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _fixture.CreateCohort();
 
             _fixture.VerifyStartDateException(pass);
+        }
+
+        [TestCase("2018-04-30", false)]
+        [TestCase("2018-05-01", true)]
+        public async Task AddDraftApprenticeship_Verify_ActualStartDate_ForTransferSender_Is_After_May_2018(DateTime startDate, bool pass)
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort()
+                .WithActualStartDate(startDate)
+                .WithTrainingProgramme();
+
+            await _fixture.AddDraftApprenticeship();
+
+            _fixture.VerifyActualStartDateException(pass);
+        }
+
+        [TestCase("0022-01-01", false)]
+        [TestCase("1300-01-01", false)]
+        [TestCase("2000-12-01", false)]
+        public async Task AddDraftApprenticeship_Verify_ActualStartDate_IsNot_Earlier_Than_May_2017(DateTime startDate, bool pass)
+        {
+            _fixture.WithParty(Party.Employer)
+                .WithActualStartDate(startDate)
+                .WithTrainingProgramme();
+
+            await _fixture.CreateCohort();
+
+            _fixture.VerifyActualStartDateException(pass);
         }
 
         [TestCase("0022-01-01", false)]
@@ -696,6 +754,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
             public Mock<IAccountApiClient> AccountApiClient { get; set; }
             public Mock<ILevyTransferMatchingApiClient> LevyTransferMatchingApiClient { get; set; }
+            public Mock<IFeatureTogglesService<FeatureToggle>> FeatureTogglesService { get; set; }
             public PledgeApplication PledgeApplication { get; set; }
             public List<TransferConnectionViewModel> TransferConnections { get; }
 
@@ -779,7 +838,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
-                    FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false
+                   FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false, IsOnFlexiPaymentPilot = false
                 };
 
                 ExistingDraftApprenticeship = new DraftApprenticeship {
@@ -791,7 +850,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         StartDate = DateTime.UtcNow,
                         EndDate = DateTime.UtcNow.AddYears(1),
                         CourseCode = fixture.Create<string>(),
-                        Cost = fixture.Create<int>()
+                        Cost = fixture.Create<int>(),
+                        IsOnFlexiPaymentPilot = false
                 };
                 ExistingDraftApprenticeship.SetValue(x => x.DateOfBirth, ExistingDraftApprenticeship.StartDate.Value.AddYears(-16));
 
@@ -842,6 +902,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 PriorLearning = fixture.Create<ApprenticeshipPriorLearning>();
 
+                FeatureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
+                FeatureTogglesService.Setup(x=>x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature)).Returns(new FeatureToggle { IsEnabled = false });
+
                 Exception = null;
                 DomainErrors = new List<DomainError>();
                 UserInfo = fixture.Create<UserInfo>();
@@ -858,9 +921,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     EncodingService.Object,
                     AccountApiClient.Object,
                     EmailOptionalService.Object,
-                    LevyTransferMatchingApiClient.Object);
+                    LevyTransferMatchingApiClient.Object,
+                    FeatureTogglesService.Object);
 
                 Db.SaveChanges();
+            }
+
+            public CohortDomainServiceTestFixture WithPriorLearning()
+            {
+                ExistingDraftApprenticeship.SetValue(x=>x.RecognisePriorLearning, true);
+                ExistingDraftApprenticeship.SetPriorLearningDetails(10, 100);
+                return this;
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
@@ -998,6 +1069,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     : default(DateTime?);
 
                 DraftApprenticeshipDetails.StartDate = utcStartDate;
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithActualStartDate(DateTime? startDate)
+            {
+                var utcStartDate = startDate.HasValue
+                    ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                    : default(DateTime?);
+
+                DraftApprenticeshipDetails.ActualStartDate = utcStartDate;
                 return this;
             }
 
@@ -1158,6 +1239,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithRPLRequired()
+            {
+                FeatureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature))
+                    .Returns(new FeatureToggle { IsEnabled = true });
+                return this;
+            }
+            
             public void VerifyCheckForEmailOverlapsOnCohortIsCalledCorrectlyWhenApproving()
             {
                 OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(CohortId, It.IsAny<CancellationToken>()));
@@ -1561,6 +1649,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate"));
+            }
+
+            public void VerifyActualStartDateException(bool passes)
+            {
+                if (passes)
+                {
+                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    return;
+                }
+
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "ActualStartDate"));
             }
 
             public void VerifyEndDateException(bool passes)

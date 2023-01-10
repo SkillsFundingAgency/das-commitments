@@ -10,8 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Extensions
         {
             return hostBuilder.ConfigureAppConfiguration(c => c
                 .AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2,
-                    CommitmentsConfigurationKeys.EncodingConfiguration,
-                    Reservations.Api.Types.Configuration.ConfigurationKeys.ReservationsClientApiConfiguration)
+                    CommitmentsConfigurationKeys.EncodingConfiguration)
             );
         }
     }

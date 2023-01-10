@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     StandardUId = a.StandardUId,
                     TrainingCourseOption = a.TrainingCourseOption,
                     TrainingCourseVersion = a.TrainingCourseVersion,
-                    StartDate = a.StartDate.Value,
+                    StartDate = a.StartDate.GetValueOrDefault(),
                     EndDate = a.EndDate.Value,
                     PriceEpisodes = a.PriceHistory
                         .Select(p => new PriceEpisode
@@ -75,7 +75,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                             Cost = p.Cost
                         })
                         .ToArray(),
-                    ContinuationOfId = a.ContinuationOfId
+                    ContinuationOfId = a.ContinuationOfId,
+                    DateOfBirth = a.DateOfBirth.Value,
+                    ActualStartDate = a.ActualStartDate,
+                    IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot
                 })
                 .ToListAsync(cancellationToken);
 

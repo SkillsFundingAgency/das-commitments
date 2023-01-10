@@ -29,5 +29,8 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public long? TransferSenderId { get; set; }
         public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
         public long? ContinuationOfId { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public DateTime? ActualStartDate { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
     }
 }

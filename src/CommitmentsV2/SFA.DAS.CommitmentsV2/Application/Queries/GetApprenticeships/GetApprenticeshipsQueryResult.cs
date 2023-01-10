@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             public long ProviderId { get; set; }
             public string CourseName { get; set; }
             public DeliveryModel DeliveryModel { get; set; }
-            public DateTime StartDate { get; set; }            
+            public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
             public DateTime PauseDate { get; set; }
             public DateTime? StopDate { get; set; }
@@ -43,6 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             public string CourseCode { get; set; }
             public decimal? Cost { get; set; }
             public int? PledgeApplicationId { get; set; }
+            public DateTime? ActualStartDate { get; set; }
+            public bool? IsOnFlexiPaymentPilot { get; set; }
         }
     }
 }
