@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The duration of an apprenticeship must be at least 365 days");
                 }
 
-                var maxEndDate = draftApprenticeshipDetails.ActualStartDate.Value.AddYears(10);
+                var maxEndDate = draftApprenticeshipDetails.ActualStartDate.Value.AddYears(10).AddDays(-1);
                 if (assumedEndDate > maxEndDate)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The projected finish date should be no more than ten years in the future");

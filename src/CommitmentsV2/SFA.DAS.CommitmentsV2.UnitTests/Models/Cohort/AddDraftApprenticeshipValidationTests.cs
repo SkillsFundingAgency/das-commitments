@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             var endDate = new DateTime(2032, 01, 1);
             var assumedEndDate = new DateTime(2032, 1, 31);
-            var startDate = new DateTime(2022, 01, 30);
+            var startDate = new DateTime(2022, 01, 31);
 
             _fixture.AssertValidationForProperty(() =>
                 {
