@@ -165,7 +165,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var response = await _mediator.Send(new PauseApprenticeshipCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
-                UserInfo = request.UserInfo
+                UserInfo = request.UserInfo,
+                PauseDate= request.PauseDate
             });
 
             if (response == null)

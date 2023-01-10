@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System;
+using MediatR;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship
@@ -8,5 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship
         public long ApprenticeshipId { get; set; }
 
         public UserInfo UserInfo { get; set; }
+
+        public DateTime PauseDate { get;set; }
     }
 }

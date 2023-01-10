@@ -57,8 +57,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
-                    r.ProviderId.Equals(request.ProviderId)), 
+                It.Is<GetApprenticeshipsQuery>(r =>
+                    r.ProviderId.Equals(request.ProviderId)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -91,13 +91,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
-                    r.EmployerAccountId.Equals(request.AccountId)), 
+                It.Is<GetApprenticeshipsQuery>(r =>
+                    r.EmployerAccountId.Equals(request.AccountId)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test, MoqAutoData]
-        public async Task GetFilterApprenticeships([Frozen]GetApprenticeshipsRequest request)
+        public async Task GetFilterApprenticeships([Frozen] GetApprenticeshipsRequest request)
         {
             //Arrange
             request.PageNumber = 0;
@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
+                It.Is<GetApprenticeshipsQuery>(r =>
                    r.SearchFilters.SearchTerm.Equals(request.SearchTerm) &&
                    r.SearchFilters.EmployerName.Equals(request.EmployerName) &&
                    r.SearchFilters.CourseName.Equals(request.CourseName) &&
@@ -125,7 +125,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         }
 
         [Test, MoqAutoData]
-        public async Task GetApprenticesByPage([Frozen]GetApprenticeshipsRequest request)
+        public async Task GetApprenticesByPage([Frozen] GetApprenticeshipsRequest request)
         {
             //Arrange
             request.ReverseSort = false;
@@ -136,15 +136,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
+                It.Is<GetApprenticeshipsQuery>(r =>
                     r.ProviderId.Equals(request.ProviderId) &&
                     r.PageNumber.Equals(request.PageNumber) &&
-                    r.PageItemCount.Equals(request.PageItemCount)), 
+                    r.PageItemCount.Equals(request.PageItemCount)),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test, MoqAutoData]
-        public async Task GetFilterApprenticeshipsByPage([Frozen]GetApprenticeshipsRequest request)
+        public async Task GetFilterApprenticeshipsByPage([Frozen] GetApprenticeshipsRequest request)
         {
             //Arrange
             request.ReverseSort = false;
@@ -155,7 +155,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsQuery>(r => 
+                It.Is<GetApprenticeshipsQuery>(r =>
                     r.SearchFilters.EmployerName.Equals(request.EmployerName) &&
                     r.SearchFilters.CourseName.Equals(request.CourseName) &&
                     r.SearchFilters.Status.Equals(request.Status) &&
@@ -176,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             {
                 ProviderId = expectedProviderId
             };
-            
+
             _mediator.Setup(x => x.Send(It.Is<GetApprenticeshipsQuery>(c => c.ProviderId.Value.Equals(expectedProviderId)),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetApprenticeshipsQueryResult());
@@ -186,7 +186,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             //Assert
             Assert.IsNotNull(result);
-            _mapper.Verify(x=>x.Map<GetApprenticeshipsResponse>(It.IsAny<GetApprenticeshipsQueryResult>()), Times.Once);
+            _mapper.Verify(x => x.Map<GetApprenticeshipsResponse>(It.IsAny<GetApprenticeshipsQueryResult>()), Times.Once);
         }
 
         [Test]
@@ -214,8 +214,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     c.AccountId == request.AccountId &&
                     c.ApprenticeshipId == apprenticeshipId &&
                     c.StopDate == request.StopDate &&
-                    c.MadeRedundant == request.MadeRedundant && 
-                    c.UserInfo == request.UserInfo),                   
+                    c.MadeRedundant == request.MadeRedundant &&
+                    c.UserInfo == request.UserInfo),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -226,7 +226,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
 
             await _controller.Pause(request);
 
-            _mediator.Verify(p => p.Send(It.Is<PauseApprenticeshipCommand>(c => c.ApprenticeshipId == request.ApprenticeshipId && c.UserInfo == request.UserInfo), It.IsAny<CancellationToken>()), Times.Once);
+            _mediator.Verify(p => p.Send(It.Is<PauseApprenticeshipCommand>(c => c.ApprenticeshipId == request.ApprenticeshipId && c.UserInfo == request.UserInfo && c.PauseDate == request.PauseDate), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test, MoqAutoData]
@@ -284,10 +284,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
                     c.ApprenticeshipId == apprenticeshipId &&
                     c.StopDate == request.NewStopDate &&
                     c.UserInfo == request.UserInfo),
-					It.IsAny<CancellationToken>()), Times.Once);
+                    It.IsAny<CancellationToken>()), Times.Once);
         }
 
-		[Test, MoqAutoData]
+        [Test, MoqAutoData]
         public async Task ValidateApprenticeshipForEdit(ValidateApprenticeshipForEditRequest request)
         {
             //Act
@@ -302,7 +302,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         [Test, MoqAutoData]
         public async Task ValidateApprenticeshipForEditNotFound(ValidateApprenticeshipForEditRequest request)
         {
-            _mapper.Setup(x => x.Map<ValidateApprenticeshipForEditCommand>(request)).ReturnsAsync(() =>new ValidateApprenticeshipForEditCommand());
+            _mapper.Setup(x => x.Map<ValidateApprenticeshipForEditCommand>(request)).ReturnsAsync(() => new ValidateApprenticeshipForEditCommand());
             _mediator.Setup(p => p.Send(It.IsAny<ValidateApprenticeshipForEditCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
 
             //Act
@@ -330,7 +330,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => new EditApprenticeshipResponse { ApprenticeshipId = 1, NeedReapproval = true });
 
             //Act
-           var result = await _controller.EditApprenticeship(request) as OkObjectResult;
+            var result = await _controller.EditApprenticeship(request) as OkObjectResult;
 
             var response = result.WithModel<Types.Responses.EditApprenticeshipResponse>();
 
@@ -345,7 +345,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
 
             //Act
-           var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult; 
+            var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult;
 
             //Assert
             Assert.IsNotNull(notFoundResult);
