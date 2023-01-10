@@ -29,7 +29,7 @@ jobs:
       arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
 
   - task: DotNetCoreCLI@2
-    displayName: 'publish Support Site'
+    displayName: 'Publish Support Site'
     inputs:
       command: publish
       publishWebProjects: false
