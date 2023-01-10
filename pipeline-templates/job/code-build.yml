@@ -21,7 +21,7 @@ jobs:
       arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
 
   - task: DotNetCoreCLI@2
-    displayName: 'publish v2 WebJob'
+    displayName: 'Publish v2 WebJob'
     inputs:
       command: custom
       projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Host/SFA.DAS.CommitmentsV2.Host.csproj'
