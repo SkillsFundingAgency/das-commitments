@@ -1,0 +1,60 @@
+jobs:
+- job: CodeBuild
+  pool:
+    name: DAS - Continuous Integration
+    demands: Agent.OS -equals Windows_NT
+  variables:
+  - group: BUILD Management Resources
+  workspace:
+    clean: all
+  steps:
+  - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
+
+  - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish v2 API'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/SFA.DAS.CommitmentsV2.Api.csproj'
+      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish v2 WebJob'
+    inputs:
+      command: custom
+      projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Host/SFA.DAS.CommitmentsV2.Host.csproj'
+      custom: msbuild
+      arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish Support Site'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
+      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet pack'
+    inputs:
+      command: pack
+      packagesToPack: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj;src/SFA.DAS.Commitments.Events/SFA.DAS.Commitments.Events.csproj'
+      packDirectory: '$(build.artifactstagingdirectory)/publish/nuget-publish'
+      versioningScheme: byBuildNumber
+      buildProperties: 'Version="$(Build.BuildNumber)"'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    inputs:
+      Contents: |
+        azure/**
+      TargetFolder: '$(build.artifactstagingdirectory)/publish'
+      OverWrite: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact'
+    inputs:
+      PathtoPublish: '$(build.artifactstagingdirectory)/publish'
+      ArtifactName: CommitmentsArtifact
