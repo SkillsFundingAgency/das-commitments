@@ -467,7 +467,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 throw new DomainException(nameof(details.EndDate), "The end date must not be earlier than May 2017");
             }
-
         }
 
         private async Task ValidateReservation(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
