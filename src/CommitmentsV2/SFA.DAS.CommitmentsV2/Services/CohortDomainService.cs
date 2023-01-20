@@ -157,10 +157,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             return existingCohorts.Select(x => x.Value).Union(newCohorts.Select(x => x.Value));
         }
 
-        public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken)
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
-            var party = _authenticationService.GetUserParty();
+            var party = requestingParty ?? _authenticationService.GetUserParty();
             var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
             var isRPLRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
 
@@ -239,10 +239,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             return originator.CreateCohort(providerId, accountLegalEntity, userInfo);
         }
 
-        public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken)
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
-            var party = _authenticationService.GetUserParty();
+            var party = requestingParty ?? _authenticationService.GetUserParty();
 
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
         }

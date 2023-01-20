@@ -60,11 +60,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
                 var dataLockWithUpdatedTraining = dataLocksToBeAccepted.FirstOrDefault(m => m.IlrTrainingCourseCode != apprenticeship.CourseCode);
                 if (dataLockWithUpdatedTraining != null)
                 {
-                    var training = await _trainingProgrammeLookup.GetTrainingProgramme(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+                    var training = await _trainingProgrammeLookup.GetCalculatedTrainingProgrammeVersion(dataLockWithUpdatedTraining.IlrTrainingCourseCode, apprenticeship.StartDate.GetValueOrDefault());
+                    // PA-599 This is a temp fix, which will allow frameworks to be accepted
+                    if (training == null)
+                    {
+                        training = await _trainingProgrammeLookup.GetTrainingProgramme(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+                    }
 
-                    _logger.LogInformation($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.CourseCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
-
-                    apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo);
+                    if (training != null)
+                    {
+                        _logger.LogInformation($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.CourseCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
+                        apprenticeship.UpdateCourse(Party.Employer, dataLockWithUpdatedTraining.IlrTrainingCourseCode, training.Name, training.ProgrammeType, request.UserInfo, training.StandardUId, _currentDateTime.UtcNow);
+                    }
                 }
             }
 
@@ -92,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
                 _db.Value.PriceHistory.Add(item);
             }
 
-            apprenticeship.ReplacePriceHistory(Party.Employer, currentPriceHistory,  updatedPriceHistory, userInfo);
+            apprenticeship.ReplacePriceHistory(Party.Employer, currentPriceHistory, updatedPriceHistory, userInfo);
         }
     }
 }
