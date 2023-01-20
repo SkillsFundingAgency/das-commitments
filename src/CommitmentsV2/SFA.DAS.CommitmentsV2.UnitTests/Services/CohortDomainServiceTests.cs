@@ -729,6 +729,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public int? PledgeApplicationId { get; }
             public long AccountLegalEntityId { get; }
             public long CohortId { get; }
+            public Party RequestingParty { get; private set; }
             public string AccountLegalEntityPublicHashedId { get; }
             public long ChangeOfPartyRequestId { get; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
@@ -784,6 +785,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountId = 2;
                 AccountLegalEntityId = 3;
                 CohortId = 4;
+                RequestingParty = Party.Employer;
                 ChangeOfPartyRequestId = 5;
                 MaLegalEntityId = fixture.Create<long>();
                 AccountLegalEntityPublicHashedId = fixture.Create<string>();
@@ -1279,6 +1281,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 Party = party;
                 AuthenticationService.Setup(x => x.GetUserParty()).Returns(Party);
+                RequestingParty = party;
                 return this;
             }
 
@@ -1423,7 +1426,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.ApproveCohort(CohortId, Message, UserInfo, new CancellationToken());
+                    await CohortDomainService.ApproveCohort(CohortId, Message, UserInfo, RequestingParty, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)
@@ -1440,7 +1443,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.SendCohortToOtherParty(CohortId, Message, UserInfo, new CancellationToken());
+                    await CohortDomainService.SendCohortToOtherParty(CohortId, Message, UserInfo, RequestingParty, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)

@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             
             await fixture.Handle();
 
-            fixture.CohortDomainService.Verify(s => s.ApproveCohort(fixture.Command.CohortId, fixture.Command.Message, fixture.Command.UserInfo, fixture.CancellationToken));
+            fixture.CohortDomainService.Verify(s => s.ApproveCohort(fixture.Command.CohortId, fixture.Command.Message, fixture.Command.UserInfo, fixture.Command.RequestingParty, fixture.CancellationToken));
         }
     }
 
