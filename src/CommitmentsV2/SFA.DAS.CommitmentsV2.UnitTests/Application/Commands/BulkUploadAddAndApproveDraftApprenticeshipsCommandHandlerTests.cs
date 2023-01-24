@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 new Cohort() { Reference = "MKRK7N" }
             });
 
-            CohortDomainService.Setup(x => x.ApproveCohort(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()));                
+            CohortDomainService.Setup(x => x.ApproveCohort(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), It.IsAny<CancellationToken>()));                
 
             Handler = new BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler(Mock.Of<ILogger<BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler>>(),
                 ModelMapper.Object, CohortDomainService.Object, Mediator.Object, DbContext.Object);

@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort
 
         protected override Task Handle(ApproveCohortCommand request, CancellationToken cancellationToken)
         {
-            return _cohortDomainService.ApproveCohort(request.CohortId, request.Message, request.UserInfo, cancellationToken);
+            return _cohortDomainService.ApproveCohort(request.CohortId, request.Message, request.UserInfo, request.RequestingParty, cancellationToken);
         }
     }
 }

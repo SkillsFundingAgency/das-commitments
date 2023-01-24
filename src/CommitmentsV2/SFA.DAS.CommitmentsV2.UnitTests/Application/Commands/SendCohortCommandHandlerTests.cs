@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             await TestAsync(
                 f => f.Handle(),
-                f => f.CohortDomainService.Verify(s => s.SendCohortToOtherParty(f.Command.CohortId, f.Command.Message, f.Command.UserInfo, f.CancellationToken)));
+                f => f.CohortDomainService.Verify(s => s.SendCohortToOtherParty(f.Command.CohortId, f.Command.Message, f.Command.UserInfo, f.Command.RequestingParty, f.CancellationToken)));
         }
     }
 
