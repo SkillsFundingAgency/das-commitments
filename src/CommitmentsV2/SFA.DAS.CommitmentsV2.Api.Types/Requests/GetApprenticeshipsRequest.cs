@@ -26,5 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public Alerts? Alert { get; set; }
         public ConfirmationStatus? ApprenticeConfirmationStatus { get; set; }
         public DeliveryModel? DeliveryModel { get; set; }
+        public bool? IsOnFlexiPaymentPilot { get; set; }
     }
 }
