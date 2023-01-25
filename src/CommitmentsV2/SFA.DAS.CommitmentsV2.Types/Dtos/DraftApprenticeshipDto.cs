@@ -25,5 +25,6 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public int? PriceReducedBy { get; set; }
         public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
+        public bool? EmailAddressConfirmed { get; set; }
     }
 }
