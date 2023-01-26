@@ -84,5 +84,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         {
             Assert.AreEqual(_source.ActualStartDate, _result.ActualStartDate);
         }
+
+        [Test]
+        public void IsOnFlexiPaymentPilotIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.IsOnFlexiPaymentPilot, _result.IsOnFlexiPaymentPilot);
+        }
     }
 }
