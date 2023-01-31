@@ -80,6 +80,24 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
             }
+
+            if ((draftApprenticeshipDetails.IsOnFlexiPaymentPilot ?? true) && draftApprenticeshipDetails.ActualStartDate.HasValue && draftApprenticeshipDetails.EndDate.HasValue)
+            {
+                var assumedEndDate = new DateTime(draftApprenticeshipDetails.EndDate.Value.Year, draftApprenticeshipDetails.EndDate.Value.Month, 1);
+                assumedEndDate = assumedEndDate.AddMonths(1).AddDays(-1);
+                var differenceBetweenStartAndEnd = assumedEndDate - draftApprenticeshipDetails.ActualStartDate.Value;
+                differenceBetweenStartAndEnd = differenceBetweenStartAndEnd.Add(new TimeSpan(1, 0, 0, 0));
+                if (differenceBetweenStartAndEnd.Days < 365)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The duration of an apprenticeship must be at least 365 days");
+                }
+
+                var maxEndDate = draftApprenticeshipDetails.ActualStartDate.Value.AddYears(10).AddDays(-1);
+                if (assumedEndDate > maxEndDate)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The projected finish date should be no more than ten years in the future");
+                }
+            }
         }
 
         private static IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
