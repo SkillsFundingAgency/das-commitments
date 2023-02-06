@@ -237,7 +237,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
-        public void UpdateDraftApprenticeship_With_ChangeOfParty_FirstName_Throws(Party modifyingParty)
+        public void UpdateDraftApprenticeship_With_ChangeOfParty_FirstName_Throws_No_Errors(Party modifyingParty)
         {
             var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
 
@@ -246,12 +246,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithChangeOfPartyCohort()
                 .UpdateDraftApprenticeshipFirstName();
 
-            Assert.IsNotNull(fixture.Exception);
+            Assert.IsNull(fixture.Exception);
         }
 
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
-        public void UpdateDraftApprenticeship_With_ChangeOfParty_LastName_Throws(Party modifyingParty)
+        public void UpdateDraftApprenticeship_With_ChangeOfParty_LastName_Throws_No_Errors(Party modifyingParty)
         {
             var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
 
@@ -260,12 +260,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithChangeOfPartyCohort()
                 .UpdateDraftApprenticeshipLastName();
 
-            Assert.IsNotNull(fixture.Exception);
+            Assert.IsNull(fixture.Exception);
         }
 
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
-        public void UpdateDraftApprenticeship_With_ChangeOfParty_DateOfBirth_Throws(Party modifyingParty)
+        public void UpdateDraftApprenticeship_With_ChangeOfParty_DateOfBirth_Throws_No_Errors(Party modifyingParty)
         {
             var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
 
@@ -274,7 +274,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithChangeOfPartyCohort()
                 .UpdateDraftApprenticeshipDateOfBirth();
 
-            Assert.IsNotNull(fixture.Exception);
+            Assert.IsNull(fixture.Exception);
         }
 
         [TestCase(Party.Employer)]

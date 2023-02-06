@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private bool IsCompleteForEmployer(bool apprenticeEmailRequired) => 
+        private bool IsCompleteForEmployer(bool apprenticeEmailRequired) =>
             FirstName != null &&
             LastName != null &&
             Cost != null &&
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             DateOfBirth != null &&
             (!apprenticeEmailRequired || Email != null || ContinuationOfId != null);
 
-        private bool IsCompleteForProvider(bool apprenticeEmailRequired, bool recognitionOfPriorLearningRequired) => 
+        private bool IsCompleteForProvider(bool apprenticeEmailRequired, bool recognitionOfPriorLearningRequired) =>
             FirstName != null &&
             LastName != null &&
             Uln != null &&
@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 Uln = source.Uln;
             }
-            else if(Uln != source.Uln)
+            else if (Uln != source.Uln)
             {
                 throw new DomainException(nameof(Uln), "Only providers are allowed to update the Uln");
             }
@@ -190,21 +190,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void ValidateUpdateForChangeOfParty(DraftApprenticeshipDetails update)
         {
-            if (update.FirstName != FirstName)
-            {
-                throw new DomainException(nameof(FirstName), "FirstName for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
-            }
-
-            if (update.LastName != LastName)
-            {
-                throw new DomainException(nameof(LastName), "LastName for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
-            }
-
-            if (update.DateOfBirth != DateOfBirth)
-            {
-                throw new DomainException(nameof(LastName), "DateOfBirth for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
-            }
-
             if (update.TrainingProgramme?.CourseCode != CourseCode)
             {
                 throw new DomainException(nameof(LastName), "CourseCode for DraftApprenticeship in ChangeOfPartyCohort cannot be modified");
