@@ -8,6 +8,7 @@
 	[CreatedOn] DATETIME2 NOT NULL DEFAULT GETDATE(),
 	[ActionedOn] DATETIME2 NULL,
 	[NotifiedServiceDeskOn] DATETIME2 NULL,
+	[NotifiedEmployerOn] DATETIME2 NULL,
 	[RowVersion] ROWVERSION NOT NULL,
     [RequestCreatedByProviderEmail] NVARCHAR(255) NULL,
 )

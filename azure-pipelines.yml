@@ -10,169 +10,23 @@ variables:
     value: 'release'
   - name: buildPlatform
     value: 'any cpu'
+  - name: DACPACSolutionBaseName
+    value: SFA.DAS.Commitments.Database
+
+resources:
+  repositories:
+  - repository: das-platform-building-blocks
+    type: github
+    name: SkillsFundingAgency/das-platform-building-blocks
+    ref: refs/tags/2.1.2
+    endpoint: SkillsFundingAgency
 
 stages:
-- stage: v1TestBuild
-  displayName: Build process to allow Commitments v1 tests 
-  jobs:
-  - job: build_test_v1
-    displayName: Build and Test commitments v1 only
-    pool:
-      name: 'DAS - Continuous Integration'
-    steps:
-      - task: UseGitVersion@5
-        displayName: GitVersion
-        inputs:
-          versionSpec: 5.x
-          mode: Mainline
-
-      - task: NuGetToolInstaller@0
-        displayName: 'Use NuGet 4.3.0'
-        inputs:
-          versionSpec: 4.x
-
-      - task: DotNetCoreCLI@2
-        displayName: Restore
-        inputs:
-          command: restore
-          projects: "src/**/*.csproj"  
-
-      - task: VSTest@2
-        displayName: 'VS test'
-        inputs:
-          testAssemblyVer2: |
-            **/bin/Release/*UnitTests.dll
-            !**/CommitmentsV2/**
-            !**/*Reservations.Api*/**
-          platform: '$(buildPlatform)'
-          configuration: '$(buildConfiguration)'
-
 - stage: build
   displayName: Build Commitments 
   jobs:
-  - job: build_commitments
-    displayName: Build Commitments 
-    pool:
-      name: 'DAS - Continuous Integration'
-      demands: Agent.OS -equals Windows_NT
-    steps:
-    - task: UseGitVersion@5
-      displayName: GitVersion
-      inputs:
-        versionSpec: 5.x
-        mode: Mainline
-
-    - pwsh: |
-        $Projects = Get-ChildItem -Filter *.csproj -Recurse
-        $ErrorFound = $false
-        foreach ($Project in $Projects) {
-          dotnet list $Project package --deprecated | Tee-Object -Variable Deprecated
-          if (([Version](dotnet --version)).Major -ge 5) {
-            dotnet list $Project package --vulnerable --include-transitive | Tee-Object -Variable Vulnerable
-          }
-          $Errors = $Deprecated + $Vulnerable | Select-String '>'
-
-          if ($Errors.Count -gt 0) {
-            Write-Host "##vso[task.logissue type=warning]Package issues discovered, review output above"
-            $ErrorFound = $true
-          }
-        }
-        $ErrorFound ? $(exit 1) : $(exit 0)
-      workingDirectory:  $(Agent.BuildDirectory)/s/
-      displayName: Package Scanning
-      continueOnError: true
-
-
-    - task: NuGetToolInstaller@0
-      displayName: 'Use NuGet 5.11.3'
-      inputs:
-        versionSpec: 5.x
-
-    - task: NuGetCommand@2
-      displayName: 'NuGet restore'
-      inputs:
-        restoreSolution: 'src/SFA.DAS.Commitments.sln'
-
-    - task: DotNetCoreCLI@2
-      displayName: Restore
-      inputs:
-        command: restore
-        projects: "src/**/*.csproj"   
-
-    - task: VSBuild@1
-      displayName: 'Build solution'
-      inputs:
-        solution: 'src/SFA.DAS.Commitments.sln'
-        vsVersion: 15.0
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
-        clean: true
-
-    - task: DotNetCoreCLI@2
-      displayName: 'dotnet test'
-      inputs:
-        command: test
-        projects: 'src/CommitmentsV2/**/*.UnitTests.csproj'   
-
-    - task: DotNetCoreCLI@2
-      displayName: 'Publish v2 API'
-      inputs:
-        command: publish
-        publishWebProjects: false
-        projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/SFA.DAS.CommitmentsV2.Api.csproj'
-        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
-
-    - task: DotNetCoreCLI@2
-      displayName: 'publish v2 WebJob'
-      inputs:
-        command: custom
-        projects: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Host/SFA.DAS.CommitmentsV2.Host.csproj'
-        custom: msbuild
-        arguments: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)/publish"'
-
-    - task: DotNetCoreCLI@2
-      displayName: 'publish Support Site'
-      inputs:
-        command: publish
-        publishWebProjects: false
-        projects: 'src/SFA.DAS.Commitments.Support.SubSite/SFA.DAS.Commitments.Support.SubSite.csproj'
-        arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore  --no-build'
-
-    - task: NuGetCommand@2
-      displayName: 'NuGet pack'
-      inputs:
-        command: pack
-        packagesToPack: 'src/SFA.DAS.Commitments.Events/SFA.DAS.Commitments.Events.csproj'
-        packDestination: '$(build.artifactstagingdirectory)/publish/nuget-publish'
-        versioningScheme: byBuildNumber
-
-    - task: DotNetCoreCLI@2
-      displayName: 'dotnet pack'
-      inputs:
-        command: pack
-        packagesToPack: 'src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Client/SFA.DAS.CommitmentsV2.Api.Client.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api.Types/SFA.DAS.CommitmentsV2.Api.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Messages/SFA.DAS.CommitmentsV2.Messages.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Types/SFA.DAS.CommitmentsV2.Types.csproj;src/CommitmentsV2/SFA.DAS.CommitmentsV2.Shared/SFA.DAS.CommitmentsV2.Shared.csproj'
-        packDirectory: 'nuget-publish'
-        versioningScheme: byBuildNumber
-        buildProperties: 'Version="$(Build.BuildNumber)"'  
-    
-    - task: VSBuild@1
-      displayName: 'Build DACPAC'
-      inputs:
-        solution: 'src/SFA.DAS.Commitments.Database/SFA.DAS.Commitments.Database.sqlproj'
-        platform: 'anycpu'
-        configuration: '$(buildConfiguration)'
-        msbuildArgs: '/p:PackageLocation="$(build.artifactstagingdirectory)/publish"'    
-
-    - task: CopyFiles@2
-      displayName: "Copy Files to: $(build.artifactstagingdirectory)"
-      inputs:
-        contents: |
-          azure/**
-          nuget-publish/*.nupkg
-          src/**/*.dacpac
-        targetFolder: "$(build.artifactstagingdirectory)/publish"
-
-    - task: PublishBuildArtifacts@1
-      displayName: "Publish Artifact"
-      inputs:
-        pathtoPublish: "$(build.artifactstagingdirectory)/publish"
+  - template: pipeline-templates/job/code-build.yml
+  - template: azure-pipelines-templates/build/job/dacpac-template.yml@das-platform-building-blocks
+    parameters:
+      SolutionBaseName: $(DACPACSolutionBaseName)
+      SqlProjectPath: src/$(DACPACSolutionBaseName)/$(DACPACSolutionBaseName).sqlproj

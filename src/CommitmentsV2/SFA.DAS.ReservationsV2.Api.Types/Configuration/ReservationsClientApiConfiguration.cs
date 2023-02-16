@@ -2,7 +2,7 @@
 {
     public class ReservationsClientApiConfiguration
     {
-        public const string StubBase = "https://sfa-stub-reservations.herokuapp.com";
+        public const string StubBase = "http://localhost:3999/reservations-api/";
         public string ApiBaseUrl { get; set; }
         public string Tenant { get; set; }
         public string ClientId { get; set; }

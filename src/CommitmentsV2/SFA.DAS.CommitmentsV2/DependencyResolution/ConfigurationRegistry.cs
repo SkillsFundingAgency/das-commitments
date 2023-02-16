@@ -4,6 +4,7 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
 using SFA.DAS.PAS.Account.Api.ClientV2.Configuration;
 using SFA.DAS.ProviderRelationships.Api.Client.Configuration;
+using SFA.DAS.Reservations.Api.Types.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
@@ -22,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             AddConfiguration<LevyTransferMatchingApiConfiguration>(CommitmentsConfigurationKeys.LevyTransferMatchingApiConfiguration);
             AddConfiguration<Authorization.Features.Configuration.FeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
             AddConfiguration<PasAccountApiConfiguration>(CommitmentsConfigurationKeys.ProviderAccountApiConfiguration);
+            AddConfiguration<ReservationsClientApiConfiguration>(CommitmentsConfigurationKeys.ReservationsClientApiConfiguration);
         }
 
         private void AddConfiguration<T>(string name) where T : class

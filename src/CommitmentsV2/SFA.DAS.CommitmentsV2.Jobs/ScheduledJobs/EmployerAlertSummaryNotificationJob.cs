@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
     {
         private readonly IEmployerAlertSummaryEmailService _employerAlertSummaryEmailService;
         private readonly ILogger<EmployerAlertSummaryNotificationJob> _logger;
-        
+
         public EmployerAlertSummaryNotificationJob(IEmployerAlertSummaryEmailService alertSummaryService, ILogger<EmployerAlertSummaryNotificationJob> logger)
         {
             _employerAlertSummaryEmailService = alertSummaryService;
