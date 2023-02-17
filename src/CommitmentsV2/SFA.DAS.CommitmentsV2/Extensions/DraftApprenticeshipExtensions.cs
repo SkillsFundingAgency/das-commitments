@@ -193,9 +193,9 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             if (details.IsOnFlexiPaymentPilot.GetValueOrDefault() &&
                 details.DateOfBirth.HasValue &&
                 details.ActualStartDate.HasValue &&
-                details.ActualStartDate.Value <= details.DateOfBirth.Value.GetLastFridayInJuneOfAcademicYearApprenticeTurned16())
+                details.ActualStartDate.Value <= details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16())
             {
-                yield return new DomainError(nameof(details.DateOfBirth), $"The start date must be after {details.DateOfBirth.Value.GetLastFridayInJuneOfAcademicYearApprenticeTurned16().ToGdsFormat()}, when the learner has reached school leaving age");
+                yield return new DomainError(startDateField, $"The start date must be after {details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16().ToGdsFormat()}, when the learner has reached school leaving age");
             }
         }
 
