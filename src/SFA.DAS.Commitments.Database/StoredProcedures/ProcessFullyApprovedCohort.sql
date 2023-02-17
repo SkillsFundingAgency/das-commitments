@@ -9,7 +9,7 @@ BEGIN
     WHERE Id = @cohortId
     
     UPDATE [dbo].[Apprenticeship]
-    SET PaymentStatus = 1
+    SET PaymentStatus = 1, StartDate = CASE WHEN IsOnFlexiPaymentPilot = 1 THEN DATEFROMPARTS(YEAR(ActualStartDate), MONTH(ActualStartDate), 1) ELSE StartDate END
     WHERE CommitmentId = @cohortId
     
     INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate)

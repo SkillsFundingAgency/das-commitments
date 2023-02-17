@@ -76,7 +76,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         FlexibleEmployment = apprenticeship.FlexibleEmployment,
                         RecognisePriorLearning = apprenticeship.RecognisePriorLearning,
                         ApprenticeshipPriorLearning = apprenticeship.PriorLearning,
-                        TransferSenderId = apprenticeship.Cohort.TransferSenderId
+                        TransferSenderId = apprenticeship.Cohort.TransferSenderId,
+                        IsOnFlexiPaymentPilot = apprenticeship.IsOnFlexiPaymentPilot
                     },
                     cancellationToken);
 
