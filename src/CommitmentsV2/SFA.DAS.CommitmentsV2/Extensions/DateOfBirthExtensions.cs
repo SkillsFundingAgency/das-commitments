@@ -4,7 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 {
     public static class DateOfBirthExtensions
     {
-        public static DateTime GetLastFridayInJuneOfAcademicYearApprenticeTurned16(this DateTime dateOfBirth)
+        public static DateTime GetLastFridayInJuneOfSchoolYearApprenticeTurned16(this DateTime dateOfBirth)
         {
             var sixteenthBirthday = dateOfBirth.AddYears(16);
             var year = sixteenthBirthday.Month > 8 ? sixteenthBirthday.Year + 1 : sixteenthBirthday.Year;
