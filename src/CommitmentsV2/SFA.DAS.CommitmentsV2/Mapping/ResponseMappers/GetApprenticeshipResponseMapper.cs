@@ -62,10 +62,10 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 PriceReducedBy = source.ApprenticeshipPriorLearning?.PriceReducedBy,
                 TransferSenderId = source.TransferSenderId,
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
-                DurationReducedByHours = source.DurationReducedByHours,
-                WeightageReducedBy = source.WeightageReducedBy,
-                Qualification = source.Qualification,
-                Reason = source.Reason
+                DurationReducedByHours = source.ApprenticeshipPriorLearning?.DurationReducedByHours,
+                WeightageReducedBy = source.ApprenticeshipPriorLearning?.WeightageReducedBy,
+                Qualification = source.ApprenticeshipPriorLearning?.Qualification,
+                Reason = source.ApprenticeshipPriorLearning?.Reason
             });
         }
     }
