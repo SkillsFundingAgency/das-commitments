@@ -27,5 +27,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         public UserInfo UserInfo { get; set; }
         public bool IgnoreStartDateOverlap { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
+        public double? DurationReducedByHours { get; set; }
+        public double? WeightageReducedBy { get; set; }
+        public string Qualification { get; set; }
+        public string Reason { get; set; }
     }
 }

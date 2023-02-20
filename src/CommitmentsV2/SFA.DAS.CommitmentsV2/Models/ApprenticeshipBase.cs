@@ -46,6 +46,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         public Guid? ReservationId { get; set; }
         public long? ContinuationOfId { get; set; }
         public DateTime? OriginalStartDate { get; set; }
+        public double? DurationReducedByHours { get; set; }
+        public double? WeightageReducedBy { get; set; }
+        public string Qualification { get; set; }
+        public string Reason { get; set; }
 
         public virtual Cohort Cohort { get; set; }
         public virtual AssessmentOrganisation EpaOrg { get; set; }

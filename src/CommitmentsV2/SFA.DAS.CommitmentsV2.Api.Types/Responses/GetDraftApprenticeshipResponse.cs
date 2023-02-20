@@ -38,5 +38,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
         public bool? EmailAddressConfirmed { get; set; }
+        public double? DurationReducedByHours { get; set; }
+        public double? WeightageReducedBy { get; set; }
+        public string Qualification { get; set; }
+        public string Reason { get; set; }
     }
 }
