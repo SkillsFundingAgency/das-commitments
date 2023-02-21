@@ -2,6 +2,7 @@
 {
     public class PriorLearningDetailsRequest : SaveDataRequest
     {
+        public bool NewRplMode { get; set; }
         public int? DurationReducedBy { get; set; }
         public int? PriceReducedBy { get; set; }
         public int? DurationReducedByHours { get; set; }
