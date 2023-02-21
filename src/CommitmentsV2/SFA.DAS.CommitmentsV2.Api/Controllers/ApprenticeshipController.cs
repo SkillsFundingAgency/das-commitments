@@ -74,7 +74,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     StartDateRange = new DateRange { From = request.StartDateRangeFrom, To = request.StartDateRangeTo },
                     Alert = request.Alert,
                     ApprenticeConfirmationStatus = request.ApprenticeConfirmationStatus,
-                    DeliveryModel = request.DeliveryModel,                    
+                    DeliveryModel = request.DeliveryModel,
+                    IsOnFlexiPaymentPilot = request.IsOnFlexiPaymentPilot
                 };
 
                 var queryResult = await _mediator.Send(new GetApprenticeshipsQuery
