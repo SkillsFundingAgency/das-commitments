@@ -64,8 +64,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
                 DurationReducedByHours = source.ApprenticeshipPriorLearning?.DurationReducedByHours,
                 WeightageReducedBy = source.ApprenticeshipPriorLearning?.WeightageReducedBy,
-                Qualification = source.ApprenticeshipPriorLearning?.Qualification,
-                Reason = source.ApprenticeshipPriorLearning?.Reason
+                QualificationsForRplReduction = source.ApprenticeshipPriorLearning?.QualificationsForRplReduction,
+                ReasonForRplReduction = source.ApprenticeshipPriorLearning?.ReasonForRplReduction
             });
         }
     }

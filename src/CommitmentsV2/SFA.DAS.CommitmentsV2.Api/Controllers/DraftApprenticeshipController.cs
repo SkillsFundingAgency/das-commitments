@@ -114,8 +114,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 PriceReducedBy = request.PriceReducedBy,
                 DurationReducedByHours = request.DurationReducedByHours,
                 WeightageReducedBy = request.WeightageReducedBy,
-                Qualification = request.Qualification,
-                Reason = request.Reason,
+                QualificationsForRplReduction = request.QualificationsForRplReduction,
+                ReasonForRplReduction = request.ReasonForRplReduction,
                 UserInfo = request.UserInfo
             });
             return Ok();

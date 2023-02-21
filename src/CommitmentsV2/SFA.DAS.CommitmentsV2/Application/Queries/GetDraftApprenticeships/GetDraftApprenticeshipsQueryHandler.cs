@@ -64,8 +64,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     EmailAddressConfirmed = a.EmailAddressConfirmed,
                     DurationReducedByHours = a.DurationReducedByHours,
                     WeightageReducedBy = a.WeightageReducedBy,
-                    Qualification = a.Qualification,
-                    Reason = a.Reason
+                    QualificationsForRplReduction = a.QualificationsForRplReduction,
+                    ReasonForRplReduction = a.ReasonForRplReduction
                 }).ToList()
             });
         }

@@ -48,8 +48,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 EmailAddressConfirmed = source.EmailAddressConfirmed,
                 DurationReducedByHours = source.DurationReducedByHours,
                 WeightageReducedBy = source.WeightageReducedBy,
-                Qualification = source.Qualification,
-                Reason = source.Reason
+                QualificationsForRplReduction = source.QualificationsForRplReduction,
+                ReasonForRplReduction = source.ReasonForRplReduction
             });
         }
     }
