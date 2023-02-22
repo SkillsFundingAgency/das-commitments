@@ -972,6 +972,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var fixture = new Fixture();
                 DraftApprenticeshipDetails.DurationReducedBy = fixture.Create<int>();
                 DraftApprenticeshipDetails.PriceReducedBy = fixture.Create<int>();
+                DraftApprenticeshipDetails.DurationReducedByHours = fixture.Create<int>();
+                DraftApprenticeshipDetails.WeightageReducedBy = fixture.Create<int>();
+                DraftApprenticeshipDetails.ReasonForRplReduction = fixture.Create<string>();
+                DraftApprenticeshipDetails.QualificationsForRplReduction = fixture.Create<string>();
                 DraftApprenticeshipDetails.RecognisePriorLearning = true;
                 return this;
             }
@@ -1589,6 +1593,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.IsNotNull(updated.PriorLearning, "No prior learning found");
                 Assert.IsNull(updated.PriorLearning.DurationReducedBy);
                 Assert.IsNull(updated.PriorLearning.PriceReducedBy);
+                Assert.IsNull(updated.PriorLearning.DurationReducedByHours);
+                Assert.IsNull(updated.PriorLearning.WeightageReducedBy);
+                Assert.IsNull(updated.PriorLearning.ReasonForRplReduction);
+                Assert.IsNull(updated.PriorLearning.QualificationsForRplReduction);
             }
 
             public void VerifyPriorLearningIsStillPresent()
@@ -1600,6 +1608,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.AreEqual(PriorLearning.DurationReducedBy, updated.PriorLearning.DurationReducedBy);
                 Assert.IsNotNull(updated.PriorLearning.PriceReducedBy);
                 Assert.AreEqual(PriorLearning.PriceReducedBy, updated.PriorLearning.PriceReducedBy);
+                Assert.IsNotNull(updated.PriorLearning.DurationReducedByHours);
+                Assert.AreEqual(PriorLearning.DurationReducedByHours, updated.PriorLearning.DurationReducedByHours);
+                Assert.IsNotNull(updated.PriorLearning.WeightageReducedBy);
+                Assert.AreEqual(PriorLearning.WeightageReducedBy, updated.PriorLearning.WeightageReducedBy);
+                Assert.IsNotNull(updated.PriorLearning.ReasonForRplReduction);
+                Assert.AreEqual(PriorLearning.ReasonForRplReduction, updated.PriorLearning.ReasonForRplReduction);
+                Assert.IsNotNull(updated.PriorLearning.QualificationsForRplReduction);
+                Assert.AreEqual(PriorLearning.QualificationsForRplReduction, updated.PriorLearning.QualificationsForRplReduction);
             }
 
             public void VerifyPriorLearningIsNotSetToNewRPLValues()

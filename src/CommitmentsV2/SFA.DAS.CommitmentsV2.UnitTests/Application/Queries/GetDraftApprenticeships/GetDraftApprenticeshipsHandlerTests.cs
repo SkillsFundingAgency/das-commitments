@@ -168,6 +168,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.RecognisePriorLearning, result.RecognisePriorLearning);
             Assert.AreEqual(source.PriorLearning.DurationReducedBy, result.DurationReducedBy);
             Assert.AreEqual(source.PriorLearning.PriceReducedBy, result.PriceReducedBy);
+            Assert.AreEqual(source.PriorLearning.DurationReducedByHours, result.DurationReducedByHours);
+            Assert.AreEqual(source.PriorLearning.WeightageReducedBy, result.WeightageReducedBy);
+            Assert.AreEqual(source.PriorLearning.ReasonForRplReduction, result.ReasonForRplReduction);
+            Assert.AreEqual(source.PriorLearning.QualificationsForRplReduction, result.QualificationsForRplReduction);
             Assert.AreEqual(source.IsOnFlexiPaymentPilot, result.IsOnFlexiPaymentPilot);
             Assert.AreEqual(source.EmailAddressConfirmed, result.EmailAddressConfirmed);
         }
