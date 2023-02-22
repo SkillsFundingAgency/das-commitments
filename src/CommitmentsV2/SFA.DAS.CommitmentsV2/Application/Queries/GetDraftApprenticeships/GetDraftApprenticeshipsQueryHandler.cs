@@ -62,10 +62,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && a.RecognisingPriorLearningStillNeedsToBeConsidered,
                     IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
                     EmailAddressConfirmed = a.EmailAddressConfirmed,
-                    DurationReducedByHours = a.DurationReducedByHours,
-                    WeightageReducedBy = a.WeightageReducedBy,
-                    QualificationsForRplReduction = a.QualificationsForRplReduction,
-                    ReasonForRplReduction = a.ReasonForRplReduction
+                    DurationReducedByHours = a.PriorLearning.DurationReducedByHours,
+                    WeightageReducedBy = a.PriorLearning.WeightageReducedBy,
+                    QualificationsForRplReduction = a.PriorLearning.QualificationsForRplReduction,
+                    ReasonForRplReduction = a.PriorLearning.ReasonForRplReduction
                 }).ToList()
             });
         }

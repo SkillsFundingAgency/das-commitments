@@ -51,9 +51,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public ApprenticeshipPriorLearning ApprenticeshipPriorLearning { get; set; }
         public long? TransferSenderId { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
-        public int? DurationReducedByHours  { get; set; }
-        public int? WeightageReducedBy { get; set; }
-        public string QualificationsForRplReduction { get; set; }
-        public string ReasonForRplReduction { get; set; }
+
     }
 }

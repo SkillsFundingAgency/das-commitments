@@ -45,10 +45,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             public int? PledgeApplicationId { get; set; }
             public DateTime? ActualStartDate { get; set; }
             public bool? IsOnFlexiPaymentPilot { get; set; }
-            public int? DurationReducedByHours { get; set; }
-            public int? WeightageReducedBy { get; set; }
-            public string QualificationsForRplReduction { get; set; }
-            public string ReasonForRplReduction { get; set; }
         }
     }
 }
