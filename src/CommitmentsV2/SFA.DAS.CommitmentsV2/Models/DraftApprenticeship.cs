@@ -270,25 +270,44 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 throw new DomainException("DurationReducedByHours", "You must enter the number of hours");
             }
+            if (durationReducedByHours.Value < 0)
+            {
+                throw new DomainException("DurationReducedByHours", "The number can't be negative");
+            }
+            if (durationReducedByHours.Value > 999)
+            {
+                throw new DomainException("DurationReducedByHours", "The number of hours must be 999 or less");
+            }
+
+            if (weightageReducedBy.HasValue)
+            {
+                throw new DomainException("WeightageReducedBy", "You must enter a percentage");
+            }
             if (weightageReducedBy.Value < 0)
             {
-                throw new DomainException("WeightageReducedBy", "The number can't be negative");
+                throw new DomainException("WeightageReducedBy", "The percentage can't be negative");
             }
+            if (weightageReducedBy.Value > 99)
+            {
+                throw new DomainException("WeightageReducedBy", "The percentage can't be more than 99");
+            }
+
             if (string.IsNullOrEmpty(qualificationsForRplReduction))
             {
                 throw new DomainException("QualificationsForRplReduction", "You must specify qualifications");
             }
             if (qualificationsForRplReduction.Trim().Length > 1000)
             {
-                throw new DomainException("QualificationsForRplReduction", "You cannot exceed 1000 characters for qualifications");
+                throw new DomainException("QualificationsForRplReduction", "You can't exceed 1000 characters for qualifications");
             }
+
             if (string.IsNullOrEmpty(reasonForRplReduction))
             {
                 throw new DomainException("ReasonForRplReduction", "You must specify a reason");
             }
             if (reasonForRplReduction.Trim().Length > 1000)
             {
-                throw new DomainException("ReasonForRplReduction", "You cannot exceed 1000 characters for a reason");
+                throw new DomainException("ReasonForRplReduction", "You can't exceed 1000 characters for a reason");
             }
 
             if (RecognisePriorLearning != true)
