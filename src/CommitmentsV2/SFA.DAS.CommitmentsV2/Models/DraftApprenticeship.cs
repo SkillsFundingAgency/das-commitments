@@ -263,5 +263,47 @@ namespace SFA.DAS.CommitmentsV2.Models
             PriorLearning.DurationReducedBy = durationReducedBy;
             PriorLearning.PriceReducedBy = priceReducedBy;
         }
+
+        public void SetPriorLearningDetailsExtended(int? durationReducedByHours, int? weightageReducedBy, string qualificationsForRplReduction, string reasonForRplReduction)
+        {
+            if (durationReducedByHours.HasValue)
+            {
+                throw new DomainException("DurationReducedByHours", "You must enter the number of hours");
+            }
+            if (weightageReducedBy.Value < 0)
+            {
+                throw new DomainException("WeightageReducedBy", "The number can't be negative");
+            }
+            if (string.IsNullOrEmpty(qualificationsForRplReduction))
+            {
+                throw new DomainException("QualificationsForRplReduction", "You must specify qualifications");
+            }
+            if (qualificationsForRplReduction.Trim().Length > 1000)
+            {
+                throw new DomainException("QualificationsForRplReduction", "You cannot exceed 1000 characters for qualifications");
+            }
+            if (string.IsNullOrEmpty(reasonForRplReduction))
+            {
+                throw new DomainException("ReasonForRplReduction", "You must specify a reason");
+            }
+            if (reasonForRplReduction.Trim().Length > 1000)
+            {
+                throw new DomainException("ReasonForRplReduction", "You cannot exceed 1000 characters for a reason");
+            }
+
+            if (RecognisePriorLearning != true)
+            {
+                throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
+            }
+
+            PriorLearning ??= new ApprenticeshipPriorLearning();
+            PriorLearning.DurationReducedByHours = durationReducedByHours;
+            PriorLearning.WeightageReducedBy = weightageReducedBy;
+            PriorLearning.QualificationsForRplReduction = qualificationsForRplReduction;
+            PriorLearning.ReasonForRplReduction = reasonForRplReduction;
+
+            // Also set other values as null?  durationReducedBy, priceReducedBy
+        }
+
     }
 }
