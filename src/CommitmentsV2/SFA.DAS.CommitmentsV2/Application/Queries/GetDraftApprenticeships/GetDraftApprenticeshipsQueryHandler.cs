@@ -34,8 +34,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                 .Select(x => new { DraftApprenticeships = x.Apprenticeships})
                 .SingleOrDefault();
 
-            var isRplRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
-
             return Task.FromResult(new GetDraftApprenticeshipsQueryResult
             {
                 DraftApprenticeships = cohort?.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
@@ -59,7 +57,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     RecognisePriorLearning = a.RecognisePriorLearning,
                     DurationReducedBy = a.PriorLearning?.DurationReducedBy,
                     PriceReducedBy = a.PriorLearning?.PriceReducedBy,
-                    RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && a.RecognisingPriorLearningStillNeedsToBeConsidered,
+                    RecognisingPriorLearningStillNeedsToBeConsidered = a.RecognisingPriorLearningStillNeedsToBeConsidered,
+                    RecognisingPriorLearningExtendedStillNeedsToBeConsidered = a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                     IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
                     EmailAddressConfirmed = a.EmailAddressConfirmed,
                     DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,
