@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
 
         [Test]
-        public async Task Then_If_There_is_prior_learning_return_values()
+        public async Task Then_If_There_is_prior_learning_return_values_and_status()
         {
             var fixture = new GetDraftApprenticeHandlerTestFixtures()
                 .SetApprentice(Party.Employer, "EMPREF123")
@@ -70,6 +70,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             result.QualificationsForRplReduction.Should().Be(fixture.PriorLearning.QualificationsForRplReduction);
 
             result.RecognisePriorLearning.Should().BeTrue();
+
+            var draftApprenticeship = fixture.GetDraftApprenticeship();
+            result.RecognisingPriorLearningStillNeedsToBeConsidered.Should().Be(draftApprenticeship.RecognisingPriorLearningStillNeedsToBeConsidered);
+            result.RecognisingPriorLearningExtendedStillNeedsToBeConsidered.Should().Be(draftApprenticeship.RecognisingPriorLearningExtendedStillNeedsToBeConsidered);
         }
 
         [TestCase(true, "2022-08-01")]
@@ -213,6 +217,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Db.SaveChanges();
 
             return this;
+        }
+
+        public DraftApprenticeship GetDraftApprenticeship()
+        {
+            return Db.DraftApprenticeships.First();
         }
 
         public GetDraftApprenticeHandlerTestFixtures SetFeatureToggle(string toggleName, bool toggle)

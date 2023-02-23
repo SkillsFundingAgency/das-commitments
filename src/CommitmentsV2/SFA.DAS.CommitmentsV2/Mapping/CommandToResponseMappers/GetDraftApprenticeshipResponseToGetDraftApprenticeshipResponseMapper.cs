@@ -2,8 +2,6 @@
 using SFA.DAS.CommitmentsV2.Types;
 using HttpResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
-using Microsoft.Azure.Amqp.Framing;
-using Microsoft.Azure.Documents;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
 {
@@ -44,6 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 DurationReducedBy = source.DurationReducedBy,
                 PriceReducedBy = source.PriceReducedBy,
                 RecognisingPriorLearningStillNeedsToBeConsidered = source.RecognisingPriorLearningStillNeedsToBeConsidered,
+                RecognisingPriorLearningExtendedStillNeedsToBeConsidered = source.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
                 EmailAddressConfirmed = source.EmailAddressConfirmed,
                 DurationReducedByHours = source.DurationReducedByHours,
