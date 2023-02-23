@@ -304,30 +304,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 apprenticeDetails, arrange);
         }
 
-        [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", null, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", false, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, 10, 100, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, null, null, AllowedApproval.BothCanApprove)]
-        public async Task Handle_WithApprenticeRPLConsidered_ShouldReturnExpectedProviderCanApproveWhenRPLFeatureIsOff(DateTime startDate, bool? recognisePriorLearning, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
-        {
-            Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
-            {
-                f.SetupRPLData(recognisePriorLearning, durationReducedBy, priceReducedBy);
-            });
-
-            var apprenticeDetails = new Fixture()
-                .Build<DraftApprenticeshipDetails>()
-                .With(x => x.StartDate, startDate)
-                .With(x => x.EndDate, startDate.AddYears(1))
-                .Create();
-
-            await CheckQueryResponse(response =>
-                {
-                    response.IsCompleteForProvider.Should().Be(allowedApproval.HasFlag(AllowedApproval.ProviderCanApprove));
-                },
-                apprenticeDetails, arrange);
-        }
 
         [TestCase("2022-07-01", null, null, null, AllowedApproval.BothCanApprove)]
         [TestCase("2022-08-01", null, null, null, AllowedApproval.EmployerCanApprove)]

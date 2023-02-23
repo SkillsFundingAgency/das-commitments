@@ -72,20 +72,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             result.RecognisePriorLearning.Should().BeTrue();
         }
 
-        [TestCase(true, "2022-08-01", true)]
-        [TestCase(true, "2022-07-31", false)]
-        [TestCase(false, "2022-08-01", false)]
-        [TestCase(false, "2022-07-31", false)]
-        public async Task Then_If_prior_learning_not_present_return_rpl_required_status_according_to_feature_toggle_status(bool toggleStatus, DateTime startDate, bool expected)
-        {
-            var fixture = new GetDraftApprenticeHandlerTestFixtures()
-                .SetApprentice(Party.Employer, "EMPREF123", startDate: startDate);
-
-            var result = await fixture.Handle();
-
-            result.RecognisingPriorLearningStillNeedsToBeConsidered.Should().Be(expected);
-        }
-
         [TestCase(true, "2022-08-01")]
         [TestCase(true, "2022-07-31")]
         [TestCase(false, "2022-08-01")]
