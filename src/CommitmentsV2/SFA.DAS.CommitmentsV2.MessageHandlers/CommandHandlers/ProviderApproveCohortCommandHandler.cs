@@ -18,18 +18,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
         private readonly ILogger<ProviderApproveCohortCommandHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IEmailOptionalService _emailService;
-        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
         public ProviderApproveCohortCommandHandler(
             ILogger<ProviderApproveCohortCommandHandler> logger,
             Lazy<ProviderCommitmentsDbContext> dbContext,
-            IEmailOptionalService emailService,
-            IFeatureTogglesService<FeatureToggle> featureTogglesService)
+            IEmailOptionalService emailService
+            )
         {
             _logger = logger;
             _dbContext = dbContext;
             _emailService = emailService;
-            _featureTogglesService = featureTogglesService;
         }
 
         public async Task Handle(ProviderApproveCohortCommand message, IMessageHandlerContext context)

@@ -50,14 +50,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             _fixture.VerifyCohortApproval(expectedValue);
         }
 
-        [TestCase(true, true)]
-        [TestCase(false, false)]
-        public async Task When_HandlingCommand_ApproveCohort_ShouldHaveRPLRequiredSet(bool rplRequired, bool expectedValue)
-        {
-            await _fixture.Handle();
-            _fixture.VerifyCohortApprovalCalledWithRPLSwitch(expectedValue);
-        }
-
         [Test]
         public async Task When_HandlingCommand_ApproveCohort_Again_ShouldNotCallCohortApprovalAndShouldLogWarning()
         {
@@ -82,7 +74,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             private Mock<IMessageHandlerContext> _messageHandlerContext;
             private FakeLogger<ProviderApproveCohortCommandHandler> _logger;
             private Mock<Cohort> _cohort;
-            public Mock<IFeatureTogglesService<FeatureToggle>> FeatureTogglesService { get; set; }
             public ProviderApproveCohortCommandHandlerTestsFixture()
             {
                 var autoFixture = new Fixture();
@@ -92,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 _emailService = new Mock<IEmailOptionalService>();
 
                 _handler = new ProviderApproveCohortCommandHandler(_logger,
-                    new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _emailService.Object, FeatureTogglesService.Object);
+                    new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _emailService.Object);
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
 
@@ -137,11 +128,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             public void VerifyCohortApproval(bool apprenticeEmailFeatureSwitch)
             {
                 _cohort.Verify(x => x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), apprenticeEmailFeatureSwitch), Times.Once);
-            }
-
-            public void VerifyCohortApprovalCalledWithRPLSwitch(bool rplSwitch)
-            {
-                _cohort.Verify(x => x.Approve(Party.Provider, It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>(), It.IsAny<bool>()), Times.Once);
             }
 
 
