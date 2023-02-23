@@ -139,6 +139,10 @@ namespace SFA.DAS.CommitmentsV2.Models
                 {
                     PriorLearning.DurationReducedBy = null;
                     PriorLearning.PriceReducedBy = null;
+                    PriorLearning.WeightageReducedBy = null;
+                    PriorLearning.ReasonForRplReduction = null;
+                    PriorLearning.QualificationsForRplReduction = null;
+                    PriorLearning.DurationReducedByHours = null;
                 }
             }
         }

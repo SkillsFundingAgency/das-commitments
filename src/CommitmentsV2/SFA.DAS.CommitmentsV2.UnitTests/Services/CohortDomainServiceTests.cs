@@ -529,8 +529,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
-                .WithExistingDraftApprenticeship()
-                .WithRPLRequired();
+                .WithExistingDraftApprenticeship();
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
@@ -544,25 +543,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
                 .WithExistingDraftApprenticeship()
-                .WithPriorLearning().WithRPLRequired();
+                .WithPriorLearning();
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
             Assert.AreEqual(0, _fixture.DomainErrors.Count);
         }
 
-        [Test]
-        public async Task ApproveCohort_WhenExtendedRPLIsRequiredAndRPLDataIsPresent_ShouldSuceed()
-        {
-            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
-                .WithDecodeOfPublicHashedAccountLegalEntity()
-                .WithExistingDraftApprenticeship()
-                .WithPriorLearningExtended().WithRPLRequired();
-
-            await _fixture.WithParty(Party.Provider).ApproveCohort();
-
-            Assert.AreEqual(0, _fixture.DomainErrors.Count);
-        }
 
         [Test]
         public async Task DeleteDraftApprenticeship_WhenCohortIsWithEmployer()
@@ -918,7 +905,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 PriorLearning = fixture.Create<ApprenticeshipPriorLearning>();
 
                 FeatureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
-                FeatureTogglesService.Setup(x=>x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature)).Returns(new FeatureToggle { IsEnabled = false });
 
                 Exception = null;
                 DomainErrors = new List<DomainError>();
@@ -1262,13 +1248,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var list = f.CreateMany<EmailOverlapCheckResult>().ToList();
                 OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(list);
-                return this;
-            }
-
-            public CohortDomainServiceTestFixture WithRPLRequired()
-            {
-                FeatureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature))
-                    .Returns(new FeatureToggle { IsEnabled = true });
                 return this;
             }
             
@@ -1643,7 +1622,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
                 Assert.IsFalse(updated.RecognisePriorLearning != DraftApprenticeshipDetails.RecognisePriorLearning &&
                                updated.PriorLearning?.DurationReducedBy != DraftApprenticeshipDetails.DurationReducedBy &&
-                               updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy);
+                               updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy &&
+                               updated.PriorLearning?.DurationReducedByHours != DraftApprenticeshipDetails.DurationReducedByHours &&
+                               updated.PriorLearning?.WeightageReducedBy != DraftApprenticeshipDetails.WeightageReducedBy &&
+                               updated.PriorLearning?.QualificationsForRplReduction != DraftApprenticeshipDetails.QualificationsForRplReduction &&
+                               updated.PriorLearning?.ReasonForRplReduction != DraftApprenticeshipDetails.ReasonForRplReduction);
             }
 
             public void VerifyPriorLearningIsSetToNewRPLValues()
@@ -1651,7 +1634,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
                 Assert.IsFalse(updated.RecognisePriorLearning == DraftApprenticeshipDetails.RecognisePriorLearning &&
                                updated.PriorLearning?.DurationReducedBy == DraftApprenticeshipDetails.DurationReducedBy &&
-                               updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy);
+                               updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy &&
+
+                               updated.PriorLearning?.DurationReducedByHours == DraftApprenticeshipDetails.DurationReducedByHours &&
+                               updated.PriorLearning?.WeightageReducedBy == DraftApprenticeshipDetails.WeightageReducedBy &&
+                               updated.PriorLearning?.QualificationsForRplReduction == DraftApprenticeshipDetails.QualificationsForRplReduction &&
+                               updated.PriorLearning?.ReasonForRplReduction == DraftApprenticeshipDetails.ReasonForRplReduction);
+
             }
 
             public void VerifyLastUpdatedFieldsAreSet(Party withParty)
