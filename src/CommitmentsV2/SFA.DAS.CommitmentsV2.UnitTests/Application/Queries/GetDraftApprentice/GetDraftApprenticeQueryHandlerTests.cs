@@ -79,8 +79,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public async Task Then_If_prior_learning_not_present_return_rpl_required_status_according_to_feature_toggle_status(bool toggleStatus, DateTime startDate, bool expected)
         {
             var fixture = new GetDraftApprenticeHandlerTestFixtures()
-                .SetApprentice(Party.Employer, "EMPREF123", startDate: startDate)
-                .SetFeatureToggle(Constants.RecognitionOfPriorLearningFeature, toggleStatus);
+                .SetApprentice(Party.Employer, "EMPREF123", startDate: startDate);
 
             var result = await fixture.Handle();
 
@@ -95,8 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             var fixture = new GetDraftApprenticeHandlerTestFixtures()
                 .SetApprentice(Party.Employer, "EMPREF123", startDate: startDate)
-                .SetApprenticeshipPriorLearning()
-                .SetFeatureToggle(Constants.RecognitionOfPriorLearningFeature, toggleStatus);
+                .SetApprenticeshipPriorLearning();
 
             var result = await fixture.Handle();
 
@@ -134,7 +132,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             AuthenticationServiceMock = new Mock<IAuthenticationService>();
             FeatureToggleServiceMock = new Mock<IFeatureTogglesService<FeatureToggle>>();
-            SetFeatureToggle(Constants.RecognitionOfPriorLearningFeature, false);
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             Handler = new GetDraftApprenticeshipQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), 

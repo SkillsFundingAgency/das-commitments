@@ -30,8 +30,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         {
             var requestingParty = _authenticationService.GetUserParty();
 
-            var isRplRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
-
             var query = _dbContext.Value.DraftApprenticeships
                 .Include(x => x.PriorLearning)
                 .Where(x => x.Id == request.DraftApprenticeshipId && x.CommitmentId == request.CohortId);
@@ -72,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 WeightageReducedBy = draft.PriorLearning != null ? draft.PriorLearning.WeightageReducedBy : null,
                 ReasonForRplReduction = draft.PriorLearning != null ? draft.PriorLearning.ReasonForRplReduction : null,
                 QualificationsForRplReduction = draft.PriorLearning != null ? draft.PriorLearning.QualificationsForRplReduction : null,
-                RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && draft.RecognisingPriorLearningStillNeedsToBeConsidered,
+                RecognisingPriorLearningStillNeedsToBeConsidered = draft.RecognisingPriorLearningStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot,
                 EmailAddressConfirmed = draft.EmailAddressConfirmed
             }).SingleOrDefaultAsync(cancellationToken);

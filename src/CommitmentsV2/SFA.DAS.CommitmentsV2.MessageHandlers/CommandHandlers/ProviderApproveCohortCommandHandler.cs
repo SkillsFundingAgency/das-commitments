@@ -40,7 +40,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 
                 var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
                 var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
-                var isRPLRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
 
                 if (cohort.Approvals.HasFlag(Party.Provider))
                 {
@@ -48,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                     return;
                 }
 
-                cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow, apprenticeEmailIsRequired, isRPLRequired);
+                cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow, apprenticeEmailIsRequired);
 
                 await _dbContext.Value.SaveChangesAsync();
             }

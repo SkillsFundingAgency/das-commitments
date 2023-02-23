@@ -10,12 +10,12 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
     {
-        public bool IsCompleteForParty(Party party, bool apprenticeEmailRequired, bool recognitionOfPriorLearningRequired)
+        public bool IsCompleteForParty(Party party, bool apprenticeEmailRequired)
         {
             switch (party)
             {
                 case Party.Employer: return IsCompleteForEmployer(apprenticeEmailRequired);
-                case Party.Provider: return IsCompleteForProvider(apprenticeEmailRequired, recognitionOfPriorLearningRequired);
+                case Party.Provider: return IsCompleteForProvider(apprenticeEmailRequired);
                 default:
                     throw new InvalidOperationException($"Cannot determine completeness for Party {party}");
             }
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             DateOfBirth != null &&
             (!apprenticeEmailRequired || Email != null || ContinuationOfId != null);
 
-        private bool IsCompleteForProvider(bool apprenticeEmailRequired, bool recognitionOfPriorLearningRequired) => 
+        private bool IsCompleteForProvider(bool apprenticeEmailRequired) => 
             FirstName != null &&
             LastName != null &&
             Uln != null &&
@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CourseCode != null &&
             DateOfBirth != null &&
             (!apprenticeEmailRequired || Email != null || ContinuationOfId != null) &&
-            (!recognitionOfPriorLearningRequired || !RecognisingPriorLearningStillNeedsToBeConsidered);
+            (!RecognisingPriorLearningStillNeedsToBeConsidered);
 
         public DraftApprenticeship()
         {

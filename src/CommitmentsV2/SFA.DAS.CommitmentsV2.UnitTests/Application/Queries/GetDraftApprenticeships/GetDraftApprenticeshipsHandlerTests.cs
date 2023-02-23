@@ -39,7 +39,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [Test]
         public async Task Handle_WhenCohortExists_AndRPLFeatureNotEnabledThenRecognisingPriorLearningStillNeedsToBeConsiderShouldBeFalse()
         {
-            _fixture.WithRecognisePriorLearningServiceDisabled();
             var result = await _fixture.Handle();
             result.DraftApprenticeships.Any(x=>x.RecognisingPriorLearningStillNeedsToBeConsidered).ShouldBeFalse();
         }
@@ -68,7 +67,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 _autoFixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
 
                 _featureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
-                SetRecognisePriorLearningService(true);
                 _cohortId = _autoFixture.Create<long>();
                 _query = new GetDraftApprenticeshipsQuery(_cohortId);
 
@@ -83,15 +81,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 return this;
             }
 
-            public GetDraftApprenticeshipsHandlerTestsFixture WithRecognisePriorLearningServiceDisabled() =>
-                SetRecognisePriorLearningService(false);
-
-            private GetDraftApprenticeshipsHandlerTestsFixture SetRecognisePriorLearningService(bool rplRequired)
-            {
-                var toggle = new FeatureToggle {Feature = Constants.RecognitionOfPriorLearningFeature, IsEnabled = rplRequired};
-                _featureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature)).Returns(toggle);
-                return this;
-            }
 
             public GetDraftApprenticeshipsHandlerTestsFixture WithDeletedCohort()
             {

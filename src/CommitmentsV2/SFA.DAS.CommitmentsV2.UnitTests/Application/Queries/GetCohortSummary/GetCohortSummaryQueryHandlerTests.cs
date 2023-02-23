@@ -313,7 +313,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         {
             Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
-                f.WithRecognisingPriorLearningServiceFeatureDisabled();
                 f.SetupRPLData(recognisePriorLearning, durationReducedBy, priceReducedBy);
             });
 
@@ -522,7 +521,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             ValidatorMock = new Mock<IValidator<GetCohortSummaryQuery>>();
             EmailOptionalService = new Mock<IEmailOptionalService>();
             FeatureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
-            SetRecognisePriorLearningServiceFeature(true);
             SeedCohorts = new List<Cohort>();
         }
 
@@ -630,14 +628,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return this;
         }
 
-        public GetCohortSummaryHandlerTestFixtures WithRecognisingPriorLearningServiceFeatureDisabled() =>
-            SetRecognisePriorLearningServiceFeature(false);
-
-        private GetCohortSummaryHandlerTestFixtures SetRecognisePriorLearningServiceFeature(bool rplRequired)
-        {
-            var toggle = new FeatureToggle { Feature = Constants.RecognitionOfPriorLearningFeature, IsEnabled = rplRequired };
-            FeatureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature)).Returns(toggle);
-            return this;
-        }
     }
 }

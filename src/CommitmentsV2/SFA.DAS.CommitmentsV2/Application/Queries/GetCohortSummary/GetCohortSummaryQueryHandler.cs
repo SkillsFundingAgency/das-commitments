@@ -43,8 +43,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(parties.EmployerAccountId, parties.ProviderId);
             }
 
-            var isRPLRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
-
             var result = await db.Cohorts
                 .Select(c => new GetCohortSummaryQueryResult
                 {
@@ -84,25 +82,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     .ToListAsync();
 
                 result.IsCompleteForEmployer = CalculateIsCompleteForEmployer(cohortApprenticeships, apprenticeEmailIsRequired);
-                result.IsCompleteForProvider = CalculateIsCompleteForProvider(cohortApprenticeships, apprenticeEmailIsRequired, isRPLRequired);
+                result.IsCompleteForProvider = CalculateIsCompleteForProvider(cohortApprenticeships, apprenticeEmailIsRequired);
             }
 
             return result;
         }
 
-        private static bool CalculateIsCompleteForProvider(IEnumerable<ApprenticeshipBase> apprenticeships, bool apprenticeEmailIsRequired, bool recognisePriorLearningRequired)
+        private static bool CalculateIsCompleteForProvider(IEnumerable<ApprenticeshipBase> apprenticeships, bool apprenticeEmailIsRequired)
         {
             return CalculateIsCompleteForEmployer(apprenticeships, apprenticeEmailIsRequired)
                 && !apprenticeships.Any(a => a.Uln == null)
-                && PriorLearningHasBeenConsidered(apprenticeships, recognisePriorLearningRequired);
+                && PriorLearningHasBeenConsidered(apprenticeships);
         }
 
-        private static bool PriorLearningHasBeenConsidered(IEnumerable<ApprenticeshipBase> apprenticeships, bool recognisePriorLearningRequired)
+        private static bool PriorLearningHasBeenConsidered(IEnumerable<ApprenticeshipBase> apprenticeships)
         {
-            if (recognisePriorLearningRequired == false)
-            {
-                return true;
-            }
             return !apprenticeships.Any(a => a.RecognisingPriorLearningStillNeedsToBeConsidered);
         }
 

@@ -162,7 +162,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = requestingParty ?? _authenticationService.GetUserParty();
             var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
-            var isRPLRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
 
             if (party == Party.Employer)
             {
@@ -172,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             await ValidateUlnOverlap(cohort);
 
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
-            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired, isRPLRequired);
+            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
         }
 
         private async Task ValidateUlnOverlap(Cohort cohort)
