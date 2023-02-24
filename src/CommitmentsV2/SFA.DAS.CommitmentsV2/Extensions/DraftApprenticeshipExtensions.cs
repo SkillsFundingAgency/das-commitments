@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
 {
@@ -116,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
         private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < Constants.MinimumAgeAtApprenticeshipStart)
+            if (!draftApprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() && draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < Constants.MinimumAgeAtApprenticeshipStart)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
                 yield break;
@@ -186,6 +187,15 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 var errorMessage = $"Apprentices funded through a transfer can't start earlier than May 2018";
 
                 yield return new DomainError(startDateField, errorMessage);
+                yield break;
+            }
+
+            if (details.IsOnFlexiPaymentPilot.GetValueOrDefault() &&
+                details.DateOfBirth.HasValue &&
+                details.ActualStartDate.HasValue &&
+                details.ActualStartDate.Value <= details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16())
+            {
+                yield return new DomainError(startDateField, $"The start date must be after {details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16().ToGdsFormat()}, when the learner has reached school leaving age");
             }
         }
 
