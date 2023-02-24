@@ -91,13 +91,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         private static bool CalculateIsCompleteForProvider(IEnumerable<ApprenticeshipBase> apprenticeships, bool apprenticeEmailIsRequired)
         {
             return CalculateIsCompleteForEmployer(apprenticeships, apprenticeEmailIsRequired)
-                && !apprenticeships.Any(a => a.Uln == null)
-                && PriorLearningHasBeenConsidered(apprenticeships);
+                    && !apprenticeships.Any(a => a.Uln == null)
+                    && !PriorLearningStillNeedsToBeConsidered(apprenticeships);
         }
 
-        private static bool PriorLearningHasBeenConsidered(IEnumerable<ApprenticeshipBase> apprenticeships)
+        private static bool PriorLearningStillNeedsToBeConsidered(IEnumerable<ApprenticeshipBase> apprenticeships)
         {
-            return !apprenticeships.Any(a => a.RecognisingPriorLearningStillNeedsToBeConsidered);
+            return apprenticeships.Any(a =>
+            {
+                if (a.RecognisingPriorLearningStillNeedsToBeConsidered == false)
+                    return false;
+                if(a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered == false)
+                    return false;
+
+                return true;
+            });
         }
 
         private static bool CalculateIsCompleteForEmployer(IEnumerable<ApprenticeshipBase> apprenticeships, bool apprenticeEmailIsRequired)
