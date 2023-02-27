@@ -549,6 +549,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             Assert.AreEqual(0, _fixture.DomainErrors.Count);
         }
+        [Test]
+        public async Task ApproveCohort_WhenExtendedRPLIsRequiredAndRPLDataIsPresent_ShouldSuceed()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithExistingDraftApprenticeship()
+                .WithPriorLearningExtended();
+
+            await _fixture.WithParty(Party.Provider).ApproveCohort();
+
+            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+        }
 
         [Test]
         public async Task ApproveCohort_WhenRPLIsRequiredAndExtendedRPLDataIsPresent_ShouldSucceed()
