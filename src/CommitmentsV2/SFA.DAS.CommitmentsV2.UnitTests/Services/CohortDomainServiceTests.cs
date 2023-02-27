@@ -538,7 +538,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public async Task ApproveCohort_WhenRPLIsRequiredAndRPLDataIsPresent_ShouldSuceed()
+        public async Task ApproveCohort_WhenRPLIsRequiredAndRPLDataIsPresent_ShouldSucceed()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
@@ -550,6 +550,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.AreEqual(0, _fixture.DomainErrors.Count);
         }
 
+        [Test]
+        public async Task ApproveCohort_WhenRPLIsRequiredAndExtendedRPLDataIsPresent_ShouldSucceed()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithExistingDraftApprenticeship()
+                .WithExtendedPriorLearning();
+
+            await _fixture.WithParty(Party.Provider).ApproveCohort();
+
+            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+        }
 
         [Test]
         public async Task DeleteDraftApprenticeship_WhenCohortIsWithEmployer()
@@ -932,6 +944,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 ExistingDraftApprenticeship.SetValue(x=>x.RecognisePriorLearning, true);
                 ExistingDraftApprenticeship.SetPriorLearningDetails(10, 100);
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithExtendedPriorLearning()
+            {
+                ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
+                ExistingDraftApprenticeship.SetPriorLearningDetailsExtended(10, 100, 9, null, "because....");
                 return this;
             }
 

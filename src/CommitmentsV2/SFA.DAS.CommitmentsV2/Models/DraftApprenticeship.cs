@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CourseCode != null &&
             DateOfBirth != null &&
             (!apprenticeEmailRequired || Email != null || ContinuationOfId != null) &&
-            (!RecognisingPriorLearningStillNeedsToBeConsidered);
+            (!RecognisingPriorLearningStillNeedsToBeConsidered || !RecognisingPriorLearningExtendedStillNeedsToBeConsidered);
 
         public DraftApprenticeship()
         {
