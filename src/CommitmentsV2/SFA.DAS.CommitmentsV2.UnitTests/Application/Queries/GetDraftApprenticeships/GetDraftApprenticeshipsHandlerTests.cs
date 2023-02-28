@@ -4,13 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using NUnit.Framework;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
@@ -60,19 +56,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             private readonly IFixture _autoFixture;
             private Cohort _cohort;
             private long _cohortId;
-            private Mock<IFeatureTogglesService<FeatureToggle>> _featureTogglesService;
 
             public GetDraftApprenticeshipsHandlerTestsFixture()
             {
                 _autoFixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
 
-                _featureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
                 _cohortId = _autoFixture.Create<long>();
                 _query = new GetDraftApprenticeshipsQuery(_cohortId);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
                 SeedData();
-                _queryHandler = new GetDraftApprenticeshipsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), _featureTogglesService.Object);
+                _queryHandler = new GetDraftApprenticeshipsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
             public GetDraftApprenticeshipsHandlerTestsFixture WithNonExistentCohort()

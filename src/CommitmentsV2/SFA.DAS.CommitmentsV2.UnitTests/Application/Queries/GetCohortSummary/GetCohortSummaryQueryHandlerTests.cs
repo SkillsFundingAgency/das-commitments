@@ -589,7 +589,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetCohortSummaryQueryHandler(lazy, EmailOptionalService.Object, FeatureTogglesService.Object);
+                var handler = new GetCohortSummaryQueryHandler(lazy, EmailOptionalService.Object);
 
                 return handler.Handle(query, CancellationToken.None);
             });

@@ -3,12 +3,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.Azure.Amqp.Framing;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
 
@@ -17,12 +13,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
     public class GetDraftApprenticeshipsQueryHandler : IRequestHandler<GetDraftApprenticeshipsQuery, GetDraftApprenticeshipsQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
-        public GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IFeatureTogglesService<FeatureToggle> featureTogglesService)
+        public GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
-            _featureTogglesService = featureTogglesService;
         }
 
         public Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)

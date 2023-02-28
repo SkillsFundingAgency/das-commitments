@@ -15,7 +15,6 @@ using AutoFixture;
 using FluentAssertions;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
@@ -125,7 +124,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             Handler = new GetDraftApprenticeshipQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), 
-                AuthenticationServiceMock.Object, FeatureToggleServiceMock.Object);
+                AuthenticationServiceMock.Object);
 
             PriorLearning = new ApprenticeshipPriorLearning {DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
             FlexibleEmployment = new FlexibleEmployment {EmploymentEndDate = DateTime.Today, EmploymentPrice = 987};

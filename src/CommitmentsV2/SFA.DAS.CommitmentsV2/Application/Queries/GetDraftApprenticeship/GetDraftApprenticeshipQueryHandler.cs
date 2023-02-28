@@ -4,8 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Domain;
@@ -17,13 +15,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
-        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
-        public GetDraftApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, IFeatureTogglesService<FeatureToggle> featureTogglesService)
+        public GetDraftApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
         {
             _dbContext = dbContext; 
             _authenticationService = authenticationService;
-            _featureTogglesService = featureTogglesService;
         }
 
         public async Task<GetDraftApprenticeshipQueryResult> Handle(GetDraftApprenticeshipQuery request, CancellationToken cancellationToken)

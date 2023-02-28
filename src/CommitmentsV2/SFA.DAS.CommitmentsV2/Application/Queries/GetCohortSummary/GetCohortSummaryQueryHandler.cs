@@ -5,10 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -19,13 +16,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly IEmailOptionalService _emailService;
-        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
-        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEmailOptionalService emailService, IFeatureTogglesService<FeatureToggle> featureTogglesService)
+        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEmailOptionalService emailService)
         {
             _db = db;
             _emailService = emailService;
-            _featureTogglesService = featureTogglesService;
             _emailService = emailService;
         }
 
