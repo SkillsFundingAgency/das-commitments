@@ -99,9 +99,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         {
             return apprenticeships.Any(a =>
             {
-                if (a.RecognisingPriorLearningStillNeedsToBeConsidered == false)
+                if (!a.RecognisingPriorLearningStillNeedsToBeConsidered)
                     return false;
-                if(a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered == false)
+                if(!a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered)
                     return false;
 
                 return true;
