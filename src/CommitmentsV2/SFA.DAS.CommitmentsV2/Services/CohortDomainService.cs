@@ -42,7 +42,6 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IAccountApiClient _accountApiClient;        
         private readonly IEmailOptionalService _emailService;
         private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
-        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -56,8 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             IEncodingService encodingService,
             IAccountApiClient accountApiClient,            
             IEmailOptionalService emailOptionalService,
-            ILevyTransferMatchingApiClient levyTransferMatchingApiClient,
-            IFeatureTogglesService<FeatureToggle> featureTogglesService)
+            ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -72,7 +70,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             _accountApiClient = accountApiClient;
             _emailService = emailOptionalService;
             _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
-            _featureTogglesService = featureTogglesService;
         }
 
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)

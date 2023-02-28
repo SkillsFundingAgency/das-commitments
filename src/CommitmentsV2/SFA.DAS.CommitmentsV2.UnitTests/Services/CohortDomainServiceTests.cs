@@ -946,8 +946,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     EncodingService.Object,
                     AccountApiClient.Object,
                     EmailOptionalService.Object,
-                    LevyTransferMatchingApiClient.Object,
-                    FeatureTogglesService.Object);
+                    LevyTransferMatchingApiClient.Object);
 
                 Db.SaveChanges();
             }
