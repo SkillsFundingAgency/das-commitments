@@ -82,7 +82,11 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
             }
 
-            if ((draftApprenticeshipDetails.IsOnFlexiPaymentPilot ?? true) && draftApprenticeshipDetails.ActualStartDate.HasValue && draftApprenticeshipDetails.EndDate.HasValue)
+            if ((draftApprenticeshipDetails.IsOnFlexiPaymentPilot ?? true) && draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.ActualStartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.ActualStartDate)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+            }
+            else if ((draftApprenticeshipDetails.IsOnFlexiPaymentPilot ?? true) && draftApprenticeshipDetails.ActualStartDate.HasValue && draftApprenticeshipDetails.EndDate.HasValue)
             {
                 var differenceBetweenStartAndEnd = draftApprenticeshipDetails.EndDate.Value - draftApprenticeshipDetails.ActualStartDate.Value;
                 differenceBetweenStartAndEnd = differenceBetweenStartAndEnd.Add(new TimeSpan(1, 0, 0, 0));
