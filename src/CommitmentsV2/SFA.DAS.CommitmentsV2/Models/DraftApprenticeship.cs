@@ -154,7 +154,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (LastName != update.LastName) return true;
             if (Cost != update.Cost) return true;
             if (StartDateIsChanged(update)) return true;
-            if (EndDate != update.EndDate) return true;
+            if (EndDateIsChanged(update.EndDate)) return true;
             if (DateOfBirth != update.DateOfBirth) return true;
             if (DeliveryModel != update.DeliveryModel) return true;
             if (FlexibleEmployment?.EmploymentEndDate != update.EmploymentEndDate) return true;
@@ -178,6 +178,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (ActualStartDate.HasValue && update.ActualStartDate.HasValue && (ActualStartDate.Value.Year != update.ActualStartDate.Value.Year || ActualStartDate.Value.Month != update.ActualStartDate.Value.Month)) return true;
             if (update.ActualStartDate.HasValue && StartDate.HasValue && StartDateMonthOrYearIsChanged(update)) return true;
             if (update.StartDate.HasValue && ActualStartDate.HasValue && ActualStartDateMonthOrYearIsChanged(update)) return true;
+            return false;
+        }
+
+        private bool EndDateIsChanged(DateTime? updatedEndDate)
+        {
+            if (updatedEndDate.HasValue != EndDate.HasValue) return true;
+            if (updatedEndDate.HasValue && EndDate.HasValue && (updatedEndDate.Value.Month != EndDate.Value.Month || updatedEndDate.Value.Year != EndDate.Value.Year)) return true;
             return false;
         }
 
