@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
 {
@@ -81,11 +82,13 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
             }
 
-            if ((draftApprenticeshipDetails.IsOnFlexiPaymentPilot ?? true) && draftApprenticeshipDetails.ActualStartDate.HasValue && draftApprenticeshipDetails.EndDate.HasValue)
+            if ((draftApprenticeshipDetails.IsOnFlexiPaymentPilot ?? true) && draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.ActualStartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.ActualStartDate)
             {
-                var assumedEndDate = new DateTime(draftApprenticeshipDetails.EndDate.Value.Year, draftApprenticeshipDetails.EndDate.Value.Month, 1);
-                assumedEndDate = assumedEndDate.AddMonths(1).AddDays(-1);
-                var differenceBetweenStartAndEnd = assumedEndDate - draftApprenticeshipDetails.ActualStartDate.Value;
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+            }
+            else if ((draftApprenticeshipDetails.IsOnFlexiPaymentPilot ?? true) && draftApprenticeshipDetails.ActualStartDate.HasValue && draftApprenticeshipDetails.EndDate.HasValue)
+            {
+                var differenceBetweenStartAndEnd = draftApprenticeshipDetails.EndDate.Value - draftApprenticeshipDetails.ActualStartDate.Value;
                 differenceBetweenStartAndEnd = differenceBetweenStartAndEnd.Add(new TimeSpan(1, 0, 0, 0));
                 if (differenceBetweenStartAndEnd.Days < 365)
                 {
@@ -93,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 }
 
                 var maxEndDate = draftApprenticeshipDetails.ActualStartDate.Value.AddYears(10).AddDays(-1);
-                if (assumedEndDate > maxEndDate)
+                if (draftApprenticeshipDetails.EndDate.Value > maxEndDate)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The projected finish date should be no more than ten years in the future");
                 }
@@ -116,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
         private static IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < Constants.MinimumAgeAtApprenticeshipStart)
+            if (!draftApprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault() && draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < Constants.MinimumAgeAtApprenticeshipStart)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
                 yield break;
@@ -186,6 +189,15 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 var errorMessage = $"Apprentices funded through a transfer can't start earlier than May 2018";
 
                 yield return new DomainError(startDateField, errorMessage);
+                yield break;
+            }
+
+            if (details.IsOnFlexiPaymentPilot.GetValueOrDefault() &&
+                details.DateOfBirth.HasValue &&
+                details.ActualStartDate.HasValue &&
+                details.ActualStartDate.Value <= details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16())
+            {
+                yield return new DomainError(startDateField, $"The start date must be after {details.DateOfBirth.Value.GetLastFridayInJuneOfSchoolYearApprenticeTurned16().ToGdsFormat()}, when the learner has reached school leaving age");
             }
         }
 
