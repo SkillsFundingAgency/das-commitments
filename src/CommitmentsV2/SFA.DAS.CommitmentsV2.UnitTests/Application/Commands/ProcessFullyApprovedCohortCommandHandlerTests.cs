@@ -253,7 +253,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.PriceEpisodes.Count() == apprenticeship.PriceHistory.Count &&
                           apprenticeshipCreatedEvent.DateOfBirth == apprenticeship.DateOfBirth &&
                           apprenticeshipCreatedEvent.ActualStartDate == apprenticeship.ActualStartDate &&
-                          apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot == apprenticeship.IsOnFlexiPaymentPilot;
+                          apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot == apprenticeship.IsOnFlexiPaymentPilot &&
+                          apprenticeshipCreatedEvent.FirstName == apprenticeship.FirstName &&
+                          apprenticeshipCreatedEvent.LastName == apprenticeship.LastName;
 
             for (var i = 0; i < apprenticeship.PriceHistory.Count; i++)
             {

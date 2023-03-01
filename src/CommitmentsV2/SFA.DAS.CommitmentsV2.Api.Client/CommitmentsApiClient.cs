@@ -264,6 +264,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 filterQuery += $"&deliveryModel={WebUtility.UrlEncode(request.DeliveryModel.ToString())}";
             }
 
+            if (request.IsOnFlexiPaymentPilot.HasValue)
+            {
+                filterQuery += $"&isOnFlexiPaymentPilot={WebUtility.UrlEncode(request.IsOnFlexiPaymentPilot.ToString())}";
+            }
+
             return filterQuery;
         }
 

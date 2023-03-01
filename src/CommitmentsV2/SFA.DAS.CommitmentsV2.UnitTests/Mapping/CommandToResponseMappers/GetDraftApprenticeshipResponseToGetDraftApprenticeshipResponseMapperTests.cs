@@ -30,6 +30,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         }
 
         [Test]
+        public Task Map_EmailAddressConfirmed_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.EmailAddressConfirmed, (bool?)true);
+        }
+
+        [Test]
         public Task Map_DateOfBirth_ShouldBeSet()
         {
             return AssertPropertySet(input => input.DateOfBirth, (DateTime?) DateTime.Now);
