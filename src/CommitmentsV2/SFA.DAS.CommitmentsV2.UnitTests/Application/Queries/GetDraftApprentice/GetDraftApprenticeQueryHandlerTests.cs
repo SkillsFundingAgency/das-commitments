@@ -110,6 +110,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             result.EmploymentEndDate.Should().Be(fixture.FlexibleEmployment.EmploymentEndDate);
             result.EmploymentPrice.Should().Be(fixture.FlexibleEmployment.EmploymentPrice);
         }
+
+        [TestCase(false, null, false)]
+        [TestCase(true, ChangeOfPartyRequestType.ChangeEmployer, false)]
+        [TestCase(true, ChangeOfPartyRequestType.ChangeProvider, true)]
+        public async Task Then_IsChangeOfProviderScenarioIsSet(bool changeOfParty, ChangeOfPartyRequestType? changeType, bool expectedResult)
+        {
+            var fixture = new GetDraftApprenticeHandlerTestFixtures()
+                .SetApprentice(Party.Employer, "EMPREF123");
+
+            if (changeOfParty)
+                fixture.SetChangeOfParty(changeType.GetValueOrDefault());
+
+            var result = await fixture.Handle();
+
+            result.IsChangeOfProviderScenario.Should().Be(expectedResult);
+        }
     }
 
     public class GetDraftApprenticeHandlerTestFixtures
@@ -231,6 +247,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             FeatureToggleServiceMock.Setup(x => x.GetFeatureToggle(toggleName))
                 .Returns(new FeatureToggle { Feature = toggleName, IsEnabled = toggle });
             
+            return this;
+        }
+
+        public GetDraftApprenticeHandlerTestFixtures SetChangeOfParty(ChangeOfPartyRequestType changeType)
+        {
+            var apprenticeship = Db.DraftApprenticeships.First();
+            apprenticeship.Cohort ??= new Cohort();
+            apprenticeship.Cohort.ChangeOfPartyRequest = new ChangeOfPartyRequest(
+                new Apprenticeship() { Cohort = new Cohort() },
+                changeType,
+                changeType == ChangeOfPartyRequestType.ChangeProvider ? Party.Employer : Party.Provider,
+                1,
+                1,
+                null,
+                null,
+                null,
+                null,
+                null,
+                UserInfo.System,
+                DateTime.Now);
+            
+
+            Db.SaveChanges();
+
             return this;
         }
     }

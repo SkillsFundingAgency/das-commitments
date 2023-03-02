@@ -43,7 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 PriceReducedBy = source.PriceReducedBy,
                 RecognisingPriorLearningStillNeedsToBeConsidered = source.RecognisingPriorLearningStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
-                EmailAddressConfirmed = source.EmailAddressConfirmed
+                EmailAddressConfirmed = source.EmailAddressConfirmed,
+                IsChangeOfProviderScenario = source.IsChangeOfProviderScenario
             });
         }
     }

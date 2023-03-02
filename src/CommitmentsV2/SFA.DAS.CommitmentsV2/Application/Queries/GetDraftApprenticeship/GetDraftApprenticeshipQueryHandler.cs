@@ -34,6 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
 
             var query = _dbContext.Value.DraftApprenticeships
                 .Include(x => x.PriorLearning)
+                .Include(x => x.Cohort)
+                .ThenInclude(x => x.ChangeOfPartyRequest)
                 .Where(x => x.Id == request.DraftApprenticeshipId && x.CommitmentId == request.CohortId);
 
             var x = await query.Select(draft => new GetDraftApprenticeshipQueryResult
@@ -70,7 +72,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
                 RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && draft.RecognisingPriorLearningStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot,
-                EmailAddressConfirmed = draft.EmailAddressConfirmed
+                EmailAddressConfirmed = draft.EmailAddressConfirmed,
+                IsChangeOfProviderScenario = draft.Cohort.ChangeOfPartyRequest != null && draft.Cohort.ChangeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider
             }).SingleOrDefaultAsync(cancellationToken);
 
             return x;

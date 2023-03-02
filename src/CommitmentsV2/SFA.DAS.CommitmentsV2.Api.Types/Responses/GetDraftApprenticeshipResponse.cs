@@ -38,5 +38,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
         public bool? EmailAddressConfirmed { get; set; }
+        public bool? IsChangeOfProviderScenario { get; set; }
     }
 }
