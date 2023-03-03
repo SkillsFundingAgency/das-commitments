@@ -1,10 +1,11 @@
+using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 using SFA.DAS.Testing.AutoFixture;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
 {
@@ -20,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             await sut.Update(null);
 
             //Assert
-            dataLockUpdaterService.Verify(m => m.RunUpdate(), Times.Once);
+            dataLockUpdaterService.Verify(m => m.RunUpdate(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _dataLockUpdaterServicer = dataLockUpdaterServicer;
         }
 
-        public async Task Update([TimerTrigger("0 * * 29 2 *", RunOnStartup = true)] TimerInfo timer)
+        public async Task Update([TimerTrigger("0 */20 * * * *", RunOnStartup = true)] TimerInfo timer)
         {
             _logger.LogInformation($"DataLockUpdaterJobs - Started{(timer?.IsPastDue ?? false ? " later than expected" : string.Empty)}");
 
