@@ -390,44 +390,44 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.IsTrue(apprenticeshipUpdate.Status == ApprenticeshipUpdateStatus.Pending);
         }
 
-        //[Test]
-        //public async Task ThenDatalocksForStoppedAndBackdatedApprenticeshipsAreAutoResolved()
-        //{
-        //    //Arange
-        //    SeedDataLocks.Clear();
+        [Test]
+        public async Task ThenDatalocksForStoppedAndBackdatedApprenticeshipsAreAutoResolved()
+        {
+            //Arange
+            SeedDataLocks.Clear();
 
-        //    long dataLockEventId2 = 2;
-        //    var dataLockResolved = false;
+            long dataLockEventId2 = 2;
+            var dataLockResolved = false;
 
-        //    SeedApprenticeships[0].PaymentStatus = PaymentStatus.Withdrawn;
-        //    SeedApprenticeships[0].StartDate = DateTime.Today.AddMonths(-1);
-        //    SeedApprenticeships[0].StopDate = DateTime.Today.AddMonths(-1);
+            SeedApprenticeships[0].PaymentStatus = PaymentStatus.Withdrawn;
+            SeedApprenticeships[0].StartDate = DateTime.Today.AddMonths(-1);
+            SeedApprenticeships[0].StopDate = DateTime.Today.AddMonths(-1);
 
-        //    SeedDataLock(SeedApprenticeships[0],
-        //        dataLockEventId2, dataLockEventId2, "TEST-15/08/2018",
-        //        DateTime.Now,
-        //        DataLockErrorCode.Dlock07,
-        //        SeedApprenticeshipUpdates.FirstOrDefault(), dataLockResolved);
+            SeedDataLock(SeedApprenticeships[0],
+                dataLockEventId2, dataLockEventId2, "TEST-15/08/2018",
+                DateTime.Now,
+                DataLockErrorCode.Dlock07,
+                SeedApprenticeshipUpdates.FirstOrDefault(), dataLockResolved);
 
-        //    SeedData(Db);
+            SeedData(Db);
 
-        //    SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 3);
+            SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 3);
 
-        //    var apimResponse = new GetDataLockStatusListResponse
-        //    {
-        //        DataLockStatuses = SeedDataLocks
-        //    };
+            var apimResponse = new GetDataLockStatusListResponse
+            {
+                DataLockStatuses = SeedDataLocks
+            };
 
-        //    _outerApiClient
-        //       .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == dataLockEventId2)))
-        //       .ReturnsAsync(apimResponse);
+            _outerApiClient
+               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == dataLockEventId2)))
+               .ReturnsAsync(apimResponse);
 
-        //    //Act
-        //    await _dataLockUpdater.RunUpdate();
+            //Act
+            await _dataLockUpdater.RunUpdate();
 
-        //    //Assert
-        //    VerifyDataLockIsResolved(new List<long> { dataLockEventId2 });
-        //}
+            //Assert
+            VerifyDataLockIsResolved(new List<long> { dataLockEventId2 + 3 });
+        }
 
         [Test]
         public async Task ThenPriceDatalocksInCombinationWithDlock09AreIgnored()
