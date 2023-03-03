@@ -57,85 +57,88 @@ namespace SFA.DAS.CommitmentsV2.Services
             _logger.LogInformation("Retrieving last DataLock Event Id from repository");
             var lastId = await GetLastDataLockEventId();
 
-            _logger.LogInformation($"Retrieving page of data from Payment Events Service since Event Id {lastId}");
-            var stopwatch = Stopwatch.StartNew();
-
-            var datalockStatusResponse = await _outerApiClient.GetWithRetry<GetDataLockStatusListResponse>(new GetDataLockEventsRequest(lastId));
-
-            var page = datalockStatusResponse?.DataLockStatuses ?? new List<DataLockStatus>();
-
-            stopwatch.Stop();
-            _logger.LogInformation($"Response took {stopwatch.ElapsedMilliseconds}ms");
-
-            if (!page.Any())
+            while (true)
             {
-                _logger.LogInformation("No data returned; exiting");
-                return;
-            }
+                _logger.LogInformation($"Retrieving page of data from Payment Events Service since Event Id {lastId}");
+                var stopwatch = Stopwatch.StartNew();
 
-            _logger.LogInformation($"{page.Count()} records returned in page");
+                var datalockStatusResponse = await _outerApiClient.GetWithRetry<GetDataLockStatusListResponse>(new GetDataLockEventsRequest(lastId));
 
-            foreach (var dataLockStatus in page)
-            {
-                _logger.LogInformation($"Read datalock Apprenticeship {dataLockStatus.ApprenticeshipId} " +
-                    $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode} and EventStatus: {dataLockStatus.EventStatus}");
+                var page = datalockStatusResponse?.DataLockStatuses ?? new List<DataLockStatus>();
 
-                var datalockSuccess = dataLockStatus.ErrorCode == DataLockErrorCode.None;
+                stopwatch.Stop();
+                _logger.LogInformation($"Response took {stopwatch.ElapsedMilliseconds}ms");
 
-                if (!datalockSuccess)
+                if (!page.Any())
                 {
-                    ApplyErrorCodeWhiteList(dataLockStatus);
+                    _logger.LogInformation("No data returned; exiting");
+                    return;
                 }
 
-                var is1617 = GetDateFromPriceEpisodeIdentifier(dataLockStatus) < _1718AcademicYearStartDate;
-                if (is1617)
-                {
-                    _logger.LogInformation($"Data lock Event Id {dataLockStatus.DataLockEventId} pertains to 16/17 academic year and will be ignored");
-                }
+                _logger.LogInformation($"{page.Count()} records returned in page");
 
-                if ((datalockSuccess || dataLockStatus.ErrorCode != DataLockErrorCode.None) && !is1617)
+                foreach (var dataLockStatus in page)
                 {
-                    var apprenticeship = await GetApprenticeship(dataLockStatus.ApprenticeshipId);
+                    _logger.LogInformation($"Read datalock Apprenticeship {dataLockStatus.ApprenticeshipId} " +
+                        $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode} and EventStatus: {dataLockStatus.EventStatus}");
 
-                    //temporarily ignore dlock7 & 9 combos until payments R14 fixes properly
-                    if (dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock07) && dataLockStatus.IlrEffectiveFromDate < apprenticeship.StartDate)
+                    var datalockSuccess = dataLockStatus.ErrorCode == DataLockErrorCode.None;
+
+                    if (!datalockSuccess)
                     {
-                        _logger.LogInformation($"Ignoring datalock for Apprenticeship #{dataLockStatus.ApprenticeshipId} Dlock07 with Effective Date before Start Date. Event Id {dataLockStatus.DataLockEventId}");
+                        ApplyErrorCodeWhiteList(dataLockStatus);
                     }
-                    else
+
+                    var is1617 = GetDateFromPriceEpisodeIdentifier(dataLockStatus) < _1718AcademicYearStartDate;
+                    if (is1617)
                     {
-                        _logger.LogInformation($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
-                                     $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
+                        _logger.LogInformation($"Data lock Event Id {dataLockStatus.DataLockEventId} pertains to 16/17 academic year and will be ignored");
+                    }
 
-                        AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(apprenticeship, dataLockStatus);
+                    if ((datalockSuccess || dataLockStatus.ErrorCode != DataLockErrorCode.None) && !is1617)
+                    {
+                        var apprenticeship = await GetApprenticeship(dataLockStatus.ApprenticeshipId);
 
-                        try
+                        //temporarily ignore dlock7 & 9 combos until payments R14 fixes properly
+                        if (dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock07) && dataLockStatus.IlrEffectiveFromDate < apprenticeship.StartDate)
                         {
-                            await UpdateDataLockStatus(dataLockStatus);
-
-                            await _filterOutAcademicYearRollOverDataLocks.Filter(dataLockStatus.ApprenticeshipId);
+                            _logger.LogInformation($"Ignoring datalock for Apprenticeship #{dataLockStatus.ApprenticeshipId} Dlock07 with Effective Date before Start Date. Event Id {dataLockStatus.DataLockEventId}");
                         }
-                        catch (RepositoryConstraintException ex) when (_config.IgnoreDataLockStatusConstraintErrors)
+                        else
                         {
-                            _logger.LogWarning(ex, $"Exception in DataLock updater");
-                        }
+                            _logger.LogInformation($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
+                                         $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
 
-                        if (datalockSuccess)
-                        {
-                            await SetHasHadDataLockSuccess(dataLockStatus.ApprenticeshipId);
+                            AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(apprenticeship, dataLockStatus);
 
-                            var pendingUpdate = await GetPendingApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
-
-                            if (pendingUpdate != null && (pendingUpdate.Cost != null || pendingUpdate.TrainingCode != null))
+                            try
                             {
-                                await ExpireApprenticeshipUpdate(pendingUpdate.Id);
-                                _logger.LogInformation($"Pending ApprenticeshipUpdate {pendingUpdate.Id} expired due to successful data lock event {dataLockStatus.DataLockEventId}");
+                                await UpdateDataLockStatus(dataLockStatus);
+
+                                await _filterOutAcademicYearRollOverDataLocks.Filter(dataLockStatus.ApprenticeshipId);
+                            }
+                            catch (RepositoryConstraintException ex) when (_config.IgnoreDataLockStatusConstraintErrors)
+                            {
+                                _logger.LogWarning(ex, $"Exception in DataLock updater");
+                            }
+
+                            if (datalockSuccess)
+                            {
+                                await SetHasHadDataLockSuccess(dataLockStatus.ApprenticeshipId);
+
+                                var pendingUpdate = await GetPendingApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
+
+                                if (pendingUpdate != null && (pendingUpdate.Cost != null || pendingUpdate.TrainingCode != null))
+                                {
+                                    await ExpireApprenticeshipUpdate(pendingUpdate.Id);
+                                    _logger.LogInformation($"Pending ApprenticeshipUpdate {pendingUpdate.Id} expired due to successful data lock event {dataLockStatus.DataLockEventId}");
+                                }
                             }
                         }
                     }
-                }
 
-                lastId = dataLockStatus.DataLockEventId;
+                    lastId = dataLockStatus.DataLockEventId;
+                }
             }
         }
 

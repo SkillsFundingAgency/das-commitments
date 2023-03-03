@@ -1,10 +1,7 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {
@@ -19,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _dataLockUpdaterServicer = dataLockUpdaterServicer;
         }
 
-        public async Task Update([TimerTrigger("*/30 * * * * *", RunOnStartup = true)] TimerInfo timer)
+        public async Task Update([TimerTrigger("0 * * 29 2 *", RunOnStartup = true)] TimerInfo timer)
         {
             _logger.LogInformation($"DataLockUpdaterJobs - Started{(timer?.IsPastDue ?? false ? " later than expected" : string.Empty)}");
 
