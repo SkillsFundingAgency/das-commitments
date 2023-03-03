@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             await sut.Update(null);
 
             //Assert
-            dataLockUpdaterService.Verify(m => m.RunUpdate(It.IsAny<CancellationToken>()), Times.Once);
+            dataLockUpdaterService.Verify(m => m.RunUpdate(), Times.Once);
         }
     }
 }
