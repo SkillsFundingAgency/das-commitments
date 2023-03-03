@@ -308,7 +308,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (!durationReducedByHours.HasValue)
             {
-                errors.Add(new DomainError("DurationReducedByHours", "You must enter the price"));
+                errors.Add(new DomainError("DurationReducedByHours", "You must enter a number"));
             }
             else if (durationReducedByHours.Value < 0)
             {
@@ -321,7 +321,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (!priceReduction.HasValue)
             {
-                errors.Add(new DomainError("ReducedPrice", "You must enter the number of hours"));
+                errors.Add(new DomainError("ReducedPrice", "You must enter a price"));
             }
             else if (priceReduction.Value < 0)
             {
