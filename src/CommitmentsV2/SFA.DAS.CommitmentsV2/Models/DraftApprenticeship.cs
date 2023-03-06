@@ -306,19 +306,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             var errors = new List<DomainError>();
 
-            if (!durationReducedByHours.HasValue)
-            {
-                errors.Add(new DomainError("DurationReducedByHours", "You must enter a number"));
-            }
-            else if (durationReducedByHours.Value < 0)
-            {
-                errors.Add(new DomainError("DurationReducedByHours", "The number can't be negative"));
-            }
-            else if (durationReducedByHours.Value > 999)
-            {
-                errors.Add(new DomainError("DurationReducedByHours", "The number of hours must be 999 or less"));
-            }
-
             if (!priceReduction.HasValue)
             {
                 errors.Add(new DomainError("ReducedPrice", "You must enter a price"));
@@ -330,6 +317,19 @@ namespace SFA.DAS.CommitmentsV2.Models
             else if (priceReduction.Value > Constants.MaximumApprenticeshipCost)
             {
                 errors.Add(new DomainError("ReducedPrice", "The price must be 100,000 or less"));
+            }
+
+            if (!durationReducedByHours.HasValue)
+            {
+                errors.Add(new DomainError("DurationReducedByHours", "You must enter the number of hours"));
+            }
+            else if (durationReducedByHours.Value < 0)
+            {
+                errors.Add(new DomainError("DurationReducedByHours", "The number can't be negative"));
+            }
+            else if (durationReducedByHours.Value > 999)
+            {
+                errors.Add(new DomainError("DurationReducedByHours", "The number of hours must be 999 or less"));
             }
 
             if (!weightageReducedBy.HasValue)
