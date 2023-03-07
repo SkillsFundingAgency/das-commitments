@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         public void Configure(EntityTypeBuilder<DataLockUpdaterJobStatus> builder)
         {
             builder.ToTable("DataLockUpdaterJobStatus");
+            builder.HasKey(p => p.Id).IsClustered();
         }
     }
 }

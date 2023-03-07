@@ -2,6 +2,7 @@
 {
     public class DataLockUpdaterJobStatus
     {
+        public long Id { get; set; }
         public long LastEventId { get; set; }
     }
 }
