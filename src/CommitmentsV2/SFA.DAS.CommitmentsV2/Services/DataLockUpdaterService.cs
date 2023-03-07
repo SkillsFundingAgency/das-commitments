@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Configuration;
 using System.Data.SqlClient;
 using System.Data;
+using Microsoft.Azure.Documents.Linq;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
@@ -183,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task<long> GetLastDataLockEventId()
         {
-            var maxDataLockEventId = await _db.Value.DataLocks.MaxAsync(x => x.DataLockEventId);
+            var maxDataLockEventId = await _db.Value.DataLocks.MaxAsync(x => (int?) x.DataLockEventId) ?? 0;
             return maxDataLockEventId;
         }
 
