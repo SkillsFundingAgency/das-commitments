@@ -354,7 +354,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 errors.Add(new DomainError("ReasonForRplReduction", "You must specify a reason"));
             }
-            if (reasonForRplReduction.Trim().Length > 1000)
+            if (reasonForRplReduction?.Trim().Length > 1000)
             {
                 errors.Add(new DomainError("ReasonForRplReduction", "You can't exceed 1000 characters for a reason"));
             }
