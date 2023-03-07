@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public List<Apprenticeship> SeedApprenticeships;
         public List<DataLockStatus> SeedDataLocks;
         public List<ApprenticeshipUpdate> SeedApprenticeshipUpdates;
-        public long SeedDataLockUpdaterJobsStatus;
+        public long? SeedDataLockUpdaterJobsStatus;
 
 
         [SetUp]
@@ -510,12 +510,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedDataLocks.Clear();
         }
 
+        [Test]
+        public async Task When_LastEventId_Has_Not_Been_Stored_The_Max_DataLockStatus_Event_Id_Is_Used_Instead()
+        {
+            // Arrange
+            var dataLockStatusId = 2;
+            var maxDataLockEventId = 2;
+            string priceEpisode = "25-6-01/06/2016";
+
+            SeedDataLock(SeedApprenticeships[0], dataLockStatusId, maxDataLockEventId, priceEpisode, DateTime.Now, DataLockErrorCode.Dlock03, SeedApprenticeshipUpdates[0]);
+            SeedLastEventId(null);
+            SeedData(Db);
+            
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            _outerApiClient
+                .Verify(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(o => o.SinceEventId == maxDataLockEventId)), Times.Once);
+        }
+
         private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
             Db.Database.EnsureCreated();
             dbContext.Apprenticeships.AddRange(SeedApprenticeships);
             dbContext.ApprenticeshipUpdates.AddRange(SeedApprenticeshipUpdates);
             dbContext.DataLocks.AddRange(SeedDataLocks);
+            dbContext.SaveChanges(true);
 
             //Ensure only one job status record is added
             if (dbContext.DataLockUpdaterJobStatuses.Any())
@@ -524,9 +545,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 dbContext.DataLockUpdaterJobStatuses.RemoveRange(toRemove);
                 dbContext.SaveChanges(true);
             }
-            
-            dbContext.DataLockUpdaterJobStatuses.AddRange(new DataLockUpdaterJobStatus{ LastEventId = SeedDataLockUpdaterJobsStatus });
-            dbContext.SaveChanges(true);
+
+            if (SeedDataLockUpdaterJobsStatus.HasValue)
+            {
+                dbContext.DataLockUpdaterJobStatuses.AddRange(new DataLockUpdaterJobStatus
+                { LastEventId = SeedDataLockUpdaterJobsStatus.Value });
+                dbContext.SaveChanges(true);
+            }
         }
 
         public void SeedApprenticeship(long apprenticeshipId,
@@ -609,10 +634,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedDataLocks.Add(dataLock);
         }
 
-        public void SeedLastEventId(long id)
+        public void SeedLastEventId(long? id)
         {
-            var dataLockUpdatedJobStatus = new DataLockUpdaterJobStatus();
-            dataLockUpdatedJobStatus.LastEventId = id;
             SeedDataLockUpdaterJobsStatus = id;
         }
 
