@@ -345,7 +345,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 errors.Add(new DomainError("WeightageReducedBy", "The percentage can't be more than 99"));
             }
 
-            if (qualificationsForRplReduction.Trim().Length > 1000)
+            if (qualificationsForRplReduction?.Trim().Length > 1000)
             {
                 errors.Add(new DomainError("QualificationsForRplReduction", "You can't exceed 1000 characters for qualifications"));
             }
