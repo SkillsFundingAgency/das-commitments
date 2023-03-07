@@ -193,7 +193,6 @@
     <None Include="PostDeployment\Patch_Apprenticeship_SV-1160.sql" />
     <Build Include="StoredProcedures\GetLearnersBatch.sql" />
     <None Include="AdhocScripts\Manual\CS-1214-update-apprenticeship-email-addresses-which-have-changed-recently-by-the-apprentice.sql" />
-    <None Include="PostDeployment\Seed_DataLockUpdaterJobStatus_CON-5059.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />

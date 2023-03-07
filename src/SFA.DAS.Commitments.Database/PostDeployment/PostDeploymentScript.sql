@@ -25,8 +25,3 @@ GRANT SELECT ON SCHEMA :: DashboardReporting TO DashboardReporting
 -- this can be rerun
 :r .\Patch_Apprenticeship_SV-1160.sql
 
---CON-5059 - Seed DataLockUpdaterJobStatus table with last event id
--- Can be re-run
-:r .\Seed_DataLockUpdaterJobStatus_CON-5059.sql
-
-

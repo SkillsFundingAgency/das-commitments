@@ -184,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private async Task<long> GetLastDataLockEventId()
         {
             var lastEvent = await _db.Value.DataLockUpdaterJobStatuses.SingleOrDefaultAsync();
-            return lastEvent?.LastEventId ?? 0;
+            return lastEvent?.LastEventId ?? await _db.Value.DataLocks.MaxAsync(x => x.DataLockEventId);
         }
 
         private async Task StoreLastDataLockEventId(long lastId)
