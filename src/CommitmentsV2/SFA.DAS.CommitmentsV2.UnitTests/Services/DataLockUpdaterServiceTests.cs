@@ -39,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public List<Apprenticeship> SeedApprenticeships;
         public List<DataLockStatus> SeedDataLocks;
         public List<ApprenticeshipUpdate> SeedApprenticeshipUpdates;
+        public long? SeedDataLockUpdaterJobsStatus;
 
 
         [SetUp]
@@ -64,6 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedApprenticeship(1, PaymentStatus.Active);
             SeedApprenticeshipUpdate(SeedApprenticeships[0].Id, PaymentStatus.Active, SeedApprenticeships[0]);
             SeedDataLock(SeedApprenticeships[0], 1, 1, "25-6-01/06/2016", DateTime.Now, DataLockErrorCode.Dlock03, SeedApprenticeshipUpdates[0]);
+            SeedLastEventId(1);
 
             var apimResponse = new GetDataLockStatusListResponse
             {
@@ -98,6 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             string priceEpisode = "25-6-01/06/2016";
 
             SeedDataLock(SeedApprenticeships[0], dataLockStatusId, maxDataLockEventId, priceEpisode, DateTime.Now, DataLockErrorCode.Dlock03, SeedApprenticeshipUpdates[0]);
+            SeedLastEventId(maxDataLockEventId);
             SeedData(Db);
 
             _dataLockUpdater = CreateService();
@@ -112,6 +115,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task ThenInsertDataLockStatusRecordsIfNoDataLockExist()
         {
+            SeedLastEventId(1);
             SeedData(Db);
             SeedDataLocks.Clear();
 
@@ -171,6 +175,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                SeedApprenticeshipUpdates.FirstOrDefault(), dataLockResolved);
 
             SeedDataLocks.ForEach(x => x.IsResolved = false);
+            SeedLastEventId(4);
             SeedData(Db);
 
             SeedDataLocks.ForEach(dl =>
@@ -211,7 +216,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedApprenticeship(hasNotHadDataLockSuccessApprenticeshipId, PaymentStatus.Active, false);
             SeedApprenticeshipUpdate(SeedApprenticeships[2].Id, PaymentStatus.Active, SeedApprenticeships[2]);
             SeedDataLock(SeedApprenticeships[2], 2, 2, "TEST-15/08/2018", new DateTime(2018, 8, 1), DataLockErrorCode.None, SeedApprenticeshipUpdates[2]);
-
+            SeedLastEventId(2);
             SeedData(Db);
 
             SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 1);
@@ -318,6 +323,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedApprenticeship(objectId, PaymentStatus.Active, pendingUpdateOriginator: Originator.Unknown);
             SeedApprenticeshipUpdate(objectId, PaymentStatus.Active, SeedApprenticeships.First(), ApprenticeshipUpdateStatus.Pending);
             SeedDataLock(SeedApprenticeships.First(), objectId, objectId, "TEST-15/08/2018", new DateTime(2018, 8, 1), errorCode, SeedApprenticeshipUpdates.First());
+            SeedLastEventId(objectId);
             SeedData(Db);
 
             SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 1);
@@ -409,6 +415,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DataLockErrorCode.Dlock07,
                 SeedApprenticeshipUpdates.FirstOrDefault(), dataLockResolved);
 
+            SeedLastEventId(2);
             SeedData(Db);
 
             SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 3);
@@ -503,6 +510,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedDataLocks.Clear();
         }
 
+        [Test]
+        public async Task When_LastEventId_Has_Not_Been_Stored_The_Max_DataLockStatus_Event_Id_Is_Used_Instead()
+        {
+            // Arrange
+            var dataLockStatusId = 2;
+            var maxDataLockEventId = 2;
+            string priceEpisode = "25-6-01/06/2016";
+
+            SeedDataLock(SeedApprenticeships[0], dataLockStatusId, maxDataLockEventId, priceEpisode, DateTime.Now, DataLockErrorCode.Dlock03, SeedApprenticeshipUpdates[0]);
+            SeedLastEventId(null);
+            SeedData(Db);
+            
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            _outerApiClient
+                .Verify(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(o => o.SinceEventId == maxDataLockEventId)), Times.Once);
+        }
+
         private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
             Db.Database.EnsureCreated();
@@ -510,6 +537,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             dbContext.ApprenticeshipUpdates.AddRange(SeedApprenticeshipUpdates);
             dbContext.DataLocks.AddRange(SeedDataLocks);
             dbContext.SaveChanges(true);
+
+            //Ensure only one job status record is added
+            if (dbContext.DataLockUpdaterJobStatuses.Any())
+            {
+                var toRemove = dbContext.DataLockUpdaterJobStatuses.ToList();
+                dbContext.DataLockUpdaterJobStatuses.RemoveRange(toRemove);
+                dbContext.SaveChanges(true);
+            }
+
+            if (SeedDataLockUpdaterJobsStatus.HasValue)
+            {
+                dbContext.DataLockUpdaterJobStatuses.AddRange(new DataLockUpdaterJobStatus
+                { LastEventId = SeedDataLockUpdaterJobsStatus.Value });
+                dbContext.SaveChanges(true);
+            }
         }
 
         public void SeedApprenticeship(long apprenticeshipId,
@@ -590,6 +632,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             dataLock.PriceEpisodeIdentifier = priceEpisodeIdentifier;
             dataLock.IlrEffectiveFromDate = ilrEffectiveFromDate;
             SeedDataLocks.Add(dataLock);
+        }
+
+        public void SeedLastEventId(long? id)
+        {
+            SeedDataLockUpdaterJobsStatus = id;
         }
 
         private DataLockUpdaterService CreateService()

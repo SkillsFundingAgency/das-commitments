@@ -17,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<Cohort> Cohorts { get; set; }
         public virtual DbSet<CustomProviderPaymentPriority> CustomProviderPaymentPriorities { get; set; }
         public virtual DbSet<DataLockStatus> DataLocks { get; set; }
+        public virtual DbSet<DataLockUpdaterJobStatus> DataLockUpdaterJobStatuses { get; set; }
         public virtual DbSet<History> History { get; set; }
         public virtual DbSet<IntegrationTestIds> IntegrationTestIds { get; set; }
         public virtual DbSet<JobProgress> JobProgress { get; set; }
@@ -61,6 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Data
             modelBuilder.ApplyConfiguration(new ApprenticeshipConfiguration());
             modelBuilder.ApplyConfiguration(new CustomProviderPaymentPriorityConfiguration());
             modelBuilder.ApplyConfiguration(new DataLockStatusConfiguration());
+            modelBuilder.ApplyConfiguration(new DataLockUpdaterJobStatusConfiguration());
             modelBuilder.ApplyConfiguration(new DraftApprenticeshipConfiguration());
             modelBuilder.ApplyConfiguration(new HistoryConfiguration());
             modelBuilder.ApplyConfiguration(new JobProgressConfiguration());

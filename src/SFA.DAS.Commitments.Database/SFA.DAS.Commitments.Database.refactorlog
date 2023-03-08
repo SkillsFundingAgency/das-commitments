@@ -182,4 +182,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="IsOnFlexiPaymentPilot" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="3e2a2548-db49-447d-9934-03835a2f2bd5" ChangeDateTime="03/07/2023 10:03:55">
+    <Property Name="ElementName" Value="[dbo].[DataLockUpdaterJobStatus].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[DataLockUpdaterJobStatus]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastEventId" />
+  </Operation>
 </Operations>
