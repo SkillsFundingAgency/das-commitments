@@ -18,6 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
             RuleFor(r => r.UserInfo).SetValidator(new UserInfoValidator()).When(r => r.UserInfo != null);
             RuleFor(model => (int)model.DeliveryModel).InclusiveBetween(0, 2).WithMessage("Delivery Model can only be between 0 and 2").When(model => model.DeliveryModel.HasValue);
             RuleFor(r => r.IsOnFlexiPaymentPilot).NotNull().WithMessage("Select whether this apprentice will be on the pilot programme.");
+            RuleFor(r => r.LearnerValidationServiceResponseCode).NotNull().WithMessage("The learner details were not successfully validated.");
         }
     }
 }

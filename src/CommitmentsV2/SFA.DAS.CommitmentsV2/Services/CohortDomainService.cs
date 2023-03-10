@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IEmployerAgreementService _employerAgreementService;
         private readonly IEncodingService _encodingService;
-        private readonly IAccountApiClient _accountApiClient;        
+        private readonly IAccountApiClient _accountApiClient;
         private readonly IEmailOptionalService _emailService;
         private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
         private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             ICurrentDateTime currentDateTime,
             IEmployerAgreementService employerAgreementService,
             IEncodingService encodingService,
-            IAccountApiClient accountApiClient,            
+            IAccountApiClient accountApiClient,
             IEmailOptionalService emailOptionalService,
             ILevyTransferMatchingApiClient levyTransferMatchingApiClient,
             IFeatureTogglesService<FeatureToggle> featureTogglesService)
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohort.Id, cancellationToken);
+            //await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohort.Id, cancellationToken); //TODO
             return draftApprenticeship;
         }
 
@@ -89,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             Cohort cohort = null;
             draftApprenticeshipDetails.IgnoreStartDateOverlap = true;
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
+            //await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken); //TODO
             if (cohortId.HasValue && cohortId.Value > 0)
             {
                 cohort = await _dbContext.Value.GetCohortAggregate(cohortId.Value, cancellationToken: cancellationToken);
@@ -151,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 }
 
                 cohort.AddDraftApprenticeship(apprenticeship, party, userInfo);
-                await ValidateDraftApprenticeshipDetails(apprenticeship, null, cancellationToken); // As it is a newly cohort, and not yet saved to db - the cohort Id is null
+                //await ValidateDraftApprenticeshipDetails(apprenticeship, null, cancellationToken); // As it is a newly cohort, and not yet saved to db - the cohort Id is null
             }
 
             return existingCohorts.Select(x => x.Value).Union(newCohorts.Select(x => x.Value));
@@ -175,22 +175,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired, isRPLRequired);
         }
 
-        private async Task ValidateUlnOverlap(Cohort cohort)
-        {
-            foreach (var draftApprenticeship  in cohort.DraftApprenticeships)
-            {
-                if (!string.IsNullOrEmpty(draftApprenticeship.Uln) && draftApprenticeship.StartDate.HasValue && draftApprenticeship.EndDate.HasValue)
-                {
-                   var result = await  _overlapCheckService.CheckForOverlaps(draftApprenticeship.Uln, draftApprenticeship.StartDate.Value.To(draftApprenticeship.EndDate.Value), draftApprenticeship.Id, CancellationToken.None);
-                    if (result.HasOverlaps)
-                    {
-                        throw new DomainException(draftApprenticeship.Uln, "The draft apprenticeship has overlap");
-                    }
-                }
-            }
-        }
-
-        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, VerifyLearnerResponse learnerValidationResponseCode, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
             var db = _dbContext.Value;
@@ -199,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, pledgeApplicationId, db, cancellationToken) : null;
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, null, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, learnerValidationResponseCode, null, cancellationToken);
 
             return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo);
         }
@@ -250,7 +235,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
-            
+
             AssertHasProvider(cohortId, cohort.ProviderId);
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
 
@@ -261,7 +246,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
             }
 
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
+            //await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
 
             return cohort;
         }
@@ -277,40 +262,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             cohort.DeleteDraftApprenticeship(apprenticeshipId, _authenticationService.GetUserParty(), userInfo);
 
             return cohort;
-        }
-
-        // Will remove once it goes through testing
-        //public async Task DeleteApprenticeshipConfirmationStatus(long apprenticeshipId)
-        //{
-        //    var confirmationStatus = await _dbContext.Value.ApprenticeshipConfirmationStatus.FirstOrDefaultAsync(x => x.ApprenticeshipId == apprenticeshipId);
-
-        //    if (confirmationStatus != null)
-        //    {
-        //        _dbContext.Value.Remove(confirmationStatus);
-        //        await _dbContext.Value.SaveChangesAsync();
-        //    }
-        //}
-
-        private ICohortOriginator GetCohortOriginator(Party originatingParty, Provider provider, AccountLegalEntity accountLegalEntity)
-        {
-            switch (originatingParty)
-            {
-                case Party.Employer:
-                    return accountLegalEntity;
-                case Party.Provider:
-                    return provider;
-                default:
-                    throw new ArgumentException($"Unable to get ICohortOriginator from Party of type {originatingParty}");
-            }
-        }
-
-        private void AssertHasProvider(long cohortId, long? providerId)
-        {
-            if (providerId == null)
-            {
-                // We need a provider id to validate the apprenticeship with reservations, so a provider id is mandatory.
-                throw new InvalidOperationException($"Cannot update cohort {cohortId} because it is not linked to a provider");
-            }
         }
 
         private static void AssertHasApprenticeshipId(long cohortId, long draftApprenticeshipDetailId)
@@ -343,6 +294,65 @@ namespace SFA.DAS.CommitmentsV2.Services
             return account;
         }
 
+        private static async Task<Provider> GetProvider(long providerId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        {
+            var provider = await db.Providers.SingleOrDefaultAsync(p => p.UkPrn == providerId, cancellationToken);
+            if (provider == null) throw new BadRequestException($"Provider {providerId} was not found");
+            return provider;
+        }
+
+        private async Task ValidateUlnOverlap(Cohort cohort)
+        {
+            foreach (var draftApprenticeship in cohort.DraftApprenticeships)
+            {
+                if (!string.IsNullOrEmpty(draftApprenticeship.Uln) && draftApprenticeship.StartDate.HasValue && draftApprenticeship.EndDate.HasValue)
+                {
+                    var result = await _overlapCheckService.CheckForOverlaps(draftApprenticeship.Uln, draftApprenticeship.StartDate.Value.To(draftApprenticeship.EndDate.Value), draftApprenticeship.Id, CancellationToken.None);
+                    if (result.HasOverlaps)
+                    {
+                        throw new DomainException(draftApprenticeship.Uln, "The draft apprenticeship has overlap");
+                    }
+                }
+            }
+        }
+
+        // Will remove once it goes through testing
+        //public async Task DeleteApprenticeshipConfirmationStatus(long apprenticeshipId)
+        //{
+        //    var confirmationStatus = await _dbContext.Value.ApprenticeshipConfirmationStatus.FirstOrDefaultAsync(x => x.ApprenticeshipId == apprenticeshipId);
+
+        //    if (confirmationStatus != null)
+        //    {
+        //        _dbContext.Value.Remove(confirmationStatus);
+        //        await _dbContext.Value.SaveChangesAsync();
+        //    }
+        //}
+
+        private ICohortOriginator GetCohortOriginator(Party originatingParty, Provider provider, AccountLegalEntity accountLegalEntity)
+        {
+            switch (originatingParty)
+            {
+                case Party.Employer:
+                    return accountLegalEntity;
+
+                case Party.Provider:
+                    return provider;
+
+                default:
+                    throw new ArgumentException($"Unable to get ICohortOriginator from Party of type {originatingParty}");
+            }
+        }
+
+        private void AssertHasProvider(long cohortId, long? providerId)
+        {
+            if (providerId == null)
+            {
+                // We need a provider id to validate the apprenticeship with reservations, so a
+                // provider id is mandatory.
+                throw new InvalidOperationException($"Cannot update cohort {cohortId} because it is not linked to a provider");
+            }
+        }
+
         private async Task<Account> GetTransferSender(long employerAccountId, long transferSenderId, int? pledgeApplicationId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             if (pledgeApplicationId.HasValue)
@@ -353,10 +363,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 await ValidateTransferSenderIdIsAFundingConnection(employerAccountId, transferSenderId);
             }
-            
+
             return await GetAccount(transferSenderId, db, cancellationToken);
         }
-
 
         private async Task ValidatePledgeApplicationId(long accountId, long transferSenderId, int pledgeApplicationId)
         {
@@ -394,13 +403,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             throw new BadRequestException($"TransferSenderId {transferSenderId} is not a FundingEmployer for Account {accountId}");
         }
 
-        private static async Task<Provider> GetProvider(long providerId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
-        {
-            var provider = await db.Providers.SingleOrDefaultAsync(p => p.UkPrn == providerId, cancellationToken);
-            if (provider == null) throw new BadRequestException($"Provider {providerId} was not found");
-            return provider;
-        }
-
         private async Task ValidateStartDateForContinuation(Cohort cohort, DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
             if (!draftApprenticeshipDetails.StartDate.HasValue) return;
@@ -422,13 +424,47 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, long? cohortId, CancellationToken cancellationToken)
+        private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, VerifyLearnerResponse learnerValidationResponseCode, long? cohortId, CancellationToken cancellationToken)
         {
+            HandleLearnerVerificationResponse(learnerValidationResponseCode);
             ValidateApprenticeshipDate(draftApprenticeshipDetails);
             ValidateUln(draftApprenticeshipDetails);
             await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
             await ValidateEmailOverlaps(draftApprenticeshipDetails, cohortId, cancellationToken);
             await ValidateReservation(draftApprenticeshipDetails, cancellationToken);
+        }
+
+        private void HandleLearnerVerificationResponse(VerifyLearnerResponse learnerValidationResponseCode)
+        {
+            if (learnerValidationResponseCode is null)
+            {
+                throw new DomainException(nameof(learnerValidationResponseCode), "Learner details validation was unsuccessful.");
+            }
+
+            switch (learnerValidationResponseCode.ResponseCode)
+            {
+                case LearnerValidationServiceResponseCode.SuccessfulMatch:
+                case LearnerValidationServiceResponseCode.SuccessfulLinkedMatch:
+                    break;
+
+                case LearnerValidationServiceResponseCode.SimilarMatch:
+                case LearnerValidationServiceResponseCode.SimilarLinkedMatch:
+                    // Note that in these cases, some or all of the fields (excluding unique learner
+                    // number) are found to be similar to a learner on the Learner Record Service,
+                    // but not an exact match
+                    break;
+
+                case LearnerValidationServiceResponseCode.LearnerDoesNotMatch:
+                    // Note that in this case, some or all of the fields (excluding unique learner
+                    // number) did not successfully match any learners on the Learner Record Service
+                    // Further detials can be found in learnerValidationResponseCode.FailureFlags
+                    break;
+
+                case LearnerValidationServiceResponseCode.UlnNotFound:
+                    throw new DomainException(nameof(learnerValidationResponseCode), "Unique learner number does not match any learners on the Learner Record Service.");
+                default:
+                    break;
+            }
         }
 
         private void ValidateUln(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -481,7 +517,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var errors = validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
             errors.ThrowIfAny();
         }
-         
+
         private async Task ValidateOverlaps(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(details.Uln) || !details.StartDate.HasValue || !details.EndDate.HasValue) return;
@@ -550,6 +586,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new DomainException(nameof(cohort.EmployerAccountId), $"Employer {cohort.EmployerAccountId} cannot approve any cohort because the agreement is not signed");
             }
         }
+
         private async Task ValidateNoEmailOverlapsExist(Cohort cohort, CancellationToken cancellationToken)
         {
             var emailOverlaps = await _overlapCheckService.CheckForEmailOverlaps(cohort.Id, cancellationToken);

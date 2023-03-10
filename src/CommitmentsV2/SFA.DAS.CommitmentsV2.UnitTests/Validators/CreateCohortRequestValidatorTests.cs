@@ -90,6 +90,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.IsOnFlexiPaymentPilot, (bool?)null, false);
         }
 
+        [Test]
+        public void Validate_LearnerValidationServiceResponseCodeIsNull_ShouldBeInvalid()
+        {
+            AssertValidationResult(request => request.LearnerValidationServiceResponseCode, null, false);
+        }
+
         private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest, T>> property, T value, bool expectedValid)
         {
             // Arrange
