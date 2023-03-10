@@ -75,13 +75,13 @@ namespace SFA.DAS.CommitmentsV2.Services
             _featureTogglesService = featureTogglesService;
         }
 
-        public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, LearnerVerificationResponse learnerVerificationResponse, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
             var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
-            //await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohort.Id, cancellationToken); //TODO
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, learnerVerificationResponse, cohort.Id, cancellationToken);
             return draftApprenticeship;
         }
 
@@ -175,7 +175,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired, isRPLRequired);
         }
 
-        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, VerifyLearnerResponse learnerValidationResponseCode, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, LearnerVerificationResponse learnerVerificationResponse, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
             var db = _dbContext.Value;
@@ -184,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, pledgeApplicationId, db, cancellationToken) : null;
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, learnerValidationResponseCode, null, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, learnerVerificationResponse, null, cancellationToken);
 
             return originator.CreateCohort(providerId, accountLegalEntity, transferSender, pledgeApplicationId, draftApprenticeshipDetails, userInfo);
         }
@@ -424,9 +424,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, VerifyLearnerResponse learnerValidationResponseCode, long? cohortId, CancellationToken cancellationToken)
+        private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, LearnerVerificationResponse learnerVerificationResponse, long? cohortId, CancellationToken cancellationToken)
         {
-            HandleLearnerVerificationResponse(learnerValidationResponseCode);
+            if (learnerVerificationResponse is not null)
+            {
+                HandleLearnerVerificationResponse(learnerVerificationResponse);
+            }
             ValidateApprenticeshipDate(draftApprenticeshipDetails);
             ValidateUln(draftApprenticeshipDetails);
             await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
@@ -434,34 +437,29 @@ namespace SFA.DAS.CommitmentsV2.Services
             await ValidateReservation(draftApprenticeshipDetails, cancellationToken);
         }
 
-        private void HandleLearnerVerificationResponse(VerifyLearnerResponse learnerValidationResponseCode)
+        private void HandleLearnerVerificationResponse(LearnerVerificationResponse learnerVerificationResponse)
         {
-            if (learnerValidationResponseCode is null)
+            switch (learnerVerificationResponse.ResponseCode)
             {
-                throw new DomainException(nameof(learnerValidationResponseCode), "Learner details validation was unsuccessful.");
-            }
-
-            switch (learnerValidationResponseCode.ResponseCode)
-            {
-                case LearnerValidationServiceResponseCode.SuccessfulMatch:
-                case LearnerValidationServiceResponseCode.SuccessfulLinkedMatch:
+                case LearnerVerificationResponseCode.SuccessfulMatch:
+                case LearnerVerificationResponseCode.SuccessfulLinkedMatch:
                     break;
 
-                case LearnerValidationServiceResponseCode.SimilarMatch:
-                case LearnerValidationServiceResponseCode.SimilarLinkedMatch:
+                case LearnerVerificationResponseCode.SimilarMatch:
+                case LearnerVerificationResponseCode.SimilarLinkedMatch:
                     // Note that in these cases, some or all of the fields (excluding unique learner
                     // number) are found to be similar to a learner on the Learner Record Service,
                     // but not an exact match
                     break;
 
-                case LearnerValidationServiceResponseCode.LearnerDoesNotMatch:
+                case LearnerVerificationResponseCode.LearnerDoesNotMatch:
                     // Note that in this case, some or all of the fields (excluding unique learner
                     // number) did not successfully match any learners on the Learner Record Service
                     // Further detials can be found in learnerValidationResponseCode.FailureFlags
                     break;
 
-                case LearnerValidationServiceResponseCode.UlnNotFound:
-                    throw new DomainException(nameof(learnerValidationResponseCode), "Unique learner number does not match any learners on the Learner Record Service.");
+                case LearnerVerificationResponseCode.UlnNotFound:
+                    throw new DomainException(nameof(learnerVerificationResponse.ResponseCode), "Unique learner number does not match any learners on the Learner Record Service.");
                 default:
                     break;
             }

@@ -31,7 +31,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.ProviderId, value, expectedValid);
         }
 
-
         [TestCase(false, false)]
         [TestCase(true, true)]
         public void Validate_ReservationId_ShouldBeValidated(bool hasValue, bool expectedValid)
@@ -83,6 +82,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.IsOnFlexiPaymentPilot, (bool?)null, false);
         }
 
+        [Test]
+        public void Validate_LearnerVerificationResponseIsNull_ShouldBeInvalid()
+        {
+            AssertValidationResult(request => request.LearnerVerificationResponse, null, false);
+        }
+
         private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
         {
             // Arrange
@@ -103,10 +108,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         {
             // Arrange
             var authorizationService = new Mock<IAuthorizationService>();
-            
+
             authorizationService.Setup(a => a.IsAuthorized(It.IsAny<string[]>()))
                 .Returns<string[]>(o => feature(o.SingleOrDefault()));
-            
+
             var validator = new AddDraftApprenticeshipRequestValidator(authorizationService.Object);
 
             // Act

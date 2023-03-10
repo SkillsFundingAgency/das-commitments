@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.UserInfo,
                 request.IgnoreStartDateOverlap,
                 request.IsOnFlexiPaymentPilot,
-                request.LearnerValidationServiceResponseCode);
+                request.LearnerVerificationResponse);
             
             var result = await _mediator.Send(command);
 

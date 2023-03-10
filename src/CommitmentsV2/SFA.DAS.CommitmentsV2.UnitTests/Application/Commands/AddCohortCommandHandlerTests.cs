@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(providerId, accountId, accountLegalEntityId, transferSenderId, pledgeApplicationId,
                 It.IsAny<DraftApprenticeshipDetails>(),
                 fixtures.UserInfo,
-                It.IsAny<VerifyLearnerResponse>(),
+                It.IsAny<LearnerVerificationResponse>(),
                 It.IsAny<CancellationToken>()));
 
             Assert.AreEqual(expectedHash, response.Reference);
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
             CohortDomainServiceMock
                 .Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(), It.IsAny<int?>(),
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<VerifyLearnerResponse>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<LearnerVerificationResponse>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(commitment);
 
             Logger = new TestLogger();
@@ -114,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public TestLogger Logger { get; }
         public UserInfo UserInfo { get; }
-        public VerifyLearnerResponse LearnerValidationResponseCode { get; }
+        public LearnerVerificationResponse LearnerVerificationResponse { get; }
 
         public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
         {
@@ -153,7 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 UserInfo,
                 false,
                 false,
-                LearnerValidationResponseCode);
+                LearnerVerificationResponse);
 
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 EncodingService,

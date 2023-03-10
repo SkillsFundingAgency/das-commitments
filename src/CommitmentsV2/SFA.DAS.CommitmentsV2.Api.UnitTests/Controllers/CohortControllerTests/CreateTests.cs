@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     c.PledgeApplicationId == Request.PledgeApplicationId &&
                     c.UserInfo == Request.UserInfo &&
                     c.IsOnFlexiPaymentPilot == Request.IsOnFlexiPaymentPilot &&
-                    c.LearnerValidationServiceResponseCode == Request.LearnerValidationServiceResponseCode), CancellationToken.None))
+                    c.LearnerVerificationResponse == Request.LearnerVerificationResponse), CancellationToken.None))
                 .ReturnsAsync(Result);
         }
 

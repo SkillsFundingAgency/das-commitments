@@ -42,14 +42,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(command);
 
-            var cohort = await _cohortDomainService.CreateCohort(command.ProviderId, 
+            var cohort = await _cohortDomainService.CreateCohort(command.ProviderId,
                 command.AccountId,
                 command.AccountLegalEntityId,
                 command.TransferSenderId,
                 command.PledgeApplicationId,
                 draftApprenticeshipDetails,
                 command.UserInfo,
-                command.LearnerValidationServiceResponseCode,
+                command.LearnerVerificationResponse,
                 cancellationToken);
 
             db.Cohorts.Add(cohort);

@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace SFA.DAS.CommitmentsV2.Types
 {
-    public enum LearnerValidationServiceResponseCode
+    public enum LearnerVerificationResponseCode
     {
         [Description("WSVRC001")]
         SuccessfulMatch,
@@ -51,9 +51,9 @@ namespace SFA.DAS.CommitmentsV2.Types
         GenderDoesntMatchGender
     }
 
-    public class VerifyLearnerResponse
+    public class LearnerVerificationResponse
     {
-        public LearnerValidationServiceResponseCode ResponseCode { get; set; }
+        public LearnerVerificationResponseCode ResponseCode { get; set; }
 
         public IEnumerable<FailureFlag> FailureFlags { get; set; }
     }

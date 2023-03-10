@@ -924,7 +924,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public List<DomainError> DomainErrors { get; }
             public string Message { get; private set; }
             public UserInfo UserInfo { get; private set; }
-            public VerifyLearnerResponse LearnerValidationResponseCode { get; private set; }
+            public LearnerVerificationResponse LearnerVerificationResponse { get; private set; }
             public ApprenticeshipPriorLearning PriorLearning { get; private set; }
             public long MaLegalEntityId { get; private set; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
@@ -1330,7 +1330,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 try
                 {
                     var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                        DraftApprenticeshipDetails, UserInfo, LearnerValidationResponseCode, new CancellationToken());
+                        DraftApprenticeshipDetails, UserInfo, LearnerVerificationResponse, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
@@ -1403,7 +1403,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, new CancellationToken());
+                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, LearnerVerificationResponse, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)

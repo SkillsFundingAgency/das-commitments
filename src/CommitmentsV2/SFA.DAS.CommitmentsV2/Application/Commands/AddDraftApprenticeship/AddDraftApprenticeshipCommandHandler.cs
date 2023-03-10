@@ -33,12 +33,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         {
             var db = _dbContext.Value;
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(request);
-            var draftApprenticeship = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, request.CohortId, draftApprenticeshipDetails, request.UserInfo, cancellationToken);
-            
+            var draftApprenticeship = await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, request.CohortId, draftApprenticeshipDetails, request.UserInfo, request.LearnerVerificationResponse, cancellationToken);
+
             await db.SaveChangesAsync(cancellationToken);
-            
+
             _logger.LogInformation($"Added draft apprenticeship. Reservation-Id:{request.ReservationId} Commitment-Id:{request.CohortId} Apprenticeship-Id:{draftApprenticeship.Id}");
-            
+
             var response = new AddDraftApprenticeshipResult
             {
                 Id = draftApprenticeship.Id

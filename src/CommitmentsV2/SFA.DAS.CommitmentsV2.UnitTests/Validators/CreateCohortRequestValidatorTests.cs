@@ -91,9 +91,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         }
 
         [Test]
-        public void Validate_LearnerValidationServiceResponseCodeIsNull_ShouldBeInvalid()
+        public void Validate_LearnerVerificationResponseIsNull_ShouldBeInvalid()
         {
-            AssertValidationResult(request => request.LearnerValidationServiceResponseCode, null, false);
+            AssertValidationResult(request => request.LearnerVerificationResponse, null, false);
         }
 
         private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest, T>> property, T value, bool expectedValid)
@@ -116,10 +116,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         {
             // Arrange
             var authorizationService = new Mock<IAuthorizationService>();
-            
+
             authorizationService.Setup(a => a.IsAuthorized(It.IsAny<string[]>()))
                 .Returns<string[]>(o => feature(o.SingleOrDefault()));
-            
+
             var validator = new CreateCohortRequestValidator(authorizationService.Object);
 
             // Act
