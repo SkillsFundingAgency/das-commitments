@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 
         Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken);
 
-        Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken);
+        Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, LearnerVerificationResponse learnerVerificationResponse, CancellationToken cancellationToken);
 
         Task<Cohort> DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken);
 

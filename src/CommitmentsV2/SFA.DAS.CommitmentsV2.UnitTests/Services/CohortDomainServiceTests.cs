@@ -1466,7 +1466,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, new CancellationToken());
+                    await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, LearnerVerificationResponse, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)

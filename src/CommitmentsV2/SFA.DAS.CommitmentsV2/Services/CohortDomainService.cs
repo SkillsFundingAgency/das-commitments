@@ -85,11 +85,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             return draftApprenticeship;
         }
 
+        //TODO: Do we need to account for this scenario with details verification?
         public async Task ValidateDraftApprenticeshipForOverlappingTrainingDateRequest(long providerId, long? cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
         {
             Cohort cohort = null;
             draftApprenticeshipDetails.IgnoreStartDateOverlap = true;
-            //await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken); //TODO
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, null, cohortId, cancellationToken);
             if (cohortId.HasValue && cohortId.Value > 0)
             {
                 cohort = await _dbContext.Value.GetCohortAggregate(cohortId.Value, cancellationToken: cancellationToken);
@@ -99,6 +100,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             errors.ThrowIfAny();
         }
 
+        //TODO: Do we need to account for the bulk upload scenario with details verification?
         public async Task<IEnumerable<Cohort>> AddDraftApprenticeships(List<DraftApprenticeshipDetails> draftApprenticeships, List<BulkUploadAddDraftApprenticeshipRequest> csvBulkUploadApprenticehips, long providerId, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var newCohorts = new Dictionary<long, Cohort>();
@@ -151,7 +153,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 }
 
                 cohort.AddDraftApprenticeship(apprenticeship, party, userInfo);
-                //await ValidateDraftApprenticeshipDetails(apprenticeship, null, cancellationToken); // As it is a newly cohort, and not yet saved to db - the cohort Id is null
+                await ValidateDraftApprenticeshipDetails(apprenticeship, null, null, cancellationToken); // As it is a newly cohort, and not yet saved to db - the cohort Id is null
             }
 
             return existingCohorts.Select(x => x.Value).Union(newCohorts.Select(x => x.Value));
@@ -232,7 +234,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
-        public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, LearnerVerificationResponse learnerVerificationResponse, CancellationToken cancellationToken)
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
 
@@ -246,7 +248,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
             }
 
-            //await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, learnerVerificationResponse, cohortId, cancellationToken);
 
             return cohort;
         }

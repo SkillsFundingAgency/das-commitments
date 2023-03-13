@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
 {
     public class UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandMapper : IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>
     {
-        public Task<UpdateDraftApprenticeshipCommand>  Map(UpdateDraftApprenticeshipRequest source)
+        public Task<UpdateDraftApprenticeshipCommand> Map(UpdateDraftApprenticeshipRequest source)
         {
             return Task.FromResult(new UpdateDraftApprenticeshipCommand
             {
@@ -29,6 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 UserInfo = source.UserInfo,
                 IgnoreStartDateOverlap = source.IgnoreStartDateOverlap,
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
+                LearnerVerificationResponse = source.LearnerVerificationResponse
             });
         }
     }

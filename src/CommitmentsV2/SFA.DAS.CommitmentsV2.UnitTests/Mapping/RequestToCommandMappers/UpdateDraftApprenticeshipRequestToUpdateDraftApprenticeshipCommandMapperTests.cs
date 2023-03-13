@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
@@ -9,9 +10,9 @@ using SFA.DAS.CommitmentsV2.Types;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
     [TestFixture]
-    public class UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandMapperTests : 
+    public class UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandMapperTests :
         OldMapperTester<UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandMapper,
-        UpdateDraftApprenticeshipRequest, 
+        UpdateDraftApprenticeshipRequest,
         UpdateDraftApprenticeshipCommand>
     {
         [Test]
@@ -19,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         {
             return AssertPropertySet(from => from.CourseCode, "001/AAA");
         }
-        
+
         [Test]
         public Task Map_CostWithoutValue_ShouldBeSet()
         {
@@ -55,7 +56,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         {
             return AssertPropertySet(from => from.StartDate, (DateTime?)DateTime.Now);
         }
-
 
         [Test]
         public Task Map_ActualStartDateWithoutValue_ShouldBeSet()
@@ -151,6 +151,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         public Task Map_IsOnFlexiPaymentPilotWithValue_ShouldBeSet()
         {
             return AssertPropertySet(from => from.IsOnFlexiPaymentPilot, (bool?)true);
+        }
+
+        [Test]
+        public Task Map_LearnerVerificationResponseWithoutValue_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.LearnerVerificationResponse, (LearnerVerificationResponse)null);
+        }
+
+        [Test]
+        public Task Map_LearnerVerificationResponseWithValue_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.LearnerVerificationResponse, It.IsAny<LearnerVerificationResponse>());
         }
 
         [TestCase(DeliveryModel.Regular)]
