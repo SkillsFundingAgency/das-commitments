@@ -17,7 +17,7 @@
         {
             if (FoundOnFullyApprovedApprenticeship)
             {
-                return "You need to enter a unique email address.";
+                return "This email address is in use on another apprentice record. You need to enter a different email address.";
             }
 
             return "You need to enter a unique email address for each apprentice.";
