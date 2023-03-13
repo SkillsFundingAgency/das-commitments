@@ -32,12 +32,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         private Mock<IFilterOutAcademicYearRollOverDataLocks> _filterOutAcademicYearRollOverDataLocks;
         private Fixture _fixture;
         private DataLockUpdaterService _dataLockUpdater;
+        private long _seedDataLockEventId;
 
         public string LegalEntityIdentifier;
         public OrganisationType organisationType;
         public List<Apprenticeship> SeedApprenticeships;
         public List<DataLockStatus> SeedDataLocks;
         public List<ApprenticeshipUpdate> SeedApprenticeshipUpdates;
+        public long? SeedDataLockUpdaterJobsStatus;
+
 
         [SetUp]
         public void Arrange()
@@ -57,9 +60,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                  .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
                  .Options);
 
+            _seedDataLockEventId = 1;
+
             SeedApprenticeship(1, PaymentStatus.Active);
             SeedApprenticeshipUpdate(SeedApprenticeships[0].Id, PaymentStatus.Active, SeedApprenticeships[0]);
             SeedDataLock(SeedApprenticeships[0], 1, 1, "25-6-01/06/2016", DateTime.Now, DataLockErrorCode.Dlock03, SeedApprenticeshipUpdates[0]);
+            SeedLastEventId(1);
 
             var apimResponse = new GetDataLockStatusListResponse
             {
@@ -94,6 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             string priceEpisode = "25-6-01/06/2016";
 
             SeedDataLock(SeedApprenticeships[0], dataLockStatusId, maxDataLockEventId, priceEpisode, DateTime.Now, DataLockErrorCode.Dlock03, SeedApprenticeshipUpdates[0]);
+            SeedLastEventId(maxDataLockEventId);
             SeedData(Db);
 
             _dataLockUpdater = CreateService();
@@ -108,6 +115,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task ThenInsertDataLockStatusRecordsIfNoDataLockExist()
         {
+            SeedLastEventId(1);
             SeedData(Db);
             SeedDataLocks.Clear();
 
@@ -133,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             };
 
             _outerApiClient
-               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == _seedDataLockEventId)))
                .ReturnsAsync(apimResponse);
 
             //Act
@@ -166,23 +174,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                dataLockEventId4, dataLockEventId4, "TEST-15/08/2020", DateTime.Now, DataLockErrorCode.Dlock03,
                SeedApprenticeshipUpdates.FirstOrDefault(), dataLockResolved);
 
-            var apimResponse = new GetDataLockStatusListResponse
-            {
-                DataLockStatuses = Clone(SeedDataLocks)
-            };
-
             SeedDataLocks.ForEach(x => x.IsResolved = false);
+            SeedLastEventId(4);
             SeedData(Db);
 
+            SeedDataLocks.ForEach(dl =>
+            {
+                dl.DataLockEventId = dl.DataLockEventId + 3;
+                dl.IsResolved = true;
+            });
+
+            var apimResponse = new GetDataLockStatusListResponse
+            {
+                DataLockStatuses = SeedDataLocks
+            };
+
             _outerApiClient
-               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == 4)))
                .ReturnsAsync(apimResponse);
 
             //Act
             await _dataLockUpdater.RunUpdate();
 
             //Assert
-            VerifyDataLockIsResolved(new List<long> { dataLockEventId2, dataLockEventId3, dataLockEventId4 });
+            VerifyDataLockIsResolved(new List<long> { dataLockEventId2 + 3, dataLockEventId3 + 3, dataLockEventId4 + 3});
         }
 
         [Test]
@@ -201,16 +216,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedApprenticeship(hasNotHadDataLockSuccessApprenticeshipId, PaymentStatus.Active, false);
             SeedApprenticeshipUpdate(SeedApprenticeships[2].Id, PaymentStatus.Active, SeedApprenticeships[2]);
             SeedDataLock(SeedApprenticeships[2], 2, 2, "TEST-15/08/2018", new DateTime(2018, 8, 1), DataLockErrorCode.None, SeedApprenticeshipUpdates[2]);
+            SeedLastEventId(2);
+            SeedData(Db);
+
+            SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 1);
 
             var apimResponse = new GetDataLockStatusListResponse
             {
                 DataLockStatuses = SeedDataLocks
-            };
-
-            SeedData(Db);
+            };          
 
             _outerApiClient
-             .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+             .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == 2)))
              .ReturnsAsync(apimResponse);
 
             //Act
@@ -251,7 +268,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             };
 
             _outerApiClient
-               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == _seedDataLockEventId)))
                .ReturnsAsync(apimResponse);
 
             //Act
@@ -280,7 +297,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             };
 
             _outerApiClient
-               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == _seedDataLockEventId)))
                .ReturnsAsync(apimResponse);
 
             //Act
@@ -306,7 +323,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedApprenticeship(objectId, PaymentStatus.Active, pendingUpdateOriginator: Originator.Unknown);
             SeedApprenticeshipUpdate(objectId, PaymentStatus.Active, SeedApprenticeships.First(), ApprenticeshipUpdateStatus.Pending);
             SeedDataLock(SeedApprenticeships.First(), objectId, objectId, "TEST-15/08/2018", new DateTime(2018, 8, 1), errorCode, SeedApprenticeshipUpdates.First());
+            SeedLastEventId(objectId);
             SeedData(Db);
+
+            SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 1);
 
             var apimResponse = new GetDataLockStatusListResponse
             {
@@ -314,7 +334,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             };
 
             _outerApiClient
-               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == objectId)))
                .ReturnsAsync(apimResponse);
 
             //Act
@@ -362,7 +382,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             };
 
             _outerApiClient
-               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == _seedDataLockEventId)))
                .ReturnsAsync(apimResponse);
 
             //Act
@@ -395,22 +415,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DataLockErrorCode.Dlock07,
                 SeedApprenticeshipUpdates.FirstOrDefault(), dataLockResolved);
 
+            SeedLastEventId(2);
+            SeedData(Db);
+
+            SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 3);
+
             var apimResponse = new GetDataLockStatusListResponse
             {
                 DataLockStatuses = SeedDataLocks
             };
 
-            SeedData(Db);
-
             _outerApiClient
-               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == dataLockEventId2)))
                .ReturnsAsync(apimResponse);
 
             //Act
             await _dataLockUpdater.RunUpdate();
 
             //Assert
-            VerifyDataLockIsResolved(new List<long> { dataLockEventId2 });
+            VerifyDataLockIsResolved(new List<long> { dataLockEventId2 + 3 });
         }
 
         [Test]
@@ -445,7 +468,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             };
 
             _outerApiClient
-                .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+                .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == _seedDataLockEventId)))
                 .ReturnsAsync(apimResponse);
 
             //Act
@@ -475,7 +498,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             };
 
             _outerApiClient
-               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.IsAny<GetDataLockEventsRequest>()))
+               .Setup(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(x => x.SinceEventId == _seedDataLockEventId)))
                .ReturnsAsync(apimResponse);
 
             //Act
@@ -487,6 +510,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedDataLocks.Clear();
         }
 
+        [Test]
+        public async Task When_LastEventId_Has_Not_Been_Stored_The_Max_DataLockStatus_Event_Id_Is_Used_Instead()
+        {
+            // Arrange
+            var dataLockStatusId = 2;
+            var maxDataLockEventId = 2;
+            string priceEpisode = "25-6-01/06/2016";
+
+            SeedDataLock(SeedApprenticeships[0], dataLockStatusId, maxDataLockEventId, priceEpisode, DateTime.Now, DataLockErrorCode.Dlock03, SeedApprenticeshipUpdates[0]);
+            SeedLastEventId(null);
+            SeedData(Db);
+            
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            _outerApiClient
+                .Verify(x => x.GetWithRetry<GetDataLockStatusListResponse>(It.Is<GetDataLockEventsRequest>(o => o.SinceEventId == maxDataLockEventId)), Times.Once);
+        }
+
         private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
             Db.Database.EnsureCreated();
@@ -494,6 +537,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             dbContext.ApprenticeshipUpdates.AddRange(SeedApprenticeshipUpdates);
             dbContext.DataLocks.AddRange(SeedDataLocks);
             dbContext.SaveChanges(true);
+
+            //Ensure only one job status record is added
+            if (dbContext.DataLockUpdaterJobStatuses.Any())
+            {
+                var toRemove = dbContext.DataLockUpdaterJobStatuses.ToList();
+                dbContext.DataLockUpdaterJobStatuses.RemoveRange(toRemove);
+                dbContext.SaveChanges(true);
+            }
+
+            if (SeedDataLockUpdaterJobsStatus.HasValue)
+            {
+                dbContext.DataLockUpdaterJobStatuses.AddRange(new DataLockUpdaterJobStatus
+                { LastEventId = SeedDataLockUpdaterJobsStatus.Value });
+                dbContext.SaveChanges(true);
+            }
         }
 
         public void SeedApprenticeship(long apprenticeshipId,
@@ -576,6 +634,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedDataLocks.Add(dataLock);
         }
 
+        public void SeedLastEventId(long? id)
+        {
+            SeedDataLockUpdaterJobsStatus = id;
+        }
+
         private DataLockUpdaterService CreateService()
         {
             return new DataLockUpdaterService(
@@ -584,12 +647,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _outerApiClient.Object,
                new CommitmentPaymentsWebJobConfiguration(),
                Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
-        }
-
-        private T Clone<T>(T objectToClone)
-        {
-            var stringValue = JsonConvert.SerializeObject(objectToClone);
-            return JsonConvert.DeserializeObject<T>(stringValue);
         }
 
         private void VerifyDataLockIsResolved(List<long> dataLockEventIds)

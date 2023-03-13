@@ -1,10 +1,7 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
 {

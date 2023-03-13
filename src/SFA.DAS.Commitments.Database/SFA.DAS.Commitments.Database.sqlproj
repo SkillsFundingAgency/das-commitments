@@ -170,6 +170,7 @@
     <Build Include="Tables\ApprenticeshipPriorLearning.sql" />
     <Build Include="Tables\OverlappingTrainingDateRequest.sql" />
     <Build Include="Views\ApprenticeshipsCreatedSummary.sql" />
+    <Build Include="Tables\DataLockUpdaterJobStatus.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

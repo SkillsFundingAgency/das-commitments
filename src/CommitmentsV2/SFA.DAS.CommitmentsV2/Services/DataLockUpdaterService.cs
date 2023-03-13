@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Configuration;
 using System.Data.SqlClient;
 using System.Data;
+using Microsoft.Azure.Documents.Linq;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
@@ -137,6 +138,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                 lastId = dataLockStatus.DataLockEventId;
             }
+
+            await StoreLastDataLockEventId(lastId);
         }
 
         private void AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(Apprenticeship apprenticeship, DataLockStatus datalock)
@@ -180,8 +183,29 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task<long> GetLastDataLockEventId()
         {
-            var maxDataLockEventId = await _db.Value.DataLocks.MaxAsync(x => x.DataLockEventId);
-            return maxDataLockEventId;
+            var lastEvent = await _db.Value.DataLockUpdaterJobStatuses.SingleOrDefaultAsync();
+            return lastEvent?.LastEventId ?? await _db.Value.DataLocks.MaxAsync(x => x.DataLockEventId);
+        }
+
+        private async Task StoreLastDataLockEventId(long lastId)
+        {
+            var lastEvent = await _db.Value.DataLockUpdaterJobStatuses.SingleOrDefaultAsync();
+
+            if (lastEvent == null)
+            {
+                lastEvent = new DataLockUpdaterJobStatus
+                {
+                    LastEventId = lastId
+                };
+
+                await _db.Value.DataLockUpdaterJobStatuses.AddAsync(lastEvent);
+            }
+            else
+            {
+                lastEvent.LastEventId = lastId;
+            }
+
+            await _db.Value.SaveChangesAsync();
         }
 
         private static DateTime GetDateFromPriceEpisodeIdentifier(DataLockStatus dataLockStatus)

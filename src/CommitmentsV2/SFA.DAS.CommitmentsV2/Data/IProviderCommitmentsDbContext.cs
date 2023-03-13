@@ -21,6 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         DbSet<Cohort> Cohorts { get; set; }
         DbSet<CustomProviderPaymentPriority> CustomProviderPaymentPriorities { get; set; }
         DbSet<DataLockStatus> DataLocks { get; set; }
+        DbSet<DataLockUpdaterJobStatus> DataLockUpdaterJobStatuses { get; set; }
         DbSet<History> History { get; set; }
         DbSet<IntegrationTestIds> IntegrationTestIds { get; set; }
         DbSet<JobProgress> JobProgress { get; set; }
