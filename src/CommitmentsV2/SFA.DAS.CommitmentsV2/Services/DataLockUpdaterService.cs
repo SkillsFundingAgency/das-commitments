@@ -306,8 +306,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
             catch (InvalidOperationException)
             {
-                _logger.LogError($"InvalidOperationException occurred in SetHasHadDataLockSuccess - Apprenticeship {apprenticeship}");
-                throw;
+                _logger.LogError($"InvalidOperationException occurred in SetHasHadDataLockSuccess - Apprenticeship {apprenticeshipId}");
             }
         }
 
