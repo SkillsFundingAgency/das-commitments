@@ -24,7 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
             _cohortDomainService = cohortDomainService;
         }
 
-        //TODO FINISH DOING THE UPDATE
         public async Task<UpdateDraftApprenticeshipResponse> Handle(UpdateDraftApprenticeshipCommand command, CancellationToken cancellationToken)
         {
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(command);

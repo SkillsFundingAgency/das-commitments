@@ -100,7 +100,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             errors.ThrowIfAny();
         }
 
-        //TODO: Do we need to account for the bulk upload scenario with details verification?
         public async Task<IEnumerable<Cohort>> AddDraftApprenticeships(List<DraftApprenticeshipDetails> draftApprenticeships, List<BulkUploadAddDraftApprenticeshipRequest> csvBulkUploadApprenticehips, long providerId, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var newCohorts = new Dictionary<long, Cohort>();
