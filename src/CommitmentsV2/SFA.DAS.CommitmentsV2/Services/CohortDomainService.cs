@@ -440,27 +440,27 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private void HandleLearnerVerificationResponse(LearnerVerificationResponse learnerVerificationResponse)
         {
-            switch (learnerVerificationResponse.ResponseCode)
+            switch (learnerVerificationResponse.ResponseType)
             {
-                case LearnerVerificationResponseCode.SuccessfulMatch:
-                case LearnerVerificationResponseCode.SuccessfulLinkedMatch:
+                case LearnerVerificationResponseType.SuccessfulMatch:
+                case LearnerVerificationResponseType.SuccessfulLinkedMatch:
                     break;
 
-                case LearnerVerificationResponseCode.SimilarMatch:
-                case LearnerVerificationResponseCode.SimilarLinkedMatch:
+                case LearnerVerificationResponseType.SimilarMatch:
+                case LearnerVerificationResponseType.SimilarLinkedMatch:
                     // Note that in these cases, some or all of the fields (excluding unique learner
                     // number) are found to be similar to a learner on the Learner Record Service,
                     // but not an exact match
                     break;
 
-                case LearnerVerificationResponseCode.LearnerDoesNotMatch:
+                case LearnerVerificationResponseType.LearnerDoesNotMatch:
                     // Note that in this case, some or all of the fields (excluding unique learner
                     // number) did not successfully match any learners on the Learner Record Service
                     // Further detials can be found in learnerValidationResponseCode.FailureFlags
                     break;
 
-                case LearnerVerificationResponseCode.UlnNotFound:
-                    throw new DomainException(nameof(learnerVerificationResponse.ResponseCode), "Unique learner number does not match any learners on the Learner Record Service.");
+                case LearnerVerificationResponseType.UlnNotFound:
+                    throw new DomainException(nameof(learnerVerificationResponse.ResponseType), "Unique learner number does not match any learners on the Learner Record Service.");
                 default:
                     break;
             }
