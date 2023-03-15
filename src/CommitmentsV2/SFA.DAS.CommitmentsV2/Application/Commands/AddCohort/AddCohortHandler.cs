@@ -49,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 command.PledgeApplicationId,
                 draftApprenticeshipDetails,
                 command.UserInfo,
+                command.RequestingParty,
                 cancellationToken);
 
             db.Cohorts.Add(cohort);

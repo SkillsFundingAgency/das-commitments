@@ -43,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public async Task<IActionResult> Create([FromBody]CreateCohortRequest request)
         {
             var command = new AddCohortCommand(
+                request.RequestingParty,
                 request.AccountId,
                 request.AccountLegalEntityId,
                 request.ProviderId,

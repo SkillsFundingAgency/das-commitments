@@ -5,6 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
     public class UpdateDraftApprenticeshipRequest : SaveDataRequest
     {
+        public Party? RequestingParty { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
