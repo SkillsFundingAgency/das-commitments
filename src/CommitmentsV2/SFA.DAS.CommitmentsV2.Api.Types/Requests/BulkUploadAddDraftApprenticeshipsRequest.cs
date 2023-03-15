@@ -102,5 +102,32 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
                 return null;
             }
         }
+
+        public string DurationReducedByHoursAsString { get; set; }
+        public int? DurationReducedByHours
+        {
+            get
+            {
+                if (int.TryParse(DurationReducedByHoursAsString, out var result))
+                    return result;
+                return null;
+            }
+        }
+
+        public string WeightageReducedByAsString { get; set; }
+        public int? WeightageReducedBy
+        {
+            get
+            {
+                if (int.TryParse(WeightageReducedByAsString, out var result))
+                    return result;
+                return null;
+            }
+        }
+
+        public string QualificationsForRplReduction { get; set; }
+
+        public string ReasonForRplReduction { get; set; }
+
     }
 }

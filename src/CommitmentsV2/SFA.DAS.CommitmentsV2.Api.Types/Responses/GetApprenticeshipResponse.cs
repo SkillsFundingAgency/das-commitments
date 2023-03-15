@@ -55,5 +55,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public int? PriceReducedBy { get; set; }
         public long? TransferSenderId { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
+        public int? DurationReducedByHours { get; set; }
+        public int? WeightageReducedBy { get; set; }
+        public string QualificationsForRplReduction { get; set; }
+        public string ReasonForRplReduction { get; set; }
     }
 }

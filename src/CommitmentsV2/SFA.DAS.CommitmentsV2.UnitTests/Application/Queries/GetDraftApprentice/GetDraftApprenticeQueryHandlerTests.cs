@@ -15,7 +15,6 @@ using AutoFixture;
 using FluentAssertions;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
@@ -53,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
 
         [Test]
-        public async Task Then_If_There_is_prior_learning_return_values()
+        public async Task Then_If_There_is_prior_learning_return_values_and_status()
         {
             var fixture = new GetDraftApprenticeHandlerTestFixtures()
                 .SetApprentice(Party.Employer, "EMPREF123")
@@ -63,22 +62,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             result.DurationReducedBy.Should().Be(fixture.PriorLearning.DurationReducedBy);
             result.PriceReducedBy.Should().Be(fixture.PriorLearning.PriceReducedBy);
+
+            result.DurationReducedByHours.Should().Be(fixture.PriorLearning.DurationReducedByHours);
+            result.WeightageReducedBy.Should().Be(fixture.PriorLearning.WeightageReducedBy);
+            result.ReasonForRplReduction.Should().Be(fixture.PriorLearning.ReasonForRplReduction);
+            result.QualificationsForRplReduction.Should().Be(fixture.PriorLearning.QualificationsForRplReduction);
+
             result.RecognisePriorLearning.Should().BeTrue();
-        }
 
-        [TestCase(true, "2022-08-01", true)]
-        [TestCase(true, "2022-07-31", false)]
-        [TestCase(false, "2022-08-01", false)]
-        [TestCase(false, "2022-07-31", false)]
-        public async Task Then_If_prior_learning_not_present_return_rpl_required_status_according_to_feature_toggle_status(bool toggleStatus, DateTime startDate, bool expected)
-        {
-            var fixture = new GetDraftApprenticeHandlerTestFixtures()
-                .SetApprentice(Party.Employer, "EMPREF123", startDate: startDate)
-                .SetFeatureToggle(Constants.RecognitionOfPriorLearningFeature, toggleStatus);
-
-            var result = await fixture.Handle();
-
-            result.RecognisingPriorLearningStillNeedsToBeConsidered.Should().Be(expected);
+            var draftApprenticeship = fixture.GetDraftApprenticeship();
+            result.RecognisingPriorLearningStillNeedsToBeConsidered.Should().Be(draftApprenticeship.RecognisingPriorLearningStillNeedsToBeConsidered);
+            result.RecognisingPriorLearningExtendedStillNeedsToBeConsidered.Should().Be(draftApprenticeship.RecognisingPriorLearningExtendedStillNeedsToBeConsidered);
         }
 
         [TestCase(true, "2022-08-01")]
@@ -89,8 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             var fixture = new GetDraftApprenticeHandlerTestFixtures()
                 .SetApprentice(Party.Employer, "EMPREF123", startDate: startDate)
-                .SetApprenticeshipPriorLearning()
-                .SetFeatureToggle(Constants.RecognitionOfPriorLearningFeature, toggleStatus);
+                .SetApprenticeshipPriorLearning();
 
             var result = await fixture.Handle();
 
@@ -128,13 +121,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             AuthenticationServiceMock = new Mock<IAuthenticationService>();
             FeatureToggleServiceMock = new Mock<IFeatureTogglesService<FeatureToggle>>();
-            SetFeatureToggle(Constants.RecognitionOfPriorLearningFeature, false);
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             Handler = new GetDraftApprenticeshipQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), 
-                AuthenticationServiceMock.Object, FeatureToggleServiceMock.Object);
+                AuthenticationServiceMock.Object);
 
-            PriorLearning = new ApprenticeshipPriorLearning {DurationReducedBy = 10, PriceReducedBy = 999};
+            PriorLearning = new ApprenticeshipPriorLearning {DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
             FlexibleEmployment = new FlexibleEmployment {EmploymentEndDate = DateTime.Today, EmploymentPrice = 987};
         }
 
@@ -224,6 +216,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Db.SaveChanges();
 
             return this;
+        }
+
+        public DraftApprenticeship GetDraftApprenticeship()
+        {
+            return Db.DraftApprenticeships.First();
         }
 
         public GetDraftApprenticeHandlerTestFixtures SetFeatureToggle(string toggleName, bool toggle)

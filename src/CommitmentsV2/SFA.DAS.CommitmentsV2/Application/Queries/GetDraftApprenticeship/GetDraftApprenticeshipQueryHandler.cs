@@ -4,8 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Domain;
@@ -17,20 +15,16 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
-        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
-        public GetDraftApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, IFeatureTogglesService<FeatureToggle> featureTogglesService)
+        public GetDraftApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
         {
             _dbContext = dbContext; 
             _authenticationService = authenticationService;
-            _featureTogglesService = featureTogglesService;
         }
 
         public async Task<GetDraftApprenticeshipQueryResult> Handle(GetDraftApprenticeshipQuery request, CancellationToken cancellationToken)
         {
             var requestingParty = _authenticationService.GetUserParty();
-
-            var isRplRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
 
             var query = _dbContext.Value.DraftApprenticeships
                 .Include(x => x.PriorLearning)
@@ -68,7 +62,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 RecognisePriorLearning = draft.RecognisePriorLearning,
                 DurationReducedBy = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedBy : null,
                 PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
-                RecognisingPriorLearningStillNeedsToBeConsidered = isRplRequired && draft.RecognisingPriorLearningStillNeedsToBeConsidered,
+                DurationReducedByHours = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedByHours : null,
+                WeightageReducedBy = draft.PriorLearning != null ? draft.PriorLearning.WeightageReducedBy : null,
+                ReasonForRplReduction = draft.PriorLearning != null ? draft.PriorLearning.ReasonForRplReduction : null,
+                QualificationsForRplReduction = draft.PriorLearning != null ? draft.PriorLearning.QualificationsForRplReduction : null,
+                RecognisingPriorLearningStillNeedsToBeConsidered = draft.RecognisingPriorLearningStillNeedsToBeConsidered,
+                RecognisingPriorLearningExtendedStillNeedsToBeConsidered = draft.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot,
                 EmailAddressConfirmed = draft.EmailAddressConfirmed
             }).SingleOrDefaultAsync(cancellationToken);
