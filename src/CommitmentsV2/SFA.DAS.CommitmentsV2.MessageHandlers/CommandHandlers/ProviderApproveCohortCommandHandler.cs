@@ -18,18 +18,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
         private readonly ILogger<ProviderApproveCohortCommandHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IEmailOptionalService _emailService;
-        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
         public ProviderApproveCohortCommandHandler(
             ILogger<ProviderApproveCohortCommandHandler> logger,
             Lazy<ProviderCommitmentsDbContext> dbContext,
-            IEmailOptionalService emailService,
-            IFeatureTogglesService<FeatureToggle> featureTogglesService)
+            IEmailOptionalService emailService
+            )
         {
             _logger = logger;
             _dbContext = dbContext;
             _emailService = emailService;
-            _featureTogglesService = featureTogglesService;
         }
 
         public async Task Handle(ProviderApproveCohortCommand message, IMessageHandlerContext context)
@@ -40,7 +38,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 
                 var cohort = await _dbContext.Value.GetCohortAggregate(message.CohortId, default);
                 var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
-                var isRPLRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
 
                 if (cohort.Approvals.HasFlag(Party.Provider))
                 {
@@ -48,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                     return;
                 }
 
-                cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow, apprenticeEmailIsRequired, isRPLRequired);
+                cohort.Approve(Party.Provider, message.Message, message.UserInfo, DateTime.UtcNow, apprenticeEmailIsRequired);
 
                 await _dbContext.Value.SaveChangesAsync();
             }

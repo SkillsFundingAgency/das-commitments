@@ -527,8 +527,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
-                .WithExistingDraftApprenticeship()
-                .WithRPLRequired();
+                .WithExistingDraftApprenticeship();
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
@@ -537,12 +536,38 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public async Task ApproveCohort_WhenRPLIsRequiredAndRPLDataIsPresent_ShouldSuceed()
+        public async Task ApproveCohort_WhenRPLIsRequiredAndRPLDataIsPresent_ShouldSucceed()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
                 .WithExistingDraftApprenticeship()
-                .WithPriorLearning().WithRPLRequired();
+                .WithPriorLearning();
+
+            await _fixture.WithParty(Party.Provider).ApproveCohort();
+
+            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+        }
+
+        [Test]
+        public async Task ApproveCohort_WhenExtendedRPLIsRequiredAndRPLDataIsPresent_ShouldSuceed()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithExistingDraftApprenticeship()
+                .WithPriorLearningExtended();
+
+            await _fixture.WithParty(Party.Provider).ApproveCohort();
+
+            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+        }
+
+        [Test]
+        public async Task ApproveCohort_WhenRPLIsRequiredAndExtendedRPLDataIsPresent_ShouldSucceed()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithExistingDraftApprenticeship()
+                .WithExtendedPriorLearning();
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
@@ -859,7 +884,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 PriorLearning = fixture.Create<ApprenticeshipPriorLearning>();
 
                 FeatureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
-                FeatureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature)).Returns(new FeatureToggle { IsEnabled = false });
 
                 Exception = null;
                 DomainErrors = new List<DomainError>();
@@ -877,8 +901,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     EncodingService.Object,
                     AccountApiClient.Object,
                     EmailOptionalService.Object,
-                    LevyTransferMatchingApiClient.Object,
-                    FeatureTogglesService.Object);
+                    LevyTransferMatchingApiClient.Object);
 
                 Db.SaveChanges();
             }
@@ -937,6 +960,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithExtendedPriorLearning()
+            {
+                ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
+                ExistingDraftApprenticeship.SetPriorLearningDetailsExtended(10, 100, 9, "Qualifications", "because....");
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithPriorLearningExtended()
+            {
+                ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
+                ExistingDraftApprenticeship.SetPriorLearningDetailsExtended(10, 10, 20, "Qualifications", "Reasons");
+                return this;
+            }
+
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
             {
                 var utcValue = DateTime.SpecifyKind(value, DateTimeKind.Utc);
@@ -973,6 +1010,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var fixture = new Fixture();
                 DraftApprenticeshipDetails.DurationReducedBy = fixture.Create<int>();
                 DraftApprenticeshipDetails.PriceReducedBy = fixture.Create<int>();
+                DraftApprenticeshipDetails.DurationReducedByHours = fixture.Create<int>();
+                DraftApprenticeshipDetails.WeightageReducedBy = fixture.Create<int>();
+                DraftApprenticeshipDetails.ReasonForRplReduction = fixture.Create<string>();
+                DraftApprenticeshipDetails.QualificationsForRplReduction = fixture.Create<string>();
                 DraftApprenticeshipDetails.RecognisePriorLearning = true;
                 return this;
             }
@@ -1239,13 +1280,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var list = f.CreateMany<EmailOverlapCheckResult>().ToList();
                 OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(list);
-                return this;
-            }
-
-            public CohortDomainServiceTestFixture WithRPLRequired()
-            {
-                FeatureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature))
-                    .Returns(new FeatureToggle { IsEnabled = true });
                 return this;
             }
 
@@ -1590,6 +1624,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.IsNotNull(updated.PriorLearning, "No prior learning found");
                 Assert.IsNull(updated.PriorLearning.DurationReducedBy);
                 Assert.IsNull(updated.PriorLearning.PriceReducedBy);
+                Assert.IsNull(updated.PriorLearning.DurationReducedByHours);
+                Assert.IsNull(updated.PriorLearning.WeightageReducedBy);
+                Assert.IsNull(updated.PriorLearning.ReasonForRplReduction);
+                Assert.IsNull(updated.PriorLearning.QualificationsForRplReduction);
             }
 
             public void VerifyPriorLearningIsStillPresent()
@@ -1601,6 +1639,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.AreEqual(PriorLearning.DurationReducedBy, updated.PriorLearning.DurationReducedBy);
                 Assert.IsNotNull(updated.PriorLearning.PriceReducedBy);
                 Assert.AreEqual(PriorLearning.PriceReducedBy, updated.PriorLearning.PriceReducedBy);
+                Assert.IsNotNull(updated.PriorLearning.DurationReducedByHours);
+                Assert.AreEqual(PriorLearning.DurationReducedByHours, updated.PriorLearning.DurationReducedByHours);
+                Assert.IsNotNull(updated.PriorLearning.WeightageReducedBy);
+                Assert.AreEqual(PriorLearning.WeightageReducedBy, updated.PriorLearning.WeightageReducedBy);
+                Assert.IsNotNull(updated.PriorLearning.ReasonForRplReduction);
+                Assert.AreEqual(PriorLearning.ReasonForRplReduction, updated.PriorLearning.ReasonForRplReduction);
+                Assert.IsNotNull(updated.PriorLearning.QualificationsForRplReduction);
+                Assert.AreEqual(PriorLearning.QualificationsForRplReduction, updated.PriorLearning.QualificationsForRplReduction);
             }
 
             public void VerifyPriorLearningIsNotSetToNewRPLValues()
@@ -1608,7 +1654,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
                 Assert.IsFalse(updated.RecognisePriorLearning != DraftApprenticeshipDetails.RecognisePriorLearning &&
                                updated.PriorLearning?.DurationReducedBy != DraftApprenticeshipDetails.DurationReducedBy &&
-                               updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy);
+                               updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy &&
+                               updated.PriorLearning?.DurationReducedByHours != DraftApprenticeshipDetails.DurationReducedByHours &&
+                               updated.PriorLearning?.WeightageReducedBy != DraftApprenticeshipDetails.WeightageReducedBy &&
+                               updated.PriorLearning?.QualificationsForRplReduction != DraftApprenticeshipDetails.QualificationsForRplReduction &&
+                               updated.PriorLearning?.ReasonForRplReduction != DraftApprenticeshipDetails.ReasonForRplReduction);
             }
 
             public void VerifyPriorLearningIsSetToNewRPLValues()
@@ -1616,7 +1666,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
                 Assert.IsFalse(updated.RecognisePriorLearning == DraftApprenticeshipDetails.RecognisePriorLearning &&
                                updated.PriorLearning?.DurationReducedBy == DraftApprenticeshipDetails.DurationReducedBy &&
-                               updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy);
+                               updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy &&
+
+                               updated.PriorLearning?.DurationReducedByHours == DraftApprenticeshipDetails.DurationReducedByHours &&
+                               updated.PriorLearning?.WeightageReducedBy == DraftApprenticeshipDetails.WeightageReducedBy &&
+                               updated.PriorLearning?.QualificationsForRplReduction == DraftApprenticeshipDetails.QualificationsForRplReduction &&
+                               updated.PriorLearning?.ReasonForRplReduction == DraftApprenticeshipDetails.ReasonForRplReduction);
             }
 
             public void VerifyLastUpdatedFieldsAreSet(Party withParty)

@@ -42,7 +42,6 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IAccountApiClient _accountApiClient;
         private readonly IEmailOptionalService _emailService;
         private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
-        private readonly IFeatureTogglesService<FeatureToggle> _featureTogglesService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -56,8 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             IEncodingService encodingService,
             IAccountApiClient accountApiClient,
             IEmailOptionalService emailOptionalService,
-            ILevyTransferMatchingApiClient levyTransferMatchingApiClient,
-            IFeatureTogglesService<FeatureToggle> featureTogglesService)
+            ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -72,7 +70,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             _accountApiClient = accountApiClient;
             _emailService = emailOptionalService;
             _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
-            _featureTogglesService = featureTogglesService;
         }
 
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, LearnerVerificationResponse learnerVerificationResponse, CancellationToken cancellationToken)
@@ -163,7 +160,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = requestingParty ?? _authenticationService.GetUserParty();
             var apprenticeEmailIsRequired = _emailService.ApprenticeEmailIsRequiredFor(cohort.EmployerAccountId, cohort.ProviderId);
-            var isRPLRequired = _featureTogglesService.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature).IsEnabled;
 
             if (party == Party.Employer)
             {
@@ -173,7 +169,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             await ValidateUlnOverlap(cohort);
 
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
-            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired, isRPLRequired);
+            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, int? pledgeApplicationId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, LearnerVerificationResponse learnerVerificationResponse, CancellationToken cancellationToken)

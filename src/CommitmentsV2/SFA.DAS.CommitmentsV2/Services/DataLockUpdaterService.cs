@@ -290,17 +290,24 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             _logger.LogDebug($"Setting HasHadDataLockSuccess for apprenticeship {apprenticeshipId}");
 
-            var apprenticeships = await _db.Value.Apprenticeships
-                .Where(x => x.Id == apprenticeshipId && !x.HasHadDataLockSuccess)
-                .ToListAsync();
+            var apprenticeship = await _db.Value.Apprenticeships
+                .SingleOrDefaultAsync(x => x.Id == apprenticeshipId);
 
-            foreach (var apprenticeship in apprenticeships)
+            if (apprenticeship == null || apprenticeship.HasHadDataLockSuccess)
             {
-                apprenticeship.HasHadDataLockSuccess = true;
-                _db.Value.Apprenticeships.Update(apprenticeship);
+                return;
             }
 
-            await _db.Value.SaveChangesAsync();
+            apprenticeship.HasHadDataLockSuccess = true;
+
+            try
+            {
+                await _db.Value.SaveChangesAsync();
+            }
+            catch (InvalidOperationException)
+            {
+                _logger.LogError($"InvalidOperationException occurred in SetHasHadDataLockSuccess - Apprenticeship {apprenticeshipId}");
+            }
         }
 
         private async Task ExpireApprenticeshipUpdate(long apprenticeshipUpdateId)
