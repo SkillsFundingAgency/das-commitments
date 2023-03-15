@@ -112,6 +112,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 CohortId = cohortId,
                 DurationReducedBy = request.DurationReducedBy,
                 PriceReducedBy = request.PriceReducedBy,
+                DurationReducedByHours = request.DurationReducedByHours,
+                WeightageReducedBy = request.WeightageReducedBy,
+                QualificationsForRplReduction = request.QualificationsForRplReduction,
+                ReasonForRplReduction = request.ReasonForRplReduction,
+                Rpl2Mode = request.Rpl2Mode,
                 UserInfo = request.UserInfo
             });
             return Ok();

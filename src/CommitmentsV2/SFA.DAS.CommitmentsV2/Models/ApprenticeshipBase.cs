@@ -88,5 +88,29 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
+        public bool RecognisingPriorLearningExtendedStillNeedsToBeConsidered
+        {
+            get
+            {
+                if (StartDate >= Constants.RecognisePriorLearningBecomesRequiredOn)
+                {
+                    switch (RecognisePriorLearning)
+                    {
+                        case null:
+                            return true;
+                        case false:
+                            return false;
+                    }
+
+                    if (PriorLearning?.DurationReducedByHours == null || PriorLearning?.PriceReducedBy == null
+                          || PriorLearning?.WeightageReducedBy == null || PriorLearning?.ReasonForRplReduction == null)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
     }
 }
