@@ -423,7 +423,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, LearnerVerificationResponse learnerVerificationResponse, long? cohortId, CancellationToken cancellationToken)
         {
-            if (learnerVerificationResponse is not null)
+            if (learnerVerificationResponse != null)
             {
                 HandleLearnerVerificationResponse(learnerVerificationResponse);
             }
