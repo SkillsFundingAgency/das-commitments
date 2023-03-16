@@ -82,7 +82,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             return draftApprenticeship;
         }
 
-        //TODO: Do we need to account for this scenario with details verification?
         public async Task ValidateDraftApprenticeshipForOverlappingTrainingDateRequest(long providerId, long? cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
         {
             Cohort cohort = null;
