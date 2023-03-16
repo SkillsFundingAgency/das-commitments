@@ -1795,7 +1795,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyEmailOverlapExceptionOnApprenticeship(bool isApproved)
             {
                 var expectedErrorMessage = isApproved
-                    ? "You need to enter a unique email address."
+                    ? "This email address is in use on another apprentice record. You need to enter a different email address."
                     : "You need to enter a unique email address for each apprentice.";
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage));
             }
