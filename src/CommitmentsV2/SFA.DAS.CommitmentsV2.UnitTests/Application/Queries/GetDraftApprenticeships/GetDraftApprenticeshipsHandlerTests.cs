@@ -4,13 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using NUnit.Framework;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
@@ -39,7 +35,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [Test]
         public async Task Handle_WhenCohortExists_AndRPLFeatureNotEnabledThenRecognisingPriorLearningStillNeedsToBeConsiderShouldBeFalse()
         {
-            _fixture.WithRecognisePriorLearningServiceDisabled();
             var result = await _fixture.Handle();
             result.DraftApprenticeships.Any(x=>x.RecognisingPriorLearningStillNeedsToBeConsidered).ShouldBeFalse();
         }
@@ -61,20 +56,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             private readonly IFixture _autoFixture;
             private Cohort _cohort;
             private long _cohortId;
-            private Mock<IFeatureTogglesService<FeatureToggle>> _featureTogglesService;
 
             public GetDraftApprenticeshipsHandlerTestsFixture()
             {
                 _autoFixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
 
-                _featureTogglesService = new Mock<IFeatureTogglesService<FeatureToggle>>();
-                SetRecognisePriorLearningService(true);
                 _cohortId = _autoFixture.Create<long>();
                 _query = new GetDraftApprenticeshipsQuery(_cohortId);
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
                 SeedData();
-                _queryHandler = new GetDraftApprenticeshipsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db), _featureTogglesService.Object);
+                _queryHandler = new GetDraftApprenticeshipsQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }
 
             public GetDraftApprenticeshipsHandlerTestsFixture WithNonExistentCohort()
@@ -83,15 +75,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 return this;
             }
 
-            public GetDraftApprenticeshipsHandlerTestsFixture WithRecognisePriorLearningServiceDisabled() =>
-                SetRecognisePriorLearningService(false);
-
-            private GetDraftApprenticeshipsHandlerTestsFixture SetRecognisePriorLearningService(bool rplRequired)
-            {
-                var toggle = new FeatureToggle {Feature = Constants.RecognitionOfPriorLearningFeature, IsEnabled = rplRequired};
-                _featureTogglesService.Setup(x => x.GetFeatureToggle(Constants.RecognitionOfPriorLearningFeature)).Returns(toggle);
-                return this;
-            }
 
             public GetDraftApprenticeshipsHandlerTestsFixture WithDeletedCohort()
             {
@@ -168,6 +151,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.RecognisePriorLearning, result.RecognisePriorLearning);
             Assert.AreEqual(source.PriorLearning.DurationReducedBy, result.DurationReducedBy);
             Assert.AreEqual(source.PriorLearning.PriceReducedBy, result.PriceReducedBy);
+            Assert.AreEqual(source.PriorLearning.DurationReducedByHours, result.DurationReducedByHours);
+            Assert.AreEqual(source.PriorLearning.WeightageReducedBy, result.WeightageReducedBy);
+            Assert.AreEqual(source.PriorLearning.ReasonForRplReduction, result.ReasonForRplReduction);
+            Assert.AreEqual(source.PriorLearning.QualificationsForRplReduction, result.QualificationsForRplReduction);
             Assert.AreEqual(source.IsOnFlexiPaymentPilot, result.IsOnFlexiPaymentPilot);
             Assert.AreEqual(source.EmailAddressConfirmed, result.EmailAddressConfirmed);
         }

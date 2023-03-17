@@ -39,6 +39,10 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
                     RecognisePriorLearning = source.RecognisePriorLearning,
                     DurationReducedBy = source.DurationReducedBy,
                     PriceReducedBy = source.PriceReducedBy,
+                    DurationReducedByHours = source.DurationReducedByHours,
+                    WeightageReducedBy = source.WeightageReducedBy,
+                    ReasonForRplReduction = source.ReasonForRplReduction,
+                    QualificationsForRplReduction = source.QualificationsForRplReduction,
                     IsOnFlexiPaymentPilot = false
                 };
                 await MapTrainingProgramme(source, result);

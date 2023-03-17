@@ -42,8 +42,13 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 DurationReducedBy = source.DurationReducedBy,
                 PriceReducedBy = source.PriceReducedBy,
                 RecognisingPriorLearningStillNeedsToBeConsidered = source.RecognisingPriorLearningStillNeedsToBeConsidered,
+                RecognisingPriorLearningExtendedStillNeedsToBeConsidered = source.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
-                EmailAddressConfirmed = source.EmailAddressConfirmed
+                EmailAddressConfirmed = source.EmailAddressConfirmed,
+                DurationReducedByHours = source.DurationReducedByHours,
+                WeightageReducedBy = source.WeightageReducedBy,
+                QualificationsForRplReduction = source.QualificationsForRplReduction,
+                ReasonForRplReduction = source.ReasonForRplReduction
             });
         }
     }
