@@ -89,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("You need to enter a unique email address.", result.Errors[0].ErrorMessage);
+            Assert.AreEqual("This email address is in use on another apprentice record. You need to enter a different email address.", result.Errors[0].ErrorMessage);
         }
 
         [TestCase(null)]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -10,12 +11,12 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
     {
-        public bool IsCompleteForParty(Party party, bool apprenticeEmailRequired, bool recognitionOfPriorLearningRequired)
+        public bool IsCompleteForParty(Party party, bool apprenticeEmailRequired)
         {
             switch (party)
             {
                 case Party.Employer: return IsCompleteForEmployer(apprenticeEmailRequired);
-                case Party.Provider: return IsCompleteForProvider(apprenticeEmailRequired, recognitionOfPriorLearningRequired);
+                case Party.Provider: return IsCompleteForProvider(apprenticeEmailRequired);
                 default:
                     throw new InvalidOperationException($"Cannot determine completeness for Party {party}");
             }
@@ -31,7 +32,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             DateOfBirth != null &&
             (!apprenticeEmailRequired || Email != null || ContinuationOfId != null);
 
-        private bool IsCompleteForProvider(bool apprenticeEmailRequired, bool recognitionOfPriorLearningRequired) =>
+
+        private bool IsCompleteForProvider(bool apprenticeEmailRequired) => 
             FirstName != null &&
             LastName != null &&
             Uln != null &&
@@ -41,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CourseCode != null &&
             DateOfBirth != null &&
             (!apprenticeEmailRequired || Email != null || ContinuationOfId != null) &&
-            (!recognitionOfPriorLearningRequired || !RecognisingPriorLearningStillNeedsToBeConsidered);
+            (!RecognisingPriorLearningStillNeedsToBeConsidered || !RecognisingPriorLearningExtendedStillNeedsToBeConsidered);
 
         public DraftApprenticeship()
         {
@@ -139,6 +141,10 @@ namespace SFA.DAS.CommitmentsV2.Models
                 {
                     PriorLearning.DurationReducedBy = null;
                     PriorLearning.PriceReducedBy = null;
+                    PriorLearning.WeightageReducedBy = null;
+                    PriorLearning.ReasonForRplReduction = null;
+                    PriorLearning.QualificationsForRplReduction = null;
+                    PriorLearning.DurationReducedByHours = null;
                 }
             }
         }
@@ -254,6 +260,92 @@ namespace SFA.DAS.CommitmentsV2.Models
             PriorLearning ??= new ApprenticeshipPriorLearning();
             PriorLearning.DurationReducedBy = durationReducedBy;
             PriorLearning.PriceReducedBy = priceReducedBy;
+
+            PriorLearning.DurationReducedByHours = null;
+            PriorLearning.WeightageReducedBy = null;
+            PriorLearning.QualificationsForRplReduction = null;
+            PriorLearning.ReasonForRplReduction = null;
+        }
+
+        public void SetPriorLearningDetailsExtended(int? durationReducedByHours, int? priceReduction, int? weightageReducedBy, string qualificationsForRplReduction, string reasonForRplReduction)
+        {
+
+            if (RecognisePriorLearning != true)
+            {
+                throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
+            }
+
+            var errors = ValidateDraftApprenticeshipRplExtendedDetails(durationReducedByHours, priceReduction, weightageReducedBy, qualificationsForRplReduction, reasonForRplReduction);
+            errors.ThrowIfAny();
+
+            PriorLearning ??= new ApprenticeshipPriorLearning();
+            PriorLearning.DurationReducedByHours = durationReducedByHours;
+            PriorLearning.PriceReducedBy = priceReduction;
+            PriorLearning.WeightageReducedBy = weightageReducedBy;
+            PriorLearning.QualificationsForRplReduction = qualificationsForRplReduction;
+            PriorLearning.ReasonForRplReduction = reasonForRplReduction;
+
+            PriorLearning.DurationReducedBy = null;
+        }
+
+        private List<DomainError> ValidateDraftApprenticeshipRplExtendedDetails(int? durationReducedByHours, int? priceReduction, int? weightageReducedBy, string qualificationsForRplReduction, string reasonForRplReduction)
+        {
+            var errors = new List<DomainError>();
+
+            if (!durationReducedByHours.HasValue)
+            {
+                errors.Add(new DomainError("DurationReducedByHours", "You must enter the number of hours"));
+            }
+            else if (durationReducedByHours.Value < 0)
+            {
+                errors.Add(new DomainError("DurationReducedByHours", "The number can't be negative"));
+            }
+            else if (durationReducedByHours.Value > 999)
+            {
+                errors.Add(new DomainError("DurationReducedByHours", "The number of hours must be 999 or less"));
+            }
+
+            if (!priceReduction.HasValue)
+            {
+                errors.Add(new DomainError("ReducedPrice", "You must enter a price"));
+            }
+            else if (priceReduction.Value < 0)
+            {
+                errors.Add(new DomainError("ReducedPrice", "The price can't be negative"));
+            }
+            else if (priceReduction.Value > Constants.MaximumApprenticeshipCost)
+            {
+                errors.Add(new DomainError("ReducedPrice", "The price must be 100,000 or less"));
+            }
+
+            if (!weightageReducedBy.HasValue)
+            {
+                errors.Add(new DomainError("WeightageReducedBy", "You must enter a percentage"));
+            }
+            else if (weightageReducedBy.Value < 0)
+            {
+                errors.Add(new DomainError("WeightageReducedBy", "The percentage can't be negative"));
+            }
+            else if (weightageReducedBy.Value > 99)
+            {
+                errors.Add(new DomainError("WeightageReducedBy", "The percentage can't be more than 99"));
+            }
+
+            if (qualificationsForRplReduction?.Trim().Length > 1000)
+            {
+                errors.Add(new DomainError("QualificationsForRplReduction", "You can't exceed 1000 characters for qualifications"));
+            }
+
+            if (string.IsNullOrEmpty(reasonForRplReduction))
+            {
+                errors.Add(new DomainError("ReasonForRplReduction", "You must specify a reason"));
+            }
+            else if (reasonForRplReduction?.Trim().Length > 1000)
+            {
+                errors.Add(new DomainError("ReasonForRplReduction", "You can't exceed 1000 characters for a reason"));
+            }
+
+            return errors;
         }
     }
 }
