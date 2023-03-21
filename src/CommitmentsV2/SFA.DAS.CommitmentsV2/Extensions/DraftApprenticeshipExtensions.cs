@@ -20,14 +20,14 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildFlexibleEmploymentValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildEmailValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
             if (!isContinuation)
             {
-                errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
-                errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
-                errors.AddRange(BuildEmailValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildIsOnFlexiPaymentPilotValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails, transferSenderId));
-                errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
                 errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, apprenticeships));
                 errors.AddRange(BuildTrainingProgramValidationFailures(draftApprenticeshipDetails, transferSenderId));
             }
