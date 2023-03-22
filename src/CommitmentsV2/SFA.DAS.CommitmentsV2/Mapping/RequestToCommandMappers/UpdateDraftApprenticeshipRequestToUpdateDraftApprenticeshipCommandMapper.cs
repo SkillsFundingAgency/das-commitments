@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
         {
             return Task.FromResult(new UpdateDraftApprenticeshipCommand
             {
+                RequestingParty = source.RequestingParty,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 Email = source.Email,

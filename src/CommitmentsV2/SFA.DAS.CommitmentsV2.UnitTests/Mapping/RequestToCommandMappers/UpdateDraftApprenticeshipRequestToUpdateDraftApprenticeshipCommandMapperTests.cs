@@ -171,5 +171,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         {
             return AssertPropertySet(from => from.DeliveryModel, dm);
         }
+
+        [Test]
+        public Task Map_RequestingParty_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.RequestingParty, (Party?)Party.Employer);
+        }
     }
 }

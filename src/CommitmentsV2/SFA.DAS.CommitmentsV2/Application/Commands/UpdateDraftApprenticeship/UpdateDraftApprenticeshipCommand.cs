@@ -6,6 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
 {
     public class UpdateDraftApprenticeshipCommand : IRequest<UpdateDraftApprenticeshipResponse>
     {
+        public Party? RequestingParty { get; set; }
         public long CohortId { get; set; }
         public long ApprenticeshipId { get; set; }
         public string CourseCode { get; set; }

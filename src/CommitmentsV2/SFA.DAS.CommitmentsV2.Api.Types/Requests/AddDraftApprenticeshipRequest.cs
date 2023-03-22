@@ -5,6 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
     public class AddDraftApprenticeshipRequest : SaveDataRequest
     {
+        public Party? RequestingParty { get; set; }
         public string UserId { get; set; }
         public long ProviderId { get; set; }
         public string FirstName { get; set; }

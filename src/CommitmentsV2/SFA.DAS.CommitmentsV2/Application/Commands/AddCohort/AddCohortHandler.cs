@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.Encoding;
 
@@ -49,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 command.PledgeApplicationId,
                 draftApprenticeshipDetails,
                 command.UserInfo,
+                command.RequestingParty,
                 command.LearnerVerificationResponse,
                 cancellationToken);
 

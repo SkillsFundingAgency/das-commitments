@@ -1364,7 +1364,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 try
                 {
                     var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                        DraftApprenticeshipDetails, UserInfo, LearnerVerificationResponse, new CancellationToken());
+                        DraftApprenticeshipDetails, UserInfo, RequestingParty, LearnerVerificationResponse, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
@@ -1437,7 +1437,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, LearnerVerificationResponse, new CancellationToken());
+                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, LearnerVerificationResponse, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)
@@ -1500,7 +1500,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, LearnerVerificationResponse, new CancellationToken());
+                    await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, LearnerVerificationResponse, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)
@@ -1799,7 +1799,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyEmailOverlapExceptionOnApprenticeship(bool isApproved)
             {
                 var expectedErrorMessage = isApproved
-                    ? "You need to enter a unique email address."
+                    ? "This email address is in use on another apprentice record. You need to enter a different email address."
                     : "You need to enter a unique email address for each apprentice.";
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Email" && x.ErrorMessage == expectedErrorMessage));
             }

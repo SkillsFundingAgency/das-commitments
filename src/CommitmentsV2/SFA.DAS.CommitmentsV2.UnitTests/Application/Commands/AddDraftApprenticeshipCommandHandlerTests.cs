@@ -5,7 +5,6 @@ using AutoFixture;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -31,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return TestAsync(
                 f => f.AddDraftApprenticeship(),
                 f => f.CohortDomainService.Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId,
-                    f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.LearnerVerificationResponse, f.CancellationToken)));
+                    f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.Command.RequestingParty, f.LearnerVerificationResponse, f.CancellationToken)));
         }
 
         [Test]
@@ -86,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 CohortDomainService.Object);
 
             CohortDomainService.Setup(s => s.AddDraftApprenticeship(Command.ProviderId, Command.CohortId,
-                DraftApprenticeshipDetails, Command.UserInfo, Command.LearnerVerificationResponse, CancellationToken)).ReturnsAsync(DraftApprenticeship);
+                DraftApprenticeshipDetails, Command.UserInfo, Command.RequestingParty, Command.LearnerVerificationResponse, CancellationToken)).ReturnsAsync(DraftApprenticeship);
             DraftApprenticeshipDetailsMapper.Setup(m => m.Map(Command)).ReturnsAsync(DraftApprenticeshipDetails);
         }
 
