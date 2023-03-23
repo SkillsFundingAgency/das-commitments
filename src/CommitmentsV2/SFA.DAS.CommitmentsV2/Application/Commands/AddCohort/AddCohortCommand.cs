@@ -6,6 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 {
     public class AddCohortCommand : IRequest<AddCohortResult>
     {
+        public Party? RequestingParty { get; set; }
         public long AccountId { get; }
         public long AccountLegalEntityId { get; }
         public long ProviderId { get; }
@@ -30,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public bool IgnoreStartDateOverlap { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
 
-        public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode,
+        public AddCohortCommand(Party? requestingParty, long accountId, long accountLegalEntityId, long providerId, string courseCode,
             DeliveryModel? deliveryModel, int? cost, DateTime? startDate, DateTime? actualStartDate, DateTime? endDate,
             string originatorReference, Guid? reservationId, string firstName,
             string lastName, string email, DateTime? dateOfBirth, string uln, long? transferSenderId,
@@ -38,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             int? employmentPrice, DateTime? employmentEndDate, UserInfo userInfo, bool ignoreStartDateOverlap,
             bool? isOnFlexiPaymentPilot)
         {
+            RequestingParty = requestingParty;
             AccountId = accountId;
             AccountLegalEntityId = accountLegalEntityId;
             ProviderId = providerId;

@@ -5,6 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
     public class CreateCohortRequest : SaveDataRequest
     {
+        public Party? RequestingParty { get; set; }
         public long AccountId { get; set; }
         public long AccountLegalEntityId { get; set; }
         public long ProviderId { get; set; }

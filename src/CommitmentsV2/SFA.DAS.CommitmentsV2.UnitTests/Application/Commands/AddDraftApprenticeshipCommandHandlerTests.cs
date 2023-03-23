@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return TestAsync(
                 f => f.AddDraftApprenticeship(),
                 f => f.CohortDomainService.Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId,
-                    f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.CancellationToken)));
+                    f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.Command.RequestingParty, f.CancellationToken)));
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 CohortDomainService.Object);
 
             CohortDomainService.Setup(s => s.AddDraftApprenticeship(Command.ProviderId, Command.CohortId,
-                DraftApprenticeshipDetails, Command.UserInfo, CancellationToken)).ReturnsAsync(DraftApprenticeship);
+                DraftApprenticeshipDetails, Command.UserInfo, Command.RequestingParty, CancellationToken)).ReturnsAsync(DraftApprenticeship);
             DraftApprenticeshipDetailsMapper.Setup(m => m.Map(Command)).ReturnsAsync(DraftApprenticeshipDetails);
         }
 

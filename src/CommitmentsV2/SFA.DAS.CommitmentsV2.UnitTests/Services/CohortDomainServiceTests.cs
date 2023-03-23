@@ -1362,7 +1362,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 try
                 {
                     var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                        DraftApprenticeshipDetails, UserInfo, new CancellationToken());
+                        DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
@@ -1435,7 +1435,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, new CancellationToken());
+                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)
@@ -1498,7 +1498,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, new CancellationToken());
+                    await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)
