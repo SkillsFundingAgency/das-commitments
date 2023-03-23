@@ -109,16 +109,6 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new InvalidOperationException("Invalid operation - ULN can't be modified.");
             }
 
-            if (apprenticeship.IsContinuation)
-            {
-                if (request.FirstName != apprenticeship.FirstName
-                    || request.LastName != apprenticeship.LastName
-                    || request.DateOfBirth != apprenticeship.DateOfBirth)
-                {
-                    throw new InvalidOperationException("Invalid operation - First name, Last name,DOB can't change for continuation records.");
-                }
-            }
-
             if (IsLockedForUpdate(apprenticeship) || IsUpdateLockedForStartDateAndCourse(apprenticeship))
             {
                 if (request.CourseCode != apprenticeship.CourseCode)
