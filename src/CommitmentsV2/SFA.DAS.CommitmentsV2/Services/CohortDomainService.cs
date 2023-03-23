@@ -422,12 +422,9 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, LearnerVerificationResponse learnerVerificationResponse, long? cohortId, CancellationToken cancellationToken)
         {
-            if (learnerVerificationResponse != null)
-            {
-                HandleLearnerVerificationResponse(learnerVerificationResponse);
-            }
             ValidateApprenticeshipDate(draftApprenticeshipDetails);
             ValidateUln(draftApprenticeshipDetails);
+            if (learnerVerificationResponse != null) { HandleLearnerVerificationResponse(learnerVerificationResponse); }
             await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
             await ValidateEmailOverlaps(draftApprenticeshipDetails, cohortId, cancellationToken);
             await ValidateReservation(draftApprenticeshipDetails, cancellationToken);
@@ -455,7 +452,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     break;
 
                 case LearnerVerificationResponseType.UlnNotFound:
-                    throw new DomainException(nameof(learnerVerificationResponse.ResponseType), "Unique learner number does not match any learners on the Learner Record Service.");
+                    throw new DomainException("Uln", "Unique learner number does not match any learners on the Learner Record Service.");
                 default:
                     break;
             }
