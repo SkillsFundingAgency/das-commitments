@@ -4,7 +4,6 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -22,8 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -42,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IAccountApiClient _accountApiClient;
         private readonly IEmailOptionalService _emailService;
         private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
+        private const string UlnValidationPropertyName = "Uln";
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -452,7 +450,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     break;
 
                 case LearnerVerificationResponseType.UlnNotFound:
-                    throw new DomainException("Uln", "Unique learner number does not match any learners on the Learner Record Service.");
+                    throw new DomainException(UlnValidationPropertyName, "Unique learner number does not match any learners on the Learner Record Service.");
                 default:
                     break;
             }
