@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _encodingService.Setup(x => x.Encode(It.Is<long>(id => id == _cohortSummary.AccountId),
                     EncodingType.AccountId)).Returns(_employerEncodedAccountId);
 
-                _handler = new CohortAssignedToEmployerEventHandler(_mediator.Object, _encodingService.Object, new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = EmployerCommitmentsBaseUrl });
+                _handler = new CohortAssignedToEmployerEventHandler(_mediator.Object, _encodingService.Object, new CommitmentsV2Configuration { EmployerCommitmentsBaseUrl = EmployerCommitmentsBaseUrl });
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
                 _pipelineContext = _messageHandlerContext.As<IPipelineContext>();
