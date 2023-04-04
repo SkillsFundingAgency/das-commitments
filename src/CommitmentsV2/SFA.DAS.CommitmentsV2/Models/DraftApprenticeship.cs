@@ -348,9 +348,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             return errors;
         }
 
-
-
-
         public void SetPriorLearningData(int? durationReducedByHours, int? priceReduction, int? weightageReducedBy, string qualificationsForRplReduction, string reasonForRplReduction, bool? isDurationReducedByRpl, int? trainingTotalHours, int? costBeforeRpl)
         {
 
