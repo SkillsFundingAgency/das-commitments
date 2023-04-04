@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails
+namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData
 {
     public class PriorLearningDataCommand : IRequest
     {
