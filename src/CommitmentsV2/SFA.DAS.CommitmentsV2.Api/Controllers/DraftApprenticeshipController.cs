@@ -122,6 +122,30 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok();
         }
 
+
+        [HttpPost]
+        [Route("{apprenticeshipId}/prior-learning-data")]
+        public async Task<IActionResult> UpdateRplData(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDataRequest request)
+        {
+            await _mediator.Send(new PriorLearningDataCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+                CohortId = cohortId,
+                DurationReducedBy = request.DurationReducedBy,
+                PriceReducedBy = request.PriceReducedBy,
+                DurationReducedByHours = request.DurationReducedByHours,
+                WeightageReducedBy = request.WeightageReducedBy,
+                QualificationsForRplReduction = request.QualificationsForRplReduction,
+                ReasonForRplReduction = request.ReasonForRplReduction,
+                IsDurationReducedByRpl = request.IsDurationReducedByRpl,
+                TrainingTotalHours = request.TrainingTotalHours,
+                CostBeforeRpl = request.CostBeforeRpl,
+                Rpl2Mode = request.Rpl2Mode,
+                UserInfo = request.UserInfo
+            });
+            return Ok();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Add(long cohortId, [FromBody]AddDraftApprenticeshipRequest request)
         {
