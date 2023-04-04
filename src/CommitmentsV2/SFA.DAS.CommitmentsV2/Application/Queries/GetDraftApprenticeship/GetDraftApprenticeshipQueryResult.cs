@@ -43,5 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
         public int? WeightageReducedBy { get; set; }
         public string QualificationsForRplReduction { get; set; }
         public string ReasonForRplReduction { get; set; }
+        public bool? IsDurationReducedByRpl { get; set; }
+        public int? TrainingTotalHours { get; set; }
+        public int? CostBeforeRpl { get; set; }
     }
 }
