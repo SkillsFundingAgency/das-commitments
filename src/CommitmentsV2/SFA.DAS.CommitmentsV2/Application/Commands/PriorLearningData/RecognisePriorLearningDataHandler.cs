@@ -25,9 +25,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData
         {
             var apprenticeship = await _dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
 
-            apprenticeship.SetPriorLearningData(command.DurationReducedByHours, command.PriceReducedBy, command.WeightageReducedBy, command.QualificationsForRplReduction, command.ReasonForRplReduction, command.IsDurationReducedByRpl, command.TrainingTotalHours, command.CostBeforeRpl);
+            apprenticeship.SetPriorLearningData(command.TrainingTotalHours, command.DurationReducedByHours, command.IsDurationReducedByRpl, command.DurationReducedBy, command.CostBeforeRpl, command.PriceReducedBy);
 
-            _logger.LogInformation($"Set PriorLearning data draft Apprenticeship:{command.ApprenticeshipId}, Rpl Extended Mode: {command.Rpl2Mode}");
+            _logger.LogInformation($"Set PriorLearning data draft Apprenticeship:{command.ApprenticeshipId}");
         }
     }
 }

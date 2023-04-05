@@ -348,7 +348,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return errors;
         }
 
-        public void SetPriorLearningData(int? durationReducedByHours, int? priceReduction, int? weightageReducedBy, string qualificationsForRplReduction, string reasonForRplReduction, bool? isDurationReducedByRpl, int? trainingTotalHours, int? costBeforeRpl)
+        public void SetPriorLearningData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? costBeforeRpl, int? priceReduced)
         {
 
             if (RecognisePriorLearning != true)
@@ -356,24 +356,21 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
             }
 
-            var errors = ValidateDraftApprenticeshipRplData(durationReducedByHours, priceReduction, weightageReducedBy, qualificationsForRplReduction, reasonForRplReduction, isDurationReducedByRpl, trainingTotalHours, costBeforeRpl);
+            var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, costBeforeRpl, priceReduced);
             errors.ThrowIfAny();
 
             PriorLearning ??= new ApprenticeshipPriorLearning();
+
             PriorLearning.DurationReducedByHours = durationReducedByHours;
-            PriorLearning.PriceReducedBy = priceReduction;
-            PriorLearning.WeightageReducedBy = weightageReducedBy;
-            PriorLearning.QualificationsForRplReduction = qualificationsForRplReduction;
-            PriorLearning.ReasonForRplReduction = reasonForRplReduction;
             PriorLearning.IsDurationReducedByRpl = isDurationReducedByRpl;
+            PriorLearning.DurationReducedBy = durationReducedBy;
+            PriorLearning.PriceReducedBy = priceReduced;
 
             PriorLearning.Apprenticeship.TrainingTotalHours = trainingTotalHours;
             PriorLearning.Apprenticeship.CostBeforeRpl = costBeforeRpl;
-
-            PriorLearning.DurationReducedBy = null;
         }
 
-        private List<DomainError> ValidateDraftApprenticeshipRplData(int? durationReducedByHours, int? priceReduction, int? weightageReducedBy, string qualificationsForRplReduction, string reasonForRplReduction, bool? isDurationReducedByRpl, int? trainingTotalHours, int? costBeforeRpl)
+        private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? costBeforeRpl, int? priceReduced)
         {
             var errors = new List<DomainError>();
 
@@ -390,46 +387,18 @@ namespace SFA.DAS.CommitmentsV2.Models
                 errors.Add(new DomainError("DurationReducedByHours", "The number of hours must be 999 or less"));
             }
 
-            if (!priceReduction.HasValue)
+            if (!priceReduced.HasValue)
             {
                 errors.Add(new DomainError("ReducedPrice", "You must enter a price"));
             }
-            else if (priceReduction.Value < 0)
+            else if (priceReduced.Value < 0)
             {
                 errors.Add(new DomainError("ReducedPrice", "The price can't be negative"));
             }
-            else if (priceReduction.Value > Constants.MaximumApprenticeshipCost)
+            else if (priceReduced.Value > Constants.MaximumApprenticeshipCost)
             {
                 errors.Add(new DomainError("ReducedPrice", "The price must be 100,000 or less"));
             }
-
-            if (!weightageReducedBy.HasValue)
-            {
-                errors.Add(new DomainError("WeightageReducedBy", "You must enter a percentage"));
-            }
-            else if (weightageReducedBy.Value < 0)
-            {
-                errors.Add(new DomainError("WeightageReducedBy", "The percentage can't be negative"));
-            }
-            else if (weightageReducedBy.Value > 99)
-            {
-                errors.Add(new DomainError("WeightageReducedBy", "The percentage can't be more than 99"));
-            }
-
-            if (qualificationsForRplReduction?.Trim().Length > 1000)
-            {
-                errors.Add(new DomainError("QualificationsForRplReduction", "You can't exceed 1000 characters for qualifications"));
-            }
-
-            if (string.IsNullOrEmpty(reasonForRplReduction))
-            {
-                errors.Add(new DomainError("ReasonForRplReduction", "You must specify a reason"));
-            }
-            else if (reasonForRplReduction?.Trim().Length > 1000)
-            {
-                errors.Add(new DomainError("ReasonForRplReduction", "You can't exceed 1000 characters for a reason"));
-            }
-
 
             if (isDurationReducedByRpl == null)
             {
@@ -476,9 +445,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
 
 
-            if (costBeforeRpl.HasValue && priceReduction.HasValue)
+            if (costBeforeRpl.HasValue && priceReduced.HasValue)
             {
-                if ((costBeforeRpl - priceReduction) < 0)
+                if ((costBeforeRpl - priceReduced) < 0)
                 {
                     errors.Add(new DomainError("costBeforeRpl", "You can't have a negative cost"));
 
