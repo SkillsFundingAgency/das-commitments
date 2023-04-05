@@ -383,7 +383,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             else if (durationReducedByHours.Value < 0)
             {
-                errors.Add(new DomainError("DurationReducedByHours", "The number can't be negative"));
+                errors.Add(new DomainError("DurationReducedByHours", "The hours can't be negative"));
             }
             else if (durationReducedByHours.Value > 999)
             {
@@ -430,6 +430,12 @@ namespace SFA.DAS.CommitmentsV2.Models
                 errors.Add(new DomainError("ReasonForRplReduction", "You can't exceed 1000 characters for a reason"));
             }
 
+
+            if (isDurationReducedByRpl == null)
+            {
+                errors.Add(new DomainError("isDurationReducedByRpl", "Please select Yes or No"));
+            }
+
             if (trainingTotalHours.HasValue && durationReducedByHours.HasValue)
             {
                 if ((trainingTotalHours - durationReducedByHours) < 0)
@@ -438,6 +444,37 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                 }
             }
+
+            if (!costBeforeRpl.HasValue)
+            {
+                errors.Add(new DomainError("costBeforeRpl", "You must enter the number of hours"));
+            }
+            else if (durationReducedByHours.Value > 35000)
+            {
+                errors.Add(new DomainError("costBeforeRpl", "The price entered must be 35000 or less"));
+            }
+            else if (durationReducedByHours.Value < 0)
+            {
+                errors.Add(new DomainError("costBeforeRpl", "The price can’t be negative"));
+            }
+
+
+            if (!costBeforeRpl.HasValue)
+            {
+                errors.Add(new DomainError("costBeforeRpl", "You must enter the number of hours"));
+            }
+            else if (durationReducedByHours.Value > 35000)
+            {
+                errors.Add(new DomainError("costBeforeRpl", "The price entered must be 35000 or less"));
+            }
+            else if (durationReducedByHours.Value < 0)
+            {
+                errors.Add(new DomainError("costBeforeRpl", "The price can’t be negative"));
+            }
+
+
+
+
 
             if (costBeforeRpl.HasValue && priceReduction.HasValue)
             {

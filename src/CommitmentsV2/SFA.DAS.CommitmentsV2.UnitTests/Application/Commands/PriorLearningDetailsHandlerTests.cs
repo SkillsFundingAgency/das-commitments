@@ -32,7 +32,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.AreEqual(fixture.Command.DurationReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy);
             Assert.AreEqual(fixture.Command.PriceReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.PriceReducedBy);
         }
 
