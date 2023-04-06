@@ -368,6 +368,12 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             PriorLearning.Apprenticeship.TrainingTotalHours = trainingTotalHours;
             PriorLearning.Apprenticeship.CostBeforeRpl = costBeforeRpl;
+
+            if (isDurationReducedByRpl.GetValueOrDefault() == false)
+            {
+                PriorLearning.DurationReducedBy = durationReducedBy;
+            }
+
         }
 
         private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? costBeforeRpl, int? priceReduced)
@@ -376,7 +382,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (!trainingTotalHours.HasValue)
             {
-                errors.Add(new DomainError("trainingTotalHours", "You must enter the number of hours"));
+                errors.Add(new DomainError("trainingTotalHours", "You must enter the hours, the hours can't be negative, the hours must be 9999 or less"));
             }
             else if (trainingTotalHours.Value < 0)
             {
@@ -389,7 +395,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (!durationReducedByHours.HasValue)
             {
-                errors.Add(new DomainError("DurationReducedByHours", "You must enter the number of hours"));
+                errors.Add(new DomainError("DurationReducedByHours", "You must enter the hours, the hours can't be negative, the hours must be 999 or less"));
             }
             else if (durationReducedByHours.Value < 0)
             {
@@ -405,11 +411,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                 errors.Add(new DomainError("isDurationReducedByRpl", "Please select Yes or No"));
             }
 
-            if (isDurationReducedByRpl.GetValueOrDefault() == true)
+            if (isDurationReducedByRpl == true)
             {
                 if (!durationReducedBy.HasValue)
                 {
-                    errors.Add(new DomainError("durationReducedBy", "You must enter the weeks"));
+                    errors.Add(new DomainError("durationReducedBy", "You must enter the weeks, the weeks can't be negative, the weeks must be 200 or less"));
                 }
                 else if (durationReducedBy.Value < 0)
                 {
@@ -423,7 +429,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (!costBeforeRpl.HasValue)
             {
-                errors.Add(new DomainError("costBeforeRpl", "You must enter a price"));
+                errors.Add(new DomainError("costBeforeRpl", "You must enter the price, the price can't be negative, the price must be 35000 or less"));
             }
             else if (costBeforeRpl.Value < 0)
             {
@@ -436,7 +442,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (!priceReduced.HasValue)
             {
-                errors.Add(new DomainError("priceReduced", "You must enter a price"));
+                errors.Add(new DomainError("priceReduced", "You must enter the price, the price can't be negative, the price must be 100,000 or less"));
             }
             else if (costBeforeRpl.Value < 0)
             {
@@ -451,8 +457,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 if ((trainingTotalHours - durationReducedByHours) < 0)
                 {
-                    errors.Add(new DomainError("trainingTotalHours", "You can't have negative hours"));
-
+                    errors.Add(new DomainError("durationReducedByHours", "RPL reduced hours should be less than total course hrs"));
                 }
             }
 
@@ -461,7 +466,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 if ((costBeforeRpl - priceReduced) < 0)
                 {
                     errors.Add(new DomainError("costBeforeRpl", "You can't have a negative cost"));
-
                 }
             }
 
