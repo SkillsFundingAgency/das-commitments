@@ -465,7 +465,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 if ((costBeforeRpl - priceReduced) < 0)
                 {
-                    errors.Add(new DomainError("costBeforeRpl", "You can't have a negative cost"));
+                    errors.Add(new DomainError("costBeforeRpl", "RPL total reduced price should be less than the total price for the apprenticeship"));
                 }
             }
 
