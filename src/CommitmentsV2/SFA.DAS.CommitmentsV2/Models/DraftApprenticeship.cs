@@ -374,6 +374,19 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             var errors = new List<DomainError>();
 
+            if (!trainingTotalHours.HasValue)
+            {
+                errors.Add(new DomainError("trainingTotalHours", "You must enter the number of hours"));
+            }
+            else if (trainingTotalHours.Value < 0)
+            {
+                errors.Add(new DomainError("trainingTotalHours", "The hours can't be negative"));
+            }
+            else if (trainingTotalHours.Value > 9999)
+            {
+                errors.Add(new DomainError("trainingTotalHours", "The hours entered must be 9999 or less"));
+            }
+
             if (!durationReducedByHours.HasValue)
             {
                 errors.Add(new DomainError("DurationReducedByHours", "You must enter the number of hours"));
@@ -384,25 +397,54 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             else if (durationReducedByHours.Value > 999)
             {
-                errors.Add(new DomainError("DurationReducedByHours", "The number of hours must be 999 or less"));
-            }
-
-            if (!priceReduced.HasValue)
-            {
-                errors.Add(new DomainError("ReducedPrice", "You must enter a price"));
-            }
-            else if (priceReduced.Value < 0)
-            {
-                errors.Add(new DomainError("ReducedPrice", "The price can't be negative"));
-            }
-            else if (priceReduced.Value > Constants.MaximumApprenticeshipCost)
-            {
-                errors.Add(new DomainError("ReducedPrice", "The price must be 100,000 or less"));
+                errors.Add(new DomainError("DurationReducedByHours", "The hours entered must be 999 or less"));
             }
 
             if (isDurationReducedByRpl == null)
             {
                 errors.Add(new DomainError("isDurationReducedByRpl", "Please select Yes or No"));
+            }
+
+            if (isDurationReducedByRpl.GetValueOrDefault() == true)
+            {
+                if (!durationReducedBy.HasValue)
+                {
+                    errors.Add(new DomainError("durationReducedBy", "You must enter the weeks"));
+                }
+                else if (durationReducedBy.Value < 0)
+                {
+                    errors.Add(new DomainError("durationReducedBy", "The number can't be negative"));
+                }
+                else if (durationReducedBy.Value > 200)
+                {
+                    errors.Add(new DomainError("durationReducedBy", "The weeks entered must be 200 or less"));
+                }
+            }
+
+            if (!costBeforeRpl.HasValue)
+            {
+                errors.Add(new DomainError("costBeforeRpl", "You must enter a price"));
+            }
+            else if (costBeforeRpl.Value < 0)
+            {
+                errors.Add(new DomainError("costBeforeRpl", "The price can't be negative"));
+            }
+            else if (priceReduced.Value > 35000)
+            {
+                errors.Add(new DomainError("costBeforeRpl", "The price entered must be 35000 or less"));
+            }
+
+            if (!priceReduced.HasValue)
+            {
+                errors.Add(new DomainError("priceReduced", "You must enter a price"));
+            }
+            else if (costBeforeRpl.Value < 0)
+            {
+                errors.Add(new DomainError("priceReduced", "The price can't be negative"));
+            }
+            else if (priceReduced.Value > Constants.MaximumApprenticeshipCost)
+            {
+                errors.Add(new DomainError("priceReduced", "The price must be 100,000 or less"));
             }
 
             if (trainingTotalHours.HasValue && durationReducedByHours.HasValue)
@@ -413,37 +455,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                 }
             }
-
-            if (!costBeforeRpl.HasValue)
-            {
-                errors.Add(new DomainError("costBeforeRpl", "You must enter the number of hours"));
-            }
-            else if (durationReducedByHours.Value > 35000)
-            {
-                errors.Add(new DomainError("costBeforeRpl", "The price entered must be 35000 or less"));
-            }
-            else if (durationReducedByHours.Value < 0)
-            {
-                errors.Add(new DomainError("costBeforeRpl", "The price can’t be negative"));
-            }
-
-
-            if (!costBeforeRpl.HasValue)
-            {
-                errors.Add(new DomainError("costBeforeRpl", "You must enter the number of hours"));
-            }
-            else if (durationReducedByHours.Value > 35000)
-            {
-                errors.Add(new DomainError("costBeforeRpl", "The price entered must be 35000 or less"));
-            }
-            else if (durationReducedByHours.Value < 0)
-            {
-                errors.Add(new DomainError("costBeforeRpl", "The price can’t be negative"));
-            }
-
-
-
-
 
             if (costBeforeRpl.HasValue && priceReduced.HasValue)
             {
