@@ -29,7 +29,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenCommandIsHandled_PriorLearningDetailsAreUpdated()
         {
             fixture = new PriorLearningDetailsHandlerTestsFixture();
-
             await fixture.Handle();
 
             Assert.AreEqual(fixture.Command.DurationReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy);
@@ -150,9 +149,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Options);
 
             UserInfo = fixture.Create<UserInfo>();
-            Command = fixture.Build<PriorLearningDetailsCommand>().With(o => o.UserInfo, UserInfo).Create();
-            Command.ApprenticeshipId = ApprenticeshipId;
-            Command.CohortId = Cohort.Id;
+            Command = fixture.Build<PriorLearningDetailsCommand>()
+                .With(o => o.UserInfo, UserInfo)
+                .With(o=> o.Rpl2Mode, false)
+                .With(o=> o.ApprenticeshipId, ApprenticeshipId)
+                .With(o=> o.CohortId, Cohort.Id)
+                .Create();
 
             Handler = new PriorLearningDetailsHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
