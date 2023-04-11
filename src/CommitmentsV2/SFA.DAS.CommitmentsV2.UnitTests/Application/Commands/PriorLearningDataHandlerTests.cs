@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenNoPriceIsSet_ExceptionIsThrown()
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.PriceReducedBy = 0;
+            fixture.Command.PriceReducedBy = null;
             await fixture.Handle();
 
             fixture.VerifyException<DomainException>();

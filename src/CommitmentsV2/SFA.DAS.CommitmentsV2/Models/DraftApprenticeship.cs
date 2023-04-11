@@ -435,7 +435,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 errors.Add(new DomainError("costBeforeRpl", "The price can't be negative"));
             }
-            else if (priceReduced.Value > 35000)
+            else if (costBeforeRpl.Value > 35000)
             {
                 errors.Add(new DomainError("costBeforeRpl", "The price entered must be 35000 or less"));
             }
@@ -444,7 +444,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 errors.Add(new DomainError("priceReduced", "You must enter the price, the price can't be negative, the price must be 100,000 or less"));
             }
-            else if (costBeforeRpl.Value < 0)
+            else if (priceReduced.Value < 0)
             {
                 errors.Add(new DomainError("priceReduced", "The price can't be negative"));
             }
