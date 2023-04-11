@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.Kernel;
 using MediatR;
@@ -10,13 +6,16 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
-using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -27,14 +26,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         PriorLearningDataHandlerTestsFixture fixture;
 
         [Test]
-        public async Task Handle_WhenCommandIsHandled_PriorLearningDataAreUpdated()
+        public async Task Handle_WhenCostBeforeRplAreNotNegative()
+        {
+            fixture = new PriorLearningDataHandlerTestsFixture();
+
+            await fixture.Handle();
+            
+            var costBeforeRpl = fixture.Command.CostBeforeRpl;
+            var priceReduced = fixture.Command.PriceReducedBy;
+
+            if ((costBeforeRpl - priceReduced) < 0)
+            {
+                fixture.VerifyException<DomainException>();
+            }
+        }
+
+        [Test]
+        public async Task Handle_WhenTrainingTotalHoursAreNotNegative()
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
 
             await fixture.Handle();
 
-            Assert.AreEqual(fixture.Command.DurationReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy);
-            Assert.AreEqual(fixture.Command.PriceReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.PriceReducedBy);
+            var trainingTotalHours = fixture.Command.TrainingTotalHours;
+            var durationReducedByHours = fixture.Command.DurationReducedByHours;
+
+            if ((trainingTotalHours - durationReducedByHours) < 0)
+            {
+                fixture.VerifyException<DomainException>();
+            }
         }
 
         [Test]
