@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
+using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -61,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenNoPriceIsSet_ExceptionIsThrown()
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.PriceReducedBy = null;
+            fixture.Command.PriceReducedBy = 0;
             await fixture.Handle();
 
             fixture.VerifyException<DomainException>();
@@ -150,9 +151,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Options);
 
             UserInfo = fixture.Create<UserInfo>();
-            Command = fixture.Build<PriorLearningDataCommand>().With(o => o.UserInfo, UserInfo).Create();
-            Command.ApprenticeshipId = ApprenticeshipId;
-            Command.CohortId = Cohort.Id;
+            Command = fixture.Build<PriorLearningDataCommand>()
+                .With(o => o.UserInfo, UserInfo)
+                .With(o => o.ApprenticeshipId, ApprenticeshipId)
+                .With(o => o.CohortId, Cohort.Id)
+                .Create();
 
             Handler = new RecognisePriorLearningDataHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
