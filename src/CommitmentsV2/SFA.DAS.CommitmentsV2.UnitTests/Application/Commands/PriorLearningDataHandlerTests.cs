@@ -21,6 +21,8 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Xunit.Extensions.AssertExtensions;
 using Xunit.Sdk;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
@@ -44,8 +46,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage == "RPL total reduced price should be less than the total price for the apprenticeship").Should().Be(true);
- 
+            domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage ==
+                "RPL total reduced price should be less than the total price for the apprenticeship").Should().Be(true);
+
         }
 
         [TestCase(100)]
@@ -61,7 +64,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "durationReducedByHours" && e.ErrorMessage == "RPL reduced hours should be less than total course hrs").Should().Be(true);
+            domainErrors.Any(e =>
+                e.PropertyName == "durationReducedByHours" &&
+                e.ErrorMessage == "RPL reduced hours should be less than total course hrs").Should().Be(true);
         }
 
         [Test]
@@ -75,7 +80,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "durationReducedBy" && e.ErrorMessage == "You must enter the weeks, the weeks can't be negative, the weeks must be 200 or less").Should().Be(true);
+            domainErrors.Any(e => e.PropertyName == "durationReducedBy" && e.ErrorMessage ==
+                    "You must enter the weeks, the weeks can't be negative, the weeks must be 200 or less").Should()
+                .Be(true);
         }
 
         [Test]
@@ -89,7 +96,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "priceReduced" && e.ErrorMessage == "You must enter the price, the price can't be negative, the price must be 100,000 or less").Should().Be(true);
+            domainErrors.Any(e => e.PropertyName == "priceReduced" && e.ErrorMessage ==
+                    "You must enter the price, the price can't be negative, the price must be 100,000 or less").Should()
+                .Be(true);
         }
 
         [TestCase(-1)]
@@ -98,6 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
             fixture.Command.PriceReducedBy = newPrice;
+            fixture.Command.CostBeforeRpl = 200000;
             await fixture.Handle();
 
             if (newPrice < 0)
@@ -106,7 +116,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 var domainErrors = exception.DomainErrors.ToList();
 
                 domainErrors.Count().Should().BeGreaterThan(0);
-                domainErrors.Any(e => e.PropertyName == "priceReduced" && e.ErrorMessage == "The price can't be negative").Should().Be(true);
+                domainErrors
+                    .Any(e => e.PropertyName == "priceReduced" && e.ErrorMessage == "The price can't be negative")
+                    .Should().Be(true);
             }
 
             if (newPrice > 100000)
@@ -115,8 +127,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 var domainErrors = exception.DomainErrors.ToList();
 
                 domainErrors.Count().Should().BeGreaterThan(1);
-                domainErrors.Any(e => e.PropertyName == "priceReduced" && e.ErrorMessage == "The price must be 100,000 or less").Should().Be(true);
-                domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage == "RPL total reduced price should be less than the total price for the apprenticeship").Should().Be(true);
+                domainErrors.Any(e =>
+                        e.PropertyName == "priceReduced" && e.ErrorMessage == "The price must be 100,000 or less")
+                    .Should()
+                    .Be(true);
+                domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage ==
+                        "RPL total reduced price should be less than the total price for the apprenticeship").Should()
+                    .Be(true);
             }
         }
 
@@ -142,8 +159,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             domainErrors.Count().Should().BeGreaterThan(0);
 
-            domainErrors.Any(e => e.PropertyName == "isDurationReducedByRpl" && e.ErrorMessage == "Please select Yes or No").Should().Be(true);
-            domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage == "RPL total reduced price should be less than the total price for the apprenticeship").Should().Be(true);
+            domainErrors
+                .Any(e => e.PropertyName == "isDurationReducedByRpl" && e.ErrorMessage == "Please select Yes or No")
+                .Should().Be(true);
+            domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage ==
+                "RPL total reduced price should be less than the total price for the apprenticeship").Should().Be(true);
 
         }
 
@@ -158,7 +178,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage == "You must enter the price, the price can't be negative, the price must be 35000 or less").Should().Be(true);
+            domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage ==
+                    "You must enter the price, the price can't be negative, the price must be 35000 or less").Should()
+                .Be(true);
         }
 
         [Test]
@@ -172,11 +194,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "DurationReducedByHours" && e.ErrorMessage == "You must enter the hours, the hours can't be negative, the hours must be 999 or less").Should().Be(true);
+            domainErrors.Any(e => e.PropertyName == "DurationReducedByHours" && e.ErrorMessage ==
+                    "You must enter the hours, the hours can't be negative, the hours must be 999 or less").Should()
+                .Be(true);
         }
 
-        [Test]
-        public async Task Handle_WhenNoTrainingTotalHoursIsSet_ExceptionIsThrown()
+        [TestCase(null, "Message when blank")]
+        [TestCase(-1, "Message when -ve")]
+        [TestCase(9999, "Message when -ve")]
+        public async Task Handle_WhenNoTrainingTotalHoursIsSet_ExceptionIsThrown(int? cval, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
             fixture.Command.TrainingTotalHours = null;
@@ -186,7 +212,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "trainingTotalHours" && e.ErrorMessage == "You must enter the hours, the hours can't be negative, the hours must be 9999 or less").Should().Be(true);
+            domainErrors.Any(e => e.PropertyName == "trainingTotalHours" && e.ErrorMessage == error).Should().Be(true);
+        }
+
+
+        [Test]
+        public async Task Handle_WhenRplData_is_Valid()
+        {
+            fixture = new PriorLearningDataHandlerTestsFixture();
+            fixture.Command.TrainingTotalHours = 100;
+            fixture.Command.DurationReducedByHours = 10;
+            fixture.Command.IsDurationReducedByRpl = true;
+            fixture.Command.DurationReducedBy = 1;
+            fixture.Command.CostBeforeRpl = 1000;
+            fixture.Command.PriceReducedBy = 100;
+
+            await fixture.Handle();
+
+            fixture.VerifyRplDataMatchesCommand();
+
         }
     }
 
@@ -296,6 +340,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void VerifyRplDataMatchesCommand()
+        {
+            var first = Db.DraftApprenticeships.First();
+            first.PriorLearning.ShouldNotBeNull();
+            first.TrainingTotalHours.Should().Be(Command.TrainingTotalHours);
+            first.PriorLearning.DurationReducedByHours.Should().Be(Command.DurationReducedByHours);
         }
     }
 }
