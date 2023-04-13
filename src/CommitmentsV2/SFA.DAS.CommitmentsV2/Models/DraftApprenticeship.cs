@@ -366,8 +366,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             PriorLearning.DurationReducedBy = durationReducedBy;
             PriorLearning.PriceReducedBy = priceReduced;
 
-            PriorLearning.Apprenticeship.TrainingTotalHours = trainingTotalHours;
-            PriorLearning.Apprenticeship.CostBeforeRpl = costBeforeRpl;
+            TrainingTotalHours = trainingTotalHours;
+            CostBeforeRpl = costBeforeRpl;
 
             if (isDurationReducedByRpl == false)
             {
