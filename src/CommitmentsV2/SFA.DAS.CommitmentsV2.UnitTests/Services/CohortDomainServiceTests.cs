@@ -990,7 +990,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
                 ExistingDraftApprenticeship.SetPriorLearningData(100, 10, true, 5, 1000, 100);
-                
+
                 return this;
             }
 

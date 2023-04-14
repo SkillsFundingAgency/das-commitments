@@ -1,11 +1,8 @@
 using AutoFixture;
 using AutoFixture.Kernel;
-using CsvHelper;
 using FluentAssertions;
-using FluentAssertions.Equivalency;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -21,9 +18,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Xunit.Extensions.AssertExtensions;
-using Xunit.Sdk;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -33,12 +28,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     {
         PriorLearningDataHandlerTestsFixture fixture;
 
-        [TestCase(100)]
-        [TestCase(49)]
-        public async Task Handle_WhenCostBeforeRplAreNegative(int reducedByValue)
+        [TestCase(100, 10, "RPL total reduced price should be less than the total price for the apprenticeship")]
+        [TestCase(49, 10, "RPL total reduced price should be less than the total price for the apprenticeship")]
+        public async Task Handle_WhenCostBeforeRplAreNegative(int reducedByValue, int costBeforeRpl, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.CostBeforeRpl = 10;
+            fixture.Command.CostBeforeRpl = costBeforeRpl;
             fixture.Command.PriceReducedBy = reducedByValue;
             await fixture.Handle();
 
@@ -46,14 +41,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage ==
-                "RPL total reduced price should be less than the total price for the apprenticeship").Should().Be(true);
+            domainErrors.Any(e => 
+            e.PropertyName == "costBeforeRpl" && 
+            e.ErrorMessage == error).Should().Be(true);
 
         }
 
-        [TestCase(100)]
-        [TestCase(49)]
-        public async Task Handle_WhenTrainingTotalHoursAreNegative(int reducedByValue)
+        [TestCase(100, 10, "RPL reduced hours should be less than total course hrs")]
+        [TestCase(49, 10, "RPL reduced hours should be less than total course hrs")]
+        public async Task Handle_WhenTrainingTotalHoursAreNegative(int reducedByValue, int trainingTotalHours, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
             fixture.Command.TrainingTotalHours = 10;
@@ -66,75 +62,59 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             domainErrors.Count().Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.PropertyName == "durationReducedByHours" &&
-                e.ErrorMessage == "RPL reduced hours should be less than total course hrs").Should().Be(true);
+                e.ErrorMessage == error).Should().Be(true);
         }
 
-        [Test]
-        public async Task Handle_WhenNoDurationIsSet_ExceptionIsThrown()
+        [TestCase(null, "You must enter the weeks, the weeks can't be negative, the weeks must be 200 or less")]
+        public async Task Handle_WhenNoDurationIsSet_ExceptionIsThrown(int? durationReducedBy, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.DurationReducedBy = null;
+            fixture.Command.DurationReducedBy = durationReducedBy;
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "durationReducedBy" && e.ErrorMessage ==
-                    "You must enter the weeks, the weeks can't be negative, the weeks must be 200 or less").Should()
-                .Be(true);
+            domainErrors.Any(e => 
+            e.PropertyName == "durationReducedBy" && 
+            e.ErrorMessage == error).Should().Be(true);
         }
 
-        [Test]
-        public async Task Handle_WhenNoPriceIsSet_ExceptionIsThrown()
+        [TestCase(null, "You must enter the price, the price can't be negative, the price must be 100,000 or less")]
+        public async Task Handle_WhenNoPriceIsSet_ExceptionIsThrown(int? priceReducedBy, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.PriceReducedBy = null;
+            fixture.Command.PriceReducedBy = priceReducedBy;
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "priceReduced" && e.ErrorMessage ==
-                    "You must enter the price, the price can't be negative, the price must be 100,000 or less").Should()
-                .Be(true);
+            domainErrors.Any(e => 
+            e.PropertyName == "priceReduced" && 
+            e.ErrorMessage == error).Should().Be(true);
         }
 
-        [TestCase(-1)]
-        [TestCase(100001)]
-        public async Task Handle_WhenPriceIsSetOutOfValidRange_ExceptionIsThrown(int newPrice)
+        [TestCase(-1, 200000, "The price can't be negative")]
+        [TestCase(100001, 200000, "The price must be 100,000 or less")]
+        public async Task Handle_WhenPriceIsSetOutOfValidRange_ExceptionIsThrown(int newPrice, int costBeforeRpl, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
             fixture.Command.PriceReducedBy = newPrice;
-            fixture.Command.CostBeforeRpl = 200000;
+            fixture.Command.CostBeforeRpl = costBeforeRpl;
             await fixture.Handle();
 
-            if (newPrice < 0)
-            {
-                var exception = fixture.Exception as DomainException;
-                var domainErrors = exception.DomainErrors.ToList();
+            var exception = fixture.Exception as DomainException;
+            var domainErrors = exception.DomainErrors.ToList();
 
-                domainErrors.Count().Should().BeGreaterThan(0);
-                domainErrors
-                    .Any(e => e.PropertyName == "priceReduced" && e.ErrorMessage == "The price can't be negative")
-                    .Should().Be(true);
-            }
+            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors
+                .Any(e => 
+                e.PropertyName == "priceReduced" && 
+                e.ErrorMessage == error).Should().Be(true);
 
-            if (newPrice > 100000)
-            {
-                var exception = fixture.Exception as DomainException;
-                var domainErrors = exception.DomainErrors.ToList();
-
-                domainErrors.Count().Should().BeGreaterThan(1);
-                domainErrors.Any(e =>
-                        e.PropertyName == "priceReduced" && e.ErrorMessage == "The price must be 100,000 or less")
-                    .Should()
-                    .Be(true);
-                domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage ==
-                        "RPL total reduced price should be less than the total price for the apprenticeship").Should()
-                    .Be(true);
-            }
         }
 
         [TestCase(null)]
@@ -147,11 +127,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.VerifyException<DomainException>();
         }
 
-        [Test]
-        public async Task Handle_WhenNoDurationReducedByRplIsSet_ExceptionIsThrown()
+        [TestCase(null, "Please select Yes or No")]
+        public async Task Handle_WhenNoDurationReducedByRplIsSet_ExceptionIsThrown(bool? cval, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.IsDurationReducedByRpl = null;
+            fixture.Command.IsDurationReducedByRpl = cval;
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
@@ -160,52 +140,51 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             domainErrors.Count().Should().BeGreaterThan(0);
 
             domainErrors
-                .Any(e => e.PropertyName == "isDurationReducedByRpl" && e.ErrorMessage == "Please select Yes or No")
-                .Should().Be(true);
-            domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage ==
-                "RPL total reduced price should be less than the total price for the apprenticeship").Should().Be(true);
+                .Any(e => 
+                e.PropertyName == "isDurationReducedByRpl" &&
+                e.ErrorMessage == error).Should().Be(true);
 
         }
 
-        [Test]
-        public async Task Handle_WhenNoCostBeforeRplIsSet_ExceptionIsThrown()
+        [TestCase(null, "You must enter the price, the price can't be negative, the price must be 35000 or less")]
+        public async Task Handle_WhenNoCostBeforeRplIsSet_ExceptionIsThrown(int? cval, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.CostBeforeRpl = null;
+            fixture.Command.CostBeforeRpl = cval;
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "costBeforeRpl" && e.ErrorMessage ==
-                    "You must enter the price, the price can't be negative, the price must be 35000 or less").Should()
-                .Be(true);
+            domainErrors.Any(e => 
+                e.PropertyName == "costBeforeRpl" && 
+                e.ErrorMessage == error).Should().Be(true);
         }
 
-        [Test]
-        public async Task Handle_WhenNoDurationReducedByHoursIsSet_ExceptionIsThrown()
+        [TestCase(null, "You must enter the hours, the hours can't be negative, the hours must be 999 or less")]
+        public async Task Handle_WhenNoDurationReducedByHoursIsSet_ExceptionIsThrown(int? cval,  string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.DurationReducedByHours = null;
+            fixture.Command.DurationReducedByHours = cval;
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
             domainErrors.Count().Should().BeGreaterThan(0);
-            domainErrors.Any(e => e.PropertyName == "DurationReducedByHours" && e.ErrorMessage ==
-                    "You must enter the hours, the hours can't be negative, the hours must be 999 or less").Should()
+            domainErrors.Any(e => 
+            e.PropertyName == "DurationReducedByHours" && e.ErrorMessage == error).Should()
                 .Be(true);
         }
 
-        [TestCase(null, "Message when blank")]
-        [TestCase(-1, "Message when -ve")]
-        [TestCase(9999, "Message when -ve")]
+        [TestCase(null, "You must enter the hours, the hours can't be negative, the hours must be 9999 or less")]
+        [TestCase(-1, "The hours can't be negative")]
+        [TestCase(99999, "The hours entered must be 9999 or less")]
         public async Task Handle_WhenNoTrainingTotalHoursIsSet_ExceptionIsThrown(int? cval, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.TrainingTotalHours = null;
+            fixture.Command.TrainingTotalHours = cval;
             await fixture.Handle();
 
             var exception = fixture.Exception as DomainException;
@@ -230,7 +209,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await fixture.Handle();
 
             fixture.VerifyRplDataMatchesCommand();
-
         }
     }
 
@@ -346,8 +324,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var first = Db.DraftApprenticeships.First();
             first.PriorLearning.ShouldNotBeNull();
+
             first.TrainingTotalHours.Should().Be(Command.TrainingTotalHours);
+            first.CostBeforeRpl.Should().Be(Command.CostBeforeRpl);
+
             first.PriorLearning.DurationReducedByHours.Should().Be(Command.DurationReducedByHours);
+            first.PriorLearning.IsDurationReducedByRpl.Should().Be(Command.IsDurationReducedByRpl);
+            first.PriorLearning.DurationReducedBy.Should().Be(Command.DurationReducedBy);
+            first.PriorLearning.PriceReducedBy.Should().Be(Command.PriceReducedBy);
         }
     }
 }
