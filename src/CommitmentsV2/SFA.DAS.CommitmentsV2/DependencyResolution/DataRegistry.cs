@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
 
         public DataRegistry()
         {
-            var environmentName = Environment.GetEnvironmentVariable(EnvironmentVariableNames.EnvironmentName);
+            var environmentName = "LOCAL";
 
             For<DbConnection>().Use($"Build DbConnection", c => {
                 var azureServiceTokenProvider = new AzureServiceTokenProvider();

@@ -66,6 +66,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [TestCase(null, "You must enter the weeks, the weeks can't be negative, the weeks must be 200 or less")]
+        [TestCase(-1, "The weeks can't be negative")]
+        [TestCase(999, "The weeks must be 200 or less")]
         public async Task Handle_WhenNoDurationIsSet_ExceptionIsThrown(int? durationReducedBy, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
@@ -82,6 +84,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [TestCase(null, "You must enter the price, the price can't be negative, the price must be 100,000 or less")]
+        [TestCase(999999, "The price must be 100,000 or less")]
+        [TestCase(-1, "The price can't be negative")]
         public async Task Handle_WhenNoPriceIsSet_ExceptionIsThrown(int? priceReducedBy, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
@@ -146,6 +150,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         }
 
+        [TestCase(-1, "The price can't be negative")]
+        [TestCase(100000, "The price entered must be 35000 or less")]
         [TestCase(null, "You must enter the price, the price can't be negative, the price must be 35000 or less")]
         public async Task Handle_WhenNoCostBeforeRplIsSet_ExceptionIsThrown(int? cval, string error)
         {
@@ -162,7 +168,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 e.ErrorMessage == error).Should().Be(true);
         }
 
+
         [TestCase(null, "You must enter the hours, the hours can't be negative, the hours must be 999 or less")]
+        [TestCase(-1, "The hours can't be negative")]
+        [TestCase(100000, "The hours entered must be 999 or less")]
         public async Task Handle_WhenNoDurationReducedByHoursIsSet_ExceptionIsThrown(int? cval,  string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
@@ -195,14 +204,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
 
+        [TestCase(true, 1)]
+        [TestCase(false, null)]
         [Test]
-        public async Task Handle_WhenRplData_is_Valid()
+        public async Task Handle_WhenRplData_is_Valid(bool isDurationReducedByRpl, int? durationReducedBy)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
             fixture.Command.TrainingTotalHours = 100;
             fixture.Command.DurationReducedByHours = 10;
-            fixture.Command.IsDurationReducedByRpl = true;
-            fixture.Command.DurationReducedBy = 1;
+            fixture.Command.IsDurationReducedByRpl = isDurationReducedByRpl;
+            fixture.Command.DurationReducedBy = durationReducedBy;
             fixture.Command.CostBeforeRpl = 1000;
             fixture.Command.PriceReducedBy = 100;
 
@@ -210,6 +221,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             fixture.VerifyRplDataMatchesCommand();
         }
+
+
+
     }
 
     public class PriorLearningDataHandlerTestsFixture
@@ -333,5 +347,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             first.PriorLearning.DurationReducedBy.Should().Be(Command.DurationReducedBy);
             first.PriorLearning.PriceReducedBy.Should().Be(Command.PriceReducedBy);
         }
+
     }
 }
