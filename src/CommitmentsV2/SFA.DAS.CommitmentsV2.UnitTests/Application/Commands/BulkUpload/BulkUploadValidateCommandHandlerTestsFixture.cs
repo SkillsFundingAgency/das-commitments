@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.ProviderUrlHelper;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
@@ -39,10 +40,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public bool IsAgreementSigned { get; set; } = true;
         public DraftApprenticeship DraftApprenticeship { get; private set; }
         public Cohort Cohort { get; set; }
+        protected Mock<ILinkGenerator> _mockLinkGenerator;
         public const long ProviderId = 333;
 
         public BulkUploadValidateCommandHandlerTestsFixture()
         {
+            _mockLinkGenerator = new Mock<ILinkGenerator>();
             CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
             PopulateCsvRecord();
             Command = new BulkUploadValidateCommand()
@@ -95,6 +98,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 , AcademicYearDateProvider.Object
                 , ProviderRelationshipsApiClient.Object
                 , EmployerAgreementService.Object 
+                , _mockLinkGenerator.Object
                 );
         }
 
@@ -377,6 +381,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         internal BulkUploadValidateCommandHandlerTestsFixture SetStdCode(string stdCode)
         {
             CsvRecords[0].CourseCode = stdCode;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetMainProvider(bool isMainProvider)
+        {
+            Command.ProviderStandardResults.IsMainProvider= isMainProvider;
             return this;
         }
 
