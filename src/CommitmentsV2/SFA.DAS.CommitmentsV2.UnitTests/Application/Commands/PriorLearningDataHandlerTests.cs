@@ -66,8 +66,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [TestCase(null, "You must enter the weeks, the weeks can't be negative, the weeks must be 200 or less")]
-        [TestCase(-1, "The weeks can't be negative")]
-        [TestCase(999, "The weeks must be 200 or less")]
+        [TestCase(-1, "The number can't be negative")]
+        [TestCase(999, "The weeks entered must be 200 or less")]
         public async Task Handle_WhenNoDurationIsSet_ExceptionIsThrown(int? durationReducedBy, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
