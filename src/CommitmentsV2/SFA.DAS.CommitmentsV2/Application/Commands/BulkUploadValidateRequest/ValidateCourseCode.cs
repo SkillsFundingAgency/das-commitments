@@ -27,9 +27,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             {
                 domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
             }
-            else if (IsValidMainProviderStandardDetails(csvRecord.CourseCode, providerStandardResults) == false)
+            else if (providerStandardResults.IsMainProvider && IsValidMainProviderStandardDetails(csvRecord.CourseCode, providerStandardResults) != true)
             {
-                domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code.</b>You have not told us that you deliver this training course.You must assign the course to your account in the <a href=" + _urlHelper.CourseManagementLink($"{csvRecord.ProviderId}/review-your-details") + " class='govuk - link'>'Your standards and training venues'</a> section."));
+                domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code.</b> You have not told us that you deliver this training course. You must assign the course to your account in the <a href=" + _urlHelper.CourseManagementLink($"{csvRecord.ProviderId}/review-your-details") + " class='govuk - link'>Your standards and training venues</a> section."));
+
             }
 
             return domainErrors;
@@ -38,16 +39,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private bool IsValidMainProviderStandardDetails(string stdCode, ProviderStandardResults providerStandardResults)
         {
             if (string.IsNullOrWhiteSpace(stdCode)) return false;
-            if (providerStandardResults == null) return false;
-            if (providerStandardResults.IsMainProvider == false) return true;
-            if (providerStandardResults.ProviderStandards == null) return false;
+            if (providerStandardResults.Standards == null) return false;
 
             int.TryParse(stdCode, out int result);
 
-            var standard = providerStandardResults.ProviderStandards
-                .Where(x => int.Parse(x.CourseCode)== result).FirstOrDefault();
+            var standard = providerStandardResults.Standards
+                .Where(x => int.Parse(x.CourseCode) == result).FirstOrDefault();
 
-            return standard == null ? false : true;
+            return standard != null;
         }
     }
 }

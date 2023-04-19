@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
     public class ProviderStandardResults
     {
         public bool IsMainProvider { get; set; }
-        public ICollection<ProviderStandard> ProviderStandards { get; set; } = new List<ProviderStandard>();
+        public IEnumerable<ProviderStandard> Standards { get; set; } = new List<ProviderStandard>();
     }
 
     public class ProviderStandard
