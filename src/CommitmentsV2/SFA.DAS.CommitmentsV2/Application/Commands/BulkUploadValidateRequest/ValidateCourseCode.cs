@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             {
                 domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code</b>"));
             }
-            else if (providerStandardResults.IsMainProvider && IsValidMainProviderStandardDetails(csvRecord.CourseCode, providerStandardResults) != true)
+            else if (providerStandardResults.IsMainProvider && !IsValidMainProviderStandardDetails(csvRecord.CourseCode, providerStandardResults))
             {
                 domainErrors.Add(new Error("CourseCode", "Enter a valid <b>standard code.</b> You have not told us that you deliver this training course. You must assign the course to your account in the <a href=" + _urlHelper.CourseManagementLink($"{csvRecord.ProviderId}/review-your-details") + " class='govuk - link'>Your standards and training venues</a> section."));
 
