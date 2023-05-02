@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -87,6 +88,35 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             await _mediator.Send(command);
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("{apprenticeshipId}/prior-learning-summary")]
+        public async Task<IActionResult> GetApprenticeshipPriorLearningSummary(long cohortId, long apprenticeshipId)
+        {
+            var command = new GetDraftApprenticeshipPriorLearningSummaryQuery(cohortId, apprenticeshipId);
+
+            var response = await _mediator.Send(command);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new GetDraftApprenticeshipPriorLearningSummaryResponse
+            {
+                ApprenticeshipId = apprenticeshipId,
+                CohortId = cohortId,
+                TrainingTotalHours = response.TrainingTotalHours,
+                DurationReducedByHours = response.DurationReducedByHours,
+                CostBeforeRpl = response.CostBeforeRpl,
+                PriceReducedBy = response.PriceReducedBy,
+                PercentageOfPriorLearning = response.PercentageOfPriorLearning,
+                MinimumPercentageReduction = response.MinimumPercentageReduction,
+                MinimumPriceReduction = response.MinimumPriceReduction,
+                RplPriceReductionError = response.RplPriceReductionError,
+                FundingBandMaximum = response.FundingBandMaximum
+            }); 
         }
 
         [HttpPost]
