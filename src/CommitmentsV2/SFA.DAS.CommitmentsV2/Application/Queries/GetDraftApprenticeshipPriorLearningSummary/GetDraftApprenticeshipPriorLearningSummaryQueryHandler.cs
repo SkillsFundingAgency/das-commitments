@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorL
                 StartDate = draft.StartDate
             }).SingleOrDefaultAsync(cancellationToken);
 
-            if (x?.RecognisePriorLearning == true)
+            if (x != null && x.RecognisePriorLearning == true)
             {
                 x.FundingBandMaximum = await GetFundingBandMaximum(x.CourseCode, x.StartDate);
                 x.PercentageOfPriorLearning = CalculatePercentageOfPriorLearning(x.DurationReducedByHours, x.TrainingTotalHours);
