@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
+using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprenticePriorLearningSummary
 {
@@ -171,7 +172,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             CommitmentsV2.Domain.Entities.TrainingProgramme trainingProgramme = null;
             if (programmeType.HasValue)
             {
-                trainingProgramme = new(courseCode, "SomeName", programmeType.Value, startDate, null);
+                trainingProgramme = new TrainingProgramme(courseCode, "SomeName", programmeType.Value, startDate, null);
             }
 
             var draftApprenticeshipDetails = new DraftApprenticeshipDetails
