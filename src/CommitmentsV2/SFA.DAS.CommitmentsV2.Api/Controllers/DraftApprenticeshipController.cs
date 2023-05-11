@@ -94,9 +94,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{apprenticeshipId}/prior-learning-summary")]
         public async Task<IActionResult> GetApprenticeshipPriorLearningSummary(long cohortId, long apprenticeshipId)
         {
-            var command = new GetDraftApprenticeshipPriorLearningSummaryQuery(cohortId, apprenticeshipId);
+            var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(cohortId, apprenticeshipId);
 
-            var response = await _mediator.Send(command);
+            var response = await _mediator.Send(query);
 
             if (response == null)
             {

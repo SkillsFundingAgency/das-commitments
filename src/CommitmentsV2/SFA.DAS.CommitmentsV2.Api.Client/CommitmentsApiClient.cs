@@ -541,11 +541,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}/prior-learning", request, cancellationToken);
         }
 
-        public Task PriorLearningData(long cohortId, long apprenticeshipId, PriorLearningDataRequest request, CancellationToken cancellationToken = default)
-        {
-            return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}/prior-learning-data", request, cancellationToken);
-        }
-
         public Task<GetOverlappingTrainingDateRequestResponce> GetOverlappingTrainingDateRequest(long apprenticeshipId, CancellationToken cancellationToken = default)
         {
             return _client.Get<GetOverlappingTrainingDateRequestResponce>($"api/overlapping-training-date-request/{apprenticeshipId}", cancellationToken);
