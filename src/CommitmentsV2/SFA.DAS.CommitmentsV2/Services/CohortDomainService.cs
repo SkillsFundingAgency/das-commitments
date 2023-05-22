@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 cohort = await _dbContext.Value.GetCohortAggregate(cohortId.Value, cancellationToken: cancellationToken);
             }
 
-            var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(false, cohort?.TransferSenderId, cohort?.Apprenticeships);
+            var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(cohort.ChangeOfPartyRequestId.HasValue, cohort?.TransferSenderId, cohort?.Apprenticeships);
             errors.ThrowIfAny();
         }
 
