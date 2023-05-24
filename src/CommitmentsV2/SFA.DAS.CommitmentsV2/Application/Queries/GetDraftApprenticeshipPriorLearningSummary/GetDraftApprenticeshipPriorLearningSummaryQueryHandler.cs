@@ -84,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorL
 
         static bool HasRplPriceReductionError(GetDraftApprenticeshipPriorLearningSummaryQueryResult x)
         {
-            if (x.PriceReducedBy == null || x.MinimumPriceReduction == null)
+            if(!AreRplFieldsAreComplete(x))
                 return false;
             return x.PriceReducedBy < x.MinimumPriceReduction;
         }
@@ -94,6 +94,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorL
             if (fundingBandMaximum == null || minimumPercentageReduction == null || minimumPercentageReduction == 0)
                 return null;
             return (int?)(fundingBandMaximum * minimumPercentageReduction / 100);
+        }
+
+        static bool AreRplFieldsAreComplete(GetDraftApprenticeshipPriorLearningSummaryQueryResult x)
+        {
+            var areSet = x.TrainingTotalHours.HasValue && x.DurationReducedByHours.HasValue && x.PriceReducedBy.HasValue && x.IsDurationReducedByRpl.HasValue;
+            if (!areSet) return false;
+            switch (x.IsDurationReducedByRpl)
+            {
+                case true when !x.DurationReducedBy.HasValue:
+                case false when x.DurationReducedBy.HasValue:
+                    return false;
+                default:
+                    return true;
+            }
         }
     }
 }

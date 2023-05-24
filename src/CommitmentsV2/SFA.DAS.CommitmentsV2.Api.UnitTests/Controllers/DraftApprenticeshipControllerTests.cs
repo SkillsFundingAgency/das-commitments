@@ -187,7 +187,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             Assert.AreEqual(DraftApprenticeshipControllerTestsFixture.CohortId, obj.CohortId);
             Assert.AreEqual(expected.TrainingTotalHours, obj.TrainingTotalHours);
             Assert.AreEqual(expected.DurationReducedByHours, obj.DurationReducedByHours);
-            Assert.AreEqual(expected.CostBeforeRpl, obj.CostBeforeRpl);
             Assert.AreEqual(expected.PriceReducedBy, obj.PriceReducedBy);
             Assert.AreEqual(expected.FundingBandMaximum, obj.FundingBandMaximum);
             Assert.AreEqual(expected.PercentageOfPriorLearning, obj.PercentageOfPriorLearning);
@@ -251,7 +250,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             {
                 TrainingTotalHours = 1000,
                 DurationReducedByHours = 100,
-                CostBeforeRpl = 7000,
                 PriceReducedBy = 1300,
                 FundingBandMaximum = 20500,
                 PercentageOfPriorLearning = 55,

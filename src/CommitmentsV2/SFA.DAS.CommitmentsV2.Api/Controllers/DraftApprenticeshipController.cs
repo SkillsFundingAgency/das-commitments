@@ -109,7 +109,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 CohortId = cohortId,
                 TrainingTotalHours = response.TrainingTotalHours,
                 DurationReducedByHours = response.DurationReducedByHours,
-                CostBeforeRpl = response.CostBeforeRpl,
                 PriceReducedBy = response.PriceReducedBy,
                 PercentageOfPriorLearning = response.PercentageOfPriorLearning,
                 MinimumPercentageReduction = response.MinimumPercentageReduction,
