@@ -48,6 +48,8 @@
     [DeliveryModel] TINYINT NULL, 
     [RecognisePriorLearning] BIT NULL, 
     [IsOnFlexiPaymentPilot] BIT NOT NULL DEFAULT 0, 
+    [TrainingTotalHours] INT NULL, 
+    [CostBeforeRpl] INT NULL, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )

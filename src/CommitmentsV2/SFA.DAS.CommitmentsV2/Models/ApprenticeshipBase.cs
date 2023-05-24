@@ -63,6 +63,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public virtual ICollection<OverlappingTrainingDateRequest> OverlappingTrainingDateRequests { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
+        public int? TrainingTotalHours { get; set; }
+        public int? CostBeforeRpl { get; set; }
 
         public bool RecognisingPriorLearningStillNeedsToBeConsidered
         {
