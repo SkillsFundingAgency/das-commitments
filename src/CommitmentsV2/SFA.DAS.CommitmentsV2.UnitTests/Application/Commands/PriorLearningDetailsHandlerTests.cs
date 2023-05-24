@@ -29,7 +29,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenCommandIsHandled_PriorLearningDetailsAreUpdated()
         {
             fixture = new PriorLearningDetailsHandlerTestsFixture();
-
             await fixture.Handle();
 
             Assert.AreEqual(fixture.Command.DurationReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy);
@@ -103,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public UserInfo UserInfo { get; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
-        public DraftApprenticeship DraftApprenticeshipFromDb => 
+        public DraftApprenticeship DraftApprenticeshipFromDb =>
             Db.DraftApprenticeships.First(x => x.Id == ApprenticeshipId);
 
         public Exception Exception { get; set; }
@@ -126,7 +125,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Cohort = new CommitmentsV2.Models.Cohort()
                 .Set(c => c.Id, 111)
                 .Set(c => c.EmployerAccountId, 222)
-                .Set(c=>c.WithParty, Party.Employer)
+                .Set(c => c.WithParty, Party.Employer)
                 .Set(c => c.ProviderId, 333)
                 .Set(c => c.AccountLegalEntityId, AccountLegalEntity.Id)
                 .Set(c => c.AccountLegalEntity, AccountLegalEntity);
@@ -136,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .With(s => s.Cohort, Cohort)
              .With(s => s.EndDate, DateTime.UtcNow)
              .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
-             .With(a=>a.RecognisePriorLearning, true)
+             .With(a => a.RecognisePriorLearning, true)
              .Without(s => s.ApprenticeshipConfirmationStatus)
              .Without(s => s.ApprenticeshipUpdate)
              .Without(s => s.FlexibleEmployment)
@@ -150,9 +149,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Options);
 
             UserInfo = fixture.Create<UserInfo>();
-            Command = fixture.Build<PriorLearningDetailsCommand>().With(o => o.UserInfo, UserInfo).Create();
-            Command.ApprenticeshipId = ApprenticeshipId;
-            Command.CohortId = Cohort.Id;
+            Command = fixture.Build<PriorLearningDetailsCommand>()
+                .With(o => o.UserInfo, UserInfo)
+                .With(o=> o.Rpl2Mode, false)
+                .With(o=> o.ApprenticeshipId, ApprenticeshipId)
+                .With(o=> o.CohortId, Cohort.Id)
+                .Create();
 
             Handler = new PriorLearningDetailsHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
@@ -167,7 +169,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 await Handler.Handle(Command, CancellationToken);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Exception = exception;
             }

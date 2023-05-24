@@ -27,8 +27,10 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<TransferRequest> TransferRequests { get; set; }
         public virtual DbSet<ChangeOfPartyRequest> ChangeOfPartyRequests { get; set; }
         public virtual DbSet<Standard> Standards { get; set; }
+        public virtual DbSet<StandardFundingPeriod> StandardFundingPeriods { get; set; }
         public virtual DbSet<StandardOption> StandardOptions { get; set; }
         public virtual DbSet<Framework> Frameworks { get; set; }
+        public virtual DbSet<FrameworkFundingPeriod> FrameworkFundingPeriods { get; set; }
         public virtual DbSet<ApprenticeshipConfirmationStatus> ApprenticeshipConfirmationStatus { get; set; }
         public virtual DbSet<OverlappingEmail> OverlappingEmails { get; set; }
         public virtual DbSet<Learner> Learners { get; set; }
