@@ -419,26 +419,20 @@ namespace SFA.DAS.CommitmentsV2.Models
                 }
             }
 
-            if (isDurationReducedByRpl == true)
+            if (isDurationReducedByRpl == true && durationReducedBy.HasValue)
             {
-                if (durationReducedBy.HasValue)
+                if (durationReducedBy.Value < 1)
                 {
-                    if (durationReducedBy.Value < 1)
-                    {
-                        errors.Add(new DomainError("durationReducedBy", "Reduction in duration must be 1 week or more"));
-                    }
-                    else if (durationReducedBy.Value > 260)
-                    {
-                        errors.Add(new DomainError("durationReducedBy", "Reduction in duration must be 260 weeks or less"));
-                    }
+                    errors.Add(new DomainError("durationReducedBy", "Reduction in duration must be 1 week or more"));
+                }
+                else if (durationReducedBy.Value > 260)
+                {
+                    errors.Add(new DomainError("durationReducedBy", "Reduction in duration must be 260 weeks or less"));
                 }
             }
-            else if (isDurationReducedByRpl == false)
+            else if (isDurationReducedByRpl == false && durationReducedBy.HasValue)
             {
-                if (durationReducedBy.HasValue)
-                {
-                    errors.Add(new DomainError("isDurationReducedByRpl", "Reduction in duration should not have a value"));
-                }
+                errors.Add(new DomainError("isDurationReducedByRpl", "Reduction in duration should not have a value"));
             }
 
             if (priceReduced.HasValue)
