@@ -375,60 +375,92 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced)
         {
-            var errors = new List<DomainError>();
-
-            if (trainingTotalHours.HasValue)
+            void CheckPriceReduced(List<DomainError> list1)
             {
-                if (trainingTotalHours.Value < 278)
+                if (priceReduced.Value < 100)
                 {
-                    errors.Add(new DomainError("trainingTotalHours",
-                        "Total off-the-job training time for this apprenticeship standard must be 278 hours or more"));
+                    list1.Add(new DomainError("priceReduced", "Total price reduction due to RPL must be 100 pounds or more"));
                 }
-                else if (trainingTotalHours.Value > 9999)
+                else if (priceReduced.Value > 18000)
                 {
-                    errors.Add(new DomainError("trainingTotalHours",
-                        "Total off-the-job training time for this apprenticeship standard must be 9,999 hours or less"));
+                    list1.Add(new DomainError("priceReduced", "Total price reduction due to RPL must be 18,000 or less"));
                 }
             }
 
-            if (durationReducedByHours.HasValue)
+            void CheckReductionReducedByIsValid(List<DomainError> domainErrors1)
             {
-                if (durationReducedByHours.Value < 1)
+                if (durationReducedBy.Value < 1)
                 {
-                    errors.Add(new DomainError("DurationReducedByHours",
-                        "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999"));
+                    domainErrors1.Add(new DomainError("durationReducedBy", "Reduction in duration must be 1 week or more"));
                 }
-                else if (durationReducedByHours.Value > 999)
+                else if (durationReducedBy.Value > 260)
                 {
-                    errors.Add(new DomainError("DurationReducedByHours",
-                        "Total reduction in off-the-job training time due to RPL must be 999 hours or less"));
+                    domainErrors1.Add(new DomainError("durationReducedBy", "Reduction in duration must be 260 weeks or less"));
                 }
             }
 
-            if (trainingTotalHours.HasValue && durationReducedByHours.HasValue)
+            void CheckHoursReductionIsSensible(List<DomainError> errors1)
             {
                 if (trainingTotalHours < durationReducedByHours)
                 {
-                    errors.Add(new DomainError("DurationReducedByHours",
+                    errors1.Add(new DomainError("DurationReducedByHours",
                         "Total reduction in off-the-job training time due to RPL must be lower than the total off-the-job training time for this apprenticeship standard"));
-                } 
+                }
                 else if (trainingTotalHours - durationReducedByHours < 278)
                 {
-                    errors.Add(new DomainError("DurationReducedByHours",
+                    errors1.Add(new DomainError("DurationReducedByHours",
                         "The remaining off-the-job training is below the minimum 278 hours required for funding. Check if the RPL reduction is too high"));
                 }
             }
 
+            void CheckDurationReducedByHours(List<DomainError> list)
+            {
+                if (durationReducedByHours.Value < 1)
+                {
+                    list.Add(new DomainError("DurationReducedByHours",
+                        "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999"));
+                }
+                else if (durationReducedByHours.Value > 999)
+                {
+                    list.Add(new DomainError("DurationReducedByHours",
+                        "Total reduction in off-the-job training time due to RPL must be 999 hours or less"));
+                }
+            }
+
+            void CheckTrainingTotalHours(List<DomainError> domainErrors)
+            {
+                if (trainingTotalHours.Value < 278)
+                {
+                    domainErrors.Add(new DomainError("trainingTotalHours",
+                        "Total off-the-job training time for this apprenticeship standard must be 278 hours or more"));
+                }
+                else if (trainingTotalHours.Value > 9999)
+                {
+                    domainErrors.Add(new DomainError("trainingTotalHours",
+                        "Total off-the-job training time for this apprenticeship standard must be 9,999 hours or less"));
+                }
+            }
+
+            var errors = new List<DomainError>();
+
+            if (trainingTotalHours.HasValue)
+            {
+                CheckTrainingTotalHours(errors);
+            }
+
+            if (durationReducedByHours.HasValue)
+            {
+                CheckDurationReducedByHours(errors);
+            }
+
+            if (trainingTotalHours.HasValue && durationReducedByHours.HasValue)
+            {
+                CheckHoursReductionIsSensible(errors);
+            }
+
             if (isDurationReducedByRpl == true && durationReducedBy.HasValue)
             {
-                if (durationReducedBy.Value < 1)
-                {
-                    errors.Add(new DomainError("durationReducedBy", "Reduction in duration must be 1 week or more"));
-                }
-                else if (durationReducedBy.Value > 260)
-                {
-                    errors.Add(new DomainError("durationReducedBy", "Reduction in duration must be 260 weeks or less"));
-                }
+                CheckReductionReducedByIsValid(errors);
             }
             else if (isDurationReducedByRpl == false && durationReducedBy.HasValue)
             {
@@ -437,14 +469,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (priceReduced.HasValue)
             {
-                if (priceReduced.Value < 100)
-                {
-                    errors.Add(new DomainError("priceReduced", "Total price reduction due to RPL must be 100 pounds or more"));
-                }
-                else if (priceReduced.Value > 18000)
-                {
-                    errors.Add(new DomainError("priceReduced", "Total price reduction due to RPL must be 18,000 or less"));
-                }
+                CheckPriceReduced(errors);
             }
 
             return errors;
