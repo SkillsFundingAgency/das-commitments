@@ -31,7 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorL
                 DurationReducedByHours = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedByHours : null,
                 IsDurationReducedByRpl = draft.PriorLearning != null ? draft.PriorLearning.IsDurationReducedByRpl : null,
                 DurationReducedBy = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedBy : null,
-                CostBeforeRpl = draft.PriorLearning != null ? draft.CostBeforeRpl : null,
                 PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
                 StandardUId = draft.StandardUId,
                 StartDate = draft.StartDate

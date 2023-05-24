@@ -167,7 +167,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 DurationReducedByHours = request.DurationReducedByHours,
                 IsDurationReducedByRpl = request.IsDurationReducedByRpl,
                 TrainingTotalHours = request.TrainingTotalHours,
-                CostBeforeRpl = request.CostBeforeRpl,
                 UserInfo = request.UserInfo
             });
             return Ok();
