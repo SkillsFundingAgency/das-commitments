@@ -377,27 +377,29 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             void CheckPriceReduced(List<DomainError> list1)
             {
-                switch (priceReduced.Value)
+                if (priceReduced.Value < 100)
                 {
-                    case < 100:
-                        list1.Add(new DomainError("priceReduced", "Total price reduction due to RPL must be 100 pounds or more"));
-                        break;
-                    case > 18000:
-                        list1.Add(new DomainError("priceReduced", "Total price reduction due to RPL must be 18,000 or less"));
-                        break;
+                    list1.Add(new DomainError("priceReduced",
+                        "Total price reduction due to RPL must be 100 pounds or more"));
+                }
+                else if (priceReduced.Value > 18000)
+                {
+                    list1.Add(
+                        new DomainError("priceReduced", "Total price reduction due to RPL must be 18,000 or less"));
                 }
             }
 
             void CheckReductionReducedByIsValid(List<DomainError> domainErrors1)
             {
-                switch (durationReducedBy.Value)
+                if (durationReducedBy.Value < 1)
                 {
-                    case < 1:
-                        domainErrors1.Add(new DomainError("durationReducedBy", "Reduction in duration must be 1 week or more"));
-                        break;
-                    case > 260:
-                        domainErrors1.Add(new DomainError("durationReducedBy", "Reduction in duration must be 260 weeks or less"));
-                        break;
+                    domainErrors1.Add(new DomainError("durationReducedBy",
+                        "Reduction in duration must be 1 week or more"));
+                }
+                else if (durationReducedBy.Value > 260)
+                {
+                    domainErrors1.Add(new DomainError("durationReducedBy",
+                        "Reduction in duration must be 260 weeks or less"));
                 }
             }
 
@@ -417,31 +419,29 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             void CheckDurationReducedByHours(List<DomainError> list)
             {
-                switch (durationReducedByHours.Value)
+                if (durationReducedByHours.Value < 1)
                 {
-                    case < 1:
-                        list.Add(new DomainError("DurationReducedByHours",
-                            "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999"));
-                        break;
-                    case > 999:
-                        list.Add(new DomainError("DurationReducedByHours",
-                            "Total reduction in off-the-job training time due to RPL must be 999 hours or less"));
-                        break;
+                    list.Add(new DomainError("DurationReducedByHours",
+                        "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999"));
+                }
+                else if (durationReducedByHours.Value > 999)
+                {
+                    list.Add(new DomainError("DurationReducedByHours",
+                        "Total reduction in off-the-job training time due to RPL must be 999 hours or less"));
                 }
             }
 
             void CheckTrainingTotalHours(List<DomainError> domainErrors)
             {
-                switch (trainingTotalHours.Value)
+                if (trainingTotalHours.Value < 278)
                 {
-                    case < 278:
-                        domainErrors.Add(new DomainError("trainingTotalHours",
-                            "Total off-the-job training time for this apprenticeship standard must be 278 hours or more"));
-                        break;
-                    case > 9999:
-                        domainErrors.Add(new DomainError("trainingTotalHours",
-                            "Total off-the-job training time for this apprenticeship standard must be 9,999 hours or less"));
-                        break;
+                    domainErrors.Add(new DomainError("trainingTotalHours",
+                        "Total off-the-job training time for this apprenticeship standard must be 278 hours or more"));
+                }
+                else if (trainingTotalHours.Value > 9999)
+                {
+                    domainErrors.Add(new DomainError("trainingTotalHours",
+                        "Total off-the-job training time for this apprenticeship standard must be 9,999 hours or less"));
                 }
             }
 
