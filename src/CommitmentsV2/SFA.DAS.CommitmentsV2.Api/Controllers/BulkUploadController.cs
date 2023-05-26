@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/{providerId}/bulkupload")]
     public class BulkUploadController : ControllerBase
     {
