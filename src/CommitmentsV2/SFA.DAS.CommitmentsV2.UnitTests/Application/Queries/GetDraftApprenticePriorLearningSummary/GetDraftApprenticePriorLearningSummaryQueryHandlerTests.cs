@@ -51,28 +51,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(programmeType, courseCode, DateTime.Today)
-                .SetApprenticeshipPriorLearningData(1000, 1000);
+                .SetApprenticeshipPriorLearningData(1000);
 
             var result = await fixture.Handle();
 
             Assert.IsNull(result.FundingBandMaximum);
         }
 
-        [TestCase(3200, 2000, 3000, false)]
-        [TestCase(8200, 800, 3000, true)]
+        [TestCase(3200, 2000,  false)]
+        [TestCase(8200, 800, true)]
         public async Task Handle_WhenApprenticeshipFoundAndMaxFundingFoundForStandard_ThenRPLSummaryDataShouldBeReturnedWithCorrectValues(
-            int maxFundingBand, int trainingTotalHours, int costBeforeRpl, bool reductionIsInError)
+            int maxFundingBand, int trainingTotalHours, bool reductionIsInError)
         {
             var priorLearning = new ApprenticeshipPriorLearning
             {
                 DurationReducedByHours = 200,
-                PriceReducedBy = 1000
+                PriceReducedBy = 1000,
+                IsDurationReducedByRpl = false,
+                DurationReducedBy = null
             };
 
             var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "1", DateTime.Today)
                 .SetMaxFundingBandForStandard(1, maxFundingBand)
-                .SetApprenticeshipPriorLearningData(trainingTotalHours, costBeforeRpl, priorLearning);
+                .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
 
             var result = await fixture.Handle();
 
@@ -82,13 +84,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(reductionIsInError, result.RplPriceReductionError);
         }
 
-        [TestCase(null, null, false)]
-        [TestCase(0, null, false)]
-        [TestCase(1000, null, true)]
-        [TestCase(null, 100, false)]
-        [TestCase(10000, 10000, true)]
+        [TestCase(null,  false)]
+        [TestCase(0, false)]
+        [TestCase(1000, true)]
+        [TestCase(null, false)]
+        [TestCase(10000, true)]
         public async Task Handle_WhenApprenticeshipFoundAndHasoldRPLValues_ThenRPLSummaryDataShouldBeReturnedWithNullValuesAnd(
-            int? trainingTotalHours, int? costBeforeRpl, bool expectedToHaveAValue)
+            int? trainingTotalHours, bool expectedToHaveAValue)
         {
             var priorLearning = new ApprenticeshipPriorLearning
             {
@@ -99,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "1", DateTime.Today)
                 .SetMaxFundingBandForStandard(1, 5000)
-                .SetApprenticeshipPriorLearningData(trainingTotalHours, costBeforeRpl, priorLearning);
+                .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
 
             var result = await fixture.Handle();
 
@@ -109,21 +111,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.IsFalse(result.RplPriceReductionError);
         }
 
-        [TestCase(3200, 2000, 3000, false)]
-        [TestCase(8200, 800, 3000, true)]
-        public async Task Handle_WhenApprenticeshipFoundAndMaxFundingFoundForFramework_ThenRPLSummaryDataShouldBeReturnedWithCorrectValues(
-            int maxFundingBand, int trainingTotalHours, int costBeforeRpl, bool reductionIsInError)
+        [TestCase(3200, 2000, false)]
+        [TestCase(8200, 800, true)]
+        public async Task Handle_WhenApprenticeshipFounaxFundingFoundForFramework_ThenRPLSummaryDataShouldBeReturnedWithCorrectValues(
+            int maxFundingBand, int trainingTotalHours, bool reductionIsInError)
         {
             var priorLearning = new ApprenticeshipPriorLearning
             {
                 DurationReducedByHours = 200,
-                PriceReducedBy = 1000
+                PriceReducedBy = 1000,
+                IsDurationReducedByRpl = false,
+                DurationReducedBy = null
             };
 
             var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Framework, "123-123", DateTime.Today)
                 .SetMaxFundingBandForFramework("123-123", maxFundingBand)
-                .SetApprenticeshipPriorLearningData(trainingTotalHours, costBeforeRpl, priorLearning);
+                .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
 
             var result = await fixture.Handle();
 
@@ -208,7 +212,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             return this;
         }
 
-        public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetApprenticeshipPriorLearningData(int? trainingTotalHours, int? costBeforeRpl, ApprenticeshipPriorLearning priorLearning = null)
+        public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetApprenticeshipPriorLearningData(int? trainingTotalHours, ApprenticeshipPriorLearning priorLearning = null)
         {
             if (priorLearning != null)
             {
@@ -219,7 +223,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             apprenticeship.RecognisePriorLearning = true;
             apprenticeship.PriorLearning = PriorLearning;
             apprenticeship.TrainingTotalHours = trainingTotalHours;
-            apprenticeship.CostBeforeRpl = costBeforeRpl;
+            
 
             Db.SaveChanges();
 

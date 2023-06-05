@@ -989,7 +989,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public CohortDomainServiceTestFixture WithPriorLearningData()
             {
                 ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
-                ExistingDraftApprenticeship.SetPriorLearningData(100, 10, true, 5, 1000, 100);
+                ExistingDraftApprenticeship.SetPriorLearningData(1000, 10, true, 5, 100);
 
                 return this;
             }

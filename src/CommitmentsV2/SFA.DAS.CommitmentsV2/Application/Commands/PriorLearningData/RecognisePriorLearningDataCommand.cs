@@ -11,7 +11,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData
         public int? DurationReducedByHours { get; set; }
         public bool? IsDurationReducedByRpl { get; set; }
         public int? DurationReducedBy { get; set; }
-        public int? CostBeforeRpl { get; set; }
         public int? PriceReducedBy { get; set; }
         public UserInfo UserInfo { get; set; }
     }

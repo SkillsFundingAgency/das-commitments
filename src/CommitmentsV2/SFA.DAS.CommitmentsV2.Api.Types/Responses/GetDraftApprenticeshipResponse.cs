@@ -45,6 +45,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string ReasonForRplReduction { get; set; }
         public bool? IsDurationReducedByRpl { get; set; }
         public int? TrainingTotalHours { get; set; }
-        public int? CostBeforeRpl { get; set; }
     }
 }
