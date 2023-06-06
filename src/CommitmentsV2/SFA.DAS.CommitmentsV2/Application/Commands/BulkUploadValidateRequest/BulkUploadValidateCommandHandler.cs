@@ -58,6 +58,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
             _csvRecords = command.CsvRecords.ToList();
 
+
+            var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, bulkUploadValidationErrors);
+
+            if (standardsError.Any())
+            {
+                return new BulkUploadValidateApiResponse
+                {
+                    BulkUploadValidationErrors = standardsError
+                };
+            }
+
             foreach (var csvRecord in command.CsvRecords)
             {
                 var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
@@ -114,6 +125,25 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             }
 
             return domainErrors;
+        }
+
+        private List<BulkUploadValidationError> ValidateHasDeclaredStandards(ProviderStandardResults providerStandardResults, List<BulkUploadValidationError> bulkUploadValidationErrors)
+        {
+            var domainErrors = ValidateDeclaredStandards(providerStandardResults);
+
+            if (domainErrors.Any())
+
+            {
+                bulkUploadValidationErrors.Add(new BulkUploadValidationError(
+                    0,
+                    null,
+                    null,
+                    null,
+                    domainErrors
+                ));
+            }
+
+            return bulkUploadValidationErrors;
         }
 
         /// <summary>

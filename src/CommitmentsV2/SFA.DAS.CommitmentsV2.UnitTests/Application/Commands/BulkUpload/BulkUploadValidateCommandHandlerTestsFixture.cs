@@ -390,6 +390,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             return this;
         }
 
+        internal BulkUploadValidateCommandHandlerTestsFixture SetStandardsNull()
+        {
+            Command.ProviderStandardResults.Standards = null;
+            return this;
+        }
+
         internal BulkUploadValidateCommandHandlerTestsFixture SetGivenNames(string givenName)
         {
             CsvRecords[0].FirstName = givenName;

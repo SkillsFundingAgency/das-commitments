@@ -52,5 +52,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "CourseCode", "Enter a valid <b>standard code.</b> You have not told us that you deliver this training course. You must assign the course to your account in the <a href= class='govuk - link'>Your standards and training venues</a> section.");
         }
+
+        [Test]
+        public async Task Validate_No_Standards_Declared()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStdCode("59");
+            fixture.SetMainProvider(true);
+            fixture.SetStandardsNull();
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "DeclaredStandards", "No Standards Declared");
+        }
     }
 }
