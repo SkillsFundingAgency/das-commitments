@@ -103,8 +103,13 @@ namespace SFA.DAS.CommitmentsV2.Models
                             return false;
                     }
 
-                    if (PriorLearning?.DurationReducedByHours == null || PriorLearning?.PriceReducedBy == null
-                          || PriorLearning?.WeightageReducedBy == null || PriorLearning?.ReasonForRplReduction == null)
+                    if (TrainingTotalHours == null || PriorLearning?.DurationReducedByHours == null 
+                          || PriorLearning?.IsDurationReducedByRpl == null || PriorLearning?.PriceReducedBy == null)
+                    {
+                        return true;
+                    }
+
+                    if (PriorLearning?.IsDurationReducedByRpl == true && PriorLearning?.DurationReducedBy == null)
                     {
                         return true;
                     }
