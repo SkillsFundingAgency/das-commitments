@@ -54,6 +54,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 ProviderId = ProviderId
             };
 
+            Command.ProviderStandardResults.Standards = new List<ProviderStandard> { new ProviderStandard("123", "123") };
+
             OverlapCheckService = new Mock<IOverlapCheckService>();
             OverlapCheckResult = new OverlapCheckResult(false, false);
 

@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private List<Error> ValidateDeclaredStandards(ProviderStandardResults providerStandardResults)
         {
             var domainErrors = new List<Error>();
-            if (providerStandardResults.IsMainProvider && providerStandardResults.Standards == null)
+            if (providerStandardResults.IsMainProvider && providerStandardResults.Standards?.Any() != true)
             {
                 domainErrors.Add(new Error("DeclaredStandards", "No Standards Declared"));
 
