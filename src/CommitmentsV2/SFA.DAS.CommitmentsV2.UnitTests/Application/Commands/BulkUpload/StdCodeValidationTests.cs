@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStdCode("59");
             fixture.SetMainProvider(true);
-            fixture.SetStandardsNull();
+            fixture.SetStandardsEmpty();
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "DeclaredStandards", "No Standards Declared");
         }

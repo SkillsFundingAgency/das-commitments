@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.ProviderUrlHelper;
+using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
@@ -392,9 +393,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             return this;
         }
 
-        internal BulkUploadValidateCommandHandlerTestsFixture SetStandardsNull()
+        internal BulkUploadValidateCommandHandlerTestsFixture SetStandardsEmpty()
         {
-            Command.ProviderStandardResults.Standards = null;
+            Command.ProviderStandardResults.Standards = Enumerable.Empty<ProviderStandard>();
+
             return this;
         }
 
