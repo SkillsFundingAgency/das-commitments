@@ -24,7 +24,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails
         protected override async Task Handle(PriorLearningDetailsCommand command, CancellationToken cancellationToken)
         {
             var apprenticeship = await _dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
-            apprenticeship.SetPriorLearningDetails(command.DurationReducedBy, command.PriceReducedBy);
+
+            if (command.Rpl2Mode)
+            {
+                apprenticeship.SetPriorLearningDetailsExtended(command.DurationReducedByHours, command.PriceReducedBy, command.WeightageReducedBy, command.QualificationsForRplReduction, command.ReasonForRplReduction);
+            }
+            else
+            {
+                apprenticeship.SetPriorLearningDetails(command.DurationReducedBy, command.PriceReducedBy);
+            }
 
             _logger.LogInformation($"Set PriorLearning details set for draft Apprenticeship:{command.ApprenticeshipId}, Rpl Extended Mode: {command.Rpl2Mode}");
         }
