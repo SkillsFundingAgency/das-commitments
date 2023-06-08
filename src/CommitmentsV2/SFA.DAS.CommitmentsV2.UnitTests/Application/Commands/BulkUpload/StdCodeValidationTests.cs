@@ -63,5 +63,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "DeclaredStandards", "No Standards Declared");
         }
+
+        [Test]
+        public async Task Validate__MainProvider_False_No_Standards_Declared()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetStdCode("59");
+            fixture.SetMainProvider(false);
+            fixture.SetStandardsEmpty();
+            var errors = await fixture.Handle();
+            Assert.AreEqual(0, errors.BulkUploadValidationErrors.Count);
+        }
     }
 }
