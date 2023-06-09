@@ -16,5 +16,6 @@
     [Status] NVARCHAR(50) NULL,
     [IsLatestVersion] BIT NOT NULL DEFAULT 0,
     [VersionEarliestStartDate] DATETIME NULL,
-    [VersionLatestStartDate] DATETIME NULL
+    [VersionLatestStartDate] DATETIME NULL,
+    [Route] NVARCHAR(500) NULL
 )
