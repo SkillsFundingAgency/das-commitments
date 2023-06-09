@@ -26,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types
         public string Status { get; set; }
         public bool IsLatestVersion { get; set; }
         public string[] Options { get; set; }
+        public string Route { get; set; }
 
         /// <summary>
         /// Property to allow the ToDataTable Extension to function with the Lambda Expression

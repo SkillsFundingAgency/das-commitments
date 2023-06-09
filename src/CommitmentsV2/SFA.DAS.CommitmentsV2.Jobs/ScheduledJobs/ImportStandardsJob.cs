@@ -109,7 +109,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
                 p => p.Status,
                 p => p.IsLatestVersion,
                 p => p.VersionEarliestStartDate,
-                p => p.VersionLatestStartDate
+                p => p.VersionLatestStartDate,
+                p => p.Route
                 ));
 
             foreach (var batch in batches)
