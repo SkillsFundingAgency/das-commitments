@@ -67,7 +67,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 ReasonForRplReduction = draft.PriorLearning != null ? draft.PriorLearning.ReasonForRplReduction : null,
                 IsDurationReducedByRpl = draft.PriorLearning != null ? draft.PriorLearning.IsDurationReducedByRpl : null,
                 TrainingTotalHours = draft.PriorLearning != null ? draft.TrainingTotalHours : null,
-                CostBeforeRpl = draft.PriorLearning != null ? draft.CostBeforeRpl : null,
                 QualificationsForRplReduction = draft.PriorLearning != null ? draft.PriorLearning.QualificationsForRplReduction : null,
                 RecognisingPriorLearningStillNeedsToBeConsidered = draft.RecognisingPriorLearningStillNeedsToBeConsidered,
                 RecognisingPriorLearningExtendedStillNeedsToBeConsidered = draft.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,

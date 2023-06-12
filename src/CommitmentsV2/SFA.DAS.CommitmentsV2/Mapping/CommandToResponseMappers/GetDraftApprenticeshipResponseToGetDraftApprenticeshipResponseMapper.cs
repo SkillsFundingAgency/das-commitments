@@ -50,8 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 QualificationsForRplReduction = source.QualificationsForRplReduction,
                 ReasonForRplReduction = source.ReasonForRplReduction,
                 IsDurationReducedByRpl = source.IsDurationReducedByRpl,
-                TrainingTotalHours = source.TrainingTotalHours,
-                CostBeforeRpl = source.CostBeforeRpl
+                TrainingTotalHours = source.TrainingTotalHours
             });
         }
     }

@@ -348,7 +348,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return errors;
         }
 
-        public void SetPriorLearningData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? costBeforeRpl, int? priceReduced)
+        public void SetPriorLearningData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced)
         {
 
             if (RecognisePriorLearning != true)
@@ -356,7 +356,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
             }
 
-            var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, costBeforeRpl, priceReduced);
+            var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, priceReduced);
             errors.ThrowIfAny();
 
             PriorLearning ??= new ApprenticeshipPriorLearning();
@@ -365,113 +365,118 @@ namespace SFA.DAS.CommitmentsV2.Models
             PriorLearning.IsDurationReducedByRpl = isDurationReducedByRpl;
             PriorLearning.DurationReducedBy = durationReducedBy;
             PriorLearning.PriceReducedBy = priceReduced;
-
             TrainingTotalHours = trainingTotalHours;
-            CostBeforeRpl = costBeforeRpl;
 
             if (isDurationReducedByRpl == false)
             {
                 PriorLearning.DurationReducedBy = null;
             }
-
         }
 
-        private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? costBeforeRpl, int? priceReduced)
+        private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced)
         {
+            void CheckPriceReduced(List<DomainError> list1)
+            {
+                if (priceReduced.Value < 100)
+                {
+                    list1.Add(new DomainError("priceReduced",
+                        "Total price reduction due to RPL must be 100 pounds or more"));
+                }
+                else if (priceReduced.Value > 18000)
+                {
+                    list1.Add(
+                        new DomainError("priceReduced", "Total price reduction due to RPL must be 18,000 or less"));
+                }
+            }
+
+            void CheckReductionReducedByIsValid(List<DomainError> domainErrors1)
+            {
+                if (durationReducedBy.Value < 1)
+                {
+                    domainErrors1.Add(new DomainError("durationReducedBy",
+                        "Reduction in duration must be 1 week or more"));
+                }
+                else if (durationReducedBy.Value > 260)
+                {
+                    domainErrors1.Add(new DomainError("durationReducedBy",
+                        "Reduction in duration must be 260 weeks or less"));
+                }
+            }
+
+            void CheckHoursReductionIsSensible(List<DomainError> errors1)
+            {
+                if (trainingTotalHours < durationReducedByHours)
+                {
+                    errors1.Add(new DomainError("DurationReducedByHours",
+                        "Total reduction in off-the-job training time due to RPL must be lower than the total off-the-job training time for this apprenticeship standard"));
+                }
+                else if (trainingTotalHours - durationReducedByHours < 278)
+                {
+                    errors1.Add(new DomainError("DurationReducedByHours",
+                        "The remaining off-the-job training is below the minimum 278 hours required for funding. Check if the RPL reduction is too high"));
+                }
+            }
+
+            void CheckDurationReducedByHours(List<DomainError> list)
+            {
+                if (durationReducedByHours.Value < 1)
+                {
+                    list.Add(new DomainError("DurationReducedByHours",
+                        "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999"));
+                }
+                else if (durationReducedByHours.Value > 999)
+                {
+                    list.Add(new DomainError("DurationReducedByHours",
+                        "Total reduction in off-the-job training time due to RPL must be 999 hours or less"));
+                }
+            }
+
+            void CheckTrainingTotalHours(List<DomainError> domainErrors)
+            {
+                if (trainingTotalHours.Value < 278)
+                {
+                    domainErrors.Add(new DomainError("trainingTotalHours",
+                        "Total off-the-job training time for this apprenticeship standard must be 278 hours or more"));
+                }
+                else if (trainingTotalHours.Value > 9999)
+                {
+                    domainErrors.Add(new DomainError("trainingTotalHours",
+                        "Total off-the-job training time for this apprenticeship standard must be 9,999 hours or less"));
+                }
+            }
+
             var errors = new List<DomainError>();
 
-            if (!trainingTotalHours.HasValue)
+            if (trainingTotalHours.HasValue)
             {
-                errors.Add(new DomainError("trainingTotalHours", "You must enter the hours, the hours can't be negative, the hours must be 9999 or less"));
-            }
-            else if (trainingTotalHours.Value < 0)
-            {
-                errors.Add(new DomainError("trainingTotalHours", "The hours can't be negative"));
-            }
-            else if (trainingTotalHours.Value > 9999)
-            {
-                errors.Add(new DomainError("trainingTotalHours", "The hours entered must be 9999 or less"));
+                CheckTrainingTotalHours(errors);
             }
 
-            if (!durationReducedByHours.HasValue)
+            if (durationReducedByHours.HasValue)
             {
-                errors.Add(new DomainError("DurationReducedByHours", "You must enter the hours, the hours can't be negative, the hours must be 999 or less"));
-            }
-            else if (durationReducedByHours.Value < 0)
-            {
-                errors.Add(new DomainError("DurationReducedByHours", "The hours can't be negative"));
-            }
-            else if (durationReducedByHours.Value > 999)
-            {
-                errors.Add(new DomainError("DurationReducedByHours", "The hours entered must be 999 or less"));
-            }
-
-            if (isDurationReducedByRpl == null)
-            {
-                errors.Add(new DomainError("isDurationReducedByRpl", "Please select Yes or No"));
-            }
-
-            if (isDurationReducedByRpl == true)
-            {
-                if (!durationReducedBy.HasValue)
-                {
-                    errors.Add(new DomainError("durationReducedBy", "You must enter the weeks, the weeks can't be negative, the weeks must be 200 or less"));
-                }
-                else if (durationReducedBy.Value < 0)
-                {
-                    errors.Add(new DomainError("durationReducedBy", "The number can't be negative"));
-                }
-                else if (durationReducedBy.Value > 200)
-                {
-                    errors.Add(new DomainError("durationReducedBy", "The weeks entered must be 200 or less"));
-                }
-            }
-
-            if (!costBeforeRpl.HasValue)
-            {
-                errors.Add(new DomainError("costBeforeRpl", "You must enter the price, the price can't be negative, the price must be 35000 or less"));
-            }
-            else if (costBeforeRpl.Value < 0)
-            {
-                errors.Add(new DomainError("costBeforeRpl", "The price can't be negative"));
-            }
-            else if (costBeforeRpl.Value > 35000)
-            {
-                errors.Add(new DomainError("costBeforeRpl", "The price entered must be 35000 or less"));
-            }
-
-            if (!priceReduced.HasValue)
-            {
-                errors.Add(new DomainError("priceReduced", "You must enter the price, the price can't be negative, the price must be 100,000 or less"));
-            }
-            else if (priceReduced.Value < 0)
-            {
-                errors.Add(new DomainError("priceReduced", "The price can't be negative"));
-            }
-            else if (priceReduced.Value > Constants.MaximumApprenticeshipCost)
-            {
-                errors.Add(new DomainError("priceReduced", "The price must be 100,000 or less"));
+                CheckDurationReducedByHours(errors);
             }
 
             if (trainingTotalHours.HasValue && durationReducedByHours.HasValue)
             {
-                if ((trainingTotalHours - durationReducedByHours) < 0)
-                {
-                    errors.Add(new DomainError("durationReducedByHours", "RPL reduced hours should be less than total course hrs"));
-                }
+                CheckHoursReductionIsSensible(errors);
             }
 
-            if (costBeforeRpl.HasValue && priceReduced.HasValue)
+            if (isDurationReducedByRpl == true && durationReducedBy.HasValue)
             {
-                if ((costBeforeRpl - priceReduced) < 0)
-                {
-                    errors.Add(new DomainError("costBeforeRpl", "RPL total reduced price should be less than the total price for the apprenticeship"));
-                }
+                CheckReductionReducedByIsValid(errors);
+            }
+            else if (isDurationReducedByRpl == false && durationReducedBy.HasValue)
+            {
+                errors.Add(new DomainError("isDurationReducedByRpl", "Reduction in duration should not have a value"));
+            }
+
+            if (priceReduced.HasValue)
+            {
+                CheckPriceReduced(errors);
             }
 
             return errors;
         }
-
-
     }
 }
