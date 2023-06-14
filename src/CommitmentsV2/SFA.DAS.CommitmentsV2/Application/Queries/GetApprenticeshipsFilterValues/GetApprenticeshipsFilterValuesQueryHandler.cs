@@ -50,7 +50,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             {
                 StartDates = await GetDistinctStartDates(query, cancellationToken),
                 EndDates = await GetDistinctEndDates(query, cancellationToken),
-                CourseNames = await GetDistinctCourseNames(query, cancellationToken)
+                CourseNames = await GetDistinctCourseNames(query, cancellationToken),
+                Sectors = await GetDistinctSectors(query, cancellationToken)
             };
 
             if (query.ProviderId.HasValue)
@@ -67,21 +68,29 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             return queryResult;
         }
 
+        private async Task<List<string>> GetDistinctSectors(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        {
+            var standardUId = _dbContext.Apprenticeships
+                .WithProviderOrEmployerId(request).Select(x => x.StandardUId).Distinct().First();
+
+            return await _dbContext.Standards.Where(x => x.StandardUId == standardUId).Select(x => x.Route).ToListAsync(cancellationToken);
+        }
+
         private async Task<List<string>> GetDistinctEmployerNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return await _dbContext.Apprenticeships
                 .WithProviderOrEmployerId(request)
-				.OrderBy(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
+                .OrderBy(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
                 .Select(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
                 .Distinct()
                 .ToListAsync(cancellationToken);
         }
-                
+
         private async Task<List<string>> GetDistinctProviderNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return await _dbContext.Apprenticeships
                 .WithProviderOrEmployerId(request)
-				.OrderBy(apprenticeship => apprenticeship.Cohort.Provider.Name)
+                .OrderBy(apprenticeship => apprenticeship.Cohort.Provider.Name)
                 .Select(apprenticeship => apprenticeship.Cohort.Provider.Name)
                 .Distinct()
                 .ToListAsync(cancellationToken);
