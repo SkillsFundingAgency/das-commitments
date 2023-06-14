@@ -8,39 +8,39 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningError
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
 {
-    public class GetDraftApprenticeshipPriorLearningErrorQueryHandler : IRequestHandler<GetDraftApprenticeshipPriorLearningErrorQuery, GetDraftApprenticeshipPriorLearningErrorQueryResult>
+    public class GetCohortPriorLearningErrorQueryHandler : IRequestHandler<GetCohortPriorLearningErrorQuery, GetCohortPriorLearningErrorQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public GetDraftApprenticeshipPriorLearningErrorQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public GetCohortPriorLearningErrorQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<GetDraftApprenticeshipPriorLearningErrorQueryResult> Handle(GetDraftApprenticeshipPriorLearningErrorQuery request, CancellationToken cancellationToken)
+        public Task<GetCohortPriorLearningErrorQueryResult> Handle(GetCohortPriorLearningErrorQuery request, CancellationToken cancellationToken)
         {
             var draftApprenticeshipIds = new List<long>();
 
-            var query = _dbContext.Value.DraftApprenticeships
+            var query =  _dbContext.Value.DraftApprenticeships
                 .Include(x => x.PriorLearning)
                 .Where(x => x.CommitmentId == request.CohortId);
 
             foreach (var draftApprenticeship in query)
             {
-                var x = await query.Select(draft => new GetDraftApprenticeshipPriorLearningSummaryQueryResult
+                GetDraftApprenticeshipPriorLearningSummaryQueryResult x = new GetDraftApprenticeshipPriorLearningSummaryQueryResult
                 {
-                    CourseCode = draft.CourseCode,
-                    RecognisePriorLearning = draft.RecognisePriorLearning,
-                    TrainingTotalHours = draft.PriorLearning != null ? draft.TrainingTotalHours : null,
-                    DurationReducedByHours = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedByHours : null,
-                    IsDurationReducedByRpl = draft.PriorLearning != null ? draft.PriorLearning.IsDurationReducedByRpl : null,
-                    DurationReducedBy = draft.PriorLearning != null ? draft.PriorLearning.DurationReducedBy : null,
-                    PriceReducedBy = draft.PriorLearning != null ? draft.PriorLearning.PriceReducedBy : null,
-                    StandardUId = draft.StandardUId,
-                    StartDate = draft.StartDate
-                }).SingleOrDefaultAsync(cancellationToken);
+                    CourseCode = draftApprenticeship.CourseCode,
+                    RecognisePriorLearning = draftApprenticeship.RecognisePriorLearning,
+                    TrainingTotalHours = draftApprenticeship.PriorLearning != null ? draftApprenticeship.TrainingTotalHours : null,
+                    DurationReducedByHours = draftApprenticeship.PriorLearning != null ? draftApprenticeship.PriorLearning.DurationReducedByHours : null,
+                    IsDurationReducedByRpl = draftApprenticeship.PriorLearning != null ? draftApprenticeship.PriorLearning.IsDurationReducedByRpl : null,
+                    DurationReducedBy = draftApprenticeship.PriorLearning != null ? draftApprenticeship.PriorLearning.DurationReducedBy : null,
+                    PriceReducedBy = draftApprenticeship.PriorLearning != null ? draftApprenticeship.PriorLearning.PriceReducedBy : null,
+                    StandardUId = draftApprenticeship.StandardUId,
+                    StartDate = draftApprenticeship.StartDate
+                };
 
                 if (HasRplPriceReductionError(x))
                 {
@@ -48,10 +48,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorL
                 }
             }
 
-            return new GetDraftApprenticeshipPriorLearningErrorQueryResult
+            return Task.FromResult(new GetCohortPriorLearningErrorQueryResult
             {
                 DraftApprenticeshipIds = draftApprenticeshipIds,
-            };
+            });
         }
 
         static bool HasRplPriceReductionError(GetDraftApprenticeshipPriorLearningSummaryQueryResult x)

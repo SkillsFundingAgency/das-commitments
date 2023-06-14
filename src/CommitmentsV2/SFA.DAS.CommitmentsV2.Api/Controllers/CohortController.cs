@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllCohortAccountIds;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Types;
@@ -188,6 +189,25 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             await _mediator.Send(command, cancellationToken);
 
             return NoContent();
+        }
+
+        [HttpGet]
+        [Route("{cohortId}/prior-learning-errors")]
+        public async Task<IActionResult> GetCohortPriorLearningErrors(long cohortId)
+        {
+            var query = new GetCohortPriorLearningErrorQuery(cohortId);
+
+            var response = await _mediator.Send(query);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new GetCohortPriorLearningErrorResponse
+            {
+                DraftApprenticeshipIds = response.DraftApprenticeshipIds
+            });
         }
     }
 }

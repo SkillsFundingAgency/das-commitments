@@ -10,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningError;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping;
@@ -116,25 +115,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 RplPriceReductionError = response.RplPriceReductionError,
                 FundingBandMaximum = response.FundingBandMaximum
             }); 
-        }
-
-        [HttpGet]
-        [Route("{apprenticeshipId}/prior-learning-errors")]
-        public async Task<IActionResult> GetApprenticeshipPriorLearningErrors(long cohortId)
-        {
-            var query = new GetDraftApprenticeshipPriorLearningErrorQuery(cohortId);
-
-            var response = await _mediator.Send(query);
-
-            if (response == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new GetDraftApprenticeshipPriorLearningErrorResponse
-            {
-                DraftApprenticeshipIds = response.DraftApprenticeshipIds
-            });
         }
 
         [HttpPost]

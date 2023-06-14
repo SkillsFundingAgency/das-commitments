@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
-    public sealed class GetDraftApprenticeshipPriorLearningErrorResponse
+    public sealed class GetCohortPriorLearningErrorResponse
     {
         public IEnumerable<long> DraftApprenticeshipIds { get; set; }
     }
