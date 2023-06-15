@@ -23,15 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
         {
             var draftApprenticeshipIds = new List<long>();
 
-            // testing
-            draftApprenticeshipIds.Add(3);
-            draftApprenticeshipIds.Add(4);
-            draftApprenticeshipIds.Add(5);
-            draftApprenticeshipIds.Add(6);
-            draftApprenticeshipIds.Add(7);
-            draftApprenticeshipIds.Add(8);
-            // end testing
-
             var query = _dbContext.Value.DraftApprenticeships
                 .Include(x => x.PriorLearning)
                 .Where(x => x.CommitmentId == request.CohortId);
