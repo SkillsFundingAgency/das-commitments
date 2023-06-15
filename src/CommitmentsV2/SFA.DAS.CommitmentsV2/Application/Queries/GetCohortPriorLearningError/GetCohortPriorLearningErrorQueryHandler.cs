@@ -23,21 +23,30 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
         {
             var draftApprenticeshipIds = new List<long>();
 
-            var query =  _dbContext.Value.DraftApprenticeships
+            // testing
+            draftApprenticeshipIds.Add(3);
+            draftApprenticeshipIds.Add(4);
+            draftApprenticeshipIds.Add(5);
+            draftApprenticeshipIds.Add(6);
+            draftApprenticeshipIds.Add(7);
+            draftApprenticeshipIds.Add(8);
+            // end testing
+
+            var query = _dbContext.Value.DraftApprenticeships
                 .Include(x => x.PriorLearning)
                 .Where(x => x.CommitmentId == request.CohortId);
 
             foreach (var draftApprenticeship in query)
             {
-                GetDraftApprenticeshipPriorLearningSummaryQueryResult x = new GetDraftApprenticeshipPriorLearningSummaryQueryResult
+                GetDraftApprenticeshipPriorLearningSummaryQueryResult x = new()
                 {
                     CourseCode = draftApprenticeship.CourseCode,
                     RecognisePriorLearning = draftApprenticeship.RecognisePriorLearning,
                     TrainingTotalHours = draftApprenticeship.PriorLearning != null ? draftApprenticeship.TrainingTotalHours : null,
-                    DurationReducedByHours = draftApprenticeship.PriorLearning != null ? draftApprenticeship.PriorLearning.DurationReducedByHours : null,
-                    IsDurationReducedByRpl = draftApprenticeship.PriorLearning != null ? draftApprenticeship.PriorLearning.IsDurationReducedByRpl : null,
-                    DurationReducedBy = draftApprenticeship.PriorLearning != null ? draftApprenticeship.PriorLearning.DurationReducedBy : null,
-                    PriceReducedBy = draftApprenticeship.PriorLearning != null ? draftApprenticeship.PriorLearning.PriceReducedBy : null,
+                    DurationReducedByHours = draftApprenticeship.PriorLearning?.DurationReducedByHours,
+                    IsDurationReducedByRpl = draftApprenticeship.PriorLearning?.IsDurationReducedByRpl,
+                    DurationReducedBy = draftApprenticeship.PriorLearning?.DurationReducedBy,
+                    PriceReducedBy = draftApprenticeship.PriorLearning?.PriceReducedBy,
                     StandardUId = draftApprenticeship.StandardUId,
                     StartDate = draftApprenticeship.StartDate
                 };

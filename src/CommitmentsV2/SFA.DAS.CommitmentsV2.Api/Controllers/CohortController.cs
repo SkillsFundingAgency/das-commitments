@@ -196,18 +196,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public async Task<IActionResult> GetCohortPriorLearningErrors(long cohortId)
         {
             var query = new GetCohortPriorLearningErrorQuery(cohortId);
+            var result = await _mediator.Send(query);
 
-            var response = await _mediator.Send(query);
-
-            if (response == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new GetCohortPriorLearningErrorResponse
-            {
-                DraftApprenticeshipIds = response.DraftApprenticeshipIds
-            });
+            return Ok(new GetCohortPriorLearningErrorResponse { DraftApprenticeshipIds = result.DraftApprenticeshipIds });
         }
     }
 }
