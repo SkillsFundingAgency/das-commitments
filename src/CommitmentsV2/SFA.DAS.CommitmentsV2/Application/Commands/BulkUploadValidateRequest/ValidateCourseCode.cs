@@ -36,6 +36,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return domainErrors;
         }
 
+        private List<Error> ValidateDeclaredStandards(ProviderStandardResults providerStandardResults)
+        {
+            var domainErrors = new List<Error>();
+            if (providerStandardResults.IsMainProvider && !providerStandardResults.Standards.Any())
+            {
+                domainErrors.Add(new Error("DeclaredStandards", "No Standards Declared"));
+
+            }
+
+            return domainErrors;
+        }
+
         private bool IsValidMainProviderStandardDetails(string stdCode, ProviderStandardResults providerStandardResults)
         {
             if (string.IsNullOrWhiteSpace(stdCode)) return false;
