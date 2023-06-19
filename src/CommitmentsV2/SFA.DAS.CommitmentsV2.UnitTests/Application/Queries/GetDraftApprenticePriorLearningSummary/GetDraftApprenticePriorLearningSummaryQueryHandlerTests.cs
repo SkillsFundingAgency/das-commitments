@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,10 +9,14 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
@@ -142,6 +147,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IFeatureTogglesService<FeatureToggle>> FeatureToggleServiceMock { get; set; }
+        public Mock<IRplFundingCalulationService> RplFundingCalulationService { get; set; }
         public GetDraftApprenticeshipPriorLearningSummaryQueryHandler Handler { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
@@ -152,18 +158,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+
+            RplFundingCalulationService = new Mock<IRplFundingCalulationService>();
+            RplFundingCalulationService.Setup(x => x.GetRplFundingCalulations(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<Db>(), It.IsAny<DbSet<FrameworkFundingPeriod>>()))
+                    .ReturnsAsync(new RplFundingCalulation());
+
             Handler = new GetDraftApprenticeshipPriorLearningSummaryQueryHandler(
-                new Lazy<ProviderCommitmentsDbContext>(() => Db));
+                new Lazy<ProviderCommitmentsDbContext>(() => Db), RplFundingCalulationService.Object);
 
             PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
             FlexibleEmployment = new FlexibleEmployment { EmploymentEndDate = DateTime.Today, EmploymentPrice = 987 };
         }
+
 
         public Task<GetDraftApprenticeshipPriorLearningSummaryQueryResult> Handle()
         {
             var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(CohortId, ApprenticeshipId);
             return Handler.Handle(query, CancellationToken.None);
         }
+
+
 
         public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetApprentice(ProgrammeType? programmeType, string courseCode,  DateTime? startDate)
         {
