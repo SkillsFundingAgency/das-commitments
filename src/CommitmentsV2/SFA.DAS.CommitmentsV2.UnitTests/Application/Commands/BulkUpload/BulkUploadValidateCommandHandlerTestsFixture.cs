@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.ProviderUrlHelper;
+using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
@@ -53,6 +54,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 CsvRecords = CsvRecords,
                 ProviderId = ProviderId
             };
+
+            Command.ProviderStandardResults.Standards = new List<ProviderStandard> { new ProviderStandard("123", "123") };
 
             OverlapCheckService = new Mock<IOverlapCheckService>();
             OverlapCheckResult = new OverlapCheckResult(false, false);
@@ -387,6 +390,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         internal BulkUploadValidateCommandHandlerTestsFixture SetMainProvider(bool isMainProvider)
         {
             Command.ProviderStandardResults.IsMainProvider= isMainProvider;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetStandardsEmpty()
+        {
+            Command.ProviderStandardResults.Standards = Enumerable.Empty<ProviderStandard>();
+
             return this;
         }
 
