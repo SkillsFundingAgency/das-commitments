@@ -5,16 +5,21 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Services;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary
 {
     public class GetDraftApprenticeshipPriorLearningSummaryQueryHandler : IRequestHandler<GetDraftApprenticeshipPriorLearningSummaryQuery, GetDraftApprenticeshipPriorLearningSummaryQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly IRplFundingCalulationService _rplFundingCalulationService;
 
-        public GetDraftApprenticeshipPriorLearningSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+
+        public GetDraftApprenticeshipPriorLearningSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IRplFundingCalulationService rplFundingCalulationService)
         {
             _dbContext = dbContext;
+            _rplFundingCalulationService = rplFundingCalulationService;
         }
 
         public async Task<GetDraftApprenticeshipPriorLearningSummaryQueryResult> Handle(GetDraftApprenticeshipPriorLearningSummaryQuery request, CancellationToken cancellationToken)
@@ -38,76 +43,26 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorL
 
             if (x != null && x.RecognisePriorLearning == true)
             {
-                x.FundingBandMaximum = await GetFundingBandMaximum(x.CourseCode, x.StartDate);
-                x.PercentageOfPriorLearning = CalculatePercentageOfPriorLearning(x.DurationReducedByHours, x.TrainingTotalHours);
-                x.MinimumPercentageReduction = CalculateMinimumPercentageOfPriorLearning(x.PercentageOfPriorLearning);
-                x.MinimumPriceReduction = CalculateMinimumPriceReduction(x.FundingBandMaximum, x.MinimumPercentageReduction);
-                x.RplPriceReductionError = HasRplPriceReductionError(x);
+                var rplCalculation = await _rplFundingCalulationService.GetRplFundingCalulations(
+                                                                    x.CourseCode,
+                                                                    x.StartDate,
+                                                                    x.DurationReducedByHours,
+                                                                    x.TrainingTotalHours,
+                                                                    x.PriceReducedBy,
+                                                                    x.IsDurationReducedByRpl,
+                                                                    _dbContext.Value.StandardFundingPeriods,
+                                                                    _dbContext.Value.FrameworkFundingPeriods
+                                                                    );
+
+                x.FundingBandMaximum = rplCalculation.FundingBandMaximum;
+                x.PercentageOfPriorLearning = rplCalculation.PercentageOfPriorLearning;
+                x.MinimumPercentageReduction = rplCalculation.MinimumPercentageReduction;
+                x.MinimumPriceReduction = rplCalculation.MinimumPriceReduction;
+                x.RplPriceReductionError = rplCalculation.RplPriceReductionError;
                 return x;
             }
 
             return null;
-        }
-
-        private async Task<int?> GetFundingBandMaximum(string courseCode, DateTime? startDate)
-        {
-            if (string.IsNullOrEmpty(courseCode))
-                return null;
-
-            if (int.TryParse(courseCode, out var standardId))
-            {
-                var standard = await _dbContext.Value.StandardFundingPeriods.Where(c => c.Id.Equals(standardId) 
-                    && c.EffectiveFrom <= startDate && (c.EffectiveTo == null || c.EffectiveTo >= startDate))
-                    .OrderByDescending(x=>x.EffectiveFrom).FirstOrDefaultAsync();
-                return standard?.FundingCap;
-            }
-
-            var framework = await _dbContext.Value.FrameworkFundingPeriods.Where(c => c.Id.Equals(courseCode)
-                    && c.EffectiveFrom <= startDate && (c.EffectiveTo == null || c.EffectiveTo >= startDate))
-                .OrderByDescending(x => x.EffectiveFrom).FirstOrDefaultAsync();
-            return framework?.FundingCap;
-        }
-
-        static decimal? CalculatePercentageOfPriorLearning(int? durationReducedByHours, int? trainingTotalHours)
-        {
-            if (durationReducedByHours == null || trainingTotalHours == null || trainingTotalHours == 0)
-                return null;
-            return (decimal)durationReducedByHours / trainingTotalHours * 100;
-        }
-        
-        static decimal? CalculateMinimumPercentageOfPriorLearning(decimal? percentageOfPriorLearning)
-        {
-            if (percentageOfPriorLearning == null)
-                return null;
-            return percentageOfPriorLearning / 2;
-        }
-
-        static bool HasRplPriceReductionError(GetDraftApprenticeshipPriorLearningSummaryQueryResult x)
-        {
-            if(!AreRplFieldsAreComplete(x))
-                return false;
-            return x.PriceReducedBy < x.MinimumPriceReduction;
-        }
-
-        static int? CalculateMinimumPriceReduction(int? fundingBandMaximum, decimal? minimumPercentageReduction)
-        {
-            if (fundingBandMaximum == null || minimumPercentageReduction == null || minimumPercentageReduction == 0)
-                return null;
-            return (int?)(fundingBandMaximum * minimumPercentageReduction / 100);
-        }
-
-        static bool AreRplFieldsAreComplete(GetDraftApprenticeshipPriorLearningSummaryQueryResult x)
-        {
-            var areSet = x.TrainingTotalHours.HasValue && x.DurationReducedByHours.HasValue && x.PriceReducedBy.HasValue && x.IsDurationReducedByRpl.HasValue;
-            if (!areSet) return false;
-            switch (x.IsDurationReducedByRpl)
-            {
-                case true when !x.DurationReducedBy.HasValue:
-                case false when x.DurationReducedBy.HasValue:
-                    return false;
-                default:
-                    return true;
-            }
         }
     }
 }
