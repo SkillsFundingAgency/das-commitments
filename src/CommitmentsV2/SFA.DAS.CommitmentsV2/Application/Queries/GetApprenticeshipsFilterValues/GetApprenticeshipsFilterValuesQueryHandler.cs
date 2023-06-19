@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues
 {
@@ -71,9 +72,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
         private async Task<List<string>> GetDistinctSectors(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             var standardUIds = await _dbContext.Apprenticeships
-                .WithProviderOrEmployerId(request).Where(x => x.ProgrammeType == 0).Select(x => x.StandardUId).Distinct().ToListAsync(cancellationToken);
+                .WithProviderOrEmployerId(request).Where(x => x.ProgrammeType == ProgrammeType.Standard).Select(x => x.StandardUId).Distinct().ToListAsync(cancellationToken);
 
-            var sectors = await _dbContext.Standards.Where(x => standardUIds.Contains(x.StandardUId)).Select(x => x.Route).ToListAsync(cancellationToken);
+            var sectors = await _dbContext.Standards.Where(x => standardUIds.Contains(x.StandardUId)).Select(x => x.Route).Distinct().ToListAsync(cancellationToken);
 
             return sectors;
         }
