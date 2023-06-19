@@ -38,7 +38,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
 
             var query = _dbContext.Value.DraftApprenticeships
                 .Include(x => x.PriorLearning)
-                .Where(x => x.CommitmentId == request.CohortId);
+                .Where(x => x.CommitmentId == request.CohortId)
+                .ToList();
 
             foreach (var draftApprenticeship in query)
             {
@@ -46,15 +47,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
                 var rplCalculation = await _rplFundingCalulationService.GetRplFundingCalulations(
                                                                     draftApprenticeship.CourseCode,
                                                                     draftApprenticeship.StartDate,
-                                                                    draftApprenticeship.PriorLearning.DurationReducedByHours,
+                                                                    draftApprenticeship.PriorLearning?.DurationReducedByHours,
                                                                     draftApprenticeship.TrainingTotalHours,
-                                                                    draftApprenticeship.PriorLearning.PriceReducedBy,
-                                                                    draftApprenticeship.PriorLearning.IsDurationReducedByRpl,
+                                                                    draftApprenticeship.PriorLearning?.PriceReducedBy,
+                                                                    draftApprenticeship.PriorLearning?.IsDurationReducedByRpl,
                                                                     _dbContext.Value.StandardFundingPeriods,
                                                                     _dbContext.Value.FrameworkFundingPeriods
                                                                     );
 
-                if (rplCalculation.RplPriceReductionError)
+                if (draftApprenticeship.PriorLearning != null && rplCalculation.RplPriceReductionError)
                 {
                     draftApprenticeshipIds.Add(draftApprenticeship.Id);
                 }
