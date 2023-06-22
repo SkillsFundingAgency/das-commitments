@@ -158,8 +158,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
 
-        private readonly ILoggerFactory _loggerFactory;
-
         private long CohortId = 1;
         private long ApprenticeshipId = 1;
 
