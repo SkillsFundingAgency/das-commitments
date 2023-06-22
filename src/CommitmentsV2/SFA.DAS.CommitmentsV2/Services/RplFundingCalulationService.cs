@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using System;
@@ -11,13 +9,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 {
     public class RplFundingCalulationService : IRplFundingCalulationService
     {
-        private readonly IDbContextFactory _dbContextFactory;
-        private readonly ILogger<RplFundingCalulationService> _logger;
-
-        public RplFundingCalulationService(IDbContextFactory dbContextFactory, ILogger<RplFundingCalulationService> logger)
+        public RplFundingCalulationService()
         {
-            _dbContextFactory = dbContextFactory;
-            _logger = logger;
         }
 
         public async Task<RplFundingCalulation> GetRplFundingCalulations(
