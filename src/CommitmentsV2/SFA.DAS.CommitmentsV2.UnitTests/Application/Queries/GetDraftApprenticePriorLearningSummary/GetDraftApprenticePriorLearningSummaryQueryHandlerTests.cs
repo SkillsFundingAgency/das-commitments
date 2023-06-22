@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             {
                 DurationReducedByHours = 200,
                 PriceReducedBy = 1000,
-                IsDurationReducedByRpl = false,
+                IsDurationReducedByRpl = true,
                 DurationReducedBy = null
             };
 
@@ -131,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             {
                 DurationReducedByHours = 200,
                 PriceReducedBy = 1000,
-                IsDurationReducedByRpl = false,
+                IsDurationReducedByRpl = true,
                 DurationReducedBy = null
             };
 
