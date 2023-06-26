@@ -1,22 +1,20 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture;
-using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLearningError
@@ -63,7 +61,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
     public class GetCohortPriorLearningErrorQueryHandlerTestsFixtures
     {
         public ProviderCommitmentsDbContext Db { get; set; }
-        public Mock<IFeatureTogglesService<FeatureToggle>> FeatureToggleServiceMock { get; set; }
         public GetCohortPriorLearningErrorQueryHandler Handler { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
@@ -108,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             var autoFixture = new Fixture();
 
-            CommitmentsV2.Domain.Entities.TrainingProgramme trainingProgramme = null;
+            TrainingProgramme trainingProgramme = null;
             if (programmeType.HasValue)
             {
                 trainingProgramme = new TrainingProgramme(courseCode, "SomeName", programmeType.Value, startDate, null);
@@ -160,68 +157,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
             apprenticeship.TrainingTotalHours = trainingTotalHours;
 
             Db.SaveChanges();
-
-            return this;
-        }
-
-        public GetCohortPriorLearningErrorQueryHandlerTestsFixtures SetMaxFundingBandForStandard(int courseCode, int max)
-        {
-            Db.StandardFundingPeriods.Add(new StandardFundingPeriod
-            {
-                Id = courseCode,
-                EffectiveFrom = DateTime.Today.AddDays(-1),
-                FundingCap = max,
-            });
-
-            Db.SaveChanges();
-
-            return this;
-        }
-
-        public GetCohortPriorLearningErrorQueryHandlerTestsFixtures SetMaxFundingBandForFramework(string courseCode, int max)
-        {
-            Db.FrameworkFundingPeriods.Add(new FrameworkFundingPeriod
-            {
-                Id = courseCode,
-                EffectiveFrom = DateTime.Today.AddDays(-1),
-                FundingCap = max,
-            });
-
-            Db.SaveChanges();
-
-            return this;
-        }
-
-        public GetCohortPriorLearningErrorQueryHandlerTestsFixtures SetApprenticeshipPriorLearningToFalse()
-        {
-            var apprenticeship = Db.DraftApprenticeships.First();
-            apprenticeship.RecognisePriorLearning = false;
-
-            Db.SaveChanges();
-
-            return this;
-        }
-
-        public GetCohortPriorLearningErrorQueryHandlerTestsFixtures SetApprenticeshipFlexiJob()
-        {
-            var apprenticeship = Db.DraftApprenticeships.First();
-            apprenticeship.FlexibleEmployment = FlexibleEmployment;
-            apprenticeship.DeliveryModel = DeliveryModel.PortableFlexiJob;
-
-            Db.SaveChanges();
-
-            return this;
-        }
-
-        public DraftApprenticeship GetDraftApprenticeship()
-        {
-            return Db.DraftApprenticeships.First();
-        }
-
-        public GetCohortPriorLearningErrorQueryHandlerTestsFixtures SetFeatureToggle(string toggleName, bool toggle)
-        {
-            FeatureToggleServiceMock.Setup(x => x.GetFeatureToggle(toggleName))
-                .Returns(new FeatureToggle { Feature = toggleName, IsEnabled = toggle });
 
             return this;
         }
