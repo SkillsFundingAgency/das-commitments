@@ -3,11 +3,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -24,29 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
     public class GetCohortPriorLearningErrorQueryHandlerTests
     {
         [Test]
-        public async Task Handle_WhenNoApprenticeshipFound_ThenShouldNull()
-        {
-            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures();
-
-            var result = await fixture.Handle();
-
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public async Task Handle_WhenApprenticeshipFoundButRPLSetToFalse_ThenShouldNull()
-        {
-            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
-                .SetApprentice(ProgrammeType.Standard, "123", DateTime.Today)
-                .SetApprenticeshipPriorLearningToFalse();
-
-            var result = await fixture.Handle();
-
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public async Task Handle_WhenApprenticeshipFoundAndRPLSetToTrue_ThenShouldBeResult()
+        public async Task Handle_WhenApprenticeshipFoundAndRPLSetToTrueAndInCohort_ThenResultContainsApprenticeship()
         {
             var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "123", DateTime.Today)
@@ -54,7 +34,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             var result = await fixture.Handle();
 
-            Assert.IsNotNull(result);
+            Assert.That(result.DraftApprenticeshipIds, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public async Task Handle_WhenApprenticeshipFoundAndRPLSetToFalseAndInCohort_ThenResultDoesntContainsApprenticeship()
+        {
+            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
+                .SetApprentice(ProgrammeType.Standard, "123", DateTime.Today);
+
+            var result = await fixture.Handle();
+
+            Assert.That(result.DraftApprenticeshipIds, Has.Count.EqualTo(0));
+        }
+
+        [Test]
+        public async Task Handle_HandleReturnedTypeIsCorrect()
+        {
+            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures();
+
+            var result = await fixture.Handle();
+
+            Assert.IsInstanceOf<GetCohortPriorLearningErrorQueryResult>(result);
         }
 
     }
@@ -63,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IFeatureTogglesService<FeatureToggle>> FeatureToggleServiceMock { get; set; }
-        public GetDraftApprenticeshipPriorLearningSummaryQueryHandler Handler { get; set; }
+        public GetCohortPriorLearningErrorQueryHandler Handler { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
         public Mock<IRplFundingCalulationService> RplFundingCalulationServiceMock { get; set; }
@@ -86,16 +87,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
                                                         It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<DbSet<StandardFundingPeriod>>(), 
                                                         It.IsAny<DbSet<FrameworkFundingPeriod>>())).ReturnsAsync(RplFundingCalulation);
 
-            Handler = new GetDraftApprenticeshipPriorLearningSummaryQueryHandler(
+            Handler = new GetCohortPriorLearningErrorQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), RplFundingCalulationServiceMock.Object);
 
             PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
             FlexibleEmployment = new FlexibleEmployment { EmploymentEndDate = DateTime.Today, EmploymentPrice = 987 };
         }
 
-        public Task<GetDraftApprenticeshipPriorLearningSummaryQueryResult> Handle()
+        public Task<GetCohortPriorLearningErrorQueryResult> Handle()
         {
-            var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(CohortId, ApprenticeshipId);
+            var query = new GetCohortPriorLearningErrorQuery(CohortId);
             return Handler.Handle(query, CancellationToken.None);
         }
 
