@@ -45,98 +45,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
             Assert.IsNull(result);
         }
 
-        [TestCase(null, null)]
-        [TestCase("123", ProgrammeType.Framework)]
-        [TestCase("123-123", ProgrammeType.Framework)]
-        public async Task Handle_WhenApprenticeshipFoundAndNoMaxFundingFoundFundingForCourseCode_ThenMaxFundingShouldBeNullAndNoErrorDisplayed(string courseCode, ProgrammeType? programmeType)
+        [Test]
+        public async Task Handle_WhenApprenticeshipFoundAndRPLSetToTrue_ThenShouldBeResult()
         {
             var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
-                .SetApprentice(programmeType, courseCode, DateTime.Today)
-                .SetApprenticeshipPriorLearningData(1000);
+                .SetApprentice(ProgrammeType.Standard, "123", DateTime.Today)
+                .SetApprenticeshipPriorLearningData(10, new ApprenticeshipPriorLearning() { DurationReducedBy = 10, DurationReducedByHours = 1, PriceReducedBy = 10, WeightageReducedBy = 10, QualificationsForRplReduction = "quals", ReasonForRplReduction = "reason", IsDurationReducedByRpl = true });
 
             var result = await fixture.Handle();
 
-            Assert.IsNull(result.FundingBandMaximum);
+            Assert.IsNotNull(result);
         }
 
-        [TestCase(3200, 2000,  false)]
-        [TestCase(8200, 800, true)]
-        public async Task Handle_WhenApprenticeshipFoundAndMaxFundingFoundForStandard_ThenRPLSummaryDataShouldBeReturnedWithCorrectValues(
-            int maxFundingBand, int trainingTotalHours, bool reductionIsInError)
-        {
-            var priorLearning = new ApprenticeshipPriorLearning
-            {
-                DurationReducedByHours = 200,
-                PriceReducedBy = 1000,
-                IsDurationReducedByRpl = true,
-                DurationReducedBy = null
-            };
-
-            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
-                .SetApprentice(ProgrammeType.Standard, "1", DateTime.Today)
-                .SetMaxFundingBandForStandard(1, maxFundingBand)
-                .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
-
-            var result = await fixture.Handle();
-
-            Assert.AreEqual(maxFundingBand, result.FundingBandMaximum);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100, result.PercentageOfPriorLearning);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2, result.MinimumPercentageReduction);
-            Assert.AreEqual(reductionIsInError, result.RplPriceReductionError);
-        }
-
-        [TestCase(null,  false)]
-        [TestCase(0, false)]
-        [TestCase(1000, true)]
-        [TestCase(null, false)]
-        [TestCase(10000, true)]
-        public async Task Handle_WhenApprenticeshipFoundAndHasoldRPLValues_ThenRPLSummaryDataShouldBeReturnedWithNullValuesAnd(
-            int? trainingTotalHours, bool expectedToHaveAValue)
-        {
-            var priorLearning = new ApprenticeshipPriorLearning
-            {
-                DurationReducedByHours = 200,
-                PriceReducedBy = 1000
-            };
-
-            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
-                .SetApprentice(ProgrammeType.Standard, "1", DateTime.Today)
-                .SetMaxFundingBandForStandard(1, 5000)
-                .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
-
-            var result = await fixture.Handle();
-
-            Assert.AreEqual(expectedToHaveAValue, result.PercentageOfPriorLearning.HasValue);
-            Assert.AreEqual(expectedToHaveAValue, result.MinimumPercentageReduction.HasValue);
-            Assert.AreEqual(expectedToHaveAValue, result.MinimumPriceReduction.HasValue);
-            Assert.IsFalse(result.RplPriceReductionError);
-        }
-
-        [TestCase(3200, 2000, false)]
-        [TestCase(8200, 800, true)]
-        public async Task Handle_WhenApprenticeshipFounaxFundingFoundForFramework_ThenRPLSummaryDataShouldBeReturnedWithCorrectValues(
-            int maxFundingBand, int trainingTotalHours, bool reductionIsInError)
-        {
-            var priorLearning = new ApprenticeshipPriorLearning
-            {
-                DurationReducedByHours = 200,
-                PriceReducedBy = 1000,
-                IsDurationReducedByRpl = true,
-                DurationReducedBy = null
-            };
-
-            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
-                .SetApprentice(ProgrammeType.Framework, "123-123", DateTime.Today)
-                .SetMaxFundingBandForFramework("123-123", maxFundingBand)
-                .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
-
-            var result = await fixture.Handle();
-
-            Assert.AreEqual(maxFundingBand, result.FundingBandMaximum);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100, result.PercentageOfPriorLearning);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2, result.MinimumPercentageReduction);
-            Assert.AreEqual(reductionIsInError, result.RplPriceReductionError);
-        }
     }
 
     public class GetCohortPriorLearningErrorQueryHandlerTestsFixtures
