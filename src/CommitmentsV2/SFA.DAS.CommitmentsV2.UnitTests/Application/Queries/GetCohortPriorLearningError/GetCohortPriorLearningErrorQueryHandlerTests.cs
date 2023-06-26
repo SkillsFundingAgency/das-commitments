@@ -1,24 +1,18 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
-using Polly;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
@@ -164,15 +158,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
-            var standardFundingPeriod = Db.Set<StandardFundingPeriod>();
-            var frameworkFundingPeriods = Db.Set<FrameworkFundingPeriod>();
-
             RplFundingCalulation = autoFixture.Create<RplFundingCalulation>();
 
+            RplFundingCalulationServiceMock = new Mock<IRplFundingCalulationService>();
             RplFundingCalulationServiceMock.Setup(x => x.GetRplFundingCalulations
                                                     (It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(),
-                                                        It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<object>(), It.IsAny<object>())
-                                                    .ReturnsAsync(RplFundingCalulation);
+                                                        It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<DbSet<StandardFundingPeriod>>(), 
+                                                        It.IsAny<DbSet<FrameworkFundingPeriod>>())).ReturnsAsync(RplFundingCalulation);
 
             Handler = new GetDraftApprenticeshipPriorLearningSummaryQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), RplFundingCalulationServiceMock.Object);
@@ -245,7 +237,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
             apprenticeship.RecognisePriorLearning = true;
             apprenticeship.PriorLearning = PriorLearning;
             apprenticeship.TrainingTotalHours = trainingTotalHours;
-            
 
             Db.SaveChanges();
 
