@@ -22,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_All_Distinct_Employer_Names_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -40,6 +41,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
+
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
@@ -89,6 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_All_Distinct_Provider_Names_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -106,6 +112,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.ProviderNames.Should().BeEquivalentTo(expectedProviderNames);
@@ -116,6 +126,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_All_Distinct_Course_Names_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -133,6 +144,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
+
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
@@ -143,6 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_All_Distinct_Course_Names_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -161,6 +177,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.CourseNames.Should().BeEquivalentTo(expectedCourseNames);
@@ -170,6 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_All_Distinct_Planned_Start_Dates_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -190,6 +211,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
+
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
@@ -200,6 +225,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_All_Distinct_Planned_Start_Dates_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -221,6 +247,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.StartDates.Should().BeEquivalentTo(expectedStartDates);
@@ -230,6 +260,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_All_Distinct_Planned_End_Dates_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -251,6 +282,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.EndDates.Should().BeEquivalentTo(expectedEndDates);
@@ -260,6 +295,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_All_Distinct_Planned_End_Dates_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -281,6 +317,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.EndDates.Should().BeEquivalentTo(expectedEndDates);
@@ -290,6 +330,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Adds_Result_To_Cache_For_One_Minute_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -300,6 +341,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
+
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             SetupEmptyCache(query, cacheStorageService);
 
             //Act
@@ -313,6 +359,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Adds_Result_To_Cache_For_One_Minute_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -323,6 +370,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
+
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             SetupEmptyCache(query, cacheStorageService);
 
             //Act
@@ -392,6 +444,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Ordered_EmployerNames(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -416,6 +469,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.EmployerNames.Should().BeEquivalentTo(expectedEmployerNames);
@@ -425,6 +482,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Ordered_CourseNames(
             GetApprenticeshipsFilterValuesQuery query,
             List<Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -448,6 +506,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.CourseNames.Should().BeEquivalentTo(expectedCourseNames);
@@ -457,6 +519,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Ordered_PlannedStartDates(
             GetApprenticeshipsFilterValuesQuery query,
             List<Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -480,6 +543,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
 
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
+
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.StartDates.Should().BeEquivalentTo(expectedStartDates);
@@ -488,6 +555,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Ordered_PlannedEndDates(
             GetApprenticeshipsFilterValuesQuery query,
             List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -509,6 +577,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             };
 
             mockContext.Setup(context => context.Apprenticeships).ReturnsDbSet(apprenticeships);
+            mockContext.Setup(context => context.Standards).ReturnsDbSet(standard);
 
             var result = await handler.Handle(query, CancellationToken.None);
             result.EndDates.Should().BeEquivalentTo(expectedEndDates);
@@ -518,6 +587,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Ordered_LegalEntityNames(
             GetApprenticeshipsFilterValuesQuery query,
             List<Apprenticeship> apprenticeships,
+            List<CommitmentsV2.Models.Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -540,6 +610,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             mockContext
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(apprenticeships);
+
+            mockContext
+                .Setup(context => context.Standards)
+                .ReturnsDbSet(standard);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
