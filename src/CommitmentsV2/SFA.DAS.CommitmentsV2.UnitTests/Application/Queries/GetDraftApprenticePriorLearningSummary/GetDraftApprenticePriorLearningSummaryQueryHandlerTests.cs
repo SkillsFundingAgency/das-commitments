@@ -153,7 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IFeatureTogglesService<FeatureToggle>> FeatureToggleServiceMock { get; set; }
-        public Mock<IRplFundingCalulationService> RplFundingCalulationService { get; set; }
+        public Mock<IRplFundingCalculationService> RplFundingCalculationService { get; set; }
         public GetDraftApprenticeshipPriorLearningSummaryQueryHandler Handler { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
@@ -166,7 +166,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
             Handler = new GetDraftApprenticeshipPriorLearningSummaryQueryHandler(
-                new Lazy<ProviderCommitmentsDbContext>(() => Db), new RplFundingCalulationService());
+                new Lazy<ProviderCommitmentsDbContext>(() => Db), new RplFundingCalculationService());
 
             PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
             FlexibleEmployment = new FlexibleEmployment { EmploymentEndDate = DateTime.Today, EmploymentPrice = 987 };

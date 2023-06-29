@@ -62,8 +62,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
         public GetCohortPriorLearningErrorQueryHandler Handler { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
-        public Mock<IRplFundingCalulationService> RplFundingCalulationServiceMock { get; set; }
-        public RplFundingCalulation RplFundingCalulation { get; set; }
+        public Mock<IRplFundingCalculationService> RplFundingCalculationServiceMock { get; set; }
+        public RplFundingCalculation RplFundingCalculation { get; set; }
 
         private long CohortId = 1;
         private long ApprenticeshipId = 1;
@@ -74,16 +74,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
-            RplFundingCalulation = autoFixture.Create<RplFundingCalulation>();
+            RplFundingCalculation = autoFixture.Create<RplFundingCalculation>();
 
-            RplFundingCalulationServiceMock = new Mock<IRplFundingCalulationService>();
-            RplFundingCalulationServiceMock.Setup(x => x.GetRplFundingCalulations
+            RplFundingCalculationServiceMock = new Mock<IRplFundingCalculationService>();
+            RplFundingCalculationServiceMock.Setup(x => x.GetRplFundingCalculations
                                                     (It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(),
                                                         It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<DbSet<StandardFundingPeriod>>(), 
-                                                        It.IsAny<DbSet<FrameworkFundingPeriod>>())).ReturnsAsync(RplFundingCalulation);
+                                                        It.IsAny<DbSet<FrameworkFundingPeriod>>())).ReturnsAsync(RplFundingCalculation);
 
             Handler = new GetCohortPriorLearningErrorQueryHandler(
-                new Lazy<ProviderCommitmentsDbContext>(() => Db), RplFundingCalulationServiceMock.Object);
+                new Lazy<ProviderCommitmentsDbContext>(() => Db), RplFundingCalculationServiceMock.Object);
 
             PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
             FlexibleEmployment = new FlexibleEmployment { EmploymentEndDate = DateTime.Today, EmploymentPrice = 987 };

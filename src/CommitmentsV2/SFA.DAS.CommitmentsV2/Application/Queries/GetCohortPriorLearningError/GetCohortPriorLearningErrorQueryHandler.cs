@@ -14,13 +14,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
     public class GetCohortPriorLearningErrorQueryHandler : IRequestHandler<GetCohortPriorLearningErrorQuery, GetCohortPriorLearningErrorQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IRplFundingCalulationService _rplFundingCalulationService;
+        private readonly IRplFundingCalculationService _rplFundingCalculationService;
 
 
-        public GetCohortPriorLearningErrorQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IRplFundingCalulationService rplFundingCalulationService)
+        public GetCohortPriorLearningErrorQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IRplFundingCalculationService rplFundingCalculationService)
         {
             _dbContext = dbContext;
-            _rplFundingCalulationService = rplFundingCalulationService;
+            _rplFundingCalculationService = rplFundingCalculationService;
         }
 
         public async Task<GetCohortPriorLearningErrorQueryResult> Handle(GetCohortPriorLearningErrorQuery request, CancellationToken cancellationToken)
@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError
             foreach (var draftApprenticeship in query)
             {
 
-                var rplCalculation = await _rplFundingCalulationService.GetRplFundingCalulations(
+                var rplCalculation = await _rplFundingCalculationService.GetRplFundingCalculations(
                                                                     draftApprenticeship.CourseCode,
                                                                     draftApprenticeship.StartDate,
                                                                     draftApprenticeship.PriorLearning?.DurationReducedByHours,

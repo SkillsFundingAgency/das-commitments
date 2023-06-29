@@ -7,13 +7,9 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class RplFundingCalulationService : IRplFundingCalulationService
+    public class RplFundingCalculationService : IRplFundingCalculationService
     {
-        public RplFundingCalulationService()
-        {
-        }
-
-        public async Task<RplFundingCalulation> GetRplFundingCalulations(
+        public async Task<RplFundingCalculation> GetRplFundingCalculations(
                 string courseCode,
                 DateTime? startDate,
                 int? durationReducedByHours,
@@ -24,13 +20,13 @@ namespace SFA.DAS.CommitmentsV2.Services
                 DbSet<FrameworkFundingPeriod> frameworkFundingPeriods
             )
         {
-            int? fundingBandMaximum = await GetFundingBandMaximum(courseCode, startDate, frameworkFundingPeriods, standardFundingPeriods);
-            decimal? percentageOfPriorLearning = CalculatePercentageOfPriorLearning(durationReducedByHours, trainingTotalHours);
-            decimal? minimumPercentageReduction = CalculateMinimumPercentageOfPriorLearning(percentageOfPriorLearning);
-            int? minimumPriceReduction = CalculateMinimumPriceReduction(fundingBandMaximum, minimumPercentageReduction);
-            bool rplPriceReductionError = HasRplPriceReductionError(trainingTotalHours, durationReducedByHours, priceReducedBy, isDurationReducedByRpl, minimumPriceReduction);
+            var fundingBandMaximum = await GetFundingBandMaximum(courseCode, startDate, frameworkFundingPeriods, standardFundingPeriods);
+            var percentageOfPriorLearning = CalculatePercentageOfPriorLearning(durationReducedByHours, trainingTotalHours);
+            var minimumPercentageReduction = CalculateMinimumPercentageOfPriorLearning(percentageOfPriorLearning);
+            var minimumPriceReduction = CalculateMinimumPriceReduction(fundingBandMaximum, minimumPercentageReduction);
+            var rplPriceReductionError = HasRplPriceReductionError(trainingTotalHours, durationReducedByHours, priceReducedBy, isDurationReducedByRpl, minimumPriceReduction);
 
-            var rplFundingCalulation = new RplFundingCalulation
+            var rplFundingCalculation = new RplFundingCalculation
             {
                 FundingBandMaximum = fundingBandMaximum,
                 PercentageOfPriorLearning = percentageOfPriorLearning,
@@ -39,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 RplPriceReductionError = rplPriceReductionError
             };
 
-            return rplFundingCalulation;
+            return rplFundingCalculation;
         }
 
         private async Task<int?> GetFundingBandMaximum(string courseCode, DateTime? startDate, DbSet<FrameworkFundingPeriod> frameworkFundingPeriods, DbSet<StandardFundingPeriod> standardFundingPeriods)
@@ -70,8 +66,6 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private static decimal? CalculateMinimumPercentageOfPriorLearning(decimal? percentageOfPriorLearning)
         {
-            if (percentageOfPriorLearning == null)
-                return null;
             return percentageOfPriorLearning / 2;
         }
 

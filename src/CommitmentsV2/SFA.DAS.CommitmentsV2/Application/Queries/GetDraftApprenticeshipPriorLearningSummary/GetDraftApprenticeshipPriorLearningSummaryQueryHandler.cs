@@ -13,13 +13,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorL
     public class GetDraftApprenticeshipPriorLearningSummaryQueryHandler : IRequestHandler<GetDraftApprenticeshipPriorLearningSummaryQuery, GetDraftApprenticeshipPriorLearningSummaryQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IRplFundingCalulationService _rplFundingCalulationService;
+        private readonly IRplFundingCalculationService _rplFundingCalculationService;
 
 
-        public GetDraftApprenticeshipPriorLearningSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IRplFundingCalulationService rplFundingCalulationService)
+        public GetDraftApprenticeshipPriorLearningSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IRplFundingCalculationService rplFundingCalculationService)
         {
             _dbContext = dbContext;
-            _rplFundingCalulationService = rplFundingCalulationService;
+            _rplFundingCalculationService = rplFundingCalculationService;
         }
 
         public async Task<GetDraftApprenticeshipPriorLearningSummaryQueryResult> Handle(GetDraftApprenticeshipPriorLearningSummaryQuery request, CancellationToken cancellationToken)
@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorL
 
             if (x != null && x.RecognisePriorLearning == true)
             {
-                var rplCalculation = await _rplFundingCalulationService.GetRplFundingCalulations(
+                var rplCalculation = await _rplFundingCalculationService.GetRplFundingCalculations(
                                                                     x.CourseCode,
                                                                     x.StartDate,
                                                                     x.DurationReducedByHours,

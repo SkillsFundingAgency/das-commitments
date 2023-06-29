@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<IUlnUtilisationService>().Use<UlnUtilisationService>();
             For<IOverlapCheckService>().Use<OverlapCheckService>();
             For<IEmailOverlapService>().Use<EmailOverlapService>();
-            For<IRplFundingCalulationService>().Use<RplFundingCalulationService>();
+            For<IRplFundingCalculationService>().Use<RplFundingCalculationService>();
             For<IUlnValidator>().Use<UlnValidator>();
             For<IEditApprenticeshipValidationService>().Use<EditApprenticeshipValidationService>();
             For<IEmailOptionalService>().Use<EmailOptionalService>();
