@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              .Without(s=>s.PriorLearning)
              .Create();
 
-            PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 9, PriceReducedBy = 190};
+            PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 9, PriceReducedBy = 190, DurationReducedByHours = 900, IsDurationReducedByRpl = true};
 
             CancellationToken = new CancellationToken();
 
@@ -162,6 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var apprenticeship = Db.DraftApprenticeships.First();
             apprenticeship.RecognisePriorLearning = true;
+            apprenticeship.TrainingTotalHours = 1000;
             apprenticeship.PriorLearning = PriorLearning;
             await Db.SaveChangesAsync();
             return this;

@@ -220,6 +220,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (RecognisePriorLearning == false && PriorLearning != null)
             {
+                TrainingTotalHours = null;
+                PriorLearning.DurationReducedByHours = null;
+                PriorLearning.IsDurationReducedByRpl = null;
                 PriorLearning.DurationReducedBy = null;
                 PriorLearning.PriceReducedBy = null;
             }
