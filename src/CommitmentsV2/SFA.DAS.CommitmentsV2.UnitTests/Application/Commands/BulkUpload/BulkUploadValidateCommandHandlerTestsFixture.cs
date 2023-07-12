@@ -307,6 +307,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             });
         }
 
+        public void ValidateNoErrorsFound(BulkUploadValidateApiResponse errors)
+        {
+            Assert.AreEqual(0, errors.BulkUploadValidationErrors.Count);
+        }
+
         internal BulkUploadValidateCommandHandlerTestsFixture SetCohortRef(string cohortRef)
         {
             CsvRecords[0].CohortRef = cohortRef;
@@ -563,6 +568,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         internal BulkUploadValidateCommandHandlerTestsFixture SetEPAOrgId(string epaOrgId)
         {
             CsvRecords[0].EPAOrgId = epaOrgId;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetRplDataExtended(bool extended)
+        {
+            Command.RplDataExtended = extended;
             return this;
         }
     }

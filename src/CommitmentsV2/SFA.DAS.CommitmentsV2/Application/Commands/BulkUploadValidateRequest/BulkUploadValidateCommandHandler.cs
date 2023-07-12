@@ -31,6 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
 
         public long ProviderId { get; set; }
+        public bool RplDataExtended { get; set; }
 
         public BulkUploadValidateCommandHandler(
             ILogger<BulkUploadValidateCommandHandler> logger,
@@ -55,6 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
         {
             ProviderId = command.ProviderId;
+            RplDataExtended = command.RplDataExtended;
             var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
             _csvRecords = command.CsvRecords.ToList();
 
@@ -191,7 +193,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             domainErrors.AddRange(ValidateProviderRef(csvRecord));
             domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
             domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
-            domainErrors.AddRange(ValidatePriorLearning(csvRecord));
+
+            if (!RplDataExtended)
+            {
+                domainErrors.AddRange(ValidatePriorLearning(csvRecord));
+            }
+            else
+            {
+                domainErrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
+                domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord));
+                domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord));
+                domainErrors.AddRange(ValidateDurationReducedBy(csvRecord));
+                domainErrors.AddRange(ValidatePriceReducedBy(csvRecord));
+            }
 
             return domainErrors;
         }
