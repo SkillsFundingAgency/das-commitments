@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetTrainingTotalHours("0");
+            fixture.SetTrainingTotalHours("-10");
 
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be 278 hours or more");
