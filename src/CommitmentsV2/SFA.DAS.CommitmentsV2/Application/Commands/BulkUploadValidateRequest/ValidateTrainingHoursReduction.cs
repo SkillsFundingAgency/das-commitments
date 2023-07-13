@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     }
                     else
                     {
-                        domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off - the - job training time due to RPL must be a number between 1 and 999"));
+                        domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999"));
                     }
                 }
             }
