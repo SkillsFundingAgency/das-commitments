@@ -41,6 +41,29 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                         domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be 1 hour or more"));
                     }
 
+
+
+
+                    bool isTrainingTotalHoursNumeric = int.TryParse(csvRecord.TrainingTotalHoursAsString, out int h);
+
+                    if (isTrainingTotalHoursNumeric)
+                    {
+
+                        if (csvRecord.TrainingTotalHours < csvRecord.TrainingHoursReduction)
+                        {
+                            domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be lower than the total off-the-job training time for this apprenticeship standard"));
+                        }
+
+                        if (csvRecord.TrainingTotalHours - csvRecord.TrainingHoursReduction < 278)
+                        {
+                            domainErrors.Add(new Error("TrainingHoursReduction", "The remaining off-the-job training is below the minimum 278 hours required for funding. Check if the RPL reduction is too high"));
+                        }
+
+                    }
+
+
+
+
                 }
                 else if (csvRecord.RecognisePriorLearning.Value == true && !csvRecord.TrainingHoursReductionAsString.All(char.IsDigit))
                 {
@@ -49,27 +72,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     if (isTrainingHoursReductionNumeric && n < 1)
                     {
                         domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be 1 hour or more"));
-                    }
-                    else if (isTrainingHoursReductionNumeric)
-                    {
-
-                        bool isTrainingTotalHoursNumeric = int.TryParse(csvRecord.TrainingTotalHoursAsString, out int h);
-
-                        if (isTrainingTotalHoursNumeric)
-                        {
-
-                            if (csvRecord.TrainingTotalHours < csvRecord.TrainingHoursReduction)
-                            {
-                                domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be lower than the total off-the-job training time for this apprenticeship standard"));
-                            }
-
-                            if (csvRecord.TrainingTotalHours - csvRecord.TrainingHoursReduction < 278)
-                            {
-                                domainErrors.Add(new Error("TrainingHoursReduction", "The remaining off-the-job training is below the minimum 278 hours required for funding. Check if the RPL reduction is too high"));
-                            }
-
-                        }
-
                     }
                     else
                     {
