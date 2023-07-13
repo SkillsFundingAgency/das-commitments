@@ -248,7 +248,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 CourseName = "coursename"
             });
         }
-
+        
         internal void SetUpDuplicateEmailWithinTheSameCohort()
         {
             CsvRecords.Add(new BulkUploadAddDraftApprenticeshipRequest
@@ -482,11 +482,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         }
 
-        internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null)
+        internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null, int? trainingTotalHours = null, int? trainingHoursReduction = null, bool? isDurationReducedByRPL = null)
         {
             CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();
             CsvRecords[0].DurationReducedByAsString = durationReducedBy.ToString();
             CsvRecords[0].PriceReducedByAsString = priceReducedBy.ToString();
+            CsvRecords[0].TrainingTotalHoursAsString = trainingTotalHours.ToString();
+            CsvRecords[0].TrainingHoursReductionAsString = trainingHoursReduction.ToString();
+            CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPL.ToString();
         }
 
         internal void SetUpIncompleteRecord()
