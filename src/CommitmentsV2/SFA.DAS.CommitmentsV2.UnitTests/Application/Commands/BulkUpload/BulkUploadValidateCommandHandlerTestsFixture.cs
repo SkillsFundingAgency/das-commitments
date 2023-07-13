@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         protected Mock<ILinkGenerator> _mockLinkGenerator;
         public const long ProviderId = 333;
 
-        public BulkUploadValidateCommandHandlerTestsFixture()
+        public BulkUploadValidateCommandHandlerTestsFixture(bool rplDataExtended = false)
         {
             _mockLinkGenerator = new Mock<ILinkGenerator>();
             CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
@@ -52,7 +52,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             Command = new BulkUploadValidateCommand()
             {
                 CsvRecords = CsvRecords,
-                ProviderId = ProviderId
+                ProviderId = ProviderId,
+                RplDataExtended = rplDataExtended
             };
 
             Command.ProviderStandardResults.Standards = new List<ProviderStandard> { new ProviderStandard("123", "123") };
@@ -480,6 +481,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                   .ReturnsAsync(listEmailOverlap);
 
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetRecognisePriorLearning(string recognisePriorLearning)
+        {
+            CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetTrainingTotalHours(string trainingTotalHours)
+        {
+            CsvRecords[0].TrainingTotalHoursAsString = trainingTotalHours;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetTrainingHoursReduction(string trainingHoursReduction)
+        {
+            CsvRecords[0].TrainingHoursReductionAsString = trainingHoursReduction;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetIsDurationReducedByRPL(string isDurationReducedByRPL)
+        {
+            CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPL;
+            return this;
         }
 
         internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null, int? trainingTotalHours = null, int? trainingHoursReduction = null, bool? isDurationReducedByRPL = null)
