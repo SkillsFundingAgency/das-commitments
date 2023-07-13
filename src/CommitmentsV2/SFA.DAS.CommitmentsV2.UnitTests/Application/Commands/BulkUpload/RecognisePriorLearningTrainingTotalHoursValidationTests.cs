@@ -52,11 +52,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         }
 
         [Test]
-        public async Task Prior_Learning_Training_When_TrainingTotalHours_Has_Spaces()
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Is_Less_Than_278()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetTrainingTotalHours(" 1000 1000");
+            fixture.SetTrainingTotalHours("34");
+
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be 278 hours or more");
+        }
+
+        [Test]
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Not_Single_Value()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetTrainingTotalHours("“1000 2000");
 
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
@@ -80,6 +91,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
             fixture.SetTrainingTotalHours("#22738");
+
+            var errors = await fixture.Handle();
+            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
+        }
+
+        [Test]
+        public async Task Prior_Learning_Training_When_TrainingTotalHours_Has_Space()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetTrainingTotalHours(" 1000");
 
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
