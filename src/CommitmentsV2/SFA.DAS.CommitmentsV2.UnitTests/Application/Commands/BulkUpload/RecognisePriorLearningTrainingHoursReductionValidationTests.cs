@@ -1,7 +1,5 @@
-﻿using AutoFixture;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using System.Linq;
 using System.Threading.Tasks;
 

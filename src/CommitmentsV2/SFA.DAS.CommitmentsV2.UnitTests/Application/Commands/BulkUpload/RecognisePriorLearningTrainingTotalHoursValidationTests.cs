@@ -1,7 +1,5 @@
-﻿using AutoFixture;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,7 +25,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 e.Property == "TrainingTotalHours" &&
                 e.ErrorText == error).Should().Be(true);
         }
-
 
         [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_Is_Greater_Than_9999()
@@ -106,8 +103,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
         }
-
-
 
     }
 }
