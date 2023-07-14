@@ -37,12 +37,11 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
                     ReservationId = source.ReservationId,
                     DeliveryModel = Types.DeliveryModel.Regular,
                     RecognisePriorLearning = source.RecognisePriorLearning,
+                    TrainingTotalHours = source.TrainingTotalHours,
+                    DurationReducedByHours = source.TrainingHoursReduction,
                     DurationReducedBy = source.DurationReducedBy,
+                    IsDurationReducedByRPL = source.IsDurationReducedByRPL,
                     PriceReducedBy = source.PriceReducedBy,
-                    //DurationReducedByHours = source.DurationReducedByHours,
-                    //WeightageReducedBy = source.WeightageReducedBy,
-                    //ReasonForRplReduction = source.ReasonForRplReduction,
-                    //QualificationsForRplReduction = source.QualificationsForRplReduction,
                     IsOnFlexiPaymentPilot = false
                 };
                 await MapTrainingProgramme(source, result);

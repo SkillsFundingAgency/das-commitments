@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Azure.Amqp.Framing;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Entities
@@ -57,5 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public int? WeightageReducedBy { get; set; }
         public string QualificationsForRplReduction { get; set; }
         public string ReasonForRplReduction { get; set; }
+        public int? TrainingTotalHours { get; set; }
+        public bool? IsDurationReducedByRPL { get; set; }
     }
 }
