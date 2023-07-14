@@ -7,15 +7,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     public class RecognisePriorLearningTrainingTotalHoursValidationTests
     {
-        [TestCase(277, "Total off-the-job training time for this apprenticeship standard must be 278 hours or more")]
-        [TestCase(0, "Total off-the-job training time for this apprenticeship standard must be 278 hours or more")]
-        [TestCase(-10, "Total off-the-job training time for this apprenticeship standard must be 278 hours or more")]
-        [TestCase(10000, "Total off-the-job training time for this apprenticeship standard must be 9,999 hours or less")]
+        [TestCase(277, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more")]
+        [TestCase(0, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more")]
+        [TestCase(-10, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more")]
+        [TestCase(10000, "Total <b>off-the-job training time</b> for this apprenticeship standard must be 9,999 hours or less")]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_AreInvalid(int trainingTotalHours, string error)
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRplDataExtended(true);
-            fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 100, priceReducedBy: 10, trainingTotalHours: trainingTotalHours, trainingHoursReduction: 10, isDurationReducedByRPL: true );
+            fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 100, priceReducedBy: 10, trainingTotalHours: trainingTotalHours, trainingHoursReduction: 10, isDurationReducedByRPL: true);
 
             var errors = await fixture.Handle();
             var domainErrors = errors.BulkUploadValidationErrors.SelectMany(x => x.Errors).ToList();
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingTotalHours("10001");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be 9,999 hours or less");
+            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 9,999 hours or less");
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingTotalHours("-10");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be 278 hours or more");
+            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more");
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingTotalHours("34");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be 278 hours or more");
+            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more");
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingTotalHours("“1000 2000");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
+            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingTotalHours("6282ABC");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
+            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingTotalHours("#22738");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
+            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingTotalHours(" 1000");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
+            fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
         }
     }
 }

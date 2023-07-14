@@ -7,9 +7,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     public class RecognisePriorLearningTrainingHoursReductionValidationTests
     {
-        [TestCase(0, "Total reduction in off-the-job training time due to RPL must be 1 hour or more")]
-        [TestCase(-10, "Total reduction in off-the-job training time due to RPL must be 1 hour or more")]
-        [TestCase(1000, "Total reduction in off-the-job training time due to RPL must be 999 hours or less")]
+        [TestCase(0, "Total <b>reduction in off-the-job training time</b> due to RPL must be 1 hour or more")]
+        [TestCase(-10, "Total <b>reduction in off-the-job training time</b> due to RPL must be 1 hour or more")]
+        [TestCase(1000, "Total <b>reduction in off-the-job training time</b> due to RPL must be 999 hours or less")]
         public async Task Prior_Learning_Training_When_TrainingHoursReduction_AreInvalid(int trainingHoursReduction, string error)
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingHoursReduction("10000");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be 999 hours or less");
+            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be 999 hours or less");
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingHoursReduction("0");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be 1 hour or more");
+            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be 1 hour or more");
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingHoursReduction("-10");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be 1 hour or more");
+            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be 1 hour or more");
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingHoursReduction("999 1234");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999");
+            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingHoursReduction("1234ABC");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999");
+            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingHoursReduction("#2342");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999");
+            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingHoursReduction(" 2342");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999");
+            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingTotalHours("300");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "TrainingHoursReduction", "The remaining off-the-job training is below the minimum 278 hours required for funding. Check if the RPL reduction is too high");
+            fixture.ValidateError(errors, "TrainingHoursReduction", "The remaining off-the-job training is below the minimum 278 hours required for funding. Check if the <b>RPL reduction</b> is too high");
         }
 
         [Test]
@@ -123,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetTrainingTotalHours("500");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be lower than the total off-the-job training time for this apprenticeship standard");
+            fixture.ValidateError(errors, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be lower than the total off-the-job training time for this apprenticeship standard");
         }
     }
 }

@@ -16,18 +16,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             {
                 if (csvRecord.TrainingTotalHoursAsString.Contains(" "))
                 {
-                    domainErrors.Add(new Error("TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999"));
+                    domainErrors.Add(new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999"));
                 }
                 else if (csvRecord.TrainingTotalHoursAsString.All(char.IsDigit))
                 {
                     if (csvRecord.TrainingTotalHours.Value > 9999)
                     {
-                        domainErrors.Add(new Error("TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be 9,999 hours or less"));
+                        domainErrors.Add(new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 9,999 hours or less"));
                     }
                     
                     if (csvRecord.TrainingTotalHours.Value < 278)
                     {
-                        domainErrors.Add(new Error("TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be 278 hours or more"));
+                        domainErrors.Add(new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more"));
                     }
                 }
                 else if (!csvRecord.TrainingTotalHoursAsString.All(char.IsDigit))
@@ -36,11 +36,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
                     if (isNumeric && n < 278)
                     {
-                        domainErrors.Add(new Error("TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be 278 hours or more"));
+                        domainErrors.Add(new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more"));
                     }
                     else
                     {
-                        domainErrors.Add(new Error("TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999"));
+                        domainErrors.Add(new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999"));
                     }
                 }
             }
