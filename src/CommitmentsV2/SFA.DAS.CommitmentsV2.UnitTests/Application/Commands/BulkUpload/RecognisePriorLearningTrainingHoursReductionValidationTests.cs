@@ -69,7 +69,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999");
         }
 
-
         [Test]
         public async Task Prior_Learning_Training_When_TrainingHoursReduction_Alphanumeric()
         {

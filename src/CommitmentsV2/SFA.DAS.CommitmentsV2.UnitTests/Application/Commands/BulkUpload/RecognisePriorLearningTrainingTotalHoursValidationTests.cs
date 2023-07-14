@@ -70,7 +70,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
         }
 
-
         [Test]
         public async Task Prior_Learning_Training_When_TrainingTotalHours_AlphaNumeric()
         {
@@ -103,6 +102,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "TrainingTotalHours", "Total off-the-job training time for this apprenticeship standard must be a number between 278 and 9,999");
         }
-
     }
 }

@@ -12,24 +12,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         {
             var domainErrors = new List<Error>();
 
-            if (string.IsNullOrEmpty(csvRecord.TrainingHoursReductionAsString))
+            if (!string.IsNullOrEmpty(csvRecord.TrainingHoursReductionAsString) && csvRecord.RecognisePriorLearning.Value == true)
             {
-                //domainErrors.Add(new Error("TrainingHoursReduction", ""));
-            }
-            else
-            {
-                if (csvRecord.RecognisePriorLearning.Value == true && csvRecord.TrainingHoursReductionAsString.Contains(" "))
+                if (csvRecord.TrainingHoursReductionAsString.Contains(" "))
                 {
                     domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999"));
                 }
-                else if (csvRecord.RecognisePriorLearning.Value == true && csvRecord.TrainingHoursReductionAsString.All(char.IsDigit))
+                else if (csvRecord.TrainingHoursReductionAsString.All(char.IsDigit))
                 {
-                    if (csvRecord.RecognisePriorLearning.Value == true && csvRecord.TrainingHoursReduction.Value > 999)
+                    if (csvRecord.TrainingHoursReduction.Value > 999)
                     {
                         domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be 999 hours or less"));
                     }
 
-                    if (csvRecord.RecognisePriorLearning.Value == true && csvRecord.TrainingHoursReduction.Value < 1)
+                    if (csvRecord.TrainingHoursReduction.Value < 1)
                     {
                         domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be 1 hour or more"));
                     }
@@ -48,10 +44,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                         }
                     }
                 }
-                else if (csvRecord.RecognisePriorLearning.Value == true && !csvRecord.TrainingHoursReductionAsString.All(char.IsDigit))
+                else if (!csvRecord.TrainingHoursReductionAsString.All(char.IsDigit))
                 {
-                    bool isTrainingHoursReductionNumeric = int.TryParse(csvRecord.TrainingHoursReductionAsString, out int n);
-                    if (isTrainingHoursReductionNumeric && n < 1)
+                    bool isTrainingHoursReductionNumeric = int.TryParse(csvRecord.TrainingHoursReductionAsString, out int r);
+                    if (isTrainingHoursReductionNumeric && r < 1)
                     {
                         domainErrors.Add(new Error("TrainingHoursReduction", "Total reduction in off-the-job training time due to RPL must be 1 hour or more"));
                     }
@@ -61,7 +57,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     }
                 }
             }
-
             return domainErrors;
         }
     }
