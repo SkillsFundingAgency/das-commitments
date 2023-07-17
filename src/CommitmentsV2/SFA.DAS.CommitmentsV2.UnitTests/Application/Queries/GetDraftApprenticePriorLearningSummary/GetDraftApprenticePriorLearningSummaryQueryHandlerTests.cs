@@ -1,18 +1,29 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using Polly;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
+using SFA.DAS.CommitmentsV2.Api.Client.Http;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 using TrainingProgramme = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme;
 
@@ -67,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             {
                 DurationReducedByHours = 200,
                 PriceReducedBy = 1000,
-                IsDurationReducedByRpl = false,
+                IsDurationReducedByRpl = true,
                 DurationReducedBy = null
             };
 
@@ -120,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             {
                 DurationReducedByHours = 200,
                 PriceReducedBy = 1000,
-                IsDurationReducedByRpl = false,
+                IsDurationReducedByRpl = true,
                 DurationReducedBy = null
             };
 
@@ -142,6 +153,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IFeatureTogglesService<FeatureToggle>> FeatureToggleServiceMock { get; set; }
+        public Mock<IRplFundingCalculationService> RplFundingCalculationService { get; set; }
         public GetDraftApprenticeshipPriorLearningSummaryQueryHandler Handler { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
@@ -152,18 +164,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+
             Handler = new GetDraftApprenticeshipPriorLearningSummaryQueryHandler(
-                new Lazy<ProviderCommitmentsDbContext>(() => Db));
+                new Lazy<ProviderCommitmentsDbContext>(() => Db), new RplFundingCalculationService());
 
             PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
             FlexibleEmployment = new FlexibleEmployment { EmploymentEndDate = DateTime.Today, EmploymentPrice = 987 };
         }
+
+
+        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Debug);
+        });
+
 
         public Task<GetDraftApprenticeshipPriorLearningSummaryQueryResult> Handle()
         {
             var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(CohortId, ApprenticeshipId);
             return Handler.Handle(query, CancellationToken.None);
         }
+
+
 
         public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetApprentice(ProgrammeType? programmeType, string courseCode,  DateTime? startDate)
         {
