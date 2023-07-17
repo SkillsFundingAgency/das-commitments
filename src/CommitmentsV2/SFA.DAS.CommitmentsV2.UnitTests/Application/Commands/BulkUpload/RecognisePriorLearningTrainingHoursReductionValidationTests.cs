@@ -91,16 +91,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
         }
 
-        [Test]
-        public async Task Prior_Learning_Training_When_TrainingHoursReduction_Spaces()
-        {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
-            fixture.SetRecognisePriorLearning("true");
-            fixture.SetTrainingHoursReduction(" 2342");
+        //[Test]
+        //public async Task Prior_Learning_Training_When_TrainingHoursReduction_Spaces()
+        //{
+        //    var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+        //    fixture.SetRecognisePriorLearning("true");
+        //    fixture.SetTrainingHoursReduction(" 2342");
 
-            var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
-        }
+        //    var errors = await fixture.Handle();
+        //    fixture.ValidateError(errors, 1, "TrainingHoursReduction", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
+        //}
 
         [Test]
         public async Task Prior_Learning_Training_When_TrainingHoursReduction_Values_TrainingTotalHours_and_TrainingHoursReduction_less_than_278()

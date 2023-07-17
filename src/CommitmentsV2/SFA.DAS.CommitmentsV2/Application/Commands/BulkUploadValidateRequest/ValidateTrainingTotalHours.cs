@@ -24,12 +24,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 }
                 else if (csvRecord.TrainingTotalHours.Value > 9999)
                 {
-                    yield return new Error("TrainingTotalHours",
-                        "Total <b>off-the-job training time</b> for this apprenticeship standard must be 9,999 hours or less");
+                    yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 9,999 hours or less");
                 }
                 else if (csvRecord.TrainingTotalHours.Value < 278)
                 {
                     yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more");
+                }
+                else
+                {
+                    yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
                 }
             }
         }
