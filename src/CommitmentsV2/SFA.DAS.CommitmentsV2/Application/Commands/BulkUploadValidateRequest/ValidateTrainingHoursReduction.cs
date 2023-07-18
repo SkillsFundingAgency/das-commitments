@@ -10,13 +10,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
     {
         private IEnumerable<Error> ValidateTrainingHoursReduction(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
-            if (!string.IsNullOrEmpty(csvRecord.TrainingHoursReductionAsString) && csvRecord.RecognisePriorLearning.GetValueOrDefault() == false)
+            if (!string.IsNullOrWhiteSpace(csvRecord.TrainingHoursReductionAsString) && csvRecord.RecognisePriorLearning.GetValueOrDefault() == false)
             {
                 yield return new Error("TrainingTotalHours", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
                 yield break;
             }
 
-            if (!string.IsNullOrEmpty(csvRecord.TrainingHoursReductionAsString))
+            if (!string.IsNullOrWhiteSpace(csvRecord.TrainingHoursReductionAsString))
             {
                 if (csvRecord.TrainingHoursReduction != null)
                 {

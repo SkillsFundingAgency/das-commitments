@@ -2,7 +2,6 @@
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
@@ -10,13 +9,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
     {
         private IEnumerable<Error> ValidateTrainingTotalHours(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
-            if (!string.IsNullOrEmpty(csvRecord.TrainingTotalHoursAsString) && csvRecord.RecognisePriorLearning.GetValueOrDefault() == false)
+            if (!string.IsNullOrWhiteSpace(csvRecord.TrainingTotalHoursAsString) && csvRecord.RecognisePriorLearning.GetValueOrDefault() == false)
             {
                 yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> cannot be set when there is no prior learning");
                 yield break;
             }
             
-            if (!string.IsNullOrEmpty(csvRecord.TrainingTotalHoursAsString))
+            if (!string.IsNullOrWhiteSpace(csvRecord.TrainingTotalHoursAsString))
             {
                 if (csvRecord.TrainingTotalHours == null)
                 {
@@ -30,10 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 {
                     yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be 278 hours or more");
                 }
-                else
-                {
-                    yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> for this apprenticeship standard must be a number between 278 and 9,999");
-                }
+
             }
         }
     }

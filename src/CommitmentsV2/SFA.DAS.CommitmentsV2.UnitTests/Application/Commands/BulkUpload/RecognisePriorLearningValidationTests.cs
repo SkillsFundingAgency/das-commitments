@@ -86,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRplDataExtended(true);
             fixture.SetStartDate("2022-08-01");
-            fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: null, priceReducedBy: 1);
+            fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: null, priceReducedBy: 101);
 
             var errors = await fixture.Handle();
             fixture.ValidateNoErrorsFound(errors);

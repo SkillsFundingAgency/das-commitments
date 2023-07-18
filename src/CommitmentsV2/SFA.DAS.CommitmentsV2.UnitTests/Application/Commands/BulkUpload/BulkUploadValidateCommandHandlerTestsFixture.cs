@@ -517,6 +517,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPL.ToString();
         }
 
+        internal void SetPriorLearningRaw(bool? recognisePriorLearning, string durationReducedByAsString = null, string priceReducedByAsString = null, string trainingTotalHoursAsString = null, 
+            string trainingHoursReductionAsString = null, string isDurationReducedByRPLAsString = null)
+        {
+            CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();
+            CsvRecords[0].DurationReducedByAsString = durationReducedByAsString;
+            CsvRecords[0].PriceReducedByAsString = priceReducedByAsString;
+            CsvRecords[0].TrainingTotalHoursAsString = trainingTotalHoursAsString;
+            CsvRecords[0].TrainingHoursReductionAsString = trainingHoursReductionAsString;
+            CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPLAsString;
+        }
+
         internal void SetUpIncompleteRecord()
         {           
             DraftApprenticeship = new DraftApprenticeship
