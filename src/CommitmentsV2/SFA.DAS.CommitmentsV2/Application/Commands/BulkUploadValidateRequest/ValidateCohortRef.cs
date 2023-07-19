@@ -11,7 +11,7 @@ using SFA.DAS.ProviderRelationships.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
-    public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
+    public partial class BulkUploadValidateCommandHandler
     {
         public const string CohortRefPermissionIssue = "CohortRefPermission";
         private async Task<List<Error>> ValidateCohortRef(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId)

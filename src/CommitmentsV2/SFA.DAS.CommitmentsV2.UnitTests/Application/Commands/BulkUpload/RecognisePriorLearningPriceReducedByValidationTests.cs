@@ -50,5 +50,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             domainErrors.Any(e => e.Property == "PriceReducedBy").Should().Be(false);
         }
+
+        [TestCase("XXX", "The <b>price this apprenticeship has been reduced by</b> due to prior learning should not be entered when recognise prior learning is false")]
+        [TestCase("999", "The <b>price this apprenticeship has been reduced by</b> due to prior learning should not be entered when recognise prior learning is false")]
+        public async Task When_PriceReducedBy_ArePresent_But_RPL_Is_False(string priceReducedBy, string error)
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            fixture.SetRplDataExtended(true);
+            fixture.SetPriorLearningRaw(recognisePriorLearning: false, durationReducedByAsString: "100",
+                priceReducedByAsString: priceReducedBy, trainingTotalHoursAsString: "230",
+                trainingHoursReductionAsString: "10", isDurationReducedByRPLAsString: "true");
+
+            var errors = await fixture.Handle();
+            var domainErrors = errors.BulkUploadValidationErrors.SelectMany(x => x.Errors).ToList();
+
+            domainErrors.Any(e =>
+                e.Property == "PriceReducedBy" &&
+                e.ErrorText == error).Should().Be(true);
+        }
     }
 }
