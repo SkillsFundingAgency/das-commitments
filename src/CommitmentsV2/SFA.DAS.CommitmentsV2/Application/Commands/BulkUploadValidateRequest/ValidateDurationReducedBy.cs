@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                     {
                         if (csvRecord.DurationReducedBy.Value > 260)
                         {
-                            yield return new Error("DurationReducedBy", "<b>Reduction in duratio</b>n must be 260 weeks or less.");
+                            yield return new Error("DurationReducedBy", "<b>Reduction in duration</b> must be 260 weeks or less.");
                         }
                         else if (csvRecord.DurationReducedBy.Value < 1)
                         {
