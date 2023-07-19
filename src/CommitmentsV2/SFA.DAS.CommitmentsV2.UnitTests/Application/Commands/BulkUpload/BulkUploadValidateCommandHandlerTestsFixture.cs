@@ -507,6 +507,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             return this;
         }
 
+        internal BulkUploadValidateCommandHandlerTestsFixture SetDurationReducedBy(string durationReducedBy)
+        {
+            CsvRecords[0].DurationReducedByAsString = durationReducedBy;
+            return this;
+        }
+
         internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null, int? trainingTotalHours = null, int? trainingHoursReduction = null, bool? isDurationReducedByRPL = null)
         {
             CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();
