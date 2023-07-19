@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         protected Mock<ILinkGenerator> _mockLinkGenerator;
         public const long ProviderId = 333;
 
-        public BulkUploadValidateCommandHandlerTestsFixture()
+        public BulkUploadValidateCommandHandlerTestsFixture(bool rplDataExtended = false)
         {
             _mockLinkGenerator = new Mock<ILinkGenerator>();
             CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
@@ -52,7 +52,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             Command = new BulkUploadValidateCommand()
             {
                 CsvRecords = CsvRecords,
-                ProviderId = ProviderId
+                ProviderId = ProviderId,
+                RplDataExtended = rplDataExtended
             };
 
             Command.ProviderStandardResults.Standards = new List<ProviderStandard> { new ProviderStandard("123", "123") };
@@ -248,7 +249,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 CourseName = "coursename"
             });
         }
-
+        
         internal void SetUpDuplicateEmailWithinTheSameCohort()
         {
             CsvRecords.Add(new BulkUploadAddDraftApprenticeshipRequest
@@ -482,11 +483,49 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         }
 
-        internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null)
+        internal BulkUploadValidateCommandHandlerTestsFixture SetRecognisePriorLearning(string recognisePriorLearning)
+        {
+            CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetTrainingTotalHours(string trainingTotalHours)
+        {
+            CsvRecords[0].TrainingTotalHoursAsString = trainingTotalHours;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetTrainingHoursReduction(string trainingHoursReduction)
+        {
+            CsvRecords[0].TrainingHoursReductionAsString = trainingHoursReduction;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetIsDurationReducedByRPL(string isDurationReducedByRPL)
+        {
+            CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPL;
+            return this;
+        }
+
+        internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null, int? trainingTotalHours = null, int? trainingHoursReduction = null, bool? isDurationReducedByRPL = null)
         {
             CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();
             CsvRecords[0].DurationReducedByAsString = durationReducedBy.ToString();
             CsvRecords[0].PriceReducedByAsString = priceReducedBy.ToString();
+            CsvRecords[0].TrainingTotalHoursAsString = trainingTotalHours.ToString();
+            CsvRecords[0].TrainingHoursReductionAsString = trainingHoursReduction.ToString();
+            CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPL.ToString();
+        }
+
+        internal void SetPriorLearningRaw(bool? recognisePriorLearning, string durationReducedByAsString = null, string priceReducedByAsString = null, string trainingTotalHoursAsString = null, 
+            string trainingHoursReductionAsString = null, string isDurationReducedByRPLAsString = null)
+        {
+            CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();
+            CsvRecords[0].DurationReducedByAsString = durationReducedByAsString;
+            CsvRecords[0].PriceReducedByAsString = priceReducedByAsString;
+            CsvRecords[0].TrainingTotalHoursAsString = trainingTotalHoursAsString;
+            CsvRecords[0].TrainingHoursReductionAsString = trainingHoursReductionAsString;
+            CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPLAsString;
         }
 
         internal void SetUpIncompleteRecord()

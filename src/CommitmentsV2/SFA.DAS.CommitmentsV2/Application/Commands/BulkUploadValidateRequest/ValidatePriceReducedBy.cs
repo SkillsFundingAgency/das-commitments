@@ -1,15 +1,34 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
-    public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
+    public partial class BulkUploadValidateCommandHandler
     {
         private IEnumerable<Error> ValidatePriceReducedBy(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
-            yield break;
+            if (!string.IsNullOrWhiteSpace(csvRecord.PriceReducedByAsString) && csvRecord.RecognisePriorLearning.GetValueOrDefault() == false)
+            {
+                yield return new Error("PriceReducedBy", "The <b>price this apprenticeship has been reduced by</b> due to prior learning should not be entered when recognise prior learning is false");
+                yield break;
+            }
+
+            if (!string.IsNullOrWhiteSpace(csvRecord.PriceReducedByAsString))
+            {
+                if (csvRecord.PriceReducedBy == null)
+                {
+                    yield return new Error("PriceReducedBy", "Total <b>price reduction</b> due to RPL must be a number between 100 and 18,000");
+                }
+                else if(csvRecord.PriceReducedBy > 18000)
+                {
+                    yield return new Error("PriceReducedBy", "Total <b>price reduction</b> due to RPL must be 18,000 or less");
+                }
+                else if (csvRecord.PriceReducedBy < 100)
+                {
+                    yield return new Error("PriceReducedBy", "Total <b>price reduction</b> due to RPL must be 100 pounds or more");
+                };
+            }
         }
     }
 }
