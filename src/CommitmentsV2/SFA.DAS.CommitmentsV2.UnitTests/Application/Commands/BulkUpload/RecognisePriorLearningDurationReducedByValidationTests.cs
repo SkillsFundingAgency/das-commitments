@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetIsDurationReducedByRPL("true");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "IsDurationReducedByRPL", "True or false should not be selected for duration reduced when recognise prior learning is false.");
+            fixture.ValidateError(errors, 1, "IsDurationReducedByRPL", "True or false should not be selected for <b>duration reduced</b> when recognise prior learning is false.");
         }
 
         [Test]
@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetDurationReducedBy("261");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "Reduction in duration must be 260 weeks or less.");
+            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 260 weeks or less.");
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetDurationReducedBy("0");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "Reduction in duration must be 1 week or more.");
+            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 1 week or more.");
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetDurationReducedBy("-10");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "Reduction in duration must be 1 week or more.");
+            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 1 week or more.");
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetDurationReducedBy("1000");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "Reduction in duration must be 260 weeks or less.");
+            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be 260 weeks or less.");
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetDurationReducedBy("268 289");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "Reduction in duration must be a number between 1 and 260.");
+            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetDurationReducedBy("567SGHAJ");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "Reduction in duration must be a number between 1 and 260.");
+            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetDurationReducedBy("#123");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "Reduction in duration must be a number between 1 and 260.");
+            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetDurationReducedBy(" 123");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "Reduction in duration must be a number between 1 and 260.");
+            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
         }
 
         [Test]
@@ -121,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetDurationReducedBy("123");
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "The duration this apprenticeship has been reduced by due to prior learning should not be entered when reduction of duration by RPL is false.");
+            fixture.ValidateError(errors, 1, "DurationReducedBy", "The <b>duration this apprenticeship has been reduced by</b> due to prior learning should not be entered when reduction of duration by RPL is false.");
         }
     }
 }
