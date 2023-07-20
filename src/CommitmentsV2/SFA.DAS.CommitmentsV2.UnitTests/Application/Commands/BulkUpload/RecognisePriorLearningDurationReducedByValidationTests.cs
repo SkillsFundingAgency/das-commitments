@@ -101,18 +101,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         }
 
         [Test]
-        public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_true_and_DurationReducedBy_spaces()
-        {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
-            fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
-            fixture.SetDurationReducedBy(" 123");
-
-            var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
-        }
-
-        [Test]
         public async Task Prior_Learning_DurationReducedBy_When_RecognisePriorLearning_true_and_IsDurationReducedByRPL_false_and_DurationReducedBy_has_value()
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
@@ -123,5 +111,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "DurationReducedBy", "The <b>duration this apprenticeship has been reduced by</b> due to prior learning should not be entered when reduction of duration by RPL is false.");
         }
+
+        [Test]
+        public async Task Prior_Learning_DurationReducedBy_When_Correct_Values_Set_All_Is_Valid()
+        {
+            var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
+            fixture.SetRecognisePriorLearning("true");
+            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetDurationReducedBy("123");
+
+            var errors = await fixture.Handle();
+            fixture.ValidateNoErrorsFound(errors);
+        }
+
     }
 }

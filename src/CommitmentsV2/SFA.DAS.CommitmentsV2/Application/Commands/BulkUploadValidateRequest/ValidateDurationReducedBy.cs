@@ -29,10 +29,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                         {
                             yield return new Error("DurationReducedBy", "<b>Reduction in duration</b> must be 1 week or more.");
                         }
-                        else  
-                        {
-                            yield return new Error("DurationReducedBy", "<b>Reduction in duration</b> must be a number between 1 and 260.");
-                        }
                     }
                     else
                     {
