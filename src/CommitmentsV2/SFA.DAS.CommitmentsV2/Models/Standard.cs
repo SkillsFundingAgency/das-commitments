@@ -23,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string StandardPageUrl { get; set; }
         public DateTime? VersionEarliestStartDate { get; set; }
         public DateTime? VersionLatestStartDate { get; set; }
+        public string Route { get; set; }
     }
 
     public class StandardFundingPeriod : IFundingPeriod
@@ -31,6 +32,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? EffectiveFrom { get; set; }
         public DateTime? EffectiveTo { get; set; }
         public int FundingCap { get; set; }
-        public virtual Standard Standard { get ; set ; }
+        public virtual Standard Standard { get; set; }
     }
 }
