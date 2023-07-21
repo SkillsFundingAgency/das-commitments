@@ -60,7 +60,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                         VersionMinor = (int)r[11],
                         StandardPageUrl = (string)r[12],
                         Status = (string)r[13],
-                        IsLatestVersion = (bool)r[14]
+                        IsLatestVersion = (bool)r[14],
+                        Route = (string)r[17]
                     }));
                 });
 

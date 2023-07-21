@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues
 {
@@ -50,7 +51,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             {
                 StartDates = await GetDistinctStartDates(query, cancellationToken),
                 EndDates = await GetDistinctEndDates(query, cancellationToken),
-                CourseNames = await GetDistinctCourseNames(query, cancellationToken)
+                CourseNames = await GetDistinctCourseNames(query, cancellationToken),
+                Sectors = await GetDistinctSectors(query, cancellationToken)
             };
 
             if (query.ProviderId.HasValue)
@@ -67,21 +69,31 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValu
             return queryResult;
         }
 
+        private async Task<List<string>> GetDistinctSectors(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
+        {
+            var standardUIds = await _dbContext.Apprenticeships
+                .WithProviderOrEmployerId(request).Where(x => x.ProgrammeType == ProgrammeType.Standard).Select(x => x.StandardUId).Distinct().ToListAsync(cancellationToken);
+
+            var sectors = await _dbContext.Standards.Where(x => standardUIds.Contains(x.StandardUId)).Select(x => x.Route).Distinct().ToListAsync(cancellationToken);
+
+            return sectors;
+        }
+
         private async Task<List<string>> GetDistinctEmployerNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return await _dbContext.Apprenticeships
                 .WithProviderOrEmployerId(request)
-				.OrderBy(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
+                .OrderBy(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
                 .Select(apprenticeship => apprenticeship.Cohort.AccountLegalEntity.Name)
                 .Distinct()
                 .ToListAsync(cancellationToken);
         }
-                
+
         private async Task<List<string>> GetDistinctProviderNames(GetApprenticeshipsFilterValuesQuery request, CancellationToken cancellationToken)
         {
             return await _dbContext.Apprenticeships
                 .WithProviderOrEmployerId(request)
-				.OrderBy(apprenticeship => apprenticeship.Cohort.Provider.Name)
+                .OrderBy(apprenticeship => apprenticeship.Cohort.Provider.Name)
                 .Select(apprenticeship => apprenticeship.Cohort.Provider.Name)
                 .Distinct()
                 .ToListAsync(cancellationToken);
