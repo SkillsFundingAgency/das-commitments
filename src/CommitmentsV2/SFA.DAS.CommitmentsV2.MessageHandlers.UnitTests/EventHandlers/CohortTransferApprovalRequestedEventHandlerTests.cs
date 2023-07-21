@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
@@ -81,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(_cohortSummary);
 
-                _handler = new CohortTransferApprovalRequestedEventHandler(_mediator.Object, _encodingService.Object);
+                _handler = new CohortTransferApprovalRequestedEventHandler(_mediator.Object, _encodingService.Object, Mock.Of<ILogger<CohortTransferApprovalRequestedEventHandler>>());
 
                 _event = new CohortTransferApprovalRequestedEvent(_autoFixture.Create<long>(),
                     _autoFixture.Create<DateTime>(), _autoFixture.Create<Party>()
