@@ -1,7 +1,8 @@
-﻿namespace SFA.DAS.CommitmentsV2.Configuration;
-
-public class ProviderUrlConfiguration
+﻿namespace SFA.DAS.CommitmentsV2.Configuration
 {
-    public string ProviderApprenticeshipServiceBaseUrl { get; set; }
-    public string CourseManagementBaseUrl { get; set; }
+    public class ProviderUrlConfiguration
+    {
+        public string ProviderApprenticeshipServiceBaseUrl { get; set; }
+        public string CourseManagementBaseUrl { get; set; }
+    }
 }
