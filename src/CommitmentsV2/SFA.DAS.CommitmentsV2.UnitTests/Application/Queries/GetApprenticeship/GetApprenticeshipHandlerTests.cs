@@ -158,7 +158,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                     MadeRedundant = _autoFixture.Create<bool?>(),
                     FlexibleEmployment = _autoFixture.Create<FlexibleEmployment>(),
                     PriorLearning = _autoFixture.Create<ApprenticeshipPriorLearning>(),
-                    IsOnFlexiPaymentPilot = _autoFixture.Create<bool>()
+                    IsOnFlexiPaymentPilot = _autoFixture.Create<bool>(),
+                    TrainingTotalHours = _autoFixture.Create<int>(),
                 };
 
                 switch (Apprenticeship.PaymentStatus)
@@ -223,6 +224,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.PriorLearning.PriceReducedBy, _result.ApprenticeshipPriorLearning.PriceReducedBy);
                 Assert.AreEqual(Apprenticeship.Cohort.TransferSenderId, _result.TransferSenderId);
                 Assert.AreEqual(Apprenticeship.IsOnFlexiPaymentPilot, _result.IsOnFlexiPaymentPilot);
+                Assert.AreEqual(Apprenticeship.TrainingTotalHours, _result.TrainingTotalHours);
             }
         }
     }
