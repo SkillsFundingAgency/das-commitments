@@ -86,28 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
         {
             // Arrange
-            var validator = new AddDraftApprenticeshipRequestValidator(Mock.Of<IAuthorizationService>());
-
-            // Act
-            if (expectedValid)
-            {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
-            }
-            else
-            {
-                validator.ShouldHaveValidationErrorFor(property, value);
-            }
-        }
-
-        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, Func<string, bool> feature, T value, bool expectedValid)
-        {
-            // Arrange
-            var authorizationService = new Mock<IAuthorizationService>();
-            
-            authorizationService.Setup(a => a.IsAuthorized(It.IsAny<string[]>()))
-                .Returns<string[]>(o => feature(o.SingleOrDefault()));
-            
-            var validator = new AddDraftApprenticeshipRequestValidator(authorizationService.Object);
+            var validator = new AddDraftApprenticeshipRequestValidator();
 
             // Act
             if (expectedValid)
