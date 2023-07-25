@@ -356,7 +356,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return errors;
         }
 
-        public void SetPriorLearningData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced)
+        public void SetPriorLearningData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced, int minimumPriceReduction)
         {
 
             if (RecognisePriorLearning != true)
@@ -364,7 +364,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
             }
 
-            var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, priceReduced);
+            var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, priceReduced, minimumPriceReduction);
             errors.ThrowIfAny();
 
             PriorLearning ??= new ApprenticeshipPriorLearning();
@@ -381,14 +381,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced)
+        private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced, int minimumPriceReduction)
         {
             void CheckPriceReduced(List<DomainError> list1)
             {
-                if (priceReduced.Value < 100)
+                if (priceReduced.Value < minimumPriceReduction)
                 {
                     list1.Add(new DomainError("priceReduced",
-                        "Total price reduction due to RPL must be 100 pounds or more"));
+                        $"Total price reduction due to RPL must be {minimumPriceReduction} pounds or more"));
                 }
                 else if (priceReduced.Value > 18000)
                 {
