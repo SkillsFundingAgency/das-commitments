@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using FluentValidation.AspNetCore;
+using Microsoft.ApplicationInsights.NLogTarget;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.OpenApi.Models;
 using SFA.DAS.Authorization.Mvc.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
@@ -35,15 +37,21 @@ namespace SFA.DAS.CommitmentsV2.Api
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             _env = env;
-            Configuration = configuration;
+            _configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private readonly IConfiguration _configuration; 
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApiConfigurationSections(Configuration)
-                .AddApiAuthentication(Configuration, _env.IsDevelopment())
+            services.AddLogging(builder =>
+            {
+                builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+                builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
+            });
+            
+            services.AddApiConfigurationSections(_configuration)
+                .AddApiAuthentication(_configuration, _env.IsDevelopment())
                 .AddApiAuthorization(_env)
                 .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
                 .AddMvc(o =>
@@ -68,11 +76,12 @@ namespace SFA.DAS.CommitmentsV2.Api
                 c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddDasDistributedMemoryCache(Configuration, _env.IsDevelopment());
-            services.AddDasHealthChecks(Configuration);
+            services.AddDasDistributedMemoryCache(_configuration, _env.IsDevelopment());
+            services.AddDasHealthChecks(_configuration);
             services.AddMemoryCache();
             services.AddNServiceBus();
-            services.AddApiClients(Configuration);
+            services.AddApiClients(_configuration);
+            services.AddApplicationInsightsTelemetry();
         }
 
         public void ConfigureContainer(Registry registry)
