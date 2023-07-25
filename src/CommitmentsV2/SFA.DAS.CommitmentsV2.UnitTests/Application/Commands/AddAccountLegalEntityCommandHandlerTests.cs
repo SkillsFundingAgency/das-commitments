@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public AddAccountLegalEntityCommand Command { get; set; }
-        public IRequestHandler<AddAccountLegalEntityCommand, Unit> Handler { get; set; }
+        public IRequestHandler<AddAccountLegalEntityCommand> Handler { get; set; }
         public Account Account { get; set; }
 
         public AddAccountLegalEntityCommandHandlerTestsFixture()

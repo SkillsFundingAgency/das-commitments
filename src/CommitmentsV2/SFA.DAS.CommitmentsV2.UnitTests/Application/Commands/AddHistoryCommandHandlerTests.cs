@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle(AddHistoryCommand command)
         {
             Handler = new AddHistoryCommandHandler(Db);
-            var response = await Handler.Handle(command, CancellationToken.None);
+            await Handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();
         }
 

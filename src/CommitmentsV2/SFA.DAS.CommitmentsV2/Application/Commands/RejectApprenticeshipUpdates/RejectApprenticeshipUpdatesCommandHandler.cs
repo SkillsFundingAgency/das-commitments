@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates
 {
-    public class RejectApprenticeshipUpdatesCommandHandler : AsyncRequestHandler<RejectApprenticeshipUpdatesCommand>
+    public class RejectApprenticeshipUpdatesCommandHandler : IRequestHandler<RejectApprenticeshipUpdatesCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates
             _logger = logger;
         }
 
-        protected override async Task Handle(RejectApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
+        public async Task Handle(RejectApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
         {
             _logger.LogInformation("RejectApprenticeshipUpdatesCommand received from ApprenticeshipId :" + command.ApprenticeshipId);
             var party = _authenticationService.GetUserParty();
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.RejectApprenticeshipUpdates
             apprenticeship.RejectApprenticeshipUpdate(party, command.UserInfo);
         }
 
-        private void CheckPartyIsValid(Party party, RejectApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)
+        private static void CheckPartyIsValid(Party party, RejectApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)
         {
             if (party == Party.Employer && command.AccountId != apprenticeship.Cohort.EmployerAccountId)
             {

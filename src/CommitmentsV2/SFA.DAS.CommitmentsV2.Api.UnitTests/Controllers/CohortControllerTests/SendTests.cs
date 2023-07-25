@@ -47,8 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             Mediator.Setup(m => m.Send(It.Is<SendCohortCommand>(c =>
                     c.CohortId == CohortId &&
                     c.Message == Request.Message &&
-                    c.UserInfo == Request.UserInfo), CancellationToken.None))
-                .ReturnsAsync(Unit.Value);
+                    c.UserInfo == Request.UserInfo), CancellationToken.None));
         }
 
         public Task<IActionResult> Send()

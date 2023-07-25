@@ -107,7 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     public class DeleteCohortHandlerTestsFixture
     {
         public DeleteCohortCommand Command { get; private set; }
-        public IRequestHandler<DeleteCohortCommand, Unit> Sut { get; }
+        public IRequestHandler<DeleteCohortCommand> Sut { get; }
         public ProviderCommitmentsDbContext Db { get; }
         public Mock<ILogger<DeleteCohortHandler>> Logger { get; }
         public Mock<IAuthenticationService> AuthenticationService { get; }

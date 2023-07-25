@@ -1,11 +1,13 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount
 {
-    public class CreateAccountCommandHandler : RequestHandler<CreateAccountCommand>
+    public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
@@ -14,11 +16,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount
             _db = db;
         }
 
-        protected override void Handle(CreateAccountCommand request)
+        public async Task Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
-            var account = new Account(request.AccountId, request.HashedId, request.PublicHashedId, request.Name, request.Created);
+            var account = new Account(request.AccountId, request.HashedId, request.PublicHashedId, request.Name,
+                request.Created);
 
-            _db.Value.Accounts.Add(account);
+            await _db.Value.Accounts.AddAsync(account, cancellationToken);
         }
     }
 }

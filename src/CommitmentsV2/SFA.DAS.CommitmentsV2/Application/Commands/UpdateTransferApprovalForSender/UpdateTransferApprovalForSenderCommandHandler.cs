@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateTransferApprovalForSender
 {
-    public class UpdateTransferApprovalForSenderCommandHandler : AsyncRequestHandler<UpdateTransferApprovalForSenderCommand>
+    public class UpdateTransferApprovalForSenderCommandHandler : IRequestHandler<UpdateTransferApprovalForSenderCommand>
     {
         private readonly ITransferRequestDomainService _transferRequestDomainService;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateTransferApprovalForSe
             _currentDateTime = currentDateTime;
         }
 
-        protected override async Task Handle(UpdateTransferApprovalForSenderCommand command, CancellationToken cancellationToken)
+        public async Task Handle(UpdateTransferApprovalForSenderCommand command, CancellationToken cancellationToken)
         {
             var cohort = await _dbContext.Value.Cohorts
                 .SingleOrDefaultAsync(c => c.Id == command.CohortId, cancellationToken);

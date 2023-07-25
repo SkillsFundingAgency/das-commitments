@@ -350,7 +350,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public ProviderCommitmentsDbContext Db { get; set; }
         
         public Mock<ILogger<UpdateProviderPaymentsPriorityCommandHandler>> Logger;
-        public IRequestHandler<UpdateProviderPaymentsPriorityCommand, Unit> Handler { get; set; }
+        public IRequestHandler<UpdateProviderPaymentsPriorityCommand> Handler { get; set; }
 
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 

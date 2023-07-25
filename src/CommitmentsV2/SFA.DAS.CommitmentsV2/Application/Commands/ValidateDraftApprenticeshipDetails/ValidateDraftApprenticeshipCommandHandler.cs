@@ -10,25 +10,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeship
 {
     public class ValidateDraftApprenticeshipCommandHandler : IRequestHandler<ValidateDraftApprenticeshipDetailsCommand>
     {
-        private readonly ILogger<ValidateDraftApprenticeshipCommandHandler> _logger;
         private readonly IMapper<ValidateDraftApprenticeshipDetailsCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
         private readonly ICohortDomainService _cohortDomainService;
 
         public ValidateDraftApprenticeshipCommandHandler(
-           ILogger<ValidateDraftApprenticeshipCommandHandler> logger,
            IMapper<ValidateDraftApprenticeshipDetailsCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
            ICohortDomainService cohortDomainService)
         {
-             _logger = logger;
             _draftApprenticeshipDetailsMapper = draftApprenticeshipDetailsMapper;
             _cohortDomainService = cohortDomainService;
         }
 
-        public async Task<Unit> Handle(ValidateDraftApprenticeshipDetailsCommand request, CancellationToken cancellationToken)
+        public async Task Handle(ValidateDraftApprenticeshipDetailsCommand request, CancellationToken cancellationToken)
         {
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(request);
             await _cohortDomainService.ValidateDraftApprenticeshipForOverlappingTrainingDateRequest(request.DraftApprenticeshipRequest.ProviderId, request.DraftApprenticeshipRequest.CohortId, draftApprenticeshipDetails, cancellationToken);
-            return Unit.Value;
         }
     }
 }

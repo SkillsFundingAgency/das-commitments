@@ -125,19 +125,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             _logger.LogInformation("Edit end date apprenticeship api endpoint called for : " + request.ApprenticeshipId);
 
-            var response = await _mediator.Send(new EditEndDateRequestCommand
+            await _mediator.Send(new EditEndDateRequestCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
                 EndDate = request.EndDate,
                 UserInfo = request.UserInfo
             });
 
-            if (response == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(response);
+            return Ok();
         }
         
         [HttpPost]
@@ -163,18 +158,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             _logger.LogInformation("Pause apprenticeship api endpoint called for : " + request.ApprenticeshipId);
 
-            var response = await _mediator.Send(new PauseApprenticeshipCommand
+            await _mediator.Send(new PauseApprenticeshipCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
                 UserInfo = request.UserInfo
             });
 
-            if (response == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(response);
+            return Ok();
         }
         
         [HttpPost]
@@ -183,12 +173,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             _logger.LogInformation("Resume apprenticeship api endpoint called for : " + request.ApprenticeshipId);
 
-            var response = await _mediator.Send(new ResumeApprenticeshipCommand
+             await _mediator.Send(new ResumeApprenticeshipCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
                 UserInfo = request.UserInfo
             });
-            return Ok(response);
+             
+            return Ok();
         }
 
         [HttpPut]
@@ -197,18 +188,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             _logger.LogInformation("Update apprenticeship stop date api endpoint called for : " + apprenticeshipId);
 
-            var response = await _mediator.Send(new UpdateApprenticeshipStopDateCommand(            
+            await _mediator.Send(new UpdateApprenticeshipStopDateCommand(            
                 request.AccountId,
                 apprenticeshipId,
                 request.NewStopDate,
                 request.UserInfo
             ));
-			if (response == null)
-            {
-                return NotFound();
-            }
 
-            return Ok(response);
+            return Ok();
         }
 
         [HttpPost]

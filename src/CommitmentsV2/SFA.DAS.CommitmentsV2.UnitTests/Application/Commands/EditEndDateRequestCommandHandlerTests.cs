@@ -124,7 +124,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Handler = new EditEndDateRequestCommandHandler(lazyProviderDbContext,
                 Mock.Of<ICurrentDateTime>(),
                 authenticationService.Object,
-                Mock.Of<ILogger<EditEndDateRequestCommandHandler>>(),
                 _resolveOverlappingTrainingDateRequestService.Object);
         }
         public async Task Handle()

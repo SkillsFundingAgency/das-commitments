@@ -7,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Data;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddAccountLegalEntity
 {
-    public class AddAccountLegalEntityCommandHandler : AsyncRequestHandler<AddAccountLegalEntityCommand>
+    public class AddAccountLegalEntityCommandHandler : IRequestHandler<AddAccountLegalEntityCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddAccountLegalEntity
             _db = db;
         }
 
-        protected override async Task Handle(AddAccountLegalEntityCommand request, CancellationToken cancellationToken)
+        public async Task Handle(AddAccountLegalEntityCommand request, CancellationToken cancellationToken)
         {
             var account = await _db.Value.Accounts.SingleAsync(a => a.Id == request.AccountId, cancellationToken);
             

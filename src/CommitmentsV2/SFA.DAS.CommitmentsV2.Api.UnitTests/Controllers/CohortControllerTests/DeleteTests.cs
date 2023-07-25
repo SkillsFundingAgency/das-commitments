@@ -49,8 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                 Controller = new CohortController(Mediator.Object);
                 UserInfo = AutoFixture.Create<UserInfo>();
 
-                Mediator.Setup(m => m.Send(It.IsAny<DeleteCohortCommand>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(Unit.Value);
+                Mediator.Setup(m => m.Send(It.IsAny<DeleteCohortCommand>(), It.IsAny<CancellationToken>()));
             }
 
             public Task<IActionResult> Send()

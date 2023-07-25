@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Account Account { get; set; }
         public AccountLegalEntity AccountLegalEntity { get; set; }
         public RemoveAccountLegalEntityCommand Command { get; set; }
-        public IRequestHandler<RemoveAccountLegalEntityCommand, Unit> Handler { get; set; }
+        public IRequestHandler<RemoveAccountLegalEntityCommand> Handler { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public IUnitOfWorkContext UnitOfWorkContext { get; set; }
         public DateTime Now { get; set; }

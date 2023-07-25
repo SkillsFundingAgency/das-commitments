@@ -27,7 +27,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetApprenticeshipUpdates(long apprenticeshipId,[FromQuery] GetApprenticeshipUpdatesRequest request)
+        public async Task<IActionResult> GetApprenticeshipUpdates(long apprenticeshipId,
+            [FromQuery] GetApprenticeshipUpdatesRequest request)
         {
             var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId, request.Status));
             var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
@@ -36,45 +37,48 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpPost]
         [Route("accept-apprenticeship-update")]
-        public async Task<IActionResult> AcceptApprenticeshipUpdates(long apprenticeshipId, [FromBody] AcceptApprenticeshipUpdatesRequest request)
+        public async Task<IActionResult> AcceptApprenticeshipUpdates(long apprenticeshipId,
+            [FromBody] AcceptApprenticeshipUpdatesRequest request)
         {
-            var result = await _mediator.Send(new AcceptApprenticeshipUpdatesCommand
+            await _mediator.Send(new AcceptApprenticeshipUpdatesCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 UserInfo = request.UserInfo,
                 AccountId = request.AccountId
             });
-         
-            return Ok(result);
+
+            return Ok();
         }
 
 
         [HttpPost]
         [Route("reject-apprenticeship-update")]
-        public async Task<IActionResult> RejectApprenticeshipUpdates(long apprenticeshipId, [FromBody] RejectApprenticeshipUpdatesRequest request)
+        public async Task<IActionResult> RejectApprenticeshipUpdates(long apprenticeshipId,
+            [FromBody] RejectApprenticeshipUpdatesRequest request)
         {
-            var result = await _mediator.Send(new RejectApprenticeshipUpdatesCommand
+            await _mediator.Send(new RejectApprenticeshipUpdatesCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 UserInfo = request.UserInfo,
                 AccountId = request.AccountId
             });
-         
-            return Ok(result);
+
+            return Ok();
         }
 
         [HttpPost]
         [Route("undo-apprenticeship-update")]
-        public async Task<IActionResult> UndoApprenticeshipUpdates(long apprenticeshipId, [FromBody] UndoApprenticeshipUpdatesRequest request)
+        public async Task<IActionResult> UndoApprenticeshipUpdates(long apprenticeshipId,
+            [FromBody] UndoApprenticeshipUpdatesRequest request)
         {
-            var result = await _mediator.Send(new UndoApprenticeshipUpdatesCommand
+            await _mediator.Send(new UndoApprenticeshipUpdatesCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 UserInfo = request.UserInfo,
                 AccountId = request.AccountId
             });
 
-            return Ok(result);
+            return Ok();
         }
     }
 }

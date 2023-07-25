@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Data;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountLegalEntityName
 {
-    public class UpdateAccountLegalEntityNameCommandHandler : AsyncRequestHandler<UpdateAccountLegalEntityNameCommand>
+    public class UpdateAccountLegalEntityNameCommandHandler : IRequestHandler<UpdateAccountLegalEntityNameCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountLegalEntityNam
             _db = db;
         }
 
-        protected override async Task Handle(UpdateAccountLegalEntityNameCommand request, CancellationToken cancellationToken)
+        public async Task Handle(UpdateAccountLegalEntityNameCommand request, CancellationToken cancellationToken)
         {
             var accountLegalEntity = await _db.Value.AccountLegalEntities.IgnoreQueryFilters().SingleAsync(a => a.Id == request.AccountLegalEntityId, cancellationToken);
 
