@@ -5,10 +5,6 @@ namespace SFA.DAS.Commitments.Events
     [MessageGroup("cohort_approved_by_transfer_sender")]
     public class CohortApprovedByTransferSender
     {
-        public CohortApprovedByTransferSender()
-        {
-        }
-
         public CohortApprovedByTransferSender(long transferRequestId, long receivingEmployerAccountId, long commitmentId, long transferSenderId, string userName, string userEmail)
         {
             TransferRequestId = transferRequestId;

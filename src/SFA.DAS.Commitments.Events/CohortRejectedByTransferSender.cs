@@ -5,10 +5,6 @@ namespace SFA.DAS.Commitments.Events
     [MessageGroup("cohort_rejected_by_transfer_sender")]
     public class CohortRejectedByTransferSender
     {
-        public CohortRejectedByTransferSender()
-        {
-        }
-
         public CohortRejectedByTransferSender(long transferRequestId, long accountId, long commitmentId, long transferSenderId, string userName, string userEmail)
         {
             TransferRequestId = transferRequestId;
