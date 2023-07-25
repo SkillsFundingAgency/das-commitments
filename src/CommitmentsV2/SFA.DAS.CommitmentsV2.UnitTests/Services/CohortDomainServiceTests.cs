@@ -6,18 +6,14 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
-using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -33,7 +29,6 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
-using Constants = SFA.DAS.CommitmentsV2.Domain.Constants;
 using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -1724,7 +1719,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1735,7 +1730,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1746,7 +1741,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1757,7 +1752,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1768,7 +1763,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1779,7 +1774,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1790,7 +1785,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
