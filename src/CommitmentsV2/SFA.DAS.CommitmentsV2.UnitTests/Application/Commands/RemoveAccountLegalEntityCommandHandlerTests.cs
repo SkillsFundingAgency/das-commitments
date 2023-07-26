@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             using var fixture = new RemoveAccountLegalEntityCommandHandlerTestsFixture();
             fixture.SetAccountLegalEntityDeletedBeforeCommand();
-            var action = () => fixture.Handle();
+            Func<Task> action = () => fixture.Handle();
             await action.Should().ThrowAsync<InvalidOperationException>();
         }
 
@@ -75,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.WithExistingCohort()
                 .WithExistingDraftApprenticeship(true);
             
-            var action = () =>  fixture.Handle();
+            Func<Task> action = () =>  fixture.Handle();
             await action.Should().ThrowAsync<DomainException>();
         }
     }

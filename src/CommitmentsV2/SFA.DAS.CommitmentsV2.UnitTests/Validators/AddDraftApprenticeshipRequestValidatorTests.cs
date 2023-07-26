@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(true, true)]
         public void Validate_ReservationId_ShouldBeValidated(bool hasValue, bool expectedValid)
         {
-            var request = new AddDraftApprenticeshipRequest { ReservationId = hasValue ? Guid.NewGuid() : null };
+            var request = new AddDraftApprenticeshipRequest { ReservationId = hasValue ? Guid.NewGuid() : (Guid?)null };
 
             AssertValidationResult(r => r.ReservationId, request, expectedValid);
         }
