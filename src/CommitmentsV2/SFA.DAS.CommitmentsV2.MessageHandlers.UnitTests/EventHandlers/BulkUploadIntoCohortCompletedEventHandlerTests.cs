@@ -16,19 +16,24 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     [TestFixture]
     [Parallelizable(ParallelScope.All)]
     public class
-        BulkUploadIntoCohortCompletedEventHandlerTests : FluentTest<
-            BulkUploadIntoCohortCompletedEventHandlerTestsFixture>
+        BulkUploadIntoCohortCompletedEventHandlerTests
     {
         [Test]
-        public Task Handle_WhenBulkUploadIntoCohortCompletedEventIsRaised_ThenShouldSendGetDraftApprenticeshipCreatedEventsForCohortQuery()
+        public async Task Handle_WhenBulkUploadIntoCohortCompletedEventIsRaised_ThenShouldSendGetDraftApprenticeshipCreatedEventsForCohortQuery()
         {
-            return TestAsync(f => f.Handle(), f => f.VerifyQueryIsSent());
+            var fixture = new BulkUploadIntoCohortCompletedEventHandlerTestsFixture();
+            await fixture.Handle();
+
+            fixture.VerifyQueryIsSent();
         }
         [Test]
 
-        public Task Handle_WhenBulkUploadIntoCohortCompletedEventIsRaised_ThenShouldSendTheDraftApprenticeshipCreatedEventsReturnedInResponse()
+        public async Task Handle_WhenBulkUploadIntoCohortCompletedEventIsRaised_ThenShouldSendTheDraftApprenticeshipCreatedEventsReturnedInResponse()
         {
-            return TestAsync(f => f.Handle(), f => f.VerifyDraftApprenticeshipCreatedEventsArePublished());
+            var fixture = new BulkUploadIntoCohortCompletedEventHandlerTestsFixture();
+            await fixture.Handle();
+
+            fixture.VerifyDraftApprenticeshipCreatedEventsArePublished();
         }
     }
 

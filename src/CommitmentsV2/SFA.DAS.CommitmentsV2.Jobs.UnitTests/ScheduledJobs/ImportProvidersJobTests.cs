@@ -13,27 +13,34 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
 {
     [TestFixture]
     [Parallelizable]
-    public class ImportProvidersJobTests : FluentTest<ImportProvidersJobTestsFixture>
+    public class ImportProvidersJobTests
     {
         [Test]
-        public Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProvidersInBatchesOf1000()
+        public async Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProvidersInBatchesOf1000()
         {
-            return TestAsync(f => f.SetProviders(1500), f => f.Run(), f => f.Db.Verify(d => d.ExecuteSqlCommandAsync(
+            var f = new ImportProvidersJobTestsFixture();
+            f.SetProviders(1500);
+            await f.Run();
+            
+            f.Db.Verify(d => d.ExecuteSqlCommandAsync(
                 "EXEC ImportProviders @providers, @now",
                 It.Is<SqlParameter>(p => p.ParameterName == "providers"),
-            It.Is<SqlParameter>(p => p.ParameterName == "now" && (DateTime)p.Value >= f.Now)), Times.Exactly(2)));
+                It.Is<SqlParameter>(p => p.ParameterName == "now" && (DateTime)p.Value >= f.Now)), Times.Exactly(2));
         }
 
         [Test]
-        public Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProviders()
+        public async Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProviders()
         {
-            return TestAsync(f => f.SetProviders(1500), f => f.Run(), f => f.ImportedProviders.Should().BeEquivalentTo(f.Providers));
+            var f = new ImportProvidersJobTestsFixture();
+            f.SetProviders(1500);
+            await f.Run();
+
+            f.ImportedProviders.Should().BeEquivalentTo(f.Providers);
         }
     }
 
@@ -53,7 +60,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             ProviderApiClient = new Mock<IApprovalsOuterApiClient>();
             ImportedProviders = new List<ProviderSummary>();
 
-            Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<SqlParameter>(), It.IsAny<SqlParameter>()))
+            Db.Setup(d =>
+                    d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<SqlParameter>(), It.IsAny<SqlParameter>()))
                 .Returns(Task.CompletedTask)
                 .Callback<string, object[]>((s, p) =>
                 {
@@ -67,7 +75,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                     }));
                 });
 
-            ImportProvidersJob = new ImportProvidersJobs((new Mock<ILogger<ImportProvidersJobs>>()).Object, ProviderApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object));
+            ImportProvidersJob = new ImportProvidersJobs((new Mock<ILogger<ImportProvidersJobs>>()).Object,
+                ProviderApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object));
         }
 
         public Task Run()
@@ -85,7 +94,8 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                 })
                 .ToList();
 
-            ProviderApiClient.Setup(c => c.Get<ProviderResponse>(It.IsAny<GetProvidersRequest>())).ReturnsAsync(new ProviderResponse{Providers = Providers});
+            ProviderApiClient.Setup(c => c.Get<ProviderResponse>(It.IsAny<GetProvidersRequest>()))
+                .ReturnsAsync(new ProviderResponse { Providers = Providers });
 
             return this;
         }

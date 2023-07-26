@@ -10,75 +10,79 @@ using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
 {
     [TestFixture]
     [Parallelizable]
-    public class NServiceBusHealthCheckTests : FluentTest<NServiceBusHealthCheckTestsFixture>
+    public class NServiceBusHealthCheckTests
     {
         [Test]
         public async Task CheckHealthAsync_WhenReceiveSucceeds_ThenShouldPollDistributedCacheOnce()
         {
-            await TestAsync(
-                f => f.SetSendSuccess().SetReceiveSuccess(),
-                f => f.CheckHealthAsync(),
-                (f, r) => f.DistributedCache.Verify(c => c.GetAsync(f.MessageId, f.CancellationToken), Times.Once));
+            var fixture = new NServiceBusHealthCheckTestsFixture();
+            fixture.SetSendSuccess().SetReceiveSuccess();
+
+            await fixture.CheckHealthAsync();
+
+            fixture.DistributedCache.Verify(c => c.GetAsync(fixture.MessageId, fixture.CancellationToken), Times.Once);
         }
         
         [Test]
         public async Task CheckHealthAsync_WhenReceiveSucceeds_ThenShouldReturnHealthyStatus()
         {
-            await TestAsync(
-                f => f.SetSendSuccess().SetReceiveSuccess(),
-                f => f.CheckHealthAsync(),
-                (f, r) =>
-                {
-                    r.Should().NotBeNull();
-                    r.Status.Should().Be(HealthStatus.Healthy);
-                });
+            var fixture = new NServiceBusHealthCheckTestsFixture();
+            fixture.SetSendSuccess().SetReceiveSuccess();
+
+           var result =  await fixture.CheckHealthAsync();
+           
+           result.Should().NotBeNull();
+           result.Status.Should().Be(HealthStatus.Healthy);
         }
 
         [Test]
         public async Task CheckHealthAsync_WhenSendFails_ThenShouldThrowException()
         {
-            await TestExceptionAsync(
-                f => f.SetSendFailure(),
-                f => f.CheckHealthAsync(),
-                (f, r) => r.Should().ThrowAsync<Exception>());
+            var fixture = new NServiceBusHealthCheckTestsFixture();
+            fixture.SetSendFailure();
+            
+            var result = () => fixture.CheckHealthAsync();
+
+            await result.Should().ThrowAsync<Exception>();
         }
         
         [Test]
         public async Task CheckHealthAsync_WhenReceiveFails_ThenShouldContinuePollingDistributedCache()
         {
-            await TestAsync(
-                f => f.SetSendSuccess().SetReceiveFailure(),
-                f => f.CheckHealthAsync(),
-                (f, r) => f.DistributedCache.Verify(c => c.GetAsync(f.MessageId, f.CancellationToken), Times.AtLeast(2)));
+            var fixture = new NServiceBusHealthCheckTestsFixture();
+            fixture.SetSendSuccess().SetReceiveFailure();
+            await fixture.CheckHealthAsync();
+
+            fixture.DistributedCache.Verify(c => c.GetAsync(fixture.MessageId, fixture.CancellationToken),
+                Times.AtLeast(2));
         }
         
         [Test]
         public async Task CheckHealthAsync_WhenTimeoutExpires_ThenShouldReturnDegradedStatus()
         {
-            await TestAsync(
-                f => f.SetSendSuccess().SetReceiveFailure(),
-                f => f.CheckHealthAsync(),
-                (f, r) =>
-                {
-                    r.Should().NotBeNull();
-                    r.Status.Should().Be(HealthStatus.Degraded);
-                    f.Stopwatch.Elapsed.Should().BeGreaterOrEqualTo(f.Timeout);
-                });
+            var fixture = new NServiceBusHealthCheckTestsFixture();
+            fixture.SetSendSuccess().SetReceiveFailure();
+
+            var result = await fixture.CheckHealthAsync();
+            
+            result.Should().NotBeNull();
+            result.Status.Should().Be(HealthStatus.Degraded);
+            fixture.Stopwatch.Elapsed.Should().BeGreaterOrEqualTo(fixture.Timeout);
         }
         
         [Test]
         public async Task CheckHealthAsync_WhenCancellationRequested_ThenShouldThrowException()
         {
-            await TestExceptionAsync(
-                f => f.SetSendSuccess().SetCancellationRequested(),
-                f => f.CheckHealthAsync(),
-                (f, r) => r.Should().ThrowAsync<OperationCanceledException>());
+            var fixture = new NServiceBusHealthCheckTestsFixture();
+            fixture.SetSendSuccess().SetCancellationRequested();
+            var result = () => fixture.CheckHealthAsync();
+
+            await result.Should().ThrowAsync<OperationCanceledException>();
         }
     }
 

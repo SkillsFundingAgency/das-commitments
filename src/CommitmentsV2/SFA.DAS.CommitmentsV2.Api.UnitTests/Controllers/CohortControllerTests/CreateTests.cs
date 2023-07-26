@@ -16,19 +16,20 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
 {
     [TestFixture]
     [Parallelizable]
-    public class CreateTests : FluentTest<CreateTestsFixture>
+    public class CreateTests
     {
         [Test]
         public async Task WhenPostRequestReceived_ThenShouldReturnResponse()
         {
-            await TestAsync(
-                f => f.Create(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().NotBeNull()
-                    .And.Match<CreateCohortResponse>(v =>
-                        v.CohortId == f.Result.Id &&
-                        v.CohortReference == f.Result.Reference));
+            var fixture = new CreateTestsFixture();
+            var result = await fixture.Create();
+
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().NotBeNull()
+                .And.Match<CreateCohortResponse>(v =>
+                    v.CohortId == fixture.Result.Id &&
+                    v.CohortReference == fixture.Result.Reference);
         }
     }
 
