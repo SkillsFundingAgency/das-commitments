@@ -30,32 +30,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(Party.TransferSender)]
         public void WhenHandlingCommand_IfPartyIsNotEmployer_Then_ThrowDomainException(Party party)
         {
-            var f = new EditEndDateRequestCommandHandlerTestsFixture();
-            f.Party = party;
+            using var fixture = new EditEndDateRequestCommandHandlerTestsFixture();
+            fixture.Party = party;
 
-            Assert.ThrowsAsync<DomainException>(async () => await f.Handle());
+            Assert.ThrowsAsync<DomainException>(async () => await fixture.Handle());
         }
 
         [Test]
         public async Task WhenHandlingCommand_ShouldUpdateTheEndDate()
         {
-            var f = new EditEndDateRequestCommandHandlerTestsFixture();
-            await f.Handle();
-            f.VerifyEndDateUpdated();
+            using var fixture = new EditEndDateRequestCommandHandlerTestsFixture();
+            await fixture.Handle();
+            fixture.VerifyEndDateUpdated();
         }
 
         [Test]
         public async Task Handle_WhenHandlingCommand_UpdatingTheEndDate_ThenResolveOltd()
         {
-            var f = new EditEndDateRequestCommandHandlerTestsFixture();
-            await f.Handle();
-            f.VerifyEndDateUpdated();
+            using var fixture = new EditEndDateRequestCommandHandlerTestsFixture();
+            await fixture.Handle();
+            fixture.VerifyEndDateUpdated();
 
-            f._resolveOverlappingTrainingDateRequestService
-                .Verify(x => x.Resolve(f.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateUpdate), Times.Once);
+            fixture._resolveOverlappingTrainingDateRequestService
+                .Verify(x => x.Resolve(fixture.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateUpdate), Times.Once);
         }
     }
-    public class EditEndDateRequestCommandHandlerTestsFixture
+    public class EditEndDateRequestCommandHandlerTestsFixture : IDisposable
     {
         public EditEndDateRequestCommand Command { get; set; }
         public IRequestHandler<EditEndDateRequestCommand> Handler { get; set; }
@@ -134,6 +134,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         internal void VerifyEndDateUpdated()
         {
             Assert.AreEqual(Command.EndDate, Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).EndDate);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

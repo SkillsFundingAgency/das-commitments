@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [Test]
         public async Task Handle_WhenNoApprenticeshipFound_ThenShouldNull()
         {
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures();
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures();
 
             var result = await fixture.Handle();
 
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [Test]
         public async Task Handle_WhenApprenticeshipFoundButRPLSetToFalse_ThenShouldNull()
         {
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "123", DateTime.Today)
                 .SetApprenticeshipPriorLearningToFalse();
 
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [TestCase("123-123", ProgrammeType.Framework)]
         public async Task Handle_WhenApprenticeshipFoundAndNoMaxFundingFoundFundingForCourseCode_ThenMaxFundingShouldBeNullAndNoErrorDisplayed(string courseCode, ProgrammeType? programmeType)
         {
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(programmeType, courseCode, DateTime.Today)
                 .SetApprenticeshipPriorLearningData(1000);
 
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 DurationReducedBy = null
             };
 
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "1", DateTime.Today)
                 .SetMaxFundingBandForStandard(1, maxFundingBand)
                 .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 PriceReducedBy = 1000
             };
 
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "1", DateTime.Today)
                 .SetMaxFundingBandForStandard(1, 5000)
                 .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
@@ -135,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 DurationReducedBy = null
             };
 
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Framework, "123-123", DateTime.Today)
                 .SetMaxFundingBandForFramework("123-123", maxFundingBand)
                 .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
@@ -149,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
     }
 
-    public class GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures
+    public class GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IFeatureTogglesService<FeatureToggle>> FeatureToggleServiceMock { get; set; }
@@ -313,6 +313,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 .Returns(new FeatureToggle { Feature = toggleName, IsEnabled = toggle });
 
             return this;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             long? transferSenderId = 4;
             int? pledgeApplicationId = 5;
 
-            var fixtures = new AddCohortCommandHandlerTestFixture()
+            using var fixtures = new AddCohortCommandHandlerTestFixture()
                                 .WithGeneratedHash(expectedHash);
 
             var response = await fixtures.Handle(accountId, accountLegalEntityId, providerId, transferSenderId, pledgeApplicationId, "Course1");
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public bool HasInfo => _logMessages.Any(l => l.logLevel == LogLevel.Information);
     }
 
-    public class AddCohortCommandHandlerTestFixture
+    public class AddCohortCommandHandlerTestFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
 
@@ -164,6 +164,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Db.SaveChangesAsync();
 
             return response;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

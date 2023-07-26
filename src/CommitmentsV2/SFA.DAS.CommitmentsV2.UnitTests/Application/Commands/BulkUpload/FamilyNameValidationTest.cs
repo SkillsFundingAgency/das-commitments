@@ -10,19 +10,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_IsNotEmpty()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetFamilyName("");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "FamilyName", "<b>Last name</b> must be entered");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "FamilyName", "<b>Last name</b> must be entered");
         }
 
         [Test]
         public async Task Validate_Is_Less_Than_100_Characters()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetFamilyName("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "FamilyName", "Enter a <b>last name</b> that is not longer than 100 characters");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "FamilyName", "Enter a <b>last name</b> that is not longer than 100 characters");
         }
     }
 }

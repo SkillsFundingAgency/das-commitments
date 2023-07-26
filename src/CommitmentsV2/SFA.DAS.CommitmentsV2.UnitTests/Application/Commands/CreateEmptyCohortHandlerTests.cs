@@ -27,6 +27,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _fixture = new CreateEmptyCohortHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenHandled_ShouldCreateAnEmptyCohort()
@@ -54,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class CreateEmptyCohortHandlerTestsFixture
+    public class CreateEmptyCohortHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public long CohortId { get; set; }
@@ -106,6 +112,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Db.SaveChangesAsync();
 
             return response;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

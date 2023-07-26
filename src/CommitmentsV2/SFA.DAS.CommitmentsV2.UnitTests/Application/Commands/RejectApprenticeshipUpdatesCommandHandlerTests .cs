@@ -28,12 +28,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable]
     public class RejectApprenticeshipUpdatesCommandHandlerTests 
     {
-        RejectApprenticeshipUpdatesCommandHandlerTestsFixture fixture;
-
         [Test]
         public async Task Handle_WhenCommandIsHandled_PendingOriginatorIsNULL()
         {
-            fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var  fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -46,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateStatus_IsRejected()
         {
-            fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -59,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenNoApprenticeshipUpdate_AndCommandIsHandled_ExceptionIsThrown()
         {
-            fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
             await fixture.Handle();
 
             fixture.VerifyException<InvalidOperationException>();
@@ -68,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateRejectedEvent_IsEmitted()
         {
-            fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new RejectApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -91,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class RejectApprenticeshipUpdatesCommandHandlerTestsFixture
+    public class RejectApprenticeshipUpdatesCommandHandlerTestsFixture : IDisposable
     {
         public long ApprenticeshipId = 12;
         public Fixture fixture { get; set; }
@@ -237,6 +235,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

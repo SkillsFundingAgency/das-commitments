@@ -59,6 +59,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _authenticationService.Object);
 
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _confirmationDbContext?.Dispose();
+        }
 
         [Test]
         public async Task Should_Update_DataLock()

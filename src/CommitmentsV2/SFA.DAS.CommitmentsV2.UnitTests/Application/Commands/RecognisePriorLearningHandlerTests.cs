@@ -23,13 +23,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable]
     public class RecognisePriorLearningHandlerTests
     {
-        RecognisePriorLearningHandlerTestsFixture fixture;
-
         [TestCase(true)]
         [TestCase(false)]
         public async Task Handle_WhenCommandIsHandled_RecognisePriorLearningIsUpdated(bool expected)
         {
-            fixture = new RecognisePriorLearningHandlerTestsFixture();
+            using var fixture = new RecognisePriorLearningHandlerTestsFixture();
             fixture.Command.RecognisePriorLearning = expected;
 
             await fixture.Handle();
@@ -40,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenNoRecognisePriorLearningIsSet_ExceptionIsThrown()
         {
-            fixture = new RecognisePriorLearningHandlerTestsFixture();
+            using var fixture = new RecognisePriorLearningHandlerTestsFixture();
             fixture.Command.RecognisePriorLearning = null;
             await fixture.Handle();
 
@@ -50,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenPriorLearningExistsAndRecognisedPriorLearningIsFalse_PriorLearningDetailsAreNulled()
         {
-            fixture = await new RecognisePriorLearningHandlerTestsFixture().WithPriorLearningDetailsSet();
+            using var fixture = await new RecognisePriorLearningHandlerTestsFixture().WithPriorLearningDetailsSet();
             fixture.Command.RecognisePriorLearning = false;
 
             await fixture.Handle();
@@ -64,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class RecognisePriorLearningHandlerTestsFixture
+    public class RecognisePriorLearningHandlerTestsFixture : IDisposable
     {
         public long ApprenticeshipId = 12;
         public Fixture fixture { get; set; }
@@ -172,6 +170,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

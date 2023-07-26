@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.Input[] inputs,
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
             // Arrange
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
             // Arrange
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -144,7 +144,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
             // Arrange
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -183,7 +183,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
             // Arrange
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -345,7 +345,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class UpdateProviderPaymentPriorityCommandHandlerTestsFixture
+    public class UpdateProviderPaymentPriorityCommandHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         
@@ -444,6 +444,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 AccountId = accountId,
                 PaymentOrder = paymentOrder
             });
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

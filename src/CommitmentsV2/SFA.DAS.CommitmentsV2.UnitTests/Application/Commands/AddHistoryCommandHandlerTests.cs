@@ -20,9 +20,8 @@ using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
-
     [TestFixture]
-    public class AddHistoryCommandHandlerTests : FluentTest<AddHistoryCommandHandlerTestsFixture>
+    public class AddHistoryCommandHandlerTests
     {
         private AddHistoryCommandHandlerTestsFixture _fixture;
 
@@ -30,6 +29,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Arrange()
         {
             _fixture = new AddHistoryCommandHandlerTestsFixture();
+        }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
         }
 
         [Test]
@@ -69,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class AddHistoryCommandHandlerTestsFixture
+    public class AddHistoryCommandHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
 
@@ -128,6 +133,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var history = await Db.History.FirstOrDefaultAsync();
             Assert.IsNull(history.ApprenticeshipId);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

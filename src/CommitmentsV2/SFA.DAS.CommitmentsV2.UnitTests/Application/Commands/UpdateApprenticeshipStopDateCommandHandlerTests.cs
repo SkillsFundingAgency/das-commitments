@@ -92,6 +92,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 commitmentsV2Configuration,
                 _resolveOverlappingTrainingDateRequestService.Object);
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _dbContext?.Dispose();
+            _confirmationDbContext?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenHandlingCommand_WithInvalidData_ThenValidateErrorMessage()

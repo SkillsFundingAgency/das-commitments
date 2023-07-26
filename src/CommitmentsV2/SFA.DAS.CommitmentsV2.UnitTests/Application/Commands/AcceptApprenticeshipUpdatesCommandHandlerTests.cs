@@ -28,248 +28,254 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable]
     public class AcceptApprenticeshipUpdatesCommandHandlerTests 
     {
-        AcceptApprenticeshipUpdatesCommandHandlerTestsFixture fixture;
+        AcceptApprenticeshipUpdatesCommandHandlerTestsFixture _fixture;
+
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_FirstNameIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.FirstName = "XXX";
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.FirstName = "XXX";
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual("XXX", fixture.ApprenticeshipFromDb.FirstName);
+            Assert.AreEqual("XXX", _fixture.ApprenticeshipFromDb.FirstName);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_LastNameIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.LastName = "XXX";
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.LastName = "XXX";
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual("XXX", fixture.ApprenticeshipFromDb.LastName);
+            Assert.AreEqual("XXX", _fixture.ApprenticeshipFromDb.LastName);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_DoBIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.DateOfBirth = new DateTime(2000,1,1);
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.DateOfBirth = new DateTime(2000,1,1);
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.DateOfBirth, fixture.ApprenticeshipFromDb.DateOfBirth);
+            Assert.AreEqual(_fixture.ApprenticeshipUpdate.DateOfBirth, _fixture.ApprenticeshipFromDb.DateOfBirth);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_EmailIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.Email = "XXX@XX.com";
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.Email = "XXX@XX.com";
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual("XXX@XX.com", fixture.ApprenticeshipFromDb.Email);
+            Assert.AreEqual("XXX@XX.com", _fixture.ApprenticeshipFromDb.Email);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_StartDateIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.StartDate = new DateTime(2000, 1, 1);
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.StartDate = new DateTime(2000, 1, 1);
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.StartDate, fixture.ApprenticeshipFromDb.StartDate);
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.StartDate, fixture.PriceHistoryFromDb.FromDate);
+            Assert.AreEqual(_fixture.ApprenticeshipUpdate.StartDate, _fixture.ApprenticeshipFromDb.StartDate);
+            Assert.AreEqual(_fixture.ApprenticeshipUpdate.StartDate, _fixture.PriceHistoryFromDb.FromDate);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_EndDateIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.EndDate = new DateTime(2000, 1, 1);
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.EndDate = new DateTime(2000, 1, 1);
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.EndDate, fixture.ApprenticeshipFromDb.EndDate);
+            Assert.AreEqual(_fixture.ApprenticeshipUpdate.EndDate, _fixture.ApprenticeshipFromDb.EndDate);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_DeliveryModelPortableFlexiJobIsCorrectlyUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.DeliveryModel = DeliveryModel.PortableFlexiJob;
-            fixture.ApprenticeshipUpdate.EmploymentEndDate = DateTime.UtcNow;;
-            fixture.ApprenticeshipUpdate.EmploymentPrice = 10001;;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.DeliveryModel = DeliveryModel.PortableFlexiJob;
+            _fixture.ApprenticeshipUpdate.EmploymentEndDate = DateTime.UtcNow;;
+            _fixture.ApprenticeshipUpdate.EmploymentPrice = 10001;;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.DeliveryModel, fixture.ApprenticeshipFromDb.DeliveryModel);
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.EmploymentEndDate, fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentEndDate);
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.EmploymentPrice, fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentPrice);
+            Assert.AreEqual(_fixture.ApprenticeshipUpdate.DeliveryModel, _fixture.ApprenticeshipFromDb.DeliveryModel);
+            Assert.AreEqual(_fixture.ApprenticeshipUpdate.EmploymentEndDate, _fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentEndDate);
+            Assert.AreEqual(_fixture.ApprenticeshipUpdate.EmploymentPrice, _fixture.ApprenticeshipFromDb.FlexibleEmployment?.EmploymentPrice);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_DeliveryModelRegularIsCorrectlyUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.DeliveryModel = DeliveryModel.Regular;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.DeliveryModel = DeliveryModel.Regular;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(fixture.ApprenticeshipUpdate.DeliveryModel, fixture.ApprenticeshipFromDb.DeliveryModel);
-            Assert.IsNull(fixture.ApprenticeshipUpdate.EmploymentEndDate);
-            Assert.IsNull(fixture.ApprenticeshipUpdate.EmploymentPrice);
+            Assert.AreEqual(_fixture.ApprenticeshipUpdate.DeliveryModel, _fixture.ApprenticeshipFromDb.DeliveryModel);
+            Assert.IsNull(_fixture.ApprenticeshipUpdate.EmploymentEndDate);
+            Assert.IsNull(_fixture.ApprenticeshipUpdate.EmploymentPrice);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_CourseCodeIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.TrainingCode = "195";
-            fixture.ApprenticeshipUpdate.TrainingName = "DummyTraining";
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.TrainingCode = "195";
+            _fixture.ApprenticeshipUpdate.TrainingName = "DummyTraining";
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual("195", fixture.ApprenticeshipFromDb.CourseCode);
-            Assert.AreEqual("DummyTraining", fixture.ApprenticeshipFromDb.CourseName);
+            Assert.AreEqual("195", _fixture.ApprenticeshipFromDb.CourseCode);
+            Assert.AreEqual("DummyTraining", _fixture.ApprenticeshipFromDb.CourseName);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_CostIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.Cost = 195;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.Cost = 195;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(195, fixture.ApprenticeshipFromDb.Cost);
-            Assert.AreEqual(195, fixture.PriceHistoryFromDb.Cost);
+            Assert.AreEqual(195, _fixture.ApprenticeshipFromDb.Cost);
+            Assert.AreEqual(195, _fixture.PriceHistoryFromDb.Cost);
         }
 
         [TestCase("Option")]
         [TestCase("")]
         public async Task Handle_WhenOptionIsNotNull_OptionIsUpdated(string option)
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.TrainingCourseOption = option;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.TrainingCourseOption = option;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(option, fixture.ApprenticeshipFromDb.TrainingCourseOption);
+            Assert.AreEqual(option, _fixture.ApprenticeshipFromDb.TrainingCourseOption);
         }
 
         [Test]
         public async Task Handle_WhenCourseHasChanged_And_OptionIsNull_Then_OptionIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.TrainingCode = "123";
-            fixture.ApprenticeshipUpdate.TrainingCourseOption = null;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.TrainingCode = "123";
+            _fixture.ApprenticeshipUpdate.TrainingCourseOption = null;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.IsNull(fixture.ApprenticeshipFromDb.TrainingCourseOption);
+            Assert.IsNull(_fixture.ApprenticeshipFromDb.TrainingCourseOption);
         }
 
         [Test]
         public async Task Handle_WhenVersionHasChanged_And_OptionIsNull_Then_OptionIsUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.TrainingCourseVersion = "2.0";
-            fixture.ApprenticeshipUpdate.TrainingCourseOption = null;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.TrainingCourseVersion = "2.0";
+            _fixture.ApprenticeshipUpdate.TrainingCourseOption = null;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.IsNull(fixture.ApprenticeshipFromDb.TrainingCourseOption);
+            Assert.IsNull(_fixture.ApprenticeshipFromDb.TrainingCourseOption);
         }
 
         [Test]
         public async Task Handle_WhenCourseAndVersionHasNotChanged_And_OptionIsNull_Then_OptionIsNotUpdated()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.TrainingCourseOption = null;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.TrainingCourseOption = null;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(fixture.ApprenticeshipDetails.TrainingCourseOption, fixture.ApprenticeshipFromDb.TrainingCourseOption);
+            Assert.AreEqual(_fixture.ApprenticeshipDetails.TrainingCourseOption, _fixture.ApprenticeshipFromDb.TrainingCourseOption);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_PendingOriginatorIsNULL()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.Cost = 195;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.Cost = 195;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(null, fixture.ApprenticeshipFromDb.PendingUpdateOriginator);
+            Assert.AreEqual(null, _fixture.ApprenticeshipFromDb.PendingUpdateOriginator);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateStatus_IsApproved()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.Cost = 195;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.Cost = 195;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual(ApprenticeshipUpdateStatus.Approved, fixture.ApprenticeshipUpdate.Status);
+            Assert.AreEqual(ApprenticeshipUpdateStatus.Approved, _fixture.ApprenticeshipUpdate.Status);
         }
 
         [Test]
         public async Task Handle_WhenNoApprenticeshipUpdate_AndCommandIsHandled_ExceptionIsThrown()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            await fixture.Handle();
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            await _fixture.Handle();
 
-            fixture.VerifyException<InvalidOperationException>();
+            _fixture.VerifyException<InvalidOperationException>();
         }
 
         [Test]
         public async Task Handle_WhenHasUlnOverlap_AndCommandIsHandled_ExceptionIsThrown()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.HasOverlapErrors = true;
-            fixture.ApprenticeshipUpdate.Cost = 195;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.HasOverlapErrors = true;
+            _fixture.ApprenticeshipUpdate.Cost = 195;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            fixture.VerifyException<DomainException>();
+            _fixture.VerifyException<DomainException>();
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdatedApprovedEvent_IsEmitted()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.Cost = 195;
-            fixture.ApprenticeshipDetails.DeliveryModel = DeliveryModel.PortableFlexiJob;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.Cost = 195;
+            _fixture.ApprenticeshipDetails.DeliveryModel = DeliveryModel.PortableFlexiJob;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            var list = fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedApprovedEvent>().ToList();
+            var list = _fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedApprovedEvent>().ToList();
 
-            var apprenticeship = fixture.ApprenticeshipFromDb;
+            var apprenticeship = _fixture.ApprenticeshipFromDb;
             var priceEpisode = apprenticeship.PriceHistory.Select(x => new PriceEpisode
             {
                 FromDate = x.FromDate,
@@ -279,7 +285,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Assert.AreEqual(1, list.Count);
             Assert.AreEqual(apprenticeship.Id, list[0].ApprenticeshipId);
-            Assert.AreEqual(fixture.proxyCurrentDateTime, list[0].ApprovedOn);
+            Assert.AreEqual(_fixture.proxyCurrentDateTime, list[0].ApprovedOn);
             Assert.AreEqual(apprenticeship.StartDate, list[0].StartDate);
             Assert.AreEqual(apprenticeship.EndDate, list[0].EndDate);
             Assert.AreEqual(apprenticeship.ProgrammeType as SFA.DAS.CommitmentsV2.Types.ProgrammeType?, list[0].TrainingType);
@@ -300,31 +306,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_AndEmailIsUpdated_ApprenticeshipUpdatedEmailAddressEvent_IsEmitted()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.Email = "new@email.com";
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.Email = "new@email.com";
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            var list = fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedEmailAddressEvent>().ToList();
+            var list = _fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedEmailAddressEvent>().ToList();
 
-            var apprenticeship = fixture.ApprenticeshipFromDb;
+            var apprenticeship = _fixture.ApprenticeshipFromDb;
 
             Assert.AreEqual(1, list.Count);
             Assert.AreEqual(apprenticeship.Id, list[0].ApprenticeshipId);
-            Assert.AreEqual(fixture.proxyCurrentDateTime, list[0].ApprovedOn);
+            Assert.AreEqual(_fixture.proxyCurrentDateTime, list[0].ApprovedOn);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandled_AndEmailIsNotUpdated_ApprenticeshipUpdatedEmailAddressEvent_IsNotEmitted()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            fixture.ApprenticeshipUpdate.Cost = 192;
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            _fixture.ApprenticeshipUpdate.Cost = 192;
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            var list = fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedEmailAddressEvent>().ToList();
+            var list = _fixture.UnitOfWorkContext.GetEvents().OfType<ApprenticeshipUpdatedEmailAddressEvent>().ToList();
 
             Assert.AreEqual(0, list.Count);
         }
@@ -332,18 +338,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task ThenEmailAddressCannotBeChangedWhenEmailAddressIsConfirmed()
         {
-            fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
-            await fixture.SetEmailAddressConfirmedByApprentice();
-            fixture.ApprenticeshipUpdate.Email = "test@test.com";
-            await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
+            _fixture = new AcceptApprenticeshipUpdatesCommandHandlerTestsFixture();
+            await _fixture.SetEmailAddressConfirmedByApprentice();
+            _fixture.ApprenticeshipUpdate.Email = "test@test.com";
+            await _fixture.AddANewApprenticeshipUpdate(_fixture.ApprenticeshipUpdate);
 
-            await fixture.Handle();
+            await _fixture.Handle();
 
-            Assert.AreEqual((fixture.Exception as DomainException).DomainErrors.First().ErrorMessage, "Unable to approve these changes, as the apprentice has confirmed their email address");
+            Assert.AreEqual((_fixture.Exception as DomainException).DomainErrors.First().ErrorMessage, "Unable to approve these changes, as the apprentice has confirmed their email address");
         }
     }
 
-    public class AcceptApprenticeshipUpdatesCommandHandlerTestsFixture
+    public class AcceptApprenticeshipUpdatesCommandHandlerTestsFixture : IDisposable
     {
         public long ApprenticeshipId = 12;
         public Fixture fixture { get; set; }
@@ -500,6 +506,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

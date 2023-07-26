@@ -23,27 +23,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class AddDraftApprenticeshipCommandHandlerTests : FluentTest<AddDraftApprenticeshipCommandHandlerTestsFixture>
+    public class AddDraftApprenticeshipCommandHandlerTests
     {
         [Test]
-        public Task Handle_WhenCommandIsHandled_ThenShouldAddDraftApprenticeship()
+        public async Task Handle_WhenCommandIsHandled_ThenShouldAddDraftApprenticeship()
         {
-            return TestAsync(
-                f => f.AddDraftApprenticeship(),
-                f => f.CohortDomainService.Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId,
-                    f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.Command.RequestingParty, f.CancellationToken)));
+            using var fixture = new AddDraftApprenticeshipCommandHandlerTestsFixture();
+            await fixture.AddDraftApprenticeship();
+
+            fixture.CohortDomainService.Verify(c => c.AddDraftApprenticeship(fixture.Command.ProviderId,
+                fixture.Command.CohortId, fixture.DraftApprenticeshipDetails, fixture.UserInfo,
+                fixture.Command.RequestingParty, fixture.CancellationToken));
         }
 
         [Test]
-        public Task Handle_WhenCommandIsHandled_ThenShouldReturnAddDraftApprenticeshipResult()
+        public async Task Handle_WhenCommandIsHandled_ThenShouldReturnAddDraftApprenticeshipResult()
         {
-            return TestAsync(
-                f => f.AddDraftApprenticeship(),
-                (f, r) => r.Should().NotBeNull().And.Subject.Should().Match<AddDraftApprenticeshipResult>(r2 => r2.Id == f.DraftApprenticeship.Id));
+            using var fixture = new AddDraftApprenticeshipCommandHandlerTestsFixture();
+
+            var result = await fixture.AddDraftApprenticeship();
+
+            result.Should().NotBeNull()
+                .And.Subject.Should()
+                .Match<AddDraftApprenticeshipResult>(r2 => r2.Id == fixture.DraftApprenticeship.Id);
         }
     }
 
-    public class AddDraftApprenticeshipCommandHandlerTestsFixture
+    public class AddDraftApprenticeshipCommandHandlerTestsFixture : IDisposable
     {
         public Fixture Fixture { get; set; }
         public AddDraftApprenticeshipCommand Command { get; set; }
@@ -52,7 +58,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public CancellationToken CancellationToken { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
 
-        public Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
+        public Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>
+            DraftApprenticeshipDetailsMapper { get; set; }
 
         public Mock<ICohortDomainService> CohortDomainService { get; set; }
         public IRequestHandler<AddDraftApprenticeshipCommand, AddDraftApprenticeshipResult> Handler { get; set; }
@@ -62,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Fixture = new Fixture();
             DraftApprenticeshipDetails = Fixture.Build<DraftApprenticeshipDetails>()
-                .With(o => o.IgnoreStartDateOverlap,false)
+                .With(o => o.IgnoreStartDateOverlap, false)
                 .Create();
             DraftApprenticeship = new DraftApprenticeship().Set(a => a.Id, 123);
             CancellationToken = new CancellationToken();
@@ -72,10 +79,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Options);
 
             CohortDomainService = new Mock<ICohortDomainService>();
-            DraftApprenticeshipDetailsMapper = new Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
+            DraftApprenticeshipDetailsMapper =
+                new Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
             UserInfo = Fixture.Create<UserInfo>();
 
-            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).Without(x => x.IgnoreStartDateOverlap).Create();
+            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo)
+                .Without(x => x.IgnoreStartDateOverlap).Create();
 
             Handler = new AddDraftApprenticeshipCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
@@ -84,13 +93,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 CohortDomainService.Object);
 
             CohortDomainService.Setup(s => s.AddDraftApprenticeship(Command.ProviderId, Command.CohortId,
-                DraftApprenticeshipDetails, Command.UserInfo, Command.RequestingParty, CancellationToken)).ReturnsAsync(DraftApprenticeship);
+                    DraftApprenticeshipDetails, Command.UserInfo, Command.RequestingParty, CancellationToken))
+                .ReturnsAsync(DraftApprenticeship);
             DraftApprenticeshipDetailsMapper.Setup(m => m.Map(Command)).ReturnsAsync(DraftApprenticeshipDetails);
         }
 
         public Task<AddDraftApprenticeshipResult> AddDraftApprenticeship()
         {
             return Handler.Handle(Command, CancellationToken);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

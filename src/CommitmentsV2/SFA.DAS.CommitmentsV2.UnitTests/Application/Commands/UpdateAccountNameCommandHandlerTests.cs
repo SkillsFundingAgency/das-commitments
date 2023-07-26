@@ -1,47 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountName;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.Testing;
 using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class UpdateAccountNameCommandHandlerTests : FluentTest<UpdateAccountNameCommandHandlerTestsFixture>
+    public class UpdateAccountNameCommandHandlerTests
     {
         [Test]
-        public Task Handle_WhenCommandIsHandledChronologically_ThenShouldUpdateAccountName()
+        public async Task Handle_WhenCommandIsHandledChronologically_ThenShouldUpdateAccountName()
         {
-            return TestAsync(f => f.Handle(), f =>
-            {
-                f.Account.Name.Should().Be(f.Command.Name);
-                f.Account.Updated.Should().Be(f.Command.Created);
-            });
+            using var f = new UpdateAccountNameCommandHandlerTestsFixture();
+            await f.Handle();
+            
+            f.Account.Name.Should().Be(f.Command.Name);
+            f.Account.Updated.Should().Be(f.Command.Created);
         }
 
         [Test]
-        public Task Handle_WhenCommandIsHandledNonChronologically_ThenShouldNotUpdateAccountName()
+        public async Task Handle_WhenCommandIsHandledNonChronologically_ThenShouldNotUpdateAccountName()
         {
-            return TestAsync(f => f.SetAccountUpdatedAfterCommand(), f => f.Handle(), f =>
-            {
-                f.Account.Name.Should().Be(f.OriginalAccountName);
-                f.Account.Updated.Should().Be(f.Now);
-            });
+            using var f = new UpdateAccountNameCommandHandlerTestsFixture();
+            f.SetAccountUpdatedAfterCommand();
+            await f.Handle();
+            
+            f.Account.Name.Should().Be(f.OriginalAccountName);
+            f.Account.Updated.Should().Be(f.Now);
         }
     }
 
-    public class UpdateAccountNameCommandHandlerTestsFixture
+    public class UpdateAccountNameCommandHandlerTestsFixture : IDisposable
     {
         public Account Account { get; set; }
         public UpdateAccountNameCommand Command { get; set; }
@@ -77,6 +74,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Db.SaveChanges();
 
             return this;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

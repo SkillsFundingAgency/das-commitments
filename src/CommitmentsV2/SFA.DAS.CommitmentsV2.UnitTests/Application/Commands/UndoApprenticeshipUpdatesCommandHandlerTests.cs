@@ -28,12 +28,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable]
     public class UndoApprenticeshipUpdatesCommandHandlerTests 
     {
-        UndoApprenticeshipUpdatesCommandHandlerTestsFixture fixture;
-
         [Test]
         public async Task Handle_WhenCommandIsHandled_PendingOriginatorIsNULL()
         {
-            fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -46,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateStatus_IsUndone()
         {
-            fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -59,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenNoApprenticeshipUpdate_AndCommandIsHandled_ExceptionIsThrown()
         {
-            fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
             await fixture.Handle();
 
             fixture.VerifyException<InvalidOperationException>();
@@ -68,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateCancelledEvent_IsEmitted()
         {
-            fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -91,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class UndoApprenticeshipUpdatesCommandHandlerTestsFixture
+    public class UndoApprenticeshipUpdatesCommandHandlerTestsFixture : IDisposable
     {
         public long ApprenticeshipId = 12;
         public Fixture fixture { get; set; }
@@ -237,6 +235,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

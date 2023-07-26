@@ -37,7 +37,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _fixture = new TestsFixture();
         }
-
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
+        
         [Test]
         public async Task ShouldNotRemoveTriageDataLock_WhenNoNewDataLockToProcess()
         {
@@ -170,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class RejectDataLockRequestChangesCommandHandlerTestsFixture
+    public class RejectDataLockRequestChangesCommandHandlerTestsFixture : IDisposable
     {
         public static long ApprenticeshipId = 12;
 
@@ -350,6 +356,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Count()
                 .Should()
                 .Be(expectedFrom);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

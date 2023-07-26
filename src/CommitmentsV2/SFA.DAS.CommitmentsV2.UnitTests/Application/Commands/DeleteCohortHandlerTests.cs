@@ -29,10 +29,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task DeleteCohort_WhenCohortIsEmptyAndWithEmployer_ShouldMarkCohortAsDeleted()
         {
-            var f = new DeleteCohortHandlerTestsFixture();
-            f.WithExistingCohort(Party.Employer).WithParty(Party.Employer);
-            await f.Handle();
-            f.VerifyCohortIsMarkedAsDeleted();
+            using var fixture = new DeleteCohortHandlerTestsFixture();
+            fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer);
+            await fixture.Handle();
+            fixture.VerifyCohortIsMarkedAsDeleted();
         }
 
         [TestCase(Party.Provider)]
@@ -40,71 +40,71 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(Party.None)]
         public void DeleteCohort_WhenCohortIsEmptyAndNotWithEmployer_ShouldThrowDomainException(Party party)
         {
-            var f = new DeleteCohortHandlerTestsFixture();
-            f.WithExistingCohort(Party.Employer).WithParty(party);
+            using var fixture = new DeleteCohortHandlerTestsFixture();
+            fixture.WithExistingCohort(Party.Employer).WithParty(party);
 
-            Assert.ThrowsAsync<DomainException>(() => f.Handle());
+            Assert.ThrowsAsync<DomainException>(() => fixture.Handle());
         }
 
         [Test]
         public async Task DeleteCohort_WhenCohortIsNotEmptyAndWithEmployer_ShouldMarkRemoveTheApprentice()
         {
-            var f = new DeleteCohortHandlerTestsFixture();
-            f.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship();
-            await f.Handle();
-            f.VerifyDraftApprenticeshipDeleted();
+            using var fixture = new DeleteCohortHandlerTestsFixture();
+            fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship();
+            await fixture.Handle();
+            fixture.VerifyDraftApprenticeshipDeleted();
         }
 
         [Test]
         public async Task DeleteCohort_WhenCohortIsNotEmptyAndWithEmployer_ShouldEmitEventForDraftApprenticeshipBeingDeleted()
         {
-            var f = new DeleteCohortHandlerTestsFixture();
-            f.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship();
-            await f.Handle();
-            f.VerifyEventEmittedWhenDraftApprenticeshipIsDeleted();
+            using var fixture = new DeleteCohortHandlerTestsFixture();
+            fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship();
+            await fixture.Handle();
+            fixture.VerifyEventEmittedWhenDraftApprenticeshipIsDeleted();
         }
 
         [Test]
         public async Task DeleteCohort_WhenNotApproved_ShouldEmitCohortDeletedEventWithNoPartyApprovals()
         {
-            var f = new DeleteCohortHandlerTestsFixture();
-            f.WithExistingCohort(Party.Employer).WithParty(Party.Employer);
-            await f.Handle();
-            f.VerifyCohortDeletedEventIsEmittedAndWasApprovedBy(Party.None);
+            using var fixture = new DeleteCohortHandlerTestsFixture();
+            fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer);
+            await fixture.Handle();
+            fixture.VerifyCohortDeletedEventIsEmittedAndWasApprovedBy(Party.None);
         }
 
         [Test]
         public async Task DeleteCohort_WhenApprovedByProvider_ShouldEmitCohortDeletedEventWithProviderApproval()
         {
-            var f = new DeleteCohortHandlerTestsFixture();
-            f.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship()
+            using var fixture = new DeleteCohortHandlerTestsFixture();
+            fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship()
                 .WithProviderApproval();
-            await f.Handle();
-            f.VerifyCohortDeletedEventIsEmittedAndWasApprovedBy(Party.Provider);
+            await fixture.Handle();
+            fixture.VerifyCohortDeletedEventIsEmittedAndWasApprovedBy(Party.Provider);
         }
 
         [Test]
         public async Task DeleteCohort_WhenChangeOfPartyCohort_WhenWithProvider_ShouldEmitProviderRejectedChangeOfPartyRequestEvent()
         {
-            var f = new DeleteCohortHandlerTestsFixture();
-            f.WithExistingCohort(Party.Provider).WithParty(Party.Provider).WithExistingDraftApprenticeship().WithChangeOfParty(true);
+            using var fixture = new DeleteCohortHandlerTestsFixture();
+            fixture.WithExistingCohort(Party.Provider).WithParty(Party.Provider).WithExistingDraftApprenticeship().WithChangeOfParty(true);
                
-            await f.Handle();
-            f.VerifProviderRejectedChangeOfPartyRequestEvent();
+            await fixture.Handle();
+            fixture.VerifProviderRejectedChangeOfPartyRequestEvent();
         }
 
         [Test]
         public async Task DeleteCohort_WhenChangeOfPartyCohort_WhenWithEmployer_ShouldNotEmitProviderRejectedChangeOfPartyRequestEvent()
         {
-            var f = new DeleteCohortHandlerTestsFixture();
-            f.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship().WithChangeOfParty(true);
+            using var fixture = new DeleteCohortHandlerTestsFixture();
+            fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship().WithChangeOfParty(true);
 
-            await f.Handle();
-            f.VerifProviderRejectedChangeOfPartyRequestEventIsNotPublished();
+            await fixture.Handle();
+            fixture.VerifProviderRejectedChangeOfPartyRequestEventIsNotPublished();
         }
     }
 
-    public class DeleteCohortHandlerTestsFixture
+    public class DeleteCohortHandlerTestsFixture : IDisposable
     {
         public DeleteCohortCommand Command { get; private set; }
         public IRequestHandler<DeleteCohortCommand> Sut { get; }
@@ -246,6 +246,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             if (v)
                 Cohort.ChangeOfPartyRequestId = 1;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

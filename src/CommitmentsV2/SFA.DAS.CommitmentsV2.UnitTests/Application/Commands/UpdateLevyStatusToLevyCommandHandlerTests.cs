@@ -22,22 +22,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public void Handle_WhenHandlingCommand_ThenShouldUpdateTheLevyStatus()
         {
-            var f = new UpdateLevyStatusToLevyCommandHandlerTestsFixture();
-            f.SetAccount()
+            var fixture = new UpdateLevyStatusToLevyCommandHandlerTestsFixture();
+            fixture.SetAccount()
                 .Handle();
 
-            Assert.IsTrue(f.IsValid(ApprenticeshipEmployerType.Levy));
+            Assert.IsTrue(fixture.IsValid(ApprenticeshipEmployerType.Levy));
         }
 
         [Test]
         public void Handle_WhenHandlingCommand_AndAccountNotFound_ThenShouldnotUpdateTheLevyStatus()
         {
-            var f = new UpdateLevyStatusToLevyCommandHandlerTestsFixture();
-            f.SetAccount();
-            f.Command.AccountId = 2;
-            f.Handle();
+            var fixture = new UpdateLevyStatusToLevyCommandHandlerTestsFixture();
+            fixture.SetAccount();
+            fixture.Command.AccountId = 2;
+            fixture.Handle();
 
-            Assert.IsTrue(f.IsValid(ApprenticeshipEmployerType.NonLevy));
+            Assert.IsTrue(fixture.IsValid(ApprenticeshipEmployerType.NonLevy));
         }
     }
 

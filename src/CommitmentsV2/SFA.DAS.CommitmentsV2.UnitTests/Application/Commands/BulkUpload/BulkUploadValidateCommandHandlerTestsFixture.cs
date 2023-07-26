@@ -26,7 +26,7 @@ using SFA.DAS.CommitmentsV2.LinkGeneration;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
-    public class BulkUploadValidateCommandHandlerTestsFixture
+    public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse> Handler { get; set; }
@@ -288,7 +288,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             return await Handler.Handle(Command, CancellationToken.None);
         }
 
-        public void ValidateError(BulkUploadValidateApiResponse errors, int numberOfErrors, string property, string errorText)
+        public static void ValidateError(BulkUploadValidateApiResponse errors, int numberOfErrors, string property, string errorText)
         {
             Assert.AreEqual(numberOfErrors, errors.BulkUploadValidationErrors.Count);
             Assert.AreEqual(numberOfErrors, errors.BulkUploadValidationErrors[0].Errors.Count);
@@ -296,7 +296,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             Assert.AreEqual(property, errors.BulkUploadValidationErrors[0].Errors[0].Property);
         }
 
-        public void ValidateError(BulkUploadValidateApiResponse errors, string property, string errorText)
+        public static void ValidateError(BulkUploadValidateApiResponse errors, string property, string errorText)
         {
             errors.Should().NotBeNull();
             errors.BulkUploadValidationErrors.Should().NotBeEmpty();
@@ -564,6 +564,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             CsvRecords[0].EPAOrgId = epaOrgId;
             return this;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

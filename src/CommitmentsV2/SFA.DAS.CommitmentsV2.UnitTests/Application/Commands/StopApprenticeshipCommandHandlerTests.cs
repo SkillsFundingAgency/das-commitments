@@ -81,6 +81,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl },
                 _resolveOverlappingTrainingDateRequestService.Object);
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _dbContext?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenHandlingCommand_WithInvalidData_ThenShouldThrowException()
