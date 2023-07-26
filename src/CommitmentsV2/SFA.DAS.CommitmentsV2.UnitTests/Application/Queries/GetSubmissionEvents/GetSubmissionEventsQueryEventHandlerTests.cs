@@ -48,8 +48,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSubmissionEvent
 
                 _approvalOuterApi = new Mock<IApprovalsOuterApiClient>();
                 _approvalOuterApi.Setup(x => x.Get<PageOfResults<SubmissionEvent>>(It.IsAny<GetSubmissionsEventsRequest>())).ReturnsAsync(_expectedResult);
-
-
                 _sut = new GetSubmissionEventQueryHandler(_approvalOuterApi.Object);
             }
 

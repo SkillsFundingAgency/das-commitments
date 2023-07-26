@@ -22,6 +22,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
         {
             _fixture = new GetPriceEpisodesHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_ThenShouldReturnResult()
@@ -30,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
             _fixture.VerifyResultMapping();
         }
 
-        public class GetPriceEpisodesHandlerTestsFixture
+        public class GetPriceEpisodesHandlerTestsFixture : IDisposable
         {
             private readonly GetPriceEpisodesQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;
@@ -86,6 +92,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
                 {
                     AssertEquality(sourceItem, _result.PriceEpisodes.Single(x => x.Id == sourceItem.Id));
                 }
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
 

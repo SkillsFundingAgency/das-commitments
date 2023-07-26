@@ -25,6 +25,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
         {
             _fixture = new ChangeOfPartyRequestsQueryHandlersTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_ThenShouldReturnResult()
@@ -33,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
             _fixture.VerifyResultMapping();
         }
 
-        public class ChangeOfPartyRequestsQueryHandlersTestsFixture
+        public class ChangeOfPartyRequestsQueryHandlersTestsFixture : IDisposable
         {
             private readonly GetChangeOfPartyRequestsQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;
@@ -100,6 +106,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
                     AssertEquality(sourceItem, resultItem);
                     Assert.AreEqual(_employerName, resultItem.EmployerName);
                 }
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
 

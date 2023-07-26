@@ -457,19 +457,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             });
         }
 
-        public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
+        private Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(databaseName: "SFA.DAS.Commitments.Database")
                 .UseLoggerFactory(MyLoggerFactory)
                 .Options;
 
-            using (var dbContext = new ProviderCommitmentsDbContext(options))
-            {
-                dbContext.Database.EnsureCreated();
-                SeedData(dbContext);
-                return action(dbContext);
-            }
+            using var dbContext = new ProviderCommitmentsDbContext(options);
+            dbContext.Database.EnsureCreated();
+            SeedData(dbContext);
+            return action(dbContext);
         }
 
         private void SeedData(ProviderCommitmentsDbContext dbContext)

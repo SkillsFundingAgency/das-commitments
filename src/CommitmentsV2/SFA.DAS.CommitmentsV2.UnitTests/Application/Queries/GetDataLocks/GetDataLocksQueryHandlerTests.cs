@@ -24,6 +24,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
         {
             _fixture = new GetDataLocksQueryHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_ThenShouldReturnResultWithValues()
@@ -60,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             Assert.AreEqual(0, result.DataLocks.Count);
         }
 
-        public class GetDataLocksQueryHandlerTestsFixture
+        public class GetDataLocksQueryHandlerTestsFixture : IDisposable
         {
             private readonly GetDataLocksQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;
@@ -166,6 +172,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
                 Assert.AreEqual(source.Status, result.DataLockStatus);
                 Assert.AreEqual(source.TriageStatus, result.TriageStatus);
                 Assert.AreEqual(source.IsResolved, result.IsResolved);
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
     }

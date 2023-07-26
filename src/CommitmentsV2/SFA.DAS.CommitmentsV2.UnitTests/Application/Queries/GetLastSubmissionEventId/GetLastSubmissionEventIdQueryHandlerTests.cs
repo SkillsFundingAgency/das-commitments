@@ -16,13 +16,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
         [Test]
         public async Task Get_LastSubmission_EventId_Is_Returned_Correctly()
         {
-            var fixture = new GetLastSubmissionEventIdQueryHandlerTestsFixture();
+            using var fixture = new GetLastSubmissionEventIdQueryHandlerTestsFixture();
             var result = await fixture.Handle();
 
             Assert.AreEqual(fixture.AddEpaLastSubmissionEventId, result.Value);
         }
 
-        public class GetLastSubmissionEventIdQueryHandlerTestsFixture
+        public class GetLastSubmissionEventIdQueryHandlerTestsFixture : IDisposable
         {
             public long? AddEpaLastSubmissionEventId;
             private ProviderCommitmentsDbContext _db { get; set; }
@@ -55,6 +55,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
             public async Task<long?> Handle()
             {
                 return await _sut.Handle(_query, CancellationToken.None);
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
     }

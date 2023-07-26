@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
         [TestCaseSource(typeof(CreateProviderPaymentsDataCases))]
         public async Task Handle_WhenRequested_ThenItShouldReturnTheCurrentPriorityOrder(long accountId, CreateProviderPaymentsDataCases.Input[] inputs, CreateProviderPaymentsDataCases.ExpectedOutput[] expectedOutputs)
         {
-            var fixture = new GetProviderPaymentsPriorityQueryHandlerTestFixtures();
+            using var fixture = new GetProviderPaymentsPriorityQueryHandlerTestFixtures();
             foreach(var input in inputs)
             {
                 fixture.SetCohort(input.ApprenticeshipId, input.AccountId, input.ProviderId, input.ProviderName, input.ApprenticeshipAgreedOn, input.CohortApprovedOn, input.CohortFullyApproved, input.PriorityOrder);
@@ -259,7 +259,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
         }
     }
 
-    public class GetProviderPaymentsPriorityQueryHandlerTestFixtures
+    public class GetProviderPaymentsPriorityQueryHandlerTestFixtures : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public GetProviderPaymentsPriorityQueryHandler Handler { get; set; }
@@ -344,6 +344,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
                     Db.SaveChanges();
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

@@ -255,12 +255,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
-            using (var dbContext = new ProviderCommitmentsDbContext(options))
-            {
-                dbContext.Database.EnsureCreated();
-                SeedData(dbContext);
-                return action(dbContext);
-            }
+            using var dbContext = new ProviderCommitmentsDbContext(options);
+            dbContext.Database.EnsureCreated();
+            SeedData(dbContext);
+            return action(dbContext);
         }
 
         private void SeedData(ProviderCommitmentsDbContext dbContext)

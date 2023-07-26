@@ -21,8 +21,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Employer_Names_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -55,8 +55,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Sectors_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standards,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standards,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -93,8 +93,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Provider_Names_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -125,8 +125,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Course_Names_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -157,8 +157,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Course_Names_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -189,8 +189,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Planned_Start_Dates_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -224,8 +224,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Planned_Start_Dates_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -259,8 +259,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Planned_End_Dates_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -294,8 +294,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Planned_End_Dates_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -329,8 +329,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Adds_Result_To_Cache_For_One_Minute_For_Provider(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -358,8 +358,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Adds_Result_To_Cache_For_One_Minute_For_Employer(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -387,7 +387,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Checks_The_Caches_For_That_Providers_Filter_Values_And_Returns_If_Exists(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<Apprenticeship> apprenticeships,
             GetApprenticeshipsFilterValuesQueryResult queryResult,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
@@ -415,7 +415,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Checks_The_Caches_For_That_Employers_Filter_Values_And_Returns_If_Exists(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
+            List<Apprenticeship> apprenticeships,
             GetApprenticeshipsFilterValuesQueryResult queryResult,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
@@ -443,8 +443,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_Ordered_EmployerNames(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -482,7 +482,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Ordered_CourseNames(
             GetApprenticeshipsFilterValuesQuery query,
             List<Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -519,7 +519,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Ordered_PlannedStartDates(
             GetApprenticeshipsFilterValuesQuery query,
             List<Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -554,8 +554,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_Ordered_PlannedEndDates(
             GetApprenticeshipsFilterValuesQuery query,
-            List<CommitmentsV2.Models.Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Apprenticeship> apprenticeships,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -587,7 +587,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         public async Task Then_Returns_Ordered_LegalEntityNames(
             GetApprenticeshipsFilterValuesQuery query,
             List<Apprenticeship> apprenticeships,
-            List<CommitmentsV2.Models.Standard> standard,
+            List<Standard> standard,
             [Frozen] Mock<ICacheStorageService> cacheStorageService,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
             GetApprenticeshipsFilterValuesQueryHandler handler)
@@ -620,7 +620,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             result.EmployerNames.Should().BeEquivalentTo(expectedEmployerNames);
         }
 
-        private void SetProviderIdOnApprenticeship(IList<CommitmentsV2.Models.Apprenticeship> apprenticeships, long? providerId)
+        private void SetProviderIdOnApprenticeship(IList<Apprenticeship> apprenticeships, long? providerId)
         {
             var providerIdValue = providerId.GetValueOrDefault();
 
@@ -629,7 +629,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             apprenticeships[2].Cohort.ProviderId = providerIdValue;
         }
 
-        private void SetEmployerIdOnApprenticeship(IList<CommitmentsV2.Models.Apprenticeship> apprenticeships, long? employerAccountId)
+        private void SetEmployerIdOnApprenticeship(IList<Apprenticeship> apprenticeships, long? employerAccountId)
         {
             var employerIdValue = employerAccountId.GetValueOrDefault();
 
