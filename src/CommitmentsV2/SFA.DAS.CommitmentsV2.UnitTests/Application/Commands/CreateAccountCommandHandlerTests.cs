@@ -5,12 +5,10 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {

@@ -10,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
 {
