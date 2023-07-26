@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             var fixture = new CommitmentsRestClientTestsFixture();
             fixture.SetBadRequestResponseStatus().WithError("field1", "error1").SetDomainExceptionResponseSubStatus();
 
-            var result = () => fixture.Get();
+            Func<Task> result = () => fixture.Get();
 
             await result.Should()
                 .ThrowAsync<CommitmentsApiModelException>()
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                 .SetDomainExceptionResponseSubStatus()
                 .SetLoggingLevel(LogLevel.Debug);
 
-            var result = () => fixture.Get();
+            Func<Task> result = () => fixture.Get();
             
             await result.Should().ThrowAsync<CommitmentsApiModelException>();
             
@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                 .SetBadRequestResponseStatus()
                 .SetDomainExceptionResponseSubStatus();
 
-            var result = () => fixture.Get();
+            Func<Task> result = () => fixture.Get();
 
             await result.Should().ThrowAsync<CommitmentsApiModelException>();
             
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                 .SetDomainExceptionResponseSubStatus()
                 .SetLoggingLevel(LogLevel.Debug);
 
-            var result = () => fixture.Get();
+            Func<Task> result = () => fixture.Get();
             
             await result.Should().ThrowAsync<CommitmentsApiModelException>();
             
@@ -98,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             fixture.SetBadRequestResponseStatus()
                 .SetDomainExceptionResponseSubStatus();
 
-            var result = () => fixture.Get();
+            Func<Task> result = () => fixture.Get();
             
             await  result.Should().ThrowAsync<CommitmentsApiModelException>();
             Assert.AreEqual(0, fixture.FakeLogger.Messages.Count);
@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             var fixture = new CommitmentsRestClientTestsFixture();
             fixture.SetBadRequestResponseStatus();
 
-            var result = () => fixture.Get();
+            Func<Task> result = () => fixture.Get();
             
             await result.Should().ThrowAsync<RestHttpClientException>().Where(ex =>
                 ex.StatusCode == HttpStatusCode.BadRequest &&
@@ -125,7 +125,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             var fixture = new CommitmentsRestClientTestsFixture();
             fixture.SetInternalServerErrorResponseStatus();
 
-            var result = () => fixture.Get();
+            Func<Task> result = () => fixture.Get();
 
             await result.Should().ThrowAsync<RestHttpClientException>().Where(ex =>
                 ex.StatusCode == HttpStatusCode.InternalServerError &&
