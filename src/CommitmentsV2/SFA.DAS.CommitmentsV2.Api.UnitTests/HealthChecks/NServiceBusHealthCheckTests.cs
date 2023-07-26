@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
             var fixture = new NServiceBusHealthCheckTestsFixture();
             fixture.SetSendFailure();
             
-            var result = () => fixture.CheckHealthAsync();
+            Func<Task> result = () => fixture.CheckHealthAsync();
 
             await result.Should().ThrowAsync<Exception>();
         }
@@ -80,7 +80,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
         {
             var fixture = new NServiceBusHealthCheckTestsFixture();
             fixture.SetSendSuccess().SetCancellationRequested();
-            var result = () => fixture.CheckHealthAsync();
+            
+            Func<Task> result = () => fixture.CheckHealthAsync();
 
             await result.Should().ThrowAsync<OperationCanceledException>();
         }
