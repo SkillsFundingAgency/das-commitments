@@ -20,7 +20,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase("Fred Flintstone", true)]
         public void Validate_UserId_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.UserId, value, expectedValid);
+            var request = new AddDraftApprenticeshipRequest { UserId = value };
+
+            AssertValidationResult(r => r.UserId, request, expectedValid);
         }
 
         [TestCase(-1, false)]
@@ -28,7 +30,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(1, true)]
         public void Validate_ProviderId_ShouldBeValidated(long value, bool expectedValid)
         {
-            AssertValidationResult(request => request.ProviderId, value, expectedValid);
+            var request = new AddDraftApprenticeshipRequest { ProviderId = value };
+
+            AssertValidationResult(r => r.ProviderId, request, expectedValid);
         }
 
 
@@ -36,15 +40,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(true, true)]
         public void Validate_ReservationId_ShouldBeValidated(bool hasValue, bool expectedValid)
         {
-            AssertValidationResult(request => request.ReservationId, hasValue ? Guid.NewGuid() : (Guid?)null, expectedValid);
+            var request = new AddDraftApprenticeshipRequest { ReservationId = hasValue ? Guid.NewGuid() : null };
+
+            AssertValidationResult(r => r.ReservationId, request, expectedValid);
         }
 
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
+        [TestCase(
+            "XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX", true)]
         [TestCase("", true)]
         public void Validate_FirstName_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.FirstName, value, expectedValid);
+            var request = new AddDraftApprenticeshipRequest { FirstName = value };
+
+            AssertValidationResult(r => r.FirstName, request, expectedValid);
         }
 
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
@@ -52,7 +61,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase("", true)]
         public void Validate_LastName_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.LastName, value, expectedValid);
+            var request = new AddDraftApprenticeshipRequest { LastName = value };
+
+            AssertValidationResult(r => r.LastName, request, expectedValid);
         }
 
         [TestCase(null, true)]
@@ -61,41 +72,58 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase("XXXXXXXXX1XXXXXXXXX20", false)]
         public void Validate_Ref_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.OriginatorReference, value, expectedValid);
+            var request = new AddDraftApprenticeshipRequest { OriginatorReference = value };
+
+            AssertValidationResult(r => r.OriginatorReference, request, expectedValid);
         }
 
         [Test]
         public void Validate_UserInfoIsNull_ShouldBeValid()
         {
-            AssertValidationResult(request => request.UserInfo, null, true);
+            var request = new AddDraftApprenticeshipRequest { UserInfo = null };
+
+            AssertValidationResult(r => r.UserInfo, request, true);
         }
 
         [Test]
         public void Validate_UserInfoIsNotNullAndHasGoodData_ShouldBeValid()
         {
-            var userInfo = new UserInfo { UserId = "EE", UserDisplayName = "Name", UserEmail = "a@a.com" };
-            AssertValidationResult(request => request.UserInfo, userInfo, true);
+            // Arrange
+            var request = new AddDraftApprenticeshipRequest { UserInfo = new UserInfo { UserId = "EE", UserDisplayName = "Name", UserEmail = "a@a.com" } };
+            var validator = new AddDraftApprenticeshipRequestValidator();
+
+            // Act
+            var result = validator.TestValidate(request);
+
+            // Assert
+            result.ShouldNotHaveValidationErrorFor(r => r.UserInfo);
         }
 
         [Test]
         public void Validate_IsOnFlexiPaymentPilotIsNull_ShouldBeInvalid()
         {
-            AssertValidationResult(request => request.IsOnFlexiPaymentPilot, (bool?)null, false);
+            var request = new AddDraftApprenticeshipRequest { IsOnFlexiPaymentPilot = null };
+
+            AssertValidationResult(r => r.IsOnFlexiPaymentPilot, request, false);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
+        private static void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property,
+            AddDraftApprenticeshipRequest request, bool expectedValid)
         {
             // Arrange
             var validator = new AddDraftApprenticeshipRequestValidator();
 
             // Act
+            var result = validator.TestValidate(request);
+
+            // Assert
             if (expectedValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
+                result.ShouldNotHaveValidationErrorFor(property);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(property, value);
+                result.ShouldHaveValidationErrorFor(property);
             }
         }
     }

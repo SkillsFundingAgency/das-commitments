@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.ApplicationInsights.NLogTarget;
 using Microsoft.AspNetCore.Builder;
@@ -60,8 +61,11 @@ namespace SFA.DAS.CommitmentsV2.Api
                     o.Filters.Add<ValidateModelStateFilter>();
                     o.Filters.Add<StopwatchFilter>();
                 })
-                .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>())
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services
+                .AddFluentValidationAutoValidation()
+                .AddValidatorsFromAssemblyContaining<CreateCohortRequestValidator>();
 
             services.AddSwaggerGen(c =>
             {
