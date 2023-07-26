@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             return TestExceptionAsync(
                 f => f.SetBadRequestResponseStatus().WithError("field1", "error1").SetDomainExceptionResponseSubStatus(),
                 f => f.Get(),
-                (f, r) => r.Should().Throw<CommitmentsApiModelException>().Where(ex =>
+                (f, r) => r.Should().ThrowAsync<CommitmentsApiModelException>().Where(ex =>
                     ex.Errors.Count == f.ModelErrors.Count));
         }
 
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                 f => f.Get(),
                 (f, r) =>
                 {
-                    r.Should().Throw<CommitmentsApiModelException>();
+                    r.Should().ThrowAsync<CommitmentsApiModelException>();
                     f.FakeLogger.ContainsMessage(m => m.LogLevel == LogLevel.Debug && m.Message.Contains("field1") && m.Message.Contains("error1"));
                     f.FakeLogger.ContainsMessage(m => m.LogLevel == LogLevel.Debug && m.Message.Contains("field2") && m.Message.Contains("error2"));
                 });
@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                 f => f.Get(),
                 (f, r) =>
                 {
-                    r.Should().Throw<CommitmentsApiModelException>();
+                    r.Should().ThrowAsync<CommitmentsApiModelException>();
                     Assert.AreEqual(0, f.FakeLogger.Messages.Count);
                 });
         }
@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                 f => f.Get(),
                 (f, r) =>
                 {
-                    r.Should().Throw<CommitmentsApiModelException>();
+                    r.Should().ThrowAsync<CommitmentsApiModelException>();
                     f.FakeLogger.ContainsMessage(m => m.LogLevel == LogLevel.Warning && m.Message.Contains("has returned an empty string when an array of error responses was expected"));
                 });
         }
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                 f => f.Get(),
                 (f, r) =>
                 {
-                    r.Should().Throw<CommitmentsApiModelException>();
+                    r.Should().ThrowAsync<CommitmentsApiModelException>();
                     Assert.AreEqual(0, f.FakeLogger.Messages.Count);
                 });
         }
@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             return TestExceptionAsync(
                 f => f.SetBadRequestResponseStatus(),
                 f => f.Get(),
-                (f, r) => r.Should().Throw<RestHttpClientException>().Where(ex => 
+                (f, r) => r.Should().ThrowAsync<RestHttpClientException>().Where(ex => 
                     ex.StatusCode == HttpStatusCode.BadRequest &&
                     ex.ReasonPhrase == "Bad Request" &&
                     ex.RequestUri == f.RequestUri &&
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             return TestExceptionAsync(
                 f => f.SetInternalServerErrorResponseStatus(),
                 f => f.Get(),
-                (f, r) => r.Should().Throw<RestHttpClientException>().Where(ex => 
+                (f, r) => r.Should().ThrowAsync<RestHttpClientException>().Where(ex => 
                     ex.StatusCode == HttpStatusCode.InternalServerError &&
                     ex.ReasonPhrase == "Internal Server Error" &&
                     ex.RequestUri == f.RequestUri &&

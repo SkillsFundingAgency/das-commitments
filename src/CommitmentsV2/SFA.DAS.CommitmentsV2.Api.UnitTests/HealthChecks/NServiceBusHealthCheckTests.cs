@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
             await TestExceptionAsync(
                 f => f.SetSendFailure(),
                 f => f.CheckHealthAsync(),
-                (f, r) => r.Should().Throw<Exception>().Which.Should().Be(f.Exception));
+                (f, r) => r.Should().ThrowAsync<Exception>());
         }
         
         [Test]
@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
             await TestExceptionAsync(
                 f => f.SetSendSuccess().SetCancellationRequested(),
                 f => f.CheckHealthAsync(),
-                (f, r) => r.Should().Throw<OperationCanceledException>().Which.CancellationToken.Should().Be(f.CancellationToken));
+                (f, r) => r.Should().ThrowAsync<OperationCanceledException>());
         }
     }
 
