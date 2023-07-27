@@ -16,11 +16,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenHandlingCommand_ThenShouldSendCohortToOtherParty()
         {
-            var f = new SendCohortCommandHandlerTestsFixture();
-            await f.Handle();
+            var fixture = new SendCohortCommandHandlerTestsFixture();
+            await fixture.Handle();
 
-            f.CohortDomainService.Verify(s => s.SendCohortToOtherParty(f.Command.CohortId, f.Command.Message,
-                f.Command.UserInfo, f.Command.RequestingParty, f.CancellationToken));
+            fixture.CohortDomainService.Verify(s => s.SendCohortToOtherParty(fixture.Command.CohortId, fixture.Command.Message,
+                fixture.Command.UserInfo, fixture.Command.RequestingParty, fixture.CancellationToken));
         }
     }
 

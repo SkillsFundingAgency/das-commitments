@@ -14,10 +14,10 @@ namespace SFA.DAS.CommitmentsV2.Api.IntegrationTests.Pipeline
         [Test]
         public async Task CallPingEndpoint_ThenShouldReturnOkResponse()
         {
-            var f = new HealthCheckFixture();
-            var r = await f.Client.GetAsync("/api/ping");
+            var fixture = new HealthCheckFixture();
+            var message = await fixture.Client.GetAsync("/api/ping");
             
-            r.StatusCode.Should().Be(HttpStatusCode.OK);
+            message.StatusCode.Should().Be(HttpStatusCode.OK);
         }
     }
 

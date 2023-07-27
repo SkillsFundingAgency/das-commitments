@@ -23,24 +23,24 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         [Test]
         public async Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProvidersInBatchesOf1000()
         {
-            var f = new ImportProvidersJobTestsFixture();
-            f.SetProviders(1500);
-            await f.Run();
+            var fixture = new ImportProvidersJobTestsFixture();
+            fixture.SetProviders(1500);
+            await fixture.Run();
             
-            f.Db.Verify(d => d.ExecuteSqlCommandAsync(
+            fixture.Db.Verify(d => d.ExecuteSqlCommandAsync(
                 "EXEC ImportProviders @providers, @now",
                 It.Is<SqlParameter>(p => p.ParameterName == "providers"),
-                It.Is<SqlParameter>(p => p.ParameterName == "now" && (DateTime)p.Value >= f.Now)), Times.Exactly(2));
+                It.Is<SqlParameter>(p => p.ParameterName == "now" && (DateTime)p.Value >= fixture.Now)), Times.Exactly(2));
         }
 
         [Test]
         public async Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProviders()
         {
-            var f = new ImportProvidersJobTestsFixture();
-            f.SetProviders(1500);
-            await f.Run();
+            var fixture = new ImportProvidersJobTestsFixture();
+            fixture.SetProviders(1500);
+            await fixture.Run();
 
-            f.ImportedProviders.Should().BeEquivalentTo(f.Providers);
+            fixture.ImportedProviders.Should().BeEquivalentTo(fixture.Providers);
         }
     }
 

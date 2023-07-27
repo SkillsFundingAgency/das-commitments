@@ -19,14 +19,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortEmailOver
         [Test]
         public async Task Handle_Test()
         {
-            var f = new GetCohortEmailOverlapsQueryHandlerTestFixtures();
-            var result = await f.GetResult(new GetCohortEmailOverlapsQuery(123));
+            var fixtures = new GetCohortEmailOverlapsQueryHandlerTestFixtures();
+            var result = await fixtures.GetResult(new GetCohortEmailOverlapsQuery(123));
 
-            Assert.AreEqual(f.OverlapResults.Count, result.Overlaps.Count);
-            Assert.AreEqual(f.OverlapResults[0].RowId, result.Overlaps[0].Id);
-            Assert.AreEqual(f.OverlapResults[0].BuildErrorMessage(), result.Overlaps[0].ErrorMessage);
-            Assert.AreEqual(f.OverlapResults[1].RowId, result.Overlaps[1].Id);
-            Assert.AreEqual(f.OverlapResults[1].BuildErrorMessage(), result.Overlaps[1].ErrorMessage);
+            Assert.AreEqual(fixtures.OverlapResults.Count, result.Overlaps.Count);
+            Assert.AreEqual(fixtures.OverlapResults[0].RowId, result.Overlaps[0].Id);
+            Assert.AreEqual(fixtures.OverlapResults[0].BuildErrorMessage(), result.Overlaps[0].ErrorMessage);
+            Assert.AreEqual(fixtures.OverlapResults[1].RowId, result.Overlaps[1].Id);
+            Assert.AreEqual(fixtures.OverlapResults[1].BuildErrorMessage(), result.Overlaps[1].ErrorMessage);
         }
     }
 

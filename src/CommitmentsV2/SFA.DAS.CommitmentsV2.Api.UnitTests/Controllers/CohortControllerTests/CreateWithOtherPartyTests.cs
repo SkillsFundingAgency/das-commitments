@@ -20,15 +20,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         [Test]
         public async Task WhenPostRequestReceived_ThenShouldReturnResponse()
         {
-            var f = new CreateWithOtherPartyTestsFixture();
-            var r = await f.Create();
+            var fixture = new CreateWithOtherPartyTestsFixture();
+            var result = await fixture.Create();
             
-            r.Should().NotBeNull()
+            result.Should().NotBeNull()
                 .And.BeOfType<OkObjectResult>()
                 .Which.Value.Should().NotBeNull()
-                .And.Match<CreateCohortResponse>(v =>
-                    v.CohortId == f.Result.Id &&
-                    v.CohortReference == f.Result.Reference);
+                .And.Match<CreateCohortResponse>(response =>
+                    response.CohortId == fixture.Result.Id &&
+                    response.CohortReference == fixture.Result.Reference);
         }
     }
 

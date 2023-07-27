@@ -1291,8 +1291,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public CohortDomainServiceTestFixture WithOverlappingEmails()
             {
-                var f = new Fixture();
-                var list = f.CreateMany<EmailOverlapCheckResult>().ToList();
+                var fixture = new Fixture();
+                var list = fixture.CreateMany<EmailOverlapCheckResult>().ToList();
                 OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(list);
                 return this;

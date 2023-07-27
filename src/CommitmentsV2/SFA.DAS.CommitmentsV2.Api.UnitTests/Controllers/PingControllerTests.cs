@@ -12,10 +12,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [Test]
         public void Ping_WhenRequestReceived_ThenShouldSendResponse()
         {
-            var f = new PingControllerTestsFixture();
-            var r = f.Ping();
+            var fixture = new PingControllerTestsFixture();
+            var result = fixture.Ping();
             
-            r.Should().NotBeNull().And.BeOfType<OkResult>();
+            result.Should().NotBeNull().And.BeOfType<OkResult>();
         }
     }
 

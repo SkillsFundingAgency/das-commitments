@@ -19,22 +19,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandledChronologically_ThenShouldUpdateAccountName()
         {
-            using var f = new UpdateAccountNameCommandHandlerTestsFixture();
-            await f.Handle();
+            using var fixture = new UpdateAccountNameCommandHandlerTestsFixture();
+            await fixture.Handle();
             
-            f.Account.Name.Should().Be(f.Command.Name);
-            f.Account.Updated.Should().Be(f.Command.Created);
+            fixture.Account.Name.Should().Be(fixture.Command.Name);
+            fixture.Account.Updated.Should().Be(fixture.Command.Created);
         }
 
         [Test]
         public async Task Handle_WhenCommandIsHandledNonChronologically_ThenShouldNotUpdateAccountName()
         {
-            using var f = new UpdateAccountNameCommandHandlerTestsFixture();
-            f.SetAccountUpdatedAfterCommand();
-            await f.Handle();
+            using var fixture = new UpdateAccountNameCommandHandlerTestsFixture();
+            fixture.SetAccountUpdatedAfterCommand();
+            await fixture.Handle();
             
-            f.Account.Name.Should().Be(f.OriginalAccountName);
-            f.Account.Updated.Should().Be(f.Now);
+            fixture.Account.Name.Should().Be(fixture.OriginalAccountName);
+            fixture.Account.Updated.Should().Be(fixture.Now);
         }
     }
 

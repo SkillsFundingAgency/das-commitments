@@ -13,10 +13,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenHandlingChangedAccountNameEvent_ThenShouldSendUpdateAccountNameCommand()
         {
-            var f = new ChangedAccountNameEventHandlerTestsFixture();
-            await f.Handle();
+            var fixture = new ChangedAccountNameEventHandlerTestsFixture();
+            await fixture.Handle();
             
-            f.VerifySend<UpdateAccountNameCommand>((c, m) =>
+            fixture.VerifySend<UpdateAccountNameCommand>((c, m) =>
                 c.AccountId == m.AccountId && c.Name == m.CurrentName && c.Created == m.Created);
         }
     }
