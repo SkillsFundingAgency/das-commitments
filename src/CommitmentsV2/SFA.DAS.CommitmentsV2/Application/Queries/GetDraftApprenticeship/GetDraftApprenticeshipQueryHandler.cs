@@ -43,6 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 ActualStartDate = draft.ActualStartDate,
                 Id = draft.Id,
                 Cost = (int?) draft.Cost,
+                TrainingPrice = draft.TrainingPrice,
+                EndPointAssessmentPrice = draft.EndPointAssessmentPrice,
                 DateOfBirth = draft.DateOfBirth,
                 EndDate = draft.EndDate,
                 FirstName = draft.FirstName,

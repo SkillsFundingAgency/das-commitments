@@ -16,6 +16,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public string TrainingCourseOption { get; set; }
         public DeliveryModel? DeliveryModel { get; set; }
         public int? Cost { get; set; }
+        public int? TrainingPrice { get; set; }
+        public int? EndPointAssessmentPrice { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? ActualStartDate { get; set; }
         public DateTime? EndDate { get; set; }

@@ -85,6 +85,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             Cost = source.Cost;
+            TrainingPrice = source.TrainingPrice;
+            EndPointAssessmentPrice = source.EndPointAssessmentPrice;
             StartDate = source.StartDate;
             ActualStartDate = source.ActualStartDate;
             EndDate = source.EndDate;

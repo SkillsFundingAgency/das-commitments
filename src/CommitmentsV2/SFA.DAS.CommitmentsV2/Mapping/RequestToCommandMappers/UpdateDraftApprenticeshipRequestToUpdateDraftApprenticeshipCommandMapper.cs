@@ -21,6 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 DeliveryModel = source.DeliveryModel,
                 EmploymentPrice = source.EmploymentPrice,
                 Cost = source.Cost,
+                TrainingPrice = source.TrainingPrice,
+                EndPointAssessmentPrice = source.EndPointAssessmentPrice,
                 StartDate = source.StartDate,
                 ActualStartDate = source.ActualStartDate,
                 EmploymentEndDate = source.EmploymentEndDate,
