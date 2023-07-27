@@ -153,7 +153,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IFeatureTogglesService<FeatureToggle>> FeatureToggleServiceMock { get; set; }
-        public Mock<IRplFundingCalculationService> RplFundingCalculationService { get; set; }
         public GetDraftApprenticeshipPriorLearningSummaryQueryHandler Handler { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
@@ -171,22 +170,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
             FlexibleEmployment = new FlexibleEmployment { EmploymentEndDate = DateTime.Today, EmploymentPrice = 987 };
         }
-
-
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder.AddConsole();
-            builder.SetMinimumLevel(LogLevel.Debug);
-        });
-
-
+        
         public Task<GetDraftApprenticeshipPriorLearningSummaryQueryResult> Handle()
         {
             var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(CohortId, ApprenticeshipId);
             return Handler.Handle(query, CancellationToken.None);
         }
-
-
 
         public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetApprentice(ProgrammeType? programmeType, string courseCode,  DateTime? startDate)
         {
@@ -196,7 +185,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var autoFixture = new Fixture();
 
-            CommitmentsV2.Domain.Entities.TrainingProgramme trainingProgramme = null;
+            TrainingProgramme trainingProgramme = null;
             if (programmeType.HasValue)
             {
                 trainingProgramme = new TrainingProgramme(courseCode, "SomeName", programmeType.Value, startDate, null);
@@ -290,31 +279,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             return this;
         }
-
-        public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetApprenticeshipFlexiJob()
-        {
-            var apprenticeship = Db.DraftApprenticeships.First();
-            apprenticeship.FlexibleEmployment = FlexibleEmployment;
-            apprenticeship.DeliveryModel = DeliveryModel.PortableFlexiJob;
-
-            Db.SaveChanges();
-
-            return this;
-        }
-
-        public DraftApprenticeship GetDraftApprenticeship()
-        {
-            return Db.DraftApprenticeships.First();
-        }
-
-        public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetFeatureToggle(string toggleName, bool toggle)
-        {
-            FeatureToggleServiceMock.Setup(x => x.GetFeatureToggle(toggleName))
-                .Returns(new FeatureToggle { Feature = toggleName, IsEnabled = toggle });
-
-            return this;
-        }
-
+        
         public void Dispose()
         {
             Db?.Dispose();

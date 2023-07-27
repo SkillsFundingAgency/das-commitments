@@ -22,9 +22,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
             Assert.AreEqual(fixture.AddEpaLastSubmissionEventId, result.Value);
         }
 
-        public class GetLastSubmissionEventIdQueryHandlerTestsFixture : IDisposable
+        private class GetLastSubmissionEventIdQueryHandlerTestsFixture : IDisposable
         {
-            public long? AddEpaLastSubmissionEventId;
+            public readonly long? AddEpaLastSubmissionEventId;
             private ProviderCommitmentsDbContext _db { get; set; }
             private GetLastSubmissionEventIdQueryHandler _sut { get; set; }
 
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
                 SeedData();
             }
 
-            public void SeedData()
+            private void SeedData()
             {
                 _db.JobProgress.Add(new CommitmentsV2.Models.JobProgress { AddEpaLastSubmissionEventId = AddEpaLastSubmissionEventId, Lock = "X" });
                

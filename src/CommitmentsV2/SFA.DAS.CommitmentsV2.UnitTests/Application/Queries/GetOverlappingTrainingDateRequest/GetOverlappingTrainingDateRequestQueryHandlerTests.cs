@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
             _fixture.VerifyResultMapping();
         }
 
-        public class OverlappingTrainingDateRequestQueryHandlerTestsFixture : IDisposable
+        private class OverlappingTrainingDateRequestQueryHandlerTestsFixture : IDisposable
         {
             private readonly GetOverlappingTrainingDateRequestQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;

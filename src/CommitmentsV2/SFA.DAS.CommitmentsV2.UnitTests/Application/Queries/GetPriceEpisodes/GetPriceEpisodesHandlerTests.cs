@@ -86,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
 
             public void VerifyResultMapping()
             {
-                Assert.AreEqual(_priceEpisodes.Count(), _result.PriceEpisodes.Count);
+                Assert.AreEqual(_priceEpisodes.Count, _result.PriceEpisodes.Count);
 
                 foreach (var sourceItem in _priceEpisodes)
                 {

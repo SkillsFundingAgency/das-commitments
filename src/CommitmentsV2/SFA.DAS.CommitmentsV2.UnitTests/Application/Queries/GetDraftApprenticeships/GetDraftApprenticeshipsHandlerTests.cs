@@ -80,14 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 _query = new GetDraftApprenticeshipsQuery(_cohortId + 1);
                 return this;
             }
-
-
-            public GetDraftApprenticeshipsHandlerTestsFixture WithDeletedCohort()
-            {
-                _cohort.IsDeleted = true;
-                return this;
-            }
-
+            
             public async Task<GetDraftApprenticeshipsQueryResult> Handle()
             {
                 _queryResult = await _queryHandler.Handle(TestHelper.Clone(_query), new CancellationToken());

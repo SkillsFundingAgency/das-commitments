@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortEmailOver
 
     public class GetCohortEmailOverlapsQueryHandlerTestFixtures
     {
-        private Fixture _autoFixture;
+        private readonly Fixture _autoFixture;
         public GetCohortEmailOverlapsQueryHandlerTestFixtures()
         {
             _autoFixture = new Fixture();
@@ -44,12 +44,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortEmailOver
         }
 
         public List<EmailOverlapCheckResult> OverlapResults { get; set; }
-        public Mock<IRequestHandler<GetCohortEmailOverlapsQuery, GetCohortEmailOverlapsQueryResult>> HandlerMock { get; set; }
-        public IRequestHandler<GetCohortEmailOverlapsQuery, GetCohortEmailOverlapsQueryResult> Handler => HandlerMock.Object;
 
-        public Mock<IValidator<GetCohortEmailOverlapsQuery>> ValidatorMock { get; set; }
-        public Mock<IOverlapCheckService> OverlapCheckServiceMock { get; set; }
-        public IValidator<GetCohortEmailOverlapsQuery> Validator => ValidatorMock.Object;
+        private Mock<IOverlapCheckService> OverlapCheckServiceMock { get; set; }
 
         public Task<GetCohortEmailOverlapsQueryResult> GetResult(GetCohortEmailOverlapsQuery query)
         {

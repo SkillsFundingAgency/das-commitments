@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSubmissionEvent
             fixture.VerifySubmissionEventsAreReturned();
         }
 
-        public class GetSubmissionEventsQueryEventHandlerTestsFixture
+        private class GetSubmissionEventsQueryEventHandlerTestsFixture
         {
             private GetSubmissionEventQueryHandler _sut { get; set; }
 
@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSubmissionEvent
 
             public GetSubmissionEventsQueryEventHandlerTestsFixture()
             {
-                 var autoFixture = new AutoFixture.Fixture();
+                 var autoFixture = new Fixture();
                 _expectedResult = autoFixture.Create<PageOfResults<SubmissionEvent>>();
                 _query = autoFixture.Create<GetSubmissionEventsQuery>();
 

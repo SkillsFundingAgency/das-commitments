@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
             _fixture.VerifyResultMapping();
         }
 
-        public class ChangeOfPartyRequestsQueryHandlersTestsFixture : IDisposable
+        private class ChangeOfPartyRequestsQueryHandlersTestsFixture : IDisposable
         {
             private readonly GetChangeOfPartyRequestsQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;

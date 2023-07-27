@@ -629,7 +629,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             apprenticeships[2].Cohort.ProviderId = providerIdValue;
         }
 
-        private void SetEmployerIdOnApprenticeship(IList<Apprenticeship> apprenticeships, long? employerAccountId)
+        private static void SetEmployerIdOnApprenticeship(IList<Apprenticeship> apprenticeships, long? employerAccountId)
         {
             var employerIdValue = employerAccountId.GetValueOrDefault();
 
@@ -651,7 +651,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsAsync((GetApprenticeshipsFilterValuesQueryResult)null);
         }
 
-        private AccountLegalEntity CreateAccountLegalEntity(string name)
+        private static AccountLegalEntity CreateAccountLegalEntity(string name)
         {
             var account = new Account(1, "", "", name, DateTime.UtcNow);
             return new AccountLegalEntity(account, 1, 1, "", "", name, OrganisationType.CompaniesHouse, "",

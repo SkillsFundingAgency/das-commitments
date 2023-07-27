@@ -32,7 +32,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
         public Provider Provider;
         public long CohortId;
         public long AccountId;
-        public long AccountLegalEntityId;
         public Party WithParty = Party.Employer;
         public const string LatestMessageCreatedByEmployer = "ohayou";
         public const string LatestMessageCreatedByProvider = "konbanwa";
@@ -394,14 +393,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
 
         public Mock<IRequestHandler<GetSupportCohortSummaryQuery, GetSupportCohortSummaryQueryResult>> HandlerMock { get; set; }
 
-        public IRequestHandler<GetSupportCohortSummaryQuery, GetSupportCohortSummaryQueryResult> Handler => HandlerMock.Object;
-
         public Mock<IValidator<GetSupportCohortSummaryQuery>> ValidatorMock { get; set; }
         public Mock<IEmailOptionalService> EmailOptionalService { get; set; }
-        public IValidator<GetSupportCohortSummaryQuery> Validator => ValidatorMock.Object;
-        private Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>> _mapper;
+        private readonly Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>> _mapper;
 
-        public List<Cohort> SeedCohorts { get; }
+        private List<Cohort> SeedCohorts { get; }
 
         public GetSupportCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, Party withParty,
             string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, Party approvals,
@@ -477,7 +473,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
             dbContext.SaveChanges(true);
         }
 
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        private static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
         {
             builder.AddConsole();
             builder.SetMinimumLevel(LogLevel.Debug);
