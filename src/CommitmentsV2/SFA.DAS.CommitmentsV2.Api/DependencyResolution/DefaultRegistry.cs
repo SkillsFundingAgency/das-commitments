@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.ProviderRelationships.Api.Client;
 using SFA.DAS.ProviderRelationships.Api.Client.Http;
+using SFA.DAS.ProviderUrlHelper;
 using StructureMap;
 using StructureMap.Building.Interception;
 
@@ -18,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
             For<IAuthenticationService>().Use<AuthenticationService>().Singleton();
             For<IModelMapper>().Use<ModelMapper>();
+            For<ILinkGenerator>().Use<LinkGenerator>().Singleton();
 
             Toggle<IProviderRelationshipsApiClient, StubProviderRelationshipsApiClient>("UseStubProviderRelationships");
             Toggle<IProviderRelationshipsApiClientFactory, StubProviderRelationshipsApiClientFactory>("UseStubProviderRelationships");

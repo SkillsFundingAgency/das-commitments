@@ -1,19 +1,20 @@
-using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
-using SFA.DAS.CommitmentsV2.Mapping;
-
-using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
+using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
+using SFA.DAS.CommitmentsV2.Mapping;
+using System.Threading.Tasks;
+using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -88,6 +89,34 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok();
         }
 
+        [HttpGet]
+        [Route("{apprenticeshipId}/prior-learning-summary")]
+        public async Task<IActionResult> GetApprenticeshipPriorLearningSummary(long cohortId, long apprenticeshipId)
+        {
+            var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(cohortId, apprenticeshipId);
+
+            var response = await _mediator.Send(query);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new GetDraftApprenticeshipPriorLearningSummaryResponse
+            {
+                ApprenticeshipId = apprenticeshipId,
+                CohortId = cohortId,
+                TrainingTotalHours = response.TrainingTotalHours,
+                DurationReducedByHours = response.DurationReducedByHours,
+                PriceReducedBy = response.PriceReducedBy,
+                PercentageOfPriorLearning = response.PercentageOfPriorLearning,
+                MinimumPercentageReduction = response.MinimumPercentageReduction,
+                MinimumPriceReduction = response.MinimumPriceReduction,
+                RplPriceReductionError = response.RplPriceReductionError,
+                FundingBandMaximum = response.FundingBandMaximum
+            }); 
+        }
+
         [HttpPost]
         [Route("{apprenticeshipId}/recognise-prior-learning")]
         public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody] RecognisePriorLearningRequest request)
@@ -117,6 +146,25 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 QualificationsForRplReduction = request.QualificationsForRplReduction,
                 ReasonForRplReduction = request.ReasonForRplReduction,
                 Rpl2Mode = request.Rpl2Mode,
+                UserInfo = request.UserInfo
+            });
+            return Ok();
+        }
+
+
+        [HttpPost]
+        [Route("{apprenticeshipId}/prior-learning-data")]
+        public async Task<IActionResult> UpdateRplData(long cohortId, long apprenticeshipId, [FromBody] PriorLearningDataRequest request)
+        {
+            await _mediator.Send(new PriorLearningDataCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+                CohortId = cohortId,
+                DurationReducedBy = request.DurationReducedBy,
+                PriceReducedBy = request.PriceReducedBy,
+                DurationReducedByHours = request.DurationReducedByHours,
+                IsDurationReducedByRpl = request.IsDurationReducedByRpl,
+                TrainingTotalHours = request.TrainingTotalHours,
                 UserInfo = request.UserInfo
             });
             return Ok();

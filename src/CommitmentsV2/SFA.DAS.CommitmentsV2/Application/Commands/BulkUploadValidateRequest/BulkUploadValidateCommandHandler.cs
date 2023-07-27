@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.ProviderRelationships.Api.Client;
+using SFA.DAS.ProviderUrlHelper;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
@@ -26,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IEmployerAgreementService _employerAgreementService;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
         private Dictionary<string, Models.Cohort> _cachedCohortDetails;
+        private readonly ILinkGenerator _urlHelper;
 
 
         public long ProviderId { get; set; }
@@ -36,7 +38,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             IOverlapCheckService overlapService,
             IAcademicYearDateProvider academicYearDateProvider,
             IProviderRelationshipsApiClient providerRelationshipsApiClient,
-            IEmployerAgreementService employerAgreementService)
+            IEmployerAgreementService employerAgreementService,
+            ILinkGenerator urlHelper)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -46,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
             _cachedCohortDetails = new Dictionary<string, Models.Cohort>();
+            _urlHelper = urlHelper;
         }
 
         public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
@@ -54,6 +58,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
             _csvRecords = command.CsvRecords.ToList();
 
+
+            var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, bulkUploadValidationErrors);
+
+            if (standardsError.Any())
+            {
+                return new BulkUploadValidateApiResponse
+                {
+                    BulkUploadValidationErrors = standardsError
+                };
+            }
+
             foreach (var csvRecord in command.CsvRecords)
             {
                 var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
@@ -61,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 
                 if (!criticalDomainError.Any())
                 {
-                    var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults);
+                    var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults);
                     await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
                 }
             }
@@ -102,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             var employerDetails = await GetEmployerDetails(csvRecord.AgreementId);
             if (((employerDetails.IsLevy.HasValue && !employerDetails.IsLevy.Value) || string.IsNullOrEmpty(csvRecord.CohortRef)) && !IsFundedByTransfer(csvRecord.CohortRef))
             {
-                 if (!await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
+                if (!await ValidatePermissionToCreateCohort(csvRecord, providerId, domainErrors, employerDetails.IsLevy))
                 {
                     // when a provider doesn't have permission to create cohort or reserve funding (non-levy) - the validation will stop
                     return domainErrors;
@@ -110,6 +125,25 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             }
 
             return domainErrors;
+        }
+
+        private List<BulkUploadValidationError> ValidateHasDeclaredStandards(ProviderStandardResults providerStandardResults, List<BulkUploadValidationError> bulkUploadValidationErrors)
+        {
+            var domainErrors = ValidateDeclaredStandards(providerStandardResults);
+
+            if (domainErrors.Any())
+
+            {
+                bulkUploadValidationErrors.Add(new BulkUploadValidationError(
+                    0,
+                    null,
+                    null,
+                    null,
+                    domainErrors
+                ));
+            }
+
+            return bulkUploadValidationErrors;
         }
 
         /// <summary>
@@ -132,7 +166,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             return false;
         }
 
-        private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults)
+        private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults)
         {
             var domainErrors = await ValidateAgreementIdValidFormat(csvRecord);
             if (!domainErrors.Any())
@@ -150,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             domainErrors.AddRange(ValidateGivenName(csvRecord));
             domainErrors.AddRange(ValidateDateOfBirth(csvRecord));
             domainErrors.AddRange(ValidateEmailAddress(csvRecord));
-            domainErrors.AddRange(ValidateCourseCode(csvRecord));
+            domainErrors.AddRange(ValidateCourseCode(csvRecord, providerStandardResults));
             domainErrors.AddRange(ValidateStartDate(csvRecord));
             domainErrors.AddRange(ValidateEndDate(csvRecord));
             domainErrors.AddRange(ValidateCost(csvRecord));

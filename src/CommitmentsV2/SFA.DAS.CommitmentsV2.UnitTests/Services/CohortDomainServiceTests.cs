@@ -14,6 +14,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
+using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain;
@@ -576,6 +577,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task ApproveCohort_WhenRPLDataIsRequiredAndRPLDataIsPresent_ShouldSuceed()
+        {
+            _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
+                .WithDecodeOfPublicHashedAccountLegalEntity()
+                .WithExistingDraftApprenticeship()
+                .WithPriorLearningData();
+
+            await _fixture.WithParty(Party.Provider).ApproveCohort();
+
+            Assert.AreEqual(0, _fixture.DomainErrors.Count);
+        }
+
+        [Test]
         public async Task DeleteDraftApprenticeship_WhenCohortIsWithEmployer()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Employer, Party.Employer).WithExistingDraftApprenticeship();
@@ -961,14 +975,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public CohortDomainServiceTestFixture WithExtendedPriorLearning()
             {
                 ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
-                ExistingDraftApprenticeship.SetPriorLearningDetailsExtended(10, 100, 9, "Qualifications", "because....");
+                ExistingDraftApprenticeship.SetPriorLearningData(2000, 100, true, 12, 1000, 5);
                 return this;
             }
 
             public CohortDomainServiceTestFixture WithPriorLearningExtended()
             {
                 ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
-                ExistingDraftApprenticeship.SetPriorLearningDetailsExtended(10, 10, 20, "Qualifications", "Reasons");
+                ExistingDraftApprenticeship.SetPriorLearningData(2000, 100, true, 20, 110, 5);
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithPriorLearningData()
+            {
+                ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
+                ExistingDraftApprenticeship.SetPriorLearningData(1000, 10, true, 5, 100, 5);
+
                 return this;
             }
 
