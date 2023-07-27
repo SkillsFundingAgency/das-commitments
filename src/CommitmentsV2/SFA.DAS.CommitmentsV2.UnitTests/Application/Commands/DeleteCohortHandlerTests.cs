@@ -146,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public async Task Handle()
         {
-            Db.SaveChanges();
+            await Db.SaveChangesAsync();
 
             await Sut.Handle(Command, CancellationToken.None);
             await Db.SaveChangesAsync();
@@ -242,9 +242,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.IsNull(UnitOfWorkContext.GetEvents().FirstOrDefault(x => x is ProviderRejectedChangeOfPartyRequestEvent));
         }
 
-        internal void WithChangeOfParty(bool v)
+        internal void WithChangeOfParty(bool value)
         {
-            if (v)
+            if (value)
                 Cohort.ChangeOfPartyRequestId = 1;
         }
 

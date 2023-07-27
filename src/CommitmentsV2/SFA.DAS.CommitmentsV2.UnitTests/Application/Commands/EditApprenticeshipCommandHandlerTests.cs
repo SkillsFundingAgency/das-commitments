@@ -448,18 +448,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 mediator.Object,
                 Mock.Of<ILogger<EditApprenticeshipCommandHandler>>());
         }
-
-        public EditApprenticeshipCommandHandlerTestsFixture SetApprenticeshipConfirmationStatus()
-        {
-            var fixture = new Fixture();
-            var confirmationStatus = fixture.Build<ApprenticeshipConfirmationStatus>()
-                .Without(x=>x.Apprenticeship)
-                .With(x => x.ApprenticeshipId, ApprenticeshipId).Create();
-            Db.ApprenticeshipConfirmationStatus.Add(confirmationStatus);
-            Db.SaveChanges();
-            return this;
-        }
-
+        
         public EditApprenticeshipCommandHandlerTestsFixture SetEmailAddressConfirmedByApprentice()
         {
             var first = Db.Apprenticeships.First();

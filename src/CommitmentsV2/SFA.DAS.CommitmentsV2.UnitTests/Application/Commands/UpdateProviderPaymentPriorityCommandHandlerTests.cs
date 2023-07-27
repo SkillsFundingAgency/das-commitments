@@ -369,8 +369,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // this call is part of the DAS.SFA.UnitOfWork.Context.UnitOfWorkContext middleware in the API
             await Db.SaveChangesAsync();
-
-            return;
         }
 
         public void SetAccount(long accountId, long providerId, string accountName, int? priorityOrder)

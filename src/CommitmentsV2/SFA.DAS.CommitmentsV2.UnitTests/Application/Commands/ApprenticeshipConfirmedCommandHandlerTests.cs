@@ -94,7 +94,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
     public class ApprenticeshipConfirmedCommandHandlerTestsFixture : IDisposable
     {
-        public long ApprenticeshipId = 12;
         public Fixture DataFixture { get; set; }
         public ApprenticeshipConfirmationStatus ConfirmationStatusConfirmed { get; set; }
         public ApprenticeshipConfirmationStatus ConfirmationStatusUnconfirmed { get; set; }

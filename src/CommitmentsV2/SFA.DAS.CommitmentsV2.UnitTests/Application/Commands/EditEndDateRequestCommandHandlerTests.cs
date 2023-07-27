@@ -80,6 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                .Set(c => c.EmployerAccountId, 222)
                .Set(c => c.ProviderId, 333)
                .Set(c => c.AccountLegalEntity, new AccountLegalEntity());
+            
             var Apprenticeship = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
              .With(s => s.Cohort, Cohort)
              .With(s => s.PaymentStatus, PaymentStatus.Completed)

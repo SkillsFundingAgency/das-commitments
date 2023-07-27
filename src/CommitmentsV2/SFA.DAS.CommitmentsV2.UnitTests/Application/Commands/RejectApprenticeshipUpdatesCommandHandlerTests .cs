@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             HasOverlapErrors = false;
             UnitOfWorkContext = new UnitOfWorkContext();
 
-            var cohort = new CommitmentsV2.Models.Cohort()
+            var cohort = new Cohort()
                 .Set(c => c.Id, 111)
                 .Set(c => c.EmployerAccountId, 222)
                 .Set(c => c.ProviderId, 333)
@@ -147,7 +147,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 }
             };
 
-            ApprenticeshipDetails = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
+            ApprenticeshipDetails = fixture.Build<Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
              .With(s => s.Cohort, cohort)
              .With(s => s.PaymentStatus, PaymentStatus.Completed)
@@ -203,21 +203,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
         }
 
-        public async Task<RejectApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
+        private async Task<RejectApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
         {
             Db.Apprenticeships.Add(ApprenticeshipDetails);
 
             await Db.SaveChangesAsync();
             return this;
-        }
-
-        public ApprenticeshipUpdate GetApprenticeshipUpdate()
-        {
-            var apprenticeshipUpdate = new ApprenticeshipUpdate()
-           .Set(c => c.Id, 555)
-           .Set(c => c.ApprenticeshipId, ApprenticeshipId);
-
-            return apprenticeshipUpdate;
         }
 
         public async Task<RejectApprenticeshipUpdatesCommandHandlerTestsFixture> AddANewApprenticeshipUpdate(ApprenticeshipUpdate update)

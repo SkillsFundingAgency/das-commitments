@@ -288,7 +288,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(_fixture.proxyCurrentDateTime, list[0].ApprovedOn);
             Assert.AreEqual(apprenticeship.StartDate, list[0].StartDate);
             Assert.AreEqual(apprenticeship.EndDate, list[0].EndDate);
-            Assert.AreEqual(apprenticeship.ProgrammeType as SFA.DAS.CommitmentsV2.Types.ProgrammeType?, list[0].TrainingType);
+            Assert.AreEqual(apprenticeship.ProgrammeType as ProgrammeType?, list[0].TrainingType);
             Assert.AreEqual(apprenticeship.DeliveryModel, list[0].DeliveryModel);
             Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentEndDate, list[0].EmploymentEndDate);
             Assert.AreEqual(apprenticeship.FlexibleEmployment?.EmploymentPrice, list[0].EmploymentPrice);
@@ -367,13 +367,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public ApprenticeshipUpdate ApprenticeshipUpdate;
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
-        public Apprenticeship ApprenticeshipFromDb => 
-            Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
-        public PriceHistory PriceHistoryFromDb =>
-          Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).PriceHistory.First();
-        public ApprenticeshipUpdate ApprenticeshipUpdateFromDb =>
-          Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).ApprenticeshipUpdate.First();
-
+        public Apprenticeship ApprenticeshipFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
+        public PriceHistory PriceHistoryFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).PriceHistory.First();
         public Exception Exception { get; set; }
 
         public DateTime proxyCurrentDateTime = new DateTime(2020, 1, 1);
@@ -387,7 +382,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             HasOverlapErrors = false;
             UnitOfWorkContext = new UnitOfWorkContext();
 
-            var Cohort = new CommitmentsV2.Models.Cohort()
+            var Cohort = new Cohort()
                 .Set(c => c.Id, 111)
                 .Set(c => c.EmployerAccountId, 222)
                 .Set(c => c.ProviderId, 333)
@@ -407,7 +402,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 }
             };
 
-            ApprenticeshipDetails = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
+            ApprenticeshipDetails = fixture.Build<Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
              .With(s => s.Cohort, Cohort)
              .With(s => s.PaymentStatus, PaymentStatus.Completed)

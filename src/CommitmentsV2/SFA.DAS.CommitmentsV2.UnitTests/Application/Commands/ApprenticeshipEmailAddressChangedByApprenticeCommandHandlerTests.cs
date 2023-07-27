@@ -104,7 +104,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
     public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandlerTestsFixture : IDisposable
     {
-        public long ApprenticeshipId = 12;
         public Fixture DataFixture { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public IRequestHandler<ApprenticeshipEmailAddressChangedByApprenticeCommand> Handler { get; set; }

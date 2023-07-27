@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.VerifyOrganisationsAdded();
         }
 
-        public class UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture : IDisposable
+        private class UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture : IDisposable
         {
             private ProviderCommitmentsDbContext _db { get; set; }
             private UpdateCacheOfAssessmentOrganisationsCommandHandler _sut { get; set; }

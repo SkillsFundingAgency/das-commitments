@@ -89,22 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();
         }
-
-        public async Task CreateApprenticeship()
-        {
-            ApprenticeshipDetails = Fixture.Build<CommitmentsV2.Models.Apprenticeship>()
-                .With(s => s.Id, ApprenticeshipId)
-                .Without(s => s.PriceHistory)
-                .Without(s => s.ApprenticeshipUpdate)
-                .Without(s => s.DataLockStatus)
-                .Without(s => s.EpaOrg)
-                .Without(s => s.Continuation)
-                .Without(s => s.PreviousApprenticeship)
-                .Create();
-
-            await Db.SaveChangesAsync();
-        }
-
+        
         public AddHistoryCommand CreateAddHistoryCommand()
         {
             return Fixture.Build<AddHistoryCommand>().Create();

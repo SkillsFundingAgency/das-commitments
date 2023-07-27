@@ -107,12 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public ApprenticeshipUpdate ApprenticeshipUpdate;
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
-        public Apprenticeship ApprenticeshipFromDb => 
-            Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
-        public PriceHistory PriceHistoryFromDb =>
-          Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).PriceHistory.First();
-        public ApprenticeshipUpdate ApprenticeshipUpdateFromDb =>
-          Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).ApprenticeshipUpdate.First();
+        public Apprenticeship ApprenticeshipFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
 
         public Exception Exception { get; set; }
 
@@ -127,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             HasOverlapErrors = false;
             UnitOfWorkContext = new UnitOfWorkContext();
 
-            var Cohort = new CommitmentsV2.Models.Cohort()
+            var Cohort = new Cohort()
                 .Set(c => c.Id, 111)
                 .Set(c => c.EmployerAccountId, 222)
                 .Set(c => c.ProviderId, 333)
@@ -147,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 }
             };
 
-            ApprenticeshipDetails = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
+            ApprenticeshipDetails = fixture.Build<Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
              .With(s => s.Cohort, Cohort)
              .With(s => s.PaymentStatus, PaymentStatus.Completed)
@@ -203,7 +198,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
         }
 
-        public async Task<UndoApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
+        private async Task<UndoApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
         {
             Db.Apprenticeships.Add(ApprenticeshipDetails);
 

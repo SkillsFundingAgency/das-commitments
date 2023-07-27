@@ -31,7 +31,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         private Mock<ILogger<TriageDataLocksCommandHandler>> _logger;
         private IRequestHandler<TriageDataLocksCommand> _handler;
         private TriageDataLocksCommand _validCommand;
-        public UserInfo UserInfo;
         public Fixture _fixture;
         private UnitOfWorkContext _unitOfWorkContext { get; set; }
         private long _apprenticeshipId; 
@@ -64,6 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void TearDown()
         {
             _confirmationDbContext?.Dispose();
+            _dbContext?.Dispose();
         }
 
         [Test]

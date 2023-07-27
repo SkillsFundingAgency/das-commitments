@@ -66,16 +66,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             throw new NotImplementedException();
         }
-
-        public bool HasErrors => _logMessages.Any(l => l.logLevel == LogLevel.Error);
-        public bool HasInfo => _logMessages.Any(l => l.logLevel == LogLevel.Information);
     }
 
     public class AddCohortCommandHandlerTestFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
-
-        public Mock<Provider> Provider { get; set; }
 
         public AddCohortCommandHandlerTestFixture()
         {

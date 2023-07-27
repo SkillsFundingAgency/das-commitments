@@ -173,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
         }
 
-        public async Task<PriorLearningDetailsHandlerTestsFixture> SeedData()
+        private async Task<PriorLearningDetailsHandlerTestsFixture> SeedData()
         {
             Db.DraftApprenticeships.Add(ApprenticeshipDetails);
             await Db.SaveChangesAsync();
