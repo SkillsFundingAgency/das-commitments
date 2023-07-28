@@ -105,15 +105,38 @@ namespace SFA.DAS.CommitmentsV2.Extensions
 
         private static IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
+            if (draftApprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault())
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
-                yield break;
-            }
+                if (draftApprenticeshipDetails.TrainingPrice.HasValue && draftApprenticeshipDetails.TrainingPrice <= 0)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "Enter the training price");
+                    yield break;
+                }
 
-            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
+                if (draftApprenticeshipDetails.EndPointAssessmentPrice.HasValue && draftApprenticeshipDetails.EndPointAssessmentPrice <= 0)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), "Enter the end-point assessment price");
+                    yield break;
+                }
+
+                if (draftApprenticeshipDetails.TrainingPrice.GetValueOrDefault() + draftApprenticeshipDetails.EndPointAssessmentPrice.GetValueOrDefault() > Constants.MaximumApprenticeshipCost)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "Total price for training and end-point assessment cannot be more than £100,000");
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), " ");
+                }
+            }
+            else
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
+                if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
+                    yield break;
+                }
+
+                if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
+                }
             }
         }
 
