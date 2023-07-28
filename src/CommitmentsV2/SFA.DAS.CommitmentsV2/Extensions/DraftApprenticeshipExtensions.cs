@@ -107,22 +107,22 @@ namespace SFA.DAS.CommitmentsV2.Extensions
         {
             if (draftApprenticeshipDetails.IsOnFlexiPaymentPilot.GetValueOrDefault())
             {
-                if (draftApprenticeshipDetails.TrainingPrice.HasValue && draftApprenticeshipDetails.TrainingPrice <= 0)
-                {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "Enter the training price");
-                    yield break;
-                }
-
-                if (draftApprenticeshipDetails.EndPointAssessmentPrice.HasValue && draftApprenticeshipDetails.EndPointAssessmentPrice <= 0)
-                {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), "Enter the end-point assessment price");
-                    yield break;
-                }
-
                 if (draftApprenticeshipDetails.TrainingPrice.GetValueOrDefault() + draftApprenticeshipDetails.EndPointAssessmentPrice.GetValueOrDefault() > Constants.MaximumApprenticeshipCost)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "Total price for training and end-point assessment cannot be more than £100,000");
                     yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), " ");
+                    yield break;
+                }
+
+                if (draftApprenticeshipDetails.TrainingPrice.HasValue && draftApprenticeshipDetails.TrainingPrice <= 0)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "The Training Price must be in the range of 1-100000");
+                }
+
+                if (draftApprenticeshipDetails.EndPointAssessmentPrice.HasValue && draftApprenticeshipDetails.EndPointAssessmentPrice <= 0)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), "The End-Point Assessment Price must be in the range of 1-100000");
+                    yield break;
                 }
             }
             else
