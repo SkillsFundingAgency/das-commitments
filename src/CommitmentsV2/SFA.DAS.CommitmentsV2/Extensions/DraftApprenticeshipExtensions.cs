@@ -122,7 +122,6 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                 if (draftApprenticeshipDetails.EndPointAssessmentPrice.HasValue && draftApprenticeshipDetails.EndPointAssessmentPrice <= 0)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), "The End-Point Assessment Price must be in the range of 1-100000");
-                    yield break;
                 }
             }
             else
