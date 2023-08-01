@@ -425,12 +425,12 @@ namespace SFA.DAS.CommitmentsV2.Models
                 if (durationReducedByHours.Value < 1)
                 {
                     list.Add(new DomainError("DurationReducedByHours",
-                        "Total reduction in off-the-job training time due to RPL must be a number between 1 and {maximumTrainingTimeReduction}"));
+                        $"Total reduction in off-the-job training time due to RPL must be a number between 1 and {maximumTrainingTimeReduction}"));
                 }
                 else if (durationReducedByHours.Value > maximumTrainingTimeReduction)
                 {
                     list.Add(new DomainError("DurationReducedByHours",
-                        "Total reduction in off-the-job training time due to RPL must be {maximumTrainingTimeReduction} hours or less"));
+                        $"Total reduction in off-the-job training time due to RPL must be {maximumTrainingTimeReduction} hours or less"));
                 }
             }
 
