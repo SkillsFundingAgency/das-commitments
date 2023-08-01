@@ -241,7 +241,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .With(o => o.CohortId, Cohort.Id)
                 .Create();
 
-            RplSettingsConfiguration = new RplSettingsConfiguration {MinimumPriceReduction = 5, DurationReducedByHours = 9999};
+            RplSettingsConfiguration = new RplSettingsConfiguration {MinimumPriceReduction = 5, MaximumTrainingTimeReduction = 9999};
 
             Handler = new RecognisePriorLearningDataHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
