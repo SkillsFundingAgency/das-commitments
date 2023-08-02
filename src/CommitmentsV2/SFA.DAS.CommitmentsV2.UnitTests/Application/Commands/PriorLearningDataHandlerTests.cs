@@ -56,9 +56,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 e.ErrorMessage == error).Should().Be(true);
         }
 
-        [TestCase(0, "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999")]
-        [TestCase(-10, "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999")]
-        [TestCase(1000, "Total reduction in off-the-job training time due to RPL must be 999 hours or less")]
+        [TestCase(0, "Total reduction in off-the-job training time due to RPL must be a number between 1 and 9999")]
+        [TestCase(-10, "Total reduction in off-the-job training time due to RPL must be a number between 1 and 9999")]
+        [TestCase(10000, "Total reduction in off-the-job training time due to RPL must be 9999 hours or less")]
         public async Task Handle_WhenDurationReducedByHoursAreInvalid(int durationReducedByHours, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
@@ -162,7 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenRplData_is_Valid(bool isDurationReducedByRpl, int? durationReducedBy)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.TrainingTotalHours = 1000;
+            fixture.Command.TrainingTotalHours = 3000;
             fixture.Command.DurationReducedByHours = 180;
             fixture.Command.IsDurationReducedByRpl = isDurationReducedByRpl;
             fixture.Command.DurationReducedBy = durationReducedBy;
@@ -241,7 +241,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .With(o => o.CohortId, Cohort.Id)
                 .Create();
 
-            RplSettingsConfiguration = new RplSettingsConfiguration {MinimumPriceReduction = 5};
+            RplSettingsConfiguration = new RplSettingsConfiguration {MinimumPriceReduction = 5, MaximumTrainingTimeReduction = 9999};
 
             Handler = new RecognisePriorLearningDataHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
