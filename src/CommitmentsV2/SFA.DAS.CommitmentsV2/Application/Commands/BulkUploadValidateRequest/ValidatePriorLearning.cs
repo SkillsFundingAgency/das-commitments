@@ -72,6 +72,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             {
                 yield return new Error("PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be £100,000 or less.");
             }
+
+            // Check just in case they upload a new format file (and are not in the Pilot)
+            if (csvRecord.TrainingTotalHoursAsString != null ||
+                csvRecord.TrainingHoursReductionAsString != null ||
+                csvRecord.IsDurationReducedByRPLAsString != null)
+            {
+                yield return new Error("RecognisePriorLearning", "<b>New RPL data</b> should not be entered as you not on the RPL pilot.");
+            }
         }
     }
 }
