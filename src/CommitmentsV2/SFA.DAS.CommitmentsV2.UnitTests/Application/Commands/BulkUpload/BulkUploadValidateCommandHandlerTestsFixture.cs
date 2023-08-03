@@ -23,6 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.ProviderUrlHelper;
 using System.Linq;
+using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
@@ -38,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; set; }
         public OverlapCheckResult OverlapCheckResult { get; set; }
         public EmailOverlapCheckResult EmailOverlapCheckResult { get; set; }
+        public RplSettingsConfiguration RplSettingsConfig { get; set; }
         public bool IsAgreementSigned { get; set; } = true;
         public DraftApprenticeship DraftApprenticeship { get; private set; }
         public Cohort Cohort { get; set; }
@@ -95,6 +97,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
             ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
+            RplSettingsConfig = new RplSettingsConfiguration{ MinimumPriceReduction = 100, MaximumTrainingTimeReduction = 999 };
 
             Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
                 , new Lazy<ProviderCommitmentsDbContext>(() => Db)
@@ -102,6 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 , AcademicYearDateProvider.Object
                 , ProviderRelationshipsApiClient.Object
                 , EmployerAgreementService.Object 
+                , RplSettingsConfig
                 , _mockLinkGenerator.Object
                 );
         }
