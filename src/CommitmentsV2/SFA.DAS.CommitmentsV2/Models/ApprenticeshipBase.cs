@@ -83,8 +83,11 @@ namespace SFA.DAS.CommitmentsV2.Models
                     {
                         return true;
                     }
+                    if (PriorLearning?.IsDurationReducedByRpl != null)
+                    {
+                        return true;
+                    }
                 }
-
                 return false;
             }
         }
