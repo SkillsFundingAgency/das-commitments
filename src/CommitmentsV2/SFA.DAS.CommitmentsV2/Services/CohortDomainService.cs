@@ -42,6 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IAccountApiClient _accountApiClient;        
         private readonly IEmailOptionalService _emailService;
         private readonly ILevyTransferMatchingApiClient _levyTransferMatchingApiClient;
+        private readonly IRplFundingCalculationService _rplFundingCalculationService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -55,7 +56,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             IEncodingService encodingService,
             IAccountApiClient accountApiClient,            
             IEmailOptionalService emailOptionalService,
-            ILevyTransferMatchingApiClient levyTransferMatchingApiClient)
+            ILevyTransferMatchingApiClient levyTransferMatchingApiClient,
+            IRplFundingCalculationService rplFundingCalculationService)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -70,6 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _accountApiClient = accountApiClient;
             _emailService = emailOptionalService;
             _levyTransferMatchingApiClient = levyTransferMatchingApiClient;
+            _rplFundingCalculationService = rplFundingCalculationService;
         }
 
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, Party? requestingParty, CancellationToken cancellationToken)
@@ -168,9 +171,33 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             await ValidateUlnOverlap(cohort);
-
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
+            await CheckRplReductionErrors(cohort);
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
+        }
+
+        private async Task CheckRplReductionErrors(Cohort cohort)
+        {
+            foreach (var draftApprenticeship in cohort.DraftApprenticeships)
+            {
+                if (draftApprenticeship.RecognisePriorLearning != true) continue;
+
+                var rplCalculation = await _rplFundingCalculationService.GetRplFundingCalculations(
+                    draftApprenticeship.CourseCode,
+                    draftApprenticeship.StartDate,
+                    draftApprenticeship.PriorLearning?.DurationReducedByHours,
+                    draftApprenticeship.TrainingTotalHours,
+                    draftApprenticeship.PriorLearning?.PriceReducedBy,
+                    draftApprenticeship.PriorLearning?.IsDurationReducedByRpl,
+                    _dbContext.Value.StandardFundingPeriods,
+                    _dbContext.Value.FrameworkFundingPeriods
+                );
+
+                if (draftApprenticeship.PriorLearning != null && rplCalculation.RplPriceReductionError)
+                {
+                    throw new DomainException("RecognisePriorLearning", "Price reduction due to RPL below the minimum");
+                }
+            }
         }
 
         private async Task ValidateUlnOverlap(Cohort cohort)
