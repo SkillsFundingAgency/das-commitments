@@ -11,5 +11,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public int? WeightageReducedBy { get; set; }
         public string QualificationsForRplReduction { get; set; }
         public string ReasonForRplReduction { get; set; }
+        public bool? IsDurationReducedByRpl { get; set; }
     }
 }

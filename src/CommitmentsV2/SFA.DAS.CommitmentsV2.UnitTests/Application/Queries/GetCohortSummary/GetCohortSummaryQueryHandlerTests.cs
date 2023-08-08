@@ -306,19 +306,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         [TestCase("2022-07-01", null, null, null, null, null, null, AllowedApproval.BothCanApprove)]
         [TestCase("2022-08-01", null, null, null, null, null, null, AllowedApproval.CannotApprove)]
         [TestCase("2022-08-01", false, null, null, null, null, null, AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, 10, 100, 10, null, "Reason", AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, 10, 100, 10, "Quals", "Reason", AllowedApproval.BothCanApprove)]
-        [TestCase("2022-08-01", true, 10, null, 10, null, "Reason", AllowedApproval.CannotApprove)]
-        [TestCase("2022-08-01", true, 10, null, 10, null, "Reason", AllowedApproval.CannotApprove)]
-        [TestCase("2022-08-01", true, 10, 100, null, null, "Reason", AllowedApproval.CannotApprove)]
-        [TestCase("2022-08-01", true, 10, 100, 90, null, null, AllowedApproval.CannotApprove)]
-        [TestCase("2022-08-01", true, null, null, null, null, null, AllowedApproval.CannotApprove)]
-        public async Task Handle_WithApprenticeRPLExtendedConsidered_ShouldReturnExpectedProviderCanApprove(DateTime startDate, bool? recognisePriorLearning, int? durationReducedByHours, 
-            int? priceReducedBy, int? weightageReduction, string qualifications, string reason, AllowedApproval allowedApproval)
+        [TestCase("2022-08-01", true, 1000, 100, false, null, 1000, AllowedApproval.BothCanApprove)]
+        [TestCase("2022-08-01", true, 1000, null, false, null, 1000, AllowedApproval.CannotApprove)]
+        [TestCase("2022-08-01", true, 1000, 100, null, null, 1000, AllowedApproval.CannotApprove)]
+        [TestCase("2022-08-01", true, 1000, 100, true, null, 1000, AllowedApproval.CannotApprove)]
+        [TestCase("2022-08-01", true, 10, 100, true, 12, null, AllowedApproval.CannotApprove)]
+        public async Task Handle_WithApprenticeRPLExtendedConsidered_ShouldReturnExpectedProviderCanApprove(DateTime startDate, bool? recognisePriorLearning, int? trainingTotalHours,
+            int? durationReducedByHours, bool? isDurationBeingReduced, int? durationReducedBy, int? priceReducedBy, AllowedApproval allowedApproval)
         {
             Action<GetCohortSummaryHandlerTestFixtures> arrange = (f =>
             {
-                f.SetupRPLExtendedData(recognisePriorLearning, durationReducedByHours, priceReducedBy, weightageReduction, qualifications, reason);
+                f.SetupRPLExtendedData(recognisePriorLearning, trainingTotalHours, durationReducedByHours, isDurationBeingReduced, durationReducedBy, priceReducedBy);
             });
 
             var apprenticeDetails = new Fixture()
@@ -634,16 +632,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return this;
         }
 
-        public GetCohortSummaryHandlerTestFixtures SetupRPLExtendedData(bool? recognisePriorLearning, int? durationReducedByHours, int? priceReducedBy, int? weightageReduction, string qualifications, string reason)
+        public GetCohortSummaryHandlerTestFixtures SetupRPLExtendedData(bool? recognisePriorLearning, int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReduced, int? durationReducedBy, int? priceReducedBy)
         {
             var apprenticeship = SeedCohorts.First().Apprenticeships.First();
+            apprenticeship.TrainingTotalHours = trainingTotalHours;
             apprenticeship.RecognisePriorLearning = recognisePriorLearning;
             apprenticeship.PriorLearning = new ApprenticeshipPriorLearning();
-            apprenticeship.PriorLearning.PriceReducedBy = priceReducedBy;
             apprenticeship.PriorLearning.DurationReducedByHours = durationReducedByHours;
-            apprenticeship.PriorLearning.WeightageReducedBy = weightageReduction;
-            apprenticeship.PriorLearning.QualificationsForRplReduction = qualifications;
-            apprenticeship.PriorLearning.ReasonForRplReduction = reason;
+            apprenticeship.PriorLearning.IsDurationReducedByRpl = isDurationReduced;
+            apprenticeship.PriorLearning.DurationReducedBy = durationReducedBy;
+            apprenticeship.PriorLearning.PriceReducedBy = priceReducedBy;
 
             return this;
         }

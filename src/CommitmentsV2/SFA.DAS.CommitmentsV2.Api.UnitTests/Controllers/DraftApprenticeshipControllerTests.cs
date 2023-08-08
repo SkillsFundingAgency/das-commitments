@@ -18,6 +18,7 @@ using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails;
 using SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipPriorLearningSummary;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -149,6 +150,63 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             //Assert
             fixture.VerifyPriorLearningDetailsCommandIsMappedCorrectly();
         }
+
+        [Test]
+        public async Task Get_PriorLearningSummary_ShouldMapRouteParamsToCommandObject()
+        {
+            //Arrange
+            var fixture = new DraftApprenticeshipControllerTestsFixture();
+
+            //Act
+            await fixture.GetApprenticeshipPriorLearningSummary();
+
+            //Assert
+            fixture.VerifyGetPriorLearningSummaryIsMappedToQueryCorrectly();
+        }
+
+        [Test]
+        public async Task Get_PriorLearningSummary_ShouldReturnCorrectResponse()
+        {
+            //Arrange
+            var fixture = new DraftApprenticeshipControllerTestsFixture()
+                .WithGetDraftApprenticeshipPriorLearningSummaryQueryResponse();
+
+            var expected = fixture.GetDraftApprenticeshipPriorLearningSummaryQueryResult;
+
+            //Act
+            var response = await fixture.GetApprenticeshipPriorLearningSummary();
+
+            //Assert
+            Assert.IsTrue(response is OkObjectResult);
+            var okObjectResult = (OkObjectResult)response;
+            Assert.IsNotNull(okObjectResult);
+            var obj = okObjectResult.Value as GetDraftApprenticeshipPriorLearningSummaryResponse;
+            Assert.IsNotNull(obj);
+
+            Assert.AreEqual(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId, obj.ApprenticeshipId);
+            Assert.AreEqual(DraftApprenticeshipControllerTestsFixture.CohortId, obj.CohortId);
+            Assert.AreEqual(expected.TrainingTotalHours, obj.TrainingTotalHours);
+            Assert.AreEqual(expected.DurationReducedByHours, obj.DurationReducedByHours);
+            Assert.AreEqual(expected.PriceReducedBy, obj.PriceReducedBy);
+            Assert.AreEqual(expected.FundingBandMaximum, obj.FundingBandMaximum);
+            Assert.AreEqual(expected.PercentageOfPriorLearning, obj.PercentageOfPriorLearning);
+            Assert.AreEqual(expected.MinimumPercentageReduction, obj.MinimumPercentageReduction);
+            Assert.AreEqual(expected.MinimumPriceReduction, obj.MinimumPriceReduction);
+            Assert.AreEqual(expected.RplPriceReductionError, obj.RplPriceReductionError);
+        }
+
+        [Test]
+        public async Task Get_PriorLearningSummary_ShouldReturnNotFoundIfNoRpl()
+        {
+            //Arrange
+            var fixture = new DraftApprenticeshipControllerTestsFixture();
+
+            //Act
+            var response = await fixture.GetApprenticeshipPriorLearningSummary();
+
+            //Assert
+            Assert.IsTrue(response is NotFoundResult);
+        }
     }
 
     public class DraftApprenticeshipControllerTestsFixture
@@ -172,6 +230,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public Mock<IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse>> GetDraftApprenticeshipMapper { get; }
         public Mock<IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse>> GetDraftApprenticeshipsMapper { get; set; }
         public Mock<IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand>> DeleteDraftApprenticeshipMapper { get; set; }
+        public GetDraftApprenticeshipPriorLearningSummaryQuery GetDraftApprenticeshipPriorLearningSummaryQuery { get; set; }
+        public GetDraftApprenticeshipPriorLearningSummaryQueryResult GetDraftApprenticeshipPriorLearningSummaryQueryResult { get; set; }
 
         public const long CohortId = 123;
         public const long DraftApprenticeshipId = 456;
@@ -184,6 +244,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             AddDraftApprenticeshipMapper = new Mock<IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>>();
             GetDraftApprenticeshipsMapper = new Mock<IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse>>();
             DeleteDraftApprenticeshipMapper = new Mock<IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand>>();
+
+            GetDraftApprenticeshipPriorLearningSummaryQuery = new GetDraftApprenticeshipPriorLearningSummaryQuery(CohortId, DraftApprenticeshipId);
+            GetDraftApprenticeshipPriorLearningSummaryQueryResult = new GetDraftApprenticeshipPriorLearningSummaryQueryResult
+            {
+                TrainingTotalHours = 1000,
+                DurationReducedByHours = 100,
+                PriceReducedBy = 1300,
+                FundingBandMaximum = 20500,
+                PercentageOfPriorLearning = 55,
+                MinimumPercentageReduction = 4,
+                MinimumPriceReduction = 95,
+                RplPriceReductionError = true
+            };
 
             Controller = new DraftApprenticeshipController(
                 Mediator.Object,
@@ -201,7 +274,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             UpdateDraftApprenticeshipCommand = new UpdateDraftApprenticeshipCommand();
             UpdateDraftApprenticeshipMapper.Setup(m => m.Map(UpdateDraftApprenticeshipRequest)).ReturnsAsync(UpdateDraftApprenticeshipCommand);
             Mediator.Setup(m => m.Send(UpdateDraftApprenticeshipCommand, CancellationToken.None)).ReturnsAsync(new UpdateDraftApprenticeshipResponse { Id = CohortId, ApprenticeshipId = DraftApprenticeshipId });
-            
+
+            return this;
+        }
+
+        public DraftApprenticeshipControllerTestsFixture WithGetDraftApprenticeshipPriorLearningSummaryQueryResponse()
+        {
+            Mediator.Setup(m => m.Send(It.IsAny<GetDraftApprenticeshipPriorLearningSummaryQuery>(),
+                CancellationToken.None)).ReturnsAsync(GetDraftApprenticeshipPriorLearningSummaryQueryResult);
+
             return this;
         }
 
@@ -244,6 +325,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return this;
         }
 
+        public DraftApprenticeshipControllerTestsFixture VerifyGetPriorLearningSummaryIsMappedToQueryCorrectly()
+        {
+            Mediator.Verify(x => x.Send(It.Is<GetDraftApprenticeshipPriorLearningSummaryQuery>(p =>
+                p.CohortId == CohortId && p.DraftApprenticeshipId == DraftApprenticeshipId), It.IsAny<CancellationToken>()));
+            return this;
+        }
+
         public DraftApprenticeshipControllerTestsFixture WithGetDraftApprenticeshipCommandResponse()
         {
             Mediator.Setup(m => m.Send(It.Is<GetDraftApprenticeshipQuery>(x => x.CohortId == CohortId && x.DraftApprenticeshipId == DraftApprenticeshipId), CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeshipQueryResult{Id = DraftApprenticeshipId});
@@ -280,6 +368,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public Task<IActionResult> UpdatePriorLearningDetails()
         {
             return Controller.Update(CohortId, DraftApprenticeshipId, PriorLearningDetailsRequest);
+        }
+
+        public Task<IActionResult> GetApprenticeshipPriorLearningSummary()
+        {
+            return Controller.GetApprenticeshipPriorLearningSummary(CohortId, DraftApprenticeshipId);
         }
 
         public Task<IActionResult> Add()

@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
@@ -14,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/{providerId}/bulkupload")]
     public class BulkUploadController : ControllerBase
     {
