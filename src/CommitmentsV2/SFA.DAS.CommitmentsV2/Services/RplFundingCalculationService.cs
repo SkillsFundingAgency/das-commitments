@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private static bool AreRplFieldsAreComplete(int? trainingTotalHours, int? durationReducedByHours, int? priceReducedBy, bool? isDurationReducedByRpl)
         {
-            return !(trainingTotalHours.HasValue && durationReducedByHours.HasValue && priceReducedBy.HasValue && isDurationReducedByRpl.HasValue);
+            return (trainingTotalHours.HasValue && durationReducedByHours.HasValue && priceReducedBy.HasValue && isDurationReducedByRpl.HasValue);
         }
     }
 }
