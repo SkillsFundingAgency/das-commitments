@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -55,9 +56,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 e.ErrorMessage == error).Should().Be(true);
         }
 
-        [TestCase(0, "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999")]
-        [TestCase(-10, "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999")]
-        [TestCase(1000, "Total reduction in off-the-job training time due to RPL must be 999 hours or less")]
+        [TestCase(0, "Total reduction in off-the-job training time due to RPL must be a number between 1 and 9999")]
+        [TestCase(-10, "Total reduction in off-the-job training time due to RPL must be a number between 1 and 9999")]
+        [TestCase(10000, "Total reduction in off-the-job training time due to RPL must be 9999 hours or less")]
         public async Task Handle_WhenDurationReducedByHoursAreInvalid(int durationReducedByHours, string error)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
@@ -127,8 +128,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 e.ErrorMessage == error).Should().Be(true);
         }
 
-        [TestCase(99, "Total price reduction due to RPL must be 100 pounds or more")]
-        [TestCase(-1, "Total price reduction due to RPL must be 100 pounds or more")]
+        [TestCase(4, "Total price reduction due to RPL must be 5 pounds or more")]
+        [TestCase(-1, "Total price reduction due to RPL must be 5 pounds or more")]
         [TestCase(18001, "Total price reduction due to RPL must be 18,000 or less")]
         public async Task Handle_WhenPriceReducedIsInvalid_ExceptionIsThrown(int? priceReducedBy, string error)
         {
@@ -161,7 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenRplData_is_Valid(bool isDurationReducedByRpl, int? durationReducedBy)
         {
             fixture = new PriorLearningDataHandlerTestsFixture();
-            fixture.Command.TrainingTotalHours = 1000;
+            fixture.Command.TrainingTotalHours = 3000;
             fixture.Command.DurationReducedByHours = 180;
             fixture.Command.IsDurationReducedByRpl = isDurationReducedByRpl;
             fixture.Command.DurationReducedBy = durationReducedBy;
@@ -186,7 +187,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public IRequestHandler<PriorLearningDataCommand> Handler { get; set; }
         public UserInfo UserInfo { get; }
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
-
+        public RplSettingsConfiguration RplSettingsConfiguration { get; set; }
         public DraftApprenticeship DraftApprenticeshipFromDb => 
             Db.DraftApprenticeships.First(x => x.Id == ApprenticeshipId);
 
@@ -240,8 +241,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .With(o => o.CohortId, Cohort.Id)
                 .Create();
 
+            RplSettingsConfiguration = new RplSettingsConfiguration {MinimumPriceReduction = 5, MaximumTrainingTimeReduction = 9999};
+
             Handler = new RecognisePriorLearningDataHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
+                RplSettingsConfiguration,
                 Mock.Of<ILogger<RecognisePriorLearningDataHandler>>());
 
             var _ = SeedData().Result;
