@@ -5,7 +5,6 @@ using AutoFixture;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -31,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return TestAsync(
                 f => f.AddDraftApprenticeship(),
                 f => f.CohortDomainService.Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId,
-                    f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.Command.RequestingParty, f.CancellationToken)));
+                    f.Command.CohortId, f.DraftApprenticeshipDetails, f.UserInfo, f.Command.RequestingParty, f.LearnerVerificationResponse, f.CancellationToken)));
         }
 
         [Test]
@@ -57,12 +56,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<ICohortDomainService> CohortDomainService { get; set; }
         public IRequestHandler<AddDraftApprenticeshipCommand, AddDraftApprenticeshipResult> Handler { get; set; }
         public UserInfo UserInfo { get; }
+        public LearnerVerificationResponse LearnerVerificationResponse { get; }
 
         public AddDraftApprenticeshipCommandHandlerTestsFixture()
         {
             Fixture = new Fixture();
             DraftApprenticeshipDetails = Fixture.Build<DraftApprenticeshipDetails>()
-                .With(o => o.IgnoreStartDateOverlap,false)
+                .With(o => o.IgnoreStartDateOverlap, false)
                 .Create();
             DraftApprenticeship = new DraftApprenticeship().Set(a => a.Id, 123);
             CancellationToken = new CancellationToken();
@@ -74,8 +74,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             CohortDomainService = new Mock<ICohortDomainService>();
             DraftApprenticeshipDetailsMapper = new Mock<IOldMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
             UserInfo = Fixture.Create<UserInfo>();
+            LearnerVerificationResponse = Fixture.Create<LearnerVerificationResponse>();
 
-            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).Without(x => x.IgnoreStartDateOverlap).Create();
+            Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).With(o => o.LearnerVerificationResponse, LearnerVerificationResponse).Without(x => x.IgnoreStartDateOverlap).Create();
 
             Handler = new AddDraftApprenticeshipCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),
@@ -84,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 CohortDomainService.Object);
 
             CohortDomainService.Setup(s => s.AddDraftApprenticeship(Command.ProviderId, Command.CohortId,
-                DraftApprenticeshipDetails, Command.UserInfo, Command.RequestingParty, CancellationToken)).ReturnsAsync(DraftApprenticeship);
+                DraftApprenticeshipDetails, Command.UserInfo, Command.RequestingParty, Command.LearnerVerificationResponse, CancellationToken)).ReturnsAsync(DraftApprenticeship);
             DraftApprenticeshipDetailsMapper.Setup(m => m.Map(Command)).ReturnsAsync(DraftApprenticeshipDetails);
         }
 

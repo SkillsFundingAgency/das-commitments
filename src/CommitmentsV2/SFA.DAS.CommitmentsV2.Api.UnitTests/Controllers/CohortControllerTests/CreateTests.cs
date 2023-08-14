@@ -68,7 +68,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     c.Uln == Request.Uln &&
                     c.TransferSenderId == Request.TransferSenderId &&
                     c.PledgeApplicationId == Request.PledgeApplicationId &&
-                    c.UserInfo == Request.UserInfo), CancellationToken.None))
+                    c.UserInfo == Request.UserInfo &&
+                    c.IsOnFlexiPaymentPilot == Request.IsOnFlexiPaymentPilot &&
+                    c.LearnerVerificationResponse == Request.LearnerVerificationResponse), CancellationToken.None))
                 .ReturnsAsync(Result);
         }
 

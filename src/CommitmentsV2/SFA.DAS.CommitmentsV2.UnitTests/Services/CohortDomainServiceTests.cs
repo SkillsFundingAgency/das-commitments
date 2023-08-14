@@ -208,8 +208,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyException<BadRequestException>();
         }
 
-
-
         [Test]
         public async Task CreateCohortWithOtherParty_ThrowsBadRequest_WhenPledgeApplicationNotFound()
         {
@@ -219,7 +217,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _fixture.VerifyException<BadRequestException>();
         }
-
 
         [Test]
         public async Task CreateCohort_ThrowsBadRequest_WhenAccountIdDoesNotMatchAccountIdOnLegalEntity()
@@ -408,6 +405,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _fixture.WithParty(party).WithEmailOverlapWithApprenticeship(isApproved).CreateCohort();
             _fixture.VerifyEmailOverlapExceptionOnApprenticeship(isApproved);
         }
+
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task EmailOverlapOnApprenticeship_Validation_FindsNoOverlaps(Party party)
@@ -448,7 +446,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.WithExistingCohortApprovedByAllParties(Party.Employer);
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.AddDraftApprenticeship());
         }
-        
+
         [Test]
         public void UpdateDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
@@ -550,6 +548,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             Assert.AreEqual(0, _fixture.DomainErrors.Count);
         }
+
         [Test]
         public async Task ApproveCohort_WhenExtendedRPLIsRequiredAndRPLDataIsPresent_ShouldSuceed()
         {
@@ -616,7 +615,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .WithContinuation(overlap);
             await _fixture.UpdateDraftApprenticeship();
 
-            if(expectThrow)
+            if (expectThrow)
             {
                 _fixture.VerifyException<DomainException>();
             }
@@ -757,54 +756,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public class CohortDomainServiceTestFixture
         {
-            public DateTime Now { get; set; }
-            public CohortDomainService CohortDomainService { get; set; }
-            public ProviderCommitmentsDbContext Db { get; set; }
-            public long ProviderId { get; }
-            public long AccountId { get; }
-            public long TransferSenderId { get; }
-            public string TransferSenderName { get; }
-            public int? PledgeApplicationId { get; }
-            public long AccountLegalEntityId { get; }
-            public long CohortId { get; }
-            public Party RequestingParty { get; private set; }
-            public string AccountLegalEntityPublicHashedId { get; }
-            public long ChangeOfPartyRequestId { get; }
-            public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
-            public DraftApprenticeship ExistingDraftApprenticeship { get; }
-            public Apprenticeship PreviousApprenticeship { get; }
-            public long DraftApprenticeshipId { get; }
-            public Mock<ChangeOfPartyRequest> ChangeOfPartyRequest { get; }
-            public Account EmployerAccount { get; set; }
-            public Account TransferSenderAccount { get; set; }
-            public Mock<Provider> Provider { get; set; }
-            public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }
-            public Cohort Cohort { get; set; }
-            public Cohort NewCohort { get; set; }
-            public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
-            public Mock<IUlnValidator> UlnValidator { get; }
-            public Mock<IReservationValidationService> ReservationValidationService { get; }
-            public Mock<IEmployerAgreementService> EmployerAgreementService { get; }
-            public Mock<IEncodingService> EncodingService { get; }
-            private Mock<IOverlapCheckService> OverlapCheckService { get; }            
-            private Mock<IEmailOptionalService> EmailOptionalService { get; }
-            public Party Party { get; set; }
-            public Mock<IAuthenticationService> AuthenticationService { get; }
-            public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
-            public Mock<IAccountApiClient> AccountApiClient { get; set; }
-            public Mock<ILevyTransferMatchingApiClient> LevyTransferMatchingApiClient { get; set; }
-            public Mock<IFeatureTogglesService<FeatureToggle>> FeatureTogglesService { get; set; }
-            public PledgeApplication PledgeApplication { get; set; }
-            public List<TransferConnectionViewModel> TransferConnections { get; }
-
-            public Exception Exception { get; private set; }
-            public List<DomainError> DomainErrors { get; }
-            public string Message { get; private set; }
-            public UserInfo UserInfo { get; private set; }
-            public ApprenticeshipPriorLearning PriorLearning{ get; private set; }
-
-            public long MaLegalEntityId { get; private set; }
-
             public CohortDomainServiceTestFixture()
             {
                 Now = DateTime.UtcNow;
@@ -830,17 +781,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 Message = fixture.Create<string>();
 
-                NewCohort = new Cohort {Apprenticeships = new List<ApprenticeshipBase> {new DraftApprenticeship()}};
-                
-                Provider = new Mock<Provider>(()=> new Provider(ProviderId, "Test Provider", DateTime.UtcNow, DateTime.UtcNow));
+                NewCohort = new Cohort { Apprenticeships = new List<ApprenticeshipBase> { new DraftApprenticeship() } };
+
+                Provider = new Mock<Provider>(() => new Provider(ProviderId, "Test Provider", DateTime.UtcNow, DateTime.UtcNow));
                 Provider.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<AccountLegalEntity>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
                 Db.Providers.Add(Provider.Object);
 
                 EmployerAccount = new Account(AccountId, "AAAA", "BBBB", "Account 1", DateTime.UtcNow);
                 Db.Accounts.Add(EmployerAccount);
-                AccountLegalEntity = new Mock<AccountLegalEntity>(()=>
-                    new AccountLegalEntity(EmployerAccount,AccountLegalEntityId,MaLegalEntityId,"test","ABC","Test",OrganisationType.CompaniesHouse,"test",DateTime.UtcNow));
+                AccountLegalEntity = new Mock<AccountLegalEntity>(() =>
+                    new AccountLegalEntity(EmployerAccount, AccountLegalEntityId, MaLegalEntityId, "test", "ABC", "Test", OrganisationType.CompaniesHouse, "test", DateTime.UtcNow));
                 AccountLegalEntity.Setup(x => x.CreateCohort(ProviderId, It.IsAny<AccountLegalEntity>(), null, null,
                         It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
@@ -872,26 +823,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 TransferConnections = new List<TransferConnectionViewModel>
                     {new TransferConnectionViewModel {FundingEmployerAccountId = TransferSenderId}};
-                
 
                 DraftApprenticeshipId = fixture.Create<long>();
 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
-                   FirstName = "Test", LastName = "Test", DeliveryModel = DeliveryModel.Regular, IgnoreStartDateOverlap = false, IsOnFlexiPaymentPilot = false
+                    FirstName = "Test",
+                    LastName = "Test",
+                    DeliveryModel = DeliveryModel.Regular,
+                    IgnoreStartDateOverlap = false,
+                    IsOnFlexiPaymentPilot = false
                 };
 
-                ExistingDraftApprenticeship = new DraftApprenticeship {
-                        Id = DraftApprenticeshipId,
-                        CommitmentId = CohortId,
-                        FirstName = fixture.Create<string>(),
-                        LastName = fixture.Create<string>(),
-                        Uln = "4860364820",
-                        StartDate = DateTime.UtcNow,
-                        EndDate = DateTime.UtcNow.AddYears(1),
-                        CourseCode = fixture.Create<string>(),
-                        Cost = fixture.Create<int>(),
-                        IsOnFlexiPaymentPilot = false
+                ExistingDraftApprenticeship = new DraftApprenticeship
+                {
+                    Id = DraftApprenticeshipId,
+                    CommitmentId = CohortId,
+                    FirstName = fixture.Create<string>(),
+                    LastName = fixture.Create<string>(),
+                    Uln = "4860364820",
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddYears(1),
+                    CourseCode = fixture.Create<string>(),
+                    Cost = fixture.Create<int>(),
+                    IsOnFlexiPaymentPilot = false
                 };
                 ExistingDraftApprenticeship.SetValue(x => x.DateOfBirth, ExistingDraftApprenticeship.StartDate.Value.AddYears(-16));
 
@@ -922,7 +877,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 OverlapCheckService = new Mock<IOverlapCheckService>();
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new OverlapCheckResult(false,false));
+                    .ReturnsAsync(new OverlapCheckResult(false, false));
                 OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new List<EmailOverlapCheckResult>());
 
@@ -930,14 +885,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 EncodingService = new Mock<IEncodingService>();
 
                 AuthenticationService = new Mock<IAuthenticationService>();
-                
+
                 CurrentDateTime = new Mock<ICurrentDateTime>();
                 CurrentDateTime.Setup(d => d.UtcNow).Returns(Now);
 
                 AccountApiClient = new Mock<IAccountApiClient>();
                 AccountApiClient.Setup(x => x.GetTransferConnections(It.IsAny<string>()))
                     .ReturnsAsync(TransferConnections);
-                
+
                 EmailOptionalService = new Mock<IEmailOptionalService>();
 
                 PriorLearning = fixture.Create<ApprenticeshipPriorLearning>();
@@ -965,9 +920,56 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Db.SaveChanges();
             }
 
+            public DateTime Now { get; set; }
+            public CohortDomainService CohortDomainService { get; set; }
+            public ProviderCommitmentsDbContext Db { get; set; }
+            public long ProviderId { get; }
+            public long AccountId { get; }
+            public long TransferSenderId { get; }
+            public string TransferSenderName { get; }
+            public int? PledgeApplicationId { get; }
+            public long AccountLegalEntityId { get; }
+            public long CohortId { get; }
+            public Party RequestingParty { get; private set; }
+            public string AccountLegalEntityPublicHashedId { get; }
+            public long ChangeOfPartyRequestId { get; }
+            public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
+            public DraftApprenticeship ExistingDraftApprenticeship { get; }
+            public Apprenticeship PreviousApprenticeship { get; }
+            public long DraftApprenticeshipId { get; }
+            public Mock<ChangeOfPartyRequest> ChangeOfPartyRequest { get; }
+            public Account EmployerAccount { get; set; }
+            public Account TransferSenderAccount { get; set; }
+            public Mock<Provider> Provider { get; set; }
+            public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }
+            public Cohort Cohort { get; set; }
+            public Cohort NewCohort { get; set; }
+            public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
+            public Mock<IUlnValidator> UlnValidator { get; }
+            public Mock<IReservationValidationService> ReservationValidationService { get; }
+            public Mock<IEmployerAgreementService> EmployerAgreementService { get; }
+            public Mock<IEncodingService> EncodingService { get; }
+            public Party Party { get; set; }
+            public Mock<IAuthenticationService> AuthenticationService { get; }
+            public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
+            public Mock<IAccountApiClient> AccountApiClient { get; set; }
+            public Mock<ILevyTransferMatchingApiClient> LevyTransferMatchingApiClient { get; set; }
+            public Mock<IFeatureTogglesService<FeatureToggle>> FeatureTogglesService { get; set; }
+            public PledgeApplication PledgeApplication { get; set; }
+            public List<TransferConnectionViewModel> TransferConnections { get; }
+            public Exception Exception { get; private set; }
+            public List<DomainError> DomainErrors { get; }
+            public string Message { get; private set; }
+            public UserInfo UserInfo { get; private set; }
+            public LearnerVerificationResponse LearnerVerificationResponse { get; private set; }
+            public ApprenticeshipPriorLearning PriorLearning { get; private set; }
+            public long MaLegalEntityId { get; private set; }
+            private Mock<IOverlapCheckService> OverlapCheckService { get; }
+            private Mock<IEmailOptionalService> EmailOptionalService { get; }
+
             public CohortDomainServiceTestFixture WithPriorLearning()
             {
-                ExistingDraftApprenticeship.SetValue(x=>x.RecognisePriorLearning, true);
+                ExistingDraftApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
                 ExistingDraftApprenticeship.SetPriorLearningDetails(10, 100);
                 return this;
             }
@@ -1014,7 +1016,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-            public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType  programmeType = ProgrammeType.Standard)
+            public CohortDomainServiceTestFixture WithTrainingProgramme(ProgrammeType programmeType = ProgrammeType.Standard)
             {
                 DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme("TEST",
                   "TEST",
@@ -1161,7 +1163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Cohort = new Cohort
                 {
                     Id = CohortId,
-					WithParty =  withParty,
+                    WithParty = withParty,
                     Originator = creatingParty.ToOriginator(),
                     EditStatus = (withParty == Party.Employer || withParty == Party.Provider) ? withParty.ToEditStatus() : EditStatus.Both,
                     Provider = Provider.Object,
@@ -1172,8 +1174,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     TransferSenderId = null,
                 };
 
-                var cohorts = new List<Cohort> {Cohort};
-                
+                var cohorts = new List<Cohort> { Cohort };
+
                 Provider.Setup(x => x.Cohorts).Returns(cohorts);
                 AccountLegalEntity.Setup(x => x.Cohorts).Returns(cohorts);
 
@@ -1239,6 +1241,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 return this;
             }
+
             public CohortDomainServiceTestFixture WithExistingCohortApprovedByAllParties(Party creatingParty)
             {
                 WithCohortMappedToProviderAndAccountLegalEntity(creatingParty, Party.None);
@@ -1293,7 +1296,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-
             public CohortDomainServiceTestFixture WithOverlappingEmails()
             {
                 var f = new Fixture();
@@ -1302,7 +1304,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .ReturnsAsync(list);
                 return this;
             }
-            
+
             public void VerifyCheckForEmailOverlapsOnCohortIsCalledCorrectlyWhenApproving()
             {
                 OverlapCheckService.Verify(x => x.CheckForEmailOverlaps(CohortId, It.IsAny<CancellationToken>()));
@@ -1318,7 +1320,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DraftApprenticeshipDetails.DateOfBirth = ExistingDraftApprenticeship.DateOfBirth;
                 DraftApprenticeshipDetails.Uln = ExistingDraftApprenticeship.Uln;
                 DraftApprenticeshipDetails.StartDate = ExistingDraftApprenticeship.StartDate;
-                DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(ExistingDraftApprenticeship.CourseCode, "", ProgrammeType.Framework, Now,Now);
+                DraftApprenticeshipDetails.TrainingProgramme = new SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgramme(ExistingDraftApprenticeship.CourseCode, "", ProgrammeType.Framework, Now, Now);
 
                 if (overlap)
                 {
@@ -1361,7 +1363,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public CohortDomainServiceTestFixture WithAgreementSignedAs(bool signed)
             {
-                EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>(), 
+                EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>(),
                     It.IsAny<AgreementFeature[]>())).ReturnsAsync(signed);
                 return this;
             }
@@ -1379,19 +1381,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DomainErrors.Clear();
 
                 accountId = accountId ?? AccountId;
-                accountLegalEntityId = accountLegalEntityId ?? AccountLegalEntityId; 
+                accountLegalEntityId = accountLegalEntityId ?? AccountLegalEntityId;
 
                 try
                 {
                     var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value, transferSenderId, pledgeApplicationId,
-                        DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
+                        DraftApprenticeshipDetails, UserInfo, RequestingParty, LearnerVerificationResponse, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
                 catch (DomainException ex)
                 {
                     DomainErrors.AddRange(ex.DomainErrors);
-                    if(Db.Cohorts.Contains(Cohort)) {Db.Cohorts.Remove(Cohort);}
+                    if (Db.Cohorts.Contains(Cohort)) { Db.Cohorts.Remove(Cohort); }
                     return null;
                 }
                 catch (Exception ex)
@@ -1457,7 +1459,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
+                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, LearnerVerificationResponse, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)
@@ -1520,7 +1522,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, new CancellationToken());
+                    await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, RequestingParty, LearnerVerificationResponse, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)
@@ -1550,7 +1552,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p=>p == AccountLegalEntity.Object), null, null,
+                    Provider.Verify(x => x.CreateCohort(ProviderId, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null, null,
                         DraftApprenticeshipDetails, UserInfo));
                 }
 
@@ -1630,7 +1632,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyDraftApprenticeshipUpdated()
             {
-                var updated = Cohort.DraftApprenticeships.SingleOrDefault(x=>x.Id == DraftApprenticeshipId);
+                var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
 
                 Assert.IsNotNull(updated, "No draft apprenticeship record found");
                 Assert.AreEqual(updated.FirstName, DraftApprenticeshipDetails.FirstName);
@@ -1692,7 +1694,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                updated.PriorLearning?.WeightageReducedBy == DraftApprenticeshipDetails.WeightageReducedBy &&
                                updated.PriorLearning?.QualificationsForRplReduction == DraftApprenticeshipDetails.QualificationsForRplReduction &&
                                updated.PriorLearning?.ReasonForRplReduction == DraftApprenticeshipDetails.ReasonForRplReduction);
-
             }
 
             public void VerifyLastUpdatedFieldsAreSet(Party withParty)
@@ -1703,10 +1704,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         Assert.AreEqual(Cohort.LastUpdatedByEmployerName, UserInfo.UserDisplayName);
                         Assert.AreEqual(Cohort.LastUpdatedByEmployerEmail, UserInfo.UserEmail);
                         break;
+
                     case Party.Provider:
                         Assert.AreEqual(Cohort.LastUpdatedByProviderName, UserInfo.UserDisplayName);
                         Assert.AreEqual(Cohort.LastUpdatedByProviderEmail, UserInfo.UserEmail);
                         break;
+
                     default:
                         Assert.Fail("Party must be provider or Employer");
                         break;
@@ -1720,6 +1723,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.IsNull(Cohort.LastUpdatedByProviderName);
                 Assert.IsNull(Cohort.LastUpdatedByProviderEmail);
             }
+
             public void VerifyStartDateException(bool passes)
             {
                 if (passes)
@@ -1841,7 +1845,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyIsAgreementSignedIsCalledCorrectly()
             {
-                EmployerAgreementService.Verify(x => x.IsAgreementSigned(AccountId, MaLegalEntityId, 
+                EmployerAgreementService.Verify(x => x.IsAgreementSigned(AccountId, MaLegalEntityId,
                     It.IsAny<AgreementFeature[]>()));
             }
 

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -44,6 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 It.IsAny<DraftApprenticeshipDetails>(),
                 fixtures.UserInfo,
                 fixtures.RequestingParty,
+                It.IsAny<LearnerVerificationResponse>(),
                 It.IsAny<CancellationToken>()));
 
             Assert.AreEqual(expectedHash, response.Reference);
@@ -53,6 +53,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     public class TestLogger : ILogger<AddCohortHandler>
     {
         private readonly List<(LogLevel logLevel, Exception exception, string message)> _logMessages = new List<(LogLevel logLevel, Exception exception, string message)>();
+
+        public bool HasErrors => _logMessages.Any(l => l.logLevel == LogLevel.Error);
+
+        public bool HasInfo => _logMessages.Any(l => l.logLevel == LogLevel.Information);
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
@@ -68,17 +72,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             throw new NotImplementedException();
         }
-
-        public bool HasErrors => _logMessages.Any(l => l.logLevel == LogLevel.Error);
-        public bool HasInfo => _logMessages.Any(l => l.logLevel == LogLevel.Information);
     }
 
     public class AddCohortCommandHandlerTestFixture
     {
-        public ProviderCommitmentsDbContext Db { get; set; }
-
-        public Mock<Provider> Provider { get; set; }
-
         public AddCohortCommandHandlerTestFixture()
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
@@ -96,14 +93,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             commitment.Apprenticeships.Add(new DraftApprenticeship());
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
-            CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(), It.IsAny<int?>(),
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), It.IsAny<CancellationToken>()))
+            CohortDomainServiceMock
+                .Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(), It.IsAny<int?>(),
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), It.IsAny<LearnerVerificationResponse>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(commitment);
 
             Logger = new TestLogger();
             UserInfo = new UserInfo();
         }
 
+        public ProviderCommitmentsDbContext Db { get; set; }
+
+        public Mock<Provider> Provider { get; set; }
         public Mock<IEncodingService> EncodingServiceMock { get; }
         public IEncodingService EncodingService => EncodingServiceMock.Object;
 
@@ -113,6 +114,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public TestLogger Logger { get; }
         public UserInfo UserInfo { get; }
+        public LearnerVerificationResponse LearnerVerificationResponse { get; }
         public Party RequestingParty => Party.Provider;
 
         public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
@@ -127,13 +129,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, long? transferSenderId, int? pledgeApplicationId, string courseCode)
         {
             Db.SaveChanges();
-            
+
             var command = new AddCohortCommand(
                 RequestingParty,
                 accountId,
                 accountLegalEntity,
                 providerId,
-                courseCode, 
+                courseCode,
                 null,
                 null,
                 null,
@@ -152,7 +154,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 null,
                 UserInfo,
                 false,
-                false);
+                false,
+                LearnerVerificationResponse);
 
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 EncodingService,

@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task Map_WhenMapping_WithNoDate_VersionPropertiesNotSet()
         {
             return TestAsync(
-                f => f.MapNoDateAndNoVersionFields(), 
+                f => f.MapNoDateAndNoVersionFields(),
                 (f, r) =>
                 {
                     r.FirstName.Should().Be(f.Command.FirstName);
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task Map_WhenMappingWithDateAndStandardId_Then_UsesCalculatedTrainingProgramme()
         {
             return TestAsync(
-                f => f.MapWithStandard(), 
+                f => f.MapWithStandard(),
                 (f, r) =>
                 {
                     r.FirstName.Should().Be(f.Command.FirstName);
@@ -121,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task Map_WhenMappingWithNoCourse_Then_TrainingCourseVersionConfirmedIsFalse()
         {
             return TestAsync(
-                f => f.MapNoCourse(), 
+                f => f.MapNoCourse(),
                 (f, r) =>
                 {
                     r.FirstName.Should().Be(f.Command.FirstName);
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                 });
         }
     }
-    
+
     public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTestsFixture
     {
         public Fixture Fixture { get; set; }
@@ -177,7 +177,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command.CourseCode = Fixture.Create<int>().ToString();
             return Mapper.Map(Command);
         }
-        
+
         public Task<DraftApprenticeshipDetails> MapWithDate()
         {
             Command.StartDate = DateTime.Now;
