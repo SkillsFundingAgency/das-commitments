@@ -139,6 +139,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.Email, result.Email);
             Assert.AreEqual(source.DateOfBirth, result.DateOfBirth);
             Assert.AreEqual(source.Cost, result.Cost);
+            Assert.AreEqual(source.TrainingPrice, result.TrainingPrice);
+            Assert.AreEqual(source.EndPointAssessmentPrice, result.EndPointAssessmentPrice);
             Assert.AreEqual(source.StartDate, result.StartDate);
             Assert.AreEqual(source.ActualStartDate, result.ActualStartDate);
             Assert.AreEqual(source.EndDate, result.EndDate);
