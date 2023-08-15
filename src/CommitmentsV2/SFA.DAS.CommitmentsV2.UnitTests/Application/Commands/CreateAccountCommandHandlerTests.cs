@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount;
 using SFA.DAS.CommitmentsV2.Data;
@@ -43,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             Command = new CreateAccountCommand(1, "AAA111", "AAA222", "Foo", DateTime.UtcNow);
-            Handler = new CreateAccountCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
+            Handler = new CreateAccountCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Mock.Of<ILogger<CreateAccountCommandHandler>>());
         }
 
         public async Task Handle()
