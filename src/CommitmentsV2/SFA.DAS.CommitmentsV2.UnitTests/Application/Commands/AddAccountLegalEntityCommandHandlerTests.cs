@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Data;
@@ -63,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Command = new AddAccountLegalEntityCommand(Account.Id, 2, 202, "ALE123", "Foo",
                 OrganisationType.CompaniesHouse, "REFNo", "Address", DateTime.UtcNow);
 
-            Handler = new AddAccountLegalEntityCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
+            Handler = new AddAccountLegalEntityCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Mock.Of<ILogger<AddAccountLegalEntityCommandHandler>>());
         }
 
         public async Task Handle()
