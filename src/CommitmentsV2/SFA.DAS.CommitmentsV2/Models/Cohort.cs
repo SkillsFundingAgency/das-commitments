@@ -418,6 +418,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 Approvals = Party.None;
             }
+
+            if (existingDraftApprenticeship.HasEmployerChangedCostWhereProviderHasSetTotalAndEPAPrice(
+                    draftApprenticeshipDetails, modifyingParty))
+            {
+                draftApprenticeshipDetails.TrainingPrice = null;
+                draftApprenticeshipDetails.EndPointAssessmentPrice = null;
+            }
+
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
 
             UpdatedBy(modifyingParty, userInfo);

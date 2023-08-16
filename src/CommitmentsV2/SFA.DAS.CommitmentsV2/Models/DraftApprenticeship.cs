@@ -491,5 +491,16 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             return errors;
         }
+
+        public bool HasEmployerChangedCostWhereProviderHasSetTotalAndEPAPrice(DraftApprenticeshipDetails update, Party modifyingParty)
+        {
+            if (modifyingParty != Party.Employer)
+                return false;
+
+            if (!IsOnFlexiPaymentPilot.GetValueOrDefault())
+                return false;
+
+            return Cost != update.Cost;
+        }
     }
 }
