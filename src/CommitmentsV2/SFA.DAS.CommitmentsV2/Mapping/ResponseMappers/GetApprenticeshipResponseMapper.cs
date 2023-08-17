@@ -65,7 +65,9 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 DurationReducedByHours = source.ApprenticeshipPriorLearning?.DurationReducedByHours,
                 WeightageReducedBy = source.ApprenticeshipPriorLearning?.WeightageReducedBy,
                 QualificationsForRplReduction = source.ApprenticeshipPriorLearning?.QualificationsForRplReduction,
-                ReasonForRplReduction = source.ApprenticeshipPriorLearning?.ReasonForRplReduction
+                ReasonForRplReduction = source.ApprenticeshipPriorLearning?.ReasonForRplReduction,
+                TrainingTotalHours = source.TrainingTotalHours,
+                IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl
             });
         }
     }
