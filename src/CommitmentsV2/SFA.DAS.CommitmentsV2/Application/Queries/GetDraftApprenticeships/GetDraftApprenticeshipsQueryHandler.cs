@@ -37,6 +37,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     LastName = a.LastName,
                     Email = a.Email,
                     Cost = (int?) a.Cost,
+                    TrainingPrice = a.TrainingPrice,
+                    EndPointAssessmentPrice = a.EndPointAssessmentPrice,
                     CourseCode = a.CourseCode,
                     CourseName = a.CourseName,
                     DeliveryModel = a.DeliveryModel ?? DeliveryModel.Regular,
