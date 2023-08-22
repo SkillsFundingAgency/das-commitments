@@ -2,7 +2,7 @@ using System;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public partial class FileUpload
+    public partial class FileUploadLog
     {
 		public long Id { get; set; } 
 		public long? ProviderUkprn { get; set; } 
