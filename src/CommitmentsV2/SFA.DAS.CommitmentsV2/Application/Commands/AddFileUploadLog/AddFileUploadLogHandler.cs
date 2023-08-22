@@ -11,7 +11,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog
     public class AddFileUploadHandler : IRequestHandler<AddFileUploadLogCommand, AddFileUploadLogResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly IEncodingService _encodingService;
 
         public AddFileUploadHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext
@@ -25,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog
             var db = _dbContext.Value;
 
             var fileUploadLog = new FileUploadLog();
+            // 
 
             db.FileUploadLogs.Add(fileUploadLog);
             await db.SaveChangesAsync(cancellationToken);
