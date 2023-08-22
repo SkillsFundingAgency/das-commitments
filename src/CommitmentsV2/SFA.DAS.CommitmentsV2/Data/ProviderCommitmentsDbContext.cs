@@ -35,6 +35,9 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<OverlappingEmail> OverlappingEmails { get; set; }
         public virtual DbSet<Learner> Learners { get; set; }
         public virtual DbSet<OverlappingTrainingDateRequest> OverlappingTrainingDateRequests { get; set; }
+        public virtual DbSet<FileUploadLog> FileUploadLogs { get; set; }
+        public virtual DbSet<FileUploadCohortLog> FileUploadCohortLogs { get; set; }
+
         public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
         {
         }
