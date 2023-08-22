@@ -63,7 +63,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(null, true)]
         public void Validate_Cost_ShouldBeValidated(int? value, bool expectedValid)
         {
-            AssertValidationResult(request => request.Cost, value, expectedValid);
+            var updateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest
+            {
+                Cost = value,
+                IsOnFlexiPaymentPilot = false
+            };
+
+            if (expectedValid)
+            {
+                new UpdateDraftApprenticeshipRequestValidator().TestValidate(updateDraftApprenticeshipRequest).ShouldNotHaveValidationErrorFor(request => request.Cost);
+            }
+            else
+            {
+                new UpdateDraftApprenticeshipRequestValidator().TestValidate(updateDraftApprenticeshipRequest).ShouldHaveValidationErrorFor(request => request.Cost);
+            }
+        }
+
+        [TestCase(-1)]
+        [TestCase(0)]
+        public void Validate_Cost_ShouldNotBeValidatedInFlexiPaymentScenario(int? value)
+        {
+            var updateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest
+            {
+                Cost = value,
+                IsOnFlexiPaymentPilot = true
+            };
+
+            new UpdateDraftApprenticeshipRequestValidator().TestValidate(updateDraftApprenticeshipRequest).ShouldNotHaveValidationErrorFor(request => request.Cost);
         }
 
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX50", false)]
