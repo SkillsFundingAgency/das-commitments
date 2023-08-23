@@ -1,13 +1,13 @@
 ﻿CREATE TABLE [dbo].[FileUploadLog]
 (
     [Id] BIGINT NOT NULL PRIMARY KEY IDENTITY,
-    [ProviderId] BIGINT NOT NULL,
-    [FileName] NVARCHAR(100) NOT NULL,
+    [ProviderId] BIGINT NULL,
+    [FileName] NVARCHAR(100) NULL,
     [RplCount] INT NULL,
     [RowCount] INT NULL,
-    [ProviderAction] NVARCHAR(100) NOT NULL,  
-    [FileContent] NVARCHAR(MAX) NOT NULL,    
-    [CreatedOn] DateTime NOT NULL,
-    [CompletedOn] DateTime NULL,
-    [Error] NVARCHAR(MAX) NOT NULL
+    [ProviderAction] NVARCHAR(100) NULL,
+    [FileContent] NVARCHAR(MAX) NULL,
+    [CreatedOn] DATETIME2 NOT NULL DEFAULT GETDATE(), 
+    [CompletedOn] DATETIME2 NULL,
+    [Error] NVARCHAR(MAX) NULL
 )

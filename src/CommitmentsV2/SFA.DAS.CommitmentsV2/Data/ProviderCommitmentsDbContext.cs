@@ -85,6 +85,8 @@ namespace SFA.DAS.CommitmentsV2.Data
             modelBuilder.ApplyConfiguration(new FlexibleEmploymentConfiguration());           
             modelBuilder.ApplyConfiguration(new ApprenticeshipPriorLearningConfiguration());
             modelBuilder.ApplyConfiguration(new OverlappingTrainingDateRequestConfiguration());
+            modelBuilder.ApplyConfiguration(new FileUploadLogConfiguration());
+
         }
     }
 }

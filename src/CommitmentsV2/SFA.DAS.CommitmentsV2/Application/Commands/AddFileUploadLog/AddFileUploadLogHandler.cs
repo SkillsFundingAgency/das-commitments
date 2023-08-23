@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.Encoding;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,9 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public AddFileUploadHandler(
-            Lazy<ProviderCommitmentsDbContext> dbContext
-            )
+        public AddFileUploadHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
@@ -23,15 +20,22 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog
         {
             var db = _dbContext.Value;
 
-            var fileUploadLog = new FileUploadLog();
-            // 
+            var fileUploadLog = new FileUploadLog
+            {
+                ProviderId = command.ProviderId,
+                FileName = command.FileName,
+                RplCount = command.RplCount,
+                RowCount = command.RowCount,
+                FileContent = command.FileContent
+            };
+
 
             db.FileUploadLogs.Add(fileUploadLog);
             await db.SaveChangesAsync(cancellationToken);
 
             var response = new AddFileUploadLogResult
             {
-                Id = fileUploadLog.Id
+                LogId = fileUploadLog.Id
             };
 
             return response;

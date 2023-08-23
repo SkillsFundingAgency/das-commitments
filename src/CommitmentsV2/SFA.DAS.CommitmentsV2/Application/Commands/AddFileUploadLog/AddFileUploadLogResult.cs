@@ -2,6 +2,6 @@
 {
     public class AddFileUploadLogResult
     {
-        public long Id { get; set; }
+        public long LogId { get; set; }
     }
 }

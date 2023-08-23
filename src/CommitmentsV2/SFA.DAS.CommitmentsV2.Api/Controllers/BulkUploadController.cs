@@ -1,16 +1,17 @@
-﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -68,6 +69,25 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             result.BulkUploadValidationErrors.ThrowIfAny();
             return Ok(result);
         }
+
+        [HttpPost]
+        [Route("add-log")]
+        public async Task<IActionResult> AddLog([FromBody] AddFileUploadLogRequest request, CancellationToken cancellationToken = default)
+        {
+            var response = await _mediator.Send(new AddFileUploadLogCommand(
+                request.ProviderId,
+                request.FileName,
+                request.RplCount,
+                request.RowCount,
+                request.FileContent
+            ));
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
+        }
     }
 }
-

@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Models
     public partial class FileUploadLog
     {
 		public long Id { get; set; } 
-		public long? ProviderUkprn { get; set; } 
+		public long? ProviderId { get; set; } 
 		public string FileName { get; set; } 
 		public long? RplCount { get; set; } 
 		public long? RowCount { get; set; } 
