@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using System;
@@ -30,7 +29,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog
                 RowCount = command.RowCount,
                 FileContent = command.FileContent
             };
-
 
             db.FileUploadLogs.Add(fileUploadLog);
             await db.SaveChangesAsync(cancellationToken);
