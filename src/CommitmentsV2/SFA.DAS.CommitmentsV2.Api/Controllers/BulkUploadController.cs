@@ -74,20 +74,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("add-log")]
         public async Task<IActionResult> AddLog([FromBody] AddFileUploadLogRequest request, CancellationToken cancellationToken = default)
         {
-            var response = await _mediator.Send(new AddFileUploadLogCommand(
-                request.ProviderId,
-                request.FileName,
-                request.RplCount,
-                request.RowCount,
-                request.FileContent
-            ));
-
-            if (response == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(response);
+            var command = await _modelMapper.Map<AddFileUploadLogCommand>(request);
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
         }
     }
 }

@@ -2,10 +2,10 @@
 {
     public class AddFileUploadLogRequest : SaveDataRequest
     {
-        public long? ProviderId { get; }
-        public string FileName { get; }
-        public int? RplCount { get; }
-        public int? RowCount { get; }
-        public string FileContent { get; }
+        public long? ProviderId { get; set; }
+        public string FileName { get; set; }
+        public int? RplCount { get; set; }
+        public int? RowCount { get; set; }
+        public string FileContent { get; set; }
     }
 }

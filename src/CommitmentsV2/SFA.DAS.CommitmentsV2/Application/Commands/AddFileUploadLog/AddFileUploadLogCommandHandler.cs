@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using System;
@@ -7,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog
 {
-    public class AddFileUploadHandler : IRequestHandler<AddFileUploadLogCommand, AddFileUploadLogResult>
+    public class AddFileUploadCommandHandler : IRequestHandler<AddFileUploadLogCommand, BulkUploadAddLogResponse>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public AddFileUploadHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public AddFileUploadCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<AddFileUploadLogResult> Handle(AddFileUploadLogCommand command, CancellationToken cancellationToken)
+        public async Task<BulkUploadAddLogResponse> Handle(AddFileUploadLogCommand command, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
 
@@ -33,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog
             db.FileUploadLogs.Add(fileUploadLog);
             await db.SaveChangesAsync(cancellationToken);
 
-            var response = new AddFileUploadLogResult
+            var response = new BulkUploadAddLogResponse
             {
                 LogId = fileUploadLog.Id
             };
