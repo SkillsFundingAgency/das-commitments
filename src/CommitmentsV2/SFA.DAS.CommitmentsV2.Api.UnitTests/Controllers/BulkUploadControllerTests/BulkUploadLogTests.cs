@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.BulkUploadControllerTe
             private readonly BulkUploadController _controller;
 
             private readonly Fixture _autoFixture;
-            private readonly long _apprenticeshipId;
+            private readonly long _logId;
             private readonly AddFileUploadLogRequest _postRequest;
             private readonly AddFileUploadLogCommand _command;
 
@@ -54,13 +54,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.BulkUploadControllerTe
                 _mediator = new Mock<IMediator>();
                 _mapper = new Mock<IModelMapper>();
                 _autoFixture = new Fixture();
-                _apprenticeshipId = _autoFixture.Create<long>();
+                _logId = _autoFixture.Create<long>();
                 _postRequest = _autoFixture.Create<AddFileUploadLogRequest>();
 
                 _command = _autoFixture.Create<AddFileUploadLogCommand>();
 
                 _mapper.Setup(x => x.Map<AddFileUploadLogCommand>(_postRequest)).ReturnsAsync(() => _command);
-                _mediator.Setup(x => x.Send(_command, It.IsAny<CancellationToken>())).ReturnsAsync(() => new BulkUploadAddLogResponse { LogId = 1  });
+                _mediator.Setup(x => x.Send(_command, It.IsAny<CancellationToken>())).ReturnsAsync(() => new BulkUploadAddLogResponse { LogId = _logId });
                 _controller = new BulkUploadController(_mediator.Object, _mapper.Object, Mock.Of<ILogger<BulkUploadController>>());
             }
 

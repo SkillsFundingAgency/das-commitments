@@ -27,7 +27,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog
                 FileName = command.FileName,
                 RplCount = command.RplCount,
                 RowCount = command.RowCount,
-                FileContent = command.FileContent
+                FileContent = command.FileContent,
+                CreatedOn = DateTime.UtcNow
             };
 
             db.FileUploadLogs.Add(fileUploadLog);
