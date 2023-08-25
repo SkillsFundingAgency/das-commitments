@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes
                         ToDate = a.ToDate,
                         Cost = a.Cost,
                         TrainingPrice = a.TrainingPrice,
-                        EndPointAssessmentPrice = a.EndPointAssessmentPrice
+                        EndPointAssessmentPrice = a.AssessmentPrice
                     }).ToListAsync(cancellationToken)
             };
         }

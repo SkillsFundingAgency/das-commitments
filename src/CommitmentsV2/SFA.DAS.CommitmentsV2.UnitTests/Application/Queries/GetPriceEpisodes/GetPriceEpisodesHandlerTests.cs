@@ -98,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
             Assert.AreEqual(source.ToDate, result.ToDate);
             Assert.AreEqual(source.Cost, result.Cost);
             Assert.AreEqual(source.TrainingPrice, result.TrainingPrice);
-            Assert.AreEqual(source.EndPointAssessmentPrice, result.EndPointAssessmentPrice);
+            Assert.AreEqual(source.AssessmentPrice, result.EndPointAssessmentPrice);
         }
     }
 }

@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                             ToDate = p.ToDate,
                             Cost = p.Cost,
                             TrainingPrice = p.TrainingPrice,
-                            EndPointAssessmentPrice = p.EndPointAssessmentPrice
+                            EndPointAssessmentPrice = p.AssessmentPrice
                         })
                         .ToArray(),
                     ContinuationOfId = a.ContinuationOfId,

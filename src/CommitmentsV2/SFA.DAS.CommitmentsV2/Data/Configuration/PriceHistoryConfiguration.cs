@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         {
             builder.Property(e => e.Cost).HasColumnType("decimal(18, 0)");
             builder.Property(e => e.TrainingPrice).HasColumnType("decimal(18, 0)");
-            builder.Property(e => e.EndPointAssessmentPrice).HasColumnType("decimal(18, 0)");
+            builder.Property(e => e.AssessmentPrice).HasColumnType("decimal(18, 0)");
             builder.Property(e => e.FromDate).HasColumnType("datetime");
             builder.Property(e => e.ToDate).HasColumnType("datetime");
 
