@@ -23,10 +23,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             return TestAsync(f => f.Handle(), f =>
             {
-                f.Log.Id.Should().Be(1);
-                f.Log.ProviderId.Should().Be(1);
-                f.Log.RplCount.Should().Be(1);
-                f.Log.RowCount.Should().Be(1);
+                f.Log.Id.Should().Be(1024);
+                f.Log.ProviderId.Should().Be(2068);
+                f.Log.RplCount.Should().Be(10);
+                f.Log.RowCount.Should().Be(100);
                 f.Log.FileContent.Should().Be("contents");
                 f.Log.FileName.Should().Be("filename");
             });
