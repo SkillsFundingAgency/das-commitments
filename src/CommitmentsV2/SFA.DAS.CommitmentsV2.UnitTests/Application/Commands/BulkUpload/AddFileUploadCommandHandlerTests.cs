@@ -49,10 +49,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public AddFileUploadCommandHandlerTestsFixture()
         {
 
-            Id = 1;
-            ProviderId = 1;
-            RplCount = 1;
-            RowCount = 1;
+            Id = 1024;
+            ProviderId = 2068;
+            RplCount = 10;
+            RowCount = 100;
             FileContent = "contents";
             FileName = "filename";
 
