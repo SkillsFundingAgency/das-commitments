@@ -74,12 +74,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.BulkUploadControllerTe
                 _mapper.Verify(m => m.Map<AddFileUploadLogCommand>(_postRequest), Times.Once);
             }
 
-            public void WithErrors()
-            {
-                var errorResponse = _autoFixture.Create<BulkUploadAddLogResponse>();
-                _mediator.Setup(x => x.Send(_command, It.IsAny<CancellationToken>())).ReturnsAsync(() => errorResponse);
-            }
-
             public void VerifyCommandSend()
             {
                 _mediator.Verify(
