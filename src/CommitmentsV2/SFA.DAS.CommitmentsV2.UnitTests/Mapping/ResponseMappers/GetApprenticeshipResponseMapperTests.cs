@@ -114,5 +114,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         {
             Assert.AreEqual(_source.IsOnFlexiPaymentPilot, _result.IsOnFlexiPaymentPilot);
         }
+
+        [Test]
+        public void TrainingPriceIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.TrainingPrice, _result.TrainingPrice);
+        }
+
+        [Test]
+        public void EndPointAssessmentPriceIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.EndPointAssessmentPrice, _result.EndPointAssessmentPrice);
+        }
     }
 }
