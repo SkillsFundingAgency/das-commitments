@@ -59,5 +59,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public int? WeightageReducedBy { get; set; }
         public string QualificationsForRplReduction { get; set; }
         public string ReasonForRplReduction { get; set; }
+        public decimal? TrainingPrice { get; set; }
+        public decimal? EndpointAssessmentPrice { get; set; }
+        public string PriceChangeReason { get; set; }
     }
 }

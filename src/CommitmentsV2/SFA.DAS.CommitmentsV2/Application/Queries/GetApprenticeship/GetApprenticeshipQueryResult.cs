@@ -51,5 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public ApprenticeshipPriorLearning ApprenticeshipPriorLearning { get; set; }
         public long? TransferSenderId { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
+        public decimal? TrainingPrice { get; set; }
+        public decimal? EndPointAssessmentPrice { get; set; }
     }
 }
