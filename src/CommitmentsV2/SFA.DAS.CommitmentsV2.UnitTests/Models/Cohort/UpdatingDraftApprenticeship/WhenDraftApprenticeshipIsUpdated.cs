@@ -410,8 +410,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public UpdatingDraftApprenticeshipTestFixture WithEndDate()
             {
-                var dateTime = _referenceDate;
-                var nextYear = dateTime.AddYears(1);
+                var nextYear = _referenceDate.AddYears(1);
                 Cohort.Apprenticeships.ForEach(c => c.EndDate = nextYear);
                 return this;
             }
