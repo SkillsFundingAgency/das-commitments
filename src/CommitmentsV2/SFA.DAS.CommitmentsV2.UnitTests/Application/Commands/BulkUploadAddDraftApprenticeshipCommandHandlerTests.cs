@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task VerifyFileUploadLog_IsCompletedWithActionAndDate()
         {
             var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
-            await fixture.AddFileUploadLogToDb().Handle();
+            await fixture.WithLogId(8787).AddFileUploadLogToDb().Handle();
 
             fixture.VerifyFileUploadLogWasSavedCorrectly();
         }
@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task VerifyRecordSaveActionForFileUploadIsNotCalledWhenNoLogId()
         {
             var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
-            await fixture.WithoutLogId().Handle();
+            await fixture.Handle();
 
             Assert.IsFalse(fixture.DbContext.FileUploadLogs.Any()); ;
         }
@@ -118,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             CohortDomainService = new Mock<ICohortDomainService>();
             ReservationApiClient = new Mock<IReservationsApiClient>();
             ModelMapper = new Mock<IModelMapper>();
-            Command = AutoFixture.Create<BulkUploadAddDraftApprenticeshipsCommand>();
+            Command = AutoFixture.Build<BulkUploadAddDraftApprenticeshipsCommand>().Without(x=>x.LogId).Create();
             DbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                                  .Options);
@@ -165,9 +165,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithoutLogId()
+        internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithLogId(long n)
         {
-            Command.LogId = null;
+            Command.LogId = n;
             return this;
         }
 
