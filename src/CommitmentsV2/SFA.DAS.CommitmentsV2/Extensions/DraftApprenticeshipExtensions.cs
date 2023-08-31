@@ -109,12 +109,13 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             {
                 if (draftApprenticeshipDetails.TrainingPrice.GetValueOrDefault() + draftApprenticeshipDetails.EndPointAssessmentPrice.GetValueOrDefault() > Constants.MaximumApprenticeshipCost)
                 {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "Total price for training and end-point assessment cannot be more than £100,000");
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Total price for training and end-point assessment cannot be more than £100,000");
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), " ");
                     yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), " ");
                     yield break;
                 }
 
-                if (draftApprenticeshipDetails.TrainingPrice.HasValue && draftApprenticeshipDetails.TrainingPrice <= 0)
+                if (draftApprenticeshipDetails.TrainingPrice is <= 0)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "The Training Price must be in the range of 1-100000");
                 }
@@ -126,13 +127,13 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             }
             else
             {
-                if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
+                if (draftApprenticeshipDetails.Cost is <= 0)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
                     yield break;
                 }
 
-                if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
+                if (draftApprenticeshipDetails.Cost is > Constants.MaximumApprenticeshipCost)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
                 }
