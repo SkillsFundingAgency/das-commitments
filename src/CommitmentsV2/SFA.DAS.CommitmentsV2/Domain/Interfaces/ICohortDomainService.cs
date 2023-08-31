@@ -20,5 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
         Task<Cohort> DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken);
         Task<IEnumerable<Cohort>> AddDraftApprenticeships(List<DraftApprenticeshipDetails> draftApprenticeships, List<BulkUploadAddDraftApprenticeshipRequest> csvBulkUploadApprenticehips, long providerId, UserInfo userInfo, CancellationToken cancellationToken);
         Task ValidateDraftApprenticeshipForOverlappingTrainingDateRequest(long providerId, long? cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken);
+        Task RecordSaveActionForFileUpload(long fileUploadLogId, string action, IEnumerable<Cohort> cohorts, CancellationToken cancellationToken);
     }
 }

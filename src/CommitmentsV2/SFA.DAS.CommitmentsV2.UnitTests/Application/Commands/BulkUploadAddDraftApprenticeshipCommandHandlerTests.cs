@@ -77,6 +77,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             fixture.VerifyResponse(bulkUploadResponse);
         }
+
+        [Test]
+        public async Task VerifyRecordSaveActionForFileUploadIsCalled()
+        {
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
+            await fixture.WithData(1, "COHROT").Handle();
+
+            fixture.VerifyRecordSaveActionForFileUploadIsCalled();
+        }
+
+        [Test]
+        public async Task VerifyRecordSaveActionForFileUploadIsNotCalledWhenNoLogId()
+        {
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
+            await fixture.WithoutLogId().Handle();
+
+            fixture.VerifyRecordSaveActionForFileUploadIsCalled();
+        }
     }
 
     public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture
@@ -148,6 +166,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
+        internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithoutLogId()
+        {
+            Command.LogId = null;
+            return this;
+        }
+
         private Apprenticeship GenerateApprenticeshipDetails(Cohort cohort)
         {
             var ApprenticeshipDetails1 = AutoFixture.Build<Apprenticeship>()
@@ -174,6 +198,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         internal void VerifyMapperIsCalled()
         {
             ModelMapper.Verify(x => x.Map<List<DraftApprenticeshipDetails>>(Command), Times.Once);
+        }
+
+        internal void VerifyRecordSaveActionForFileUploadIsCalled()
+        {
+            CohortDomainService.Verify(x => x.RecordSaveActionForFileUpload(Command.LogId.Value, "SaveAsDraft", DbContext.Cohorts, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         internal void VerifyDraftApprenticeshipsAreAdded()

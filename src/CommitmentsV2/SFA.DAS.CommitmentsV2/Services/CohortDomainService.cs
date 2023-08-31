@@ -4,7 +4,6 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -22,8 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -96,6 +93,20 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var errors = draftApprenticeshipDetails.ValidateDraftApprenticeshipDetails(isContinuation, cohort?.TransferSenderId, cohort?.Apprenticeships);
             errors.ThrowIfAny();
+        }
+
+        public async Task RecordSaveActionForFileUpload(long fileUploadLogId, string action, IEnumerable<Cohort> cohorts,
+            CancellationToken cancellationToken)
+        {
+            var db = _dbContext.Value;
+            var fileUploadLog = db.FileUploadLogs.First(x => x.Id.Equals(fileUploadLogId));
+            fileUploadLog.ProviderAction = action;
+            fileUploadLog.CompletedOn = DateTime.UtcNow;
+            foreach (var cohort in cohorts)
+            {
+                fileUploadLog.CohortLogs.Add(new FileUploadCohortLog { CommitmentId = cohort.Id, RowCount = cohort.DraftApprenticeshipCount });
+            }
+            await db.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<Cohort>> AddDraftApprenticeships(List<DraftApprenticeshipDetails> draftApprenticeships, List<BulkUploadAddDraftApprenticeshipRequest> csvBulkUploadApprenticehips, long providerId, UserInfo userInfo, CancellationToken cancellationToken)

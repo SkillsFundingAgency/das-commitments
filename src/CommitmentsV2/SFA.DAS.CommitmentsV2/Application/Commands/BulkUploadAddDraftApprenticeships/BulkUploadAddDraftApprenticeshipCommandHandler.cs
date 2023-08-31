@@ -52,6 +52,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
 
             await UpdateCohortReferences(cohorts);
 
+            if (request.LogId != null)
+            {
+                await _cohortDomainService.RecordSaveActionForFileUpload(request.LogId.Value, "SaveAsDraft", cohorts, cancellationToken);
+            }
+
             var cohortSummaryForBulkUpload = cohorts.Select(cohort => new BulkUploadAddDraftApprenticeshipsResponse
             {
                 CohortReference = cohort.Reference,

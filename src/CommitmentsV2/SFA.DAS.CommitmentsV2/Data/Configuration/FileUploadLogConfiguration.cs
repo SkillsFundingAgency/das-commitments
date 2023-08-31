@@ -8,9 +8,13 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<FileUploadLog> builder)
         {
-            builder
-                .ToTable("FileUploadLog")
+            builder.ToTable("FileUploadLog")
                 .HasKey("Id");
+
+            builder.HasMany(d => d.CohortLogs)
+                .WithOne(x => x.FileUploadLog)
+                .HasForeignKey(x => x.FileUploadLogId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

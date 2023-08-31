@@ -160,5 +160,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
                 _source.UserInfo.UserEmail == _result.UserInfo.UserEmail &&
                 _source.UserInfo.UserId == _result.UserInfo.UserId);
         }
+
+        [Test]
+        public void LogIdIsMappedCorrectly()
+        {
+            Assert.IsTrue(_source.LogId == _result.LogId);
+        }
     }
 }
