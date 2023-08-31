@@ -166,5 +166,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
         {
             Assert.IsTrue(_source.LogId == _result.LogId);
         }
+
+        [Test]
+        public void ProviderActionIsCreatedCorrectly()
+        {
+            Assert.IsTrue("SaveAsDraft" == _result.ProviderAction);
+        }
     }
 }

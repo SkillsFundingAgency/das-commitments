@@ -23,7 +23,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -79,12 +78,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task VerifyRecordSaveActionForFileUploadIsCalled()
+        public async Task VerifyFileUploadLog_IsCompletedWithActionAndDate()
         {
             var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
-            await fixture.WithData(1, "COHROT").Handle();
+            await fixture.AddFileUploadLogToDb().Handle();
 
-            fixture.VerifyRecordSaveActionForFileUploadIsCalled();
+            fixture.VerifyFileUploadLogWasSavedCorrectly();
         }
 
         [Test]
@@ -93,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
             await fixture.WithoutLogId().Handle();
 
-            fixture.VerifyRecordSaveActionForFileUploadIsCalled();
+            Assert.IsFalse(fixture.DbContext.FileUploadLogs.Any()); ;
         }
     }
 
@@ -172,6 +171,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
+        internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture AddFileUploadLogToDb()
+        {
+            DbContext.FileUploadLogs.Add(new FileUploadLog {Id = Command.LogId.Value});
+            return this;
+        }
+
         private Apprenticeship GenerateApprenticeshipDetails(Cohort cohort)
         {
             var ApprenticeshipDetails1 = AutoFixture.Build<Apprenticeship>()
@@ -200,9 +205,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             ModelMapper.Verify(x => x.Map<List<DraftApprenticeshipDetails>>(Command), Times.Once);
         }
 
-        internal void VerifyRecordSaveActionForFileUploadIsCalled()
+        internal void VerifyFileUploadLogWasSavedCorrectly()
         {
-            CohortDomainService.Verify(x => x.RecordSaveActionForFileUpload(Command.LogId.Value, "SaveAsDraft", DbContext.Cohorts, It.IsAny<CancellationToken>()), Times.Once);
+            var log = DbContext.FileUploadLogs.FirstOrDefault(x => x.Id.Equals(Command.LogId.Value));
+            Assert.IsNotNull(log);
+            Assert.AreEqual(Command.ProviderAction, log.ProviderAction);
+            Assert.IsNotNull(log.CreatedOn);
+            Assert.AreEqual(DbContext.Cohorts.Count(), log.CohortLogs.Count);
         }
 
         internal void VerifyDraftApprenticeshipsAreAdded()

@@ -11,6 +11,8 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships
 {
@@ -54,7 +56,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprentic
 
             if (request.LogId != null)
             {
-                await _cohortDomainService.RecordSaveActionForFileUpload(request.LogId.Value, "SaveAsDraft", cohorts, cancellationToken);
+                var fileUploadLog = _providerDbContext.FileUploadLogs.First(x => x.Id.Equals(request.LogId.Value));
+                fileUploadLog.ProviderAction = request.ProviderAction;
+                fileUploadLog.CompletedOn = DateTime.UtcNow;
+                foreach (var cohort in cohorts)
+                {
+                    fileUploadLog.CohortLogs.Add(new FileUploadCohortLog { CommitmentId = cohort.Id, RowCount = cohort.DraftApprenticeshipCount });
+                }
             }
 
             var cohortSummaryForBulkUpload = cohorts.Select(cohort => new BulkUploadAddDraftApprenticeshipsResponse
