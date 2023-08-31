@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using NServiceBus.Logging;
+using NServiceBus.Persistence.Sql;
+using Polly;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.ProviderRelationships.Api.Client;
 using SFA.DAS.ProviderUrlHelper;
+using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
@@ -30,10 +39,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
         private Dictionary<string, Models.Cohort> _cachedCohortDetails;
         private readonly ILinkGenerator _urlHelper;
-
+        private readonly IDbContextFactory _dbContextFactory;
 
         public long ProviderId { get; set; }
         public bool RplDataExtended { get; set; }
+        public long? LogId { get; set; }
 
         public BulkUploadValidateCommandHandler(
             ILogger<BulkUploadValidateCommandHandler> logger,
@@ -43,7 +53,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             IProviderRelationshipsApiClient providerRelationshipsApiClient,
             IEmployerAgreementService employerAgreementService,
             RplSettingsConfiguration rplConfig,
-            ILinkGenerator urlHelper)
+            ILinkGenerator urlHelper,
+            IDbContextFactory dbContextFactory
+            )
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -55,11 +67,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _rplConfig = rplConfig;
             _cachedCohortDetails = new Dictionary<string, Models.Cohort>();
             _urlHelper = urlHelper;
+            _dbContextFactory = dbContextFactory;
         }
 
         public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
         {
             ProviderId = command.ProviderId;
+            LogId = command.LogId;
             RplDataExtended = command.RplDataExtended;
             var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
             _csvRecords = command.CsvRecords.ToList();
@@ -87,10 +101,29 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
                 }
             }
 
+            await Log(command.LogId.Value, bulkUploadValidationErrors);
+
             return new BulkUploadValidateApiResponse
             {
                 BulkUploadValidationErrors = bulkUploadValidationErrors
             };
+        }
+
+        private async Task Log(long? logId, List<BulkUploadValidationError> errors)
+        {
+            // Close db connection and create transaction else throw will dispose 
+            var db = _dbContextFactory.CreateDbContext();
+            db.Database.CurrentTransaction.Commit();
+
+            var transaction = db.Database.BeginTransaction();
+            var fileUploadLog = await db.FileUploadLogs.FirstAsync(a => a.Id == logId);
+
+            if (fileUploadLog != null)
+            {
+                fileUploadLog.Error = JsonConvert.SerializeObject(errors);
+                await db.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
         }
 
         private async Task AddError(List<BulkUploadValidationError> bulkUploadValidationErrors, BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
