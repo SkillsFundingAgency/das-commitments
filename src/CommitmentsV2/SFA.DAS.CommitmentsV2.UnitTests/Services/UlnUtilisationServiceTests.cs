@@ -194,10 +194,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .Setup(x => x.CreateDbContext())
                 .Returns(_dbContext);
 
-            var mockTrx = new Mock<IDbTransaction>();
-            mockTrx.Setup(txn => txn.Connection.CreateCommand()).Returns(new SqlCommand());
-
-
             _sut = new UlnUtilisationService(_iDbContextFactoryMock.Object);
         }
 
