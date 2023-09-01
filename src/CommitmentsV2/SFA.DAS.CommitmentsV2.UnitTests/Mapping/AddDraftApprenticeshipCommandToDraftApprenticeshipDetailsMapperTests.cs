@@ -29,6 +29,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.LastName.Should().Be(f.Command.LastName);
                     r.Uln.Should().Be(f.Command.Uln);
                     r.Cost.Should().Be(f.Command.Cost);
+                    r.TrainingPrice.Should().Be(f.Command.TrainingPrice);
+                    r.EndPointAssessmentPrice.Should().Be(f.Command.EndPointAssessmentPrice);
                     r.StartDate.Should().Be(f.Command.StartDate);
                     r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
                     r.EndDate.Should().Be(f.Command.EndDate);
