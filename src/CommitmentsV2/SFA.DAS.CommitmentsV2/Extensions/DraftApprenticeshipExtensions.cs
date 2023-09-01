@@ -133,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     yield break;
                 }
 
-                if (draftApprenticeshipDetails.Cost is > Constants.MaximumApprenticeshipCost)
+                if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
                 }
