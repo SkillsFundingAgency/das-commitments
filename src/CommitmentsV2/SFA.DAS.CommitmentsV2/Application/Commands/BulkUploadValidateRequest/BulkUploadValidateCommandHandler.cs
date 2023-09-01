@@ -1,28 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using NServiceBus.Logging;
-using NServiceBus.Persistence.Sql;
-using Polly;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.ProviderRelationships.Api.Client;
 using SFA.DAS.ProviderUrlHelper;
-using StructureMap;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
@@ -113,11 +105,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         {
             // Close db connection and create transaction else throw will dispose 
             var db = _dbContextFactory.CreateDbContext();
-            var fileUploadLog = await db.FileUploadLogs.FirstAsync(a => a.Id == logId);
+            var fileUploadLog = await db.FileUploadLogs.FirstOrDefaultAsync(a => a.Id == logId);
 
             if (fileUploadLog != null)
             {
-                db.Database.CurrentTransaction.Commit();
+                db.Database.CurrentTransaction?.Commit();
                 var transaction = db.Database.BeginTransaction();
                 fileUploadLog.Error = JsonConvert.SerializeObject(errors);
                 await db.SaveChangesAsync();

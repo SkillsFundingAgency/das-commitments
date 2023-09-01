@@ -6,6 +6,8 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using System;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -191,6 +193,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _iDbContextFactoryMock
                 .Setup(x => x.CreateDbContext())
                 .Returns(_dbContext);
+
+            var mockTrx = new Mock<IDbTransaction>();
+            mockTrx.Setup(txn => txn.Connection.CreateCommand()).Returns(new SqlCommand());
+
 
             _sut = new UlnUtilisationService(_iDbContextFactoryMock.Object);
         }

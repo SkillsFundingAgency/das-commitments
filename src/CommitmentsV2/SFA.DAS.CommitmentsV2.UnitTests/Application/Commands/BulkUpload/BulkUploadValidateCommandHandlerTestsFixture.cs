@@ -24,6 +24,8 @@ using System.Threading.Tasks;
 using SFA.DAS.ProviderUrlHelper;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Services;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
@@ -43,19 +45,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public bool IsAgreementSigned { get; set; } = true;
         public DraftApprenticeship DraftApprenticeship { get; private set; }
         public Cohort Cohort { get; set; }
+        protected Mock<IDbContextFactory> _iDbContextFactoryMock;
         protected Mock<ILinkGenerator> _mockLinkGenerator;
         public const long ProviderId = 333;
+        public const long LogId = 1234;
 
         public BulkUploadValidateCommandHandlerTestsFixture(bool rplDataExtended = false)
         {
             _mockLinkGenerator = new Mock<ILinkGenerator>();
+
             CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
             PopulateCsvRecord();
             Command = new BulkUploadValidateCommand()
             {
                 CsvRecords = CsvRecords,
                 ProviderId = ProviderId,
-                RplDataExtended = rplDataExtended
+                RplDataExtended = rplDataExtended,
+                LogId = LogId
             };
 
             Command.ProviderStandardResults.Standards = new List<ProviderStandard> { new ProviderStandard("123", "123") };
@@ -92,12 +98,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                                  .Options);
-             SetupDbData();            
 
             ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
             ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
             RplSettingsConfig = new RplSettingsConfiguration{ MinimumPriceReduction = 100, MaximumTrainingTimeReduction = 999 };
+
+            _iDbContextFactoryMock = new Mock<IDbContextFactory>();
+            _iDbContextFactoryMock
+                .Setup(x => x.CreateDbContext())
+                .Returns(Db);
+
+            SetupDbData();
 
             Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
                 , new Lazy<ProviderCommitmentsDbContext>(() => Db)
@@ -107,6 +120,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 , EmployerAgreementService.Object 
                 , RplSettingsConfig
                 , _mockLinkGenerator.Object
+                , _iDbContextFactoryMock.Object
                 );
         }
 
@@ -148,6 +162,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                .Set(d => d.CourseName, "coursename");
             Cohort.Apprenticeships.Add(draftApprenticeship);
 
+            var log = new FileUploadLog()
+                .Set(x => x.Id, 1234);
+
+            Db.FileUploadLogs.Add(log);
             Db.Cohorts.Add(Cohort);            
             Db.Standards.Add(standard);            
             Db.SaveChanges();
