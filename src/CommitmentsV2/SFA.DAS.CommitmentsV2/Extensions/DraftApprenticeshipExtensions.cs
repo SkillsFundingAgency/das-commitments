@@ -115,7 +115,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     yield break;
                 }
 
-                if (draftApprenticeshipDetails.TrainingPrice is <= 0)
+                if (draftApprenticeshipDetails.TrainingPrice.HasValue && draftApprenticeshipDetails.TrainingPrice <= 0)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "The Training Price must be in the range of 1-100000");
                 }
@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             }
             else
             {
-                if (draftApprenticeshipDetails.Cost is <= 0)
+                if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
                     yield break;
