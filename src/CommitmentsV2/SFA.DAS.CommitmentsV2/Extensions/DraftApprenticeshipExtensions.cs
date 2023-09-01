@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             }
             else
             {
-                if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
+                if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
                     yield break;
