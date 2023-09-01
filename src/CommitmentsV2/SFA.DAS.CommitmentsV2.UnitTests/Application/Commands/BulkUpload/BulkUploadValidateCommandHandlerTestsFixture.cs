@@ -26,6 +26,8 @@ using System.Linq;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Services;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Polly;
+using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
@@ -46,6 +48,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public DraftApprenticeship DraftApprenticeship { get; private set; }
         public Cohort Cohort { get; set; }
         protected Mock<IDbContextFactory> _iDbContextFactoryMock;
+        public ProviderCommitmentsDbContext TransactionDbContext { get; set; }
+
         protected Mock<ILinkGenerator> _mockLinkGenerator;
         public const long ProviderId = 333;
         public const long LogId = 1234;
@@ -98,7 +102,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                 .Options);
+
+            TransactionDbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                                .EnableSensitiveDataLogging()
                                  .Options);
 
             ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
@@ -108,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             _iDbContextFactoryMock = new Mock<IDbContextFactory>();
             _iDbContextFactoryMock
                 .Setup(x => x.CreateDbContext())
-                .Returns(Db);
+                .Returns(TransactionDbContext);
 
             SetupDbData();
 
@@ -161,14 +170,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                .Set(d => d.EndDate, new DateTime(2022, 10, 1))
                .Set(d => d.CourseName, "coursename");
             Cohort.Apprenticeships.Add(draftApprenticeship);
+            
+            Db.Cohorts.Add(Cohort);            
+            Db.Standards.Add(standard);            
+            Db.SaveChanges();
 
             var log = new FileUploadLog()
                 .Set(x => x.Id, 1234);
 
-            Db.FileUploadLogs.Add(log);
-            Db.Cohorts.Add(Cohort);            
-            Db.Standards.Add(standard);            
-            Db.SaveChanges();
+            TransactionDbContext.FileUploadLogs.Add(log);
+            TransactionDbContext.SaveChanges();
         }        
 
         internal async Task<Standard> GetStandard()

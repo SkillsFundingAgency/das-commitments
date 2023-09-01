@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Polly;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -105,6 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         {
             // Close db connection and create transaction else throw will dispose 
             var db = _dbContextFactory.CreateDbContext();
+
             var fileUploadLog = await db.FileUploadLogs.FirstOrDefaultAsync(a => a.Id == logId);
 
             if (fileUploadLog != null)
