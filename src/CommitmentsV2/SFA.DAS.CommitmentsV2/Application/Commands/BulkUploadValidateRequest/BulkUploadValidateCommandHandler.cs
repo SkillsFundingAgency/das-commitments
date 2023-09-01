@@ -113,13 +113,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         {
             // Close db connection and create transaction else throw will dispose 
             var db = _dbContextFactory.CreateDbContext();
-            db.Database.CurrentTransaction.Commit();
-
-            var transaction = db.Database.BeginTransaction();
             var fileUploadLog = await db.FileUploadLogs.FirstAsync(a => a.Id == logId);
 
             if (fileUploadLog != null)
             {
+                db.Database.CurrentTransaction.Commit();
+                var transaction = db.Database.BeginTransaction();
                 fileUploadLog.Error = JsonConvert.SerializeObject(errors);
                 await db.SaveChangesAsync();
                 await transaction.CommitAsync();
