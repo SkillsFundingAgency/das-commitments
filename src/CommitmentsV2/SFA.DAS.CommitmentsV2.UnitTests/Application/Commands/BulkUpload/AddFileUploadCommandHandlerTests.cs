@@ -47,12 +47,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public AddFileUploadLogCommand Command { get; set; }
         public IRequestHandler<AddFileUploadLogCommand, BulkUploadAddLogResponse> Handler { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
-        public long Id { get; set; }
-        public long ProviderId { get; set; }
-        public int RplCount { get; set; }
-        public int RowCount { get; set; }
-        public string FileContent { get; set; }
-        public string FileName { get; set; }
 
         public AddFileUploadCommandHandlerTestsFixture()
         {
