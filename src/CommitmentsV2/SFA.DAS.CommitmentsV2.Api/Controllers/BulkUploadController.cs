@@ -12,6 +12,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Application.Commands.FileUploadLogUpdateWithErrorContent;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -77,6 +78,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var command = await _modelMapper.Map<AddFileUploadLogCommand>(request);
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
+        }
+
+        [HttpPut]
+        [Route("logs/{logId}/error")]
+        public async Task<IActionResult> UpdateLogErrorContent(long providerId, long logId, [FromBody] FileUploadLogUpdateWithErrorContentRequest request, CancellationToken cancellationToken = default)
+        {
+            var result = await _mediator.Send(new FileUploadLogUpdateWithErrorContentCommand
+            {
+                LogId = logId,
+                ProviderId = providerId,
+                ErrorContent = request.ErrorContent,
+                UserInfo = request.UserInfo
+            }, cancellationToken);
+            return Ok();
         }
     }
 }
