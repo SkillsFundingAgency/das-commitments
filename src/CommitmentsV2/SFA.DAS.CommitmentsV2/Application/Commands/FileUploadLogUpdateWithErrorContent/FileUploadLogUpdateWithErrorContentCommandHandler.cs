@@ -38,8 +38,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.FileUploadLogUpdateWithErro
             }
 
             log.Error = command.ErrorContent;
-
-            _logger.LogInformation("FileUploadLog {logId} updated with error", command.LogId);
         }
     }
 }
