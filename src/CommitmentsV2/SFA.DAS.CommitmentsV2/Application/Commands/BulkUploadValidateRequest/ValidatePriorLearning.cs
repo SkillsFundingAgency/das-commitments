@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
-    public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
+    public partial class BulkUploadValidateCommandHandler
     {
         private IEnumerable<Error> ValidatePriorLearning(BulkUploadAddDraftApprenticeshipRequest csvRecord)
         {
@@ -71,6 +71,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             else if (csvRecord.PriceReducedBy > 100000)
             {
                 yield return new Error("PriceReducedBy", "The <b>price</b> this apprenticeship has been reduced by due to prior learning must be £100,000 or less.");
+            }
+
+            // Check just in case they upload a new format file (and are not in the Pilot)
+            if (csvRecord.TrainingTotalHoursAsString != null ||
+                csvRecord.TrainingHoursReductionAsString != null ||
+                csvRecord.IsDurationReducedByRPLAsString != null)
+            {
+                yield return new Error("RecognisePriorLearning", "<b>New RPL data</b> should not be entered as you not on the RPL pilot.");
             }
         }
     }
