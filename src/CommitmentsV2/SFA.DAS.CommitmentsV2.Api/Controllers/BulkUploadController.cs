@@ -84,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("logs/{logId}/error")]
         public async Task<IActionResult> UpdateLogErrorContent(long providerId, long logId, [FromBody] FileUploadLogUpdateWithErrorContentRequest request, CancellationToken cancellationToken = default)
         {
-            var result = await _mediator.Send(new FileUploadLogUpdateWithErrorContentCommand
+            await _mediator.Send(new FileUploadLogUpdateWithErrorContentCommand
             {
                 LogId = logId,
                 ProviderId = providerId,
