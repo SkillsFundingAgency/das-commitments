@@ -2,11 +2,12 @@ using System;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public partial class FileUploadCohortLog
+    public class FileUploadCohortLog
     {
-		public long Id { get; set; } 
-		public long? LogId { get; set; } 
-		public long? CommitmentId { get; set; } 
-		public long? RowCount { get; set; } 
+        public long Id { get; set; } 
+        public long FileUploadLogId { get; set; } 
+        public long CommitmentId { get; set; } 
+        public int RowCount { get; set; }
+        public FileUploadLog FileUploadLog { get; set; }
     }
 }
