@@ -23,6 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.ProviderUrlHelper;
 using System.Linq;
+using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
@@ -38,13 +39,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; set; }
         public OverlapCheckResult OverlapCheckResult { get; set; }
         public EmailOverlapCheckResult EmailOverlapCheckResult { get; set; }
+        public RplSettingsConfiguration RplSettingsConfig { get; set; }
         public bool IsAgreementSigned { get; set; } = true;
         public DraftApprenticeship DraftApprenticeship { get; private set; }
         public Cohort Cohort { get; set; }
         protected Mock<ILinkGenerator> _mockLinkGenerator;
         public const long ProviderId = 333;
 
-        public BulkUploadValidateCommandHandlerTestsFixture()
+        public BulkUploadValidateCommandHandlerTestsFixture(bool rplDataExtended = false)
         {
             _mockLinkGenerator = new Mock<ILinkGenerator>();
             CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
@@ -52,7 +54,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             Command = new BulkUploadValidateCommand()
             {
                 CsvRecords = CsvRecords,
-                ProviderId = ProviderId
+                ProviderId = ProviderId,
+                RplDataExtended = rplDataExtended
             };
 
             Command.ProviderStandardResults.Standards = new List<ProviderStandard> { new ProviderStandard("123", "123") };
@@ -94,6 +97,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
             ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
+            RplSettingsConfig = new RplSettingsConfiguration{ MinimumPriceReduction = 100, MaximumTrainingTimeReduction = 999 };
 
             Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
                 , new Lazy<ProviderCommitmentsDbContext>(() => Db)
@@ -101,6 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 , AcademicYearDateProvider.Object
                 , ProviderRelationshipsApiClient.Object
                 , EmployerAgreementService.Object 
+                , RplSettingsConfig
                 , _mockLinkGenerator.Object
                 );
         }
@@ -248,7 +253,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 CourseName = "coursename"
             });
         }
-
+        
         internal void SetUpDuplicateEmailWithinTheSameCohort()
         {
             CsvRecords.Add(new BulkUploadAddDraftApprenticeshipRequest
@@ -305,6 +310,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
                 Property = property,
                 ErrorText = errorText,
             });
+        }
+
+        public void ValidateNoErrorsFound(BulkUploadValidateApiResponse errors)
+        {
+            Assert.AreEqual(0, errors.BulkUploadValidationErrors.Count);
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetCohortRef(string cohortRef)
@@ -477,11 +487,55 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
         }
 
-        internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null)
+        internal BulkUploadValidateCommandHandlerTestsFixture SetRecognisePriorLearning(string recognisePriorLearning)
+        {
+            CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetTrainingTotalHours(string trainingTotalHours)
+        {
+            CsvRecords[0].TrainingTotalHoursAsString = trainingTotalHours;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetTrainingHoursReduction(string trainingHoursReduction)
+        {
+            CsvRecords[0].TrainingHoursReductionAsString = trainingHoursReduction;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetIsDurationReducedByRPL(string isDurationReducedByRPL)
+        {
+            CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPL;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetDurationReducedBy(string durationReducedBy)
+        {
+            CsvRecords[0].DurationReducedByAsString = durationReducedBy;
+            return this;
+        }
+
+        internal void SetPriorLearning(bool? recognisePriorLearning, int? durationReducedBy = null, int? priceReducedBy = null, int? trainingTotalHours = null, int? trainingHoursReduction = null, bool? isDurationReducedByRPL = null)
         {
             CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();
             CsvRecords[0].DurationReducedByAsString = durationReducedBy.ToString();
             CsvRecords[0].PriceReducedByAsString = priceReducedBy.ToString();
+            CsvRecords[0].TrainingTotalHoursAsString = trainingTotalHours.ToString();
+            CsvRecords[0].TrainingHoursReductionAsString = trainingHoursReduction.ToString();
+            CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPL.ToString();
+        }
+
+        internal void SetPriorLearningRaw(bool? recognisePriorLearning, string durationReducedByAsString = null, string priceReducedByAsString = null, string trainingTotalHoursAsString = null, 
+            string trainingHoursReductionAsString = null, string isDurationReducedByRPLAsString = null)
+        {
+            CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();
+            CsvRecords[0].DurationReducedByAsString = durationReducedByAsString;
+            CsvRecords[0].PriceReducedByAsString = priceReducedByAsString;
+            CsvRecords[0].TrainingTotalHoursAsString = trainingTotalHoursAsString;
+            CsvRecords[0].TrainingHoursReductionAsString = trainingHoursReductionAsString;
+            CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRPLAsString;
         }
 
         internal void SetUpIncompleteRecord()
@@ -563,6 +617,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         internal BulkUploadValidateCommandHandlerTestsFixture SetEPAOrgId(string epaOrgId)
         {
             CsvRecords[0].EPAOrgId = epaOrgId;
+            return this;
+        }
+
+        internal BulkUploadValidateCommandHandlerTestsFixture SetRplDataExtended(bool extended)
+        {
+            Command.RplDataExtended = extended;
             return this;
         }
     }

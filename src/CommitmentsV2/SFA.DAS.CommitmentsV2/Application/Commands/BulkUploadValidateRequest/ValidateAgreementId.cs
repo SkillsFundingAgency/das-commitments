@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
-    public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
+    public partial class BulkUploadValidateCommandHandler
     {
         public const string LegalAgreementIdIssue = "LegalAgreementId";
         private async Task<List<Error>> ValidateAgreementIdValidFormat(BulkUploadAddDraftApprenticeshipRequest csvRecord)
