@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
-        [Route("add-log")]
+        [Route("logs")]
         public async Task<IActionResult> AddLog([FromBody] AddFileUploadLogRequest request, CancellationToken cancellationToken = default)
         {
             var command = await _modelMapper.Map<AddFileUploadLogCommand>(request);
