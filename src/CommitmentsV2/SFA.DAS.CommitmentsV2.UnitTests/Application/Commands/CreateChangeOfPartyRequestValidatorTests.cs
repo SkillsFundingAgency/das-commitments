@@ -30,21 +30,36 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(1, true)]
         public void Validate_NewPartyId_ShouldBeValidated(long newPartyId, bool isValid)
         {
-            AssertValidationResult(r => r.NewPartyId, newPartyId, isValid);
+            var command = new CreateChangeOfPartyRequestCommand
+            {
+                NewPartyId = newPartyId,
+            };
+
+            AssertValidationResult(r => r.NewPartyId, command, isValid);
         }
 
         [TestCase(0, false)]
         [TestCase(1, true)]
         public void Validate_ApprenticeshipId_ShouldBeValidated(long apprenticeshipId, bool isValid)
         {
-            AssertValidationResult(r => r.ApprenticeshipId, apprenticeshipId, isValid);
+            var command = new CreateChangeOfPartyRequestCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+            };
+
+            AssertValidationResult(r => r.ApprenticeshipId, command, isValid);
         }
 
         [TestCase(false, false)]
         [TestCase(true, true)]
         public void Validate_UserInfo_ShouldBeValidated(bool isSet, bool isValid)
         {
-            AssertValidationResult(r => r.UserInfo, isSet ? new UserInfo() : null, isValid);
+            var command = new CreateChangeOfPartyRequestCommand
+            {
+                UserInfo = isSet ? new UserInfo() : null
+            };
+
+            AssertValidationResult(r => r.UserInfo, command, isValid);
         }
 
         [TestCase(null, true)]
@@ -54,7 +69,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(100001, false)]
         public void Validate_NewPrice_WhenNewPriceHasValue_ThenShouldBeGreaterThanZeroAndLessThanOrEqualTo100000(int? price, bool isValid)
         {
-            AssertValidationResult(r => r.NewPrice, price, isValid);
+            var command = new CreateChangeOfPartyRequestCommand
+            {
+                NewPrice = price,
+            };
+
+            AssertValidationResult(r => r.NewPrice, command, isValid);
         }
 
         [TestCase(false, 1, false, false)]
@@ -62,7 +82,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(false, 1, true, false)]
         [TestCase(false, null, false, true)]
         [TestCase(true, 1, true, true)]
-        public void Validate_NewStartDate_WhenNewPriceOrNewEndDateHasValue(bool hasNewStartDate, int? newPrice, bool hasNewEndDate, bool isValid)
+        public void Validate_NewStartDate_WhenNewPriceOrNewEndDateHasValue(bool hasNewStartDate, int? newPrice,
+            bool hasNewEndDate, bool isValid)
         {
             var command = new CreateChangeOfPartyRequestCommand
             {
@@ -79,7 +100,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(false, true, 1, false)]
         [TestCase(false, false, null, true)]
         [TestCase(true, true, 1, true)]
-        public void Validate_NewEndDate_WhenNewStartDateOrNewPriceHasValue(bool hasNewEndDate, bool hasNewStartDate, int? newPrice,  bool isValid)
+        public void Validate_NewEndDate_WhenNewStartDateOrNewPriceHasValue(bool hasNewEndDate, bool hasNewStartDate,
+            int? newPrice, bool isValid)
         {
             var command = new CreateChangeOfPartyRequestCommand
             {
@@ -96,7 +118,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(null, true, true, false)]
         [TestCase(null, false, false, true)]
         [TestCase(1, true, true, true)]
-        public void Validate_NewPrice_WhenNewStartDateOrNewEndDateHasValue(int? newPrice, bool hasNewStartDate, bool hasNewEndDate, bool isValid)
+        public void Validate_NewPrice_WhenNewStartDateOrNewEndDateHasValue(int? newPrice, bool hasNewStartDate,
+            bool hasNewEndDate, bool isValid)
         {
             var command = new CreateChangeOfPartyRequestCommand
             {
@@ -155,32 +178,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             AssertValidationResult(r => r.NewStartDate, command, false);
         }
-
-        private void AssertValidationResult<T>(Expression<Func<CreateChangeOfPartyRequestCommand, T>> property, T value, bool isValid)
+        
+        private void AssertValidationResult<T>(Expression<Func<CreateChangeOfPartyRequestCommand, T>> property,
+            CreateChangeOfPartyRequestCommand command, bool isValid)
         {
             var validator = new CreateChangeOfPartyRequestValidator(_mockAcademicYearDateProvider.Object);
-            
-            if (isValid)
-            {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
-            }
-            else
-            {
-                validator.ShouldHaveValidationErrorFor(property, value);
-            }
-        }
-
-        private void AssertValidationResult<T>(Expression<Func<CreateChangeOfPartyRequestCommand, T>> property, CreateChangeOfPartyRequestCommand command , bool isValid)
-        {
-            var validator = new CreateChangeOfPartyRequestValidator(_mockAcademicYearDateProvider.Object);
+            var result = validator.TestValidate(command);
 
             if (isValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(property, command);
+                result.ShouldNotHaveValidationErrorFor(property);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(property, command);
+                result.ShouldHaveValidationErrorFor(property);
             }
         }
     }

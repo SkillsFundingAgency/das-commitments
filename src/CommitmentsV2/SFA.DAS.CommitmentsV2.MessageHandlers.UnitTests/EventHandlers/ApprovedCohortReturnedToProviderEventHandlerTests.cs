@@ -21,24 +21,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenApprovedCohortReturnedToProviderEventIsRaised_ThenShouldGetCorrectCohort()
         {
-            var f = new ApprovedCohortReturnedToProviderEventHandlerTestsFixture();
-            await f.Handle();
-            f.VerifyGetCohortSummaryIsCorrectlyCalled();
+            var fixture = new ApprovedCohortReturnedToProviderEventHandlerTestsFixture();
+            await fixture.Handle();
+            fixture.VerifyGetCohortSummaryIsCorrectlyCalled();
         }
         [Test]
 
         public async Task Handle_WhenApprovedCohortReturnedToProviderEventIsRaised_ThenShouldRelayMessageToAzureServiceBus()
         {
-            var f = new ApprovedCohortReturnedToProviderEventHandlerTestsFixture();
-            await f.Handle();
-            f.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
+            var fixture = new ApprovedCohortReturnedToProviderEventHandlerTestsFixture();
+            await fixture.Handle();
+            fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
         }
     }
 
     public class ApprovedCohortReturnedToProviderEventHandlerTestsFixture
     {
         public Mock<IMediator> Mediator { get; set; }
-        public Mock<IMessageHandlerContext> MessageHandlerContext;
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
         public ApprovedCohortReturnedToProviderEventHandler Sut;
         public ApprovedCohortReturnedToProviderEvent ApprovedCohortReturnedToProviderEvent;
@@ -48,7 +47,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             var autoFixture = new Fixture();
             Mediator = new Mock<IMediator>();
-            MessageHandlerContext = new Mock<IMessageHandlerContext>();
             LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
 
             Sut = new ApprovedCohortReturnedToProviderEventHandler(Mediator.Object, LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<ApprovedCohortReturnedToProviderEventHandler>>());

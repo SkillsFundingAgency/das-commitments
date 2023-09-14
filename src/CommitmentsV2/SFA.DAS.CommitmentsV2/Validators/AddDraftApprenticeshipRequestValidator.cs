@@ -1,12 +1,11 @@
 using FluentValidation;
-using SFA.DAS.Authorization.Services;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
 namespace SFA.DAS.CommitmentsV2.Validators
 {
     public class AddDraftApprenticeshipRequestValidator : AbstractValidator<AddDraftApprenticeshipRequest>
     {
-        public AddDraftApprenticeshipRequestValidator(IAuthorizationService authorizationService)
+        public AddDraftApprenticeshipRequestValidator()
         {
             RuleFor(r => r.UserId).NotEmpty().WithMessage("The user id must be supplied"); 
             RuleFor(r => r.ProviderId).Must(p => p > 0).WithMessage("The provider id must be positive");

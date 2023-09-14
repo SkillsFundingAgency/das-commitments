@@ -7,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddHistory
 {
-    public class AddHistoryCommandHandler : AsyncRequestHandler<AddHistoryCommand>
+    public class AddHistoryCommandHandler : IRequestHandler<AddHistoryCommand>
     {
         private readonly ProviderCommitmentsDbContext _dbContext;
 
@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddHistory
             _dbContext = dbContext;
         }
 
-        protected override async Task Handle(AddHistoryCommand request, CancellationToken cancellationToken)
+        public async Task Handle(AddHistoryCommand request, CancellationToken cancellationToken)
         {
             var history = new History
             {

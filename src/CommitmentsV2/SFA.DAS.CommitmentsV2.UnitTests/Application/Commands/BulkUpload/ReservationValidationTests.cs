@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Reservation_Validation_Error()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.Command.ReservationValidationResults = new Api.Types.Requests.BulkReservationValidationResults();
             fixture.Command.ReservationValidationResults.ValidationErrors.Add(new Api.Types.Requests.BulkReservationValidation { Reason = "The employer has reached their reservations limit. Contact the employer.", RowNumber = 1 });
             
@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Reservation_Validation_Error_Gets_Added_To_Correct_Row()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using  var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetProviderRef("012345678901234567890");
             fixture.Command.ReservationValidationResults = new Api.Types.Requests.BulkReservationValidationResults();
             fixture.Command.ReservationValidationResults.ValidationErrors.Add(new Api.Types.Requests.BulkReservationValidation { Reason = "The employer has reached their reservations limit. Contact the employer.", RowNumber = 1 });
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_learning_is_not_required_when_start_is_before_aug2022()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-07-31");
             fixture.SetPriorLearning(null, null, null);
 
@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_learning_should_not_be_entered_when_start_is_before_aug2022()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-07-31");
             fixture.SetPriorLearning(true, null, null);
 
@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_Learning_Validation_Error()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: null);
 
@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task RecognisePriorLearning_Field_Validation_Error()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
             fixture.CsvRecords[0].RecognisePriorLearningAsString = "XXX";
 
@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_Learning_Duration_Validation_Error()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: null, priceReducedBy: 1);
 
@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_learning_minimum_duration_validation()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: -1);
 
@@ -107,7 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_learning_maximum_duration_validation()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 1000);
 
@@ -118,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_Learning_Price_Validation_Error()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, priceReducedBy: null);
 
@@ -129,7 +129,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_learning_minimum_price_validation()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, priceReducedBy: -1);
 
@@ -140,7 +140,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_learning_maximum_price_validation()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: true, priceReducedBy: 100001);
 
@@ -151,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Prior_learning_details_should_not_be_present_when_RPL_is_false()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetStartDate("2022-08-01");
             fixture.SetPriorLearning(recognisePriorLearning: false, durationReducedBy: 1, priceReducedBy: 1);
 

@@ -16,20 +16,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(true, true)]
         public void Validate_UserInfo_ShouldBeValidated(bool isSet, bool isValid)
         {
-            AssertValidationResult(r => r.UserInfo, isSet ? new UserInfo() : null, isValid);
+            var request = new ApproveCohortRequest { UserInfo = isSet ? new UserInfo() : null };
+            AssertValidationResult(r => r.UserInfo, request, isValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<ApproveCohortRequest, T>> property, T value, bool isValid)
+        private static void AssertValidationResult<T>(Expression<Func<ApproveCohortRequest, T>> property, ApproveCohortRequest request, bool isValid)
         {
             var validator = new ApproveCohortRequestValidator();
+            var result = validator.TestValidate(request);
             
             if (isValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
+                result.ShouldNotHaveValidationErrorFor(property);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(property, value);
+                result.ShouldHaveValidationErrorFor(property);
             }
         }
     }

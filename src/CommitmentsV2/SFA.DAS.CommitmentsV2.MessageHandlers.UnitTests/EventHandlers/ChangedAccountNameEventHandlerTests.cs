@@ -3,19 +3,21 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountName;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.EmployerAccounts.Messages.Events;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
     [TestFixture]
     [Parallelizable]
-    public class ChangedAccountNameEventHandlerTests : FluentTest<ChangedAccountNameEventHandlerTestsFixture>
+    public class ChangedAccountNameEventHandlerTests
     {
         [Test]
-        public Task Handle_WhenHandlingChangedAccountNameEvent_ThenShouldSendUpdateAccountNameCommand()
+        public async Task Handle_WhenHandlingChangedAccountNameEvent_ThenShouldSendUpdateAccountNameCommand()
         {
-            return TestAsync(f => f.Handle(), f => f.VerifySend<UpdateAccountNameCommand>((c, m) =>
-                c.AccountId == m.AccountId && c.Name == m.CurrentName && c.Created == m.Created));
+            var fixture = new ChangedAccountNameEventHandlerTestsFixture();
+            await fixture.Handle();
+            
+            fixture.VerifySend<UpdateAccountNameCommand>((c, m) =>
+                c.AccountId == m.AccountId && c.Name == m.CurrentName && c.Created == m.Created);
         }
     }
 

@@ -1,28 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
-using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.Encoding;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
-
     [TestFixture]
-    public class AddHistoryCommandHandlerTests : FluentTest<AddHistoryCommandHandlerTestsFixture>
+    public class AddHistoryCommandHandlerTests
     {
         private AddHistoryCommandHandlerTestsFixture _fixture;
 
@@ -30,6 +20,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Arrange()
         {
             _fixture = new AddHistoryCommandHandlerTestsFixture();
+        }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
         }
 
         [Test]
@@ -69,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class AddHistoryCommandHandlerTestsFixture
+    public class AddHistoryCommandHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
 
@@ -90,25 +86,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle(AddHistoryCommand command)
         {
             Handler = new AddHistoryCommandHandler(Db);
-            var response = await Handler.Handle(command, CancellationToken.None);
+            await Handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();
         }
-
-        public async Task CreateApprenticeship()
-        {
-            ApprenticeshipDetails = Fixture.Build<CommitmentsV2.Models.Apprenticeship>()
-                .With(s => s.Id, ApprenticeshipId)
-                .Without(s => s.PriceHistory)
-                .Without(s => s.ApprenticeshipUpdate)
-                .Without(s => s.DataLockStatus)
-                .Without(s => s.EpaOrg)
-                .Without(s => s.Continuation)
-                .Without(s => s.PreviousApprenticeship)
-                .Create();
-
-            await Db.SaveChangesAsync();
-        }
-
+        
         public AddHistoryCommand CreateAddHistoryCommand()
         {
             return Fixture.Build<AddHistoryCommand>().Create();
@@ -128,6 +109,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var history = await Db.History.FirstOrDefaultAsync();
             Assert.IsNull(history.ApprenticeshipId);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

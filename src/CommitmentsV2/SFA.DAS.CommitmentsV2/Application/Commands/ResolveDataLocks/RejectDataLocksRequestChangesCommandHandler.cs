@@ -14,7 +14,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
 {
-    public class RejectDataLocksRequestChangesCommandHandler : AsyncRequestHandler<RejectDataLocksRequestChangesCommand>
+    public class RejectDataLocksRequestChangesCommandHandler : IRequestHandler<RejectDataLocksRequestChangesCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly ILogger<RejectDataLocksRequestChangesCommandHandler> _logger;
@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
             _logger = logger;
         }
 
-        protected override async Task Handle(RejectDataLocksRequestChangesCommand request, CancellationToken cancellationToken)
+        public async Task Handle(RejectDataLocksRequestChangesCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Rejecting Data Locks for apprenticeship {request.ApprenticeshipId}");
 

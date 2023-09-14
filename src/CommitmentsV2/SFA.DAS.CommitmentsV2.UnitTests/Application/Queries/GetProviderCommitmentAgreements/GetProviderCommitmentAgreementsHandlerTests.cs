@@ -90,7 +90,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
     public class GetProviderCommitmentAgreementsHandlerTestFixtures
     {
         private Fixture _autoFixture;
-        public long NonMatchingId => 100;
         public List<Cohort> SeedCohorts { get; }
         public List<AccountLegalEntity> SeedAccountLegalEntities { get; }
         public Account Account { get; }
@@ -131,23 +130,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
                 var handler = new GetProviderCommitmentAgreementsHandler(lazy, Mock.Of<ILogger<GetProviderCommitmentAgreementsHandler>>(), ProviderRelationshipsApiClient.Object);
                 return handler.Handle(query, CancellationToken.None);
             });
-        }
-
-        public GetProviderCommitmentAgreementsHandlerTestFixtures AddEmptyDraftCohortWithEmployer()
-        {
-            var cohort = _autoFixture.Build<Cohort>().With(o => o.EmployerAccountId, Account.Id)
-                .With(o => o.EditStatus, EditStatus.Neither)
-                .With(o => o.IsDeleted, false)
-                .With(o => o.AccountLegalEntity, SeedAccountLegalEntities[0])
-                .With(o => o.Provider, Provider)
-                .Without(o => o.Apprenticeships)
-                .Without(o => o.TransferSender)
-                .Without(o => o.TransferRequests)
-                .Without(o => o.Messages)
-                .Create();
-
-            SeedCohorts.Add(cohort);
-            return this;
         }
         
         public GetProviderCommitmentAgreementsHandlerTestFixtures AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices()
@@ -196,46 +178,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             SeedCohorts.Add(cohort);
             return this;
         }
-
-        public GetProviderCommitmentAgreementsHandlerTestFixtures AddTransferCohortForEmployerAndApprovedByAll()
-        {
-            var cohort = _autoFixture.Build<Cohort>()
-                .With(o => o.EmployerAccountId, Account.Id)
-                .With(o => o.EditStatus, EditStatus.Both)
-                .With(o => o.TransferApprovalStatus, TransferApprovalStatus.Approved)
-                .With(o => o.IsDeleted, false)
-                .With(o => o.AccountLegalEntity, SeedAccountLegalEntities[2])
-                .With(o => o.Provider, Provider)
-                .With(o => o.TransferSender, TransferSender)
-                .Without(o => o.Apprenticeships)
-                .Without(o => o.TransferRequests)
-                .Without(o => o.Messages)
-                .Create();
-
-            SeedCohorts.Add(cohort);
-            return this;
-        }
-
-        public GetProviderCommitmentAgreementsHandlerTestFixtures AddCohortWithTransferSender()
-        {
-            var cohort = _autoFixture.Build<Cohort>()
-                .With(o => o.EmployerAccountId, Account.Id)
-                .With(o => o.TransferSenderId, TransferSender.Id)
-                .With(o => o.EditStatus, EditStatus.Both)
-                .With(o => o.TransferApprovalStatus, TransferApprovalStatus.Pending)
-                .With(o => o.IsDeleted, false)
-                .With(o => o.AccountLegalEntity, SeedAccountLegalEntities[3])
-                .With(o => o.Provider, Provider)
-                .With(o => o.TransferSender, TransferSender)
-                .Without(o => o.Apprenticeships)
-                .Without(o => o.TransferRequests)
-                .Without(o => o.Messages)
-                .Create();
-
-            SeedCohorts.Add(cohort);
-            return this;
-        }
-
+       
         public GetProviderCommitmentAgreementsHandlerTestFixtures AddEmployersWithPermissions()
         {
             ProviderRelationshipsApiClient
@@ -249,18 +192,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
         }
 
 
-        public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
+        private Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
-            using (var dbContext = new ProviderCommitmentsDbContext(options))
-            {
-                dbContext.Database.EnsureCreated();
-                SeedData(dbContext);
-                return action(dbContext);
-            }
+            using var dbContext = new ProviderCommitmentsDbContext(options);
+            dbContext.Database.EnsureCreated();
+            SeedData(dbContext);
+            return action(dbContext);
         }
 
         private void SeedData(ProviderCommitmentsDbContext dbContext)

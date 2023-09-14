@@ -19,50 +19,50 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task PublishAsync_ShouldCreateTopicClientPassingCorrectParameters()
         {
-            var f = new LegacyTopicMessagePublisherTestsFixture();
-            await f.Sut.PublishAsync(f.ApprovedCohortReturnedToProvider);
-            f.VerifyTopicClientFactoryReceivesConnectionStringAndMessageGroupName("approved_cohort_returned_to_provider");
+            var fixture = new LegacyTopicMessagePublisherTestsFixture();
+            await fixture.Sut.PublishAsync(fixture.ApprovedCohortReturnedToProvider);
+            fixture.VerifyTopicClientFactoryReceivesConnectionStringAndMessageGroupName("approved_cohort_returned_to_provider");
         }
 
         [Test]
         public async Task PublishAsync_ShouldCreateTopicClientPassingInNameOfClassAsMessageGroupName()
         {
-            var f = new LegacyTopicMessagePublisherTestsFixture();
+            var fixture = new LegacyTopicMessagePublisherTestsFixture();
             var @event = new SimpleTestObject();
-            await f.Sut.PublishAsync(@event);
-            f.VerifyTopicClientFactoryReceivesConnectionStringAndMessageGroupName(@event.GetType().Name);
+            await fixture.Sut.PublishAsync(@event);
+            fixture.VerifyTopicClientFactoryReceivesConnectionStringAndMessageGroupName(@event.GetType().Name);
         }
 
         [Test]
         public async Task PublishAsync_ShouldNotCloseTopicClientConnectionIfAlreadyClosing()
         {
-            var f = new LegacyTopicMessagePublisherTestsFixture();
-            f.TopicClient.Setup(x => x.IsClosedOrClosing).Returns(true);
-            await f.Sut.PublishAsync(f.ApprovedCohortReturnedToProvider);
-            f.VerifyTopicClientDoesNotCloseConnection();
+            var fixture = new LegacyTopicMessagePublisherTestsFixture();
+            fixture.TopicClient.Setup(x => x.IsClosedOrClosing).Returns(true);
+            await fixture.Sut.PublishAsync(fixture.ApprovedCohortReturnedToProvider);
+            fixture.VerifyTopicClientDoesNotCloseConnection();
         }
 
         [Test]
         public void PublishAsync_ShouldNotCloseTopicClientConnectionWhenClientIsNull()
         {
-            var f = new LegacyTopicMessagePublisherTestsFixture().ThrowInvalidOperationExceptionWhenCreatingTopicClient();
-            Assert.ThrowsAsync<InvalidOperationException>(() => f.Sut.PublishAsync(f.ApprovedCohortReturnedToProvider));
-            f.VerifyTopicClientDoesNotCloseConnection();
+            var fixture = new LegacyTopicMessagePublisherTestsFixture().ThrowInvalidOperationExceptionWhenCreatingTopicClient();
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixture.Sut.PublishAsync(fixture.ApprovedCohortReturnedToProvider));
+            fixture.VerifyTopicClientDoesNotCloseConnection();
         }
 
         [Test]
         public void PublishAsync_ShouldLogAndReThrowException()
         {
-            var f = new LegacyTopicMessagePublisherTestsFixture().ThrowInvalidOperationExceptionWhenCallingTopicClientSendAsync();
-            Assert.ThrowsAsync<InvalidOperationException>(() => f.Sut.PublishAsync(f.ApprovedCohortReturnedToProvider));
+            var fixture = new LegacyTopicMessagePublisherTestsFixture().ThrowInvalidOperationExceptionWhenCallingTopicClientSendAsync();
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixture.Sut.PublishAsync(fixture.ApprovedCohortReturnedToProvider));
         }
 
         [Test]
         public async Task PublishAsync_ShouldSendMessageToTopicClient()
         {
-            var f = new LegacyTopicMessagePublisherTestsFixture();
-            await f.Sut.PublishAsync(f.ApprovedCohortReturnedToProvider);
-            f.VerifyTopicClientIsCalledWithMessage();
+            var fixture = new LegacyTopicMessagePublisherTestsFixture();
+            await fixture.Sut.PublishAsync(fixture.ApprovedCohortReturnedToProvider);
+            fixture.VerifyTopicClientIsCalledWithMessage();
         }
 
         private class LegacyTopicMessagePublisherTestsFixture

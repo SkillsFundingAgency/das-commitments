@@ -78,10 +78,10 @@ namespace SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock
         {
             var visitor = new TestExpressionVisitor();
             var body = visitor.Visit(expression);
-            var f = Expression.Lambda<Func<TResult>>(
+            var expressionItem = Expression.Lambda<Func<TResult>>(
                 body ?? throw new InvalidOperationException($"{nameof(body)} is null"),
                 (IEnumerable<ParameterExpression>)null);
-            return f.Compile()();
+            return expressionItem.Compile()();
         }
     }
 }

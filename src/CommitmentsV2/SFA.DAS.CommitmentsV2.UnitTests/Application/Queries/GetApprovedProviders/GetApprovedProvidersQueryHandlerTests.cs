@@ -23,6 +23,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
         {
             _fixture = new GetApprovedProvidersQueryHandlerFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenCohortApprovedByBoth_And_TransferSender_IdIsNull_ThenShouldReturnResult()
@@ -62,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
         }
     }
 
-    public class GetApprovedProvidersQueryHandlerFixture
+    public class GetApprovedProvidersQueryHandlerFixture : IDisposable
     {
         public GetApprovedProvidersQuery Query { get; set; }
         public List<Cohort> Cohorts { get; set; }
@@ -173,5 +179,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
 
         private long GetNextProviderId() => Provider.Count == 0 ? 1:  Provider.Max(x => x.UkPrn) + 1;
 
+        public void Dispose()
+        {
+            Db?.Dispose();
+        }
     }
 }

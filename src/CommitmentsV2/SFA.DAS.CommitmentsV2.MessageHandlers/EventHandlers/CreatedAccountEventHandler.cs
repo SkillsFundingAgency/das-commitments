@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediatR;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount;
