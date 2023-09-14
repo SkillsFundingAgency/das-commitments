@@ -578,8 +578,21 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseOption = this.TrainingCourseOption,
                 FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
                 ApprenticeshipConfirmationStatus = ApprenticeshipConfirmationStatus?.Copy(),
-                IsOnFlexiPaymentPilot = this.IsOnFlexiPaymentPilot
+                IsOnFlexiPaymentPilot = this.IsOnFlexiPaymentPilot,
+                RecognisePriorLearning = this.RecognisePriorLearning,
+                TrainingTotalHours = this.TrainingTotalHours,
             };
+
+            if (result.RecognisePriorLearning == true)
+            {
+                result.PriorLearning = new ApprenticeshipPriorLearning
+                {
+                    DurationReducedByHours = this.PriorLearning.DurationReducedByHours,
+                    IsDurationReducedByRpl = this.PriorLearning.IsDurationReducedByRpl,
+                    DurationReducedBy = this.PriorLearning.DurationReducedBy,
+                    PriceReducedBy = this.PriorLearning.PriceReducedBy,
+                };
+            }
 
             return result;
         }

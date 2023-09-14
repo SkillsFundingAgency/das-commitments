@@ -192,8 +192,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.VerifyDraftApprenticeshipCreatedEventIsPublished();
         }
 
-
-
         private class WhenCohortIsCreatedTestFixture
         {
             private Fixture _autoFixture = new Fixture();
@@ -232,6 +230,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 ContinuedApprenticeship.SetValue(x => x.ProgrammeType, _autoFixture.Create<ProgrammeType>());
                 ContinuedApprenticeship.SetValue(x => x.EmployerRef, _autoFixture.Create<string>());
                 ContinuedApprenticeship.SetValue(x => x.ProviderRef, _autoFixture.Create<string>());
+                ContinuedApprenticeship.SetValue(x => x.RecognisePriorLearning, true);
+                ContinuedApprenticeship.SetValue(x => x.PriorLearning, _autoFixture.Create<ApprenticeshipPriorLearning>());
 
                 Request = new CommitmentsV2.Models.ChangeOfPartyRequest();
                 Request.SetValue(x => x.Apprenticeship, ContinuedApprenticeship);
