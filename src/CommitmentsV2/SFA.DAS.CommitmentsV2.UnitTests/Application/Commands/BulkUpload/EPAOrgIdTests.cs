@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEPAOrgId("12345678");
             var errors = await fixture.Handle();
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "EPAOrgId", "The <b>EPAO ID</b> must not be longer than 7 characters");
+            fixture.ValidateError(errors, 1, "EPAOrgId", "The <b>EPAO ID</b> must not be longer than 7 characters");
         }
     }
 }

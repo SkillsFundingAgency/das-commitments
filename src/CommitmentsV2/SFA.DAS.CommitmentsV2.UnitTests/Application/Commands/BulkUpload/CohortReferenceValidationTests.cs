@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using AutoFixture;
+using NUnit.Framework;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
@@ -27,9 +28,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Arrange
             _fixture.SetCohortRef("ABC*12");            
             //Act
-            var errors = await _fixture.Handle();            
+            var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", "Enter a valid <b>Cohort Ref</b>");
+            _fixture.ValidateError(errors, 1, "CohortRef", "Enter a valid <b>Cohort Ref</b>");
         }
 
         [Test]
@@ -40,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", "Enter a valid <b>Cohort Ref</b>");
+            _fixture.ValidateError(errors, 1, "CohortRef", "Enter a valid <b>Cohort Ref</b>");
         }
 
         [Test]
@@ -51,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", "Enter a valid <b>Cohort Ref</b>");
+            _fixture.ValidateError(errors, 1, "CohortRef", "Enter a valid <b>Cohort Ref</b>");
         }
 
         [Test]
@@ -62,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", "You cannot add apprentices to this cohort, as it is with the employer. You need to <b>add this learner to a different or new cohort.</b>");
+            _fixture.ValidateError(errors, 1, "CohortRef", "You cannot add apprentices to this cohort, as it is with the employer. You need to <b>add this learner to a different or new cohort.</b>");
         }
 
         [Test]
@@ -73,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", "You cannot add apprentices to this cohort, as it is with the transfer sending employer. You need to <b>add this learner to a different or new cohort.</b>");
+            _fixture.ValidateError(errors, 1, "CohortRef", "You cannot add apprentices to this cohort, as it is with the transfer sending employer. You need to <b>add this learner to a different or new cohort.</b>");
         }
 
         [Test]
@@ -84,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", "You cannot add apprentices to this cohort. You need to <b>add this learner to a different or new cohort.</b>");
+            _fixture.ValidateError(errors, 1, "CohortRef", "You cannot add apprentices to this cohort. You need to <b>add this learner to a different or new cohort.</b>");
         }
 
         [Test]
@@ -95,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRefPermission", "The <b>employer must give you permission</b> to add apprentices on their behalf");
+            _fixture.ValidateError(errors, 1, "CohortRefPermission", "The <b>employer must give you permission</b> to add apprentices on their behalf");
         }
 
         [Test]
@@ -107,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRefPermission", "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot <b>reserve funds</b> on their behalf");
+            _fixture.ValidateError(errors, 1, "CohortRefPermission", "You do not have permission to <b>add apprentice records</b> for this employer, so you cannot <b>reserve funds</b> on their behalf");
         }
 
         [Test]
@@ -118,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {_fixture.CsvRecords[0].CohortRef}, as this cohort contains incomplete records. You need to <b>complete all details</b> before you can add into this cohort.");
+            _fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {_fixture.CsvRecords[0].CohortRef}, as this cohort contains incomplete records. You need to <b>complete all details</b> before you can add into this cohort.");
         }
 
         [Test]
@@ -129,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", $"The <b>unique learner number</b> has already been used for an apprentice in this cohort.");
+            _fixture.ValidateError(errors, 1, "CohortRef", $"The <b>unique learner number</b> has already been used for an apprentice in this cohort.");
         }
 
         [Test]
@@ -140,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", $"The <b>email address</b> has already been used for an apprentice in this cohort.");
+            _fixture.ValidateError(errors, 1, "CohortRef", $"The <b>email address</b> has already been used for an apprentice in this cohort.");
         }
 
         [Test]
@@ -153,7 +154,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Assert
             Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
             Assert.AreEqual(1, errors.BulkUploadValidationErrors[0].Errors.Count);
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {_fixture.CsvRecords[0].CohortRef}, as this cohort contains an overlapping training date. You need to <b>resolve any overlapping training date errors</b> before you can add into this cohort.");
+            _fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {_fixture.CsvRecords[0].CohortRef}, as this cohort contains an overlapping training date. You need to <b>resolve any overlapping training date errors</b> before you can add into this cohort.");
         }
 
         [Test]
@@ -164,7 +165,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {_fixture.CsvRecords[0].CohortRef} as it contains an overlapping email address. You need to <b>enter a unique email address</b> before you can add into this cohort.");
+            _fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {_fixture.CsvRecords[0].CohortRef} as it contains an overlapping email address. You need to <b>enter a unique email address</b> before you can add into this cohort.");
         }
     }
 }

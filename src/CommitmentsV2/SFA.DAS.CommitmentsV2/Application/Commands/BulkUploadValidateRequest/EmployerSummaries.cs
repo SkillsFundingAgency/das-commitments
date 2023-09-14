@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
-    public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse>
+    public partial class BulkUploadValidateCommandHandler
     {
         private class EmployerSummaries : List<EmployerSummary>
         {

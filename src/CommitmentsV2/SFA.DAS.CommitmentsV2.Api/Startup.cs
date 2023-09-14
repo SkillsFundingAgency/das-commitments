@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.ApplicationInsights.NLogTarget;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +25,6 @@ using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.UnitOfWork.Mvc.Extensions;
 using StructureMap;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace SFA.DAS.CommitmentsV2.Api
 {
