@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -16,13 +15,12 @@ using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class AddCohortCommandHandlerTests : FluentTest<AddCohortCommandHandlerTestFixture>
+    public class AddCohortCommandHandlerTests
     {
         [Test]
         public async Task ShouldCreateCohort()
@@ -35,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             long? transferSenderId = 4;
             int? pledgeApplicationId = 5;
 
-            var fixtures = new AddCohortCommandHandlerTestFixture()
+            using var fixtures = new AddCohortCommandHandlerTestFixture()
                                 .WithGeneratedHash(expectedHash);
 
             var response = await fixtures.Handle(accountId, accountLegalEntityId, providerId, transferSenderId, pledgeApplicationId, "Course1");
@@ -68,16 +66,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             throw new NotImplementedException();
         }
-
-        public bool HasErrors => _logMessages.Any(l => l.logLevel == LogLevel.Error);
-        public bool HasInfo => _logMessages.Any(l => l.logLevel == LogLevel.Information);
     }
 
-    public class AddCohortCommandHandlerTestFixture
+    public class AddCohortCommandHandlerTestFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
-
-        public Mock<Provider> Provider { get; set; }
 
         public AddCohortCommandHandlerTestFixture()
         {
@@ -166,6 +159,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Db.SaveChangesAsync();
 
             return response;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

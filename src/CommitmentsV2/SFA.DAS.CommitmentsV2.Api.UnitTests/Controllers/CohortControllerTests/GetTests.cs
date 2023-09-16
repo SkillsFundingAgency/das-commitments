@@ -16,100 +16,105 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortPriorLearningError;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
 {
     [TestFixture]
     [Parallelizable]
-    public class GetTests : FluentTest<GetTestsFixture>
+    public class GetTests
     {
         [Test]
         public async Task WhenGetRequestReceived_ThenShouldReturnOkayResponse()
         {
-            await TestAsync(
-                f => f.Get(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().NotBeNull()
-                    .And.Match<GetCohortResponse>(v =>
-                        v.CohortId == f.GetCohortResult.CohortId &&
-                        v.AccountLegalEntityId == f.GetCohortResult.AccountLegalEntityId &&
-                        v.LegalEntityName == f.GetCohortResult.LegalEntityName &&
-                        v.ProviderId == f.GetCohortResult.ProviderId &&
-                        v.ProviderName == f.GetCohortResult.ProviderName &&
-                        v.IsFundedByTransfer == f.GetCohortResult.IsFundedByTransfer &&
-                        v.TransferSenderId == f.GetCohortResult.TransferSenderId &&
-                        v.PledgeApplicationId == f.GetCohortResult.PledgeApplicationId &&
-                        v.WithParty == f.GetCohortResult.WithParty &&
-                        v.LatestMessageCreatedByEmployer == f.GetCohortResult.LatestMessageCreatedByEmployer &&
-                        v.LatestMessageCreatedByProvider == f.GetCohortResult.LatestMessageCreatedByProvider &&
-                        v.IsApprovedByEmployer == f.GetCohortResult.IsApprovedByEmployer &&
-                        v.IsApprovedByProvider == f.GetCohortResult.IsApprovedByProvider &&
-                        v.LevyStatus == f.GetCohortResult.LevyStatus &&
-                        v.LastAction == f.GetCohortResult.LastAction &&
-                        v.ApprenticeEmailIsRequired == f.GetCohortResult.ApprenticeEmailIsRequired &&
-                        v.TransferApprovalStatus == f.GetCohortResult.TransferApprovalStatus));
+            var fixture = new GetTestsFixture();
+            var result = await fixture.Get();
+
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().NotBeNull()
+                .And.Match<GetCohortResponse>(response =>
+                    response.CohortId == fixture.GetCohortResult.CohortId &&
+                    response.AccountLegalEntityId == fixture.GetCohortResult.AccountLegalEntityId &&
+                    response.LegalEntityName == fixture.GetCohortResult.LegalEntityName &&
+                    response.ProviderId == fixture.GetCohortResult.ProviderId &&
+                    response.ProviderName == fixture.GetCohortResult.ProviderName &&
+                    response.IsFundedByTransfer == fixture.GetCohortResult.IsFundedByTransfer &&
+                    response.TransferSenderId == fixture.GetCohortResult.TransferSenderId &&
+                    response.PledgeApplicationId == fixture.GetCohortResult.PledgeApplicationId &&
+                    response.WithParty == fixture.GetCohortResult.WithParty &&
+                    response.LatestMessageCreatedByEmployer == fixture.GetCohortResult.LatestMessageCreatedByEmployer &&
+                    response.LatestMessageCreatedByProvider == fixture.GetCohortResult.LatestMessageCreatedByProvider &&
+                    response.IsApprovedByEmployer == fixture.GetCohortResult.IsApprovedByEmployer &&
+                    response.IsApprovedByProvider == fixture.GetCohortResult.IsApprovedByProvider &&
+                    response.LevyStatus == fixture.GetCohortResult.LevyStatus &&
+                    response.LastAction == fixture.GetCohortResult.LastAction &&
+                    response.ApprenticeEmailIsRequired == fixture.GetCohortResult.ApprenticeEmailIsRequired &&
+                    response.TransferApprovalStatus == fixture.GetCohortResult.TransferApprovalStatus);
         }
 
         [Test]
         public async Task WhenGetRequestReceivedForNonExistentCohort_ThenShouldReturnNotFoundResponse()
         {
-            await TestAsync(
-                f => f.Get(987298),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<NotFoundResult>());
+            var fixture = new GetTestsFixture();
+            var result = await fixture.Get(987298);
+
+            result.Should().NotBeNull()
+                .And.BeOfType<NotFoundResult>();
         }
 
         [Test]
         public async Task WhenGetCohortsRequestReceivedForEmployer_ThenShouldReturnOkayResponseWithCohorts()
         {
-            await TestAsync(
-                f => f.GetCohorts(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().NotBeNull()
-                    .And.Match<GetCohortsResponse>(v =>
-                        v.Cohorts.Length == f.GetCohortsResult.Cohorts.Length));
+            var fixture = new GetTestsFixture();
+            var result = await fixture.GetCohorts();
+
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().NotBeNull()
+                .And.Match<GetCohortsResponse>(v =>
+                    v.Cohorts.Length == fixture.GetCohortsResult.Cohorts.Length);
         }
 
         [Test]
         public async Task WhenGetCohortsRequestReceivedForEmployerAndNoCohortsFound_ThenShouldReturnOkResponseWithNoCohorts()
         {
-            await TestAsync(
-                f => f.WithNoCohortsForEmployer().GetCohorts(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().NotBeNull()
-                    .And.Match<GetCohortsResponse>(v =>
-                        v.Cohorts.Length == 0));
+            var fixture = new GetTestsFixture();
+            var result = await fixture.WithNoCohortsForEmployer().GetCohorts();
+
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().NotBeNull()
+                .And.Match<GetCohortsResponse>(v =>
+                    v.Cohorts.Length == 0);
         }
 
         [Test]
         public async Task WhenGetCohortEmailOverlaps_ThenShouldReturnOkResponseWithList()
         {
-            await TestAsync(
-                f => f.GetEmailOverlaps(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().NotBeNull()
-                    .And.Match<GetEmailOverlapsResponse>(v =>
-                        v.ApprenticeshipEmailOverlaps.ToList().Count == f.GetCohortEmailOverlapsResult.Overlaps.Count));
+            var fixture = new GetTestsFixture();
+            var result = await fixture.GetEmailOverlaps();
+
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().NotBeNull()
+                .And.Match<GetEmailOverlapsResponse>(v =>
+                    v.ApprenticeshipEmailOverlaps.ToList().Count == fixture.GetCohortEmailOverlapsResult.Overlaps.Count);
         }
 
 
         [Test]
         public async Task WhenGetGetCohortPriorLearningErrors_ThenShouldReturnOkResponseWithList()
         {
-            await TestAsync(
-                f => f.GetCohortPriorLearningErrors(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().NotBeNull()
-                    .And.Match<GetCohortPriorLearningErrorResponse>(v =>
-                        v.DraftApprenticeshipIds.ToList().Count == f.GetCohortPriorLearningErrorResult.DraftApprenticeshipIds.Count()));
+            var fixture = new GetTestsFixture();
+            var result = await fixture.GetCohortPriorLearningErrors();
+            
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().NotBeNull()
+                .And.Match<GetCohortPriorLearningErrorResponse>(v =>
+                    v.DraftApprenticeshipIds.ToList().Count ==
+                    fixture.GetCohortPriorLearningErrorResult.DraftApprenticeshipIds.Count());
         }
-
     }
 
     public class GetTestsFixture
@@ -135,14 +140,20 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             GetCohortResult = AutoFixture.Create<GetCohortSummaryQueryResult>();
             GetCohortEmailOverlapsResult = AutoFixture.Create<GetCohortEmailOverlapsQueryResult>();
             GetCohortPriorLearningErrorResult = AutoFixture.Create<GetCohortPriorLearningErrorQueryResult>();
-            Mediator.Setup(m => m.Send(It.Is<GetCohortSummaryQuery>(q => q.CohortId == CohortId), CancellationToken.None)).ReturnsAsync(GetCohortResult);
-            Mediator.Setup(m => m.Send(It.Is<GetCohortEmailOverlapsQuery>(q => q.CohortId == CohortId), CancellationToken.None)).ReturnsAsync(GetCohortEmailOverlapsResult);
-            Mediator.Setup(m => m.Send(It.Is<GetCohortPriorLearningErrorQuery>(q => q.CohortId == CohortId), CancellationToken.None)).ReturnsAsync(GetCohortPriorLearningErrorResult);
+            Mediator.Setup(m =>
+                    m.Send(It.Is<GetCohortSummaryQuery>(q => q.CohortId == CohortId), CancellationToken.None))
+                .ReturnsAsync(GetCohortResult);
+            Mediator.Setup(m =>
+                    m.Send(It.Is<GetCohortEmailOverlapsQuery>(q => q.CohortId == CohortId), CancellationToken.None))
+                .ReturnsAsync(GetCohortEmailOverlapsResult);
+            Mediator.Setup(m => m.Send(It.Is<GetCohortPriorLearningErrorQuery>(q => q.CohortId == CohortId),
+                CancellationToken.None)).ReturnsAsync(GetCohortPriorLearningErrorResult);
 
 
             GetCohortsRequest = AutoFixture.Build<GetCohortsRequest>().With(x => x.AccountId, AccountId).Create();
             GetCohortsResult = AutoFixture.Create<GetCohortsResult>();
-            Mediator.Setup(m => m.Send(It.Is<GetCohortsQuery>(q => q.AccountId == AccountId), CancellationToken.None)).ReturnsAsync(GetCohortsResult);
+            Mediator.Setup(m => m.Send(It.Is<GetCohortsQuery>(q => q.AccountId == AccountId), CancellationToken.None))
+                .ReturnsAsync(GetCohortsResult);
         }
 
         public Task<IActionResult> Get(long? id = null)
@@ -151,6 +162,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
 
             return Controller.Get(cohortId);
         }
+
         public Task<IActionResult> GetCohorts()
         {
             return Controller.GetCohorts(GetCohortsRequest);

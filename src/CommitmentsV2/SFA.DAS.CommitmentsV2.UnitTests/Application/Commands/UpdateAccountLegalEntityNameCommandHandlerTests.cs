@@ -4,46 +4,45 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountLegalEntityName;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.Testing;
 using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class UpdateAccountLegalEntityNameCommandHandlerTests : FluentTest<UpdateAccountLegalEntityNameCommandHandlerTestsFixture>
+    public class UpdateAccountLegalEntityNameCommandHandlerTest
     {
         [Test]
-        public Task Handle_WhenCommandIsHandledChronologically_ThenShouldUpdateAccountLegalEntityName()
+        public async Task Handle_WhenCommandIsHandledChronologically_ThenShouldUpdateAccountLegalEntityName()
         {
-            return TestAsync(f => f.Handle(), f =>
-            {
-                f.AccountLegalEntity.Name.Should().Be(f.Command.Name);
-                f.AccountLegalEntity.Updated.Should().Be(f.Command.Created);
-            });
+            using var fixture = new UpdateAccountLegalEntityNameCommandHandlerTestsFixture();
+            await fixture.Handle();
+            
+            fixture.AccountLegalEntity.Name.Should().Be(fixture.Command.Name);
+            fixture.AccountLegalEntity.Updated.Should().Be(fixture.Command.Created);
         }
 
         [Test]
-        public Task Handle_WhenCommandIsHandledNonChronologically_ThenShouldNotUpdateAccountLegalEntityName()
+        public async Task Handle_WhenCommandIsHandledNonChronologically_ThenShouldNotUpdateAccountLegalEntityName()
         {
-            return TestAsync(f => f.SetAccountLegalEntityUpdatedAfterCommand(), f => f.Handle(), f =>
-            {
-                f.AccountLegalEntity.Name.Should().Be(f.OriginalAccountLegalEntityName);
-                f.AccountLegalEntity.Updated.Should().Be(f.Now);
-            });
+            using var fixture = new UpdateAccountLegalEntityNameCommandHandlerTestsFixture();
+            fixture.SetAccountLegalEntityUpdatedAfterCommand();
+            await fixture.Handle();
+            
+            fixture.AccountLegalEntity.Name.Should().Be(fixture.OriginalAccountLegalEntityName);
+            fixture.AccountLegalEntity.Updated.Should().Be(fixture.Now);
         }
     }
 
-    public class UpdateAccountLegalEntityNameCommandHandlerTestsFixture
+    public class UpdateAccountLegalEntityNameCommandHandlerTestsFixture : IDisposable
     {
         public AccountLegalEntity AccountLegalEntity { get; set; }
         public UpdateAccountLegalEntityNameCommand Command { get; set; }
-        public IRequestHandler<UpdateAccountLegalEntityNameCommand, Unit> Handler { get; set; }
+        public IRequestHandler<UpdateAccountLegalEntityNameCommand> Handler { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public string OriginalAccountLegalEntityName { get; set; }
         public DateTime Now { get; set; }
@@ -74,6 +73,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Db.SaveChanges();
 
             return this;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

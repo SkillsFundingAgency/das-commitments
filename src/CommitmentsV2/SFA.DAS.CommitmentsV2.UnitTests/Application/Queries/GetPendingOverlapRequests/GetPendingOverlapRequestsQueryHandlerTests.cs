@@ -24,6 +24,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
         {
             _fixture = new GetPendingOverlapRequestsQueryHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_ThenShouldOnlyGetPendingRequests()
@@ -32,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
             _fixture.VerifyResultMapping();
         }
 
-        public class GetPendingOverlapRequestsQueryHandlerTestsFixture
+        public class GetPendingOverlapRequestsQueryHandlerTestsFixture : IDisposable
         {
             private readonly GetPendingOverlapRequestsQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;
@@ -104,6 +110,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
                 _result.CreatedOn.Should().Be(_testOverlappingTrainingDateRequest.CreatedOn);
                 _result.DraftApprenticeshipId.Should().Be(_testOverlappingTrainingDateRequest.DraftApprenticeshipId);
                 _result.PreviousApprenticeshipId.Should().Be(_testOverlappingTrainingDateRequest.PreviousApprenticeshipId);
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
     }

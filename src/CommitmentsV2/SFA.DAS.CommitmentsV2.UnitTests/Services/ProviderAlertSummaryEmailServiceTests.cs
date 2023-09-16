@@ -50,17 +50,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task AndOneSummaryFound_ThenShouldCallSendEmailToAllProviderRecipientsOnce()
         {
-            var f = _fixture.WithProviderOneSummaryAlert(_fixture.FirstProviderId);
-            await f.Sut.SendAlertSummaryEmails(f.JobId);
-            f.VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlert(f.FirstProviderId, 1, 1);
+            var fixture = _fixture.WithProviderOneSummaryAlert(_fixture.FirstProviderId);
+            await fixture.Sut.SendAlertSummaryEmails(fixture.JobId);
+            fixture.VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlert(fixture.FirstProviderId, 1, 1);
         }
 
         [Test]
         public async Task AndDifferentSummariesFound_ThenShouldCallSendEmailToAllProviderRecipientsOnceForEachProvider()
         {
-            var f = _fixture.WithMultipleProviderSummaryAlerts();
-            await f.Sut.SendAlertSummaryEmails(f.JobId);
-            f.VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlert();
+            var fixture = _fixture.WithMultipleProviderSummaryAlerts();
+            await fixture.Sut.SendAlertSummaryEmails(fixture.JobId);
+            fixture.VerifySendEmailToAllProviderRecipientsIsCalledOnceWithSummaryAlert();
         }
 
     }

@@ -7,16 +7,15 @@
 
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="10.4.0" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="10.4.0" />
-    <PackageReference Include="MediatR" Version="6.0.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.15.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.20" />
+    <PackageReference Include="FluentValidation" Version="11.6.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="MediatR" Version="12.1.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.32" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="3.1.23" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.23" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.20" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.9" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.0" />
     <PackageReference Include="SFA.DAS.Authorization.Features" Version="6.0.97" />
     <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
@@ -28,7 +27,7 @@
     <PackageReference Include="StructureMap" Version="4.7.1" />
     <PackageReference Include="StructureMap.AspNetCore" Version="2.0.0" />
     <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.WsFederation" Version="3.1.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.WsFederation" Version="3.1.32" />
   </ItemGroup>
 
   <ItemGroup>

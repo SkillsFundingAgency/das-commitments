@@ -4,27 +4,26 @@ using AutoFixture;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
 {
     [TestFixture]
     [Parallelizable]
-    public class SendTests : FluentTest<SendTestsFixture>
+    public class SendTests
     {
         [Test]
         public async Task WhenPostRequestReceived_ThenShouldReturnResponse()
         {
-            await TestAsync(
-                f => f.Send(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkResult>());
+            var fixture = new SendTestsFixture();
+            var result = await fixture.Send();
+            
+            result.Should().NotBeNull()
+                .And.BeOfType<OkResult>();
         }
     }
 
@@ -47,8 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             Mediator.Setup(m => m.Send(It.Is<SendCohortCommand>(c =>
                     c.CohortId == CohortId &&
                     c.Message == Request.Message &&
-                    c.UserInfo == Request.UserInfo), CancellationToken.None))
-                .ReturnsAsync(Unit.Value);
+                    c.UserInfo == Request.UserInfo), CancellationToken.None));
         }
 
         public Task<IActionResult> Send()

@@ -25,13 +25,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
         {
             var fixture = new GetAccountSummaryHandlerTestsFixture();
             fixture.AddAccount();
-                
 
             var response = await fixture.GetResponse();
 
             Assert.AreEqual(ApprenticeshipEmployerType.NonLevy, response.LevyStatus);
         }
 
+        [Test]
         public async Task Handle_Should_Return_LevyStatus_Levy()
         {
             var fixture = new GetAccountSummaryHandlerTestsFixture();
@@ -80,19 +80,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
             });
         }
 
-        public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
+        private Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseLoggerFactory(MyLoggerFactory)
                 .Options;
 
-            using (var dbContext = new ProviderCommitmentsDbContext(options))
-            {
-                dbContext.Database.EnsureCreated();
-                SeedData(dbContext);
-                return action(dbContext);
-            }
+            using var dbContext = new ProviderCommitmentsDbContext(options);
+            dbContext.Database.EnsureCreated();
+            SeedData(dbContext);
+            return action(dbContext);
         }
 
         private void SeedData(ProviderCommitmentsDbContext dbContext)
@@ -100,30 +98,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
             dbContext.Accounts.AddRange(SeedAccounts);
             dbContext.SaveChanges(true);
         }
-
-        public Task<T> RunWithConnection<T>(Func<DbConnection, Task<T>> action)
-        {
-            using (var connection = new SQLiteConnection("DataSource=:memory:"))
-            {
-                connection.Open();
-                try
-                {
-                    return action(connection);
-                }
-                finally
-                {
-                    connection.Close();
-                }
-            }
-        }
-
+        
         internal void SetEmployerLevyStatusToLevy()
         {
             var account = SeedAccounts.First(x => x.Id == EmployerAccountId);
             account.LevyStatus = ApprenticeshipEmployerType.Levy;
         }
 
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        private static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
         {
             builder.AddConsole();
             builder.SetMinimumLevel(LogLevel.Debug);

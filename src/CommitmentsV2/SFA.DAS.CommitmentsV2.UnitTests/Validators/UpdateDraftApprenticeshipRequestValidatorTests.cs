@@ -9,7 +9,7 @@ using SFA.DAS.CommitmentsV2.Validators;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
 {
-    [TestFixture()]
+    [TestFixture]
     public class UpdateDraftApprenticeshipRequestValidatorTests
     {
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
@@ -17,7 +17,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase("", true)]
         public void Validate_FirstName_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.FirstName, value, expectedValid);
+            var request = new UpdateDraftApprenticeshipRequest { FirstName = value};
+            
+            AssertValidationResult(r => r.FirstName, request, expectedValid);
         }
 
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
@@ -25,18 +27,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase("", true)]
         public void Validate_LastName_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.LastName, value, expectedValid);
+            var request = new UpdateDraftApprenticeshipRequest {LastName = value};
+            
+            AssertValidationResult(r => r.LastName, request, expectedValid);
         }
 
         [TestCase("", true)]
         [TestCase("2001-05-01", true)]
         public void Validate_DateOfBirth_ShouldBeValidated(string value, bool expectedValid)
         {
-            DateTime? dateOfBirth = string.IsNullOrWhiteSpace(value)
+            var dateOfBirth = string.IsNullOrWhiteSpace(value)
                 ? (DateTime?) null
                 : DateTime.ParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            
+            var request = new UpdateDraftApprenticeshipRequest { DateOfBirth = dateOfBirth };
 
-            AssertValidationResult(request => request.DateOfBirth, dateOfBirth,  expectedValid);
+            AssertValidationResult(r => r.DateOfBirth, request,  expectedValid);
         }
 
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX50", false)]
@@ -45,7 +51,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(null, true)]
         public void Validate_Uln_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.Uln, value, expectedValid);
+            var request = new UpdateDraftApprenticeshipRequest { Uln = value };
+            
+            AssertValidationResult(r => r.Uln, request, expectedValid);
         }
 
         [TestCase("XXXXXXXXX1XXXXXXXXX20", false)]
@@ -54,7 +62,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(null, true)]
         public void Validate_CourseCode_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.CourseCode, value, expectedValid);
+            var request = new UpdateDraftApprenticeshipRequest { CourseCode = value };
+            
+            AssertValidationResult(r => r.CourseCode, request, expectedValid);
         }
 
         [TestCase(-1, false)]
@@ -98,41 +108,44 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(null, true)]
         public void Validate_ProviderReference_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.Reference, value, expectedValid);
-        }
-
-        [Test]
-        public void Validate_UserInfoIsNull_ShouldBeValidate()
-        {
-            AssertValidationResult(request => request.UserInfo, null, true);
+            var request = new UpdateDraftApprenticeshipRequest { Reference = value };
+            
+            AssertValidationResult(r => r.Reference, request, expectedValid);
         }
 
         [Test]
         public void Validate_UserInfoIsNull_ShouldBeValid()
         {
-            AssertValidationResult(request => request.UserInfo, null, true);
+            var request = new UpdateDraftApprenticeshipRequest { UserInfo = null};
+            
+            AssertValidationResult(r => r.UserInfo, request, true);
         }
 
         [Test]
         public void Validate_UserInfoIsNotNullAndHasGoodData_ShouldBeValid()
         {
-            var userInfo = new UserInfo { UserId = "EE", UserDisplayName = "Name", UserEmail = "a@a.com"};
-            AssertValidationResult(request => request.UserInfo, userInfo, true);
+            var userInfo = new UserInfo { UserId = "EE", UserDisplayName = "Name", UserEmail = "a@a.com" };
+            var request = new UpdateDraftApprenticeshipRequest { UserInfo = userInfo };
+
+            AssertValidationResult(r => r.UserInfo, request, true);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<UpdateDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
+        private static void AssertValidationResult<T>(Expression<Func<UpdateDraftApprenticeshipRequest, T>> property, UpdateDraftApprenticeshipRequest request, bool expectedValid)
         {
             // Arrange
             var validator = new UpdateDraftApprenticeshipRequestValidator();
 
             // Act
+            var result = validator.TestValidate(request);
+            
+            // Assert
             if (expectedValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
+                result.ShouldNotHaveValidationErrorFor(property);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(property, value);
+                result.ShouldHaveValidationErrorFor(property);
             }
         }
     }

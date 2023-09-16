@@ -9,118 +9,109 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping;
-using SFA.DAS.Testing;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
     [TestFixture]
     [Parallelizable]
-    public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTests : FluentTest<AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture>
+    public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTests 
     {
         [Test]
-        public Task Map_WhenMapping_ThenShouldSetProperties()
+        public async Task Map_WhenMapping_ThenShouldSetProperties()
         {
-            return TestAsync(
-                f => f.MapNoDate(), 
-                (f, r) =>
-                {
-                    r.FirstName.Should().Be(f.Command.FirstName);
-                    r.LastName.Should().Be(f.Command.LastName);
-                    r.Uln.Should().Be(f.Command.Uln);
-                    r.Cost.Should().Be(f.Command.Cost);
-                    r.TrainingPrice.Should().Be(f.Command.TrainingPrice);
-                    r.EndPointAssessmentPrice.Should().Be(f.Command.EndPointAssessmentPrice);
-                    r.StartDate.Should().Be(f.Command.StartDate);
-                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
-                    r.EndDate.Should().Be(f.Command.EndDate);
-                    r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
-                    r.Reference.Should().Be(f.Command.OriginatorReference);
-                    r.TrainingProgramme.Should().Be(f.TrainingProgramme);
-                    r.DeliveryModel.Should().Be(f.Command.DeliveryModel);
-                    r.ReservationId.Should().Be(f.Command.ReservationId);
-                    r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
-                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
-                    r.TrainingCourseVersionConfirmed.Should().BeFalse();
-                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
-                });
+            var fixture = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture();
+            var result = await fixture.MapNoDate();
+            
+            result.FirstName.Should().Be(fixture.Command.FirstName);
+            result.LastName.Should().Be(fixture.Command.LastName);
+            result.Uln.Should().Be(fixture.Command.Uln);
+            result.Cost.Should().Be(fixture.Command.Cost);
+            result.StartDate.Should().Be(fixture.Command.StartDate);
+            result.ActualStartDate.Should().Be(fixture.Command.ActualStartDate);
+            result.EndDate.Should().Be(fixture.Command.EndDate);
+            result.TrainingPrice.Should().Be(f.Command.TrainingPrice);
+            result.EndPointAssessmentPrice.Should().Be(f.Command.EndPointAssessmentPrice);
+            result.DateOfBirth.Should().Be(fixture.Command.DateOfBirth);
+            result.Reference.Should().Be(fixture.Command.OriginatorReference);
+            result.TrainingProgramme.Should().Be(fixture.TrainingProgramme);
+            result.DeliveryModel.Should().Be(fixture.Command.DeliveryModel);
+            result.ReservationId.Should().Be(fixture.Command.ReservationId);
+            result.StandardUId.Should().Be(fixture.TrainingProgramme.StandardUId);
+            result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
+            result.TrainingCourseVersionConfirmed.Should().BeFalse();
+            result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot.Value);
         }
 
         [Test]
-        public Task Map_WhenMappingStandardWithDate_Then_UsesCalculatedTrainingProgramme()
+        public async Task Map_WhenMappingStandardWithDate_Then_UsesCalculatedTrainingProgramme()
         {
-            return TestAsync(
-                f => f.MapWithStandard(), 
-                (f, r) =>
-                {
-                    r.FirstName.Should().Be(f.Command.FirstName);
-                    r.LastName.Should().Be(f.Command.LastName);
-                    r.Uln.Should().Be(f.Command.Uln);
-                    r.Cost.Should().Be(f.Command.Cost);
-                    r.StartDate.Should().Be(f.Command.StartDate);
-                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
-                    r.EndDate.Should().Be(f.Command.EndDate);
-                    r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
-                    r.Reference.Should().Be(f.Command.OriginatorReference);
-                    r.TrainingProgramme.Should().Be(f.TrainingProgramme2);
-                    r.ReservationId.Should().Be(f.Command.ReservationId);
-                    r.StandardUId.Should().Be(f.TrainingProgramme2.StandardUId);
-                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme2.Version);
-                    r.TrainingCourseVersionConfirmed.Should().BeTrue();
-                    r.EmploymentPrice.Should().Be(f.Command.EmploymentPrice);
-                    r.EmploymentEndDate.Should().Be(f.Command.EmploymentEndDate);
-                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
-                });
+            var fixture = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture();
+            var result = await fixture.MapWithStandard();
+            
+            result.FirstName.Should().Be(fixture.Command.FirstName);
+            result.LastName.Should().Be(fixture.Command.LastName);
+            result.Uln.Should().Be(fixture.Command.Uln);
+            result.Cost.Should().Be(fixture.Command.Cost);
+            result.StartDate.Should().Be(fixture.Command.StartDate);
+            result.ActualStartDate.Should().Be(fixture.Command.ActualStartDate);
+            result.EndDate.Should().Be(fixture.Command.EndDate);
+            result.DateOfBirth.Should().Be(fixture.Command.DateOfBirth);
+            result.Reference.Should().Be(fixture.Command.OriginatorReference);
+            result.TrainingProgramme.Should().Be(fixture.TrainingProgramme2);
+            result.ReservationId.Should().Be(fixture.Command.ReservationId);
+            result.StandardUId.Should().Be(fixture.TrainingProgramme2.StandardUId);
+            result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme2.Version);
+            result.TrainingCourseVersionConfirmed.Should().BeTrue();
+            result.EmploymentPrice.Should().Be(fixture.Command.EmploymentPrice);
+            result.EmploymentEndDate.Should().Be(fixture.Command.EmploymentEndDate);
+            result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot.Value);
         }
 
         [Test]
-        public Task Map_WhenMappingFramework_Then_VersionConfirmedIsFalse()
+        public async Task Map_WhenMappingFramework_Then_VersionConfirmedIsFalse()
         {
-            return TestAsync(
-                f => f.Map(),
-                (f, r) =>
-                {
-                    r.FirstName.Should().Be(f.Command.FirstName);
-                    r.LastName.Should().Be(f.Command.LastName);
-                    r.Uln.Should().Be(f.Command.Uln);
-                    r.Cost.Should().Be(f.Command.Cost);
-                    r.StartDate.Should().Be(f.Command.StartDate);
-                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
-                    r.EndDate.Should().Be(f.Command.EndDate);
-                    r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
-                    r.Reference.Should().Be(f.Command.OriginatorReference);
-                    r.TrainingProgramme.Should().Be(f.TrainingProgramme);
-                    r.ReservationId.Should().Be(f.Command.ReservationId);
-                    r.StandardUId.Should().Be(f.TrainingProgramme.StandardUId);
-                    r.TrainingCourseVersion.Should().Be(f.TrainingProgramme.Version);
-                    r.TrainingCourseVersionConfirmed.Should().BeFalse();
-                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
-                });
+            var fixture = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture();
+            var result = await fixture.Map();
+            
+            result.FirstName.Should().Be(fixture.Command.FirstName);
+            result.LastName.Should().Be(fixture.Command.LastName);
+            result.Uln.Should().Be(fixture.Command.Uln);
+            result.Cost.Should().Be(fixture.Command.Cost);
+            result.StartDate.Should().Be(fixture.Command.StartDate);
+            result.ActualStartDate.Should().Be(fixture.Command.ActualStartDate);
+            result.EndDate.Should().Be(fixture.Command.EndDate);
+            result.DateOfBirth.Should().Be(fixture.Command.DateOfBirth);
+            result.Reference.Should().Be(fixture.Command.OriginatorReference);
+            result.TrainingProgramme.Should().Be(fixture.TrainingProgramme);
+            result.ReservationId.Should().Be(fixture.Command.ReservationId);
+            result.StandardUId.Should().Be(fixture.TrainingProgramme.StandardUId);
+            result.TrainingCourseVersion.Should().Be(fixture.TrainingProgramme.Version);
+            result.TrainingCourseVersionConfirmed.Should().BeFalse();
+            result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot.Value);
         }
 
         [Test]
-        public Task Map_WhenMappingWithNoCourse_Then_TrainingCourseVersionConfirmedIsFalse()
+        public async Task Map_WhenMappingWithNoCourse_Then_TrainingCourseVersionConfirmedIsFalse()
         {
-            return TestAsync(
-                f => f.MapNoVersionFieldsWhenStartDateIsNull(), 
-                (f, r) =>
-                {
-                    r.FirstName.Should().Be(f.Command.FirstName);
-                    r.LastName.Should().Be(f.Command.LastName);
-                    r.Uln.Should().Be(f.Command.Uln);
-                    r.Cost.Should().Be(f.Command.Cost);
-                    r.StartDate.Should().Be(f.Command.StartDate);
-                    r.ActualStartDate.Should().Be(f.Command.ActualStartDate);
-                    r.EndDate.Should().Be(f.Command.EndDate);
-                    r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
-                    r.Reference.Should().Be(f.Command.OriginatorReference);
-                    r.TrainingProgramme.Should().NotBeNull();
-                    r.ReservationId.Should().Be(f.Command.ReservationId);
-                    r.StandardUId.Should().BeNull();
-                    r.TrainingCourseVersion.Should().BeNull();
-                    r.TrainingCourseVersionConfirmed.Should().BeFalse();
-                    r.IsOnFlexiPaymentPilot.Should().Be(f.Command.IsOnFlexiPaymentPilot.Value);
-                });
+            var fixture = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture();
+            var result = await fixture.MapNoVersionFieldsWhenStartDateIsNull();
+            
+            result.FirstName.Should().Be(fixture.Command.FirstName);
+            result.LastName.Should().Be(fixture.Command.LastName);
+            result.Uln.Should().Be(fixture.Command.Uln);
+            result.Cost.Should().Be(fixture.Command.Cost);
+            result.StartDate.Should().Be(fixture.Command.StartDate);
+            result.ActualStartDate.Should().Be(fixture.Command.ActualStartDate);
+            result.EndDate.Should().Be(fixture.Command.EndDate);
+            result.DateOfBirth.Should().Be(fixture.Command.DateOfBirth);
+            result.Reference.Should().Be(fixture.Command.OriginatorReference);
+            result.TrainingProgramme.Should().NotBeNull();
+            result.ReservationId.Should().Be(fixture.Command.ReservationId);
+            result.StandardUId.Should().BeNull();
+            result.TrainingCourseVersion.Should().BeNull();
+            result.TrainingCourseVersionConfirmed.Should().BeFalse();
+            result.IsOnFlexiPaymentPilot.Should().Be(fixture.Command.IsOnFlexiPaymentPilot.Value);
         }
     }
 
@@ -139,15 +130,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Fixture = new Fixture();
             Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(x => x.IsOnFlexiPaymentPilot, true).Create();
             AuthorizationService = new Mock<IAuthorizationService>();
-            TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
-            TrainingProgramme2 = new TrainingProgramme("12345", "TESTStandard", ProgrammeType.Standard, DateTime.MinValue, DateTime.MaxValue);
+            TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue,
+                DateTime.MaxValue);
+            TrainingProgramme2 = new TrainingProgramme("12345", "TESTStandard", ProgrammeType.Standard,
+                DateTime.MinValue, DateTime.MaxValue);
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
-            Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object, TrainingProgrammeLookup.Object);
+            Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object,
+                TrainingProgrammeLookup.Object);
 
             int standardCodeOut;
-            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == true))).ReturnsAsync(TrainingProgramme2);
-            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == false))).ReturnsAsync(TrainingProgramme);
-            TrainingProgrammeLookup.Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), It.IsAny<DateTime>())).ReturnsAsync(TrainingProgramme2);
+            TrainingProgrammeLookup
+                .Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == true)))
+                .ReturnsAsync(TrainingProgramme2);
+            TrainingProgrammeLookup
+                .Setup(l => l.GetTrainingProgramme(It.Is<string>(s => int.TryParse(s, out standardCodeOut) == false)))
+                .ReturnsAsync(TrainingProgramme);
+            TrainingProgrammeLookup
+                .Setup(l => l.GetCalculatedTrainingProgrammeVersion(It.IsAny<string>(), It.IsAny<DateTime>()))
+                .ReturnsAsync(TrainingProgramme2);
         }
 
         public Task<DraftApprenticeshipDetails> Map()
@@ -160,7 +160,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command.StartDate = null;
             return Mapper.Map(Command);
         }
-        
+
         public Task<DraftApprenticeshipDetails> MapNoVersionFieldsWhenStartDateIsNull()
         {
             Command.StartDate = null;

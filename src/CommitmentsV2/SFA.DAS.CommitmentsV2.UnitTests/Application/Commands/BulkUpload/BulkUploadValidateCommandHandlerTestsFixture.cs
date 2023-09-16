@@ -21,13 +21,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.ProviderUrlHelper;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.LinkGeneration;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
-    public class BulkUploadValidateCommandHandlerTestsFixture
+    public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse> Handler { get; set; }
@@ -288,9 +288,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             });
         }
 
-        public async Task<BulkUploadValidateApiResponse> Handle()
+        public Task<BulkUploadValidateApiResponse> Handle()
         {
-            return await Handler.Handle(Command, CancellationToken.None);
+            return Handler.Handle(Command, CancellationToken.None);
         }
 
         public void ValidateError(BulkUploadValidateApiResponse errors, int numberOfErrors, string property, string errorText)
@@ -618,6 +618,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             CsvRecords[0].EPAOrgId = epaOrgId;
             return this;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetRplDataExtended(bool extended)

@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
 
                 _mapper.Setup(x => x.Map(_command)).ReturnsAsync(() => _draftApprenticeshipDetails);
 
-                _handler = new ValidateDraftApprenticeshipCommandHandler(Mock.Of<ILogger<ValidateDraftApprenticeshipCommandHandler>>(), _mapper.Object, _cohortDomainService.Object);
+                _handler = new ValidateDraftApprenticeshipCommandHandler(_mapper.Object, _cohortDomainService.Object);
             }
 
             public async Task BulkUploadDraftApprenticeshipsRequest()

@@ -23,9 +23,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(Party.None)]
         public async Task Handle_WhenCohortDeletedEventIsRaisedAndProviderHasNotApprovedIt_ThenShouldRelayAnyMessagesToAzureServiceBus(Party approvedBy)
         {
-            var f = new CohortDeletedHandlerTestsFixture().WithCohortDeletedEvent(approvedBy);
-            await f.Handle();
-            f.VerifyNoRelayingMessageIsSent();
+            var fixture = new CohortDeletedHandlerTestsFixture()
+                .WithCohortDeletedEvent(approvedBy);
+            
+            await fixture.Handle();
+            
+            fixture.VerifyNoRelayingMessageIsSent();
         }
 
         [TestCase(Party.Provider)]
@@ -34,15 +37,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(Party.TransferSender | Party.Provider)]
         public async Task Handle_WhenCohortDeletedEventIsRaisedAndProviderHasApprovedIt_ThenShouldRelayMessageToAzureServiceBus(Party approvedBy)
         {
-            var f = new CohortDeletedHandlerTestsFixture().WithCohortDeletedEvent(approvedBy);
-            await f.Handle();
-            f.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
+            var fixture = new CohortDeletedHandlerTestsFixture()
+                .WithCohortDeletedEvent(approvedBy);
+            
+            await fixture.Handle();
+            
+            fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
         }
     }
 
     public class CohortDeletedHandlerTestsFixture
     {
-        public Mock<IMessageHandlerContext> MessageHandlerContext;
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
         public CohortDeletedEventHandler Sut;
         public CohortDeletedEvent CohortDeletedEvent;
@@ -58,7 +63,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             ProviderId = autoFixture.Create<long>();
             AccountId = autoFixture.Create<long>();
 
-            MessageHandlerContext = new Mock<IMessageHandlerContext>();
             LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
 
             Sut = new CohortDeletedEventHandler(LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<CohortDeletedEventHandler>>());

@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_ThenShouldCreateTransferRequest()
         {
-            var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
+            using var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
             await fixture.Handle();
 
             fixture.AssertTransferRequestWasCorrectlySavedToDatabase();
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_ThenShouldSetCohortTransferStatus()
         {
-            var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
+            using var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
             await fixture.Handle();
 
             fixture.AssertCohortTransferStatusIsSetToPending();
@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_ThenShouldPublishTransferRequestCreatedEvent()
         {
-            var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
+            using var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
             await fixture.Handle();
 
             fixture.AssertTransferRequestCreatedEventWasPublished();
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public void Handle_WhenCommandIsHandledAndPendingTransferRequestExists_ThenShouldThrowDomainException()
         {
-            var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort().SetupPendingTransferRequest();
+            using var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort().SetupPendingTransferRequest();
             Assert.ThrowsAsync<DomainException>(() => fixture.Handle());
         }
 
@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(false)]
         public async Task Handle_WhenCommandIsHandledAndCohortIsLinkedToPledgeApplication_ThenAutoApprovalFlagIsDeterminedFromApplication(bool autoApproval)
         {
-            var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort()
+            using var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort()
                 .SetupPledgeApplication(autoApproval);
 
             await fixture.Handle();
@@ -75,13 +75,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandledAndCohortIsNotLinkedToPledgeApplication_ThenAutoApprovalFlagIsFalse()
         {
-            var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
+            using var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
             await fixture.Handle();
             fixture.AssertTransferRequestAutoApprovalEquals(false);
         }
     }
 
-    public class AddTransferRequestCommandHandlerTestFixture
+    public class AddTransferRequestCommandHandlerTestFixture : IDisposable
     {
         public Fixture Fixture { get; set; }
         public long CohortId { get; set; }
@@ -199,6 +199,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var transferRequest = Db.TransferRequests.FirstOrDefault();
             Assert.AreEqual(autoApproval, transferRequest.AutoApproval);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }
