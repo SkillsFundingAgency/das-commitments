@@ -211,8 +211,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         private bool CostOrTotalPriceIsChanged(DraftApprenticeshipDetails update)
         {
             if (update.IsOnFlexiPaymentPilot.GetValueOrDefault())
-                return (TrainingPrice + EndPointAssessmentPrice) != (update.TrainingPrice + update.EndPointAssessmentPrice);
-            
+                return Cost != (update.TrainingPrice + update.EndPointAssessmentPrice);
+
             return Cost != update.Cost;
         }
 
