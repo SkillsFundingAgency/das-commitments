@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Data;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.FileUploadLogUpdateWithErrorContent
 {
-    public class FileUploadLogUpdateWithErrorContentCommandHandler : AsyncRequestHandler<FileUploadLogUpdateWithErrorContentCommand>
+    public class FileUploadLogUpdateWithErrorContentCommandHandler : IRequestHandler<FileUploadLogUpdateWithErrorContentCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<FileUploadLogUpdateWithErrorContentCommandHandler> _logger;
@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.FileUploadLogUpdateWithErro
             _logger = logger;
         }
 
-        protected override async Task Handle(FileUploadLogUpdateWithErrorContentCommand command, CancellationToken cancellationToken)
+        public async Task Handle(FileUploadLogUpdateWithErrorContentCommand command, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
 

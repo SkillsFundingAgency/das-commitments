@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     public class FileUploadLogUpdateWithErrorContentCommandHandlerTestsFixture
     {
         public FileUploadLogUpdateWithErrorContentCommand Command { get; private set; }
-        public IRequestHandler<FileUploadLogUpdateWithErrorContentCommand, Unit> Sut { get; }
+        public IRequestHandler<FileUploadLogUpdateWithErrorContentCommand> Sut { get; }
         public ProviderCommitmentsDbContext Db { get; }
         public Mock<ILogger<FileUploadLogUpdateWithErrorContentCommandHandler>> Logger { get; private set; }
 
@@ -75,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _autoFixture = new Fixture();
             Logger = new Mock<ILogger<FileUploadLogUpdateWithErrorContentCommandHandler>>();
-            LogEntry = _autoFixture.Build<FileUploadLog>().Without(x=>x.Error).Without(x=>x.CohortLogs).Create();
+            LogEntry = _autoFixture.Build<FileUploadLog>().Without(x => x.Error).Without(x => x.CohortLogs).Create();
 
             Command = _autoFixture.Build<FileUploadLogUpdateWithErrorContentCommand>()
                 .With(x => x.LogId, LogEntry.Id)
@@ -104,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void VerifyLogIsUpdatedCorrectly()
         {
             var first = Db.FileUploadLogs.First();
-            first.Error.Should().Be(Command.ErrorContent); 
+            first.Error.Should().Be(Command.ErrorContent);
         }
     }
 }
