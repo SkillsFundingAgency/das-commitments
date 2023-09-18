@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship
 {
-    public class DeleteDraftApprenticeshipHandler : AsyncRequestHandler<DeleteDraftApprenticeshipCommand>
+    public class DeleteDraftApprenticeshipHandler : IRequestHandler<DeleteDraftApprenticeshipCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<DeleteDraftApprenticeshipHandler> _logger;
@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship
             _cohortDomainService = cohortDomainService;
         }
 
-        protected override async Task Handle(DeleteDraftApprenticeshipCommand command, CancellationToken cancellationToken)
+        public async Task Handle(DeleteDraftApprenticeshipCommand command, CancellationToken cancellationToken)
         {
             try
             {

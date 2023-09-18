@@ -30,6 +30,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture = new TransferRequestWithAutoApprovalCreatedEventHandlerTestsFixture();
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
+
         [TestCase(1, 100, TransferApprovalStatus.Approved)]
         [TestCase(100, 100, TransferApprovalStatus.Approved)]
         [TestCase(101, 100, TransferApprovalStatus.Rejected)]
@@ -44,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyTransferRequestStatus(expectedStatus);
         }
 
-        public class TransferRequestWithAutoApprovalCreatedEventHandlerTestsFixture
+        public class TransferRequestWithAutoApprovalCreatedEventHandlerTestsFixture : IDisposable
         {
             public Fixture Fixture { get; private set; }
             private TransferRequestWithAutoApprovalCreatedEventHandler _handler;
@@ -103,6 +109,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public void VerifyTransferRequestStatus(TransferApprovalStatus expectedStatus)
             {
                 Assert.AreEqual(expectedStatus, TransferRequest.Status);
+            }
+
+            public void Dispose()
+            {
+                Db?.Dispose();
             }
         }
     }

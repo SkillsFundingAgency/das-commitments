@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_IsNotEmpty()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEmailAddress("");
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "EmailAddress", "<b>Email address</b> must be entered");
@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_Is_A_Valid_EmailAddress()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEmailAddress("accnm.com");
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "EmailAddress", "Enter a valid <b>email address</b>");
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_Is_Less_Than_200_Characters()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEmailAddress(
                  "abc012345678900123456789001234567890012345678900123456789001234567890012345678900123456789001234567890012345678900123456789001234567890" +
                  "01234567890012345678900123456789001234567890012345678900123456789001234567890012345678900123456789001234567890@email.com");
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_Overlapping_StartDate()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.OverlappingStartDate);
 
             var errors = await fixture.Handle();
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_Overlapping_EndDate()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.OverlappingEndDate);
 
             var errors = await fixture.Handle();
@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_Overlapping_DateEmbrace()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.DateEmbrace);
 
             var errors = await fixture.Handle();
@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_When_Duplicate_Email()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetUpDuplicateEmail();
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "EmailAddress", "The <b>email address</b> has already been used for an apprentice in this file");
@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_Overlapping_DateWithIn()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.DateWithin);
 
             var errors = await fixture.Handle();

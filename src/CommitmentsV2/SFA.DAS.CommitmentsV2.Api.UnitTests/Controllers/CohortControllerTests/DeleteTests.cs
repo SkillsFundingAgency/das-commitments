@@ -18,8 +18,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         [Test]
         public async Task WhenDeleteIsCalled_ThenShouldReturnNoContentResult()
         {
-            var f = new DeleteTestsFixture();
-            var response = await f.Send();
+            var fixture = new DeleteTestsFixture();
+            var response = await fixture.Send();
 
             Assert.IsInstanceOf<NoContentResult>(response);
         }
@@ -27,9 +27,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         [Test]
         public async Task WhenDeleteIsCalled_ThenShouldPassValuesToDeleteCommand()
         {
-            var f = new DeleteTestsFixture();
-            await f.Send();
-            f.VerifyDeleteCohortCommandIsSentCorrectly();
+            var fixture = new DeleteTestsFixture();
+            await fixture.Send();
+            
+            fixture.VerifyDeleteCohortCommandIsSentCorrectly();
         }
 
         public class DeleteTestsFixture
@@ -49,8 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                 Controller = new CohortController(Mediator.Object);
                 UserInfo = AutoFixture.Create<UserInfo>();
 
-                Mediator.Setup(m => m.Send(It.IsAny<DeleteCohortCommand>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(Unit.Value);
+                Mediator.Setup(m => m.Send(It.IsAny<DeleteCohortCommand>(), It.IsAny<CancellationToken>()));
             }
 
             public Task<IActionResult> Send()

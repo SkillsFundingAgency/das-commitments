@@ -7,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Validators;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
 {
-    [TestFixture()]
+    [TestFixture]
     public class UserInfoValidatorTests
     {
         [TestCase("UserId", true)]
@@ -15,7 +15,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(null, false)]
         public void Validate_UserId_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.UserId, value, expectedValid);
+            var userInfo = new UserInfo { UserId = value };
+            
+            AssertValidationResult(request => request.UserId, userInfo, expectedValid);
         }
 
         [TestCase("UserDisplayName", true)]
@@ -23,7 +25,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(null, false)]
         public void Validate_UserName_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.UserDisplayName, value, expectedValid);
+            var userInfo = new UserInfo { UserDisplayName = value };
+            
+            AssertValidationResult(request => request.UserDisplayName, userInfo, expectedValid);
         }
 
         [TestCase("CorrectEmail@here.com", true)]
@@ -33,22 +37,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(null, false)]
         public void Validate_UserEmail_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.UserEmail, value, expectedValid);
+            var userInfo = new UserInfo { UserEmail = value };
+            
+            AssertValidationResult(request => request.UserEmail, userInfo, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<UserInfo, T>> property, T value, bool expectedValid)
+        private static void AssertValidationResult<T>(Expression<Func<UserInfo, T>> property, UserInfo userInfo, bool expectedValid)
         {
             // Arrange
             var validator = new UserInfoValidator();
 
             // Act
+            var result = validator.TestValidate(userInfo);
+            
+            // assert
             if (expectedValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
+                result.ShouldNotHaveValidationErrorFor(property);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(property, value);
+                result.ShouldHaveValidationErrorFor(property);
             }
         }
     }

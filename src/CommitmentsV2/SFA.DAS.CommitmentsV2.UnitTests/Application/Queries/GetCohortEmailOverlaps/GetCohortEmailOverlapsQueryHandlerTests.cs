@@ -19,20 +19,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortEmailOver
         [Test]
         public async Task Handle_Test()
         {
-            var f = new GetCohortEmailOverlapsQueryHandlerTestFixtures();
-            var result = await f.GetResult(new GetCohortEmailOverlapsQuery(123));
+            var fixtures = new GetCohortEmailOverlapsQueryHandlerTestFixtures();
+            var result = await fixtures.GetResult(new GetCohortEmailOverlapsQuery(123));
 
-            Assert.AreEqual(f.OverlapResults.Count, result.Overlaps.Count);
-            Assert.AreEqual(f.OverlapResults[0].RowId, result.Overlaps[0].Id);
-            Assert.AreEqual(f.OverlapResults[0].BuildErrorMessage(), result.Overlaps[0].ErrorMessage);
-            Assert.AreEqual(f.OverlapResults[1].RowId, result.Overlaps[1].Id);
-            Assert.AreEqual(f.OverlapResults[1].BuildErrorMessage(), result.Overlaps[1].ErrorMessage);
+            Assert.AreEqual(fixtures.OverlapResults.Count, result.Overlaps.Count);
+            Assert.AreEqual(fixtures.OverlapResults[0].RowId, result.Overlaps[0].Id);
+            Assert.AreEqual(fixtures.OverlapResults[0].BuildErrorMessage(), result.Overlaps[0].ErrorMessage);
+            Assert.AreEqual(fixtures.OverlapResults[1].RowId, result.Overlaps[1].Id);
+            Assert.AreEqual(fixtures.OverlapResults[1].BuildErrorMessage(), result.Overlaps[1].ErrorMessage);
         }
     }
 
     public class GetCohortEmailOverlapsQueryHandlerTestFixtures
     {
-        private Fixture _autoFixture;
+        private readonly Fixture _autoFixture;
         public GetCohortEmailOverlapsQueryHandlerTestFixtures()
         {
             _autoFixture = new Fixture();
@@ -44,12 +44,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortEmailOver
         }
 
         public List<EmailOverlapCheckResult> OverlapResults { get; set; }
-        public Mock<IRequestHandler<GetCohortEmailOverlapsQuery, GetCohortEmailOverlapsQueryResult>> HandlerMock { get; set; }
-        public IRequestHandler<GetCohortEmailOverlapsQuery, GetCohortEmailOverlapsQueryResult> Handler => HandlerMock.Object;
 
-        public Mock<IValidator<GetCohortEmailOverlapsQuery>> ValidatorMock { get; set; }
-        public Mock<IOverlapCheckService> OverlapCheckServiceMock { get; set; }
-        public IValidator<GetCohortEmailOverlapsQuery> Validator => ValidatorMock.Object;
+        private Mock<IOverlapCheckService> OverlapCheckServiceMock { get; set; }
 
         public Task<GetCohortEmailOverlapsQueryResult> GetResult(GetCohortEmailOverlapsQuery query)
         {

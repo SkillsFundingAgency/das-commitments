@@ -18,15 +18,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenApprenticeshipUpdateRejectedEventIsReceived_ThenShouldRelayAnyMessagesToAzureServiceBus()
         {
-            var f = new ApprenticeshipUpdatesRejectedEventHandlerTestsFixture().WithApprenticeshipUpdateRejectedEvent();
-            await f.Handle();
-            f.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
+            var fixture = new ApprenticeshipUpdatesRejectedEventHandlerTestsFixture().WithApprenticeshipUpdateRejectedEvent();
+            await fixture.Handle();
+            fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
         }
     }
 
     public class ApprenticeshipUpdatesRejectedEventHandlerTestsFixture
     {
-        public Mock<IMessageHandlerContext> MessageHandlerContext;
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
         public ApprenticeshipUpdateRejectedEventHandler Sut;
         public ApprenticeshipUpdateRejectedEvent ApprenticeshipUpdateRejectedEvent;
@@ -41,8 +40,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             ApprenticeshipId = autoFixture.Create<long>();
             ProviderId = autoFixture.Create<long>();
             AccountId = autoFixture.Create<long>();
-
-            MessageHandlerContext = new Mock<IMessageHandlerContext>();
+            
             LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
 
             Sut = new ApprenticeshipUpdateRejectedEventHandler(LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<ApprenticeshipUpdateRejectedEventHandler>>());

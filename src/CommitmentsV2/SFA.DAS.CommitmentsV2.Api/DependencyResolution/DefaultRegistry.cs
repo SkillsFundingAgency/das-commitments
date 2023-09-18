@@ -2,11 +2,11 @@
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.LinkGeneration;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.ProviderRelationships.Api.Client;
 using SFA.DAS.ProviderRelationships.Api.Client.Http;
-using SFA.DAS.ProviderUrlHelper;
 using StructureMap;
 using StructureMap.Building.Interception;
 

@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_IsNotEmpty()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEndDate("");
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02");
@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [TestCase("01-19999")]
         public async Task Validate_Is_Valid_Format(string startDate)
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using  var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEndDate(startDate);
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02");
@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [TestCase("2000-14")]
         public async Task Validate_Is_Valid_Date(string startDate)
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEndDate(startDate);
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "EndDate", "Enter the <b>end date</b> using the format yyyy-mm, for example 2019-02");
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_Is_After_StartDate()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEndDate("2018-01");
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "EndDate", "Enter an <b>end date</b> that is after the start date");

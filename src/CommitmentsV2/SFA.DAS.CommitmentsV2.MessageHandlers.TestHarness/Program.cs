@@ -25,8 +25,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
             var builder = new ConfigurationBuilder()
                 .AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2);
 
-            IConfigurationRoot configuration = builder.Build();
-
+            var configuration = builder.Build();
+            
             var provider = new ServiceCollection()
                 .AddOptions()
                 .Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2)).BuildServiceProvider();

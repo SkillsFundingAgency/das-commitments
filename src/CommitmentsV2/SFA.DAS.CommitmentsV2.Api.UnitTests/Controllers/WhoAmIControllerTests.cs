@@ -5,26 +5,27 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Authentication;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
     [TestFixture]
     [Parallelizable]
-    public class WhoAmIControllerTests : FluentTest<WhoAmIControllerTestsFixture>
+    public class WhoAmIControllerTests
     {
         [TestCase(Role.Employer)]
         [TestCase(Role.Provider)]
         [TestCase(new object[] { Role.Employer, Role.Provider })]
         public void WhoAmI_WhenRequestReceived_ThenShouldSendResponse(params string[] roles)
         {
-            Test(
-                f => f.SetRoles(roles),
-                f => f.WhoAmI(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().BeOfType<WhoAmIResponse>()
-                    .Which.Roles.Should().BeEquivalentTo(roles));
+            var fixture = new WhoAmIControllerTestsFixture();
+            fixture.SetRoles(roles);
+            
+            var result = fixture.WhoAmI();
+
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().BeOfType<WhoAmIResponse>()
+                .Which.Roles.Should().BeEquivalentTo(roles);
         }
     }
 

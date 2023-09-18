@@ -13,7 +13,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation
 {
-    public class ResendInvitationCommandHandler : AsyncRequestHandler<ResendInvitationCommand>
+    public class ResendInvitationCommandHandler : IRequestHandler<ResendInvitationCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ICurrentDateTime _currentDate;
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation
             _logger = logger;
         }
 
-        protected override async Task Handle(ResendInvitationCommand command, CancellationToken cancellationToken)
+        public async Task Handle(ResendInvitationCommand command, CancellationToken cancellationToken)
         {
             try
             {

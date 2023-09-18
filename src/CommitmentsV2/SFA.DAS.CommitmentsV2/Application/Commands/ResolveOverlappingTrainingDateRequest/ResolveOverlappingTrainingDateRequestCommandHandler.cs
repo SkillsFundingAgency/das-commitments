@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest
 {
-    public class ResolveOverlappingTrainingDateRequestCommandHandler : AsyncRequestHandler<ResolveOverlappingTrainingDateRequestCommand>
+    public class ResolveOverlappingTrainingDateRequestCommandHandler : IRequestHandler<ResolveOverlappingTrainingDateRequestCommand>
     {
         private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
 
@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingD
             _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
         }
 
-        protected override async Task Handle(ResolveOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
+        public async Task Handle(ResolveOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
         {
             if (request?.ResolutionType == null)
                 throw new ArgumentNullException(nameof(ResolveOverlappingTrainingDateRequestCommand.ResolutionType));

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -8,31 +7,26 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllCohortAccountIds;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
-using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
 {
     [TestFixture]
     [Parallelizable]
-    public class GetAllCohortAccountIdsTests : FluentTest<GetAllCohortAccountIdsTestsFixture>
+    public class GetAllCohortAccountIdsTests
     {
-     
         [Test]
         public async Task WhenGetAllCohortAccountIds_ThenShouldReturnOkayResponseWithAllCohortAccountIds()
         {
-            await TestAsync(
-                f => f.GetAllCohortAccountIds(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().NotBeNull()
-                    .And.Match<GetAllCohortAccountIdsResponse>(v =>
-                        v.AccountIds.Count == f.AccountIdsQueryResult.AccountIds.Count));
+            var fixture = new GetAllCohortAccountIdsTestsFixture();
+            var result = await fixture.GetAllCohortAccountIds();
+            
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().NotBeNull()
+                .And.Match<GetAllCohortAccountIdsResponse>(v =>
+                    v.AccountIds.Count == fixture.AccountIdsQueryResult.AccountIds.Count);
         }
 
     }

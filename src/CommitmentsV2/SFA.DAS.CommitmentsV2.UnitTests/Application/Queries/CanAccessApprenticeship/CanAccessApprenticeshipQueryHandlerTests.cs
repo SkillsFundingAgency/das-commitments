@@ -17,7 +17,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
         [Test]
         public async Task Handle_EmployerQuery_WithApprovedApprenticeship_ShouldReturnTrue()
         {
-            var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture().SeedData().SetMatchingAccountQuery();
+            using var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture()
+                .SeedData()
+                .SetMatchingAccountQuery();
 
             var response = await fixtures.Handle();
 
@@ -27,7 +29,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
         [Test]
         public async Task Handle_ProviderQuery_WithApprovedApprenticeship_ShouldReturnTrue()
         {
-            var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture().SeedData().SetMatchingProviderQuery();
+            using var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture()
+                .SeedData()
+                .SetMatchingProviderQuery();
 
             var response = await fixtures.Handle();
 
@@ -37,7 +41,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
         [Test]
         public async Task Handle_EmployerQuery_WithNoApprovedApprenticeship_ShouldReturnFalse()
         {
-            var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture().SeedData().SetNonMatchingQuery();
+            using var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture()
+                .SeedData()
+                .SetNonMatchingQuery();
 
             var response = await fixtures.Handle();
 
@@ -48,7 +54,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
         [Test]
         public async Task Handle_EmployerQuery_WithDraftApprenticeship_ShouldReturnFalse()
         {
-            var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture().SeedDataWithDraftApprenticeship().SetMatchingAccountQuery();
+            using var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture()
+                .SeedDataWithDraftApprenticeship()
+                .SetMatchingAccountQuery();
 
             var response = await fixtures.Handle();
 
@@ -56,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
         }
     }
 
-    public class CanAccessApprenticeshipQueryHandlerTestsFixture
+    public class CanAccessApprenticeshipQueryHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public CanAccessApprenticeshipQueryHandler Handler { get; set; }
@@ -85,23 +93,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
 
         public CanAccessApprenticeshipQueryHandlerTestsFixture SetMatchingAccountQuery()
         {
-            Query = new CanAccessApprenticeshipQuery {ApprenticeshipId = _apprenticeshipId, Party = Party.Employer, PartyId = _accountId};
+            Query = new CanAccessApprenticeshipQuery
+                { ApprenticeshipId = _apprenticeshipId, Party = Party.Employer, PartyId = _accountId };
             return this;
         }
 
         public CanAccessApprenticeshipQueryHandlerTestsFixture SetMatchingProviderQuery()
         {
-            Query = new CanAccessApprenticeshipQuery { ApprenticeshipId = _apprenticeshipId, Party = Party.Provider, PartyId = _providerId };
+            Query = new CanAccessApprenticeshipQuery
+                { ApprenticeshipId = _apprenticeshipId, Party = Party.Provider, PartyId = _providerId };
             return this;
         }
 
         public CanAccessApprenticeshipQueryHandlerTestsFixture SetNonMatchingQuery()
         {
-            Query = new CanAccessApprenticeshipQuery { ApprenticeshipId = _apprenticeshipId + 1, Party = Party.Provider, PartyId = _accountId };
+            Query = new CanAccessApprenticeshipQuery
+                { ApprenticeshipId = _apprenticeshipId + 1, Party = Party.Provider, PartyId = _accountId };
             return this;
         }
 
-        public CanAccessApprenticeshipQueryHandlerTestsFixture SeedDataWithDraftApprenticeship() 
+        public CanAccessApprenticeshipQueryHandlerTestsFixture SeedDataWithDraftApprenticeship()
         {
             return SeedData(false);
         }
@@ -144,7 +155,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
             }
 
             Db.Cohorts.Add(_cohort);
-            
+
             Db.SaveChanges();
 
             return this;
@@ -153,6 +164,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
         public Task<bool> Handle()
         {
             return Handler.Handle(Query, CancellationToken.None);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

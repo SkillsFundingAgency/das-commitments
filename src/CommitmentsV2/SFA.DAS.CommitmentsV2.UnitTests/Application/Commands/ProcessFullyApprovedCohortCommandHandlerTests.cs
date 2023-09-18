@@ -26,19 +26,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable(ParallelScope.None)]
     public class ProcessFullyApprovedCohortCommandHandlerTests
     {
-
         [TestCase(ApprenticeshipEmployerType.NonLevy)]
         [TestCase(ApprenticeshipEmployerType.Levy)]
         public void Handle_WhenHandlingCommand_ThenShouldProcessFullyApprovedCohort(ApprenticeshipEmployerType apprenticeshipEmployerType)
         {
-            var f = new ProcessFullyApprovedCohortCommandFixture();
-            f.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
+            var fixture = new ProcessFullyApprovedCohortCommandFixture();
+            fixture.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
                 .Handle();
             
-            f.Db.Verify(d => d.ExecuteSqlCommandAsync(
+            fixture.Db.Verify(d => d.ExecuteSqlCommandAsync(
                     "EXEC ProcessFullyApprovedCohort @cohortId, @accountId, @apprenticeshipEmployerType",
-                    It.Is<SqlParameter>(p => p.ParameterName == "cohortId" && p.Value.Equals(f.Command.CohortId)),
-                    It.Is<SqlParameter>(p => p.ParameterName == "accountId" && p.Value.Equals(f.Command.AccountId)),
+                    It.Is<SqlParameter>(p => p.ParameterName == "cohortId" && p.Value.Equals(fixture.Command.CohortId)),
+                    It.Is<SqlParameter>(p => p.ParameterName == "accountId" && p.Value.Equals(fixture.Command.AccountId)),
                     It.Is<SqlParameter>(p => p.ParameterName == "apprenticeshipEmployerType" && p.Value.Equals(apprenticeshipEmployerType))),
                 Times.Once);
         }
@@ -49,15 +48,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(ApprenticeshipEmployerType.Levy, true)]
         public void Handle_WhenHandlingCommand_ThenShouldPublishEvents(ApprenticeshipEmployerType apprenticeshipEmployerType, bool isFundedByTransfer)
         {
-            var f = new ProcessFullyApprovedCohortCommandFixture();
-            f.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
+            var fixture = new ProcessFullyApprovedCohortCommandFixture();
+            fixture.SetApprenticeshipEmployerType(apprenticeshipEmployerType)
                 .SetApprovedApprenticeships(isFundedByTransfer)
                 .Handle();
             
-            f.Apprenticeships.ForEach(
-                a => f.EventPublisher.Verify(
+            fixture.Apprenticeships.ForEach(
+                a => fixture.EventPublisher.Verify(
                     p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                        e => f.IsValid(apprenticeshipEmployerType, a, e))),
+                        e => fixture.IsValid(apprenticeshipEmployerType, a, e))),
                     Times.Once));
         }
 
@@ -65,32 +64,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public void Handle_WhenHandlingCommand_WithChangeOfParty_ThenShouldPublishApprenticeshipWithChangeOfPartyCreatedEvents()
         {
-            var f = new ProcessFullyApprovedCohortCommandFixture();
-            f.SetChangeOfPartyRequest(true)
+            var fixture = new ProcessFullyApprovedCohortCommandFixture();
+            fixture.SetChangeOfPartyRequest(true)
                 .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.NonLevy)
                 .SetApprovedApprenticeships(false)
                 .Handle();
 
-            f.Apprenticeships.ForEach(
-                a => f.EventPublisher.Verify(
+            fixture.Apprenticeships.ForEach(
+                a => fixture.EventPublisher.Verify(
                     p => p.Publish(It.Is<ApprenticeshipWithChangeOfPartyCreatedEvent>(
-                        e => f.IsValidChangeOfPartyEvent(a, e))),
+                        e => fixture.IsValidChangeOfPartyEvent(a, e))),
                     Times.Once));
         }
 
         [Test]
         public void Handle_WhenHandlingCommand_WithChangeOfParty_ThenShouldAddContinuationOfIdToApprenticeCreatedEvents()
         {
-            var f = new ProcessFullyApprovedCohortCommandFixture();
-            f.SetChangeOfPartyRequest(true)
+            var fixture = new ProcessFullyApprovedCohortCommandFixture();
+            fixture.SetChangeOfPartyRequest(true)
                 .SetApprenticeshipEmployerType(ApprenticeshipEmployerType.NonLevy)
                 .SetApprovedApprenticeshipAsContinuation()
                 .Handle();
 
-            f.Apprenticeships.ForEach(
-                a => f.EventPublisher.Verify(
+            fixture.Apprenticeships.ForEach(
+                a => fixture.EventPublisher.Verify(
                     p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                        e => e.ContinuationOfId == f.PreviousApprenticeshipId)),
+                        e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
                     Times.Once));
         }
     }

@@ -216,9 +216,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             return new NoSpecimen();
         }
 
-        private bool IsListOrCollection(Type type)
+        private static bool IsListOrCollection(Type type)
         {
-            return (type != typeof(string) && ((type.GetInterface(nameof(System.Collections.IEnumerable)) != null) || (type.GetInterface(nameof(System.Collections.ICollection)) != null)));
+            return type != typeof(string) && (type.GetInterface(nameof(System.Collections.IEnumerable)) != null || type.GetInterface(nameof(System.Collections.ICollection)) != null);
         }
     }
 }

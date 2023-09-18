@@ -55,9 +55,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllLearners
         [SetUp]
         public void Arrange()
         {
-
             _dbContext.Apprenticeships.AddRange(Apprenticeships);
             _dbContext.SaveChanges();
+        }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _dbContext?.Dispose();
         }
 
         [Test]
