@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 
         [Route("search/{hashedAccountId}")]
         [HttpGet]
-        public async Task<ActionResult> Search(string hashedAccountId)
+        public ActionResult Search(string hashedAccountId)
         {
             var uriString = $"/resource/apprenticeships/search/{hashedAccountId}";
             return View(new ApprenticeshipSearchQuery()

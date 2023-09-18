@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship
 {
-    public class PauseApprenticeshipCommandHandler : AsyncRequestHandler<PauseApprenticeshipCommand>
+    public class PauseApprenticeshipCommandHandler : IRequestHandler<PauseApprenticeshipCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ICurrentDateTime _currentDate;
@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship
             _logger = logger;
         }
 
-        protected override async Task Handle(PauseApprenticeshipCommand command, CancellationToken cancellationToken)
+        public async Task Handle(PauseApprenticeshipCommand command, CancellationToken cancellationToken)
         {
             var party = _authenticationService.GetUserParty();
             CheckPartyIsValid(party);
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship
             apprenticeship.PauseApprenticeship(_currentDate, party, command.UserInfo);
         }
 
-        private void CheckPartyIsValid(Party party)
+        private static void CheckPartyIsValid(Party party)
         {
             if (party != Party.Employer)
             {

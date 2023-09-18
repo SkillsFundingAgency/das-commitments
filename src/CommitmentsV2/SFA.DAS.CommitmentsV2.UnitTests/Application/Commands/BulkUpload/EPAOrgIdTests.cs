@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         [Test]
         public async Task Validate_Is_Not_Greater_Than_7_Characters()
         {
-            var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
+            using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetEPAOrgId("12345678");
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "EPAOrgId", "The <b>EPAO ID</b> must not be longer than 7 characters");

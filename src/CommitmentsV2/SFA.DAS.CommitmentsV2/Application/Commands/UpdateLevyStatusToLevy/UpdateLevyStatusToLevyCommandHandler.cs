@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy
 {
-    public class UpdateLevyStatusToLevyCommandHandler : AsyncRequestHandler<UpdateLevyStatusToLevyCommand>
+    public class UpdateLevyStatusToLevyCommandHandler : IRequestHandler<UpdateLevyStatusToLevyCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly ILogger<UpdateLevyStatusToLevyCommandHandler> _logger;
@@ -20,14 +20,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateLevyStatusToLevy
             _logger = logger;
         }
 
-        protected override async Task Handle(UpdateLevyStatusToLevyCommand request, CancellationToken cancellationToken)
+        public async Task Handle(UpdateLevyStatusToLevyCommand request, CancellationToken cancellationToken)
         {
             var entity = await _db.Value.Accounts.FirstOrDefaultAsync(x => x.Id == request.AccountId, cancellationToken);
 
             if (entity != null)
             {
                 entity.UpdateLevyStatus(ApprenticeshipEmployerType.Levy);
-                await _db.Value.SaveChangesAsync();
+                await _db.Value.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation($"LevyStatus set to Levy for AccountId : {request.AccountId}");
             }
         }

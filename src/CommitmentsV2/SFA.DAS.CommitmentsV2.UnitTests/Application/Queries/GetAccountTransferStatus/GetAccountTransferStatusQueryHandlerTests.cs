@@ -25,6 +25,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountTransfer
         {
             _fixture = new GetAccountTransferStatusQueryHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task When_Getting_Transfer_Status_Then_IsSender_Is_True_When_Employer_Is_Transfer_Sender()
@@ -59,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountTransfer
         }
 
 
-        public class GetAccountTransferStatusQueryHandlerTestsFixture
+        public class GetAccountTransferStatusQueryHandlerTestsFixture : IDisposable
         {
             public ProviderCommitmentsDbContext Db { get; set; }
             public Mock<IAuthenticationService> AuthenticationServiceMock { get; set; }
@@ -227,6 +233,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountTransfer
                 Db.SaveChanges();
 
                 return this;
+            }
+
+            public void Dispose()
+            {
+                Db?.Dispose();
             }
         }
     }

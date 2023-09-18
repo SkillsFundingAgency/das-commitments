@@ -28,6 +28,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture = new ApprenticeshipConfirmationCommencedCommandHandlerTestsFixture();
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
+
         [Test]
         public async Task Handle_WhenNoConfirmationStatusIsFoundForApprenticeship_ThenANewConfirmationStatusIsCreatedAsUnconfirmed()
         {
@@ -85,9 +91,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
     }
 
-    public class ApprenticeshipConfirmationCommencedCommandHandlerTestsFixture
+    public class ApprenticeshipConfirmationCommencedCommandHandlerTestsFixture : IDisposable
     {
-        public long ApprenticeshipId = 12;
         public Fixture DataFixture { get; set; }
         public ApprenticeshipConfirmationStatus ConfirmationStatus { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
@@ -124,6 +129,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var status = Db.ApprenticeshipConfirmationStatus.FirstOrDefault(x => x.ApprenticeshipId == apprenticeshipId);
 
             return status;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

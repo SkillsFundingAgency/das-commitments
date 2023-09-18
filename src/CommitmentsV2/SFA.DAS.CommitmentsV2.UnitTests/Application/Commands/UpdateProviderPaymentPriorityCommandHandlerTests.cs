@@ -7,16 +7,12 @@ using FluentAssertions;
 using Moq;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountName;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Testing;
-using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.Input[] inputs,
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -66,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
             // Arrange
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -105,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
             // Arrange
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -144,7 +140,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
             // Arrange
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -183,7 +179,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             UpdateProviderPaymentsPriorityDataCases.ExpectedOutput[] expectedOutputs)
         {
             // Arrange
-            var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
+            using var fixture = new UpdateProviderPaymentPriorityCommandHandlerTestsFixture();
             foreach (var setup in setups)
             {
                 fixture.SetAccount(setup.AccountId, setup.ProviderId, setup.AccountName, setup.PriorityOrder);
@@ -345,12 +341,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class UpdateProviderPaymentPriorityCommandHandlerTestsFixture
+    public class UpdateProviderPaymentPriorityCommandHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         
         public Mock<ILogger<UpdateProviderPaymentsPriorityCommandHandler>> Logger;
-        public IRequestHandler<UpdateProviderPaymentsPriorityCommand, Unit> Handler { get; set; }
+        public IRequestHandler<UpdateProviderPaymentsPriorityCommand> Handler { get; set; }
 
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
@@ -373,8 +369,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             // this call is part of the DAS.SFA.UnitOfWork.Context.UnitOfWorkContext middleware in the API
             await Db.SaveChangesAsync();
-
-            return;
         }
 
         public void SetAccount(long accountId, long providerId, string accountName, int? priorityOrder)
@@ -444,6 +438,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 AccountId = accountId,
                 PaymentOrder = paymentOrder
             });
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

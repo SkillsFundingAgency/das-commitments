@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
 {
     public class CreateCohortRequestValidator : AbstractValidator<CreateCohortRequest>
     {
-        public CreateCohortRequestValidator(IAuthorizationService authorizationService)
+        public CreateCohortRequestValidator()
         {
             RuleFor(r => r.AccountId).Must(accountId => accountId > 0).WithMessage("The Account Id valid");
             RuleFor(r => r.AccountLegalEntityId).Must(accountLegalEntityId => accountLegalEntityId > 0).WithMessage("The Account Legal Entity must be valid"); 

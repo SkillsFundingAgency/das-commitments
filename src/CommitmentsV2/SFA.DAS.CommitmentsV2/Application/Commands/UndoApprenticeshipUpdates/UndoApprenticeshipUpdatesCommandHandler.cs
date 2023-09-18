@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UndoApprenticeshipUpdates
 {
-    public class UndoApprenticeshipUpdatesCommandHandler : AsyncRequestHandler<UndoApprenticeshipUpdatesCommand>
+    public class UndoApprenticeshipUpdatesCommandHandler : IRequestHandler<UndoApprenticeshipUpdatesCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UndoApprenticeshipUpdates
             _logger = logger;
         }
 
-        protected override async Task Handle(UndoApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
+        public async Task Handle(UndoApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
         {
             _logger.LogInformation("UndoApprenticeshipUpdatesCommand received from ApprenticeshipId :" + command.ApprenticeshipId);
             var party = _authenticationService.GetUserParty();
@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UndoApprenticeshipUpdates
             apprenticeship.UndoApprenticeshipUpdate(party, command.UserInfo);
         }
 
-        private void CheckPartyIsValid(Party party, UndoApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)
+        private static void CheckPartyIsValid(Party party, UndoApprenticeshipUpdatesCommand command, Apprenticeship apprenticeship)
         {
             if (party == Party.Employer && command.AccountId != apprenticeship.Cohort.EmployerAccountId)
             {

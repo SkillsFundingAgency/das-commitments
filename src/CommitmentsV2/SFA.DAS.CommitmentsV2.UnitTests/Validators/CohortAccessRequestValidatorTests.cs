@@ -16,7 +16,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(1, true)]
         public void Validate_CohortId_ShouldBeValidated(long value, bool expectedValid)
         {
-            AssertValidationResult(request => request.CohortId, value, expectedValid);
+            var request = new CohortAccessRequest { CohortId = value };
+            
+            AssertValidationResult(r => r.CohortId, request, expectedValid);
         }
 
         [TestCase(Party.None, false)]
@@ -25,7 +27,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(Party.Employer, true)]
         public void Validate_PartyType_ShouldBeValidated(Party value, bool expectedValid)
         {
-            AssertValidationResult(request => request.Party, value, expectedValid);
+            var request = new CohortAccessRequest { Party = value };
+            
+            AssertValidationResult(r => r.Party, request, expectedValid);
         }
 
         [TestCase(0, false)]
@@ -33,38 +37,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(1, true)]
         public void Validate_PartyId_ShouldBeValidated(long value, bool expectedValid)
         {
-            AssertValidationResult(request => request.PartyId, value, expectedValid);
+            var request = new CohortAccessRequest { PartyId = value };
+            
+            AssertValidationResult(r => r.PartyId, request, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<CohortAccessRequest, T>> property, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<CohortAccessRequest, T>> property, CohortAccessRequest request, bool expectedValid)
         {
             // Arrange
             var validator = new CohortAccessRequestValidator();
-
+            
             // Act
+            var result = validator.TestValidate(request);
+            
             if (expectedValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
+                result.ShouldNotHaveValidationErrorFor(property);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(property, value);
-            }
-        }
-
-        private void AssertValidationResult<T>(Expression<Func<CohortAccessRequest, T>> property, Func<string, bool> feature, T value, bool expectedValid)
-        {
-            // Arrange
-            var validator = new CohortAccessRequestValidator();
-
-            // Act
-            if (expectedValid)
-            {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
-            }
-            else
-            {
-                validator.ShouldHaveValidationErrorFor(property, value);
+                result.ShouldHaveValidationErrorFor(property);
             }
         }
     }

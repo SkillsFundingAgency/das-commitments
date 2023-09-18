@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning
 {
-    public class RecognisePriorLearningHandler : AsyncRequestHandler<RecognisePriorLearningCommand>
+    public class RecognisePriorLearningHandler : IRequestHandler<RecognisePriorLearningCommand>
     {
         private readonly ILogger<RecognisePriorLearningHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.RecognisePriorLearning
             _logger = logger;
         }
 
-        protected override async Task Handle(RecognisePriorLearningCommand command, CancellationToken cancellationToken)
+        public async Task Handle(RecognisePriorLearningCommand command, CancellationToken cancellationToken)
         {
             var apprenticeship = await _dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
 

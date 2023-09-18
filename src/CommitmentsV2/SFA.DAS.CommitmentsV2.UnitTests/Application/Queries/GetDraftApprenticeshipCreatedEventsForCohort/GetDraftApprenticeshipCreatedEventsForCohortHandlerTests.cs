@@ -157,7 +157,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             dbContext.SaveChanges(true);
         }
 
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        private static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
         {
             builder.AddConsole();
             builder.SetMinimumLevel(LogLevel.Debug);

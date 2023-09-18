@@ -1,9 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
@@ -16,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
             {
                 CsvRecords = source.CsvRecords,
                 ProviderId = source.ProviderId,
+                RplDataExtended = source.RplDataExtended,
                 ReservationValidationResults = source.BulkReservationValidationResults,
                 ProviderStandardResults = source.ProviderStandardsData
             });

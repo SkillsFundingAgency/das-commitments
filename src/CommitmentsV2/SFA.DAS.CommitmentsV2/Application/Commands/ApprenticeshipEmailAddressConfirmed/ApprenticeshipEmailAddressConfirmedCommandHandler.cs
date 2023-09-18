@@ -13,7 +13,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressConfirmed
 {
-    public class ApprenticeshipEmailAddressConfirmedCommandHandler : AsyncRequestHandler<ApprenticeshipEmailAddressConfirmedCommand>
+    public class ApprenticeshipEmailAddressConfirmedCommandHandler : IRequestHandler<ApprenticeshipEmailAddressConfirmedCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly IApprovalsOuterApiClient _apimClient;
@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressC
             _logger = logger;
         }
 
-        protected override async Task Handle(ApprenticeshipEmailAddressConfirmedCommand request, CancellationToken cancellationToken)
+        public async Task Handle(ApprenticeshipEmailAddressConfirmedCommand request, CancellationToken cancellationToken)
         {
             try
             {
