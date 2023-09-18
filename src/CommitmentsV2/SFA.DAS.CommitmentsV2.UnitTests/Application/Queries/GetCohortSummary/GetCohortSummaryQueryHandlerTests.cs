@@ -31,7 +31,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public AccountLegalEntity AccountLegalEntity;
         public Provider Provider;
         public long CohortId;
-        public long AccountLegalEntityId;
         public Party WithParty = Party.Employer;
         public const string LatestMessageCreatedByEmployer = "ohayou";
         public const string LatestMessageCreatedByProvider = "konbanwa";
@@ -593,19 +592,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             });
         }
 
-        public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
+        private Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(databaseName: "SFA.DAS.Commitments.Database")
                 .UseLoggerFactory(MyLoggerFactory)
                 .Options;
 
-            using (var dbContext = new ProviderCommitmentsDbContext(options))
-            {
-                dbContext.Database.EnsureCreated();
-                SeedData(dbContext);
-                return action(dbContext);
-            }
+            using var dbContext = new ProviderCommitmentsDbContext(options);
+            dbContext.Database.EnsureCreated();
+            SeedData(dbContext);
+            return action(dbContext);
         }
 
         private void SeedData(ProviderCommitmentsDbContext dbContext)
@@ -615,7 +612,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             dbContext.SaveChanges(true);
         }
 
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
+        private static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
         {
             builder.AddConsole();
             builder.SetMinimumLevel(LogLevel.Debug);

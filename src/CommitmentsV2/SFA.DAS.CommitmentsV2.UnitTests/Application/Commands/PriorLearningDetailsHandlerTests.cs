@@ -23,12 +23,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable]
     public class PriorLearningDetailsHandlerTests
     {
-        PriorLearningDetailsHandlerTestsFixture fixture;
-
         [Test]
         public async Task Handle_WhenCommandIsHandled_PriorLearningDetailsAreUpdated()
-        {
-            fixture = new PriorLearningDetailsHandlerTestsFixture();
+        { 
+            using var fixture = new PriorLearningDetailsHandlerTestsFixture();
             await fixture.Handle();
 
             Assert.AreEqual(fixture.Command.DurationReducedBy, fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy);
@@ -38,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenNoDurationIsSet_ExceptionIsThrown()
         {
-            fixture = new PriorLearningDetailsHandlerTestsFixture();
+            using var fixture = new PriorLearningDetailsHandlerTestsFixture();
             fixture.Command.DurationReducedBy = null;
             await fixture.Handle();
 
@@ -49,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(1000)]
         public async Task Handle_WhenDurationIsSetOutsideValidRange_ExceptionIsThrown(int newDuration)
         {
-            fixture = new PriorLearningDetailsHandlerTestsFixture();
+            using var fixture = new PriorLearningDetailsHandlerTestsFixture();
             fixture.Command.DurationReducedBy = newDuration;
             await fixture.Handle();
 
@@ -59,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenNoPriceIsSet_ExceptionIsThrown()
         {
-            fixture = new PriorLearningDetailsHandlerTestsFixture();
+            using var fixture = new PriorLearningDetailsHandlerTestsFixture();
             fixture.Command.PriceReducedBy = null;
             await fixture.Handle();
 
@@ -70,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(100001)]
         public async Task Handle_WhenPriceIsSetOutOfValidRange_ExceptionIsThrown(int newPrice)
         {
-            fixture = new PriorLearningDetailsHandlerTestsFixture();
+            using var fixture = new PriorLearningDetailsHandlerTestsFixture();
             fixture.Command.PriceReducedBy = newPrice;
             await fixture.Handle();
 
@@ -81,14 +79,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [TestCase(false)]
         public async Task Handle_WhenRecognisePriorLearningIsNotTrue_ExceptionIsThrown(bool? value)
         {
-            fixture = await new PriorLearningDetailsHandlerTestsFixture().WithRecognisePriorLearningSetTo(value);
+            using var fixture = await new PriorLearningDetailsHandlerTestsFixture().WithRecognisePriorLearningSetTo(value);
             await fixture.Handle();
 
             fixture.VerifyException<DomainException>();
         }
     }
 
-    public class PriorLearningDetailsHandlerTestsFixture
+    public class PriorLearningDetailsHandlerTestsFixture : IDisposable
     {
         public long ApprenticeshipId = 12;
         public Fixture fixture { get; set; }
@@ -175,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
         }
 
-        public async Task<PriorLearningDetailsHandlerTestsFixture> SeedData()
+        private async Task<PriorLearningDetailsHandlerTestsFixture> SeedData()
         {
             Db.DraftApprenticeships.Add(ApprenticeshipDetails);
             await Db.SaveChangesAsync();
@@ -194,6 +192,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

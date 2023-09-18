@@ -14,7 +14,7 @@ using SFA.DAS.CommitmentsV2.Authentication;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.TriageDataLocks
 {
-    public class TriageDataLocksCommandHandler : AsyncRequestHandler<TriageDataLocksCommand>
+    public class TriageDataLocksCommandHandler : IRequestHandler<TriageDataLocksCommand>
     {       
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly IAuthenticationService _authenticationService;
@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.TriageDataLocks
             _authenticationService = authenticationService;
         }
 
-        protected override async Task Handle(TriageDataLocksCommand request, CancellationToken cancellationToken)
+        public async Task Handle(TriageDataLocksCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Triage Data Locks for apprenticeship {request.ApprenticeshipId}");
 

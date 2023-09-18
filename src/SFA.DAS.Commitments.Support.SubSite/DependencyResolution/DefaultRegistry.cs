@@ -25,8 +25,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 
         public DefaultRegistry()
         {
-            For<IMediator>().Use<Mediator>();
-            For<ServiceFactory>().Use<ServiceFactory>(ctx => ctx.GetInstance);
+            For<IMediator>().Use<Mediator>().Transient();
 
             Scan(scan =>
             {

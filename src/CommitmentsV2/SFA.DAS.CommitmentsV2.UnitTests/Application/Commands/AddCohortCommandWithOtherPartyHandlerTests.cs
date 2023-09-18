@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -12,13 +11,12 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class AddCohortCommandWithOtherPartyHandlerTests : FluentTest<AddCohortCommandWithOtherPartyHandlerTestsFixture>
+    public class AddCohortCommandWithOtherPartyHandlerTests
     { 
 
         private AddCohortCommandWithOtherPartyHandlerTestsFixture _fixture;
@@ -27,6 +25,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Arrange()
         {
             _fixture = new AddCohortCommandWithOtherPartyHandlerTestsFixture();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
         }
 
         [Test]
@@ -59,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class AddCohortCommandWithOtherPartyHandlerTestsFixture
+    public class AddCohortCommandWithOtherPartyHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public long CohortId { get; set; }
@@ -112,6 +116,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await Db.SaveChangesAsync();
 
             return response;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

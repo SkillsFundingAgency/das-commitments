@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using System;
+using AutoFixture;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -34,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class BulkUploadAddAndApproveDraftApprenticeshipsCommandHandlerTestsFixture
+    public class BulkUploadAddAndApproveDraftApprenticeshipsCommandHandlerTestsFixture 
     {
         public Fixture AutoFixture { get; set; }
         public Mock<ICohortDomainService> CohortDomainService { get; set; }

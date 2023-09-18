@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
 {
-    public class StopApprenticeshipCommandHandler : AsyncRequestHandler<StopApprenticeshipCommand>
+    public class StopApprenticeshipCommandHandler : IRequestHandler<StopApprenticeshipCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ICurrentDateTime _currentDate;
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
         }
 
-        protected override async Task Handle(StopApprenticeshipCommand request, CancellationToken cancellationToken)
+        public async Task Handle(StopApprenticeshipCommand request, CancellationToken cancellationToken)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
             await _nserviceBusContext.Send(sendEmailToProviderCommand);
         }
 
-        private void CheckPartyIsValid(Party party)
+        private static void CheckPartyIsValid(Party party)
         {
             if (party != Party.Employer)
             {

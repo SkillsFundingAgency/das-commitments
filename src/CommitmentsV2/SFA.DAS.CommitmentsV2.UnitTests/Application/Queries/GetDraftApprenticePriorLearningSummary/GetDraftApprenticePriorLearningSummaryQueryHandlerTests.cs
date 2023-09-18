@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [Test]
         public async Task Handle_WhenNoApprenticeshipFound_ThenShouldNull()
         {
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures();
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures();
 
             var result = await fixture.Handle();
 
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [Test]
         public async Task Handle_WhenApprenticeshipFoundButRPLSetToFalse_ThenShouldNull()
         {
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "123", DateTime.Today)
                 .SetApprenticeshipPriorLearningToFalse();
 
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [TestCase("123-123", ProgrammeType.Framework)]
         public async Task Handle_WhenApprenticeshipFoundAndNoMaxFundingFoundFundingForCourseCode_ThenMaxFundingShouldBeNullAndNoErrorDisplayed(string courseCode, ProgrammeType? programmeType)
         {
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(programmeType, courseCode, DateTime.Today)
                 .SetApprenticeshipPriorLearningData(1000);
 
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 DurationReducedBy = null
             };
 
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "1", DateTime.Today)
                 .SetMaxFundingBandForStandard(1, maxFundingBand)
                 .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 PriceReducedBy = 1000
             };
 
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "1", DateTime.Today)
                 .SetMaxFundingBandForStandard(1, 5000)
                 .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
@@ -135,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 DurationReducedBy = null
             };
 
-            var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Framework, "123-123", DateTime.Today)
                 .SetMaxFundingBandForFramework("123-123", maxFundingBand)
                 .SetApprenticeshipPriorLearningData(trainingTotalHours, priorLearning);
@@ -149,11 +149,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
     }
 
-    public class GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures
+    public class GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IFeatureTogglesService<FeatureToggle>> FeatureToggleServiceMock { get; set; }
-        public Mock<IRplFundingCalculationService> RplFundingCalculationService { get; set; }
         public GetDraftApprenticeshipPriorLearningSummaryQueryHandler Handler { get; set; }
         public ApprenticeshipPriorLearning PriorLearning { get; set; }
         public FlexibleEmployment FlexibleEmployment { get; set; }
@@ -171,22 +170,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
             FlexibleEmployment = new FlexibleEmployment { EmploymentEndDate = DateTime.Today, EmploymentPrice = 987 };
         }
-
-
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder.AddConsole();
-            builder.SetMinimumLevel(LogLevel.Debug);
-        });
-
-
+        
         public Task<GetDraftApprenticeshipPriorLearningSummaryQueryResult> Handle()
         {
             var query = new GetDraftApprenticeshipPriorLearningSummaryQuery(CohortId, ApprenticeshipId);
             return Handler.Handle(query, CancellationToken.None);
         }
-
-
 
         public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetApprentice(ProgrammeType? programmeType, string courseCode,  DateTime? startDate)
         {
@@ -196,7 +185,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var autoFixture = new Fixture();
 
-            CommitmentsV2.Domain.Entities.TrainingProgramme trainingProgramme = null;
+            TrainingProgramme trainingProgramme = null;
             if (programmeType.HasValue)
             {
                 trainingProgramme = new TrainingProgramme(courseCode, "SomeName", programmeType.Value, startDate, null);
@@ -290,29 +279,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             return this;
         }
-
-        public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetApprenticeshipFlexiJob()
+        
+        public void Dispose()
         {
-            var apprenticeship = Db.DraftApprenticeships.First();
-            apprenticeship.FlexibleEmployment = FlexibleEmployment;
-            apprenticeship.DeliveryModel = DeliveryModel.PortableFlexiJob;
-
-            Db.SaveChanges();
-
-            return this;
-        }
-
-        public DraftApprenticeship GetDraftApprenticeship()
-        {
-            return Db.DraftApprenticeships.First();
-        }
-
-        public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures SetFeatureToggle(string toggleName, bool toggle)
-        {
-            FeatureToggleServiceMock.Setup(x => x.GetFeatureToggle(toggleName))
-                .Returns(new FeatureToggle { Feature = toggleName, IsEnabled = toggle });
-
-            return this;
+            Db?.Dispose();
         }
     }
 }

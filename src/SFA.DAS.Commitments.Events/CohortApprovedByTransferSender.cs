@@ -5,10 +5,9 @@ namespace SFA.DAS.Commitments.Events
     [MessageGroup("cohort_approved_by_transfer_sender")]
     public class CohortApprovedByTransferSender
     {
-        public CohortApprovedByTransferSender()
-        {
-        }
-
+        //Needs a parameterless constructor to work with the message processing
+        public CohortApprovedByTransferSender() { }
+        
         public CohortApprovedByTransferSender(long transferRequestId, long receivingEmployerAccountId, long commitmentId, long transferSenderId, string userName, string userEmail)
         {
             TransferRequestId = transferRequestId;
@@ -18,11 +17,12 @@ namespace SFA.DAS.Commitments.Events
             UserName = userName;
             UserEmail = userEmail;
         }
+        
         public long TransferRequestId { get; set; }
         public long ReceivingEmployerAccountId { get; set; }
         public long CommitmentId { get; set; }
         public long SendingEmployerAccountId { get; set; }
-        public string UserName { get; }
-        public string UserEmail { get; }
+        public string UserName { get; set; }
+        public string UserEmail { get; set; }
     }
 }

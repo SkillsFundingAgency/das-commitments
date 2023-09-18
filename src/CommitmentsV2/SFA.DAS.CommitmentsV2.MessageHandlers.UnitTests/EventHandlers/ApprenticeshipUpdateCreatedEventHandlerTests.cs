@@ -19,15 +19,15 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public async Task Handle_ApprenticeshipUpdateCreatedEvent_ThenShouldRelayMessageToAzureServiceBus()
         {
-            var f = new ApprenticeshipUpdateCreatedEventHandlerTestsFixture();
-            await f.Handle();
-            f.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
+            var fixture = new ApprenticeshipUpdateCreatedEventHandlerTestsFixture();
+            await fixture.Handle();
+            
+            fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
         }
     }
 
     public class ApprenticeshipUpdateCreatedEventHandlerTestsFixture
     {
-        public Mock<IMessageHandlerContext> MessageHandlerContext;
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
         public ApprenticeshipUpdateCreatedEventHandler Sut;
         public ApprenticeshipUpdateCreatedEvent ApprenticeshipUpdateCreatedEvent;
@@ -35,7 +35,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public ApprenticeshipUpdateCreatedEventHandlerTestsFixture()
         {
             var autoFixture = new Fixture();
-            MessageHandlerContext = new Mock<IMessageHandlerContext>();
             LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
 
             Sut = new ApprenticeshipUpdateCreatedEventHandler(LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<ApprenticeshipUpdateCreatedEventHandler>>());

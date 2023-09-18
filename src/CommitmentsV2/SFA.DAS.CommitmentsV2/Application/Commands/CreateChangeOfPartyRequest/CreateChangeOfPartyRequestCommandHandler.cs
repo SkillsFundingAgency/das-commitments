@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
 {
-    public class CreateChangeOfPartyRequestCommandHandler : AsyncRequestHandler<CreateChangeOfPartyRequestCommand>
+    public class CreateChangeOfPartyRequestCommandHandler : IRequestHandler<CreateChangeOfPartyRequestCommand>
     {
         private readonly IChangeOfPartyRequestDomainService _changeOfPartyRequestDomainService;
 
@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
             _changeOfPartyRequestDomainService = changeOfPartyRequestDomainService;
         }
 
-        protected override Task Handle(CreateChangeOfPartyRequestCommand command, CancellationToken cancellationToken)
+        public Task Handle(CreateChangeOfPartyRequestCommand command, CancellationToken cancellationToken)
         {
             return _changeOfPartyRequestDomainService.CreateChangeOfPartyRequest(command.ApprenticeshipId,
                 command.ChangeOfPartyRequestType, command.NewPartyId, command.NewPrice, command.NewStartDate, command.NewEndDate,
