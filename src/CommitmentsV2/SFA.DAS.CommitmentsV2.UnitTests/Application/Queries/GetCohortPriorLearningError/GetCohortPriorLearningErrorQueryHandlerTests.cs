@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
         [Test]
         public async Task Handle_WhenApprenticeshipFoundAndRPLSetToTrueAndInCohort_ThenResultContainsApprenticeship()
         {
-            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
+            using var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "123", DateTime.Today)
                 .SetApprenticeshipPriorLearningData(10, new ApprenticeshipPriorLearning() { DurationReducedBy = 10, DurationReducedByHours = 1, PriceReducedBy = 10, WeightageReducedBy = 10, QualificationsForRplReduction = "quals", ReasonForRplReduction = "reason", IsDurationReducedByRpl = true });
 
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
         [Test]
         public async Task Handle_WhenApprenticeshipFoundAndRPLSetToFalseAndInCohort_ThenResultDoesntContainsApprenticeship()
         {
-            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
+            using var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "123", DateTime.Today);
 
             var result = await fixture.Handle();
@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
         [Test]
         public async Task Handle_HandleReturnedTypeIsCorrect()
         {
-            var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures();
+            using var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures();
 
             var result = await fixture.Handle();
 
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
     }
 
-    public class GetCohortPriorLearningErrorQueryHandlerTestsFixtures
+    public class GetCohortPriorLearningErrorQueryHandlerTestsFixtures : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public GetCohortPriorLearningErrorQueryHandler Handler { get; set; }
@@ -157,6 +157,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
             Db.SaveChanges();
 
             return this;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

@@ -37,7 +37,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _fixture = new TestsFixture();
         }
-
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
+        
         [Test]
         public async Task ShouldNotRemoveTriageDataLock_WhenNoNewDataLockToProcess()
         {
@@ -170,18 +176,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class RejectDataLockRequestChangesCommandHandlerTestsFixture
+    public class RejectDataLockRequestChangesCommandHandlerTestsFixture : IDisposable
     {
         public static long ApprenticeshipId = 12;
 
         public static string TrainingCourseCode100 = "100";
         public static string TrainingCourseName100 = "100 Test Name";
-        public static ProgrammeType ProgrammeType100 = ProgrammeType.Standard;
-
         public static string TrainingCourseCode200 = "200";
-        public static string TrainingCourseName200 = "200 Test Name";
-        public static ProgrammeType ProgrammeType200 = ProgrammeType.Standard;
-
         public static DateTime ProxyCurrentDateTime = new DateTime(2020, 1, 1);
 
         public Fixture AutoFixture { get; set; }
@@ -194,8 +195,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public UserInfo UserInfo { get; }
         public Mock<IAuthenticationService> AuthenticationService;
         public Mock<ICurrentDateTime> CurrentDateTimeService;
-        public Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup;
-        
+       
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
         public RejectDataLockRequestChangesCommandHandlerTestsFixture()
@@ -350,6 +350,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Count()
                 .Should()
                 .Be(expectedFrom);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

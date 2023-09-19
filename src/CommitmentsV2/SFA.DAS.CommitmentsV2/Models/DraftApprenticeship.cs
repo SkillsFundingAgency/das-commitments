@@ -115,9 +115,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             RecognisePriorLearning ??= source.RecognisePriorLearning;
+            TrainingTotalHours ??= source.TrainingTotalHours;
             if (RecognisePriorLearning == true)
             {
                 PriorLearning ??= new ApprenticeshipPriorLearning();
+                PriorLearning.DurationReducedByHours ??= source.DurationReducedByHours;
+                PriorLearning.IsDurationReducedByRpl ??= source.IsDurationReducedByRPL;
                 PriorLearning.DurationReducedBy ??= source.DurationReducedBy;
                 PriorLearning.PriceReducedBy ??= source.PriceReducedBy;
             }
@@ -137,14 +140,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (StartDate < Constants.RecognisePriorLearningBecomesRequiredOn)
             {
                 RecognisePriorLearning = null;
+                TrainingTotalHours = null;
                 if (PriorLearning != null)
                 {
+                    PriorLearning.DurationReducedByHours = null;
+                    PriorLearning.IsDurationReducedByRpl = null;
                     PriorLearning.DurationReducedBy = null;
                     PriorLearning.PriceReducedBy = null;
                     PriorLearning.WeightageReducedBy = null;
                     PriorLearning.ReasonForRplReduction = null;
                     PriorLearning.QualificationsForRplReduction = null;
-                    PriorLearning.DurationReducedByHours = null;
                 }
             }
         }
@@ -351,7 +356,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return errors;
         }
 
-        public void SetPriorLearningData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced, int minimumPriceReduction)
+        public void SetPriorLearningData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced, int minimumPriceReduction, int maximumTrainingTimeReduction)
         {
 
             if (RecognisePriorLearning != true)
@@ -359,7 +364,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
             }
 
-            var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, priceReduced, minimumPriceReduction);
+            var errors = ValidateDraftApprenticeshipRplData(trainingTotalHours, durationReducedByHours, isDurationReducedByRpl, durationReducedBy, priceReduced, minimumPriceReduction, maximumTrainingTimeReduction);
             errors.ThrowIfAny();
 
             PriorLearning ??= new ApprenticeshipPriorLearning();
@@ -376,7 +381,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced, int minimumPriceReduction)
+        private List<DomainError> ValidateDraftApprenticeshipRplData(int? trainingTotalHours, int? durationReducedByHours, bool? isDurationReducedByRpl, int? durationReducedBy, int? priceReduced, int minimumPriceReduction, int maximumTrainingTimeReduction)
         {
             void CheckPriceReduced(List<DomainError> list1)
             {
@@ -425,12 +430,12 @@ namespace SFA.DAS.CommitmentsV2.Models
                 if (durationReducedByHours.Value < 1)
                 {
                     list.Add(new DomainError("DurationReducedByHours",
-                        "Total reduction in off-the-job training time due to RPL must be a number between 1 and 999"));
+                        $"Total reduction in off-the-job training time due to RPL must be a number between 1 and {maximumTrainingTimeReduction}"));
                 }
-                else if (durationReducedByHours.Value > 999)
+                else if (durationReducedByHours.Value > maximumTrainingTimeReduction)
                 {
                     list.Add(new DomainError("DurationReducedByHours",
-                        "Total reduction in off-the-job training time due to RPL must be 999 hours or less"));
+                        $"Total reduction in off-the-job training time due to RPL must be {maximumTrainingTimeReduction} hours or less"));
                 }
             }
 

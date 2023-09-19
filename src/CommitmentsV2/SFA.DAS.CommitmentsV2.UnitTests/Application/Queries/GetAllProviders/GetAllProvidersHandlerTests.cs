@@ -21,6 +21,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllProviders
         {
             _fixture = new GetAllProvidersHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task WhenGettingAllProviders_ThenProvidersAreMappedToProviderResponse()
@@ -33,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllProviders
         }
     }
 
-    class GetAllProvidersHandlerTestsFixture
+    class GetAllProvidersHandlerTestsFixture : IDisposable
     {
         private readonly GetAllProvidersQueryHandler _handler;
         private readonly ProviderCommitmentsDbContext _dbContext;
@@ -70,6 +76,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllProviders
         public Task<GetAllProvidersQueryResult> Handle()
         {
             return _handler.Handle(new GetAllProvidersQuery(), CancellationToken.None);
+        }
+
+        public void Dispose()
+        {
+            _dbContext?.Dispose();
         }
     }
 }

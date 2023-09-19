@@ -26,6 +26,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
         {
             _fixture = new OverlappingTrainingDateRequestQueryHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_ThenShouldReturnResult()
@@ -34,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
             _fixture.VerifyResultMapping();
         }
 
-        public class OverlappingTrainingDateRequestQueryHandlerTestsFixture
+        private class OverlappingTrainingDateRequestQueryHandlerTestsFixture : IDisposable
         {
             private readonly GetOverlappingTrainingDateRequestQueryHandler _handler;
             private readonly ProviderCommitmentsDbContext _db;
@@ -69,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
             {
                 var employer = new AccountLegalEntity();
                 employer.SetValue(x => x.Name, _employerName);
-                _overlappingTrainingDateRequest = new SFA.DAS.CommitmentsV2.Models.OverlappingTrainingDateRequest();
+                _overlappingTrainingDateRequest = new OverlappingTrainingDateRequest();
                 _overlappingTrainingDateRequest.SetValue(x => x.Id, _autoFixture.Create<long?>());
                 _overlappingTrainingDateRequest.SetValue(x => x.PreviousApprenticeshipId, _apprenticeshipId);
                 _overlappingTrainingDateRequest.SetValue(x => x.DraftApprenticeshipId, _autoFixture.Create<long?>());
@@ -84,6 +90,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
             public void VerifyResultMapping()
             {
                 AssertEquality(_overlappingTrainingDateRequest, _result);
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
 

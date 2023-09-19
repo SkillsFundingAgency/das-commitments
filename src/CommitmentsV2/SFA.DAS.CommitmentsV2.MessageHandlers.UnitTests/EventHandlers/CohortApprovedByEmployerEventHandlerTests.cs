@@ -21,24 +21,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenApprovedCohortReturnedToProviderEventIsRaised_ThenShouldGetCorrectCohort()
         {
-            var f = new CohortApprovedByEmployerEventHandlerTestsFixture();
-            await f.Handle();
-            f.VerifyGetCohortSummaryIsCorrectlyCalled();
+            var fixture = new CohortApprovedByEmployerEventHandlerTestsFixture();
+            await fixture.Handle();
+            fixture.VerifyGetCohortSummaryIsCorrectlyCalled();
         }
         [Test]
 
         public async Task Handle_WhenApprovedCohortReturnedToProviderEventIsRaised_ThenShouldRelayMessageToAzureServiceBus()
         {
-            var f = new CohortApprovedByEmployerEventHandlerTestsFixture();
-            await f.Handle();
-            f.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
+            var fixture = new CohortApprovedByEmployerEventHandlerTestsFixture();
+            await fixture.Handle();
+            fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
         }
     }
 
     public class CohortApprovedByEmployerEventHandlerTestsFixture
     {
         public Mock<IMediator> Mediator { get; set; }
-        public Mock<IMessageHandlerContext> MessageHandlerContext;
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
         public CohortApprovedByEmployerEventHandler Sut;
         public CohortApprovedByEmployerEvent CohortApprovedByEmployerEvent;
@@ -48,7 +47,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             var autoFixture = new Fixture();
             Mediator = new Mock<IMediator>();
-            MessageHandlerContext = new Mock<IMessageHandlerContext>();
             LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
 
             Sut = new CohortApprovedByEmployerEventHandler(Mediator.Object, LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<CohortApprovedByEmployerEventHandler>>());

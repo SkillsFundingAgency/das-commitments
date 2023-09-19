@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(Party.Provider)]
         public void Handle_WhenHandlingTransferRequestCreatedEventWithoutAutoApproval_ThenShouldRelayMessageToAzureServiceBus(Party lastParty)
         {
-            var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
+            using var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
             fixture.SetupTransfer(false).SetupTransferCreatedEvent(lastParty);
 
             fixture.Handle();
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(Party.Provider)]
         public void Handle_WhenHandlingTransferRequestCreatedEventWithAutoApproval_ThenShouldNotRelayMessageToAzureServiceBus(Party lastParty)
         {
-            var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
+            using var fixture = new TransferRequestCreatedEventHandlerTestsFixture();
             fixture.SetupTransfer(true).SetupTransferCreatedEvent(lastParty);
 
             fixture.Handle();
@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
     }
 
-    public class TransferRequestCreatedEventHandlerTestsFixture
+    public class TransferRequestCreatedEventHandlerTestsFixture : IDisposable
     {
         public Mock<IMessageHandlerContext> MessageHandlerContext;
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
@@ -122,6 +122,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortApprovalByTransferSenderRequested>()),
                 Times.Never);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

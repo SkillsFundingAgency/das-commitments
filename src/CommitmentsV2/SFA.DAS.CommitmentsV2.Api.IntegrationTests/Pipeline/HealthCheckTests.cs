@@ -4,18 +4,20 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.IntegrationTests.Pipeline
 {
     [TestFixture]
     [Parallelizable]
-    public class HealthCheckTests : FluentTest<HealthCheckFixture>
+    public class HealthCheckTests
     {
         [Test]
-        public Task CallPingEndpoint_ThenShouldReturnOkResponse()
+        public async Task CallPingEndpoint_ThenShouldReturnOkResponse()
         {
-            return TestAsync(f => f.Client.GetAsync("/api/ping"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.OK));
+            var fixture = new HealthCheckFixture();
+            var message = await fixture.Client.GetAsync("/api/ping");
+            
+            message.StatusCode.Should().Be(HttpStatusCode.OK);
         }
     }
 

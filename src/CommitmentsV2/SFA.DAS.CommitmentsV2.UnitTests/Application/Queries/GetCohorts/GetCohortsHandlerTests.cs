@@ -21,26 +21,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         [Test]
         public async Task Handle_WithAccountId_ShouldReturnDraftUnapprovedCohortsForThatEmployer()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddEmptyDraftCohortWithEmployer(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(f.SeedCohorts.Count, response.Cohorts.Length);
-            Assert.AreEqual(f.AccountId, response.Cohorts[0].AccountId);
-            Assert.AreEqual(f.SeedCohorts[0].ProviderId, response.Cohorts[0].ProviderId);
-            Assert.AreEqual(f.SeedCohorts[0].Id, response.Cohorts[0].CohortId);
-            Assert.AreEqual(f.SeedCohorts[0].CreatedOn, response.Cohorts[0].CreatedOn);
+            Assert.AreEqual(fixtures.SeedCohorts.Count, response.Cohorts.Length);
+            Assert.AreEqual(fixtures.AccountId, response.Cohorts[0].AccountId);
+            Assert.AreEqual(fixtures.SeedCohorts[0].ProviderId, response.Cohorts[0].ProviderId);
+            Assert.AreEqual(fixtures.SeedCohorts[0].Id, response.Cohorts[0].CohortId);
+            Assert.AreEqual(fixtures.SeedCohorts[0].CreatedOn, response.Cohorts[0].CreatedOn);
         }
 
         [Test]
         public async Task Handle_WithAccountId_ShouldReturnEmptyMessagesAsNothingSent()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddEmptyDraftCohortWithEmployer(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.IsNull(response.Cohorts[0].LatestMessageFromEmployer);
             Assert.IsNull(response.Cohorts[0].LatestMessageFromProvider);
@@ -49,10 +49,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         [Test]
         public async Task Handle_WithAccountIdWithNoCohorts_ShouldReturnEmptyList()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddEmptyDraftCohortWithEmployer(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.NonMatchingId, null));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.NonMatchingId, null));
 
             Assert.IsNotNull(response);
             Assert.AreEqual(0, response.Cohorts.Length);
@@ -61,10 +61,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         [Test]
         public async Task Handle_WithAccountIdWithApprovedCohort_ShouldReturnEmptyList()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddCohortForEmployerApprovedByBoth(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddCohortForEmployerApprovedByBoth(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.IsNotNull(response);
             Assert.AreEqual(0, response.Cohorts.Length);
@@ -73,10 +73,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         [Test]
         public async Task Handle_WithAccountIdWithTransferApprovedCohort_ShouldReturnEmptyList()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddTransferCohortForEmployerAndApprovedByAll(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddTransferCohortForEmployerAndApprovedByAll(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.IsNotNull(response);
             Assert.AreEqual(0, response.Cohorts.Length);
@@ -85,10 +85,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         [Test]
         public async Task Handle_WithAccountIdWithTransferRejectedCohort_ShouldReturnEmptyList()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddTransferCohortForEmployerAndRejectedByAll(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddTransferCohortForEmployerAndRejectedByAll(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.IsNotNull(response);
             Assert.AreEqual(0, response.Cohorts.Length);
@@ -97,27 +97,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         [Test]
         public async Task Handle_WithAccountId_CohortWithTransferSender_ShouldReturnTransferSenderDetails()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddCohortWithTransferSender(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddCohortWithTransferSender(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.IsNotNull(response);
             Assert.AreEqual(1, response.Cohorts.Length);
-            Assert.AreEqual(f.TransferSenderId, response.Cohorts[0].TransferSenderId);
+            Assert.AreEqual(fixtures.TransferSenderId, response.Cohorts[0].TransferSenderId);
             Assert.AreEqual("TransferSender", response.Cohorts[0].TransferSenderName);
         }
 
         [Test]
         public async Task Handle_WithAccountIdWithMixedCohorts_ShouldReturn2CohortsAndExcludeApprovedAndNonMatchingCohorts()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.AccountId)
-                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.AccountId)
-                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.NonMatchingId)
-                .AddCohortForEmployerApprovedByBoth(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(fixtures.AccountId)
+                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(fixtures.AccountId)
+                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(fixtures.NonMatchingId)
+                .AddCohortForEmployerApprovedByBoth(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.IsNotNull(response);
             Assert.AreEqual(2, response.Cohorts.Length);
@@ -132,26 +132,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         [Test]
         public async Task Handle_WithProviderId_ShouldReturnDraftUnapprovedCohortsForThatProvider()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddEmptyDraftCohortWithEmployer(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(null, f.ProviderId));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(null, fixtures.ProviderId));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(f.SeedCohorts.Count, response.Cohorts.Length);
-            Assert.AreEqual(f.AccountId, response.Cohorts[0].AccountId);
-            Assert.AreEqual(f.SeedCohorts[0].ProviderId, response.Cohorts[0].ProviderId);
-            Assert.AreEqual(f.SeedCohorts[0].Id, response.Cohorts[0].CohortId);
-            Assert.AreEqual(f.SeedCohorts[0].CreatedOn, response.Cohorts[0].CreatedOn);
+            Assert.AreEqual(fixtures.SeedCohorts.Count, response.Cohorts.Length);
+            Assert.AreEqual(fixtures.AccountId, response.Cohorts[0].AccountId);
+            Assert.AreEqual(fixtures.SeedCohorts[0].ProviderId, response.Cohorts[0].ProviderId);
+            Assert.AreEqual(fixtures.SeedCohorts[0].Id, response.Cohorts[0].CohortId);
+            Assert.AreEqual(fixtures.SeedCohorts[0].CreatedOn, response.Cohorts[0].CreatedOn);
         }
 
         [Test]
         public async Task Handle_WithProviderIdWithNoCohorts_ShouldReturnEmptyList()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddEmptyDraftCohortWithEmployer(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddEmptyDraftCohortWithEmployer(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(null, f.NonMatchingId));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(null, fixtures.NonMatchingId));
 
             Assert.IsNotNull(response);
             Assert.AreEqual(0, response.Cohorts.Length);
@@ -160,10 +160,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         [Test]
         public async Task Handle_WithProviderIdWithApprovedCohort_ShouldReturnEmptyList()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddCohortForEmployerApprovedByBoth(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddCohortForEmployerApprovedByBoth(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(null, f.ProviderId));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(null, fixtures.ProviderId));
 
             Assert.IsNotNull(response);
             Assert.AreEqual(0, response.Cohorts.Length);
@@ -172,13 +172,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         [Test]
         public async Task Handle_WithProviderIdWithMixedCohorts_ShouldReturn3CohortsForProviderIdAndExcludeApprovedCohorts()
         {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.AccountId)
-                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.AccountId)
-                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(f.NonMatchingId)
-                .AddCohortForEmployerApprovedByBoth(f.AccountId);
+            var fixtures = new GetCohortsHandlerTestFixtures();
+            fixtures.AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(fixtures.AccountId)
+                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(fixtures.AccountId)
+                .AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(fixtures.NonMatchingId)
+                .AddCohortForEmployerApprovedByBoth(fixtures.AccountId);
 
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId, null));
+            var response = await fixtures.GetResponse(new GetCohortsQuery(fixtures.AccountId, null));
 
             Assert.IsNotNull(response);
             Assert.AreEqual(2, response.Cohorts.Length);
@@ -193,7 +193,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
 
     public class GetCohortsHandlerTestFixtures
     {
-        private Fixture _autoFixture;
+        private readonly Fixture _autoFixture;
 
         public GetCohortsHandlerTestFixtures()
         {
@@ -367,18 +367,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             return this;
         }
 
-        public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
+        private Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
-            using (var dbContext = new ProviderCommitmentsDbContext(options))
-            {
-                dbContext.Database.EnsureCreated();
-                SeedData(dbContext);
-                return action(dbContext);
-            }
+            using var dbContext = new ProviderCommitmentsDbContext(options);
+            dbContext.Database.EnsureCreated();
+            SeedData(dbContext);
+            return action(dbContext);
         }
 
         private void SeedData(ProviderCommitmentsDbContext dbContext)

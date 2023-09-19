@@ -9,7 +9,7 @@ using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData
 {
-    public class RecognisePriorLearningDataHandler : AsyncRequestHandler<PriorLearningDataCommand>
+    public class RecognisePriorLearningDataHandler : IRequestHandler<PriorLearningDataCommand>
     {
         private readonly ILogger<RecognisePriorLearningDataHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
@@ -25,11 +25,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData
             _logger = logger;
         }
 
-        protected override async Task Handle(PriorLearningDataCommand command, CancellationToken cancellationToken)
+        public async Task Handle(PriorLearningDataCommand command, CancellationToken cancellationToken)
         {
             var apprenticeship = await _dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
 
-            apprenticeship.SetPriorLearningData(command.TrainingTotalHours, command.DurationReducedByHours, command.IsDurationReducedByRpl, command.DurationReducedBy, command.PriceReducedBy, _config.MinimumPriceReduction);
+            apprenticeship.SetPriorLearningData(command.TrainingTotalHours, command.DurationReducedByHours, command.IsDurationReducedByRpl, command.DurationReducedBy, command.PriceReducedBy, _config.MinimumPriceReduction, _config.MaximumTrainingTimeReduction);
 
             _logger.LogInformation($"Set PriorLearning data draft Apprenticeship:{command.ApprenticeshipId}");
         }

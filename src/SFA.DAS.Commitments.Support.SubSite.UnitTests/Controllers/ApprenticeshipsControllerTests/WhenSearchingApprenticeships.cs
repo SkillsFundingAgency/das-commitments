@@ -24,13 +24,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
         }
 
         [Test]
-        public async Task GivenValidAccountIdShouldReturnSearchView()
+        public void GivenValidAccountIdShouldReturnSearchView()
         {
             // Arrange
             var hashedAccountId = "ASDNA";
 
             // Act
-            var result = await _sut.Search(hashedAccountId);
+            var result = _sut.Search(hashedAccountId);
 
             // Assert
             var view = result as ViewResult;

@@ -34,6 +34,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             _fixture = new ApprenticeshipEmailAddressChangedByApprenticeCommandHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenApprenticeshipIsStopped_ThenEmailAddressDoesNotGetUpdated()
@@ -96,9 +102,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandlerTestsFixture
+    public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandlerTestsFixture : IDisposable
     {
-        public long ApprenticeshipId = 12;
         public Fixture DataFixture { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
         public IRequestHandler<ApprenticeshipEmailAddressChangedByApprenticeCommand> Handler { get; set; }
@@ -170,5 +175,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public Apprenticeship GetApprenticeship(long apprenticeshipId) 
             => Db.Apprenticeships.FirstOrDefault(x => x.Id == apprenticeshipId);
+
+        public void Dispose()
+        {
+            Db?.Dispose();
+        }
     }
 }
