@@ -24,6 +24,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             _fixture = new GetDraftApprenticeshipsHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenCohortExists_ThenShouldReturnResult()
@@ -73,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             _fixture.VerifyNoResult();
         }
 
-        public class GetDraftApprenticeshipsHandlerTestsFixture
+        public class GetDraftApprenticeshipsHandlerTestsFixture : IDisposable
         {
             private readonly GetDraftApprenticeshipsQueryHandler _queryHandler;
             private readonly ProviderCommitmentsDbContext _db;
@@ -99,14 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 _query = new GetDraftApprenticeshipsQuery(_cohortId + 1);
                 return this;
             }
-
-
-            public GetDraftApprenticeshipsHandlerTestsFixture WithDeletedCohort()
-            {
-                _cohort.IsDeleted = true;
-                return this;
-            }
-
+            
             public async Task<GetDraftApprenticeshipsQueryResult> Handle()
             {
                 _queryResult = await _queryHandler.Handle(TestHelper.Clone(_query), new CancellationToken());
@@ -194,6 +193,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             public void VerifyNoResult()
             {
                 Assert.IsNull(_queryResult.DraftApprenticeships);
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
 

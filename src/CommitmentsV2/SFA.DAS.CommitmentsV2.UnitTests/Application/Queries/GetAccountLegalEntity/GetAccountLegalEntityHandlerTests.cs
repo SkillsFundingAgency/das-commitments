@@ -91,12 +91,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .Options;
 
-                using (var dbContext = new ProviderCommitmentsDbContext(options))
-                {
-                    dbContext.Database.EnsureCreated();
-                    SeedData(dbContext);
-                    return action(dbContext);
-                }
+                using var dbContext = new ProviderCommitmentsDbContext(options);
+                dbContext.Database.EnsureCreated();
+                SeedData(dbContext);
+                return action(dbContext);
             });
         }
 
@@ -107,26 +105,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             dbContext.SaveChanges(true);
         }
 
-        public Task<T> RunWithConnection<T>(Func<DbConnection, Task<T>> action)
+        private static Task<T> RunWithConnection<T>(Func<DbConnection, Task<T>> action)
         {
-            using (var connection = new SQLiteConnection("DataSource=:memory:"))
+            using var connection = new SQLiteConnection("DataSource=:memory:");
+            connection.Open();
+            try
             {
-                connection.Open();
-                try
-                {
-                    return action(connection);
-                }
-                finally
-                {
-                    connection.Close();
-                }
+                return action(connection);
+            }
+            finally
+            {
+                connection.Close();
             }
         }
-
-        public static readonly ILoggerFactory MyLoggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder.AddConsole();
-            builder.SetMinimumLevel(LogLevel.Debug);
-        });
     }
 }

@@ -52,6 +52,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _authenticationService.Object,
                 Mock.Of<ILogger<ResumeApprenticeshipCommandHandler>>());
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _dbContext?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenHandlingCommand_ResumeApprenticeship_CreatesAddHistoryEvent()

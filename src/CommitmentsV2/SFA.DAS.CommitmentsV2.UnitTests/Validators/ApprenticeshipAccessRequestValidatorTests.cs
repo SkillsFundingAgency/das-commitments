@@ -16,7 +16,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(1, true)]
         public void Validate_ApprenticeshipId_ShouldBeValidated(long value, bool expectedValid)
         {
-            AssertValidationResult(request => request.ApprenticeshipId, value, expectedValid);
+            var request = new ApprenticeshipAccessRequest { ApprenticeshipId = value };
+            
+            AssertValidationResult(r => r.ApprenticeshipId, request, expectedValid);
         }
 
         [TestCase(Party.None, false)]
@@ -25,7 +27,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(Party.Employer, true)]
         public void Validate_PartyType_ShouldBeValidated(Party value, bool expectedValid)
         {
-            AssertValidationResult(request => request.Party, value, expectedValid);
+            var request = new ApprenticeshipAccessRequest { Party = value };
+            
+            AssertValidationResult(r => r.Party, request, expectedValid);
         }
 
         [TestCase(0, false)]
@@ -33,38 +37,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(1, true)]
         public void Validate_PartyId_ShouldBeValidated(long value, bool expectedValid)
         {
-            AssertValidationResult(request => request.PartyId, value, expectedValid);
+            var request = new ApprenticeshipAccessRequest { PartyId = value };
+            
+            AssertValidationResult(r => r.PartyId, request, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<ApprenticeshipAccessRequest, T>> property, T value, bool expectedValid)
+        private static void AssertValidationResult<T>(Expression<Func<ApprenticeshipAccessRequest, T>> property, ApprenticeshipAccessRequest request, bool expectedValid)
         {
             // Arrange
             var validator = new ApprenticeshipAccessRequestValidator();
 
             // Act
+            var result = validator.TestValidate(request);
+            
             if (expectedValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
+                result.ShouldNotHaveValidationErrorFor(property);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(property, value);
-            }
-        }
-
-        private void AssertValidationResult<T>(Expression<Func<ApprenticeshipAccessRequest, T>> property, Func<string, bool> feature, T value, bool expectedValid)
-        {
-            // Arrange
-            var validator = new ApprenticeshipAccessRequestValidator();
-
-            // Act
-            if (expectedValid)
-            {
-                validator.ShouldNotHaveValidationErrorFor(property, value);
-            }
-            else
-            {
-                validator.ShouldHaveValidationErrorFor(property, value);
+                result.ShouldHaveValidationErrorFor(property);
             }
         }
     }

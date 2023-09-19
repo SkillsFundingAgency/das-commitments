@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccoun
         [Test]
         public async Task Handle_WhenRequested_ThenShouldReturnCorrectReferenceForRequester()
         {
-            var fixture = new GetAllCohortAccountIdsQueryHandlerTestFixtures()
+            using var fixture = new GetAllCohortAccountIdsQueryHandlerTestFixtures()
                 .CreateCommitments();
 
             var result = await fixture.Handle();
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccoun
         }
     }
 
-    public class GetAllCohortAccountIdsQueryHandlerTestFixtures
+    public class GetAllCohortAccountIdsQueryHandlerTestFixtures : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public Mock<IAuthenticationService> AuthenticationServiceMock { get; set; }
@@ -94,6 +94,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccoun
             Db.SaveChanges();
 
             return this;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

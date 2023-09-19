@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         [Test]
         public async Task NotifiedEmployerOn_Updated_Successfully()
         {
-            var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
             await fixture.Handle();
 
             fixture.Verify_NotifiedEmployerOn_Updated();
@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         [Test]
         public async Task Verify_EmailCommandSent()
         {
-            var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
             await fixture.Handle();
 
             fixture.Verify_EmailCommandSent();
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         [TestCase(Types.OverlappingTrainingDateRequestStatus.Resolved)]
         public async Task Verify_EmailIsSentOnlyForPendingRequests(Types.OverlappingTrainingDateRequestStatus status)
         {
-            var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
             fixture.SetStatus(status);
             await fixture.Handle();
 
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         [Test]
         public async Task Verify_SecondChaserEmailIsNotTriggered()
         {
-            var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
             fixture.SetNotifiedEmployerOn();
             await fixture.Handle();
 
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         [Test]
         public async Task Verify_EmailIsSentOnlyForNonExpiredRecords()
         {
-            var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
             fixture.SetCreatedOn();
             await fixture.Handle();
 
@@ -75,14 +75,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         [Test]
         public async Task Verify_DontSendEmailWhenServiceDeskAlreadyNotified()
         {
-            var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
             fixture.SetServiceDeskNotifiedOn();
             await fixture.Handle();
 
             fixture.Verify_EmailCommandIsNotSent();
         }
 
-        public class OverlappingTrainingDateRequestNotificationToEmployerTestsFixture
+        public class OverlappingTrainingDateRequestNotificationToEmployerTestsFixture : IDisposable
         {
             OverlappingTrainingDateRequestNotificationToEmployerCommandHandler _sut;
             OverlappingTrainingDateRequestNotificationToEmployerCommand _command;
@@ -254,6 +254,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 Db.DraftApprenticeships.Add(draftApprenticeship);
                 Db.OverlappingTrainingDateRequests.Add(oltd);
                 Db.SaveChanges();
+            }
+
+            public void Dispose()
+            {
+                Db?.Dispose();
             }
         }
     }

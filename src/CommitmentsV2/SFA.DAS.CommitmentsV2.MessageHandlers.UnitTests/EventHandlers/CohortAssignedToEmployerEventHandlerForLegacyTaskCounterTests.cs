@@ -24,34 +24,34 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
     {
         [Test]
         public async Task Handle_WhenHandlingCohortAssignedToEmployerEventHandlerForLegacyTaskCounterWhenActionWasByProvider_ThenShouldEmitLegacyEventCohortApprovalRequestedByProvider()
-        {
-            var f = new CohortAssignedToEmployerEventHandlerForLegacyTaskCounterTestsFixture().AddCohortToMemoryDb().LastAssignedParty(Party.Provider);
-            await f.Handle();
-            f.VerifyLegacyEventCohortApprovalRequestedByProviderIsSent();
+        { 
+            using var fixture = new CohortAssignedToEmployerEventHandlerForLegacyTaskCounterTestsFixture().AddCohortToMemoryDb().LastAssignedParty(Party.Provider);
+            await fixture.Handle();
+            fixture.VerifyLegacyEventCohortApprovalRequestedByProviderIsSent();
         }
 
         [TestCase(Party.TransferSender)]
         [TestCase(Party.Employer)]
         public async Task Handle_WhenHandlingCohortAssignedToEmployerEventHandlerForLegacyTaskCounterWhenActionWasByProvider_ThenShouldNotEmitLegacyEventWhenAssigningPartyIsNotProvider(Party assigningParty)
         {
-            var f = new CohortAssignedToEmployerEventHandlerForLegacyTaskCounterTestsFixture().AddCohortToMemoryDb().LastAssignedParty(assigningParty);
-            await f.Handle();
-            f.VerifyLegacyEventCohortApprovalRequestedByProviderIsNotSent();
+            using var fixture = new CohortAssignedToEmployerEventHandlerForLegacyTaskCounterTestsFixture().AddCohortToMemoryDb().LastAssignedParty(assigningParty);
+            await fixture.Handle();
+            fixture.VerifyLegacyEventCohortApprovalRequestedByProviderIsNotSent();
         }
 
 
         [Test]
         public void Handle_WhenHandlingCohortAssignedToEmployerEventHandlerForLegacyTaskCounterWhenActionWasByProvider_ThenShouldThrowException()
         {
-            var f = new CohortAssignedToEmployerEventHandlerForLegacyTaskCounterTestsFixture().LastAssignedParty(Party.Provider);
-            Assert.ThrowsAsync<InvalidOperationException>(() => f.Handle());
-            Assert.IsTrue(f.Logger.HasErrors);
+            using var fixture = new CohortAssignedToEmployerEventHandlerForLegacyTaskCounterTestsFixture().LastAssignedParty(Party.Provider);
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixture.Handle());
+            Assert.IsTrue(fixture.Logger.HasErrors);
         }
     }
 
-    public class CohortAssignedToEmployerEventHandlerForLegacyTaskCounterTestsFixture
+    public class CohortAssignedToEmployerEventHandlerForLegacyTaskCounterTestsFixture : IDisposable
     {
-        private Fixture _fixture;
+        private readonly Fixture _fixture;
         public long CohortId { get; set; }
         public DateTime Now { get; set; }
         public FakeLogger<CohortAssignedToEmployerEventHandlerForLegacyTaskCounter> Logger { get; set; }
@@ -118,6 +118,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public void VerifyLegacyEventCohortApprovalRequestedByProviderIsNotSent()
         {
             LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortApprovalRequestedByProvider>()), Times.Never);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

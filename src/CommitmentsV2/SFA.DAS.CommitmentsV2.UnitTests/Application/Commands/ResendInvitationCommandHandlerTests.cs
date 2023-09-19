@@ -51,6 +51,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _messageSession.Object,
                 Mock.Of<ILogger<ResendInvitationCommandHandler>>());
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _dbContext?.Dispose();
+        }
 
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
@@ -64,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             // Act
             await _handler.Handle(command, new CancellationToken());
 
-            // Simulate Unit of Work contex transaction ending in http request.
+            // Simulate Unit of Work context transaction ending in http request.
             await _dbContext.SaveChangesAsync();
 
             // Assert

@@ -29,83 +29,83 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(false)]
         public async Task Handle_WhenHandlingTransferRequestRejectedEvent_ThenShouldFindCohortAndResetCohortToBeWithEmployer(bool autoApprove)
         {
-            var f = new TransferRequestRejectedEventHandlerTestsFixture()
+            using var fixture = new TransferRequestRejectedEventHandlerTestsFixture()
                 .AddCohortToMemoryDb()
                 .AddTransferRequest(autoApprove);
 
-            await f.Handle();
+            await fixture.Handle();
 
-            f.VerifyCohortIsWithEmployer();
+            fixture.VerifyCohortIsWithEmployer();
         }
 
         [TestCase(true)]
         [TestCase(false)]
         public async Task Handle_WhenHandlingTransferRequestRejectedEvent_ThenShouldTrackingTheUpdate(bool autoApprove)
         {
-            var f = new TransferRequestRejectedEventHandlerTestsFixture()
+            using var fixture = new TransferRequestRejectedEventHandlerTestsFixture()
                 .AddCohortToMemoryDb()
                 .AddTransferRequest(autoApprove);
             
-            await f.Handle();
+            await fixture.Handle();
             
-            f.VerifyEntityIsBeingTracked();
+            fixture.VerifyEntityIsBeingTracked();
         }
 
 
         [Test]
         public async Task Handle_WhenHandlingTransferRequestRejectedEventAndAutoApprovalIsFalse_ThenPublishesLegacyEventCohortRejectedByTransferSender()
         {
-            var f = new TransferRequestRejectedEventHandlerTestsFixture()
+            using var fixture = new TransferRequestRejectedEventHandlerTestsFixture()
                 .AddCohortToMemoryDb()
                 .AddTransferRequest(false);
 
-            await f.Handle();
+            await fixture.Handle();
             
-            f.VerifyLegacyEventCohortRejectedByTransferSenderIsPublished();
+            fixture.VerifyLegacyEventCohortRejectedByTransferSenderIsPublished();
         }
 
         [Test]
         public async Task Handle_WhenHandlingTransferRequestRejectedEventAndAutoApprovalIsTrue_ThenDoesNotPublishLegacyEventCohortRejectedByTransferSender()
         {
-            var f = new TransferRequestRejectedEventHandlerTestsFixture()
+            using var fixture = new TransferRequestRejectedEventHandlerTestsFixture()
                 .AddCohortToMemoryDb()
                 .AddTransferRequest(true);
             
-            await f.Handle();
+            await fixture.Handle();
             
-            f.VerifyMessageNotRelayed();
+            fixture.VerifyMessageNotRelayed();
         }
 
         [TestCase(true)]
         [TestCase(false)]
         public void Handle_WhenHandlingTransferRequestRejectedEventAndCohortIsNotFoundItThrowsException_ThenLogErrorAndRethrowError(bool autoApprove)
         {
-            var f = new TransferRequestRejectedEventHandlerTestsFixture()
+            using var fixture = new TransferRequestRejectedEventHandlerTestsFixture()
                 .AddTransferRequest(autoApprove);
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => f.Handle());
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixture.Handle());
             
-            Assert.IsTrue(f.Logger.HasErrors);
+            Assert.IsTrue(fixture.Logger.HasErrors);
         }
 
         [TestCase(true)]
         [TestCase(false)]
         public void Handle_WhenHandlingTransferRequestRejectedEventAndCohortIsNotWithTransferSenderItThrowsException_ThenLogErrorAndRethrowError(bool autoApprove)
         {
-            var f = new TransferRequestRejectedEventHandlerTestsFixture()
+            using var fixture = new TransferRequestRejectedEventHandlerTestsFixture()
                 .WithEmployerParty()
                 .AddCohortToMemoryDb()
                 .AddTransferRequest(autoApprove);
             
-            Assert.ThrowsAsync<DomainException>(() => f.Handle());
+            Assert.ThrowsAsync<DomainException>(() => fixture.Handle());
             
-            Assert.IsTrue(f.Logger.HasErrors);
+            Assert.IsTrue(fixture.Logger.HasErrors);
         }
     }
 
-    public class TransferRequestRejectedEventHandlerTestsFixture
+    public class TransferRequestRejectedEventHandlerTestsFixture : IDisposable
     {
-        private Fixture _fixture;
+        private readonly Fixture _fixture;
         public FakeLogger<TransferRequestRejectedEvent> Logger { get; set; }
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher { get; set; }
 
@@ -211,6 +211,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public void VerifyMessageNotRelayed()
         {
             LegacyTopicMessagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortRejectedByTransferSender>()), Times.Never);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

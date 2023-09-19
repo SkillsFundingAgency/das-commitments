@@ -1,7 +1,5 @@
-using FluentValidation.Results;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetProvider;
 using FluentValidation.TestHelper;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
@@ -19,15 +17,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             // arrange
             var validator = new GetDraftApprenticeshipQueryValidator();
             var request = new GetDraftApprenticeshipQuery(cohortId, 1);
+            
+            // act
+            var result = validator.TestValidate(request);
 
             // assert
             if (expectToBeValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(r => r.CohortId, request, null);
+                result.ShouldNotHaveValidationErrorFor(r => r.CohortId);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(r => r.CohortId, request, null);
+                result.ShouldHaveValidationErrorFor(r => r.CohortId);
             }
         }
 
@@ -42,13 +43,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             var request = new GetDraftApprenticeshipQuery(1, draftApprenticeshipId);
 
             // act
+            var result = validator.TestValidate(request);
+            
+            // assert
             if (expectToBeValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(r => r.DraftApprenticeshipId, request, null);
+                result.ShouldNotHaveValidationErrorFor(r => r.DraftApprenticeshipId);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(r => r.DraftApprenticeshipId, request, null);
+                result.ShouldHaveValidationErrorFor(r => r.DraftApprenticeshipId);
             }
         }
     }

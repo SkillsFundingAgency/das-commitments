@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort
 {
-    public class DeleteCohortHandler : AsyncRequestHandler<DeleteCohortCommand>
+    public class DeleteCohortHandler : IRequestHandler<DeleteCohortCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<DeleteCohortHandler> _logger;
@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort
             _authenticationService = authenticationService;
         }
 
-        protected override async Task Handle(DeleteCohortCommand command, CancellationToken cancellationToken)
+        public async Task Handle(DeleteCohortCommand command, CancellationToken cancellationToken)
         {
             try
             {

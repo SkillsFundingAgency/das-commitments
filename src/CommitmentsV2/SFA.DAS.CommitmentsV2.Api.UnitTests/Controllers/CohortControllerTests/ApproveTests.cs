@@ -9,21 +9,21 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
 {
     [TestFixture]
     [Parallelizable]
-    public class ApproveTests : FluentTest<ApproveTestsFixture>
+    public class ApproveTests
     {
         [Test]
         public async Task WhenPostRequestReceived_ThenShouldReturnResponse()
         {
-            await TestAsync(
-                f => f.Approve(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkResult>());
+            var fixture = new ApproveTestsFixture();
+            var result = await fixture.Approve();
+            
+            result.Should().NotBeNull()
+                .And.BeOfType<OkResult>();
         }
     }
 
@@ -44,10 +44,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
             Request = AutoFixture.Create<ApproveCohortRequest>();
 
             Mediator.Setup(m => m.Send(It.Is<ApproveCohortCommand>(c =>
-                    c.CohortId == CohortId &&
-                    c.Message == Request.Message &&
-                    c.UserInfo == Request.UserInfo), CancellationToken.None))
-                .ReturnsAsync(Unit.Value);
+                c.CohortId == CohortId &&
+                c.Message == Request.Message &&
+                c.UserInfo == Request.UserInfo), CancellationToken.None));
         }
 
         public Task<IActionResult> Approve()

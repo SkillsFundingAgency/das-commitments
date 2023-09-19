@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate
 {
-    public class UpdateApprenticeshipStopDateCommandHandler : AsyncRequestHandler<UpdateApprenticeshipStopDateCommand>
+    public class UpdateApprenticeshipStopDateCommandHandler : IRequestHandler<UpdateApprenticeshipStopDateCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<UpdateApprenticeshipStopDateCommandHandler> _logger;
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
         }
 
-        protected override async Task Handle(UpdateApprenticeshipStopDateCommand command, CancellationToken cancellationToken)
+        public async Task Handle(UpdateApprenticeshipStopDateCommand command, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Employer: {command.AccountId} has called UpdateApprenticeshipStopDateCommand ApprenticeshipId : {command.ApprenticeshipId} ");
 
@@ -104,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
                 throw new DomainException(nameof(newStopDate), "The stop month cannot be before the apprenticeship started");
         }
 
-        public void ValidateEndDateOverlap(UpdateApprenticeshipStopDateCommand command, Apprenticeship apprenticeship, CancellationToken cancellationToken)
+        private void ValidateEndDateOverlap(UpdateApprenticeshipStopDateCommand command, Apprenticeship apprenticeship, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(apprenticeship.Uln) || !apprenticeship.StartDate.HasValue) return;
 
@@ -121,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             throw new DomainException(errors);
         }
 
-        private void CheckPartyIsValid(Party party)
+        private static void CheckPartyIsValid(Party party)
         {
             if (party != Party.Employer)
             {

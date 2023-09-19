@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed
 {
-    public class ApprenticeshipConfirmedCommandHandler : AsyncRequestHandler<ApprenticeshipConfirmedCommand>
+    public class ApprenticeshipConfirmedCommandHandler : IRequestHandler<ApprenticeshipConfirmedCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed
             _db = db;
         }
 
-        protected override async Task Handle(ApprenticeshipConfirmedCommand request, CancellationToken cancellationToken)
+        public async Task Handle(ApprenticeshipConfirmedCommand request, CancellationToken cancellationToken)
         {
             var status = await _db.Value.ApprenticeshipConfirmationStatus.SingleOrDefaultAsync(a => a.ApprenticeshipId == request.ApprenticeshipId, cancellationToken);
 
