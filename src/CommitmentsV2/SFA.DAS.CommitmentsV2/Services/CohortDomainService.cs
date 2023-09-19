@@ -172,7 +172,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             await ValidateUlnOverlap(cohort);
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
-            await CheckRplReductionErrors(cohort);
+            // removed until RPL Reduction warning is elevated to be a error again 
+            //await CheckRplReductionErrors(cohort);
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
         }
 
