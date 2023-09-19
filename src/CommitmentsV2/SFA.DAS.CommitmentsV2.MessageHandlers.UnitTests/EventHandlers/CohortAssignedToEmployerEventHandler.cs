@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private readonly GetCohortSummaryQueryResult _cohortSummary;
             private readonly string _cohortReference;
             private readonly string _employerEncodedAccountId;
-            private Fixture _autoFixture;
+            private readonly Fixture _autoFixture;
             public const string EmployerCommitmentsBaseUrl = "https://approvals/";
 
             public CohortAssignedToEmployerEventHandlerTestsFixture()
