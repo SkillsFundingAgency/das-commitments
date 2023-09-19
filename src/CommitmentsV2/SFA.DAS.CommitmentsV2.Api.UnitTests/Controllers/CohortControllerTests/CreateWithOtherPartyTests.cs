@@ -10,25 +10,25 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
 {
     [TestFixture]
     [Parallelizable]
-    public class CreateWithOtherPartyTests : FluentTest<CreateWithOtherPartyTestsFixture>
+    public class CreateWithOtherPartyTests
     {
         [Test]
         public async Task WhenPostRequestReceived_ThenShouldReturnResponse()
         {
-            await TestAsync(
-                f => f.Create(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().NotBeNull()
-                    .And.Match<CreateCohortResponse>(v =>
-                        v.CohortId == f.Result.Id &&
-                        v.CohortReference == f.Result.Reference));
+            var fixture = new CreateWithOtherPartyTestsFixture();
+            var result = await fixture.Create();
+            
+            result.Should().NotBeNull()
+                .And.BeOfType<OkObjectResult>()
+                .Which.Value.Should().NotBeNull()
+                .And.Match<CreateCohortResponse>(response =>
+                    response.CohortId == fixture.Result.Id &&
+                    response.CohortReference == fixture.Result.Reference);
         }
     }
 

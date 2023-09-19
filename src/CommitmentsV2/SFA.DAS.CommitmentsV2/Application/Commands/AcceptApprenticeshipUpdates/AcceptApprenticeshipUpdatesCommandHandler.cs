@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
 {
-    public class AcceptApprenticeshipUpdatesCommandHandler : AsyncRequestHandler<AcceptApprenticeshipUpdatesCommand>
+    public class AcceptApprenticeshipUpdatesCommandHandler : IRequestHandler<AcceptApprenticeshipUpdatesCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates
             _logger = logger;
         }
 
-        protected override async Task Handle(AcceptApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
+        public async Task Handle(AcceptApprenticeshipUpdatesCommand command, CancellationToken cancellationToken)
         {
             _logger.LogInformation("AcceptApprenticeshipUpdatesCommand received from ApprenticeshipId :" + command.ApprenticeshipId);
 

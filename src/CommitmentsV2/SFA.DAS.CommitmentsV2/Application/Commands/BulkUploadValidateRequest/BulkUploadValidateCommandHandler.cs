@@ -8,11 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.LinkGeneration;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderUrlHelper;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
@@ -25,12 +26,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private readonly IEmployerAgreementService _employerAgreementService;
+        private readonly RplSettingsConfiguration _rplConfig;
         private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
         private Dictionary<string, Models.Cohort> _cachedCohortDetails;
         private readonly ILinkGenerator _urlHelper;
 
-
         public long ProviderId { get; set; }
+        public bool RplDataExtended { get; set; }
 
         public BulkUploadValidateCommandHandler(
             ILogger<BulkUploadValidateCommandHandler> logger,
@@ -39,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             IAcademicYearDateProvider academicYearDateProvider,
             IProviderRelationshipsApiClient providerRelationshipsApiClient,
             IEmployerAgreementService employerAgreementService,
+            RplSettingsConfiguration rplConfig,
             ILinkGenerator urlHelper)
         {
             _logger = logger;
@@ -48,6 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             _academicYearDateProvider = academicYearDateProvider;
             _providerRelationshipsApiClient = providerRelationshipsApiClient;
             _employerAgreementService = employerAgreementService;
+            _rplConfig = rplConfig;
             _cachedCohortDetails = new Dictionary<string, Models.Cohort>();
             _urlHelper = urlHelper;
         }
@@ -55,6 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
         public async Task<BulkUploadValidateApiResponse> Handle(BulkUploadValidateCommand command, CancellationToken cancellationToken)
         {
             ProviderId = command.ProviderId;
+            RplDataExtended = command.RplDataExtended;
             var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
             _csvRecords = command.CsvRecords.ToList();
 
@@ -191,7 +196,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
             domainErrors.AddRange(ValidateProviderRef(csvRecord));
             domainErrors.AddRange(ValidateEPAOrgId(csvRecord));
             domainErrors.AddRange(ValidateReservation(csvRecord, reservationValidationResults));
-            domainErrors.AddRange(ValidatePriorLearning(csvRecord));
+
+            if (!RplDataExtended)
+            {
+                domainErrors.AddRange(ValidatePriorLearning(csvRecord));
+            }
+            else
+            {
+                domainErrors.AddRange(ValidateRecognisePriorLearning(csvRecord));
+                domainErrors.AddRange(ValidateTrainingTotalHours(csvRecord));
+                domainErrors.AddRange(ValidateTrainingHoursReduction(csvRecord, _rplConfig.MaximumTrainingTimeReduction));
+                domainErrors.AddRange(ValidateDurationReducedBy(csvRecord));
+                domainErrors.AddRange(ValidatePriceReducedBy(csvRecord, _rplConfig.MinimumPriceReduction));
+            }
 
             return domainErrors;
         }

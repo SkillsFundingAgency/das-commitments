@@ -6,18 +6,14 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Authorization.Features.Models;
 using SFA.DAS.Authorization.Features.Services;
-using SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningData;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -33,7 +29,6 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
-using Constants = SFA.DAS.CommitmentsV2.Domain.Constants;
 using DateRange = SFA.DAS.CommitmentsV2.Domain.Entities.DateRange;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -1296,8 +1291,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public CohortDomainServiceTestFixture WithOverlappingEmails()
             {
-                var f = new Fixture();
-                var list = f.CreateMany<EmailOverlapCheckResult>().ToList();
+                var fixture = new Fixture();
+                var list = fixture.CreateMany<EmailOverlapCheckResult>().ToList();
                 OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(list);
                 return this;
@@ -1642,9 +1637,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
 
                 Assert.IsNotNull(updated.PriorLearning, "No prior learning found");
+                Assert.IsNull(updated.TrainingTotalHours);
+                Assert.IsNull(updated.PriorLearning.DurationReducedByHours);
+                Assert.IsNull(updated.PriorLearning.IsDurationReducedByRpl);
                 Assert.IsNull(updated.PriorLearning.DurationReducedBy);
                 Assert.IsNull(updated.PriorLearning.PriceReducedBy);
-                Assert.IsNull(updated.PriorLearning.DurationReducedByHours);
                 Assert.IsNull(updated.PriorLearning.WeightageReducedBy);
                 Assert.IsNull(updated.PriorLearning.ReasonForRplReduction);
                 Assert.IsNull(updated.PriorLearning.QualificationsForRplReduction);
@@ -1655,12 +1652,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
 
                 Assert.IsNotNull(updated.PriorLearning, "No prior learning found");
+
+                Assert.IsNotNull(updated.PriorLearning.DurationReducedByHours);
+                Assert.AreEqual(PriorLearning.DurationReducedByHours, updated.PriorLearning.DurationReducedByHours);
+                Assert.IsNotNull(updated.PriorLearning.IsDurationReducedByRpl);
+                Assert.AreEqual(PriorLearning.IsDurationReducedByRpl, updated.PriorLearning.IsDurationReducedByRpl);
                 Assert.IsNotNull(updated.PriorLearning.DurationReducedBy);
                 Assert.AreEqual(PriorLearning.DurationReducedBy, updated.PriorLearning.DurationReducedBy);
                 Assert.IsNotNull(updated.PriorLearning.PriceReducedBy);
                 Assert.AreEqual(PriorLearning.PriceReducedBy, updated.PriorLearning.PriceReducedBy);
-                Assert.IsNotNull(updated.PriorLearning.DurationReducedByHours);
-                Assert.AreEqual(PriorLearning.DurationReducedByHours, updated.PriorLearning.DurationReducedByHours);
                 Assert.IsNotNull(updated.PriorLearning.WeightageReducedBy);
                 Assert.AreEqual(PriorLearning.WeightageReducedBy, updated.PriorLearning.WeightageReducedBy);
                 Assert.IsNotNull(updated.PriorLearning.ReasonForRplReduction);
@@ -1673,9 +1673,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
                 Assert.IsFalse(updated.RecognisePriorLearning != DraftApprenticeshipDetails.RecognisePriorLearning &&
+                               updated.TrainingTotalHours != DraftApprenticeshipDetails.TrainingTotalHours &&
+                               updated.PriorLearning?.DurationReducedByHours != DraftApprenticeshipDetails.DurationReducedByHours &&
+                               updated.PriorLearning?.IsDurationReducedByRpl != DraftApprenticeshipDetails.IsDurationReducedByRPL &&
                                updated.PriorLearning?.DurationReducedBy != DraftApprenticeshipDetails.DurationReducedBy &&
                                updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy &&
-                               updated.PriorLearning?.DurationReducedByHours != DraftApprenticeshipDetails.DurationReducedByHours &&
                                updated.PriorLearning?.WeightageReducedBy != DraftApprenticeshipDetails.WeightageReducedBy &&
                                updated.PriorLearning?.QualificationsForRplReduction != DraftApprenticeshipDetails.QualificationsForRplReduction &&
                                updated.PriorLearning?.ReasonForRplReduction != DraftApprenticeshipDetails.ReasonForRplReduction);
@@ -1685,14 +1687,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
                 Assert.IsFalse(updated.RecognisePriorLearning == DraftApprenticeshipDetails.RecognisePriorLearning &&
+                               updated.TrainingTotalHours == DraftApprenticeshipDetails.TrainingTotalHours &&
+                               updated.PriorLearning?.DurationReducedByHours == DraftApprenticeshipDetails.DurationReducedByHours &&
+                               updated.PriorLearning?.IsDurationReducedByRpl == DraftApprenticeshipDetails.IsDurationReducedByRPL &&
                                updated.PriorLearning?.DurationReducedBy == DraftApprenticeshipDetails.DurationReducedBy &&
                                updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy &&
-
-                               updated.PriorLearning?.DurationReducedByHours == DraftApprenticeshipDetails.DurationReducedByHours &&
                                updated.PriorLearning?.WeightageReducedBy == DraftApprenticeshipDetails.WeightageReducedBy &&
                                updated.PriorLearning?.QualificationsForRplReduction == DraftApprenticeshipDetails.QualificationsForRplReduction &&
                                updated.PriorLearning?.ReasonForRplReduction == DraftApprenticeshipDetails.ReasonForRplReduction);
-
             }
 
             public void VerifyLastUpdatedFieldsAreSet(Party withParty)
@@ -1724,7 +1726,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1735,7 +1737,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1746,7 +1748,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1757,7 +1759,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1768,7 +1770,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1779,7 +1781,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 
@@ -1790,7 +1792,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (passes)
                 {
-                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    Assert.IsFalse(DomainErrors.Any());
                     return;
                 }
 

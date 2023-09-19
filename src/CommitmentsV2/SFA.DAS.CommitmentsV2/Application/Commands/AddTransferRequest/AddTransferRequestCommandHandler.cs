@@ -13,7 +13,7 @@ using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
 {
-    public class AddTransferRequestCommandHandler : AsyncRequestHandler<AddTransferRequestCommand>
+    public class AddTransferRequestCommandHandler : IRequestHandler<AddTransferRequestCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IFundingCapService _fundingCapService;
@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
             _apiClient = apiClient;
         }
 
-        protected override async Task Handle(AddTransferRequestCommand request, CancellationToken cancellationToken)
+        public async Task Handle(AddTransferRequestCommand request, CancellationToken cancellationToken)
         {
             try
             {

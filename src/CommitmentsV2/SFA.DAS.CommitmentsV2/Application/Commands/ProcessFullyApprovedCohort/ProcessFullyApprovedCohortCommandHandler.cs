@@ -16,7 +16,7 @@ using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
 {
-    public class ProcessFullyApprovedCohortCommandHandler : AsyncRequestHandler<ProcessFullyApprovedCohortCommand>
+    public class ProcessFullyApprovedCohortCommandHandler : IRequestHandler<ProcessFullyApprovedCohortCommand>
     {
         private readonly IAccountApiClient _accountApiClient;
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
             _logger = logger;
         }
 
-        protected override async Task Handle(ProcessFullyApprovedCohortCommand request, CancellationToken cancellationToken)
+        public async Task Handle(ProcessFullyApprovedCohortCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Handling ProcessFullyApprovedCohortCommand for Cohort {request.CohortId}");
 

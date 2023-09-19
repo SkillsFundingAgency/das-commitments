@@ -421,6 +421,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
         private class UpdatingDraftApprenticeshipTestFixture
         {
             private readonly Fixture _autoFixture = new Fixture();
+            
+            // If you use DateTime.Now, some of the tests will fail if run on the last day of the month.
+            private readonly DateTime _referenceDate = new DateTime(2023,10,10);
             private UnitOfWorkContext UnitOfWorkContext { get; }
             private UserInfo UserInfo { get; }
             private Party ModifyingParty { get; }
@@ -451,12 +454,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 Cohort.Apprenticeships.Clear();
                 for (var i = 0; i < 10; i++)
                 {
+                    var trainingPrice = _autoFixture.Create<int>();
+                    var epaPrice = _autoFixture.Create<int>();
+
                     var apprenticeship = new DraftApprenticeship
                     {
                         Id = i,
                         FirstName = _autoFixture.Create<string>(),
                         LastName = _autoFixture.Create<string>(),
-                        Cost = _autoFixture.Create<int>(),
+                        Cost = trainingPrice + epaPrice,
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
                         DeliveryModel = DeliveryModel.Regular,
@@ -465,10 +471,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                             EmploymentEndDate = _autoFixture.Create<DateTime>(),
                             EmploymentPrice = _autoFixture.Create<int>()
                         },
-                        DateOfBirth = DateTime.Now.AddYears(-17),
+                        DateOfBirth = _referenceDate.AddYears(-17),
                         IsOnFlexiPaymentPilot = false,
-                        TrainingPrice = _autoFixture.Create<int>(),
-                        EndPointAssessmentPrice = _autoFixture.Create<int>()
+                        TrainingPrice = trainingPrice,
+                        EndPointAssessmentPrice = epaPrice  
                     };
                     
                     Cohort.Apprenticeships.Add(apprenticeship);
@@ -480,12 +486,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             {
                 Cohort.Apprenticeships.Clear();
 
+                var trainingPrice = _autoFixture.Create<int>();
+                var epaPrice = _autoFixture.Create<int>();
+
                 Cohort.Apprenticeships.Add(new DraftApprenticeship
                 {
                     Id = 1,
                     FirstName = _autoFixture.Create<string>(),
                     LastName = _autoFixture.Create<string>(),
-                    Cost = _autoFixture.Create<int>(),
+                    Cost = trainingPrice + epaPrice,
                     CourseCode = _autoFixture.Create<string>(),
                     CourseName = _autoFixture.Create<string>(),
                     DeliveryModel = DeliveryModel.Regular,
@@ -496,8 +505,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                     },
                     DateOfBirth = DateTime.Now.AddYears(-17),
                     IsOnFlexiPaymentPilot = false,
-                    TrainingPrice = _autoFixture.Create<int>(),
-                    EndPointAssessmentPrice = _autoFixture.Create<int>()
+                    TrainingPrice = trainingPrice,
+                    EndPointAssessmentPrice = epaPrice
                 });
 
                 return this;
@@ -505,21 +514,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public UpdatingDraftApprenticeshipTestFixture WithStartDate()
             {
-                var nextMonth = DateTime.Now.AddMonths(1);
+                var nextMonth = _referenceDate.AddMonths(1);
                 Cohort.Apprenticeships.ForEach(c => c.StartDate = new DateTime(nextMonth.Year, nextMonth.Month, 1));
                 return this;
             }
 
             public UpdatingDraftApprenticeshipTestFixture WithActualStartDate()
             {
-                var nextMonth = DateTime.Now.AddMonths(1);
+                var nextMonth = _referenceDate.AddMonths(1);
                 Cohort.Apprenticeships.ForEach(c => c.ActualStartDate = new DateTime(nextMonth.Year, nextMonth.Month, 15));
                 return this;
             }
 
             public UpdatingDraftApprenticeshipTestFixture WithEndDate()
             {
-                var nextYear = DateTime.Now.AddYears(1);
+                var nextYear = _referenceDate.AddYears(1);
                 Cohort.Apprenticeships.ForEach(c => c.EndDate = nextYear);
                 return this;
             }

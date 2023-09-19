@@ -22,6 +22,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
         {
             _fixture = new GetApprenticeshipHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_ThenShouldReturnResult()
@@ -30,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             _fixture.VerifyResultMapping();
         }
 
-        private class GetApprenticeshipHandlerTestsFixture
+        private class GetApprenticeshipHandlerTestsFixture : IDisposable
         {
             private Fixture _autoFixture;
             public long ApprenticeshipId { get; private set; }
@@ -227,6 +233,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.IsOnFlexiPaymentPilot, _result.IsOnFlexiPaymentPilot);
                 Assert.AreEqual(Apprenticeship.TrainingPrice, _result.TrainingPrice);
                 Assert.AreEqual(Apprenticeship.EndPointAssessmentPrice, _result.EndPointAssessmentPrice);
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
     }

@@ -12,7 +12,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPriority
 {
-    public class UpdateProviderPaymentsPriorityCommandHandler : AsyncRequestHandler<UpdateProviderPaymentsPriorityCommand>
+    public class UpdateProviderPaymentsPriorityCommandHandler : IRequestHandler<UpdateProviderPaymentsPriorityCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly ILogger<UpdateProviderPaymentsPriorityCommandHandler> _logger;
@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPrior
             _logger = logger;
         }
 
-        protected override async Task Handle(UpdateProviderPaymentsPriorityCommand request, CancellationToken cancellationToken)
+        public async Task Handle(UpdateProviderPaymentsPriorityCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Updating Provider Payment Priority for employer account {request.AccountId}");
 

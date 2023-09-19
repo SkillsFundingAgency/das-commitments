@@ -74,8 +74,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                         EncodingType.AccountId)).Returns(_employerEncodedAccountId);
 
                     _mediator = new Mock<IMediator>();
-                    _mediator.Setup(x => x.Send(It.IsAny<AddTransferRequestCommand>(), It.IsAny<CancellationToken>()))
-                        .ReturnsAsync(new Unit());
+                    _mediator.Setup(x => x.Send(It.IsAny<AddTransferRequestCommand>(), It.IsAny<CancellationToken>()));
 
                     _cohortSummary = _autoFixture.Create<GetCohortSummaryQueryResult>();
                     _cohortSummary.ProviderId = _providerId;

@@ -28,6 +28,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         public UserInfo UserInfo { get; set; }
         public bool IgnoreStartDateOverlap { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
+        public int? TrainingPrice { get; set; }
+        public int? EndPointAssessmentPrice { get; set; }
 
     }
 }
