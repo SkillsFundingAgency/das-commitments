@@ -17,6 +17,7 @@ using System.Data.SqlClient;
 using System.Data;
 using Microsoft.Azure.Documents.Linq;
 using SFA.DAS.CommitmentsV2.Domain.Entities.DataLockProcessing;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
@@ -124,7 +125,13 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                             if (result.IsExpired)
                             {
+                                _logger.LogInformation($"Datalock for Apprenticeship {dataLockStatus.ApprenticeshipId}, PriceEpisodeIdentifier { dataLockStatus.PriceEpisodeIdentifier}, Event Id {dataLockStatus.DataLockEventId} identified as having expired");
                                 history.ExpiredCount++;
+                            }
+                            if(result.IsDuplicate)
+                            {
+                                _logger.LogInformation($"Datalock for Apprenticeship {dataLockStatus.ApprenticeshipId}, PriceEpisodeIdentifier {dataLockStatus.PriceEpisodeIdentifier}, Event Id {dataLockStatus.DataLockEventId} identified as being a duplicate");
+                                history.DuplicateCount++;
                             }
 
                             await _filterOutAcademicYearRollOverDataLocks.Filter(dataLockStatus.ApprenticeshipId);
@@ -290,7 +297,11 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     result.IsExpired = true;
                 }
-                //todo: duplicate detection
+
+                if (datalock.IsDuplicate(dataLockStatus))
+                {
+                    result.IsDuplicate = true;
+                }
 
                 datalock.ApprenticeshipId = dataLockStatus.ApprenticeshipId;
                 datalock.DataLockEventId = dataLockStatus.DataLockEventId;
