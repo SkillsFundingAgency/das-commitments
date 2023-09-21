@@ -55,6 +55,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task RunUpdate()
         {
+            var history = new DataLockUpdaterJobHistory();
+
             _logger.LogInformation("Retrieving last DataLock Event Id from repository");
             var lastId = await GetLastDataLockEventId();
 
@@ -68,9 +70,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             stopwatch.Stop();
             _logger.LogInformation($"Response took {stopwatch.ElapsedMilliseconds}ms");
 
+            history.FromEventId = lastId;
+            history.ItemCount = page.Count;
+            history.PagesRemaining = page.Any() ? datalockStatusResponse.TotalNumberOfPages - 1 : 0;
+
             if (!page.Any())
             {
                 _logger.LogInformation("No data returned; exiting");
+                await StoreJobHistory(history);
                 return;
             }
 
@@ -140,6 +147,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             await StoreLastDataLockEventId(lastId);
+            await StoreJobHistory(history);
         }
 
         private void AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(Apprenticeship apprenticeship, DataLockStatus datalock)
@@ -206,6 +214,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             await _db.Value.SaveChangesAsync();
+        }
+
+        private async Task StoreJobHistory(DataLockUpdaterJobHistory history)
+        {
+            history.FinishedOn = DateTime.UtcNow;
+            await _db.Value.DataLockUpdaterJobHistory.AddAsync(history);
         }
 
         private static DateTime GetDateFromPriceEpisodeIdentifier(DataLockStatus dataLockStatus)
