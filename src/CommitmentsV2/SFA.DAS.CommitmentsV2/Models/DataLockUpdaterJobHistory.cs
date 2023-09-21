@@ -4,6 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Models;
 
 public class DataLockUpdaterJobHistory
 {
+    public long Id { get; set; }
     public Guid CorrelationId { get; set; }
     public DateTime StartedOn { get; set; }
     public DateTime FinishedOn { get; set; }
