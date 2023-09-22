@@ -21,7 +21,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         {
             _db = db;
             _emailService = emailService;
-            _emailService = emailService;
         }
 
         public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
