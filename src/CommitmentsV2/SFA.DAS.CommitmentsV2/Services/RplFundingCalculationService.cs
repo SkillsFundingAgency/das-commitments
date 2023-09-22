@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (durationReducedByHours == null || trainingTotalHours == null || trainingTotalHours == 0)
                 return null;
-            return (decimal)durationReducedByHours / trainingTotalHours * 100;
+            return Math.Floor(Convert.ToDecimal((decimal)durationReducedByHours / trainingTotalHours * 100));
         }
 
         private static decimal? CalculateMinimumPercentageOfPriorLearning(decimal? percentageOfPriorLearning)
