@@ -62,5 +62,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public string ReasonForRplReduction { get; set; }
         public int? TrainingTotalHours { get; set; }
         public bool? IsDurationReducedByRPL { get; set; }
+        public bool? EmployerHasEditedCost { get; set; }
     }
 }

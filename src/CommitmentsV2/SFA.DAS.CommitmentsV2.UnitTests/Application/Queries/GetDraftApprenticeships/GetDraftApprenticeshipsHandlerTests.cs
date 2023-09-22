@@ -162,6 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.AreEqual(source.PriorLearning.ReasonForRplReduction, result.ReasonForRplReduction);
             Assert.AreEqual(source.PriorLearning.QualificationsForRplReduction, result.QualificationsForRplReduction);
             Assert.AreEqual(source.IsOnFlexiPaymentPilot, result.IsOnFlexiPaymentPilot);
+            Assert.AreEqual(source.EmployerHasEditedCost, result.EmployerHasEditedCost);
             Assert.AreEqual(source.EmailAddressConfirmed, result.EmailAddressConfirmed);
         }
     }

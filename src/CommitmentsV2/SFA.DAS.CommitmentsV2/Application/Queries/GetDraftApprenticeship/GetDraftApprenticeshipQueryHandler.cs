@@ -73,7 +73,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 RecognisingPriorLearningStillNeedsToBeConsidered = draft.RecognisingPriorLearningStillNeedsToBeConsidered,
                 RecognisingPriorLearningExtendedStillNeedsToBeConsidered = draft.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot,
-                EmailAddressConfirmed = draft.EmailAddressConfirmed
+                EmailAddressConfirmed = draft.EmailAddressConfirmed,
+                EmployerHasEditedCost = draft.EmployerHasEditedCost
             }).SingleOrDefaultAsync(cancellationToken);
 
             return x;

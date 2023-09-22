@@ -92,6 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             EndDate = source.EndDate;
             DateOfBirth = source.DateOfBirth;
             IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot;
+            EmployerHasEditedCost = source.EmployerHasEditedCost;
 
             switch (modifyingParty)
             {

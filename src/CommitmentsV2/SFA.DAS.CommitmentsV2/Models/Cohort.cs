@@ -424,7 +424,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 draftApprenticeshipDetails.TrainingPrice = null;
                 draftApprenticeshipDetails.EndPointAssessmentPrice = null;
+                draftApprenticeshipDetails.EmployerHasEditedCost = true;
             }
+
+            if (draftApprenticeshipDetails.TrainingPrice != null && draftApprenticeshipDetails.EndPointAssessmentPrice != null)
+                draftApprenticeshipDetails.EmployerHasEditedCost = false;
 
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
 

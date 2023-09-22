@@ -60,6 +60,49 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
         }
 
         [Test]
+        public void UpdateDraftApprenticeship_Employer_Cost_Change_Sets_Flag()
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Employer);
+
+            fixture
+                .WithSingleExistingDraftApprenticeship()
+                .WithPriorApprovalOfOtherParty()
+                .WithFlexiPaymentPilotFlagSetToTrue()
+                .UpdateDraftApprenticeshipCost();
+
+            fixture.VerifyEmployerHasEditedCostFlag(true);
+        }
+
+        [Test]
+        public void UpdateDraftApprenticeship_Provider_Cost_Change_Does_Not_Set_Employer_Flag()
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
+
+            fixture
+                .WithSingleExistingDraftApprenticeship()
+                .WithPriorApprovalOfOtherParty()
+                .WithFlexiPaymentPilotFlagSetToTrue()
+                .UpdateDraftApprenticeshipCost();
+
+            fixture.VerifyEmployerHasEditedCostFlag(false);
+        }
+
+        [Test]
+        public void UpdateDraftApprenticeship_Setting_TrainingPrice_And_EPAPrice_Resets_EmployerHasEditedCost_Flag()
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
+
+            fixture
+                .WithSingleExistingDraftApprenticeship()
+                .WithPriorApprovalOfOtherParty()
+                .WithFlexiPaymentPilotFlagSetToTrue()
+                .WithEmployerHasEditedCostFlagSetToTrue()
+                .UpdateDraftApprenticeshipCost();
+
+            fixture.VerifyEmployerHasEditedCostFlag(false);
+        }
+
+        [Test]
         public void UpdateDraftApprenticeship_Employer_Cost_Change_Blanks_TrainingPrice_And_EPAPrice_For_Flexi_Payments_Pilot_Apprenticeship()
         {
             var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Employer);
@@ -551,6 +594,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 return this;
             }
 
+            public UpdatingDraftApprenticeshipTestFixture WithEmployerHasEditedCostFlagSetToTrue()
+            {
+                Cohort.Apprenticeships.ForEach(x => x.EmployerHasEditedCost = true);
+                return this;
+            }
+
             public void UpdateDraftApprenticeshipCost()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
@@ -776,6 +825,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                     && @event.EntityType ==
                                                                                     nameof(Cohort)));
+            }
+
+            public void VerifyEmployerHasEditedCostFlag(bool? flagValue)
+            {
+                Assert.AreEqual(flagValue, Cohort.Apprenticeships.Single().EmployerHasEditedCost);
             }
 
             public void VerifyTrainingPriceAndEPAPriceAreNull()
