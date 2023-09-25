@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (durationReducedByHours == null || trainingTotalHours == null || trainingTotalHours == 0)
                 return null;
-            return Math.Floor(Convert.ToDecimal((decimal)durationReducedByHours / trainingTotalHours * 100));
+            return (decimal)durationReducedByHours / trainingTotalHours * 100;
         }
 
         private static decimal? CalculateMinimumPercentageOfPriorLearning(decimal? percentageOfPriorLearning)
@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (fundingBandMaximum == null || minimumPercentageReduction == null || minimumPercentageReduction == 0)
                 return null;
-            return (int?)(fundingBandMaximum * minimumPercentageReduction / 100);
+            return (int?)Math.Floor(Convert.ToDecimal(fundingBandMaximum * minimumPercentageReduction.GetValueOrDefault() / 100));
         }
 
         private static bool AreRplFieldsAreComplete(int? trainingTotalHours, int? durationReducedByHours, int? priceReducedBy, bool? isDurationReducedByRpl)
