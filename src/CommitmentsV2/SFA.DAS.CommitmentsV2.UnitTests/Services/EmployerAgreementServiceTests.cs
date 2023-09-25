@@ -21,8 +21,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(3)]
         public async Task IsAgreementSigned_WithoutAnyAgreementFeatureAndWithOneSignedAgreementAtSpecifiedVersion_ItShouldReturnTrue(int version)
         {
-            var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(version);
-            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.MaLegalEntityId);
+            var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(version);
+            var result = await fixture.Sut.IsAgreementSigned(fixture.AccountId, fixture.MaLegalEntityId);
             Assert.IsTrue(result);
         }
 
@@ -31,49 +31,49 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(3, true)]
         public async Task IsAgreementSigned_WithTransferAgreementFeatureAndWithOneSignedAgreementAtSpecifiedVersion_ItShouldReturnExpectedValue(int version, bool expected)
         {
-            var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(version);
-            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.MaLegalEntityId, AgreementFeature.Transfers);
+            var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(version);
+            var result = await fixture.Sut.IsAgreementSigned(fixture.AccountId, fixture.MaLegalEntityId, AgreementFeature.Transfers);
             Assert.AreEqual(expected, result);
-            f.VerifyAccountApiClientReceivesCorrectValues();
+            fixture.VerifyAccountApiClientReceivesCorrectValues();
         }
 
         [Test]
         public async Task IsAgreementSigned_WithTransferAgreementFeatureAndWithMultipleSignedAgreements_ItShouldReturnTrue()
         {
-            var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
-            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.MaLegalEntityId, AgreementFeature.Transfers);
+            var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
+            var result = await fixture.Sut.IsAgreementSigned(fixture.AccountId, fixture.MaLegalEntityId, AgreementFeature.Transfers);
             Assert.IsTrue(result);
         }
 
         [Test]
         public async Task IsAgreementSigned_WithoutAnyAgreementFeaturesAndWithMultipleSignedAgreements_ItShouldReturnTrue()
         {
-            var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
-            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.MaLegalEntityId);
+            var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
+            var result = await fixture.Sut.IsAgreementSigned(fixture.AccountId, fixture.MaLegalEntityId);
             Assert.IsTrue(result);
         }
 
         [Test]
         public async Task GetLatestAgreementId_WithNoAgreements_ItShouldReturnNull()
         {
-            var f = new EmployerAgreementServiceTestsFixture();
-            var result = await f.Sut.GetLatestAgreementId(f.AccountId, f.MaLegalEntityId);
+            var fixture = new EmployerAgreementServiceTestsFixture();
+            var result = await fixture.Sut.GetLatestAgreementId(fixture.AccountId, fixture.MaLegalEntityId);
             Assert.IsNull(result);
         }
 
         [Test]
         public async Task GetLatestAgreementId_WithMultipleSignedAgreements_ItShouldReturnId2()
         {
-            var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
-            var result = await f.Sut.GetLatestAgreementId(f.AccountId, f.MaLegalEntityId);
+            var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
+            var result = await fixture.Sut.GetLatestAgreementId(fixture.AccountId, fixture.MaLegalEntityId);
             Assert.AreEqual(2, result);
         }
 
         [Test]
         public async Task GetLatestAgreementId_WithOneSignedAgreementsAndNewUnsignedAgreement_ItShouldReturn2()
         {
-            var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpUnsignedAgreementWithVersion(2);
-            var result = await f.Sut.GetLatestAgreementId(f.AccountId, f.MaLegalEntityId);
+            var fixture = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpUnsignedAgreementWithVersion(2);
+            var result = await fixture.Sut.GetLatestAgreementId(fixture.AccountId, fixture.MaLegalEntityId);
             Assert.AreEqual(2, result);
         }
     }

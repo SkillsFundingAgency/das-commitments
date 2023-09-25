@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
 {
-    public class AcceptDataLocksRequestChangesCommandHandler : AsyncRequestHandler<AcceptDataLocksRequestChangesCommand>
+    public class AcceptDataLocksRequestChangesCommandHandler : IRequestHandler<AcceptDataLocksRequestChangesCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly ICurrentDateTime _currentDateTime;
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks
             _logger = logger;
         }
 
-        protected override async Task Handle(AcceptDataLocksRequestChangesCommand request, CancellationToken cancellationToken)
+        public async Task Handle(AcceptDataLocksRequestChangesCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Accepting Data Locks for apprenticeship {request.ApprenticeshipId}");
 

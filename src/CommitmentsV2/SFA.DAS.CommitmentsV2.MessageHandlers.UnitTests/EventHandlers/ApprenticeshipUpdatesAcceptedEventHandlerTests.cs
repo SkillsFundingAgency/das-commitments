@@ -23,15 +23,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenApprenticeshipUpdatedApprovedEventIsReceived_ThenShouldRelayAnyMessagesToAzureServiceBus()
         {
-            var f = new ApprenticeshipUpdatesAcceptedEventHandlerTestsFixture().WithApprenticeshipUpdatedApprovedEvent();
-            await f.Handle();
-            f.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
+            var fixture = new ApprenticeshipUpdatesAcceptedEventHandlerTestsFixture()
+                .WithApprenticeshipUpdatedApprovedEvent();
+            
+            await fixture.Handle();
+            
+            fixture.VerifyPropertiesAreMappedCorrectlyWhenRelayingMessage();
         }
     }
 
     public class ApprenticeshipUpdatesAcceptedEventHandlerTestsFixture
     {
-        public Mock<IMessageHandlerContext> MessageHandlerContext;
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher;
         public ApprenticeshipUpdatedApprovedEventHandler Sut;
         public ApprenticeshipUpdatedApprovedEvent ApprenticeshipUpdatedApprovedEvent;
@@ -46,20 +48,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             ApprenticeshipId = autoFixture.Create<long>();
             ProviderId = autoFixture.Create<long>();
             AccountId = autoFixture.Create<long>();
-
-            MessageHandlerContext = new Mock<IMessageHandlerContext>();
+            
             LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
 
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-            var cohort = new CommitmentsV2.Models.Cohort()
+            var cohort = new Cohort()
               .Set(c => c.Id, 111)
               .Set(c => c.EmployerAccountId, AccountId)
               .Set(c => c.ProviderId, ProviderId)
               .Set(c => c.AccountLegalEntity, new AccountLegalEntity());
 
-           var apprenticeshipDetails = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
+           var apprenticeshipDetails = fixture.Build<Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
              .With(s => s.Cohort, cohort)
              .With(s => s.EndDate, DateTime.UtcNow)

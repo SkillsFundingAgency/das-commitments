@@ -28,12 +28,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable]
     public class UndoApprenticeshipUpdatesCommandHandlerTests 
     {
-        UndoApprenticeshipUpdatesCommandHandlerTestsFixture fixture;
-
         [Test]
         public async Task Handle_WhenCommandIsHandled_PendingOriginatorIsNULL()
         {
-            fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -46,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateStatus_IsUndone()
         {
-            fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -59,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenNoApprenticeshipUpdate_AndCommandIsHandled_ExceptionIsThrown()
         {
-            fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
             await fixture.Handle();
 
             fixture.VerifyException<InvalidOperationException>();
@@ -68,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Handle_WhenCommandIsHandled_ApprenticeshipUpdateCancelledEvent_IsEmitted()
         {
-            fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
+            using var fixture = new UndoApprenticeshipUpdatesCommandHandlerTestsFixture();
             fixture.ApprenticeshipUpdate.Cost = 195;
             await fixture.AddANewApprenticeshipUpdate(fixture.ApprenticeshipUpdate);
 
@@ -91,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class UndoApprenticeshipUpdatesCommandHandlerTestsFixture
+    public class UndoApprenticeshipUpdatesCommandHandlerTestsFixture : IDisposable
     {
         public long ApprenticeshipId = 12;
         public Fixture fixture { get; set; }
@@ -109,12 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public ApprenticeshipUpdate ApprenticeshipUpdate;
         public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
-        public Apprenticeship ApprenticeshipFromDb => 
-            Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
-        public PriceHistory PriceHistoryFromDb =>
-          Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).PriceHistory.First();
-        public ApprenticeshipUpdate ApprenticeshipUpdateFromDb =>
-          Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).ApprenticeshipUpdate.First();
+        public Apprenticeship ApprenticeshipFromDb => Db.Apprenticeships.First(x => x.Id == ApprenticeshipId);
 
         public Exception Exception { get; set; }
 
@@ -129,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             HasOverlapErrors = false;
             UnitOfWorkContext = new UnitOfWorkContext();
 
-            var Cohort = new CommitmentsV2.Models.Cohort()
+            var Cohort = new Cohort()
                 .Set(c => c.Id, 111)
                 .Set(c => c.EmployerAccountId, 222)
                 .Set(c => c.ProviderId, 333)
@@ -149,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 }
             };
 
-            ApprenticeshipDetails = fixture.Build<CommitmentsV2.Models.Apprenticeship>()
+            ApprenticeshipDetails = fixture.Build<Apprenticeship>()
              .With(s => s.Id, ApprenticeshipId)
              .With(s => s.Cohort, Cohort)
              .With(s => s.PaymentStatus, PaymentStatus.Completed)
@@ -205,7 +198,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
         }
 
-        public async Task<UndoApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
+        private async Task<UndoApprenticeshipUpdatesCommandHandlerTestsFixture> SeedData()
         {
             Db.Apprenticeships.Add(ApprenticeshipDetails);
 
@@ -237,6 +230,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

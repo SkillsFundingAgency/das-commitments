@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails
 {
-    public class PriorLearningDetailsHandler : AsyncRequestHandler<PriorLearningDetailsCommand>
+    public class PriorLearningDetailsHandler : IRequestHandler<PriorLearningDetailsCommand>
     {
         private readonly ILogger<PriorLearningDetailsHandler> _logger;
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails
             _logger = logger;
         }
 
-        protected override async Task Handle(PriorLearningDetailsCommand command, CancellationToken cancellationToken)
+        public async Task Handle(PriorLearningDetailsCommand command, CancellationToken cancellationToken)
         {
             var apprenticeship = await _dbContext.Value.GetDraftApprenticeshipAggregate(command.CohortId, command.ApprenticeshipId, cancellationToken);
 

@@ -5,9 +5,8 @@ namespace SFA.DAS.Commitments.Events
     [MessageGroup("cohort_approval_by_transfer_sender_requested")]
     public class CohortApprovalByTransferSenderRequested
     {
-        public CohortApprovalByTransferSenderRequested()
-        {
-        }
+        //Needs a parameterless constructor to work with the message processing
+        public CohortApprovalByTransferSenderRequested() { }
 
         public CohortApprovalByTransferSenderRequested(long transferRequestId, long accountId, long commitmentId, long transferSenderId, decimal transferCost)
         {

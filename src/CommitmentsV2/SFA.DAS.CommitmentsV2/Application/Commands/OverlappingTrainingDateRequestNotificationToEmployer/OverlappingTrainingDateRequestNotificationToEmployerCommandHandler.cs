@@ -18,11 +18,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
     public class OverlappingTrainingDateRequestNotificationToEmployerCommandHandler : IRequestHandler<OverlappingTrainingDateRequestNotificationToEmployerCommand>
     {
         public const string TemplateId = "ChaseEmployerForOverlappingTrainingDateRequest";
-        private ICurrentDateTime _currentDateTime;
-        private Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private IMessageSession _messageSession;
+        private readonly ICurrentDateTime _currentDateTime;
+        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly IMessageSession _messageSession;
         private readonly CommitmentsV2Configuration _configuration;
-        private ILogger<OverlappingTrainingDateRequestNotificationToEmployerCommandHandler> _logger;
+        private readonly ILogger<OverlappingTrainingDateRequestNotificationToEmployerCommandHandler> _logger;
         private readonly IEncodingService _encodingService;
 
         public OverlappingTrainingDateRequestNotificationToEmployerCommandHandler(Lazy<ProviderCommitmentsDbContext> commitmentsDbContext,
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             _logger = logger;
             _encodingService = encodingService;
         }
-        public async Task<Unit> Handle(OverlappingTrainingDateRequestNotificationToEmployerCommand request, CancellationToken cancellationToken)
+        public async Task Handle(OverlappingTrainingDateRequestNotificationToEmployerCommand request, CancellationToken cancellationToken)
         {
             var dateTime = _currentDateTime.UtcNow.AddDays(-14).Date;
 
@@ -77,8 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 }
             }
 
-            await _dbContext.Value.SaveChangesAsync();
-            return Unit.Value;
+            await _dbContext.Value.SaveChangesAsync(cancellationToken);
         }
     }
 }

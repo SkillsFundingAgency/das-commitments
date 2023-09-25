@@ -222,13 +222,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             return Db.DraftApprenticeships.First();
         }
-
-        public GetDraftApprenticeHandlerTestFixtures SetFeatureToggle(string toggleName, bool toggle)
-        {
-            FeatureToggleServiceMock.Setup(x => x.GetFeatureToggle(toggleName))
-                .Returns(new FeatureToggle { Feature = toggleName, IsEnabled = toggle });
-            
-            return this;
-        }
     }
 }

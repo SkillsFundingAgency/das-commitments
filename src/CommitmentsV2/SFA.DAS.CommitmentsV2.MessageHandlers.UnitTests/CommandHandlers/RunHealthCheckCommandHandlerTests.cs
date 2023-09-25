@@ -9,33 +9,35 @@ using NServiceBus.Testing;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {
     [TestFixture]
     [Parallelizable]
-    public class RunHealthCheckCommandHandlerTests : FluentTest<RunHealthCheckCommandHandlerTestsFixture>
+    public class RunHealthCheckCommandHandlerTests
     {
         [Test]
-        public Task Handle_WhenHandlingCommand_ThenShouldLogInformation()
+        public async Task Handle_WhenHandlingCommand_ThenShouldLogInformation()
         {
-            return TestAsync(
-                f => f.Handle(),
-                f => f.Logger.Verify(l => l.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>())));
+            var fixture = new RunHealthCheckCommandHandlerTestsFixture();
+            await fixture.Handle();
+
+            fixture.Logger.Verify(l => l.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>())
+            );
         }
-        
+
         [Test]
-        public Task Handle_WhenHandlingCommand_ThenShouldAddMessageIdToDistributedCache()
+        public async Task Handle_WhenHandlingCommand_ThenShouldAddMessageIdToDistributedCache()
         {
-            return TestAsync(
-                f => f.Handle(),
-                f => f.DistributedCache.Verify(c => c.SetAsync(f.MessageId, It.Is<byte[]>(v => System.Text.Encoding.UTF8.GetString(v) == "OK"), It.IsAny<DistributedCacheEntryOptions>(), It.IsAny<CancellationToken>())));
+            var fixture = new RunHealthCheckCommandHandlerTestsFixture();
+            await fixture.Handle();
+            
+            fixture.DistributedCache.Verify(c => c.SetAsync(fixture.MessageId, It.Is<byte[]>(v => System.Text.Encoding.UTF8.GetString(v) == "OK"), It.IsAny<DistributedCacheEntryOptions>(), It.IsAny<CancellationToken>()));
         }
     }
 

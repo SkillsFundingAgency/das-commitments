@@ -15,7 +15,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressChangedByApprentice
 {
-    public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandler : AsyncRequestHandler<ApprenticeshipEmailAddressChangedByApprenticeCommand>
+    public class ApprenticeshipEmailAddressChangedByApprenticeCommandHandler : IRequestHandler<ApprenticeshipEmailAddressChangedByApprenticeCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly IApprovalsOuterApiClient _apimClient;
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressC
             _logger = logger;
         }
 
-        protected override async Task Handle(ApprenticeshipEmailAddressChangedByApprenticeCommand request, CancellationToken cancellationToken)
+        public async Task Handle(ApprenticeshipEmailAddressChangedByApprenticeCommand request, CancellationToken cancellationToken)
         {
             try
             {

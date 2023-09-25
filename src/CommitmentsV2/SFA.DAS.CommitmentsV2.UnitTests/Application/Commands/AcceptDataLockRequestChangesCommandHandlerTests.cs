@@ -38,6 +38,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture = new TestsFixture();
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
+
         [Test]
         public async Task ShouldNotResolveDataLock_WhenNoNewDataLockToProcess()
         {
@@ -659,7 +665,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
     }
 
-    public class AcceptDataLockRequestChangesCommandHandlerTestsFixture
+    public class AcceptDataLockRequestChangesCommandHandlerTestsFixture : IDisposable
     {
         public static long ApprenticeshipId = 12;
 
@@ -916,6 +922,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     TrainingType = trainingType
                 });
             });
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

@@ -27,47 +27,47 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(false)]
         public async Task Handle_WhenHandlingTransferRequestApprovedEvent_ThenShouldFindCohortAndSetTransferApprovalProperties(bool autoApproval)
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture()
+            var fixture = new TransferRequestApprovedEventHandlerTestsFixture()
                 .AddCohortToMemoryDb()
                 .AddTransferRequest(autoApproval);
 
-            await f.Handle();
+            await fixture.Handle();
 
-            f.VerifyCohortApprovalPropertiesAreSet();
+            fixture.VerifyCohortApprovalPropertiesAreSet();
         }
 
         [Test]
         public async Task Handle_WhenHandlingTransferRequestApprovedEventAndAutoApprovalIsFalse_ThenShouldSendLegacyEventCohortApprovedByTransferSender()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture()
+            var fixture = new TransferRequestApprovedEventHandlerTestsFixture()
                 .AddCohortToMemoryDb()
                 .AddTransferRequest(false);
 
-            await f.Handle();
+            await fixture.Handle();
 
-            f.VerifyLegacyEventCohortApprovedByTransferSenderIsPublished();
+            fixture.VerifyLegacyEventCohortApprovedByTransferSenderIsPublished();
         }
 
         [Test]
         public async Task Handle_WhenHandlingTransferRequestApprovedEventAndAutoApprovalIsTrue_ThenShouldNotSendLegacyEventCohortApprovedByTransferSender()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture()
+            var fixture = new TransferRequestApprovedEventHandlerTestsFixture()
                 .AddCohortToMemoryDb()
                 .AddTransferRequest(true);
 
-            await f.Handle();
+            await fixture.Handle();
 
-            f.VerifyMessageNotRelayed();
+            fixture.VerifyMessageNotRelayed();
         }
 
         [Test]
         public void Handle_WhenHandlingTransferRequestApprovedEventAndItThrowsException_ThenWelogErrorAndRethrowError()
         {
-            var f = new TransferRequestApprovedEventHandlerTestsFixture();
+            var fixture = new TransferRequestApprovedEventHandlerTestsFixture();
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => f.Handle());
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixture.Handle());
 
-            Assert.IsTrue(f.Logger.HasErrors);
+            Assert.IsTrue(fixture.Logger.HasErrors);
         }
     }
 

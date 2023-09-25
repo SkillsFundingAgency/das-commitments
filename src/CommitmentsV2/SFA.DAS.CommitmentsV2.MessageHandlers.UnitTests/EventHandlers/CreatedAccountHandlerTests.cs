@@ -3,23 +3,25 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.EmployerAccounts.Messages.Events;
-using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
     [TestFixture]
     [Parallelizable]
-    public class CreatedAccountEventHandlerTests : FluentTest<CreatedAccountEventHandlerTestsFixture>
+    public class CreatedAccountEventHandlerTests
     {
         [Test]
-        public Task Handle_WhenHandlingCreatedAccountEvent_ThenShouldSendCreateAccountLegalEntityCommand()
+        public async Task Handle_WhenHandlingCreatedAccountEvent_ThenShouldSendCreateAccountLegalEntityCommand()
         {
-            return TestAsync(f => f.Handle(), f => f.VerifySend<CreateAccountCommand>((c, m) =>
-                c.AccountId == m.AccountId &&
-                c.HashedId == m.HashedId &&
-                c.PublicHashedId == m.PublicHashedId &&
-                c.Name == m.Name &&
-                c.Created == m.Created));
+            var fixture = new CreatedAccountEventHandlerTestsFixture();
+            await fixture.Handle();
+
+            fixture.VerifySend<CreateAccountCommand>((command, createdAccountEvent) =>
+                command.AccountId == createdAccountEvent.AccountId &&
+                command.HashedId == createdAccountEvent.HashedId &&
+                command.PublicHashedId == createdAccountEvent.PublicHashedId &&
+                command.Name == createdAccountEvent.Name &&
+                command.Created == createdAccountEvent.Created);
         }
     }
 

@@ -1,11 +1,8 @@
-using FluentValidation.Results;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetProvider;
 using FluentValidation.TestHelper;
+using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPaymentsPriority
 {
     [TestFixture]
     [Parallelizable]
@@ -14,7 +11,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [TestCase(-1, false)]
         [TestCase( 0, false)]
         [TestCase( 1, true)]
-
         public void Validate_WhenValidatingEmployerAccountId_ThenShouldRejectNonPositiveNumbers(long accountId, bool expectToBeValid)
         {
             // arrange
@@ -22,15 +18,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             
             // act
             var request = new GetProviderPaymentsPriorityQuery(accountId);
+            var result = validator.TestValidate(request);
 
             // assert
             if (expectToBeValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(r => r.EmployerAccountId, request, null);
+                result.ShouldNotHaveValidationErrorFor(r => r.EmployerAccountId);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(r => r.EmployerAccountId, request, null);
+                result.ShouldHaveValidationErrorFor(r => r.EmployerAccountId);
             }
         }
     }

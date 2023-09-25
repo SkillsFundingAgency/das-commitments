@@ -113,6 +113,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task ThenJobHistoryIsCreated()
+        {
+            // Arrange
+            var dataLockStatusId = 2;
+            var maxDataLockEventId = 2;
+            string priceEpisode = "25-6-01/06/2016";
+
+            SeedDataLock(SeedApprenticeships[0], dataLockStatusId, maxDataLockEventId, priceEpisode, DateTime.Now, DataLockErrorCode.Dlock03, SeedApprenticeshipUpdates[0]);
+            SeedLastEventId(maxDataLockEventId);
+            SeedData(Db);
+
+            _dataLockUpdater = CreateService();
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            VerifyJobHistoryCreated();
+        }
+
+        [Test]
         public async Task ThenInsertDataLockStatusRecordsIfNoDataLockExist()
         {
             SeedLastEventId(1);
@@ -663,6 +683,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         private void VerifyDataLockIsNotUpdated(long dataLockEventId, bool expectDataLock)
         {
             Assert.AreEqual(expectDataLock, Db.DataLocks.Any(x => dataLockEventId == x.DataLockEventId));
+        }
+
+        private void VerifyJobHistoryCreated()
+        {
+            Assert.IsTrue(Db.DataLockUpdaterJobHistory.Any());
         }
     }
 }

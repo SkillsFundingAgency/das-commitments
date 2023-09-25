@@ -21,13 +21,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task Verify_All_EaposOrganisations_Added_To_Db()
         {
-            var fixture = new UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture();
+            using var fixture = new UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture();
             await fixture.Handle();
 
             fixture.VerifyOrganisationsAdded();
         }
 
-        public class UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture
+        private class UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture : IDisposable
         {
             private ProviderCommitmentsDbContext _db { get; set; }
             private UpdateCacheOfAssessmentOrganisationsCommandHandler _sut { get; set; }
@@ -69,6 +69,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     var organisatinInDb = _db.AssessmentOrganisations.FirstOrDefault(x => x.EpaOrgId == org.Id && x.Name == org.Name);
                     Assert.NotNull(organisatinInDb);
                 }
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
     }

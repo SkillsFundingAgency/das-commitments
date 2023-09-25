@@ -19,10 +19,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [Test]
         public async Task IsAgreementSignedForFeature_WithValidModelAndExistingLegalEntity_ShouldReturnOkayAndContent()
         {
-            var f = new EmployerAgreementControllerTestFixtures();
+            var fixtures = new EmployerAgreementControllerTestFixtures();
 
-            var response = await f.Sut.IsAgreementSignedForFeature(f.AgreementSignedRequest.AccountLegalEntityId,
-                f.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
+            var response = await fixtures.Sut.IsAgreementSignedForFeature(fixtures.AgreementSignedRequest.AccountLegalEntityId,
+                fixtures.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
 
             Assert.AreEqual(typeof(OkObjectResult), response.GetType());
             var objectResult = (OkObjectResult) response;
@@ -33,10 +33,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [TestCase(false)]
         public async Task IsAgreementSignedForFeature_WithValidModelAndExistingLegalEntity_ShouldReturnExpectedBoolean(bool expected)
         {
-            var f = new EmployerAgreementControllerTestFixtures().WithAgreementIdSignedAs(expected);
+            var fixtures = new EmployerAgreementControllerTestFixtures().WithAgreementIdSignedAs(expected);
 
-            var response = await f.Sut.IsAgreementSignedForFeature(f.AgreementSignedRequest.AccountLegalEntityId,
-                f.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
+            var response = await fixtures.Sut.IsAgreementSignedForFeature(fixtures.AgreementSignedRequest.AccountLegalEntityId,
+                fixtures.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
 
             Assert.IsInstanceOf<OkObjectResult>(response);
             Assert.AreEqual(expected, (bool)((OkObjectResult)response).Value);
@@ -45,21 +45,21 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [Test]
         public async Task IsAgreementSignedForFeature_WithValidModelAndExistingLegalEntity_ShouldCallServicesCorrectly()
         {
-            var f = new EmployerAgreementControllerTestFixtures();
+            var fixtures = new EmployerAgreementControllerTestFixtures();
 
-            await f.Sut.IsAgreementSignedForFeature(f.AgreementSignedRequest.AccountLegalEntityId,
-                f.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
+            await fixtures.Sut.IsAgreementSignedForFeature(fixtures.AgreementSignedRequest.AccountLegalEntityId,
+                fixtures.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
 
-            f.VerifyMediatorCalledCorrectlyWithId(f.AgreementSignedRequest.AccountLegalEntityId);
-            f.VerifyIsAgreementSignedCalledCorrectly();
+            fixtures.VerifyMediatorCalledCorrectlyWithId(fixtures.AgreementSignedRequest.AccountLegalEntityId);
+            fixtures.VerifyIsAgreementSignedCalledCorrectly();
         }
 
         [Test]
         public async Task GetLatestAgreementId_WithValidIdAndExistingLegalEntity_ShouldReturnOkayAndContent()
         {
-            var f = new EmployerAgreementControllerTestFixtures();
+            var fixtures= new EmployerAgreementControllerTestFixtures();
 
-            var response = await f.Sut.GetLatestAgreementId(f.AccountLegalEntityId, CancellationToken.None);
+            var response = await fixtures.Sut.GetLatestAgreementId(fixtures.AccountLegalEntityId, CancellationToken.None);
 
             Assert.AreEqual(typeof(OkObjectResult), response.GetType());
             var objectResult = (OkObjectResult)response;
@@ -69,23 +69,23 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [Test]
         public async Task GetLatestAgreementId_WithValidIdAndExistingLegalEntity_ShouldReturnExpectedId()
         {
-            var f = new EmployerAgreementControllerTestFixtures();
+            var fixtures = new EmployerAgreementControllerTestFixtures();
 
-            var response = await f.Sut.GetLatestAgreementId(f.AccountLegalEntityId, CancellationToken.None);
+            var response = await fixtures.Sut.GetLatestAgreementId(fixtures.AccountLegalEntityId, CancellationToken.None);
 
             Assert.IsInstanceOf<OkObjectResult>(response);
-            Assert.AreEqual(f.AgreementId, (long)((OkObjectResult)response).Value);
+            Assert.AreEqual(fixtures.AgreementId, (long)((OkObjectResult)response).Value);
         }
 
         [Test]
         public async Task GetLatestAgreementId_WithValidIdAndExistingLegalEntity_ShouldCallServicesCorrectly()
         {
-            var f = new EmployerAgreementControllerTestFixtures();
+            var fixtures = new EmployerAgreementControllerTestFixtures();
 
-            await f.Sut.GetLatestAgreementId(f.AccountLegalEntityId, CancellationToken.None);
+            await fixtures.Sut.GetLatestAgreementId(fixtures.AccountLegalEntityId, CancellationToken.None);
 
-            f.VerifyMediatorCalledCorrectlyWithId(f.AccountLegalEntityId);
-            f.VerifyGetLatestAgreementCalledCorrectly();
+            fixtures.VerifyMediatorCalledCorrectlyWithId(fixtures.AccountLegalEntityId);
+            fixtures.VerifyGetLatestAgreementCalledCorrectly();
         }
     }
 
