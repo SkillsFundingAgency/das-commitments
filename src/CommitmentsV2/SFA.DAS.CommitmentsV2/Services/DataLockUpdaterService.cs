@@ -6,16 +6,14 @@ using SFA.DAS.CommitmentsV2.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using System.Globalization;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Configuration;
-using System.Data.SqlClient;
-using System.Data;
-using Microsoft.Azure.Documents.Linq;
+using SFA.DAS.CommitmentsV2.Domain.Entities.DataLockProcessing;
+using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
@@ -55,6 +53,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task RunUpdate()
         {
+            var history = new DataLockUpdaterJobHistory();
+
             _logger.LogInformation("Retrieving last DataLock Event Id from repository");
             var lastId = await GetLastDataLockEventId();
 
@@ -68,9 +68,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             stopwatch.Stop();
             _logger.LogInformation($"Response took {stopwatch.ElapsedMilliseconds}ms");
 
+            history.FromEventId = lastId;
+            history.ItemCount = page.Count;
+            history.PagesRemaining = page.Any() ? datalockStatusResponse.TotalNumberOfPages - 1 : 0;
+
             if (!page.Any())
             {
                 _logger.LogInformation("No data returned; exiting");
+                await StoreJobHistory(history);
                 return;
             }
 
@@ -112,7 +117,18 @@ namespace SFA.DAS.CommitmentsV2.Services
 
                         try
                         {
-                            await UpdateDataLockStatus(dataLockStatus);
+                            var result = await UpdateDataLockStatus(dataLockStatus);
+
+                            if (result.IsExpired)
+                            {
+                                _logger.LogInformation($"Datalock for Apprenticeship {dataLockStatus.ApprenticeshipId}, PriceEpisodeIdentifier { dataLockStatus.PriceEpisodeIdentifier}, Event Id {dataLockStatus.DataLockEventId} identified as having expired");
+                                history.ExpiredCount++;
+                            }
+                            if(result.IsDuplicate)
+                            {
+                                _logger.LogInformation($"Datalock for Apprenticeship {dataLockStatus.ApprenticeshipId}, PriceEpisodeIdentifier {dataLockStatus.PriceEpisodeIdentifier}, Event Id {dataLockStatus.DataLockEventId} identified as being a duplicate");
+                                history.DuplicateCount++;
+                            }
 
                             await _filterOutAcademicYearRollOverDataLocks.Filter(dataLockStatus.ApprenticeshipId);
                         }
@@ -140,6 +156,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             await StoreLastDataLockEventId(lastId);
+            await StoreJobHistory(history);
         }
 
         private void AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(Apprenticeship apprenticeship, DataLockStatus datalock)
@@ -208,6 +225,13 @@ namespace SFA.DAS.CommitmentsV2.Services
             await _db.Value.SaveChangesAsync();
         }
 
+        private async Task StoreJobHistory(DataLockUpdaterJobHistory history)
+        {
+            history.FinishedOn = DateTime.UtcNow;
+            await _db.Value.DataLockUpdaterJobHistory.AddAsync(history);
+            await _db.Value.SaveChangesAsync();
+        }
+
         private static DateTime GetDateFromPriceEpisodeIdentifier(DataLockStatus dataLockStatus)
         {
             return
@@ -230,8 +254,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             return apprenticeship;
         }
 
-        private async Task<long> UpdateDataLockStatus(DataLockStatus dataLockStatus)
+        private async Task<DataLockUpdateResult> UpdateDataLockStatus(DataLockStatus dataLockStatus)
         {
+            var result = new DataLockUpdateResult();
+
             var datalock = await _db.Value.DataLocks
                  .FirstOrDefaultAsync(x => x.ApprenticeshipId == dataLockStatus.ApprenticeshipId
                  && x.PriceEpisodeIdentifier.ToLower() == dataLockStatus.PriceEpisodeIdentifier.ToLower());
@@ -259,9 +285,20 @@ namespace SFA.DAS.CommitmentsV2.Services
                 };
 
                 await _db.Value.DataLocks.AddAsync(newDataLockStatus);
+
             }
             else
             {
+                if (datalock.IsExpired)
+                {
+                    result.IsExpired = true;
+                }
+
+                if (datalock.IsDuplicate(dataLockStatus))
+                {
+                    result.IsDuplicate = true;
+                }
+
                 datalock.ApprenticeshipId = dataLockStatus.ApprenticeshipId;
                 datalock.DataLockEventId = dataLockStatus.DataLockEventId;
                 datalock.DataLockEventDatetime = dataLockStatus.DataLockEventDatetime;
@@ -282,8 +319,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                 _db.Value.DataLocks.Update(datalock);
             }
 
-            var updatedRows = await _db.Value.SaveChangesAsync();
-            return updatedRows;
+            await _db.Value.SaveChangesAsync();
+            return result;
         }
 
         private async Task SetHasHadDataLockSuccess(long apprenticeshipId)
@@ -333,5 +370,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             await _db.Value.SaveChangesAsync();
         }
+
+        
     }
 }
