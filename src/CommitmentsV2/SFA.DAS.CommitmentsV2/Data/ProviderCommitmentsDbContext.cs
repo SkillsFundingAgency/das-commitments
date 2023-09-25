@@ -18,6 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<CustomProviderPaymentPriority> CustomProviderPaymentPriorities { get; set; }
         public virtual DbSet<DataLockStatus> DataLocks { get; set; }
         public virtual DbSet<DataLockUpdaterJobStatus> DataLockUpdaterJobStatuses { get; set; }
+        public virtual DbSet<DataLockUpdaterJobHistory> DataLockUpdaterJobHistory { get; set; }
         public virtual DbSet<History> History { get; set; }
         public virtual DbSet<IntegrationTestIds> IntegrationTestIds { get; set; }
         public virtual DbSet<JobProgress> JobProgress { get; set; }
