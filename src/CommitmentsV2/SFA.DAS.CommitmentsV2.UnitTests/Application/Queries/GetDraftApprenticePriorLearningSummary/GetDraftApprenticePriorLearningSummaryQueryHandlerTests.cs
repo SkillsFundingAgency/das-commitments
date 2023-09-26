@@ -55,6 +55,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.IsNull(result);
         }
 
+        [Test]
+        public async Task Handle_Check_MinimumPriceReduction_Is_Floored_To_Value()
+        {
+            var priorLearning = new ApprenticeshipPriorLearning
+            {
+                DurationReducedByHours = 200,
+                PriceReducedBy = 1000,
+                IsDurationReducedByRpl = true,
+                DurationReducedBy = null
+            };
+
+            using var fixture = new GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
+                .SetApprentice(ProgrammeType.Standard, "1", DateTime.Today)
+                .SetMaxFundingBandForStandard(1, 99)
+                .SetApprenticeshipPriorLearningData(13, priorLearning);
+
+            var result = await fixture.Handle();
+
+            Assert.AreEqual((int)result.MinimumPriceReduction, 761);
+        }
+
         [TestCase(null, null)]
         [TestCase("123", ProgrammeType.Framework)]
         [TestCase("123-123", ProgrammeType.Framework)]
