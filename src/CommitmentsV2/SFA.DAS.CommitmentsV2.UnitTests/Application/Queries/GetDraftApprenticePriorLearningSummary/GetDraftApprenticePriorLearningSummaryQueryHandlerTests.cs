@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.AreEqual((int)result.MinimumPriceReduction, 761);
+            Assert.AreEqual(761, (int)result.MinimumPriceReduction);
         }
 
         [TestCase(null, null)]
