@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
 
         [Test]
-        public async Task Handle_Check_MinimumPriceReduction_Is_Floored_To_Value()
+        public async Task Handle_Check_MinimumPriceReduction_Returns_Floored_Int()
         {
             var priorLearning = new ApprenticeshipPriorLearning
             {
