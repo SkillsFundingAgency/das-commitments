@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
 {
