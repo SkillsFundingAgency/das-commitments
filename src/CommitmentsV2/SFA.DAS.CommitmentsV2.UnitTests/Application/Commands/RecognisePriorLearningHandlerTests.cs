@@ -56,9 +56,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedBy);
             Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.PriceReducedBy);
             Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedByHours);
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.WeightageReducedBy);
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.ReasonForRplReduction);
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.QualificationsForRplReduction);
         }
     }
 

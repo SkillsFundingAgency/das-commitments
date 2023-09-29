@@ -46,9 +46,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
                 EmailAddressConfirmed = source.EmailAddressConfirmed,
                 DurationReducedByHours = source.DurationReducedByHours,
-                WeightageReducedBy = source.WeightageReducedBy,
-                QualificationsForRplReduction = source.QualificationsForRplReduction,
-                ReasonForRplReduction = source.ReasonForRplReduction,
                 IsDurationReducedByRpl = source.IsDurationReducedByRpl,
                 TrainingTotalHours = source.TrainingTotalHours
             });

@@ -1,11 +1,8 @@
-﻿using System.Drawing;
-using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
 {
@@ -63,9 +60,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 TransferSenderId = source.TransferSenderId,
                 IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot,
                 DurationReducedByHours = source.ApprenticeshipPriorLearning?.DurationReducedByHours,
-                WeightageReducedBy = source.ApprenticeshipPriorLearning?.WeightageReducedBy,
-                QualificationsForRplReduction = source.ApprenticeshipPriorLearning?.QualificationsForRplReduction,
-                ReasonForRplReduction = source.ApprenticeshipPriorLearning?.ReasonForRplReduction,
                 TrainingTotalHours = source.TrainingTotalHours,
                 IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl
             });
