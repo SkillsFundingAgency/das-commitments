@@ -414,7 +414,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(this);
             ChangeTrackingSession.TrackUpdate(existingDraftApprenticeship);
 
-            if (existingDraftApprenticeship.IsOtherPartyApprovalRequiredForUpdate(draftApprenticeshipDetails))
+            if (existingDraftApprenticeship.IsOtherPartyApprovalRequiredForUpdate(draftApprenticeshipDetails, modifyingParty))
             {
                 Approvals = Party.None;
             }
