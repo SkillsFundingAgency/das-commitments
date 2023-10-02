@@ -157,11 +157,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update)
+        public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update, Party modifyingParty)
         {
             if (FirstName != update.FirstName) return true;
             if (LastName != update.LastName) return true;
-            if (CostOrTotalPriceIsChanged(update)) return true;
+            if (CostOrTotalPriceIsChanged(update, modifyingParty)) return true;
             if (StartDateIsChanged(update)) return true;
             if (EndDateIsChanged(update.EndDate)) return true;
             if (DateOfBirth != update.DateOfBirth) return true;
@@ -209,9 +209,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             return ActualStartDate.Value.Month != update.StartDate.Value.Month || ActualStartDate.Value.Year != update.StartDate.Value.Year;
         }
 
-        private bool CostOrTotalPriceIsChanged(DraftApprenticeshipDetails update)
+        private bool CostOrTotalPriceIsChanged(DraftApprenticeshipDetails update, Party modifyingParty)
         {
-            if (update.IsOnFlexiPaymentPilot.GetValueOrDefault())
+            if (update.IsOnFlexiPaymentPilot.GetValueOrDefault() && modifyingParty == Party.Provider)
                 return Cost != (update.TrainingPrice + update.EndPointAssessmentPrice);
 
             return Cost != update.Cost;
