@@ -31,11 +31,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             fixture.VerifyCohortIsUnapproved();
         }
 
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public void UpdateDraftApprenticeship_TrainingPrice_Resets_OtherParty_Approval(Party modifyingParty)
+        [Test]
+        public void UpdateDraftApprenticeship_Provider_Changes_TrainingPrice_Resets_OtherParty_Approval()
         {
-            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
 
             fixture
                 .WithExistingDraftApprenticeships()
@@ -45,11 +44,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             fixture.VerifyCohortIsUnapproved();
         }
 
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public void UpdateDraftApprenticeship_EndPointAssessmentPrice_Resets_OtherParty_Approval(Party modifyingParty)
+        [Test]
+        public void UpdateDraftApprenticeship_Provider_Changes_EndPointAssessmentPrice_Resets_OtherParty_Approval()
         {
-            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
 
             fixture
                 .WithExistingDraftApprenticeships()
@@ -57,6 +55,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .UpdateDraftApprenticeshipEndPointAssessmentPrice();
 
             fixture.VerifyCohortIsUnapproved();
+        }
+
+        [Test]
+        public void UpdateDraftApprenticeship_Employer_No_Cost_Change_Does_Not_Reset_OtherParty_Approval()
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Employer);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateDraftApprenticeshipEmployerMakesNoChangeToCostAndDoesNotKnowAboutPriceBreakdown();
+
+            fixture.VerifyCohortIsApprovedByOtherParty();
         }
 
         [Test]
@@ -630,6 +641,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 details.TrainingPrice += 1;
                 details.EndPointAssessmentPrice -= 1;
                 Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipEmployerMakesNoChangeToCostAndDoesNotKnowAboutPriceBreakdown()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.IsOnFlexiPaymentPilot = true;
+                details.EndPointAssessmentPrice = null;
+                details.TrainingPrice = null;
+                Cohort.UpdateDraftApprenticeship(details, Party.Employer, UserInfo);
             }
 
             public void UpdateDraftApprenticeshipEmploymentPrice()
