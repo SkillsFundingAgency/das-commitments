@@ -193,8 +193,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
                     var flexiPilotApprenticeship =
                         completeApprenticeship.With(x => x.IsOnFlexiPaymentPilot, true);
-                    yield return (AllowedApproval.CannotApprove, flexiPilotApprenticeship.Without(x => x.TrainingPrice));
-                    yield return (AllowedApproval.CannotApprove, flexiPilotApprenticeship.Without(x => x.EndPointAssessmentPrice));
+                    yield return (AllowedApproval.EmployerCanApprove, flexiPilotApprenticeship.Without(x => x.TrainingPrice));
+                    yield return (AllowedApproval.EmployerCanApprove, flexiPilotApprenticeship.Without(x => x.EndPointAssessmentPrice));
 
                     var flexijobApprenticeship = completeApprenticeship.With(x => x.DeliveryModel, DeliveryModel.PortableFlexiJob);
                     yield return (AllowedApproval.CannotApprove, flexijobApprenticeship.Without(x => x.EmploymentPrice));
