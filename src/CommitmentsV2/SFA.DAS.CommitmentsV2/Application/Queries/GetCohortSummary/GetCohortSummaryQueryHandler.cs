@@ -116,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     || (a.StartDate == null && a.ActualStartDate == null)
                     || a.EndDate == null
                     || a.Cost == null
-                    || (a.IsOnFlexiPaymentPilot.GetValueOrDefault() && (a.TrainingPrice == null | a.EndPointAssessmentPrice == null)))
+                    || (a.IsOnFlexiPaymentPilot.GetValueOrDefault() && (a.TrainingPrice == null || a.EndPointAssessmentPrice == null)))
                 {
                     return true;
                 }
