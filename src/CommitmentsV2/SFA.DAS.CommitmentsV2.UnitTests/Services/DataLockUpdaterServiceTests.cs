@@ -38,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public OrganisationType organisationType;
         public List<Apprenticeship> SeedApprenticeships;
         public List<DataLockStatus> SeedDataLocks;
+        public List<DataLockStatus> SeedDataLocksApi;
         public List<ApprenticeshipUpdate> SeedApprenticeshipUpdates;
         public long? SeedDataLockUpdaterJobsStatus;
 
@@ -53,6 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedApprenticeships = new List<Apprenticeship>();
             SeedApprenticeshipUpdates = new List<ApprenticeshipUpdate>();
             SeedDataLocks = new List<DataLockStatus>();
+            SeedDataLocksApi = new List<DataLockStatus>();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                  .UseInMemoryDatabase(Guid.NewGuid().ToString(), new InMemoryDatabaseRoot())
@@ -230,20 +232,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             //HasHadDataLockSuccess Apprenticeship 1
             SeedApprenticeship(hasHadDataLockSuccessApprenticeshipId, PaymentStatus.Active, false);
             SeedApprenticeshipUpdate(SeedApprenticeships[1].Id, PaymentStatus.Active, SeedApprenticeships[1]);
-            SeedDataLock(SeedApprenticeships[1], 1, 1, "TEST-15/08/2018", new DateTime(2018, 8, 1), DataLockErrorCode.None, SeedApprenticeshipUpdates[1]);
-
+            
             //HasHadDataLockSuccess Apprenticeship HasNotHadDataLockSuccess 2
             SeedApprenticeship(hasNotHadDataLockSuccessApprenticeshipId, PaymentStatus.Active, false);
             SeedApprenticeshipUpdate(SeedApprenticeships[2].Id, PaymentStatus.Active, SeedApprenticeships[2]);
-            SeedDataLock(SeedApprenticeships[2], 2, 2, "TEST-15/08/2018", new DateTime(2018, 8, 1), DataLockErrorCode.None, SeedApprenticeshipUpdates[2]);
+           
             SeedLastEventId(2);
             SeedData(Db);
 
-            SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 1);
+            SeedDataLockApi(SeedApprenticeships[2], 2, 4, "TEST-15/08/2018", new DateTime(2018, 8, 1), DataLockErrorCode.None, SeedApprenticeshipUpdates[2]);
+            SeedDataLockApi(SeedApprenticeships[1], 1, 3, "TEST-15/08/2018", new DateTime(2018, 8, 1), DataLockErrorCode.None, SeedApprenticeshipUpdates[1]);
 
             var apimResponse = new GetDataLockStatusListResponse
             {
-                DataLockStatuses = SeedDataLocks
+                DataLockStatuses = SeedDataLocksApi
             };          
 
             _outerApiClient
@@ -342,15 +344,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             SeedApprenticeship(objectId, PaymentStatus.Active, pendingUpdateOriginator: Originator.Unknown);
             SeedApprenticeshipUpdate(objectId, PaymentStatus.Active, SeedApprenticeships.First(), ApprenticeshipUpdateStatus.Pending);
-            SeedDataLock(SeedApprenticeships.First(), objectId, objectId, "TEST-15/08/2018", new DateTime(2018, 8, 1), errorCode, SeedApprenticeshipUpdates.First());
             SeedLastEventId(objectId);
             SeedData(Db);
 
-            SeedDataLocks.ForEach(dl => dl.DataLockEventId = dl.DataLockEventId + 1);
+            SeedDataLockApi(SeedApprenticeships.First(), objectId, objectId, "TEST-15/08/2018", new DateTime(2018, 8, 1), errorCode, SeedApprenticeshipUpdates.First());
 
             var apimResponse = new GetDataLockStatusListResponse
             {
-                DataLockStatuses = SeedDataLocks
+                DataLockStatuses = SeedDataLocksApi
             };
 
             _outerApiClient
@@ -652,6 +653,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             dataLock.PriceEpisodeIdentifier = priceEpisodeIdentifier;
             dataLock.IlrEffectiveFromDate = ilrEffectiveFromDate;
             SeedDataLocks.Add(dataLock);
+        }
+
+        public void SeedDataLockApi(
+            Apprenticeship apprenticeship,
+            long dataLockStatusId,
+            long dataLockEventId,
+            string priceEpisodeIdentifier,
+            DateTime ilrEffectiveFromDate,
+            DataLockErrorCode errorCode,
+            ApprenticeshipUpdate apprenticeshipUpdate,
+            bool resolve = false)
+        {
+            var dataLock = _fixture.Build<DataLockStatus>()
+                .Without(c => c.Apprenticeship)
+                .Without(c => c.ApprenticeshipUpdate)
+                .Create();
+
+            dataLock.Id = dataLockStatusId;
+            dataLock.Apprenticeship = apprenticeship;
+            dataLock.ApprenticeshipId = apprenticeship.Id;
+            dataLock.ErrorCode = errorCode;
+            dataLock.DataLockEventId = dataLockEventId;
+            dataLock.IsResolved = resolve;
+            dataLock.PriceEpisodeIdentifier = priceEpisodeIdentifier;
+            dataLock.IlrEffectiveFromDate = ilrEffectiveFromDate;
+            SeedDataLocksApi.Add(dataLock);
         }
 
         public void SeedLastEventId(long? id)

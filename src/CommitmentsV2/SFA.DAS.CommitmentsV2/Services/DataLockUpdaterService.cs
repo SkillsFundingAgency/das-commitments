@@ -128,6 +128,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                             {
                                 _logger.LogInformation($"Datalock for Apprenticeship {dataLockStatus.ApprenticeshipId}, PriceEpisodeIdentifier {dataLockStatus.PriceEpisodeIdentifier}, Event Id {dataLockStatus.DataLockEventId} identified as being a duplicate");
                                 history.DuplicateCount++;
+                                history.SkippedCount++;
+                                lastId = dataLockStatus.DataLockEventId;
+                                continue;
                             }
 
                             await _filterOutAcademicYearRollOverDataLocks.Filter(dataLockStatus.ApprenticeshipId);
@@ -297,6 +300,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 if (datalock.IsDuplicate(dataLockStatus))
                 {
                     result.IsDuplicate = true;
+                    return result;
                 }
 
                 datalock.ApprenticeshipId = dataLockStatus.ApprenticeshipId;
