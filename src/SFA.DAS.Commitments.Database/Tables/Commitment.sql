@@ -182,3 +182,48 @@ ON [dbo].[Apprenticeship] ([IsApproved], [PaymentStatus], [EndDate]) INCLUDE (
 	[ULN])
 WITH (ONLINE = ON)
 GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_Flexible_Payments2]
+ON [dbo].[Apprenticeship] ([IsApproved], [PaymentStatus], [EndDate]) INCLUDE (
+	[ActualStartDate],
+	[AgreedOn],
+	[CloneOf],
+	[CommitmentId],
+	[CompletionDate],
+	[ContinuationOfId],
+	[Cost],
+	[CreatedOn],
+	[DateOfBirth],
+	[DeliveryModel],
+	[Email],
+	[EmailAddressConfirmed],
+	[EmployerHasEditedCost],
+	[EmployerRef],
+	[EndPointAssessmentPrice],
+	[EPAOrgId],
+	[FirstName],
+	[HasHadDataLockSuccess],
+	[IsOnFlexiPaymentPilot],
+	[LastName],
+	[MadeRedundant],
+	[NINumber],
+	[OriginalStartDate],
+	[PauseDate],
+	[PendingUpdateOriginator],
+	[ProviderRef],
+	[RecognisePriorLearning],
+	[ReservationId],
+	[StandardUId],
+	[StartDate],
+	[StopDate],
+	[TrainingCode],
+	[TrainingCourseOption],
+	[TrainingCourseVersion],
+	[TrainingCourseVersionConfirmed],
+	[TrainingName],
+	[TrainingPrice],
+	[TrainingTotalHours],
+	[TrainingType],
+	[ULN])
+WITH (ONLINE = ON)
+GO
