@@ -90,3 +90,49 @@ CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Extract]
 ON [dbo].[Apprenticeship] ([TrainingType],[ULN],[TrainingCode],[StartDate],[EndDate], [LastUpdated])
 INCLUDE ([CommitmentId],[FirstName],[LastName],[TrainingCourseVersion],[TrainingCourseVersionConfirmed],[TrainingCourseOption],[StandardUId],[PaymentStatus],[ProviderRef],[CreatedOn],[StopDate],[PauseDate],[CompletionDate],[UpdatedOn])
 GO
+
+--another recommended index from azure, created while fixing performance problems when running e2e tests
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_IsApprovedPaymentStatusEndDate]
+ON [dbo].[Apprenticeship] ([IsApproved], [PaymentStatus], [EndDate]) INCLUDE (
+	[ActualStartDate],
+	[AgreedOn],
+	[CloneOf],
+	[CommitmentId],
+	[CompletionDate],
+	[ContinuationOfId],
+	[Cost],
+	[CreatedOn],
+	[DateOfBirth],
+	[DeliveryModel],
+	[Email],
+	[EmailAddressConfirmed],
+	[EmployerHasEditedCost],
+	[EmployerRef],
+	[EndPointAssessmentPrice],
+	[EPAOrgId],
+	[FirstName],
+	[HasHadDataLockSuccess],
+	[IsOnFlexiPaymentPilot],
+	[LastName],
+	[MadeRedundant],
+	[NINumber],
+	[OriginalStartDate],
+	[PauseDate],
+	[PendingUpdateOriginator],
+	[ProviderRef],
+	[RecognisePriorLearning],
+	[ReservationId],
+	[StandardUId],
+	[StartDate],
+	[StopDate],
+	[TrainingCode],
+	[TrainingCourseOption],
+	[TrainingCourseVersion],
+	[TrainingCourseVersionConfirmed],
+	[TrainingName],
+	[TrainingPrice],
+	[TrainingTotalHours],
+	[TrainingType],
+	[ULN])
+WITH (ONLINE = ON)
+GO
