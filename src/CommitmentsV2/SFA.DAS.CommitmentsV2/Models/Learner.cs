@@ -26,5 +26,31 @@ namespace SFA.DAS.CommitmentsV2.Models
         public short PaymentStatus { get; set; }
         public long EmployerAccountId { get; set; }
         public string EmployerName { get; set; }
+
+        public static implicit operator Api.Types.Responses.Learner(Learner dbLearner)
+        => new()
+        {
+            ApprenticeshipId = dbLearner.ApprenticeshipId,
+            FirstName = dbLearner.FirstName,
+            LastName = dbLearner.LastName,
+            ULN = dbLearner.ULN,
+            TrainingCode = dbLearner.TrainingCode,
+            TrainingCourseVersion = dbLearner.TrainingCourseVersion,
+            TrainingCourseVersionConfirmed = dbLearner.TrainingCourseVersionConfirmed,
+            TrainingCourseOption = dbLearner.TrainingCourseOption,
+            StandardUId = dbLearner.StandardUId,
+            StartDate = dbLearner.StartDate,
+            EndDate = dbLearner.EndDate,
+            CreatedOn = dbLearner.CreatedOn,
+            UpdatedOn = dbLearner.UpdatedOn,
+            StopDate = dbLearner.StopDate,
+            PauseDate = dbLearner.PauseDate,
+            CompletionDate = dbLearner.CompletionDate,
+            UKPRN = dbLearner.UKPRN,
+            LearnRefNumber = dbLearner.LearnRefNumber,
+            PaymentStatus = dbLearner.PaymentStatus,
+            EmployerAccountId = dbLearner.EmployerAccountId,
+            EmployerName = dbLearner.EmployerName,
+        };
     }
 }
