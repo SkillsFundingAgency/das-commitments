@@ -8,8 +8,9 @@ RETURN
 (
 	SELECT 
 		ap1.Id [ApprenticeshipId]
-		,[FirstName]
-		,[LastName]
+		,ap1.[FirstName]
+		,ap1.[LastName]
+		,ap1.[DateOfBirth]
 		,[ULN]
 		,[TrainingCode]
 		,[TrainingCourseVersion]
