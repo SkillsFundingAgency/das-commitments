@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string EmployerName { get; set; }
 
         public static implicit operator Api.Types.Responses.Learner(Learner dbLearner)
-        => new()
+        => new Api.Types.Responses.Learner()
         {
             ApprenticeshipId = dbLearner.ApprenticeshipId,
             FirstName = dbLearner.FirstName,
