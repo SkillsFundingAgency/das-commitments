@@ -1,15 +1,17 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoFixture.NUnit3;
+using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Queries.FindLearner;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -38,8 +40,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             _mediator.Setup(m => m.Send(It.IsAny<GetAllLearnersQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetAllLearnersQueryResult(
-                    new List<Learner>() 
-                    { 
+                    new List<Learner>()
+                    {
                         new Learner()
                         {
                             ApprenticeshipId = 987468,
@@ -65,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                             EmployerAccountId = 1000
                         }
                     },
-                    1,100, 1));
+                    1, 100, 1));
 
             // Act
 
@@ -80,6 +82,20 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             getAllLearnersResponse.BatchNumber.Should().Be(1);
             getAllLearnersResponse.BatchSize.Should().Be(100);
             getAllLearnersResponse.TotalNumberOfBatches.Should().Be(1);
+        }
+
+        [Test, AutoData]
+        public async Task ValidateLearner_When_InvokesMediator_Then_ReturnsOkResponse(FindLearnerQuery query, FindLearnerQueryResult result, CancellationToken cancellationToken)
+        {
+            var mediatorMock = new Mock<IMediator>();
+            mediatorMock.Setup(m => m.Send(query, cancellationToken)).ReturnsAsync(result);
+
+            var sut = new LearnerController(mediatorMock.Object);
+
+            var actual = await sut.ValidateLearner(query, CancellationToken.None);
+
+            actual.As<OkObjectResult>().Should().NotBeNull();
+            actual.As<OkObjectResult>().Value.Should().Be(result);
         }
     }
 }
