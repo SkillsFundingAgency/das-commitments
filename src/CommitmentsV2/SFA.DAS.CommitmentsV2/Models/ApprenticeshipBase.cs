@@ -83,7 +83,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                     {
                         return true;
                     }
-                    if (PriorLearning?.IsDurationReducedByRpl != null)
+
+                    if (PriorLearning is {DurationReducedBy: { }, IsDurationReducedByRpl: true})
                     {
                         return true;
                     }
