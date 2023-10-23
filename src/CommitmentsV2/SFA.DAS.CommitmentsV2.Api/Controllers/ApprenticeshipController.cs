@@ -6,22 +6,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
-using SFA.DAS.CommitmentsV2.Models;
-using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeEndDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.PauseApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateApprenticeshipForEdit;
-using SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Commands.ResendInvitation;
-using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateUln;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
+using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -58,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public async Task<IActionResult> GetApprenticeships([FromQuery] GetApprenticeshipsRequest request)
         {
             var logText = request.AccountId != null ? "Employer account Id :" + (request.AccountId ?? 0) : ", Provider Id :" + (request.ProviderId ?? 0);
-            _logger.LogInformation("Get apprenticeships for : " +  logText);
+            _logger.LogInformation("Get apprenticeships for : " + logText);
             try
             {
                 var filterValues = new ApprenticeshipSearchFilters
@@ -121,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpPost]
         [Route("details/editenddate")]
-        public async Task<IActionResult> EditEndDate([FromBody]EditEndDateRequest request)
+        public async Task<IActionResult> EditEndDate([FromBody] EditEndDateRequest request)
         {
             _logger.LogInformation("Edit end date apprenticeship api endpoint called for : " + request.ApprenticeshipId);
 
@@ -134,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             return Ok();
         }
-        
+
         [HttpPost]
         [Route("{apprenticeshipId}/stop")]
         public async Task<IActionResult> StopApprenticeship(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
@@ -154,7 +155,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpPost]
         [Route("details/pause")]
-        public async Task<IActionResult> Pause([FromBody]PauseApprenticeshipRequest request)
+        public async Task<IActionResult> Pause([FromBody] PauseApprenticeshipRequest request)
         {
             _logger.LogInformation("Pause apprenticeship api endpoint called for : " + request.ApprenticeshipId);
 
@@ -166,19 +167,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             return Ok();
         }
-        
+
         [HttpPost]
         [Route("details/resume")]
         public async Task<IActionResult> Resume([FromBody] ResumeApprenticeshipRequest request)
         {
             _logger.LogInformation("Resume apprenticeship api endpoint called for : " + request.ApprenticeshipId);
 
-             await _mediator.Send(new ResumeApprenticeshipCommand
+            await _mediator.Send(new ResumeApprenticeshipCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
                 UserInfo = request.UserInfo
             });
-             
+
             return Ok();
         }
 
@@ -188,7 +189,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             _logger.LogInformation("Update apprenticeship stop date api endpoint called for : " + apprenticeshipId);
 
-            await _mediator.Send(new UpdateApprenticeshipStopDateCommand(            
+            await _mediator.Send(new UpdateApprenticeshipStopDateCommand(
                 request.AccountId,
                 apprenticeshipId,
                 request.NewStopDate,
@@ -259,6 +260,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             }
 
             return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("validate")]
+        public async Task<IActionResult> ValidateApprenticeship([FromQuery] string lastName, [FromQuery] DateTime dateOfBirth, [FromQuery] string email)
+        {
+            var query = new GetApprenticeshipsValidateQuery(lastName, dateOfBirth, email);
+
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
         }
     }
 }
