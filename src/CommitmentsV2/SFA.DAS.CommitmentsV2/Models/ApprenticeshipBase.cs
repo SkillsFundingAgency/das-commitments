@@ -89,7 +89,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                         return true;
                     }
                 }
-
                 return false;
             }
         }
