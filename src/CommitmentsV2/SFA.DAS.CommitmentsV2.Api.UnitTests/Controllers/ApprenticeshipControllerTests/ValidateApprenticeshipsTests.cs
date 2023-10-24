@@ -11,24 +11,26 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests;
-
-public class ValidateApprenticeshipsTests
+namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
-    [Test, MoqAutoData]
-    public async Task ValidateApprenticeships_ReturnsQueryResults(
-        [Frozen] Mock<IMediator> mediatorMock,
-        [Greedy] ApprenticeshipController sut,
-        GetApprenticeshipsValidateQueryResult expectedResult,
-        string lastName,
-        string email,
-        DateTime dateOfBirth)
+
+    public class ValidateApprenticeshipsTests
     {
-        mediatorMock.Setup(m => m.Send(It.Is<GetApprenticeshipsValidateQuery>(q => q.LastName == lastName && q.Email == email && q.DateOfBirth == dateOfBirth), It.IsAny<CancellationToken>())).ReturnsAsync(expectedResult);
+        [Test, MoqAutoData]
+        public async Task ValidateApprenticeships_ReturnsQueryResults(
+            [Frozen] Mock<IMediator> mediatorMock,
+            [Greedy] ApprenticeshipController sut,
+            GetApprenticeshipsValidateQueryResult expectedResult,
+            string lastName,
+            string email,
+            DateTime dateOfBirth)
+        {
+            mediatorMock.Setup(m => m.Send(It.Is<GetApprenticeshipsValidateQuery>(q => q.LastName == lastName && q.Email == email && q.DateOfBirth == dateOfBirth), It.IsAny<CancellationToken>())).ReturnsAsync(expectedResult);
 
-        var actual = await sut.ValidateApprenticeship(lastName, dateOfBirth, email);
+            var actual = await sut.ValidateApprenticeship(lastName, dateOfBirth, email);
 
-        actual.As<OkObjectResult>().Value.As<GetApprenticeshipsValidateQueryResult>().Should().NotBeNull();
-        actual.As<OkObjectResult>().Value.As<GetApprenticeshipsValidateQueryResult>().Apprenticeships.Should().BeSameAs(expectedResult.Apprenticeships);
+            actual.As<OkObjectResult>().Value.As<GetApprenticeshipsValidateQueryResult>().Should().NotBeNull();
+            actual.As<OkObjectResult>().Value.As<GetApprenticeshipsValidateQueryResult>().Apprenticeships.Should().BeSameAs(expectedResult.Apprenticeships);
+        }
     }
 }
