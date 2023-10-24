@@ -12,27 +12,24 @@ namespace SFA.DAS.Commitments.Support.SubSite.Extensions
             return priceEpisodes.GetPrice(DateTime.UtcNow);
         }
 
-        public static decimal GetPrice(this IEnumerable<PriceEpisode> priceEpisodes,
-            DateTime effectiveDate)
+        private static decimal GetPrice(this IEnumerable<PriceEpisode> priceEpisodes, DateTime effectiveDate)
         {
             var episodes = priceEpisodes.ToList();
 
-            var episode = episodes.FirstOrDefault(x =>
-                x.FromDate <= effectiveDate && (x.ToDate == null || x.ToDate >= effectiveDate));
+            var episode = episodes.OrderByDescending(x=> x.FromDate)
+                                  .FirstOrDefault(x => x.FromDate <= effectiveDate && (x.ToDate == null || x.ToDate >= effectiveDate));
 
             return episode?.Cost ?? episodes.First().Cost;
         }
 
         public static string FormatCost(this decimal? cost)
         {
-            if (!cost.HasValue) return string.Empty;
-            return $"£{cost.Value:n0}";
+            return !cost.HasValue ? string.Empty : $"£{cost.Value:n0}";
         }
 
         public static string FormatCost(this int? cost)
         {
-            if (!cost.HasValue) return string.Empty;
-            return $"£{cost.Value:n0}";
+            return !cost.HasValue ? string.Empty : $"£{cost.Value:n0}";
         }
 
         public static string FormatCost(this decimal value)
