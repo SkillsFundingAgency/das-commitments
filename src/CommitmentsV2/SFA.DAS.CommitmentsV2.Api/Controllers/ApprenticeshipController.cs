@@ -264,9 +264,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("validate")]
-        public async Task<IActionResult> ValidateApprenticeship([FromQuery] string lastName, [FromQuery] DateTime dateOfBirth, [FromQuery] string email)
+        public async Task<IActionResult> ValidateApprenticeship([FromQuery] string firstName, [FromQuery] string lastName, [FromQuery] DateTime dateOfBirth)
         {
-            var query = new GetApprenticeshipsValidateQuery(lastName, dateOfBirth, email);
+            var query = new GetApprenticeshipsValidateQuery(firstName, lastName, dateOfBirth);
 
             var result = await _mediator.Send(query);
 

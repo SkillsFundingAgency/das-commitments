@@ -22,12 +22,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             [Greedy] ApprenticeshipController sut,
             GetApprenticeshipsValidateQueryResult expectedResult,
             string lastName,
-            string email,
+            string firstName,
             DateTime dateOfBirth)
         {
-            mediatorMock.Setup(m => m.Send(It.Is<GetApprenticeshipsValidateQuery>(q => q.LastName == lastName && q.Email == email && q.DateOfBirth == dateOfBirth), It.IsAny<CancellationToken>())).ReturnsAsync(expectedResult);
+            mediatorMock.Setup(m => m.Send(It.Is<GetApprenticeshipsValidateQuery>(q => q.FirstName == firstName && q.LastName == lastName && q.DateOfBirth == dateOfBirth), It.IsAny<CancellationToken>())).ReturnsAsync(expectedResult);
 
-            var actual = await sut.ValidateApprenticeship(lastName, dateOfBirth, email);
+            var actual = await sut.ValidateApprenticeship(firstName, lastName, dateOfBirth);
 
             actual.As<OkObjectResult>().Value.As<GetApprenticeshipsValidateQueryResult>().Should().NotBeNull();
             actual.As<OkObjectResult>().Value.As<GetApprenticeshipsValidateQueryResult>().Apprenticeships.Should().BeSameAs(expectedResult.Apprenticeships);

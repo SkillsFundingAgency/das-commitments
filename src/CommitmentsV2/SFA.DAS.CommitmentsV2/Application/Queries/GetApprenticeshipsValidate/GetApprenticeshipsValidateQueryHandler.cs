@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsValidate
                 .Apprenticeships
                 .Include(a => a.Cohort)
                 .ThenInclude(c => c.AccountLegalEntity)
-                .Where(a => a.LastName == request.LastName && a.DateOfBirth == request.DateOfBirth && a.Email == request.Email)
+                .Where(a => a.FirstName == request.FirstName && a.LastName == request.LastName && a.DateOfBirth == request.DateOfBirth)
                 .ToListAsync();
 
             return new GetApprenticeshipsValidateQueryResult()
