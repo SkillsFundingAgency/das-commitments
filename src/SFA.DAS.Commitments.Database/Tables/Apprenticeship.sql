@@ -136,3 +136,7 @@ ON [dbo].[Apprenticeship] ([IsApproved], [PaymentStatus], [EndDate]) INCLUDE (
 	[ULN])
 WITH (ONLINE = ON)
 GO
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Validate]
+ON [dbo].[Apprenticeship] ([FirstName],[LastName],[DateOfBirth])
+INCLUDE ([Id],[ULN],[TrainingCode],[StandardUId],[PaymentStatus],[StartDate],[EndDate],[StopDate])
+GO
