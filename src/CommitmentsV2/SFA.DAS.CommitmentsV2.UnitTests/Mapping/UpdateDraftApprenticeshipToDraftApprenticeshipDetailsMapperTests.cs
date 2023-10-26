@@ -30,6 +30,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             result.StartDate.Should().Be(fixture.Command.StartDate);
             result.ActualStartDate.Should().Be(fixture.Command.ActualStartDate);
             result.EmploymentEndDate.Should().Be(fixture.Command.EmploymentEndDate);
+            result.TrainingPrice.Should().Be(fixture.Command.TrainingPrice);
+            result.EndPointAssessmentPrice.Should().Be(fixture.Command.EndPointAssessmentPrice);
             result.EndDate.Should().Be(fixture.Command.EndDate);
             result.DateOfBirth.Should().Be(fixture.Command.DateOfBirth);
             result.Reference.Should().Be(fixture.Command.Reference);
