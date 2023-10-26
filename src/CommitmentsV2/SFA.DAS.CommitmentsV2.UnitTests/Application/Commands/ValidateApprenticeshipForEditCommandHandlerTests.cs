@@ -27,7 +27,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public class ValidateApprenticeshipForEditCommandHandlerTestsFixture
         {
             Mock<IEditApprenticeshipValidationService> _editValidationService;
-            Mock<IModelMapper> _modelMapper;
             ValidateApprenticeshipForEditCommand _command;
             public IRequestHandler<ValidateApprenticeshipForEditCommand, EditApprenticeshipValidationResult> Handler { get; set; }
 
@@ -35,9 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 var fixture = new Fixture();
                 _editValidationService = new Mock<IEditApprenticeshipValidationService>();
-                _modelMapper = new Mock<IModelMapper>();
                 _command = fixture.Create<ValidateApprenticeshipForEditCommand>();
-
                 _editValidationService.Setup(x => x.Validate(It.IsAny<EditApprenticeshipValidationRequest>(), CancellationToken.None)).Returns(Task.FromResult(new EditApprenticeshipValidationResult()));
                 Handler = new ValidateApprenticeshipForEditCommandHandler(_editValidationService.Object);
             }

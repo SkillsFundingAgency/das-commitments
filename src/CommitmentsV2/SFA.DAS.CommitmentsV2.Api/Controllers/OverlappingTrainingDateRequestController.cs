@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("resolve")]
         public async Task<IActionResult> Resolve([FromBody] ResolveApprenticeshipOverlappingTrainingDateRequest request)
         {
-            var response = await _mediator.Send(new ResolveOverlappingTrainingDateRequestCommand
+            await _mediator.Send(new ResolveOverlappingTrainingDateRequestCommand
             {
                 ApprenticeshipId = request.ApprenticeshipId,
                 ResolutionType = request.ResolutionType,

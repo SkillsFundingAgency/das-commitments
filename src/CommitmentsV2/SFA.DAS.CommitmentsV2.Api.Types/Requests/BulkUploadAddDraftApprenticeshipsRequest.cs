@@ -102,32 +102,48 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
                 return null;
             }
         }
-
-        public string DurationReducedByHoursAsString { get; set; }
-        public int? DurationReducedByHours
+        
+        public string TrainingTotalHoursAsString { get; set; }
+        public int? TrainingTotalHours
         {
             get
             {
-                if (int.TryParse(DurationReducedByHoursAsString, out var result))
+                if (int.TryParse(TrainingTotalHoursAsString, out var result))
                     return result;
                 return null;
             }
         }
 
-        public string WeightageReducedByAsString { get; set; }
-        public int? WeightageReducedBy
+        public string TrainingHoursReductionAsString { get; set; }
+        public int? TrainingHoursReduction
         {
             get
             {
-                if (int.TryParse(WeightageReducedByAsString, out var result))
+                if (int.TryParse(TrainingHoursReductionAsString, out var result))
                     return result;
                 return null;
             }
         }
 
-        public string QualificationsForRplReduction { get; set; }
+        public string IsDurationReducedByRPLAsString { get; set; }
+        public bool? IsDurationReducedByRPL
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(IsDurationReducedByRPLAsString))
+                    return null;
 
-        public string ReasonForRplReduction { get; set; }
-
+                return IsDurationReducedByRPLAsString?.ToLower() switch
+                {
+                    "true" => true,
+                    "1" => true,
+                    "yes" => true,
+                    "false" => false,
+                    "0" => false,
+                    "no" => false,
+                    _ => null,
+                };
+            }
+        }
     }
 }

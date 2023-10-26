@@ -22,6 +22,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider
         {
             _fixture = new GetProviderQueryHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenProviderDoesExist_ThenShouldReturnResult()
@@ -42,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider
         }
     }
 
-    public class GetProviderQueryHandlerTestsFixture
+    public class GetProviderQueryHandlerTestsFixture : IDisposable
     {
         public GetProviderQuery Query { get; set; }
         public Provider Provider { get; set; }
@@ -71,6 +77,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider
             Db.SaveChanges();
             
             return this;
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

@@ -24,13 +24,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public async Task EpaoOrgId_Are_Updated()
         {
-            var fixture = new UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture();
+            using var fixture = new UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture();
             await fixture.Handle();
 
             fixture.VerifyEpaoOrgIdUpdated();
         }
 
-        public class UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture
+        public class UpdateCacheOfAssessmentOrganisationsCommandHandlerTestsFixture : IDisposable
         {
             private readonly long ApprenticeshipId;
             private ProviderCommitmentsDbContext _db { get; set; }
@@ -105,6 +105,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             {
                 var apprenticeship = _db.Apprenticeships.FirstOrDefault(x => x.Id == ApprenticeshipId);
                 Assert.AreEqual(_command.SubmissionEvents.First().EPAOrgId, apprenticeship.EpaOrgId);
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
     }

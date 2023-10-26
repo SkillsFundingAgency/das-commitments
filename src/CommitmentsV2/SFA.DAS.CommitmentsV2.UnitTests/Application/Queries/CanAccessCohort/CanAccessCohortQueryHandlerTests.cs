@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
         [Test]
         public async Task Handle_EmployerQuery_WithExistingCohort_ShouldReturnTrue()
         {
-            var fixtures = new CanAccessCohortQueryHandlerTestsFixture().SeedData().SetMatchingAccountQuery();
+            using var fixtures = new CanAccessCohortQueryHandlerTestsFixture().SeedData().SetMatchingAccountQuery();
 
             var response = await fixtures.Handle();
 
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
         [Test]
         public async Task Handle_ProviderQuery_WithExistingCohort_ShouldReturnTrue()
         {
-            var fixtures = new CanAccessCohortQueryHandlerTestsFixture().SeedData().SetMatchingProviderQuery();
+            using var fixtures = new CanAccessCohortQueryHandlerTestsFixture().SeedData().SetMatchingProviderQuery();
 
             var response = await fixtures.Handle();
 
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
         [Test]
         public async Task Handle_EmployerQuery_WithNoExistingCohort_ShouldReturnFalse()
         {
-            var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture().SeedData().SetNonMatchingQuery();
+            using var fixtures = new CanAccessApprenticeshipQueryHandlerTestsFixture().SeedData().SetNonMatchingQuery();
 
             var response = await fixtures.Handle();
 
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
         }
     }
 
-    public class CanAccessCohortQueryHandlerTestsFixture
+    public class CanAccessCohortQueryHandlerTestsFixture : IDisposable
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public CanAccessCohortQueryHandler Handler { get; set; }
@@ -110,6 +110,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
         public Task<bool> Handle()
         {
             return Handler.Handle(Query, CancellationToken.None);
+        }
+
+        public void Dispose()
+        {
+            Db?.Dispose();
         }
     }
 }

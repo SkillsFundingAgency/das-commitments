@@ -117,9 +117,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             RecognisePriorLearning ??= source.RecognisePriorLearning;
+            TrainingTotalHours ??= source.TrainingTotalHours;
             if (RecognisePriorLearning == true)
             {
                 PriorLearning ??= new ApprenticeshipPriorLearning();
+                PriorLearning.DurationReducedByHours ??= source.DurationReducedByHours;
+                PriorLearning.IsDurationReducedByRpl ??= source.IsDurationReducedByRPL;
                 PriorLearning.DurationReducedBy ??= source.DurationReducedBy;
                 PriorLearning.PriceReducedBy ??= source.PriceReducedBy;
             }
@@ -139,14 +142,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (StartDate < Constants.RecognisePriorLearningBecomesRequiredOn)
             {
                 RecognisePriorLearning = null;
+                TrainingTotalHours = null;
                 if (PriorLearning != null)
                 {
+                    PriorLearning.DurationReducedByHours = null;
+                    PriorLearning.IsDurationReducedByRpl = null;
                     PriorLearning.DurationReducedBy = null;
                     PriorLearning.PriceReducedBy = null;
                     PriorLearning.WeightageReducedBy = null;
                     PriorLearning.ReasonForRplReduction = null;
                     PriorLearning.QualificationsForRplReduction = null;
-                    PriorLearning.DurationReducedByHours = null;
                 }
             }
         }

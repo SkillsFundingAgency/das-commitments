@@ -7,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Data;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountName
 {
-    public class UpdateAccountNameCommandHandler : AsyncRequestHandler<UpdateAccountNameCommand>
+    public class UpdateAccountNameCommandHandler : IRequestHandler<UpdateAccountNameCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountName
             _db = db;
         }
 
-        protected override async Task Handle(UpdateAccountNameCommand request, CancellationToken cancellationToken)
+        public async Task Handle(UpdateAccountNameCommand request, CancellationToken cancellationToken)
         {
             var account = await _db.Value.Accounts.SingleAsync(a => a.Id == request.AccountId, cancellationToken);
 

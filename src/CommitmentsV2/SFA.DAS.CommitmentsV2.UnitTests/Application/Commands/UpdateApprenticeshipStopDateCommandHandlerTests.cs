@@ -92,6 +92,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 commitmentsV2Configuration,
                 _resolveOverlappingTrainingDateRequestService.Object);
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _dbContext?.Dispose();
+            _confirmationDbContext?.Dispose();
+        }
 
         [Test]
         public async Task Handle_WhenHandlingCommand_WithInvalidData_ThenValidateErrorMessage()
@@ -131,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenHandlingCommand_WithInvalidCallingParty_ThenShouldThrowDomainException(UpdateApprenticeshipStopDateCommand command)
         {
             // Arrange
-            var apprenticeship = await SetupApprenticeship(Party.Provider);
+            await SetupApprenticeship(Party.Provider);
 
             // Act
             var exception = Assert.ThrowsAsync<DomainException>(async () => await _handler.Handle(command, new CancellationToken()));
@@ -340,7 +347,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<Types.OverlappingTrainingDateRequestResolutionType>()), Times.Once);
         }
 
-        private bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
+        private static bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
         {
             actualTokens.Should().BeEquivalentTo(expectedTokens);
             return true;
@@ -374,7 +381,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return apprenticeship;
         }
 
-        private ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
+        private static ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
         {
             var activeDataLock4 = new DataLockStatus
             {

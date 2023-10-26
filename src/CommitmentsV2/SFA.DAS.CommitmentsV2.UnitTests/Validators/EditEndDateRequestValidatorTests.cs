@@ -37,17 +37,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(x => x.ApprenticeshipId, viewModel, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<EditEndDateRequest, T>> property, EditEndDateRequest instance, bool expectedValid)
+        private static void AssertValidationResult<T>(Expression<Func<EditEndDateRequest, T>> property, EditEndDateRequest instance, bool expectedValid)
         {
             var validator = new EditEndDateRequestValidator();
 
+            var result = validator.TestValidate(instance);
+            
             if (expectedValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(property, instance);
+                result.ShouldNotHaveValidationErrorFor(property);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(property, instance);
+                result.ShouldHaveValidationErrorFor(property);
             }
         }
     }

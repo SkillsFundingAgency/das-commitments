@@ -25,6 +25,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
         {
             _fixture = new GetSupportApprenticeshipQueryHandlerTestsFixture();
         }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture?.Dispose();
+        }
 
         [Test]
         public async Task WhenApprenticeshipIsSearchedUsingCohortId_ThenShouldReturnResult()
@@ -56,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
             _fixture.VerifyNoResult();
         }
 
-        public class GetSupportApprenticeshipQueryHandlerTestsFixture
+        public class GetSupportApprenticeshipQueryHandlerTestsFixture : IDisposable
         {
             private readonly GetSupportApprenticeshipQueryHandler _queryHandler;
             private readonly ProviderCommitmentsDbContext _db;
@@ -284,6 +290,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                 }
 
                 return apprenticeship;
+            }
+
+            public void Dispose()
+            {
+                _db?.Dispose();
             }
         }
 

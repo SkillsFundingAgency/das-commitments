@@ -19,9 +19,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenLevyAddedToAccountIsRaised_LevyStatusIsSetToLevy()
         {
-            var f = new LevyAddedToAccountEventHandlerTestsFixture();
-            await f.Handle();
-            f.VerifyUpdateLevyStatusToLevyCommandSent();
+            var fixture = new LevyAddedToAccountEventHandlerTestsFixture();
+            await fixture.Handle();
+            fixture.VerifyUpdateLevyStatusToLevyCommandSent();
         }
     }
 

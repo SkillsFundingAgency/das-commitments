@@ -12,7 +12,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship
 {
-    public class ResumeApprenticeshipCommandHandler : AsyncRequestHandler<ResumeApprenticeshipCommand>
+    public class ResumeApprenticeshipCommandHandler : IRequestHandler<ResumeApprenticeshipCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ICurrentDateTime _currentDate;
@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship
             _logger = logger;
         }
 
-        protected override async Task Handle(ResumeApprenticeshipCommand command, CancellationToken cancellationToken)
+        public async Task Handle(ResumeApprenticeshipCommand command, CancellationToken cancellationToken)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship
             }
         }
 
-        private void CheckPartyIsValid(Party party)
+        private static void CheckPartyIsValid(Party party)
         {
             if (party != Party.Employer)
             {

@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity
 {
-    public class RemoveAccountLegalEntityCommandHandler : AsyncRequestHandler<RemoveAccountLegalEntityCommand>
+    public class RemoveAccountLegalEntityCommandHandler : IRequestHandler<RemoveAccountLegalEntityCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         public RemoveAccountLegalEntityCommandHandler(Lazy<ProviderCommitmentsDbContext> db)
@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity
             _db = db;
         }
 
-        protected override async Task Handle(RemoveAccountLegalEntityCommand request, CancellationToken cancellationToken)
+        public async Task Handle(RemoveAccountLegalEntityCommand request, CancellationToken cancellationToken)
         {
             var account = await _db.Value.Accounts.SingleAsync(a => a.Id == request.AccountId, cancellationToken);
             var accountLegalEntity = await _db.Value.AccountLegalEntities
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity
             {
                 var cohorts = await _db.Value.Cohorts.Include(c => c.Apprenticeships)
                     .Where(c => c.AccountLegalEntityId == request.AccountLegalEntityId)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
 
                 foreach (var cohort in cohorts)
                 {
