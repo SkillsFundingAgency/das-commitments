@@ -31,11 +31,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             fixture.VerifyCohortIsUnapproved();
         }
 
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public void UpdateDraftApprenticeship_TrainingPrice_Resets_OtherParty_Approval(Party modifyingParty)
+        [Test]
+        public void UpdateDraftApprenticeship_Provider_Changes_TrainingPrice_Resets_OtherParty_Approval()
         {
-            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
 
             fixture
                 .WithExistingDraftApprenticeships()
@@ -45,11 +44,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             fixture.VerifyCohortIsUnapproved();
         }
 
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public void UpdateDraftApprenticeship_EndPointAssessmentPrice_Resets_OtherParty_Approval(Party modifyingParty)
+        [Test]
+        public void UpdateDraftApprenticeship_Provider_Changes_EndPointAssessmentPrice_Resets_OtherParty_Approval()
         {
-            var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
 
             fixture
                 .WithExistingDraftApprenticeships()
@@ -57,6 +55,62 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .UpdateDraftApprenticeshipEndPointAssessmentPrice();
 
             fixture.VerifyCohortIsUnapproved();
+        }
+
+        [Test]
+        public void UpdateDraftApprenticeship_Employer_No_Cost_Change_Does_Not_Reset_OtherParty_Approval()
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Employer);
+
+            fixture
+                .WithExistingDraftApprenticeships()
+                .WithPriorApprovalOfOtherParty()
+                .UpdateDraftApprenticeshipEmployerMakesNoChangeToCostAndDoesNotKnowAboutPriceBreakdown();
+
+            fixture.VerifyCohortIsApprovedByOtherParty();
+        }
+
+        [Test]
+        public void UpdateDraftApprenticeship_Employer_Cost_Change_Sets_Flag()
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Employer);
+
+            fixture
+                .WithSingleExistingDraftApprenticeship()
+                .WithPriorApprovalOfOtherParty()
+                .WithFlexiPaymentPilotFlagSetToTrue()
+                .UpdateDraftApprenticeshipCost();
+
+            fixture.VerifyEmployerHasEditedCostFlag(true);
+        }
+
+        [Test]
+        public void UpdateDraftApprenticeship_Provider_Cost_Change_Does_Not_Set_Employer_Flag()
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
+
+            fixture
+                .WithSingleExistingDraftApprenticeship()
+                .WithPriorApprovalOfOtherParty()
+                .WithFlexiPaymentPilotFlagSetToTrue()
+                .UpdateDraftApprenticeshipCost();
+
+            fixture.VerifyEmployerHasEditedCostFlag(false);
+        }
+
+        [Test]
+        public void UpdateDraftApprenticeship_Setting_TrainingPrice_And_EPAPrice_Resets_EmployerHasEditedCost_Flag()
+        {
+            var fixture = new UpdatingDraftApprenticeshipTestFixture(Party.Provider);
+
+            fixture
+                .WithSingleExistingDraftApprenticeship()
+                .WithPriorApprovalOfOtherParty()
+                .WithFlexiPaymentPilotFlagSetToTrue()
+                .WithEmployerHasEditedCostFlagSetToTrue()
+                .UpdateDraftApprenticeshipCost();
+
+            fixture.VerifyEmployerHasEditedCostFlag(false);
         }
 
         [Test]
@@ -454,12 +508,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 Cohort.Apprenticeships.Clear();
                 for (var i = 0; i < 10; i++)
                 {
+                    var trainingPrice = _autoFixture.Create<int>();
+                    var epaPrice = _autoFixture.Create<int>();
+
                     var apprenticeship = new DraftApprenticeship
                     {
                         Id = i,
                         FirstName = _autoFixture.Create<string>(),
                         LastName = _autoFixture.Create<string>(),
-                        Cost = _autoFixture.Create<int>(),
+                        Cost = trainingPrice + epaPrice,
                         CourseCode = _autoFixture.Create<string>(),
                         CourseName = _autoFixture.Create<string>(),
                         DeliveryModel = DeliveryModel.Regular,
@@ -470,8 +527,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                         },
                         DateOfBirth = _referenceDate.AddYears(-17),
                         IsOnFlexiPaymentPilot = false,
-                        TrainingPrice = _autoFixture.Create<int>(),
-                        EndPointAssessmentPrice = _autoFixture.Create<int>()
+                        TrainingPrice = trainingPrice,
+                        EndPointAssessmentPrice = epaPrice  
                     };
                     
                     Cohort.Apprenticeships.Add(apprenticeship);
@@ -483,12 +540,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
             {
                 Cohort.Apprenticeships.Clear();
 
+                var trainingPrice = _autoFixture.Create<int>();
+                var epaPrice = _autoFixture.Create<int>();
+
                 Cohort.Apprenticeships.Add(new DraftApprenticeship
                 {
                     Id = 1,
                     FirstName = _autoFixture.Create<string>(),
                     LastName = _autoFixture.Create<string>(),
-                    Cost = _autoFixture.Create<int>(),
+                    Cost = trainingPrice + epaPrice,
                     CourseCode = _autoFixture.Create<string>(),
                     CourseName = _autoFixture.Create<string>(),
                     DeliveryModel = DeliveryModel.Regular,
@@ -499,8 +559,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                     },
                     DateOfBirth = DateTime.Now.AddYears(-17),
                     IsOnFlexiPaymentPilot = false,
-                    TrainingPrice = _autoFixture.Create<int>(),
-                    EndPointAssessmentPrice = _autoFixture.Create<int>()
+                    TrainingPrice = trainingPrice,
+                    EndPointAssessmentPrice = epaPrice
                 });
 
                 return this;
@@ -545,6 +605,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 return this;
             }
 
+            public UpdatingDraftApprenticeshipTestFixture WithEmployerHasEditedCostFlagSetToTrue()
+            {
+                Cohort.Apprenticeships.ForEach(x => x.EmployerHasEditedCost = true);
+                return this;
+            }
+
             public void UpdateDraftApprenticeshipCost()
             {
                 var details = GetRandomApprenticeshipDetailsFromCohort();
@@ -575,6 +641,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 details.TrainingPrice += 1;
                 details.EndPointAssessmentPrice -= 1;
                 Cohort.UpdateDraftApprenticeship(details, ModifyingParty, UserInfo);
+            }
+
+            public void UpdateDraftApprenticeshipEmployerMakesNoChangeToCostAndDoesNotKnowAboutPriceBreakdown()
+            {
+                var details = GetRandomApprenticeshipDetailsFromCohort();
+                details.IsOnFlexiPaymentPilot = true;
+                details.EndPointAssessmentPrice = null;
+                details.TrainingPrice = null;
+                Cohort.UpdateDraftApprenticeship(details, Party.Employer, UserInfo);
             }
 
             public void UpdateDraftApprenticeshipEmploymentPrice()
@@ -770,6 +845,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                     && @event.EntityType ==
                                                                                     nameof(Cohort)));
+            }
+
+            public void VerifyEmployerHasEditedCostFlag(bool? flagValue)
+            {
+                Assert.AreEqual(flagValue, Cohort.Apprenticeships.Single().EmployerHasEditedCost);
             }
 
             public void VerifyTrainingPriceAndEPAPriceAreNull()

@@ -25,5 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? EmploymentEndDate { get; set; }
         public bool IgnoreStartDateOverlap { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
+        public int? TrainingPrice { get; set; }
+        public int? EndPointAssessmentPrice { get; set; }
     }
 }

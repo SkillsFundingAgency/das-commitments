@@ -109,7 +109,8 @@ namespace SFA.DAS.CommitmentsV2.Extensions
             {
                 if (draftApprenticeshipDetails.TrainingPrice.GetValueOrDefault() + draftApprenticeshipDetails.EndPointAssessmentPrice.GetValueOrDefault() > Constants.MaximumApprenticeshipCost)
                 {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), "Total price for training and end-point assessment cannot be more than £100,000");
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Total price for training and end-point assessment cannot be more than £100,000");
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.TrainingPrice), " ");
                     yield return new DomainError(nameof(draftApprenticeshipDetails.EndPointAssessmentPrice), " ");
                     yield break;
                 }

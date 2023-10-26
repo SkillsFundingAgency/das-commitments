@@ -52,6 +52,7 @@
     [IsOnFlexiPaymentPilot] BIT NOT NULL DEFAULT 0, 
     [TrainingTotalHours] INT NULL, 
     [CostBeforeRpl] INT NULL, 
+    [EmployerHasEditedCost] BIT NULL, 
 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
@@ -88,4 +89,54 @@ GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Extract]
 ON [dbo].[Apprenticeship] ([TrainingType],[ULN],[TrainingCode],[StartDate],[EndDate], [LastUpdated])
 INCLUDE ([CommitmentId],[FirstName],[LastName],[TrainingCourseVersion],[TrainingCourseVersionConfirmed],[TrainingCourseOption],[StandardUId],[PaymentStatus],[ProviderRef],[CreatedOn],[StopDate],[PauseDate],[CompletionDate],[UpdatedOn])
+GO
+
+--another recommended index from azure, created while fixing performance problems when running e2e tests
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_IsApprovedPaymentStatusEndDate]
+ON [dbo].[Apprenticeship] ([IsApproved], [PaymentStatus], [EndDate]) INCLUDE (
+	[ActualStartDate],
+	[AgreedOn],
+	[CloneOf],
+	[CommitmentId],
+	[CompletionDate],
+	[ContinuationOfId],
+	[Cost],
+	[CreatedOn],
+	[DateOfBirth],
+	[DeliveryModel],
+	[Email],
+	[EmailAddressConfirmed],
+	[EmployerHasEditedCost],
+	[EmployerRef],
+	[EndPointAssessmentPrice],
+	[EPAOrgId],
+	[FirstName],
+	[HasHadDataLockSuccess],
+	[IsOnFlexiPaymentPilot],
+	[LastName],
+	[MadeRedundant],
+	[NINumber],
+	[OriginalStartDate],
+	[PauseDate],
+	[PendingUpdateOriginator],
+	[ProviderRef],
+	[RecognisePriorLearning],
+	[ReservationId],
+	[StandardUId],
+	[StartDate],
+	[StopDate],
+	[TrainingCode],
+	[TrainingCourseOption],
+	[TrainingCourseVersion],
+	[TrainingCourseVersionConfirmed],
+	[TrainingName],
+	[TrainingPrice],
+	[TrainingTotalHours],
+	[TrainingType],
+	[ULN])
+WITH (ONLINE = ON)
+GO
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Validate]
+ON [dbo].[Apprenticeship] ([FirstName],[LastName],[DateOfBirth])
+INCLUDE ([Id],[ULN],[TrainingCode],[StandardUId],[PaymentStatus],[StartDate],[EndDate],[StopDate])
 GO

@@ -160,6 +160,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             return AssertPropertySet(input => input.IsOnFlexiPaymentPilot, (bool?)true);
         }
 
+        [Test]
+        public Task Map_EmployerHasEditedCost_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.EmployerHasEditedCost, (bool?)true);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         [TestCase(null)]

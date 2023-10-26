@@ -56,6 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     RecognisingPriorLearningStillNeedsToBeConsidered = a.RecognisingPriorLearningStillNeedsToBeConsidered,
                     RecognisingPriorLearningExtendedStillNeedsToBeConsidered = a.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                     IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
+                    EmployerHasEditedCost = a.EmployerHasEditedCost,
                     EmailAddressConfirmed = a.EmailAddressConfirmed,
                     DurationReducedByHours = a.PriorLearning?.DurationReducedByHours,
                     WeightageReducedBy = a.PriorLearning?.WeightageReducedBy,

@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Types.Dtos
         public bool RecognisingPriorLearningStillNeedsToBeConsidered { get; set; }
         public bool RecognisingPriorLearningExtendedStillNeedsToBeConsidered { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
+        public bool? EmployerHasEditedCost { get; set; }
         public bool? EmailAddressConfirmed { get; set; }
         public int? DurationReducedByHours { get; set; }
         public int? WeightageReducedBy { get; set; }
