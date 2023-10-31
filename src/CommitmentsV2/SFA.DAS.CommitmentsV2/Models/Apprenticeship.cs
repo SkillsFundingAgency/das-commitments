@@ -579,6 +579,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
                 ApprenticeshipConfirmationStatus = ApprenticeshipConfirmationStatus?.Copy(),
                 IsOnFlexiPaymentPilot = this.IsOnFlexiPaymentPilot,
+                EmployerHasEditedCost = this.EmployerHasEditedCost,
                 RecognisePriorLearning = this.RecognisePriorLearning,
                 TrainingTotalHours = this.TrainingTotalHours,
             };

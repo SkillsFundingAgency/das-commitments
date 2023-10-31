@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 QualificationsForRplReduction = source.ApprenticeshipPriorLearning?.QualificationsForRplReduction,
                 ReasonForRplReduction = source.ApprenticeshipPriorLearning?.ReasonForRplReduction,
                 TrainingTotalHours = source.TrainingTotalHours,
-                IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl,
+                IsDurationReducedByRpl = source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl
             });
         }
     }

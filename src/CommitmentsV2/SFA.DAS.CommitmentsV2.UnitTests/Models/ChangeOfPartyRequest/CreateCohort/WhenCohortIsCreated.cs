@@ -396,6 +396,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Assert.AreEqual(ContinuedApprenticeship.Id, draftApprenticeship.ContinuationOfId);
                 Assert.AreEqual(ContinuedApprenticeship.OriginalStartDate ?? ContinuedApprenticeship.StartDate, draftApprenticeship.OriginalStartDate);
                 Assert.AreEqual(ContinuedApprenticeship.IsOnFlexiPaymentPilot, draftApprenticeship.IsOnFlexiPaymentPilot);
+                Assert.AreEqual(ContinuedApprenticeship.EmployerHasEditedCost, draftApprenticeship.EmployerHasEditedCost);
             }
 
             public void VerifyDraftApprenticeshipDetailsFlexibleEmployment()

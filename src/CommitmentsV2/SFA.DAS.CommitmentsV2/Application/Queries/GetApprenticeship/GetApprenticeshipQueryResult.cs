@@ -52,5 +52,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
         public long? TransferSenderId { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
         public int? TrainingTotalHours { get; set; }
+        public bool? EmployerHasEditedCost { get; set; }
     }
 }

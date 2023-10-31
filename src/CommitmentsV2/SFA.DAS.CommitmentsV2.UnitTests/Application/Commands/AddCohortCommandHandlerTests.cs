@@ -145,7 +145,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 null,
                 UserInfo,
                 false,
-                false);
+                false,
+                null,
+                null);
 
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 EncodingService,
