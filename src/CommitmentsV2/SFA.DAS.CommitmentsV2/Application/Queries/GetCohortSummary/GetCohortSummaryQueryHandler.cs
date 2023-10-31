@@ -21,7 +21,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         {
             _db = db;
             _emailService = emailService;
-            _emailService = emailService;
         }
 
         public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
@@ -87,6 +86,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         {
             return CalculateIsCompleteForEmployer(apprenticeships, apprenticeEmailIsRequired)
                     && !apprenticeships.Any(a => a.Uln == null)
+                    && !apprenticeships.Any(a => a.IsOnFlexiPaymentPilot.GetValueOrDefault() && (a.TrainingPrice == null || a.EndPointAssessmentPrice == null))
                     && !PriorLearningStillNeedsToBeConsidered(apprenticeships);
         }
 
