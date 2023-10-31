@@ -32,6 +32,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.Email, draftApprenticeshipDetails.Email);
             Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
             Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
+            Assert.AreEqual(fixture.Command.TrainingPrice, draftApprenticeshipDetails.TrainingPrice);
+            Assert.AreEqual(fixture.Command.EndPointAssessmentPrice, draftApprenticeshipDetails.EndPointAssessmentPrice);
             Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
@@ -65,6 +67,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.Email, draftApprenticeshipDetails.Email);
             Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
             Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
+            Assert.AreEqual(fixture.Command.TrainingPrice, draftApprenticeshipDetails.TrainingPrice);
+            Assert.AreEqual(fixture.Command.EndPointAssessmentPrice, draftApprenticeshipDetails.EndPointAssessmentPrice);
             Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
@@ -88,6 +92,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.Email, draftApprenticeshipDetails.Email);
             Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
             Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
+            Assert.AreEqual(fixture.Command.TrainingPrice, draftApprenticeshipDetails.TrainingPrice);
+            Assert.AreEqual(fixture.Command.EndPointAssessmentPrice, draftApprenticeshipDetails.EndPointAssessmentPrice);
             Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
@@ -110,6 +116,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.Email, draftApprenticeshipDetails.Email);
             Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
             Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
+            Assert.AreEqual(fixture.Command.TrainingPrice, draftApprenticeshipDetails.TrainingPrice);
+            Assert.AreEqual(fixture.Command.EndPointAssessmentPrice, draftApprenticeshipDetails.EndPointAssessmentPrice);
             Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
             Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
@@ -157,7 +165,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Command = new AddCohortCommand(command.RequestingParty, command.AccountId, command.AccountLegalEntityId, command.ProviderId,
                 courseCode, command.DeliveryModel, command.Cost, command.StartDate, command.ActualStartDate, command.EndDate, command.OriginatorReference,
                 command.ReservationId, command.FirstName, command.LastName, command.Email, command.DateOfBirth,
-                command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo, true, true);
+                command.Uln, command.TransferSenderId, command.PledgeApplicationId, command.EmploymentPrice, command.EmploymentEndDate, command.UserInfo, 
+                true, true, command.TrainingPrice, command.EndPointAssessmentPrice);
 
             AuthorizationService = new Mock<IAuthorizationService>();
             TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
@@ -194,7 +203,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return new AddCohortCommand(Command.RequestingParty, Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
                 Command.CourseCode, Command.DeliveryModel, Command.Cost, null, null, null, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
-                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, false, false);
+                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo,
+                false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice);
         }
 
         public Task<DraftApprenticeshipDetails> MapWithFramework()
@@ -217,7 +227,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return new AddCohortCommand(Command.RequestingParty, Command.AccountId, Command.AccountLegalEntityId, Command.ProviderId,
                 frameworkId, Command.DeliveryModel, Command.Cost, Command.StartDate, Command.ActualStartDate, Command.EndDate, Command.OriginatorReference, Command.ReservationId,
                 Command.FirstName, Command.LastName, Command.Email, Command.DateOfBirth, Command.Uln,
-                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, false, false);
+                Command.TransferSenderId, Command.PledgeApplicationId, Command.EmploymentPrice, Command.EmploymentEndDate, Command.UserInfo, 
+                false, false, Command.TrainingPrice, Command.EndPointAssessmentPrice);
         }
     }
 }
