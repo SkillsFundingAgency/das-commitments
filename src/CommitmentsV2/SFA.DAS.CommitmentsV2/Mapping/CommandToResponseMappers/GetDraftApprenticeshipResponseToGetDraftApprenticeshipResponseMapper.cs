@@ -25,6 +25,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 StandardUId = source.StandardUId,
                 DeliveryModel = source.DeliveryModel ?? DeliveryModel.Regular,
                 Cost = source.Cost,
+                TrainingPrice = source.TrainingPrice,
+                EndPointAssessmentPrice = source.EndPointAssessmentPrice,
                 StartDate = source.StartDate,
                 ActualStartDate = source.ActualStartDate,
                 EndDate = source.EndDate,
@@ -47,7 +49,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
                 EmailAddressConfirmed = source.EmailAddressConfirmed,
                 DurationReducedByHours = source.DurationReducedByHours,
                 IsDurationReducedByRpl = source.IsDurationReducedByRpl,
-                TrainingTotalHours = source.TrainingTotalHours
+                TrainingTotalHours = source.TrainingTotalHours,
+                EmployerHasEditedCost = source.EmployerHasEditedCost
             });
         }
     }
