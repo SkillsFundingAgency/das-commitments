@@ -33,6 +33,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         }
 
         [Test]
+        public Task Map_TrainingPrice_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.TrainingPrice, (int?)234);
+        }
+
+        [Test]
+        public Task Map_EndPointAssessmentPrice_ShouldBeSet()
+        {
+            return AssertPropertySet(from => from.EndPointAssessmentPrice, (int?)345);
+        }
+
+        [Test]
         public Task Map_EmploymentPriceWithoutValue_ShouldBeSet()
         {
             return AssertPropertySet(from => from.EmploymentPrice, (int?)null);

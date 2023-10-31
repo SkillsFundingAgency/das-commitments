@@ -43,6 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 ActualStartDate = draft.ActualStartDate,
                 Id = draft.Id,
                 Cost = (int?) draft.Cost,
+                TrainingPrice = draft.TrainingPrice,
+                EndPointAssessmentPrice = draft.EndPointAssessmentPrice,
                 DateOfBirth = draft.DateOfBirth,
                 EndDate = draft.EndDate,
                 FirstName = draft.FirstName,
@@ -71,7 +73,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
                 RecognisingPriorLearningStillNeedsToBeConsidered = draft.RecognisingPriorLearningStillNeedsToBeConsidered,
                 RecognisingPriorLearningExtendedStillNeedsToBeConsidered = draft.RecognisingPriorLearningExtendedStillNeedsToBeConsidered,
                 IsOnFlexiPaymentPilot = draft.IsOnFlexiPaymentPilot,
-                EmailAddressConfirmed = draft.EmailAddressConfirmed
+                EmailAddressConfirmed = draft.EmailAddressConfirmed,
+                EmployerHasEditedCost = draft.EmployerHasEditedCost
             }).SingleOrDefaultAsync(cancellationToken);
 
             return x;

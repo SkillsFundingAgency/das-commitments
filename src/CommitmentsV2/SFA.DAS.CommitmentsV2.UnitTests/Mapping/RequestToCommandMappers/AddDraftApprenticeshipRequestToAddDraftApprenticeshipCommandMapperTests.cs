@@ -26,6 +26,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         }
 
         [Test]
+        public Task Map_TrainingPrice_ShouldBeSet()
+        {
+            const int value = 654687687;
+            return AssertPropertySet(input => input.TrainingPrice = value, output => output.TrainingPrice == value);
+        }
+
+        [Test]
+        public Task Map_EndPointAssessmentPrice_ShouldBeSet()
+        {
+            const int value = 787865649;
+            return AssertPropertySet(input => input.EndPointAssessmentPrice = value, output => output.EndPointAssessmentPrice == value);
+        }
+
+        [Test]
         public Task Map_CourseCode_ShouldBeSet()
         {
             const string courseCode = "ABC123";

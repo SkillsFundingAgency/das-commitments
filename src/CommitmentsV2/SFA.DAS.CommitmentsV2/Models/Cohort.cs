@@ -414,10 +414,22 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(this);
             ChangeTrackingSession.TrackUpdate(existingDraftApprenticeship);
 
-            if (existingDraftApprenticeship.IsOtherPartyApprovalRequiredForUpdate(draftApprenticeshipDetails))
+            if (existingDraftApprenticeship.IsOtherPartyApprovalRequiredForUpdate(draftApprenticeshipDetails, modifyingParty))
             {
                 Approvals = Party.None;
             }
+
+            if (existingDraftApprenticeship.HasEmployerChangedCostWhereProviderHasSetTotalAndEPAPrice(
+                    draftApprenticeshipDetails, modifyingParty))
+            {
+                draftApprenticeshipDetails.TrainingPrice = null;
+                draftApprenticeshipDetails.EndPointAssessmentPrice = null;
+                draftApprenticeshipDetails.EmployerHasEditedCost = true;
+            }
+
+            if (draftApprenticeshipDetails.TrainingPrice != null && draftApprenticeshipDetails.EndPointAssessmentPrice != null)
+                draftApprenticeshipDetails.EmployerHasEditedCost = false;
+
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
 
             UpdatedBy(modifyingParty, userInfo);
