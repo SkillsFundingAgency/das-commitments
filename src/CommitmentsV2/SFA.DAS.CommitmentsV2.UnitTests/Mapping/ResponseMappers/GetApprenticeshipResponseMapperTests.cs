@@ -86,6 +86,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         }
 
         [Test]
+        public void TrainingTotalHoursIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.TrainingTotalHours, _result.TrainingTotalHours);
+        }
+
+        [Test]
+        public void IsDurationReducedIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.ApprenticeshipPriorLearning.IsDurationReducedByRpl, _result.IsDurationReducedByRpl);
+        }
+
+        [Test]
         public void WeightageReducedByIsMappedCorrectly()
         {
             Assert.AreEqual(_source.ApprenticeshipPriorLearning.WeightageReducedBy, _result.WeightageReducedBy);
@@ -113,6 +125,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         public void IsOnFlexiPaymentPilotIsMappedCorrectly()
         {
             Assert.AreEqual(_source.IsOnFlexiPaymentPilot, _result.IsOnFlexiPaymentPilot);
+        }
+
+        [Test]
+        public void IsDurationReducedByRplIsMappedCorrectly()
+        {
+            Assert.AreEqual(_source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl, _result.IsDurationReducedByRpl);
         }
     }
 }

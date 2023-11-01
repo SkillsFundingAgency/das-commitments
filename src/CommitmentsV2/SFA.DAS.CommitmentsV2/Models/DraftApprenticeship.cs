@@ -34,15 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
 
         private bool IsCompleteForProvider(bool apprenticeEmailRequired) => 
-            FirstName != null &&
-            LastName != null &&
+            IsCompleteForEmployer(apprenticeEmailRequired) &&
             Uln != null &&
-            Cost != null &&
-            (StartDate != null || ActualStartDate != null) &&
-            EndDate != null &&
-            CourseCode != null &&
-            DateOfBirth != null &&
-            (!apprenticeEmailRequired || Email != null || ContinuationOfId != null) &&
             (!RecognisingPriorLearningStillNeedsToBeConsidered || !RecognisingPriorLearningExtendedStillNeedsToBeConsidered);
 
         public DraftApprenticeship()
@@ -85,11 +78,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             Cost = source.Cost;
+            TrainingPrice = source.TrainingPrice;
+            EndPointAssessmentPrice = source.EndPointAssessmentPrice;
             StartDate = source.StartDate;
             ActualStartDate = source.ActualStartDate;
             EndDate = source.EndDate;
             DateOfBirth = source.DateOfBirth;
             IsOnFlexiPaymentPilot = source.IsOnFlexiPaymentPilot;
+            EmployerHasEditedCost = source.EmployerHasEditedCost;
 
             switch (modifyingParty)
             {
@@ -154,11 +150,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update)
+        public bool IsOtherPartyApprovalRequiredForUpdate(DraftApprenticeshipDetails update, Party modifyingParty)
         {
             if (FirstName != update.FirstName) return true;
             if (LastName != update.LastName) return true;
-            if (Cost != update.Cost) return true;
+            if (CostOrTotalPriceIsChanged(update, modifyingParty)) return true;
             if (StartDateIsChanged(update)) return true;
             if (EndDateIsChanged(update.EndDate)) return true;
             if (DateOfBirth != update.DateOfBirth) return true;
@@ -204,6 +200,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         private bool ActualStartDateMonthOrYearIsChanged(DraftApprenticeshipDetails update)
         {
             return ActualStartDate.Value.Month != update.StartDate.Value.Month || ActualStartDate.Value.Year != update.StartDate.Value.Year;
+        }
+
+        private bool CostOrTotalPriceIsChanged(DraftApprenticeshipDetails update, Party modifyingParty)
+        {
+            if (update.IsOnFlexiPaymentPilot.GetValueOrDefault() && modifyingParty == Party.Provider)
+                return Cost != (update.TrainingPrice + update.EndPointAssessmentPrice);
+
+            return Cost != update.Cost;
         }
 
         public void ValidateUpdateForChangeOfParty(DraftApprenticeshipDetails update)
@@ -485,6 +489,17 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             return errors;
+        }
+
+        public bool HasEmployerChangedCostWhereProviderHasSetTotalAndEPAPrice(DraftApprenticeshipDetails update, Party modifyingParty)
+        {
+            if (modifyingParty != Party.Employer)
+                return false;
+
+            if (!IsOnFlexiPaymentPilot.GetValueOrDefault())
+                return false;
+
+            return Cost != update.Cost;
         }
     }
 }

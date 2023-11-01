@@ -74,6 +74,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         }
 
         [Test]
+        public Task Map_TrainingPrice_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.TrainingPrice, (int?)456);
+        }
+
+        [Test]
+        public Task Map_EndPointAssessmentPrice_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.EndPointAssessmentPrice, (int?)789);
+        }
+
+        [Test]
         public Task Map_EmploymentEndDate_ShouldBeSet()
         {
             return AssertPropertySet(input => input.EmploymentEndDate, (DateTime?)DateTime.Now);
@@ -146,6 +158,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         public Task Map_IsOnFlexiPaymentPilot_ShouldBeSet()
         {
             return AssertPropertySet(input => input.IsOnFlexiPaymentPilot, (bool?)true);
+        }
+
+        [Test]
+        public Task Map_EmployerHasEditedCost_ShouldBeSet()
+        {
+            return AssertPropertySet(input => input.EmployerHasEditedCost, (bool?)true);
         }
 
         [TestCase(true)]
