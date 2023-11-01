@@ -13,8 +13,6 @@
     [TrainingCourseOption] NVARCHAR(126) NULL,
     [StandardUId] NVARCHAR(20) NULL,
     [Cost] DECIMAL NULL, 
-    [TrainingPrice] INT NULL, 
-    [EndPointAssessmentPrice] INT NULL, 
     [StartDate] DATETIME NULL, 
     [ActualStartDate] DATETIME NULL, 
     [EndDate] DATETIME NULL, 
@@ -52,7 +50,9 @@
     [IsOnFlexiPaymentPilot] BIT NOT NULL DEFAULT 0, 
     [TrainingTotalHours] INT NULL, 
     [CostBeforeRpl] INT NULL, 
-    [EmployerHasEditedCost] BIT NULL, 
+    [EmployerHasEditedCost] BIT NULL,
+    [TrainingPrice] INT NULL, 
+    [EndPointAssessmentPrice] INT NULL, 
 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
     CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
