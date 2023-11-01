@@ -23,6 +23,7 @@ using SFA.DAS.CommitmentsV2.Api.HealthChecks;
 using SFA.DAS.CommitmentsV2.Api.NServiceBus;
 using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.Validators;
+using SFA.DAS.Telemetry.Startup;
 using SFA.DAS.UnitOfWork.Mvc.Extensions;
 using StructureMap;
 
@@ -38,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api
             _configuration = configuration;
         }
 
-        private readonly IConfiguration _configuration; 
+        private readonly IConfiguration _configuration;
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -47,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
                 builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
             });
-            
+
             services.AddApiConfigurationSections(_configuration)
                 .AddApiAuthentication(_configuration, _env.IsDevelopment())
                 .AddApiAuthorization(_env)
@@ -83,6 +84,7 @@ namespace SFA.DAS.CommitmentsV2.Api
             services.AddNServiceBus();
             services.AddApiClients(_configuration);
             services.AddApplicationInsightsTelemetry();
+            services.AddTelemetryUriRedaction("firstName,lastName,dateOfBirth,email");
         }
 
         public void ConfigureContainer(Registry registry)
