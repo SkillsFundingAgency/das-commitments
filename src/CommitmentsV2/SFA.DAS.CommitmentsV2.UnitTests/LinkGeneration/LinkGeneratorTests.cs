@@ -22,6 +22,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.LinkGeneration
 
             Assert.AreEqual(expectedUrl, actualUrl);
         }
+
+        [TestCase("base", "path", "base/path")]
+        [TestCase("base/", "path", "base/path")]
+        [TestCase("base", "/path", "base/path")]
+        [TestCase("base/", "/path", "base/path")]
+        public void CourseManagementLink_(string providerApprenticeshipServiceUrl, string path, string expectedUrl)
+        {
+            var fixtures = new LinkGeneratorTestFixtures()
+                .WithProviderApprenticeshipServiceBaseUrl(providerApprenticeshipServiceUrl);
+
+            var actualUrl = fixtures.GetCourseManagementLink(path);
+
+            Assert.AreEqual(expectedUrl, actualUrl);
+        }
     }
 
     public class LinkGeneratorTestFixtures
@@ -43,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.LinkGeneration
         public LinkGeneratorTestFixtures WithProviderApprenticeshipServiceBaseUrl(string baseUrl)
         {
             ProviderUrlConfiguration.ProviderApprenticeshipServiceBaseUrl = baseUrl;
+            ProviderUrlConfiguration.CourseManagementBaseUrl = baseUrl;
             return this;
         }
 
@@ -50,6 +65,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.LinkGeneration
         {
             var linkGenerator = new LinkGenerator(AutoConfigurationService);
             return linkGenerator.ProviderApprenticeshipServiceLink(path);
+        }
+
+        public string GetCourseManagementLink(string path)
+        {
+            var linkGenerator = new LinkGenerator(AutoConfigurationService);
+            return linkGenerator.CourseManagementLink(path);
         }
     }
 }
