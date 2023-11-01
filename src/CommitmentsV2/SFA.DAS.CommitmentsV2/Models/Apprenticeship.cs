@@ -578,7 +578,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 TrainingCourseOption = this.TrainingCourseOption,
                 FlexibleEmployment = CreateFlexibleEmploymentForChangeOfParty(changeOfPartyRequest),
                 ApprenticeshipConfirmationStatus = ApprenticeshipConfirmationStatus?.Copy(),
-                IsOnFlexiPaymentPilot = this.IsOnFlexiPaymentPilot
+                IsOnFlexiPaymentPilot = this.IsOnFlexiPaymentPilot,
+                EmployerHasEditedCost = this.EmployerHasEditedCost
             };
 
             return result;
