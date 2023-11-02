@@ -3,10 +3,10 @@
 	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY,
 	[ApprenticeshipId] BIGINT NOT NULL, 
 	[Cost] DECIMAL NOT NULL,
-	[TrainingPrice] DECIMAL NULL,
-	[AssessmentPrice] DECIMAL NULL,
 	[FromDate] DateTime NOT NULL,
 	[ToDate] DateTime NULL,
+	[TrainingPrice] DECIMAL NULL,
+	[AssessmentPrice] DECIMAL NULL,
 	CONSTRAINT [FK_PriceHistory_Apprenticeship] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id])
 )
 GO
