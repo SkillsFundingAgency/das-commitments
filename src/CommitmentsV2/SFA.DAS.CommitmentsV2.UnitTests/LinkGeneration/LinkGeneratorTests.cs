@@ -42,34 +42,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.LinkGeneration
     {
         public LinkGeneratorTestFixtures()
         {
-            AutoConfigurationServiceMock = new Mock<IAutoConfigurationService>();
-
-            ProviderUrlConfiguration = new ProviderUrlConfiguration();
-
-            AutoConfigurationServiceMock.Setup(acs => acs.Get<ProviderUrlConfiguration>())
-                .Returns(ProviderUrlConfiguration);
+            _providerUrlConfiguration = new ProviderUrlConfiguration();
         }
 
-        public ProviderUrlConfiguration ProviderUrlConfiguration { get; }
-        public Mock<IAutoConfigurationService> AutoConfigurationServiceMock { get; }
-        public IAutoConfigurationService AutoConfigurationService => AutoConfigurationServiceMock.Object;
+        public ProviderUrlConfiguration _providerUrlConfiguration { get; }
+       
 
         public LinkGeneratorTestFixtures WithProviderApprenticeshipServiceBaseUrl(string baseUrl)
         {
-            ProviderUrlConfiguration.ProviderApprenticeshipServiceBaseUrl = baseUrl;
-            ProviderUrlConfiguration.CourseManagementBaseUrl = baseUrl;
+            _providerUrlConfiguration.ProviderApprenticeshipServiceBaseUrl = baseUrl;
+            _providerUrlConfiguration.CourseManagementBaseUrl = baseUrl;
             return this;
         }
 
         public string GetProviderApprenticeshipServiceLink(string path)
         {
-            var linkGenerator = new LinkGenerator(AutoConfigurationService);
+            var linkGenerator = new LinkGenerator(_providerUrlConfiguration);
             return linkGenerator.ProviderApprenticeshipServiceLink(path);
         }
 
         public string GetCourseManagementLink(string path)
         {
-            var linkGenerator = new LinkGenerator(AutoConfigurationService);
+            var linkGenerator = new LinkGenerator(_providerUrlConfiguration);
             return linkGenerator.CourseManagementLink(path);
         }
     }
