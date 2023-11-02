@@ -14,7 +14,7 @@
     [StandardUId] NVARCHAR(20) NULL,
     [Cost] DECIMAL NULL, 
     [TrainingPrice] INT NULL, 
-    [EndPointAssessmentPrice] INT NULL,
+    [EndPointAssessmentPrice] INT NULL, 
     [StartDate] DATETIME NULL, 
     [ActualStartDate] DATETIME NULL, 
     [EndDate] DATETIME NULL, 
