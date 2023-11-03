@@ -78,41 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 return trainingProgramme;
             }
-
-            // Overwrite EffectiveFrom of all versions to 1st of each month so that if a version starts in the same month
-            // First version doesn't get it's effective from overwritten as that won't have an overlap
-            // Last version effective to doesn't matter as it should be null
-            // e.g.
-            // 1.0  Effective From 9/12/2019 Effective To 14/7/2020
-            // 1.1  Effective From 15/7/2020 Effective To 19/10/2020
-            // 1.2  Effective From 20/10/2020  Effective To Null
-
-            // Becomes
-            // 1.0  Effective From 9/12/2019 Effective To 31/7/2020
-            // 1.1  Effective From 1/7/2020 Effective To 31/10/2020
-            // 1.2  Effective From 1/10/2020  Effective To Null
-
-            var first = true;
-            foreach (var version in standardVersions)
-            {
-                if (!first && version.VersionEarliestStartDate.HasValue)
-                {
-                    version.VersionEarliestStartDate = new DateTime(version.VersionEarliestStartDate.Value.Year, version.VersionEarliestStartDate.Value.Month, 1);
-                }
-
-                if (version.VersionLatestStartDate.HasValue)
-                {
-                    var daysInMonth = DateTime.DaysInMonth(version.VersionLatestStartDate.Value.Year, version.VersionLatestStartDate.Value.Month);
-                    version.VersionLatestStartDate = new DateTime(version.VersionLatestStartDate.Value.Year, version.VersionLatestStartDate.Value.Month, daysInMonth);
-                }
-
-                first = false;
-            }
-
-            // Given the above resetting
-            // If an apprentice start date is then 29th October 2020
-            // 29/10/2020 is > 1/7/2020  and it's < 31/10/2020 so it initially creates a 1.1 Training Programme
-            // 29/10/2020 is > 1/10/2020 and Effective To Is null, so then ovewrites with a 1.2 Training Programme
+           
             Standard selectedVersion = standardVersions.Last();
             foreach (var version in standardVersions)
             {
