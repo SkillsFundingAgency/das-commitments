@@ -31,7 +31,7 @@
 )
 GO
 
--- there are a lot of indexes on similar columns but the order does matter; mostly these indexes have been flagged as Azure recomendations
+-- there are a lot of indexes on similar columns but the order does matter; mostly these indexes have been flagged as Azure recommendations
 CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_CommitmentStatus] ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus]) INCLUDE(
 	[ApprenticeshipEmployerTypeOnApproval], 
 	[CreatedOn], 
