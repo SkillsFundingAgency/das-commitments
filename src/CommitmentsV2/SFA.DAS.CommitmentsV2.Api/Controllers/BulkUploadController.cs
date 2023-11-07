@@ -1,16 +1,18 @@
-﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Application.Commands.FileUploadLogUpdateWithErrorContent;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -68,6 +70,28 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             result.BulkUploadValidationErrors.ThrowIfAny();
             return Ok(result);
         }
+
+        [HttpPost]
+        [Route("logs")]
+        public async Task<IActionResult> AddLog([FromBody] AddFileUploadLogRequest request, CancellationToken cancellationToken = default)
+        {
+            var command = await _modelMapper.Map<AddFileUploadLogCommand>(request);
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        [Route("logs/{logId}/error")]
+        public async Task<IActionResult> UpdateLogErrorContent(long providerId, long logId, [FromBody] FileUploadLogUpdateWithErrorContentRequest request, CancellationToken cancellationToken = default)
+        {
+            await _mediator.Send(new FileUploadLogUpdateWithErrorContentCommand
+            {
+                LogId = logId,
+                ProviderId = providerId,
+                ErrorContent = request.ErrorContent,
+                UserInfo = request.UserInfo
+            }, cancellationToken);
+            return Ok();
+        }
     }
 }
-
