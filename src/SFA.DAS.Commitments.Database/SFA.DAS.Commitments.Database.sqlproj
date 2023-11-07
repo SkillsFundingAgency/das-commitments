@@ -171,6 +171,8 @@
     <Build Include="Tables\OverlappingTrainingDateRequest.sql" />
     <Build Include="Views\ApprenticeshipsCreatedSummary.sql" />
     <Build Include="Tables\DataLockUpdaterJobStatus.sql" />
+    <Build Include="Tables\FileUploadCohortLog.sql" />
+    <Build Include="Tables\FileUploadLog.sql" />
     <Build Include="Tables\DataLockUpdaterJobHistory.sql" />
   </ItemGroup>
   <ItemGroup>
