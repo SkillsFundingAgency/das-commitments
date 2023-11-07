@@ -12,3 +12,16 @@
 	[RowVersion] ROWVERSION NOT NULL,
     [RequestCreatedByProviderEmail] NVARCHAR(255) NULL,
 )
+GO
+
+CREATE NONCLUSTERED INDEX [IX_OverlappingTrainingDateRequest_PreviousApprenticeshipId_Status] ON [dbo].[OverlappingTrainingDateRequest] ([PreviousApprenticeshipId], [Status]) INCLUDE (
+     [ActionedOn], 
+     [CreatedOn], 
+     [DraftApprenticeshipId], 
+     [NotifiedEmployerOn], 
+     [NotifiedServiceDeskOn], 
+     [RequestCreatedByProviderEmail], 
+     [ResolutionType], 
+     [RowVersion]) 
+WITH (ONLINE = ON)
+GO
