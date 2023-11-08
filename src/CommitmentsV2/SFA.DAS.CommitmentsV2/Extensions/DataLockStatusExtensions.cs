@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Extensions
                     && item1.IlrTotalCost == item2.IlrTotalCost
                     && item1.ErrorCode == item2.ErrorCode
                     && item1.IlrTrainingType == item2.IlrTrainingType
+                    && item1.IlrTrainingCourseCode == item2.IlrTrainingCourseCode
                     );
         }
     }

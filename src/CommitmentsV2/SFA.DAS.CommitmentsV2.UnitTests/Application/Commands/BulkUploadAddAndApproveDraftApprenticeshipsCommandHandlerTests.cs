@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             Mediator.Verify(m => m.Send(
               It.Is<BulkUploadAddDraftApprenticeshipsCommand>(r =>
-                  r.ProviderId.Equals(Command.ProviderId)),
+                  r.ProviderId.Equals(Command.ProviderId) && r.LogId.Equals(Command.LogId) && r.ProviderAction == "SaveAndApprove"),
               It.IsAny<CancellationToken>()), Times.Once);
         }
 
