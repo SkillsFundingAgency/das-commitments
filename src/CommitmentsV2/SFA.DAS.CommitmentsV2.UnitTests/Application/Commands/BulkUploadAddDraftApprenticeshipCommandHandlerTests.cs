@@ -23,7 +23,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -77,6 +76,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             fixture.VerifyResponse(bulkUploadResponse);
         }
+
+        [Test]
+        public async Task VerifyFileUploadLog_IsCompletedWithActionAndDate()
+        {
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
+            await fixture.WithLogId(8787).AddFileUploadLogToDb().Handle();
+
+            fixture.VerifyFileUploadLogWasSavedCorrectly();
+        }
+
+        [Test]
+        public async Task VerifyRecordSaveActionForFileUploadIsNotCalledWhenNoLogId()
+        {
+            var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
+            await fixture.Handle();
+
+            Assert.IsFalse(fixture.DbContext.FileUploadLogs.Any()); ;
+        }
     }
 
     public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture
@@ -101,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             CohortDomainService = new Mock<ICohortDomainService>();
             ReservationApiClient = new Mock<IReservationsApiClient>();
             ModelMapper = new Mock<IModelMapper>();
-            Command = AutoFixture.Create<BulkUploadAddDraftApprenticeshipsCommand>();
+            Command = AutoFixture.Build<BulkUploadAddDraftApprenticeshipsCommand>().Without(x=>x.LogId).Create();
             DbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                                  .Options);
@@ -148,6 +165,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
+        internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithLogId(long n)
+        {
+            Command.LogId = n;
+            return this;
+        }
+
+        internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture AddFileUploadLogToDb()
+        {
+            DbContext.FileUploadLogs.Add(new FileUploadLog {Id = Command.LogId.Value});
+            return this;
+        }
+
         private Apprenticeship GenerateApprenticeshipDetails(Cohort cohort)
         {
             var ApprenticeshipDetails1 = AutoFixture.Build<Apprenticeship>()
@@ -174,6 +203,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         internal void VerifyMapperIsCalled()
         {
             ModelMapper.Verify(x => x.Map<List<DraftApprenticeshipDetails>>(Command), Times.Once);
+        }
+
+        internal void VerifyFileUploadLogWasSavedCorrectly()
+        {
+            var log = DbContext.FileUploadLogs.FirstOrDefault(x => x.Id.Equals(Command.LogId.Value));
+            Assert.IsNotNull(log);
+            Assert.AreEqual(Command.ProviderAction, log.ProviderAction);
+            Assert.IsNotNull(log.CreatedOn);
+            Assert.AreEqual(DbContext.Cohorts.Count(), log.CohortLogs.Count);
         }
 
         internal void VerifyDraftApprenticeshipsAreAdded()
