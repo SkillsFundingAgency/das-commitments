@@ -14,7 +14,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Extensions
 
         private static decimal GetPrice(this IEnumerable<PriceEpisode> priceEpisodes, DateTime effectiveDate)
         {
-            var episodes = priceEpisodes.ToList();
+            var episodes = priceEpisodes
+                .OrderByDescending(x=> x.FromDate)
+                .ToList();
 
             var episode = episodes.FirstOrDefault(x => 
                 x.FromDate <= effectiveDate && (x.ToDate == null || x.ToDate >= effectiveDate));
