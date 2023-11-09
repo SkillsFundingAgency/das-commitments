@@ -26,5 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Configuration
 
         public string ProviderCommitmentsBaseUrl { get; set; }
         public string EmployerCommitmentsBaseUrl { get; set; }
+        public DateTime? OLTD_GoLiveDate { get; set; }
     }
 }

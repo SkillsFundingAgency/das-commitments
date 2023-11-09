@@ -41,8 +41,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
         }
         public async Task Handle(OverlappingTrainingDateRequestNotificationToEmployerCommand request, CancellationToken cancellationToken)
         {
-            var dateTime = _currentDateTime.UtcNow.AddDays(-14).Date;
-
             var pendingRecords = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(oltd => oltd.DraftApprenticeship)
                     .ThenInclude(draftApprenticeship => draftApprenticeship.Cohort)
@@ -51,11 +49,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.NotifiedEmployerOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && x.CreatedOn < dateTime
+                            && GetCreatedOnFilter(x.CreatedOn, _configuration.OLTD_GoLiveDate ?? DateTime.MinValue) 
                             )
                 .ToList();
 
-            _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
+            _logger.LogInformation($"Found {pendingRecords.Count} records which chaser email to employer");
 
             foreach (var pendingRecord in pendingRecords)
             {
@@ -78,6 +76,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             }
 
             await _dbContext.Value.SaveChangesAsync(cancellationToken);
+        }
+
+        private bool GetCreatedOnFilter(DateTime createdOn, DateTime goLiveDate)
+        {
+            DateTime currentDate = _currentDateTime.UtcNow;
+            if (createdOn < goLiveDate)
+            {
+                return createdOn < currentDate.AddDays(-14);
+            }
+            else
+            {
+                return createdOn < currentDate.AddDays(-7);
+            }            
         }
     }
 }
