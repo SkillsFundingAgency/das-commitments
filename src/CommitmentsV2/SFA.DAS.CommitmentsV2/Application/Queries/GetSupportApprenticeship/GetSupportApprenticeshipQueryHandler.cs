@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship
                 .Include(x => x.Cohort)
                 .Include(x => x.Cohort.AccountLegalEntity)
                 .Include(x => x.Cohort.Provider)
-                .Include(x => x.PriceHistory.OrderBy(priceHistory => priceHistory.FromDate))
+                .Include(x => x.PriceHistory)
                 .Include(x => x.FlexibleEmployment)
                 .AsQueryable();
 
@@ -48,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship
                 query = query.Where(x => x.CommitmentId == request.CohortId.Value);
             }
 
-            var apprenticeships = await query.ToListAsync(CancellationToken.None);
+            var apprenticeships = await query.ToListAsync(cancellationToken);
 
             var response = new GetSupportApprenticeshipQueryResult();
             var mappedApprenticeshipsTask = apprenticeships.Select(_mapper.Map).ToList();

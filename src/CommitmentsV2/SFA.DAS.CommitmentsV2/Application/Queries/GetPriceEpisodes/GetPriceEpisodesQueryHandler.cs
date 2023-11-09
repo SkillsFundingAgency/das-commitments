@@ -21,7 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes
         {
             return new GetPriceEpisodesQueryResult
             {
-                PriceEpisodes = await _dbContext.Value.PriceHistory.Where(x => x.ApprenticeshipId == request.ApprenticeshipId)
+                PriceEpisodes = await _dbContext.Value.PriceHistory
+                    .Where(x => x.ApprenticeshipId == request.ApprenticeshipId)
                     .Select(priceHistory => new GetPriceEpisodesQueryResult.PriceEpisode
                     {
                         Id = priceHistory.Id,
