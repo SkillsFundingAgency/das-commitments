@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
 
             public OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture()
             {
-                _configuration = new CommitmentsV2Configuration() { ZenDeskEmailAddress = "abc@zendesk.com" };
+              
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                           .UseInMemoryDatabase(Guid.NewGuid().ToString())
                           .EnableSensitiveDataLogging()
@@ -92,6 +92,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 _currentDateTime = new Mock<ICurrentDateTime>();
                 _currentDateTime.Setup(x => x.UtcNow).Returns(currentProxyDateTime);
                 _messageSession = new Mock<IMessageSession>();
+
+                _configuration = new CommitmentsV2Configuration() { 
+                    ZenDeskEmailAddress = "abc@zendesk.com",
+                    OLTD_GoLiveDate = _currentDateTime.Object.UtcNow };
 
                 _sut = new OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler(
                      new Lazy<ProviderCommitmentsDbContext>(() => Db),

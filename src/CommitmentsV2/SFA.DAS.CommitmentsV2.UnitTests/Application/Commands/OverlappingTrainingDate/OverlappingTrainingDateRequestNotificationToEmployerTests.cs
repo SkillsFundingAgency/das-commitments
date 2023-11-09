@@ -95,7 +95,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
 
             public OverlappingTrainingDateRequestNotificationToEmployerTestsFixture()
             {
-                _configuration = new CommitmentsV2Configuration() { ZenDeskEmailAddress = "abc@zendesk.com", EmployerCommitmentsBaseUrl = "https://employerurl" };
+                
+
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                           .UseInMemoryDatabase(Guid.NewGuid().ToString())
                           .EnableSensitiveDataLogging()
@@ -106,6 +107,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 _currentDateTime.Setup(x => x.UtcNow).Returns(currentProxyDateTime);
                 _messageSession = new Mock<IMessageSession>();
                 _encodingService = new Mock<IEncodingService>();
+
+                _configuration = new CommitmentsV2Configuration()
+                {
+                    ZenDeskEmailAddress = "abc@zendesk.com",
+                    EmployerCommitmentsBaseUrl = "https://employerurl",
+                    OLTD_GoLiveDate = _currentDateTime.Object.UtcNow
+                };
 
                 _encodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns(() => "EMPLOYERHASHEDID");
                 _encodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns(() => "APPRENTICESHIPHASHEDID");

@@ -83,11 +83,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             DateTime currentDate = _currentDateTime.UtcNow;
             if (createdOn < goLiveDate)
             {
-                return createdOn < currentDate.AddDays(-14);
+                return createdOn < currentDate.AddDays(-14).Date;
             }
             else
             {
-                return createdOn < currentDate.AddDays(-7);
+                return createdOn < currentDate.AddDays(-7).Date;
             }            
         }
     }
