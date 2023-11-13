@@ -19,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.NServiceBus.Services;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -101,20 +102,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IAccountApiClient> AccountApiClient { get; set; }
         public Mock<ProviderCommitmentsDbContext> Db { get; set; }
         public Mock<IEventPublisher> EventPublisher { get; set; }
+        public Mock<IEncodingService> EncodingService { get; set; }
         public List<Apprenticeship> Apprenticeships { get; set; }
         public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
         public long PreviousApprenticeshipId { get; set; }
         
+
+
         public ProcessFullyApprovedCohortCommandFixture()
         {
             AutoFixture = new Fixture();
+            EncodingService = new Mock<IEncodingService>();
+            EncodingService.Setup(x => x.Encode(It.IsAny<long>(), It.IsAny<EncodingType>())).Returns((long id, EncodingType type) => id.ToString());
             Command = AutoFixture.Create<ProcessFullyApprovedCohortCommand>();
             Command.SetValue(x => x.ChangeOfPartyRequestId, default(long?));
             AccountApiClient = new Mock<IAccountApiClient>();
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
             EventPublisher = new Mock<IEventPublisher>();
             Apprenticeships = new List<Apprenticeship>();
-            Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
+            Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, EncodingService.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
             
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
             Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<object[]>())).Returns(Task.CompletedTask);

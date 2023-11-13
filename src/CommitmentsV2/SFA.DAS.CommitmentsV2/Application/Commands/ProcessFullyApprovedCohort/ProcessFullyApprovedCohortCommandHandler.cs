@@ -5,13 +5,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
+using SFA.DAS.Encoding;
 using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
@@ -21,13 +24,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
         private readonly IAccountApiClient _accountApiClient;
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly IEventPublisher _eventPublisher;
+        private readonly IEncodingService _encodingService;
         private readonly ILogger<ProcessFullyApprovedCohortCommandHandler> _logger;
 
-        public ProcessFullyApprovedCohortCommandHandler(IAccountApiClient accountApiClient, Lazy<ProviderCommitmentsDbContext> db, IEventPublisher eventPublisher, ILogger<ProcessFullyApprovedCohortCommandHandler> logger)
+        public ProcessFullyApprovedCohortCommandHandler(IAccountApiClient accountApiClient, Lazy<ProviderCommitmentsDbContext> db, IEventPublisher eventPublisher, IEncodingService encodingService, ILogger<ProcessFullyApprovedCohortCommandHandler> logger)
         {
             _accountApiClient = accountApiClient;
             _db = db;
             _eventPublisher = eventPublisher;
+            _encodingService = encodingService;
             _logger = logger;
         }
 
@@ -72,7 +77,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                         {
                             FromDate = p.FromDate,
                             ToDate = p.ToDate,
-                            Cost = p.Cost
+                            Cost = p.Cost,
+                            EndPointAssessmentPrice = a.IsOnFlexiPaymentPilot == true ? a.EndPointAssessmentPrice : null,
+                            TrainingPrice = a.IsOnFlexiPaymentPilot == true ? a.TrainingPrice : null
                         })
                         .ToArray(),
                     ContinuationOfId = a.ContinuationOfId,
@@ -80,7 +87,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     ActualStartDate = a.ActualStartDate,
                     IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
                     FirstName = a.FirstName,
-                    LastName = a.LastName
+                    LastName = a.LastName,
+                    ApprenticeshipHashedId = _encodingService.Encode(a.CommitmentId, EncodingType.CohortReference),
                 })
                 .ToListAsync(cancellationToken);
 
