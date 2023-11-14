@@ -53,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Extensions
                 .Include(a => a.ApprenticeshipUpdate)
                 .Include(a => a.ChangeOfPartyRequests)
                 .Include(a => a.ApprenticeshipConfirmationStatus)
+                .Include(a => a.PriorLearning)
                 .Include(a => a.FlexibleEmployment)
                 .SingleOrDefaultAsync(a => a.Id == apprenticeshipId, cancellationToken);
 
