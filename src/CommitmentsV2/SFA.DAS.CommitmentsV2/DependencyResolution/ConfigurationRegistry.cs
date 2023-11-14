@@ -25,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             AddConfiguration<PasAccountApiConfiguration>(CommitmentsConfigurationKeys.ProviderAccountApiConfiguration);
             AddConfiguration<ReservationsClientApiConfiguration>(CommitmentsConfigurationKeys.ReservationsClientApiConfiguration);
             AddConfiguration<RplSettingsConfiguration>(CommitmentsConfigurationKeys.RplSettingsConfiguration);
+            AddConfiguration<ProviderUrlConfiguration>(CommitmentsConfigurationKeys.ProviderUrlConfiguration);
         }
 
         private void AddConfiguration<T>(string name) where T : class
