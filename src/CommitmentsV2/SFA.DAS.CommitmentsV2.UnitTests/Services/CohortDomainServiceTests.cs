@@ -547,6 +547,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        [Ignore("Until RPL reduction is raised to error level again")]
         public async Task ApproveCohort_WhenRPLIsRequiredAndRPLDataIsPresentButRplReductionIsInError_ShouldFail()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
