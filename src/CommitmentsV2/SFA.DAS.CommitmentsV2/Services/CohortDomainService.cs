@@ -4,7 +4,6 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -22,8 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.Authorization.Features.Models;
-using SFA.DAS.Authorization.Features.Services;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -172,7 +169,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             await ValidateUlnOverlap(cohort);
             await ValidateNoEmailOverlapsExist(cohort, cancellationToken);
-            await CheckRplReductionErrors(cohort);
+            // removed until RPL Reduction warning is elevated to be a error again 
+            //await CheckRplReductionErrors(cohort);
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow, apprenticeEmailIsRequired);
         }
 
