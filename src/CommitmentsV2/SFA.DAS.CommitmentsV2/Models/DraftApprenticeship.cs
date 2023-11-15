@@ -34,15 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
 
         private bool IsCompleteForProvider(bool apprenticeEmailRequired) => 
-            FirstName != null &&
-            LastName != null &&
+            IsCompleteForEmployer(apprenticeEmailRequired) &&
             Uln != null &&
-            Cost != null &&
-            (StartDate != null || ActualStartDate != null) &&
-            EndDate != null &&
-            CourseCode != null &&
-            DateOfBirth != null &&
-            (!apprenticeEmailRequired || Email != null || ContinuationOfId != null) &&
             (!RecognisingPriorLearningStillNeedsToBeConsidered || !RecognisingPriorLearningExtendedStillNeedsToBeConsidered);
 
         public DraftApprenticeship()
