@@ -1,6 +1,4 @@
-﻿using System;
-using SFA.DAS.AutoConfiguration;
-using SFA.DAS.CommitmentsV2.Configuration;
+﻿using SFA.DAS.CommitmentsV2.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.LinkGeneration
 {
@@ -11,36 +9,25 @@ namespace SFA.DAS.CommitmentsV2.LinkGeneration
 
     public class LinkGenerator : ILinkGenerator
     {
-        private readonly Lazy<ProviderUrlConfiguration> _lazyProviderConfiguration;
+        private readonly ProviderUrlConfiguration _providerConfiguration;
 
-        public LinkGenerator(IAutoConfigurationService autoConfigurationService)
+        public LinkGenerator(ProviderUrlConfiguration providerConfiguration)
         {
-            _lazyProviderConfiguration =
-                new Lazy<ProviderUrlConfiguration>(() => LoadProviderUrlConfiguration(autoConfigurationService));
+            _providerConfiguration = providerConfiguration;
         }
 
         public string ProviderApprenticeshipServiceLink(string path)
         {
-            var configuration = _lazyProviderConfiguration.Value;
-            var baseUrl = configuration.ProviderApprenticeshipServiceBaseUrl;
-
+            var baseUrl = _providerConfiguration.ProviderApprenticeshipServiceBaseUrl;
             return Action(baseUrl, path);
         }
 
         public string CourseManagementLink(string path)
         {
-            var configuration = _lazyProviderConfiguration.Value;
-            var baseUrl = configuration.CourseManagementBaseUrl;
-
+            var baseUrl = _providerConfiguration.CourseManagementBaseUrl;
             return Action(baseUrl, path);
         }
-
-        private static ProviderUrlConfiguration LoadProviderUrlConfiguration(
-            IAutoConfigurationService autoConfigurationService)
-        {
-            return autoConfigurationService.Get<ProviderUrlConfiguration>();
-        }
-
+       
         private static string Action(string baseUrl, string path)
         {
             var trimmedBaseUrl = baseUrl.TrimEnd('/');
