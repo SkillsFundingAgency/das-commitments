@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.ProcessFullyApprovedCohort
                     IsOnFlexiPaymentPilot = a.IsOnFlexiPaymentPilot,
                     FirstName = a.FirstName,
                     LastName = a.LastName,
-                    ApprenticeshipHashedId = _encodingService.Encode(a.CommitmentId, EncodingType.CohortReference),
+                    ApprenticeshipHashedId = _encodingService.Encode(a.Id, EncodingType.ApprenticeshipId),
                 })
                 .ToListAsync(cancellationToken);
 
