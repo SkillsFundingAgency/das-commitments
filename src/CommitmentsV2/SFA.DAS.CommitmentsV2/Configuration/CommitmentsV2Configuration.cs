@@ -18,6 +18,8 @@ namespace SFA.DAS.CommitmentsV2.Configuration
 
         public LevyTransferMatchingApiConfiguration LevyTransferMatchingInnerApiConfiguration { get; set; }
 
+        public ProviderUrlConfiguration ProviderUrlConfiguration { get; set; }
+
         /// <summary>
         /// An ISO-formatted string date representation for test override, or any other non-empty value for the real current datetime
         /// </summary>

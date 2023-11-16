@@ -7,6 +7,7 @@ using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -59,7 +60,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private readonly GetCohortSummaryQueryResult _cohortSummary;
             private readonly string _cohortReference;
             private readonly string _employerEncodedAccountId;
-            private Fixture _autoFixture;
+            private readonly Fixture _autoFixture;
+            public const string EmployerCommitmentsBaseUrl = "https://approvals/";
 
             public CohortAssignedToEmployerEventHandlerTestsFixture()
             {
@@ -80,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _encodingService.Setup(x => x.Encode(It.Is<long>(id => id == _cohortSummary.AccountId),
                     EncodingType.AccountId)).Returns(_employerEncodedAccountId);
 
-                _handler = new CohortAssignedToEmployerEventHandler(_mediator.Object, _encodingService.Object);
+                _handler = new CohortAssignedToEmployerEventHandler(_mediator.Object, _encodingService.Object, new CommitmentsV2Configuration { EmployerCommitmentsBaseUrl = EmployerCommitmentsBaseUrl });
 
                 _messageHandlerContext = new Mock<IMessageHandlerContext>();
                 _pipelineContext = _messageHandlerContext.As<IPipelineContext>();
@@ -115,7 +117,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     c.Template == "EmployerCohortNotification" &&
                     c.Tokens["provider_name"] == _cohortSummary.ProviderName &&
                     c.Tokens["employer_hashed_account"] == _employerEncodedAccountId &&
-                    c.Tokens["cohort_reference"] == _cohortReference
+                    c.Tokens["cohort_reference"] == _cohortReference &&
+                    c.Tokens["base_url"] == EmployerCommitmentsBaseUrl
                     ), It.IsAny<SendOptions>()));
             }
 
