@@ -36,7 +36,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             _logger = logger;
         }
         public async Task Handle(OverlappingTrainingDateRequestNotificationToServiceDeskCommand request, CancellationToken cancellationToken)
-        {           
+        {
+            if (_configuration.OLTD_GoLiveDate.HasValue)
+            {
+                _logger.LogInformation($"OLTD_GoLiveDate {_configuration.OLTD_GoLiveDate.Value.ToString()}");
+            }
+            else
+            {
+                _logger.LogInformation($"OLTD_GoLiveDate has no value");
+            }
+
+            var currentDate = _currentDateTime.UtcNow;
+            var goLiveDate = _configuration.OLTD_GoLiveDate ?? DateTime.MinValue;
+
             var pendingRecords = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(oltd => oltd.DraftApprenticeship)
                     .ThenInclude(draftApprenticeship => draftApprenticeship.Cohort)
@@ -44,8 +56,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && GetCreatedOnFilter(x.CreatedOn, _configuration.OLTD_GoLiveDate ?? DateTime.MinValue)
-                            )
+                            && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-28).Date
+                            : x.CreatedOn < currentDate.AddDays(-14).Date))                            
                 .ToList();
 
             _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
@@ -71,18 +83,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             }
 
             await _dbContext.Value.SaveChangesAsync(cancellationToken);
-        }
-        private bool GetCreatedOnFilter(DateTime createdOn, DateTime goLiveDate)
-        {
-            DateTime currentDate = _currentDateTime.UtcNow;
-            if (createdOn < goLiveDate)
-            {
-                return createdOn < currentDate.AddDays(-28).Date;
-            }
-            else
-            {
-                return createdOn < currentDate.AddDays(-14).Date;
-            }
-        }
+        }    
     }
 }

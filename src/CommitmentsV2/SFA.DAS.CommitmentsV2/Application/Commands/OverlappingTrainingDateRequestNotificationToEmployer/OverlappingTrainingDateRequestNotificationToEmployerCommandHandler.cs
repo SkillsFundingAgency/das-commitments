@@ -41,6 +41,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
         }
         public async Task Handle(OverlappingTrainingDateRequestNotificationToEmployerCommand request, CancellationToken cancellationToken)
         {
+            if (_configuration.OLTD_GoLiveDate.HasValue)
+            {
+                _logger.LogInformation($"OLTD_GoLiveDate {_configuration.OLTD_GoLiveDate.Value.ToString()}");
+            }
+            else
+            {
+                _logger.LogInformation($"OLTD_GoLiveDate has no value");
+            }
+
+            var currentDate = _currentDateTime.UtcNow;
+            var goLiveDate = _configuration.OLTD_GoLiveDate ?? DateTime.MinValue;
+
             var pendingRecords = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(oltd => oltd.DraftApprenticeship)
                     .ThenInclude(draftApprenticeship => draftApprenticeship.Cohort)
@@ -49,8 +61,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.NotifiedEmployerOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && GetCreatedOnFilter(x.CreatedOn, _configuration.OLTD_GoLiveDate ?? DateTime.MinValue) 
-                            )
+                            && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-14).Date 
+                            : x.CreatedOn < currentDate.AddDays(-7).Date))
+                            
                 .ToList();
 
             _logger.LogInformation($"Found {pendingRecords.Count} records which chaser email to employer");
@@ -76,19 +89,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             }
 
             await _dbContext.Value.SaveChangesAsync(cancellationToken);
-        }
-
-        private bool GetCreatedOnFilter(DateTime createdOn, DateTime goLiveDate)
-        {
-            DateTime currentDate = _currentDateTime.UtcNow;
-            if (createdOn < goLiveDate)
-            {
-                return createdOn < currentDate.AddDays(-14).Date;
-            }
-            else
-            {
-                return createdOn < currentDate.AddDays(-7).Date;
-            }            
-        }
+        }    
     }
 }
