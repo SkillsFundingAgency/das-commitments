@@ -121,6 +121,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public List<Apprenticeship> Apprenticeships { get; set; }
         public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
         public long PreviousApprenticeshipId { get; set; }
+        public string ExpectedApprenticeshipHashedId { get; set; }
         
 
 
@@ -128,7 +129,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             AutoFixture = new Fixture();
             EncodingService = new Mock<IEncodingService>();
-            EncodingService.Setup(x => x.Encode(It.IsAny<long>(), It.IsAny<EncodingType>())).Returns((long id, EncodingType type) => id.ToString());
+            ExpectedApprenticeshipHashedId = AutoFixture.Create<string>();
+            EncodingService.Setup(x => x.Encode(It.IsAny<long>(), It.IsAny<EncodingType>())).Returns(ExpectedApprenticeshipHashedId);
             Command = AutoFixture.Create<ProcessFullyApprovedCohortCommand>();
             Command.SetValue(x => x.ChangeOfPartyRequestId, default(long?));
             AccountApiClient = new Mock<IAccountApiClient>();
@@ -276,7 +278,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot == apprenticeship.IsOnFlexiPaymentPilot &&
                           apprenticeshipCreatedEvent.FirstName == apprenticeship.FirstName &&
                           apprenticeshipCreatedEvent.LastName == apprenticeship.LastName &&
-                          apprenticeshipCreatedEvent.ApprenticeshipHashedId == apprenticeship.Id.ToString();
+                          apprenticeshipCreatedEvent.ApprenticeshipHashedId == ExpectedApprenticeshipHashedId;
 
             for (var i = 0; i < apprenticeship.PriceHistory.Count; i++)
             {
