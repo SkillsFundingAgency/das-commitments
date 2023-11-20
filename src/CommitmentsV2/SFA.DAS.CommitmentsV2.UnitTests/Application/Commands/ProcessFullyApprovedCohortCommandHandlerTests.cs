@@ -260,7 +260,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                           apprenticeshipCreatedEvent.ActualStartDate == apprenticeship.ActualStartDate &&
                           apprenticeshipCreatedEvent.IsOnFlexiPaymentPilot == apprenticeship.IsOnFlexiPaymentPilot &&
                           apprenticeshipCreatedEvent.FirstName == apprenticeship.FirstName &&
-                          apprenticeshipCreatedEvent.LastName == apprenticeship.LastName;
+                          apprenticeshipCreatedEvent.LastName == apprenticeship.LastName &&
+                          apprenticeshipCreatedEvent.ApprenticeshipHashedId == apprenticeship.Id.ToString();
 
             for (var i = 0; i < apprenticeship.PriceHistory.Count; i++)
             {
