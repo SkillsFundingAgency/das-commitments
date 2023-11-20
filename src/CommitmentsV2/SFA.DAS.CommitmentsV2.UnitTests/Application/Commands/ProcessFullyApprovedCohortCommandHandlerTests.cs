@@ -93,6 +93,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                         e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
                     Times.Once));
         }
+        
+        [Test]
+        public void Handle_WhenHandlingCommandForFlexiPaymentScenario_ThenShouldPublishPriceBreakdown()
+        {
+            var fixture = new ProcessFullyApprovedCohortCommandFixture();
+            fixture.SetApprenticeshipEmployerType(ApprenticeshipEmployerType.Levy)
+                .SetApprovedApprenticeships(false)
+                .Handle();
+            
+            fixture.Apprenticeships.ForEach(
+                a => fixture.EventPublisher.Verify(
+                    p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
+                        e => fixture.IsValidCostBreakdown(a, e))),
+                    Times.Once));
+        }
     }
 
     public class ProcessFullyApprovedCohortCommandFixture
@@ -281,6 +296,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             return apprenticeship.Id == changeOfPartyCreatedEvent.ApprenticeshipId
             && Command.ChangeOfPartyRequestId == changeOfPartyCreatedEvent.ChangeOfPartyRequestId;
+        }
+
+        public bool IsValidCostBreakdown(Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+        {
+            var priceEpisode = apprenticeshipCreatedEvent.PriceEpisodes.First();
+            return priceEpisode.TrainingPrice == apprenticeship.TrainingPrice && priceEpisode.EndPointAssessmentPrice == apprenticeship.EndPointAssessmentPrice;
         }
     }
 }
