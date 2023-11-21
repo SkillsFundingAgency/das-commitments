@@ -17,6 +17,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                         Id = episode.Id,
                         ApprenticeshipId = episode.ApprenticeshipId,
                         Cost = episode.Cost,
+                        TrainingPrice = episode.TrainingPrice,
+                        EndPointAssessmentPrice = episode.EndPointAssessmentPrice,
                         FromDate = episode.FromDate,
                         ToDate = episode.ToDate
                     }).ToList()

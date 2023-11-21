@@ -19,6 +19,8 @@
         public static string ReservationsClientApiConfiguration => $"{CommitmentsV2}:ReservationsClientApi";
         public static string CommitmentPaymentsWebJobConfiguration => $"{CommitmentsV2}:CommitmentPaymentsWebJobConfiguration";
         public static string RplSettingsConfiguration => $"{CommitmentsV2}:RplSettings";
+        public static string ProviderUrlConfiguration => $"{CommitmentsV2}:ProviderUrl";
+
 
     }
 }
