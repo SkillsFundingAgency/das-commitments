@@ -12,8 +12,8 @@ BEGIN
     SET PaymentStatus = 1, StartDate = CASE WHEN IsOnFlexiPaymentPilot = 1 THEN DATEFROMPARTS(YEAR(ActualStartDate), MONTH(ActualStartDate), 1) ELSE StartDate END
     WHERE CommitmentId = @cohortId
     
-    INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate)
-    SELECT Id, Cost, ISNULL(ActualStartDate, StartDate)
+    INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate, TrainingPrice, AssessmentPrice)
+    SELECT Id, Cost, ISNULL(ActualStartDate, StartDate), TrainingPrice, EndPointAssessmentPrice
     FROM [dbo].[Apprenticeship]
     WHERE CommitmentId = @cohortId
 
