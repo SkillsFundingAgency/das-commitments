@@ -64,9 +64,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             result.PriceReducedBy.Should().Be(fixture.PriorLearning.PriceReducedBy);
 
             result.DurationReducedByHours.Should().Be(fixture.PriorLearning.DurationReducedByHours);
-            result.WeightageReducedBy.Should().Be(fixture.PriorLearning.WeightageReducedBy);
-            result.ReasonForRplReduction.Should().Be(fixture.PriorLearning.ReasonForRplReduction);
-            result.QualificationsForRplReduction.Should().Be(fixture.PriorLearning.QualificationsForRplReduction);
 
             result.RecognisePriorLearning.Should().BeTrue();
 
@@ -126,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), 
                 AuthenticationServiceMock.Object);
 
-            PriorLearning = new ApprenticeshipPriorLearning {DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
+            PriorLearning = new ApprenticeshipPriorLearning {DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9 };
             FlexibleEmployment = new FlexibleEmployment {EmploymentEndDate = DateTime.Today, EmploymentPrice = 987};
         }
 

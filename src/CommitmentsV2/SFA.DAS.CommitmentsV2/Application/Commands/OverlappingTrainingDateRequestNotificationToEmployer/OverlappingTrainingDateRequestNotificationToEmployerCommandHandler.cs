@@ -75,6 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 {
                     var tokens = new Dictionary<string, string>
                     {
+                        { "Cohort", pendingRecord.PreviousApprenticeship.Cohort.Reference},
                         { "RequestRaisedDate", pendingRecord.CreatedOn.ToString("dd-MM-yyyy") },
                         { "Apprentice", pendingRecord.PreviousApprenticeship.FirstName + " " + pendingRecord.PreviousApprenticeship.LastName },
                         { "ULN", pendingRecord.PreviousApprenticeship.Uln },

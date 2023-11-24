@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails
 
             if (command.Rpl2Mode)
             {
-                apprenticeship.SetPriorLearningDetailsExtended(command.DurationReducedByHours, command.PriceReducedBy, command.WeightageReducedBy, command.QualificationsForRplReduction, command.ReasonForRplReduction);
+                apprenticeship.SetPriorLearningDetailsExtended(command.DurationReducedByHours, command.PriceReducedBy);
             }
             else
             {

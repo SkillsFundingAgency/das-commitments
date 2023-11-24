@@ -28,7 +28,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes
                         ApprenticeshipId = a.ApprenticeshipId,
                         FromDate = a.FromDate,
                         ToDate = a.ToDate,
-                        Cost = a.Cost
+                        Cost = a.Cost,
+                        TrainingPrice = a.TrainingPrice,
+                        EndPointAssessmentPrice = a.AssessmentPrice
                     }).ToListAsync(cancellationToken)
             };
         }
