@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
@@ -39,19 +40,12 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             _logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessorService)} run at {_currentDateTime.UtcNow} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}, JobId: {jobId}");
 
-            var expirableDatalocks = await GetExpirableDataLocks(_academicYearProvider.CurrentAcademicYearStartDate);
-            long expiredCount = 0;
-            foreach (var expirableDatalock in expirableDatalocks)
-            {
-                _logger.LogInformation($"Updating DataLockStatus for apprenticeshipId: {expirableDatalock.ApprenticeshipId} and PriceEpisodeIdentifier: {expirableDatalock.ApprenticeshipId}, JobId: {jobId}");
+            await _dbContext.Database.ExecuteSqlRawAsync(
+                "update [DataLockStatus] set IsExpired=1, Expired=GETDATE() where IsExpired=0 AND IlrEffectiveFromDate < @CurrentAcademicYearStartDate",
+                new SqlParameter("CurrentAcademicYearStartDate",
+                    _academicYearProvider.CurrentAcademicYearStartDate));
 
-                expirableDatalock.IsExpired = true;
-                expirableDatalock.Expired = _currentDateTime.UtcNow;
-                await _dbContext.SaveChangesAsync();
-                expiredCount++;
-            }
-
-            _logger.LogInformation($"{nameof(AcademicYearEndExpiryProcessorService)} expired {expiredCount} items, JobId: {jobId}");
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task ExpireApprenticeshipUpdates(string jobId)
@@ -90,16 +84,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 throw new Exception($"AcademicYearEndProcessor not completed successfull, Should not be any pending ApprenticeshipUpdates after job done, There are {expiredApprenticeshipUpdatesQuery.Count()} , JobId: {jobId}");
             }
-        }
-
-        private async Task<IEnumerable<DataLockStatus>> GetExpirableDataLocks(DateTime currentAcademicYearStartDate)
-        {
-            _logger.LogInformation("Getting DataLocks to expire");
-
-            return await _dbContext.DataLocks
-                .Where(app => app.IsExpired == false)
-                .Where(app => app.IlrEffectiveFromDate < currentAcademicYearStartDate)
-                .ToListAsync();
         }
 
         private IEnumerable<ApprenticeshipUpdate> GetExpirableApprenticeshipUpdates(DateTime currentAcademicYearStartDate)
