@@ -66,7 +66,64 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         public async Task Verify_EmailIsSentOnlyForNonExpiredRecords()
         {
             using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
-            fixture.SetCreatedOn();
+            fixture.SetCreatedOn(-10);
+            await fixture.Handle();
+
+            fixture.Verify_EmailCommandIsNotSent();
+        }
+
+        [Test]
+        public async Task Verify_EmailIsSent_After7days_CreatedOn_After_OLTDGoLiveDate()
+        {
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+
+            fixture.SetGoLiveDate(-10);
+
+            fixture.SetCreatedOn(-8);
+
+            await fixture.Handle();
+
+            fixture.Verify_EmailCommandSent();
+        }
+
+        [Test]
+        public async Task Verify_EmailIsNotSent_After4days_CreatedOn_After_OLTDGoLiveDate()
+        {
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+
+            fixture.SetGoLiveDate(-10);
+
+            fixture.SetCreatedOn(-4);
+
+            await fixture.Handle();
+
+            fixture.Verify_EmailCommandIsNotSent();
+        }
+
+
+        [Test]
+        public async Task Verify_EmailIsSent_After14days_CreatedOn_Before_OLTDGoLiveDate()
+        {
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+
+            fixture.SetGoLiveDate(-5);
+
+            fixture.SetCreatedOn(-15);
+
+            await fixture.Handle();
+
+            fixture.Verify_EmailCommandSent();
+        }
+
+        [Test]
+        public async Task Verify_EmailIsNotSent_After7days_CreatedOn_Before_OLTDGoLiveDate()
+        {
+            using var fixture = new OverlappingTrainingDateRequestNotificationToEmployerTestsFixture();
+
+            fixture.SetGoLiveDate(-5);
+
+            fixture.SetCreatedOn(-8);
+
             await fixture.Handle();
 
             fixture.Verify_EmailCommandIsNotSent();
@@ -95,7 +152,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
 
             public OverlappingTrainingDateRequestNotificationToEmployerTestsFixture()
             {
-                _configuration = new CommitmentsV2Configuration() { ZenDeskEmailAddress = "abc@zendesk.com", EmployerCommitmentsBaseUrl = "https://employerurl" };
+                
+
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                           .UseInMemoryDatabase(Guid.NewGuid().ToString())
                           .EnableSensitiveDataLogging()
@@ -106,6 +164,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 _currentDateTime.Setup(x => x.UtcNow).Returns(currentProxyDateTime);
                 _messageSession = new Mock<IMessageSession>();
                 _encodingService = new Mock<IEncodingService>();
+
+                _configuration = new CommitmentsV2Configuration()
+                {
+                    ZenDeskEmailAddress = "abc@zendesk.com",
+                    EmployerCommitmentsBaseUrl = "https://employerurl",
+                    OLTD_GoLiveDate = _currentDateTime.Object.UtcNow.AddDays(-5)
+                };
 
                 _encodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns(() => "EMPLOYERHASHEDID");
                 _encodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.ApprenticeshipId)).Returns(() => "APPRENTICESHIPHASHEDID");
@@ -153,11 +218,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
                 _messageSession.Verify(y => y.Send(It.IsAny<SendEmailToEmployerCommand>(), It.IsAny<SendOptions>()), Times.Never);
             }
 
-            internal void SetCreatedOn()
+            internal void SetCreatedOn(int days)
             {
                 var x = Db.OverlappingTrainingDateRequests.FirstOrDefault();
-                x.CreatedOn = currentProxyDateTime.AddDays(-10);
+                x.CreatedOn = currentProxyDateTime.AddDays(days);
                 Db.SaveChanges();
+            }
+
+            internal void SetGoLiveDate(int days)
+            {
+                _configuration.OLTD_GoLiveDate = currentProxyDateTime.AddDays(days);
             }
 
             internal void Verify_EmailCommandSent()
