@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateChangeOfEmployerOverlap;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -19,5 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
             DateTime? employmentEndDate,
             DeliveryModel? deliveryModel,
             CancellationToken cancellationToken);
+
+        Task ValidateChangeOfEmployerOverlap(string uln, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
     }
 }

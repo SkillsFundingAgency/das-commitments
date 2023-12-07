@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.CreateOverlappingTrainingDateRequest;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest;
+using SFA.DAS.CommitmentsV2.Application.Commands.ValidateChangeOfEmployerOverlap;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingApprenticeshipDetails;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
@@ -62,6 +63,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 HasOverlapWithApprenticeshipId = result.HasOverlapWithApprenticeshipId,
                 HasStartDateOverlap = result.HasStartDateOverlap
             });
+        }
+
+        [HttpGet]
+        [Route("{providerId}/validateChangeOfEmployerOverlap")]
+        public async Task<IActionResult> ValidateChangeOfEmployerOverlap(string uln, string startDate, string endDate)
+        {
+            var command = new ValidateChangeOfEmployerOverlapCommand { Uln = uln, StartDate = startDate, EndDate = endDate };
+            await _mediator.Send(command);
+            return Ok();
         }
 
         [HttpGet]
