@@ -67,9 +67,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("{providerId}/validateChangeOfEmployerOverlap")]
-        public async Task<IActionResult> ValidateChangeOfEmployerOverlap(string uln, string startDate, string endDate)
+        public async Task<IActionResult> ValidateChangeOfEmployerOverlap(long providerId, string uln, string startDate, string endDate)
         {
-            var command = new ValidateChangeOfEmployerOverlapCommand { Uln = uln, StartDate = startDate, EndDate = endDate };
+            var command = new ValidateChangeOfEmployerOverlapCommand { ProviderId = providerId, Uln = uln, StartDate = startDate, EndDate = endDate };
             await _mediator.Send(command);
             return Ok();
         }
