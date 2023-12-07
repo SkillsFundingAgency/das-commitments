@@ -143,9 +143,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                     PriorLearning.IsDurationReducedByRpl = null;
                     PriorLearning.DurationReducedBy = null;
                     PriorLearning.PriceReducedBy = null;
-                    PriorLearning.WeightageReducedBy = null;
-                    PriorLearning.ReasonForRplReduction = null;
-                    PriorLearning.QualificationsForRplReduction = null;
                 }
             }
         }
@@ -274,12 +271,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             PriorLearning.PriceReducedBy = priceReducedBy;
 
             PriorLearning.DurationReducedByHours = null;
-            PriorLearning.WeightageReducedBy = null;
-            PriorLearning.QualificationsForRplReduction = null;
-            PriorLearning.ReasonForRplReduction = null;
         }
 
-        public void SetPriorLearningDetailsExtended(int? durationReducedByHours, int? priceReduction, int? weightageReducedBy, string qualificationsForRplReduction, string reasonForRplReduction)
+        public void SetPriorLearningDetailsExtended(int? durationReducedByHours, int? priceReduction)
         {
 
             if (RecognisePriorLearning != true)
@@ -287,20 +281,17 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException(nameof(RecognisePriorLearning), "Prior learning details can only be set after the apprentice has recognised prior learning");
             }
 
-            var errors = ValidateDraftApprenticeshipRplExtendedDetails(durationReducedByHours, priceReduction, weightageReducedBy, qualificationsForRplReduction, reasonForRplReduction);
+            var errors = ValidateDraftApprenticeshipRplExtendedDetails(durationReducedByHours, priceReduction);
             errors.ThrowIfAny();
 
             PriorLearning ??= new ApprenticeshipPriorLearning();
             PriorLearning.DurationReducedByHours = durationReducedByHours;
             PriorLearning.PriceReducedBy = priceReduction;
-            PriorLearning.WeightageReducedBy = weightageReducedBy;
-            PriorLearning.QualificationsForRplReduction = qualificationsForRplReduction;
-            PriorLearning.ReasonForRplReduction = reasonForRplReduction;
 
             PriorLearning.DurationReducedBy = null;
         }
 
-        private List<DomainError> ValidateDraftApprenticeshipRplExtendedDetails(int? durationReducedByHours, int? priceReduction, int? weightageReducedBy, string qualificationsForRplReduction, string reasonForRplReduction)
+        private List<DomainError> ValidateDraftApprenticeshipRplExtendedDetails(int? durationReducedByHours, int? priceReduction)
         {
             var errors = new List<DomainError>();
 
@@ -328,33 +319,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             else if (priceReduction.Value > Constants.MaximumApprenticeshipCost)
             {
                 errors.Add(new DomainError("ReducedPrice", "The price must be 100,000 or less"));
-            }
-
-            if (!weightageReducedBy.HasValue)
-            {
-                errors.Add(new DomainError("WeightageReducedBy", "You must enter a percentage"));
-            }
-            else if (weightageReducedBy.Value < 0)
-            {
-                errors.Add(new DomainError("WeightageReducedBy", "The percentage can't be negative"));
-            }
-            else if (weightageReducedBy.Value > 99)
-            {
-                errors.Add(new DomainError("WeightageReducedBy", "The percentage can't be more than 99"));
-            }
-
-            if (qualificationsForRplReduction?.Trim().Length > 1000)
-            {
-                errors.Add(new DomainError("QualificationsForRplReduction", "You can't exceed 1000 characters for qualifications"));
-            }
-
-            if (string.IsNullOrEmpty(reasonForRplReduction))
-            {
-                errors.Add(new DomainError("ReasonForRplReduction", "You must specify a reason"));
-            }
-            else if (reasonForRplReduction?.Trim().Length > 1000)
-            {
-                errors.Add(new DomainError("ReasonForRplReduction", "You can't exceed 1000 characters for a reason"));
             }
 
             return errors;

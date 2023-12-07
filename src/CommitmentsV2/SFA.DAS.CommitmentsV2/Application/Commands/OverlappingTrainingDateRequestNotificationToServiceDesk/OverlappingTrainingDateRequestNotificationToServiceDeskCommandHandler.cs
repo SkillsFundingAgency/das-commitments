@@ -37,7 +37,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
         }
         public async Task Handle(OverlappingTrainingDateRequestNotificationToServiceDeskCommand request, CancellationToken cancellationToken)
         {
-            var dateTime = _currentDateTime.UtcNow.AddDays(-28).Date;
+            if (_configuration.OLTD_GoLiveDate.HasValue)
+            {
+                _logger.LogInformation($"OLTD_GoLiveDate {_configuration.OLTD_GoLiveDate.Value.ToString()}");
+            }
+            else
+            {
+                _logger.LogInformation($"OLTD_GoLiveDate has no value");
+            }
+
+            var currentDate = _currentDateTime.UtcNow;
+            var goLiveDate = _configuration.OLTD_GoLiveDate ?? DateTime.MinValue;
 
             var pendingRecords = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(oltd => oltd.DraftApprenticeship)
@@ -46,8 +56,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                     .ThenInclude(previousApprenticeship => previousApprenticeship.Cohort)
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && x.CreatedOn < dateTime
-                            )
+                            && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-28).Date
+                            : x.CreatedOn < currentDate.AddDays(-14).Date))                            
                 .ToList();
 
             _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
@@ -73,6 +83,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             }
 
             await _dbContext.Value.SaveChangesAsync(cancellationToken);
-        }
+        }    
     }
 }

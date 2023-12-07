@@ -41,7 +41,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
         }
         public async Task Handle(OverlappingTrainingDateRequestNotificationToEmployerCommand request, CancellationToken cancellationToken)
         {
-            var dateTime = _currentDateTime.UtcNow.AddDays(-14).Date;
+            if (_configuration.OLTD_GoLiveDate.HasValue)
+            {
+                _logger.LogInformation($"OLTD_GoLiveDate {_configuration.OLTD_GoLiveDate.Value.ToString()}");
+            }
+            else
+            {
+                _logger.LogInformation($"OLTD_GoLiveDate has no value");
+            }
+
+            var currentDate = _currentDateTime.UtcNow;
+            var goLiveDate = _configuration.OLTD_GoLiveDate ?? DateTime.MinValue;
 
             var pendingRecords = _dbContext.Value.OverlappingTrainingDateRequests
                 .Include(oltd => oltd.DraftApprenticeship)
@@ -51,11 +61,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 .Where(x => x.NotifiedServiceDeskOn == null
                             && x.NotifiedEmployerOn == null
                             && x.Status == Types.OverlappingTrainingDateRequestStatus.Pending
-                            && x.CreatedOn < dateTime
-                            )
+                            && (x.CreatedOn < goLiveDate ? x.CreatedOn < currentDate.AddDays(-14).Date 
+                            : x.CreatedOn < currentDate.AddDays(-7).Date))
+                            
                 .ToList();
 
-            _logger.LogInformation($"Found {pendingRecords.Count} records which need overlapping training reminder for Service Desk");
+            _logger.LogInformation($"Found {pendingRecords.Count} records which chaser email to employer");
 
             foreach (var pendingRecord in pendingRecords)
             {
@@ -64,6 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
                 {
                     var tokens = new Dictionary<string, string>
                     {
+                        { "Cohort", pendingRecord.PreviousApprenticeship.Cohort.Reference},
                         { "RequestRaisedDate", pendingRecord.CreatedOn.ToString("dd-MM-yyyy") },
                         { "Apprentice", pendingRecord.PreviousApprenticeship.FirstName + " " + pendingRecord.PreviousApprenticeship.LastName },
                         { "ULN", pendingRecord.PreviousApprenticeship.Uln },
@@ -78,6 +90,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequ
             }
 
             await _dbContext.Value.SaveChangesAsync(cancellationToken);
-        }
+        }    
     }
 }

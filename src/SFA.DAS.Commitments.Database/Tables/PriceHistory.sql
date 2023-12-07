@@ -5,6 +5,8 @@
 	[Cost] DECIMAL NOT NULL,
 	[FromDate] DateTime NOT NULL,
 	[ToDate] DateTime NULL,
+	[TrainingPrice] DECIMAL NULL,
+	[AssessmentPrice] DECIMAL NULL,
 	CONSTRAINT [FK_PriceHistory_Apprenticeship] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id])
 )
 GO

@@ -51,7 +51,6 @@
     [RecognisePriorLearning] BIT NULL, 
     [IsOnFlexiPaymentPilot] BIT NOT NULL DEFAULT 0, 
     [TrainingTotalHours] INT NULL, 
-    [CostBeforeRpl] INT NULL, 
     [EmployerHasEditedCost] BIT NULL, 
 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),	  
