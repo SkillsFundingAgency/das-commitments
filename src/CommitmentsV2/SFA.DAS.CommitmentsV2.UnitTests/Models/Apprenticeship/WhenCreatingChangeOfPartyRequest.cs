@@ -142,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                     };
 
                     Result = Apprenticeship.CreateChangeOfPartyRequest(ChangeOfPartyRequestType.ChangeEmployer, Party.Provider, 1,
-                        1000, StartDate, DateTime.UtcNow, null, null, null, new UserInfo(), DateTime.UtcNow);
+                        1000, StartDate, DateTime.UtcNow, null, null, null,false, new UserInfo(), DateTime.UtcNow);
 
                 }
                 catch (Exception e)

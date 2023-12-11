@@ -274,6 +274,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                         null,
                         null,
                         null,
+                        false,
                         new UserInfo(),
                         input.CreatedOn
                     );

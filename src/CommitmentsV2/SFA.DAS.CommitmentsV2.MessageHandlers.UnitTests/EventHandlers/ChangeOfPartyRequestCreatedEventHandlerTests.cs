@@ -10,9 +10,11 @@ using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
@@ -75,6 +77,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public ChangeOfPartyRequestCreatedEvent Event { get; private set; }
             public Mock<IMessageHandlerContext> MessageHandlerContext { get; private set; }
             public Mock<IReservationsApiClient> ReservationsApiClient { get; private set; }
+
+            public Mock<IOverlappingTrainingDateRequestDomainService> OverlappingTrainingDateRequestDomainService { get; set; }
             public Mock<IEncodingService> EncodingService { get; }
             public Mock<ProviderCommitmentsDbContext> Db { get; set; }
             public Guid ChangeOfPartyReservationId { get; set; }
@@ -127,6 +131,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 MessageHandlerContext = new Mock<IMessageHandlerContext>();
                 ReservationsApiClient = new Mock<IReservationsApiClient>();
+                OverlappingTrainingDateRequestDomainService = new Mock<IOverlappingTrainingDateRequestDomainService>();
                 EncodingService = new Mock<IEncodingService>();
 
                 ChangeOfPartyReservationId = autoFixture.Create<Guid>();
@@ -138,7 +143,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 CohortReference = autoFixture.Create<string>();
                 EncodingService.Setup(x => x.Encode(Cohort.Id, EncodingType.CohortReference)).Returns(CohortReference);
 
-                Handler = new ChangeOfPartyRequestCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), ReservationsApiClient.Object, Mock.Of<ILogger<ChangeOfPartyRequestCreatedEventHandler>>(), EncodingService.Object);
+                Handler = new ChangeOfPartyRequestCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), ReservationsApiClient.Object, Mock.Of<ILogger<ChangeOfPartyRequestCreatedEventHandler>>(), EncodingService.Object , OverlappingTrainingDateRequestDomainService.Object);
             }
 
             public ChangeOfPartyRequestCreatedEventHandlerTestsFixture WithNoReservationId()

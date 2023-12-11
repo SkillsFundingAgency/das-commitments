@@ -52,6 +52,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        [Route("{providerId}/validateChangeOfEmployerOverlap")]
+        public async Task<IActionResult> ValidateChangeOfEmployerOverlap(long providerId, [FromBody] ValidateChangeOfEmployerOverlapRequest request)
+        {
+            var command = new ValidateChangeOfEmployerOverlapCommand { ProviderId = providerId, Uln = request.Uln, StartDate = request.StartDate, EndDate = request.EndDate };
+            await _mediator.Send(command);
+            return Ok();
+        }
+
         [HttpGet]
         [Route("{providerId}/validateUlnOverlap")]
         public async Task<IActionResult> ValidateUlnOverlapOnStartDate(long providerId, string uln, string startDate, string endDate)
@@ -63,16 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 HasOverlapWithApprenticeshipId = result.HasOverlapWithApprenticeshipId,
                 HasStartDateOverlap = result.HasStartDateOverlap
             });
-        }
-
-        [HttpPost]
-        [Route("{providerId}/validateChangeOfEmployerOverlap")]
-        public async Task<IActionResult> ValidateChangeOfEmployerOverlap(long providerId, [FromBody] ValidateChangeOfEmployerOverlapRequest request)
-        {
-            var command = new ValidateChangeOfEmployerOverlapCommand { ProviderId = providerId, Uln = request.Uln, StartDate = request.StartDate, EndDate = request.EndDate };
-            await _mediator.Send(command);
-            return Ok();
-        }
+        }       
 
         [HttpGet]
         [Route("{draftApprenticeshipId}/getOverlapRequest")]

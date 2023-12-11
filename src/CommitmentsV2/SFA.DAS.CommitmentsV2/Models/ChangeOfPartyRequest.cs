@@ -49,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             int? employmentPrice,
             DateTime? employmentEndDate,
             DeliveryModel? deliveryModel,
+            bool hasOltd,
             UserInfo userInfo,
             DateTime now)
         {
@@ -76,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
 
-            Publish(() => new ChangeOfPartyRequestCreatedEvent (Id, userInfo));
+            Publish(() => new ChangeOfPartyRequestCreatedEvent (Id, userInfo, hasOltd));
         }
 
         private void CheckOriginatingParty(Party originatingParty)

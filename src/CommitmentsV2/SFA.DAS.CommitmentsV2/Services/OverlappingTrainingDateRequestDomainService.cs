@@ -28,10 +28,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             _currentDateTime = currentDateTime;
         }
 
-        public async Task<OverlappingTrainingDateRequest> CreateOverlappingTrainingDateRequest(long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<OverlappingTrainingDateRequest> CreateOverlappingTrainingDateRequest(long apprenticeshipId, Party? originatingParty, long? changeOfEmployerOriginalApprenticeId, UserInfo userInfo, CancellationToken cancellationToken)
         {
-            var party = _authenticationService.GetUserParty();
-            CheckPartyIsValid(party);
+            if (originatingParty == null)
+            {
+                originatingParty = _authenticationService.GetUserParty();
+            }
+          
+            CheckPartyIsValid(originatingParty.Value);
 
             var draftApprenticeship = await _dbContext.Value.DraftApprenticeships
                 .Include(a => a.Cohort)
@@ -43,12 +47,14 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var overlapResult =  await _overlapCheckService.CheckForOverlapsOnStartDate(draftApprenticeship.Uln, new Domain.Entities.DateRange(draftApprenticeship.StartDate.Value, draftApprenticeship.EndDate.Value), draftApprenticeship.Id, cancellationToken);
 
-            if (!overlapResult.HasOverlappingStartDate || overlapResult.ApprenticeshipId == null)
+            if (changeOfEmployerOriginalApprenticeId != null && (!overlapResult.HasOverlappingStartDate || overlapResult.ApprenticeshipId == null))
             {
                 throw new InvalidOperationException($"Can't create Overlapping Training Date Request. Draft apprenticeship {draftApprenticeship.Id} doesn't have overlap with another apprenticeship.");
             }
 
-            var result = draftApprenticeship.CreateOverlappingTrainingDateRequest(party, overlapResult.ApprenticeshipId.Value, userInfo, _currentDateTime.UtcNow);
+            var result = draftApprenticeship.CreateOverlappingTrainingDateRequest(originatingParty.Value,
+              changeOfEmployerOriginalApprenticeId ?? overlapResult.ApprenticeshipId.Value, 
+                userInfo, _currentDateTime.UtcNow);
             await _dbContext.Value.SaveChangesAsync();
             return result;
         }

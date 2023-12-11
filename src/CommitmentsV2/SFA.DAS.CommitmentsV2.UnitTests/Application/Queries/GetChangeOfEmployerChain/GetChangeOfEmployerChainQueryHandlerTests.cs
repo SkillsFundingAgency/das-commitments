@@ -298,6 +298,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                         null,
                         input.EmploymentEndDate,
                         null,
+                        false,
                         new UserInfo(),
                         input.CreatedOn
                     );

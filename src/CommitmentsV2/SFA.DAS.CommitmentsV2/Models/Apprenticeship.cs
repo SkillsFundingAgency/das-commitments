@@ -49,14 +49,19 @@ namespace SFA.DAS.CommitmentsV2.Models
             int? employmentPrice,
             DateTime? employmentEndDate,
             DeliveryModel? deliveryModel,
+            bool hasOltd,
             UserInfo userInfo,
             DateTime now)
         {
-            CheckIsStoppedForChangeOfParty();
+            if (!hasOltd)
+            {
+                CheckIsStoppedForChangeOfParty();
+            }
+           
             CheckStartDateForChangeOfParty(startDate, changeOfPartyType, originatingParty);
             CheckNoPendingOrApprovedRequestsForChangeOfParty();
 
-            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, userInfo, now);
+            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, hasOltd, userInfo, now);
         }
 
         internal void ResolveTrainingDateRequest(long draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)

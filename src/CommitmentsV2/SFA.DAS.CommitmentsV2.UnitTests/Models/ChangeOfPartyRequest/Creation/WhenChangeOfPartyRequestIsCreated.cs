@@ -197,6 +197,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public Exception Exception { get; private set; }
         public UnitOfWorkContext UnitOfWorkContext { get; private set; }
         public DateTime Now { get; private set; }
+        public bool HasOltd { get; set; }
 
         public ChangeOfPartyRequestCreationTestFixture()
         {
@@ -288,8 +289,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
                     EmploymentPrice,
                     EmploymentEndDate,
                     DeliveryModel,
+                    HasOltd,
                     UserInfo,
-                    Now); ;
+                    Now);
             }
             catch (Exception ex)
             {

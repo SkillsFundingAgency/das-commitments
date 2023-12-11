@@ -142,6 +142,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     null,
                     null,
                     null,
+                    false,
                     _autoFixture.Create<UserInfo>(),
                     DateTime.Now);
                 _apprenticeship.Cohort.ChangeOfPartyRequestId = _changeOfPartyRequest.Id;

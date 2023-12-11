@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _authenticationServiceMock.Setup(m => m.GetUserParty()).Returns(party);
 
             // assert
-            Assert.ThrowsAsync<DomainException>(async() => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, userInfo, new CancellationToken()));
+            Assert.ThrowsAsync<DomainException>(async() => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, null, null, userInfo, new CancellationToken()));
         }
 
         [Test, MoqAutoData]
@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _authenticationServiceMock.Setup(m => m.GetUserParty()).Returns(Party.Provider);
 
             // assert
-            Assert.ThrowsAsync<BadRequestException>(async () => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, userInfo, new CancellationToken()));
+            Assert.ThrowsAsync<BadRequestException>(async () => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, null, null, userInfo, new CancellationToken()));
         }
 
         [Test, MoqAutoData]
@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _authenticationServiceMock.Setup(m => m.GetUserParty()).Returns(Party.Provider);
 
             // assert
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, userInfo, new CancellationToken()));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, null, null, userInfo, new CancellationToken()));
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _authenticationServiceMock.Setup(m => m.GetUserParty()).Returns(Party.Provider);
 
             // assert
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, userInfo, new CancellationToken()));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, null, null, userInfo, new CancellationToken()));
         }
 
         [Test, MoqAutoData]
@@ -154,7 +154,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _overlapCheckServiceMock.Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), apprenticeshipId, It.IsAny<CancellationToken>())).ReturnsAsync(new OverlapCheckResultOnStartDate(false, null));
 
             // assert
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, userInfo, new CancellationToken()));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, null, null, userInfo, new CancellationToken()));
         }
 
         [Test, MoqAutoData]
@@ -180,7 +180,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _overlapCheckServiceMock.Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), apprenticeshipId, It.IsAny<CancellationToken>())).ReturnsAsync(new OverlapCheckResultOnStartDate(true, previousApprenticeshipId));
 
             // act
-            var result = await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, userInfo, new CancellationToken());
+            var result = await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, null, null, userInfo, new CancellationToken());
 
             // assert
             result.CreatedOn.Should().Be(now);
@@ -209,7 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _overlapCheckServiceMock.Setup(m => m.CheckForOverlapsOnStartDate(uln, It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), apprenticeshipId, It.IsAny<CancellationToken>())).ReturnsAsync(new OverlapCheckResultOnStartDate(true, previousApprenticeshipId));
 
             // act
-            var result = await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, userInfo, new CancellationToken());
+            var result = await _sut.CreateOverlappingTrainingDateRequest(apprenticeshipId, null, null, userInfo, new CancellationToken());
 
             // assert
             _dbContext.Verify(db => db.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
