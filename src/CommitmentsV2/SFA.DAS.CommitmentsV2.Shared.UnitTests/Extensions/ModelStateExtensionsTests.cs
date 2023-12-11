@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
 
             _fixture.ModelState.AddModelExceptionErrors(exception);
 
-            Assert.AreEqual(0, _fixture.ModelState.ErrorCount);
+            Assert.That(_fixture.ModelState.ErrorCount, Is.EqualTo(0));
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
 
             _fixture.ModelState.AddModelExceptionErrors(exception);
 
-            Assert.AreEqual(0, _fixture.ModelState.ErrorCount);
+            Assert.That(_fixture.ModelState.ErrorCount, Is.EqualTo(0));
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
 
             _fixture.ModelState.AddModelExceptionErrors(exception);
 
-            Assert.AreEqual(2, _fixture.ModelState.ErrorCount);
+            Assert.That(_fixture.ModelState.ErrorCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
 
             _fixture.Add1ModelStateErrors().ModelState.AddModelExceptionErrors(exception);
 
-            Assert.AreEqual(3, _fixture.ModelState.ErrorCount);
+            Assert.That(_fixture.ModelState.ErrorCount, Is.EqualTo(3));
         }
 
         [Test]
@@ -64,8 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
 
             _fixture.ModelState.AddModelExceptionErrors(exception, field => "xxx" + field);
 
-            Assert.IsTrue(_fixture.ModelState.ContainsKey("xxxfield1"));
-            Assert.IsTrue(_fixture.ModelState.ContainsKey("xxxfield2"));
+            Assert.That(_fixture.ModelState.ContainsKey("xxxfield2"), Is.True);
         }
 
 

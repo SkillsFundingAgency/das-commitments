@@ -47,8 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.ModelBinding
 
             var resultModel = context.Result.Model as string;
 
-            Assert.AreEqual(expectedResult, resultModel);
-
+            Assert.That(resultModel, Is.EqualTo(expectedResult));
         }
         private static DefaultModelBindingContext GetBindingContext(IValueProvider valueProvider, Type modelType)
         {

@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.ModelMapperTests
             var exception = Assert.Throws<InvalidOperationException>(() => _modelMapper.Map<TestMappingDestination>(_source));
 
             var expectedMessage = $"Unable to locate implementation of IMapper<{nameof(TestMappingSource)},{nameof(TestMappingDestination)}>";
-            Assert.AreEqual(expectedMessage, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedMessage));
         }
 
         public class TestMappingSource

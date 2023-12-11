@@ -18,13 +18,13 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
         {
             var actual = createCsvService.GenerateCsvContent(listToWriteToCsv, true);
 
-            Assert.IsNotNull(actual);
-            Assert.IsAssignableFrom<MemoryStream>(actual);
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual, Is.AssignableFrom(typeof(MemoryStream)));
             var actualByteArray = actual.ToArray();
             var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
             var commentLine = fileString.Split(Environment.NewLine)[0];
 
-            Assert.AreEqual("#Data only includes apprentices with an apprenticeship end date within the last 12 months", commentLine);
+            Assert.That(commentLine, Is.EqualTo("#Data only includes apprentices with an apprenticeship end date within the last 12 months"));
         }
 
         [Test, MoqAutoData]
@@ -34,8 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
         {
             var actual = createCsvService.GenerateCsvContent(listToWriteToCsv, true);
 
-            Assert.IsNotNull(actual);
-            Assert.IsAssignableFrom<MemoryStream>(actual);
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual, Is.AssignableFrom(typeof(MemoryStream)));
             var actualByteArray = actual.ToArray();
             var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
             var headerLine = fileString.Split(Environment.NewLine)[1];
@@ -51,13 +51,13 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
         {
             var actual = createCsvService.GenerateCsvContent(listToWriteToCsv, true);
 
-            Assert.IsNotNull(actual);
-            Assert.IsAssignableFrom<MemoryStream>(actual);
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual, Is.AssignableFrom(typeof(MemoryStream)));
             var actualByteArray = actual.ToArray();
             var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
             var lines = fileString.Split(Environment.NewLine);
-            Assert.AreEqual(listToWriteToCsv.Count + 3, lines.Length);
-            Assert.AreEqual(listToWriteToCsv[0].Description, lines[2].Split(',')[1]);
+            Assert.That(lines.Length, Is.EqualTo(listToWriteToCsv.Count + 3));
+            Assert.That(lines[2].Split(',')[1], Is.EqualTo(listToWriteToCsv[0].Description));
         }
 
         [Test, MoqAutoData]
@@ -81,8 +81,8 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             createCsvService.GenerateCsvContent(listToWriteToCsv, true);
             var getterMemoryStream = (MemoryStream)memoryStreamField.GetValue(createCsvService);
             var getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
-            Assert.IsTrue(getterMemoryStream.CanWrite);
-            Assert.IsTrue(getterStream.BaseStream.CanWrite);
+            Assert.That(getterMemoryStream.CanWrite, Is.True);
+            Assert.That(getterStream.BaseStream.CanWrite, Is.True);
             //Assert.IsTrue(((StreamWriter)getterCsvWriter.Context.Writer).BaseStream.CanWrite);
 
             //Act
@@ -91,8 +91,8 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             //Assert
             getterMemoryStream = (MemoryStream)memoryStreamField.GetValue(createCsvService);
             getterStream = (StreamWriter)streamWriterField.GetValue(createCsvService);
-            Assert.IsFalse(getterMemoryStream.CanWrite);
-            Assert.IsFalse(getterStream.BaseStream.CanWrite);
+            Assert.That(getterMemoryStream.CanWrite, Is.False);
+            Assert.That(getterStream.BaseStream.CanWrite, Is.False);
         }
     }
 

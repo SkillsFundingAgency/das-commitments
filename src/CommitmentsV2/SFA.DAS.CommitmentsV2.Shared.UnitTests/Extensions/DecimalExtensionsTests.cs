@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions
         [TestCase(12345.23, "£12,345")]
         public void DecimalValue_FormattedCorrectlyToGdsCostFormat(decimal value, string expectedResult)
         {
-            Assert.AreEqual(expectedResult, value.ToGdsCostFormat());
+            Assert.That(value.ToGdsCostFormat(), Is.EqualTo(expectedResult));
         }
     }
 }

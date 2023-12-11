@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
         {
             var dt = new MonthYearModel("022019");
 
-            Assert.True(dt.IsValid);
+            Assert.That(dt.IsValid, Is.True);
         }
 
         [TestCase("000000")]
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
         {
             var date = new MonthYearModel("122019");
 
-            Assert.AreEqual(new DateTime(2019, 12, 1), date.Date);
+            Assert.That(date.Date, Is.EqualTo(new DateTime(2019, 12, 1)));
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
             var date = new MonthYearModel("122019");
 
             date.Month = 10;
-            Assert.AreEqual(new DateTime(2019, 10, 1), date.Date);
+            Assert.That(date.Date, Is.EqualTo(new DateTime(2019, 10, 1)));
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
             date.Month = 10;
             date.Year = 2020;
 
-            Assert.AreEqual(new DateTime(2020, 10, 1), date.Date);
+            Assert.That(date.Date, Is.EqualTo(new DateTime(2020, 10, 1)));
         }
 
         [TestCase("apples")]

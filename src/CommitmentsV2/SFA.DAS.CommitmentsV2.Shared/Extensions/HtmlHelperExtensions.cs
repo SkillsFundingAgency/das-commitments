@@ -8,24 +8,26 @@ namespace SFA.DAS.CommitmentsV2.Shared.Extensions
 {
     public static class HtmlHelperExtensions
     {
-        public static HtmlString AddClassIfPropertyInError<TModel, TProperty>(
-            this IHtmlHelper<TModel> htmlHelper,
-            Expression<Func<TModel, TProperty>> expression,
-            string errorClass)
-        {
-            var expressionProvider = htmlHelper.ViewContext.HttpContext.RequestServices
-                .GetService(typeof(ModelExpressionProvider)) as ModelExpressionProvider;
 
-            var expressionText = expressionProvider?.GetExpressionText(expression);
-            var fullHtmlFieldName = htmlHelper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionText);
-            var state = htmlHelper.ViewData.ModelState[fullHtmlFieldName];
+        // TODO Need to see how to implement this if it's still being used
+        //public static HtmlString AddClassIfPropertyInError<TModel, TProperty>(
+        //    this IHtmlHelper<TModel> htmlHelper,
+        //    Expression<Func<TModel, TProperty>> expression,
+        //    string errorClass)
+        //{
+        //    var expressionProvider = htmlHelper.ViewContext.HttpContext.RequestServices
+        //        .GetService(typeof(ModelExpressionProvider)) as ModelExpressionProvider;
 
-            if (state?.Errors == null || state.Errors.Count == 0)
-            {
-                return HtmlString.Empty;
-            }
+        //    var expressionText = expressionProvider?.GetExpressionText(expression);
+        //    var fullHtmlFieldName = htmlHelper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionText);
+        //    var state = htmlHelper.ViewData.ModelState[fullHtmlFieldName];
 
-            return new HtmlString(errorClass);
-        }
+        //    if (state?.Errors == null || state.Errors.Count == 0)
+        //    {
+        //        return HtmlString.Empty;
+        //    }
+
+        //    return new HtmlString(errorClass);
+        //}
     }
 }
