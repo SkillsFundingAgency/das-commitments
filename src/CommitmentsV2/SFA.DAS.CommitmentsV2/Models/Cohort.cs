@@ -137,7 +137,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeship apprenticeship,
             Guid? reservationId,
             ChangeOfPartyRequest changeOfPartyRequest,
-            UserInfo userInfo)
+            UserInfo userInfo, bool hasOLTD)
             : this(providerId,
             accountId,
             accountLegalEntityId,
@@ -170,15 +170,18 @@ namespace SFA.DAS.CommitmentsV2.Models
             
             Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, changeOfPartyRequest.OriginatingParty, DateTime.UtcNow, userInfo));
 
-            if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+            if (!hasOLTD)
             {
-                Publish(() => new CohortAssignedToEmployerEvent(Id, DateTime.UtcNow, Party.Provider));
+                if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+                {
+                    Publish(() => new CohortAssignedToEmployerEvent(Id, DateTime.UtcNow, Party.Provider));
+                }
+                else
+                {
+                    Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
+                }
             }
-            else
-            {
-                Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
-            }
-            
+                        
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
             
             StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, userInfo);

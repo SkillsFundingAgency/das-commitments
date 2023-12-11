@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var reservationId = await GetReservationId(changeOfPartyRequest, apprenticeship);
             
-            var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationId, message.UserInfo);
+            var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationId, message.UserInfo, message.HasOltd);
             
             _dbContext.Value.Cohorts.Add(cohort);
             await _dbContext.Value.SaveChangesAsync();

@@ -120,7 +120,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid? reservationId, UserInfo userInfo)
+        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid? reservationId, UserInfo userInfo, bool hasOLTD)
         {
             long providerId;
             long accountId;
@@ -142,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new Exception("Invalid ChangeOfPartyType");
             }
 
-            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this, userInfo);
+            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this, userInfo, hasOLTD);
         }
 
         public virtual void SetCohort(Cohort cohort, UserInfo userInfo)
