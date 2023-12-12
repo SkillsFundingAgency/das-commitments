@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="11.6.0" />
-    <PackageReference Include="MediatR" Version="12.1.1" />
+    <PackageReference Include="FluentValidation" Version="11.8.1" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.20" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.20" />
@@ -21,19 +21,19 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.20" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.9" />
     <PackageReference Include="morelinq" Version="3.1.0" />
-    <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.3100" />
+    <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.3195" />
     <PackageReference Include="Polly" Version="7.2.4" />
-    <PackageReference Include="SFA.DAS.ApprenticeCommitments.Messages" Version="0.1.83-prerelease-5" />
+    <PackageReference Include="SFA.DAS.ApprenticeCommitments.Messages" Version="0.1.113" />
     <PackageReference Include="SFA.DAS.Authorization.Features" Version="6.0.97" />
     <PackageReference Include="SFA.DAS.EmailValidationService" Version="1.0.17" />
-    <PackageReference Include="SFA.DAS.Encoding" Version="1.1.61" />
+    <PackageReference Include="SFA.DAS.Encoding" Version="1.1.76" />
     <PackageReference Include="SFA.DAS.Learners" Version="1.1.181" />
-    <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
+    <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.10" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21" />
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.2" />
     <PackageReference Include="SFA.DAS.UnitOfWork" Version="9.0.28" />
-    <PackageReference Include="SFA.DAS.PAS.Account.Api.ClientV2" Version="17267.0.538" />
-    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.77" />
+    <PackageReference Include="SFA.DAS.PAS.Account.Api.ClientV2" Version="17267.0.559" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
     <PackageReference Include="StructureMap" Version="4.7.1" />
     <PackageReference Include="StructureMap.Microsoft.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />

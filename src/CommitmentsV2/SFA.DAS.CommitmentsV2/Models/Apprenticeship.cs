@@ -10,9 +10,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
-using MoreLinq;
-using System.Threading;
-using SFA.DAS.CommitmentsV2.Shared.Services;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
