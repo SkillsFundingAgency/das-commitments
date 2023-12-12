@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 HasOverlapWithApprenticeshipId = result.HasOverlapWithApprenticeshipId,
                 HasStartDateOverlap = result.HasStartDateOverlap
             });
-        }       
+        }
 
         [HttpGet]
         [Route("{draftApprenticeshipId}/getOverlapRequest")]

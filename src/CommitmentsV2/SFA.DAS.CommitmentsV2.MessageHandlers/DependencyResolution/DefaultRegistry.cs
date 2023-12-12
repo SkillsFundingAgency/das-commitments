@@ -1,5 +1,4 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Authentication;
-using SFA.DAS.AutoConfiguration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;

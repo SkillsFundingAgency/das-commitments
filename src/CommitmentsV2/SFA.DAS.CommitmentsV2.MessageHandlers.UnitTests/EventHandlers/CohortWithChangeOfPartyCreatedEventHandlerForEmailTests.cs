@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus.Testing;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -95,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private const string _expectedTemplate = "ProviderApprenticeshipChangeOfProviderRequested";
             private readonly string _cohortReference;
             private readonly string _employerEncodedAccountId;
-            private Fixture _autoFixture;
+            private readonly Fixture _autoFixture;
             public UnitOfWorkContext UnitOfWorkContext { get; set; }
             private static CommitmentsV2Configuration commitmentsV2Configuration;
 
