@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
               .UseInMemoryDatabase(Guid.NewGuid().ToString())
-              .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
+              .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning))
               .Options);
         }
 
