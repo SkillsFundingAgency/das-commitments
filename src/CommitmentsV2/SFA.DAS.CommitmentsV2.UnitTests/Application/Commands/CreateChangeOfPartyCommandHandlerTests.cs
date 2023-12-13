@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture.ChangeOfPartyDomainService.Verify(s => s.CreateChangeOfPartyRequest(fixture.Command.ApprenticeshipId,
                 fixture.Command.ChangeOfPartyRequestType, fixture.Command.NewPartyId, fixture.Command.NewPrice,
                 fixture.Command.NewStartDate, fixture.Command.NewEndDate, fixture.Command.UserInfo, fixture.Command.NewEmploymentPrice,
-                fixture.Command.NewEmploymentEndDate,  fixture.Command.DeliveryModel, false, It.IsAny<CancellationToken>()));
+                fixture.Command.NewEmploymentEndDate,  fixture.Command.DeliveryModel, fixture.Command.HasOLTD, It.IsAny<CancellationToken>()));
         }
     }
 

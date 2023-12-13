@@ -37,6 +37,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
             _fixture.VerifyException<DomainException>();
         }
 
+        [Test]
+        public void ThenHasOLTDCanAllowLiveApprenticeship()
+        {
+            _fixture
+                .CreateChangeOfPartyRequest(true);
+
+            _fixture.VerifyNoException<DomainException>();
+        }
+
         [TestCase("2019-06-01", true, Description = "Before stop")]
         [TestCase("2020-02-29", true, Description = "Day before stop")]
         [TestCase("2020-03-01", false, Description = "Day of stop")]
@@ -127,9 +136,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 PreviousChangeOfPartyRequests.Add(request);
 
                 return this;
-            }
+            }          
 
-            public void CreateChangeOfPartyRequest()
+            public void CreateChangeOfPartyRequest(bool hasOltd = false)
             {
                 try
                 {
@@ -142,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                     };
 
                     Result = Apprenticeship.CreateChangeOfPartyRequest(ChangeOfPartyRequestType.ChangeEmployer, Party.Provider, 1,
-                        1000, StartDate, DateTime.UtcNow, null, null, null,false, new UserInfo(), DateTime.UtcNow);
+                        1000, StartDate, DateTime.UtcNow, null, null, null, false, new UserInfo(), DateTime.UtcNow);
 
                 }
                 catch (Exception e)
@@ -161,6 +170,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
             {
                 Assert.IsNotNull(Exception);
                 Assert.IsInstanceOf<T>(Exception);
+            }
+
+            public void VerifyNoException<T>()
+            {
+                Assert.IsNull(Exception);
             }
         }
     }

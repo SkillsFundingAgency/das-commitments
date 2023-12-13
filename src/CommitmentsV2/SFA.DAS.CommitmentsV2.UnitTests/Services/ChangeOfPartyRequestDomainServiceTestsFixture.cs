@@ -9,6 +9,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
@@ -48,6 +49,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public bool HasOltd { get; set; }
         public UserInfo UserInfo { get; private set; }
 
+        public string Uln { get; set; }
+        public OverlapCheckResult OverlapCheckResult;
+
         public ChangeOfPartyRequest ApprenticeshipChangeOfPartyRequestResult { get; private set; }
         public ChangeOfPartyRequest Result { get; private set; }
 
@@ -74,7 +78,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             AuthenticationService = new Mock<IAuthenticationService>();
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(OriginatingParty);
+            
             OverlapCheckService = new Mock<IOverlapCheckService>();
+           
+
             SetupTestData();
 
             OriginatingParty = party;
@@ -172,6 +179,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return this;
         }
 
+        //public ChangeOfPartyRequestDomainServiceTestsFixture WithUln(string uln)
+        //{
+        //    Uln = uln;
+        //    return this;
+        //}
+
+        //public ChangeOfPartyRequestDomainServiceTestsFixture WithStartDate(DateTime startDate)
+        //{
+        //    StartDate = startDate;
+        //    return this;
+        //}
+
+        //public ChangeOfPartyRequestDomainServiceTestsFixture WithEndDate(DateTime endDate)
+        //{
+        //    EndDate = endDate;
+        //    return this;
+        //}  
+        
+        public ChangeOfPartyRequestDomainServiceTestsFixture WithOverlapCheckResult(bool hasOverlappingStartDate, bool hasOverlappingEndDate)
+        {
+            OverlapCheckResult = new OverlapCheckResult(hasOverlappingStartDate, hasOverlappingEndDate);        
+
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<SFA.DAS.CommitmentsV2.Domain.Entities.DateRange>(),
+                It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OverlapCheckResult);
+
+            return this;
+        }
+
 
         public async Task CreateChangeOfPartyRequest()
         {
@@ -184,6 +220,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     EmploymentPrice, EmploymentEndDate, DeliveryModel, HasOltd, new CancellationToken());
 
                 Db.Object.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Exception = ex;
+            }
+        }
+
+        public async Task ValidateChangeOfEmployerOverlap()
+        {
+            try
+            {
+                await _domainService.ValidateChangeOfEmployerOverlap(Uln,
+                    StartDate.Value, EndDate.Value, new CancellationToken());              
             }
             catch (Exception ex)
             {
@@ -226,6 +275,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void VerifyNotException<T>()
+        {
+            Assert.IsNull(Exception);           
         }
     }
 }

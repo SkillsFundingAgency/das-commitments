@@ -57,5 +57,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             //Assert
             _fixture.VerifyException<DomainException>();
         }
+
+
+        [TestCase(false, false, true)]
+        [TestCase(true, false, true)]
+        [TestCase(false, true, false)]
+        [TestCase(true, true, false)]
+
+        public async Task ValidateChangeOfEmployerOverlap(bool hasOverlappingStartDate, bool hasOverlappingEndDate, bool expectedValidationOutcome)
+        {
+            _fixture.WithOverlapCheckResult(hasOverlappingStartDate, hasOverlappingEndDate);
+
+            //Act
+            await _fixture.ValidateChangeOfEmployerOverlap();
+
+            //Assert
+            if (expectedValidationOutcome)
+            {
+                _fixture.VerifyNotException<DomainException>();
+
+            }
+            else
+            {
+                _fixture.VerifyException<DomainException>();
+            }
+        }
     }
 }

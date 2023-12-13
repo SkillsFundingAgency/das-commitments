@@ -14,7 +14,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using SFA.DAS.CommitmentsV2.Types;
@@ -71,6 +70,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyNullReservation();
         }
 
+          [Test]
+        public async Task Handle_WhenHandlingEvent_HasOLTD_CreatesOLTDRecord()
+        {
+            _fixture.WithHasOLTD_Set(true);
+            _fixture.WithCohort_Apprentices_Populated();
+            await _fixture.Handle();
+            _fixture.VerifyCreateOverlappingTrainingDateRequest();
+        }
+
+        [Test]
+        public async Task Handle_WhenHandlingEvent_Without_HasOLTD_CreatesOLTDRecord_NotCalled()
+        {
+            _fixture.WithHasOLTD_Set(false);
+            await _fixture.Handle();
+            _fixture.VerifyCreateOverlappingTrainingDateRequest_NotCalled();
+        }
+
         private class ChangeOfPartyRequestCreatedEventHandlerTestsFixture
         {
             public ChangeOfPartyRequestCreatedEventHandler Handler { get; private set; }
@@ -97,7 +113,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 Cohort = new Cohort();
                 Cohort.SetValue(x => x.Id, autoFixture.Create<long>());
-
                 var apprenticeshipId = autoFixture.Create<long>();
 
                 ChangeOfPartyRequest = new Mock<ChangeOfPartyRequest>();
@@ -106,7 +121,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 ChangeOfPartyRequest.Setup(x => x.ApprenticeshipId).Returns(apprenticeshipId);
                 ChangeOfPartyRequest.Setup(x => x.AccountLegalEntityId).Returns(autoFixture.Create<long>());
                 ChangeOfPartyRequest.Setup(x => x.ProviderId).Returns(autoFixture.Create<long>());
-                ChangeOfPartyRequest.Setup(x => x.CreateCohort(It.IsAny<Apprenticeship>(), It.IsAny<Guid?>(), It.IsAny<UserInfo>())).Returns(Cohort);
+                ChangeOfPartyRequest.Setup(x => x.OriginatingParty).Returns(autoFixture.Create<Party>());
+                ChangeOfPartyRequest.Setup(x => x.CreateCohort(It.IsAny<Apprenticeship>(), It.IsAny<Guid?>(), It.IsAny<UserInfo>(), It.IsAny<bool>())).Returns(Cohort);
 
                 Apprenticeship = new Apprenticeship
                 {
@@ -152,6 +168,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 return this;
             }
 
+            public ChangeOfPartyRequestCreatedEventHandlerTestsFixture WithHasOLTD_Set(bool hasOltd)
+            {
+                Event.SetValue(x => x.HasOltd, hasOltd);
+                return this;
+            }
+
+            public ChangeOfPartyRequestCreatedEventHandlerTestsFixture WithCohort_Apprentices_Populated()
+            {
+                Cohort.SetValue(x => x.Apprenticeships, new List<ApprenticeshipBase> { new Apprenticeship { Id = 1 } });
+                return this;
+            }
+
             public async Task Handle()
             {
                 await Handler.Handle(Event, MessageHandlerContext.Object);
@@ -161,7 +189,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             public void VerifyReservation()
             {
                 ChangeOfPartyRequest.Verify(x => x.CreateCohort(It.IsAny<Apprenticeship>(),
-                        It.Is<Guid>(r => r == ChangeOfPartyReservationId), It.IsAny<UserInfo>()),
+                        It.Is<Guid>(r => r == ChangeOfPartyReservationId), It.IsAny<UserInfo>(), It.IsAny<bool>()),
                     Times.Once);
             }
 
@@ -169,13 +197,30 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             {
                 ChangeOfPartyRequest.Verify(x => x.CreateCohort(It.IsAny<Apprenticeship>(),
                     It.Is<Guid?>(r => r == null),
-                    It.IsAny<UserInfo>()));
+                    It.IsAny<UserInfo>(), It.IsAny<bool>()));
             }
 
             public void VerifyApprenticeship()
             {
                 ChangeOfPartyRequest.Verify(x => x.CreateCohort(It.Is<Apprenticeship>(a => a == Apprenticeship),
-                    It.IsAny<Guid>(), It.IsAny<UserInfo>()), Times.Once);
+                    It.IsAny<Guid>(), It.IsAny<UserInfo>(), It.IsAny<bool>()), Times.Once);
+            }
+
+            public void VerifyCreateOverlappingTrainingDateRequest()
+            {
+                OverlappingTrainingDateRequestDomainService.Verify(x => x.CreateOverlappingTrainingDateRequest(
+                        It.IsAny<long>(),
+                        It.IsAny<Party>(),
+                    It.IsAny<long>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()), Times.Once);
+            }
+
+
+            public void VerifyCreateOverlappingTrainingDateRequest_NotCalled()
+            {
+                OverlappingTrainingDateRequestDomainService.Verify(x => x.CreateOverlappingTrainingDateRequest(
+                        It.IsAny<long>(),
+                        It.IsAny<Party>(),
+                    It.IsAny<long>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()), Times.Never);
             }
 
             public void VerifyCohortCreated()
