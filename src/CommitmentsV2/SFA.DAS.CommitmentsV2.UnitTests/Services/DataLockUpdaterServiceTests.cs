@@ -89,6 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void CleanUp()
         {
             Db.Database.EnsureDeleted();
+            Db?.Dispose();
         }
 
         [Test]

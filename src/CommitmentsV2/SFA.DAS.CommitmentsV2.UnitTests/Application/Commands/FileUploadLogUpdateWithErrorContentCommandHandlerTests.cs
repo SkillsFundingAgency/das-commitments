@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
             catch (Exception ex)
             {
-                Assert.AreEqual($"Incorrect Provider {f.Command.ProviderId} specified for FileUpload Id {f.Command.LogId}", ex.Message);
+                Assert.That(ex.Message, Is.EqualTo($"Incorrect Provider {f.Command.ProviderId} specified for FileUpload Id {f.Command.LogId}"));
             }
         }
 
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             }
             catch (Exception ex)
             {
-                Assert.AreEqual($"No FileLogUpload entry found for Id {f.Command.LogId}", ex.Message);
+                Assert.That(ex.Message, Is.EqualTo($"No FileLogUpload entry found for Id {f.Command.LogId}"));
             }
         }
     }

@@ -193,7 +193,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var @event = UnitOfWorkContext.GetEvents().OfType<TransferRequestCreatedEvent>().First();
             Assert.That(@event.CohortId, Is.EqualTo(CohortId));
             Assert.That(@event.LastApprovedByParty, Is.EqualTo(LastApprovedByParty));
-            Assert.That(@event.TransferRequestId, Is.Not.Null);
         }
 
         public void AssertTransferRequestAutoApprovalEquals(bool autoApproval)

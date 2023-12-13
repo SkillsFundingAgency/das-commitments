@@ -134,7 +134,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
         internal void VerifyEndDateUpdated()
         {
-            Assert.AreEqual(Command.EndDate, Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).EndDate);
+            Assert.That(Db.Apprenticeships.First(x => x.Id == ApprenticeshipId).EndDate, Is.EqualTo(Command.EndDate));
         }
 
         public void Dispose()

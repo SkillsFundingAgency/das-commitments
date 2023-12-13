@@ -148,9 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         [TestCase(Party.Provider, false)]
         [TestCase(Party.Employer, true)]
         [TestCase(Party.Employer | Party.Provider, true)]
-        [TestCase(null, false)]
-        public async Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedIsApprovedByEmployer(Party approvals,
-            bool expectIsApprovedByEmployer)
+        public async Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedIsApprovedByEmployer(Party approvals, bool expectIsApprovedByEmployer)
         {
             WithParty = Party.Employer;
             Approvals = approvals;

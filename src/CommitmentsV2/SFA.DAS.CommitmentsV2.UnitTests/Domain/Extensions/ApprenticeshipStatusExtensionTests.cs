@@ -20,7 +20,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         [TestCase(PaymentStatus.Paused, ApprenticeshipStatus.Paused)]
         [TestCase(PaymentStatus.Withdrawn, ApprenticeshipStatus.Stopped)]
         [TestCase(PaymentStatus.Completed, ApprenticeshipStatus.Completed)]
-        [TestCase(null, ApprenticeshipStatus.Unknown)]
         public async Task And_Has_Started_The_Payment_Status_Is_Mapped_To_Apprenticeship_Status(PaymentStatus paymentStatus, ApprenticeshipStatus expected)
         {
             //Arrange

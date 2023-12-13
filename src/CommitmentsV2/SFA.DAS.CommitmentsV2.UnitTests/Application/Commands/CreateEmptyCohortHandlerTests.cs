@@ -53,8 +53,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var response = await _fixture.Handle(1,123, 2323);
 
-            Assert.AreEqual(expectedHash, response.Reference);
-            Assert.AreEqual(_fixture.CohortId, response.Id);
+            Assert.That(response.Reference, Is.EqualTo(expectedHash));
+            Assert.That(response.Id, Is.EqualTo(_fixture.CohortId));
         }
     }
 

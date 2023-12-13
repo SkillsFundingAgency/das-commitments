@@ -101,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 foreach (PaymentStatus paymentStatus in Enum.GetValues(typeof(PaymentStatus)))
                 {
                     _apprenticeship.PaymentStatus = paymentStatus;
-                    Assert.AreNotEqual(ApprenticeshipStatus.Unknown, _apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow), $"PaymentStatus : {paymentStatus.ToString()} is not mapped to Apprenticeship status");
+                    Assert.That(_apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow), Is.Not.EqualTo(ApprenticeshipStatus.Unknown), $"PaymentStatus : {paymentStatus.ToString()} is not mapped to Apprenticeship status");
                 }
             }
         }

@@ -79,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             //Assert          
             var apprenticeshipDataLock = _confirmationDbContext.DataLocks.Where(s => s.ApprenticeshipId == apprenticeship.Id);
-            Assert.AreEqual(TriageStatus.Restart, apprenticeshipDataLock.FirstOrDefault().TriageStatus);
+            Assert.That(apprenticeshipDataLock.FirstOrDefault().TriageStatus, Is.EqualTo(TriageStatus.Restart));
         }
 
         [Test]
@@ -142,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await _handler.Handle(_validCommand, new CancellationToken()));
 
             //Assert
-            Assert.AreEqual(expectedMessage, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedMessage));
         }   
 
 
@@ -156,9 +156,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             //Act
             var exception =  Assert.ThrowsAsync<InvalidOperationException>(async () => await _handler.Handle(_validCommand, new CancellationToken()));
-            
+
             //Assert         
-            Assert.AreEqual(expectedMessage, exception.Message);
+            Assert.That(exception.Message, Is.EqualTo(expectedMessage));
         }
 
         [Test]

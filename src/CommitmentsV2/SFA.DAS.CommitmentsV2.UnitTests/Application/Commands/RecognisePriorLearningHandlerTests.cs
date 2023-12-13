@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.AreEqual(expected, fixture.DraftApprenticeshipFromDb.RecognisePriorLearning);
+            Assert.That(fixture.DraftApprenticeshipFromDb.RecognisePriorLearning, Is.EqualTo(expected));
         }
 
         [Test]

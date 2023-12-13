@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.AreEqual(null, fixture.ApprenticeshipFromDb.PendingUpdateOriginator);
+            Assert.That(fixture.ApprenticeshipFromDb.PendingUpdateOriginator, Is.EqualTo(null));
             
         }
 
@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.AreEqual(ApprenticeshipUpdateStatus.Rejected, fixture.ApprenticeshipUpdate.Status);
+            Assert.That(fixture.ApprenticeshipUpdate.Status, Is.EqualTo(ApprenticeshipUpdateStatus.Rejected));
         }
 
 
@@ -82,10 +82,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Cost = x.Cost
             }).ToArray();
 
-            Assert.AreEqual(1, list.Count);
-            Assert.AreEqual(apprenticeship.Id, list[0].ApprenticeshipId);
-            Assert.AreEqual(apprenticeship.Cohort.EmployerAccountId, list[0].AccountId);
-            Assert.AreEqual(apprenticeship.Cohort.ProviderId, list[0].ProviderId);
+            Assert.That(list.Count, Is.EqualTo(1));
+            Assert.That(list[0].ApprenticeshipId, Is.EqualTo(apprenticeship.Id));
+            Assert.That(list[0].AccountId, Is.EqualTo(apprenticeship.Cohort.EmployerAccountId));
+            Assert.That(list[0].ProviderId, Is.EqualTo(apprenticeship.Cohort.ProviderId));
         }
     }
 

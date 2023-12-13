@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort
             }
             catch(Exception e)
             {
-                _logger.LogError("Error Deleting Cohort", e);
+                _logger.LogError(e, "Error Deleting Cohort");
                 throw;
             }
         }

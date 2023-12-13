@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             var result = await fixture.Handle();
 
-            Assert.That(result.DraftApprenticeshipIds, Has.Count.EqualTo(1));
+            Assert.That(result.DraftApprenticeshipIds.ToList(), Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             var result = await fixture.Handle();
 
-            Assert.That(result.DraftApprenticeshipIds, Has.Count.EqualTo(0));
+            Assert.That(result.DraftApprenticeshipIds.ToList(), Has.Count.EqualTo(0));
         }
 
         [Test]

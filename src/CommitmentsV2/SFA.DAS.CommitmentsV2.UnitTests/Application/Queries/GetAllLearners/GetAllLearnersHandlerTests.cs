@@ -65,6 +65,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllLearners
             _dbContext?.Dispose();
         }
 
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            _dbContext?.Dispose();
+        }
+
+
         [Test]
         [Ignore("In-memory database in Core 2.2 does not support .FromSql")]
         public async Task When_GettingAllLearners_Then_LearnersAreMappedToLearnerResponse()

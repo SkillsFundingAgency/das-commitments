@@ -158,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyUpdateInitialState()
             {
                 var trackedItem = ChangeTrackingSession.TrackedItems.Single(x => x.Operation == ChangeTrackingOperation.Update);
-                Assert.AreSame(TestUpdateInitialState, trackedItem.InitialState);
+                Assert.That(trackedItem.InitialState, Is.SameAs(TestUpdateInitialState));
             }
 
             public void VerifyDeletedInitialState()
@@ -169,7 +169,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyInsertEvent()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Single(x =>
+                Assert.That(UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Single(x =>
                     x.ProviderId == ProviderId &&
                     x.EmployerAccountId == EmployerAccountId &&
                     x.EntityId == TestInsertTrackableEntity.Id &&
@@ -180,7 +180,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     x.UpdatingParty == Party &&
                     x.UpdatingUserId == UserInfo.UserId &&
                     x.UpdatingUserName == UserInfo.UserDisplayName
-                    ));
+                    ), Is.Not.Null);
             }
 
             public void VerifyUpdateEvent()

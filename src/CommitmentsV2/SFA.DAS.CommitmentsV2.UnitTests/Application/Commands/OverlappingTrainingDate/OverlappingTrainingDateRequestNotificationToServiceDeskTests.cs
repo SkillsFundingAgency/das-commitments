@@ -215,9 +215,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             {
                 var overlappingTrainingDateRequest = Db.OverlappingTrainingDateRequests.FirstOrDefault();
                 Assert.IsNotNull(overlappingTrainingDateRequest);
-                Assert.AreEqual(_currentDateTime.Object.UtcNow.Year, overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Year);
-                Assert.AreEqual(_currentDateTime.Object.UtcNow.Month, overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Month);
-                Assert.AreEqual(_currentDateTime.Object.UtcNow.Day, overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Day);
+                Assert.That(overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Year, Is.EqualTo(_currentDateTime.Object.UtcNow.Year));
+                Assert.That(overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Month, Is.EqualTo(_currentDateTime.Object.UtcNow.Month));
+                Assert.That(overlappingTrainingDateRequest.NotifiedServiceDeskOn.Value.Day, Is.EqualTo(_currentDateTime.Object.UtcNow.Day));
             }
 
             private void SeedData()

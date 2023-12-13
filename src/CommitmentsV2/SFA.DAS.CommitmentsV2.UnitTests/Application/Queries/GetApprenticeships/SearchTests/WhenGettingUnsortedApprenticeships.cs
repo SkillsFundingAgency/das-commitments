@@ -402,7 +402,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(3, actual.TotalApprenticeshipsWithAlertsFound);
+            Assert.That(actual.TotalApprenticeshipsWithAlertsFound, Is.EqualTo(3));
         }
 
 
@@ -484,9 +484,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual("Should_Be_Second", actual.Apprenticeships.ElementAt(0).LastName);
-            Assert.AreEqual("Should_Be_Third", actual.Apprenticeships.ElementAt(1).LastName);
-            Assert.AreEqual("Should_Be_First", actual.Apprenticeships.ElementAt(2).LastName);
+            Assert.That(actual.Apprenticeships.ElementAt(0).LastName, Is.EqualTo("Should_Be_Second"));
+            Assert.That(actual.Apprenticeships.ElementAt(1).LastName, Is.EqualTo("Should_Be_Third"));
+            Assert.That(actual.Apprenticeships.ElementAt(2).LastName, Is.EqualTo("Should_Be_First"));
         }
 
         [Test, MoqAutoData]
@@ -513,7 +513,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(2, actual.PageNumber);
+            Assert.That(actual.PageNumber, Is.EqualTo(2));
             Assert.IsNotEmpty(actual.Apprenticeships);
         }
 

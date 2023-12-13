@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("Error Calling Stored Procedure CheckForOverlappingEmails", e);
+                _logger.LogError(e, "Error Calling Stored Procedure CheckForOverlappingEmails");
                 throw;
             }
         }
@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("Error Calling Stored Procedure CheckForOverlappingEmailsInCohort", e);
+                _logger.LogError(e, "Error Calling Stored Procedure CheckForOverlappingEmailsInCohort");
                 throw;
             }
         }

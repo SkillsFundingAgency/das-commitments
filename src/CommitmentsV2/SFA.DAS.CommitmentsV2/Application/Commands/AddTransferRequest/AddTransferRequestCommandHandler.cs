@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
             }
             catch (Exception e)
             {
-                _logger.LogError("Error Adding Transfer Request", e);
+                _logger.LogError(e, "Error Adding Transfer Request");
                 throw;
             }
         }
