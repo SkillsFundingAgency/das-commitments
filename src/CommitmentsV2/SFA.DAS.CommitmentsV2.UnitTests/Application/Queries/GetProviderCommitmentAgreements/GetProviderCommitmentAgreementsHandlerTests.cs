@@ -34,9 +34,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             var response = await testFixture.GetResponse(new GetProviderCommitmentAgreementQuery(testFixture.Provider.UkPrn));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(2, response.Agreements.Count);
-            Assert.AreEqual(testFixture.SeedAccountLegalEntities[0].PublicHashedId, response.Agreements[0].AccountLegalEntityPublicHashedId);
-            Assert.AreEqual(testFixture.SeedAccountLegalEntities[1].PublicHashedId, response.Agreements[1].AccountLegalEntityPublicHashedId);
+            Assert.That(response.Agreements.Count, Is.EqualTo(2));
+            Assert.That(response.Agreements[0].AccountLegalEntityPublicHashedId, Is.EqualTo(testFixture.SeedAccountLegalEntities[0].PublicHashedId));
+            Assert.That(response.Agreements[1].AccountLegalEntityPublicHashedId, Is.EqualTo(testFixture.SeedAccountLegalEntities[1].PublicHashedId));
           
         }
 
@@ -49,10 +49,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             var response = await testFixture.GetResponse(new GetProviderCommitmentAgreementQuery(testFixture.Provider.UkPrn));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(3, response.Agreements.Count);
-            Assert.AreEqual(testFixture.SeedAccountProviderLegalEntitiesDto[0].AccountLegalEntityPublicHashedId, response.Agreements[0].AccountLegalEntityPublicHashedId);
-            Assert.AreEqual(testFixture.SeedAccountProviderLegalEntitiesDto[1].AccountLegalEntityPublicHashedId, response.Agreements[1].AccountLegalEntityPublicHashedId);
-            Assert.AreEqual(testFixture.SeedAccountProviderLegalEntitiesDto[2].AccountLegalEntityPublicHashedId, response.Agreements[2].AccountLegalEntityPublicHashedId);
+            Assert.That(response.Agreements.Count, Is.EqualTo(3));
+            Assert.That(response.Agreements[0].AccountLegalEntityPublicHashedId, Is.EqualTo(testFixture.SeedAccountProviderLegalEntitiesDto[0].AccountLegalEntityPublicHashedId));
+            Assert.That(response.Agreements[1].AccountLegalEntityPublicHashedId, Is.EqualTo(testFixture.SeedAccountProviderLegalEntitiesDto[1].AccountLegalEntityPublicHashedId));
+            Assert.That(response.Agreements[2].AccountLegalEntityPublicHashedId, Is.EqualTo(testFixture.SeedAccountProviderLegalEntitiesDto[2].AccountLegalEntityPublicHashedId));
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             var response = await testFixture.GetResponse(new GetProviderCommitmentAgreementQuery(testFixture.Provider.UkPrn));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(5, response.Agreements.Count);
+            Assert.That(response.Agreements.Count, Is.EqualTo(5));
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitm
             var response = await testFixture.GetResponse(new GetProviderCommitmentAgreementQuery(testFixture.Provider.UkPrn));
 
             Assert.IsNotNull(response);
-            Assert.AreEqual(5, response.Agreements.Count);
+            Assert.That(response.Agreements.Count, Is.EqualTo(5));
         }
     }
 

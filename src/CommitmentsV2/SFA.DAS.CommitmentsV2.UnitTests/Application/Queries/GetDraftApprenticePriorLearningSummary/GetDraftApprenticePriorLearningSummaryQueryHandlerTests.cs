@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.AreEqual(761, (int)result.MinimumPriceReduction);
+            Assert.That((int)result.MinimumPriceReduction, Is.EqualTo(761));
         }
 
         [TestCase(null, null)]
@@ -100,10 +100,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.AreEqual(maxFundingBand, result.FundingBandMaximum);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100, result.PercentageOfPriorLearning);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2, result.MinimumPercentageReduction);
-            Assert.AreEqual(reductionIsInError, result.RplPriceReductionError);
+            Assert.That(result.FundingBandMaximum, Is.EqualTo(maxFundingBand));
+            Assert.That(result.PercentageOfPriorLearning, Is.EqualTo((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100));
+            Assert.That(result.MinimumPercentageReduction, Is.EqualTo((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2));
+            Assert.That(result.RplPriceReductionError, Is.EqualTo(reductionIsInError));
         }
 
         [TestCase(null,  false)]
@@ -127,9 +127,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.AreEqual(expectedToHaveAValue, result.PercentageOfPriorLearning.HasValue);
-            Assert.AreEqual(expectedToHaveAValue, result.MinimumPercentageReduction.HasValue);
-            Assert.AreEqual(expectedToHaveAValue, result.MinimumPriceReduction.HasValue);
+            Assert.That(result.PercentageOfPriorLearning.HasValue, Is.EqualTo(expectedToHaveAValue));
+            Assert.That(result.MinimumPercentageReduction.HasValue, Is.EqualTo(expectedToHaveAValue));
+            Assert.That(result.MinimumPriceReduction.HasValue, Is.EqualTo(expectedToHaveAValue));
             Assert.IsFalse(result.RplPriceReductionError);
         }
 
@@ -153,10 +153,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.AreEqual(maxFundingBand, result.FundingBandMaximum);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100, result.PercentageOfPriorLearning);
-            Assert.AreEqual((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2, result.MinimumPercentageReduction);
-            Assert.AreEqual(reductionIsInError, result.RplPriceReductionError);
+            Assert.That(result.FundingBandMaximum, Is.EqualTo(maxFundingBand));
+            Assert.That(result.PercentageOfPriorLearning, Is.EqualTo((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100));
+            Assert.That(result.MinimumPercentageReduction, Is.EqualTo((decimal)priorLearning.DurationReducedByHours / trainingTotalHours * 100 / 2));
+            Assert.That(result.RplPriceReductionError, Is.EqualTo(reductionIsInError));
         }
     }
 

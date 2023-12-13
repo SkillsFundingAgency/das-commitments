@@ -199,7 +199,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
 
-            Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
+            Assert.That(startDateError.ErrorMessage, Is.EqualTo(expectedErrorMessage));
         }
 
         [TestCase(null, true)]
@@ -255,7 +255,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             var startDateError = domainException.DomainErrors.Single(x => x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.ActualStartDate));
 
-            Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
+            Assert.That(startDateError.ErrorMessage, Is.EqualTo(expectedErrorMessage));
         }
 
         [TestCase(Party.Provider, Party.Employer)]
@@ -269,7 +269,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo));
             var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(_fixture.Cohort.WithParty));
 
-            Assert.AreEqual($"Cohort must be with the party; {modifyingParty} is not valid", domainError?.ErrorMessage);
+            Assert.That(domainError?.ErrorMessage, Is.EqualTo($"Cohort must be with the party; {modifyingParty} is not valid"));
         }
 
         [TestCase(1, "", "", true)]
@@ -529,11 +529,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             try
             {
                 Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider, UserInfo);
-                Assert.AreEqual(expected, true);
+                Assert.That(expected, Is.True);
             }
             catch (DomainException ex)
             {
-                Assert.AreEqual(expected, false);
+                Assert.That(expected, Is.False);
                 Assert.Contains(propertyName, ex.DomainErrors.Select(x => x.PropertyName).ToList());
             }
         }

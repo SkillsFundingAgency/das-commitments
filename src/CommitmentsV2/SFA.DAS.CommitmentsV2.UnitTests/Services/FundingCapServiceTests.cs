@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var result = await _fixture.SetApprenticesList().CallFundingCapCourseSummary();
 
-            Assert.AreEqual(2, result.Count);
+            Assert.That(result.Count, Is.EqualTo(2));
         }
 
         [Test]
@@ -137,23 +137,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void AssertApprenticeshipCountsAreCorrect(FundingCapCourseSummary[] result)
             {
-                Assert.AreEqual("C1Name", result[0].CourseTitle);
-                Assert.AreEqual(2, result[0].ApprenticeshipCount);
+                Assert.That(result[0].CourseTitle, Is.EqualTo("C1Name"));
+                Assert.That(result[0].ApprenticeshipCount, Is.EqualTo(2));
 
-                Assert.AreEqual("C2Name", result[1].CourseTitle);
-                Assert.AreEqual(3, result[1].ApprenticeshipCount);
+                Assert.That(result[1].CourseTitle, Is.EqualTo("C2Name"));
+                Assert.That(result[1].ApprenticeshipCount, Is.EqualTo(3));
             }
 
             public void AssertCourseCapsAreCorrect(FundingCapCourseSummary[] result)
             {
-                Assert.AreEqual(2200, result[0].ActualCap, "Incorrect ActualCap for C1");
-                Assert.AreEqual(3200, result[1].ActualCap, "Incorrect ActualCap for C2");
+                Assert.That(result[0].ActualCap, Is.EqualTo(2200),  "Incorrect ActualCap for C1");
+                Assert.That( result[1].ActualCap, Is.EqualTo(3200), "Incorrect ActualCap for C2");
             }
 
             public void AssertCourseCostsExcludeTheExcessAmountsWhereCostExceedsCap(FundingCapCourseSummary[] result)
             {
-                Assert.AreEqual(2000, result[0].CappedCost, "Incorrect CappedCost for C1");
-                Assert.AreEqual(3200, result[1].CappedCost, "Incorrect CappedCost for C2");
+                Assert.That(result[0].CappedCost, Is.EqualTo(2000), "Incorrect CappedCost for C1");
+                Assert.That(result[1].CappedCost, Is.EqualTo(3200), "Incorrect CappedCost for C2");
             }
         }
     }

@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Approval
 
             public void VerifyStatusIsApproved()
             {
-                Assert.AreEqual(ChangeOfPartyRequestStatus.Approved, _changeOfPartyRequest.Status);
+                Assert.That(_changeOfPartyRequest.Status, Is.EqualTo(ChangeOfPartyRequestStatus.Approved));
             }
 
             public void VerifyActionedOn()

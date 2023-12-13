@@ -44,16 +44,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             //Assert            
             Assert.IsNotNull(response);
-            Assert.AreEqual(_fixture.LegalEntityIdentifier, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityIdentifier);
-            Assert.AreEqual(_fixture.organisationType, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityOrganisationType);
+            Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityIdentifier, Is.EqualTo(_fixture.LegalEntityIdentifier));
+            Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityOrganisationType, Is.EqualTo(_fixture.organisationType));
             if (paymentStatus == PaymentStatus.Active)
-                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().ActiveCount);
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().ActiveCount, Is.EqualTo(1));
             if (paymentStatus == PaymentStatus.Completed)
-                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().CompletedCount);
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().CompletedCount, Is.EqualTo(1));
             if (paymentStatus == PaymentStatus.Paused)
-                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().PausedCount);
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().PausedCount, Is.EqualTo(1));
             if (paymentStatus == PaymentStatus.Withdrawn)
-                Assert.AreEqual(1, response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().WithdrawnCount);
+                Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().WithdrawnCount, Is.EqualTo(1));
         }
     }
     

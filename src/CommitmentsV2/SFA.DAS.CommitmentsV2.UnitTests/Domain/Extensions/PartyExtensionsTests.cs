@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         public void TestValidGetOtherParty(Party party, Party expectedResult)
         {
             var result = party.GetOtherParty();
-            Assert.AreEqual(expectedResult, result);
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
         [TestCase(Party.TransferSender)]

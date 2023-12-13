@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.TrainingProgramme
             var result = course.IsActiveOn(effectiveDate);
 
             //Assert
-            Assert.AreEqual(expectIsActive, result);
+            Assert.That(result, Is.EqualTo(expectIsActive));
         }
     }
 }

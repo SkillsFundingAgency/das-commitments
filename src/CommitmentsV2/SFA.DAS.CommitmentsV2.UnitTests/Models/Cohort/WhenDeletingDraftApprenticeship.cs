@@ -165,13 +165,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             public void VerifyTransferRejectionReset()
             {
                 Assert.IsNull(Cohort.TransferApprovalStatus);
-                Assert.AreEqual(LastAction.AmendAfterRejected, Cohort.LastAction);
+                Assert.That(Cohort.LastAction, Is.EqualTo(LastAction.AmendAfterRejected));
             }
 
             public void VerifyDeletion()
             {
                 Assert.IsFalse(Cohort.DraftApprenticeships.Contains(DeletionTarget));
-                Assert.AreEqual(CohortSize-1, Cohort.DraftApprenticeships.Count());
+                Assert.That(Cohort.DraftApprenticeships.Count(), Is.EqualTo(CohortSize - 1));
             }
 
             public void VerifyCohortIsUnapprovedByAllParties()

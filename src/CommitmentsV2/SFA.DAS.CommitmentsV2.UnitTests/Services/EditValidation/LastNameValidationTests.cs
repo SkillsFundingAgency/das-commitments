@@ -16,9 +16,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("Last name must be entered", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("LastName", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Last name must be entered"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("LastName"));
         }
 
         [TestCase("01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567891", false)]
@@ -33,13 +33,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             if (isValid)
             {
-                Assert.AreEqual(result.Errors.Count, 0);
+                Assert.That(0, Is.EqualTo(result.Errors.Count));
             }
             else
             {
-                Assert.AreEqual(1, result.Errors.Count);
-                Assert.AreEqual("You must enter a last name that's no longer than 100 characters", result.Errors[0].ErrorMessage);
-                Assert.AreEqual("LastName", result.Errors[0].PropertyName);
+                Assert.That(result.Errors.Count, Is.EqualTo(1));
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("You must enter a last name that's no longer than 100 characters"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("LastName"));
             }
         }
     }

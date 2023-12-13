@@ -46,73 +46,73 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         [Test]
         public void DeliveryModelIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.DeliveryModel, _result.DeliveryModel);
+            Assert.That(_result.DeliveryModel, Is.EqualTo(_source.DeliveryModel));
         }
 
         [Test]
         public void EmploymentPriceIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.FlexibleEmployment.EmploymentPrice, _result.EmploymentPrice);
+            Assert.That(_result.EmploymentPrice, Is.EqualTo(_source.FlexibleEmployment.EmploymentPrice));
         }
 
         [Test]
         public void EmploymentEndDateIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.FlexibleEmployment.EmploymentEndDate, _result.EmploymentEndDate);
+            Assert.That(_result.EmploymentEndDate, Is.EqualTo(_source.FlexibleEmployment.EmploymentEndDate));
         }
 
         [Test]
         public void RecognisePriorLearningIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.RecognisePriorLearning, _result.RecognisePriorLearning);
+            Assert.That(_result.RecognisePriorLearning, Is.EqualTo(_source.RecognisePriorLearning));
         }
 
         [Test]
         public void DurationReducedByIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.ApprenticeshipPriorLearning.DurationReducedBy, _result.DurationReducedBy);
+            Assert.That(_result.DurationReducedBy, Is.EqualTo(_source.ApprenticeshipPriorLearning.DurationReducedBy));
         }
 
         [Test]
         public void PriceReducedByIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.ApprenticeshipPriorLearning.PriceReducedBy, _result.PriceReducedBy);
+            Assert.That(_result.PriceReducedBy, Is.EqualTo(_source.ApprenticeshipPriorLearning.PriceReducedBy));
         }
 
         [Test]
         public void DurationReducedByHoursIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.ApprenticeshipPriorLearning.DurationReducedByHours, _result.DurationReducedByHours);
+            Assert.That(_result.DurationReducedByHours, Is.EqualTo(_source.ApprenticeshipPriorLearning.DurationReducedByHours));
         }
 
         [Test]
         public void TrainingTotalHoursIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.TrainingTotalHours, _result.TrainingTotalHours);
+            Assert.That(_result.TrainingTotalHours, Is.EqualTo(_source.TrainingTotalHours));
         }
 
         [Test]
         public void IsDurationReducedIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.ApprenticeshipPriorLearning.IsDurationReducedByRpl, _result.IsDurationReducedByRpl);
+            Assert.That(_result.IsDurationReducedByRpl, Is.EqualTo(_source.ApprenticeshipPriorLearning.IsDurationReducedByRpl));
         }
 
         [Test]
         public void StartDateIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.ActualStartDate, _result.ActualStartDate);
+            Assert.That(_result.ActualStartDate, Is.EqualTo(_source.ActualStartDate));
         }
 
         [Test]
         public void IsOnFlexiPaymentPilotIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.IsOnFlexiPaymentPilot, _result.IsOnFlexiPaymentPilot);
+            Assert.That(_result.IsOnFlexiPaymentPilot, Is.EqualTo(_source.IsOnFlexiPaymentPilot));
         }
 
         [Test]
         public void IsDurationReducedByRplIsMappedCorrectly()
         {
-            Assert.AreEqual(_source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl, _result.IsDurationReducedByRpl);
+            Assert.That(_result.IsDurationReducedByRpl, Is.EqualTo(_source.ApprenticeshipPriorLearning?.IsDurationReducedByRpl));
         }
     }
 }

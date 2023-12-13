@@ -209,9 +209,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var log = DbContext.FileUploadLogs.FirstOrDefault(x => x.Id.Equals(Command.LogId.Value));
             Assert.IsNotNull(log);
-            Assert.AreEqual(Command.ProviderAction, log.ProviderAction);
+            Assert.That(log.ProviderAction, Is.EqualTo(Command.ProviderAction));
             Assert.IsNotNull(log.CreatedOn);
-            Assert.AreEqual(DbContext.Cohorts.Count(), log.CohortLogs.Count);
+            Assert.That(log.CohortLogs.Count, Is.EqualTo(DbContext.Cohorts.Count()));
         }
 
         internal void VerifyDraftApprenticeshipsAreAdded()
@@ -232,14 +232,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         internal void VerifyResponse(GetBulkUploadAddDraftApprenticeshipsResponse bulkUploadResponse)
         {
             var firstCohort = bulkUploadResponse.BulkUploadAddDraftApprenticeshipsResponse.First();
-            Assert.AreEqual("PPPP", firstCohort.CohortReference);
-            Assert.AreEqual("Existing legal entity", firstCohort.EmployerName);
-            Assert.AreEqual(2, firstCohort.NumberOfApprenticeships);
+            Assert.That(firstCohort.CohortReference, Is.EqualTo("PPPP"));
+            Assert.That(firstCohort.EmployerName, Is.EqualTo("Existing legal entity"));
+            Assert.That(firstCohort.NumberOfApprenticeships, Is.EqualTo(2));
 
             var secondCohort = bulkUploadResponse.BulkUploadAddDraftApprenticeshipsResponse.Last();
-            Assert.AreEqual("COHORTREF", secondCohort.CohortReference);
-            Assert.AreEqual("New Cohort legal entity", secondCohort.EmployerName);
-            Assert.AreEqual(2, secondCohort.NumberOfApprenticeships);
+            Assert.That(secondCohort.CohortReference, Is.EqualTo("COHORTREF"));
+            Assert.That(secondCohort.EmployerName, Is.EqualTo("New Cohort legal entity"));
+            Assert.That(secondCohort.NumberOfApprenticeships, Is.EqualTo(2));
         }
 
         internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithValidationErrors()

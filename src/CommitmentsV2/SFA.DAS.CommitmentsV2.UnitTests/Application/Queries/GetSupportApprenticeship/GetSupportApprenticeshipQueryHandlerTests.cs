@@ -230,21 +230,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
 
             public void VerifyResultMapping()
             {
-                Assert.AreEqual(2, _queryResult.Apprenticeships.Count);
+                Assert.That(_queryResult.Apprenticeships.Count, Is.EqualTo(2));
                 _mapper.Verify(x => x.Map(It.Is<Apprenticeship>(o => o.Uln == Apprenticeship1.Uln)), Times.Once);
                 _mapper.Verify(x => x.Map(It.Is<Apprenticeship>(o => o.Uln == Apprenticeship2.Uln)), Times.Once);
             }
 
             public void VerifyApprenticeship1UlnQueryResultMapping()
             {
-                Assert.AreEqual(1, _queryResult.Apprenticeships.Count);
+                Assert.That(_queryResult.Apprenticeships.Count, Is.EqualTo(1));
                 _mapper.Verify(x => x.Map(It.Is<Apprenticeship>(o => o.Uln == Apprenticeship1.Uln)), Times.Once);
             }
 
             public void VerifyNoResult()
             {
                 Assert.IsNotNull(_queryResult.Apprenticeships);
-                Assert.AreEqual(0, _queryResult.Apprenticeships.Count);
+                Assert.That(_queryResult.Apprenticeships.Count, Is.EqualTo(0));
             }
 
             private Apprenticeship CreateApprenticeship(string uln ,long apprenticeshipId, Cohort cohort, Apprenticeship nextApprenticeship)

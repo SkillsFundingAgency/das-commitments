@@ -15,9 +15,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "Email update cannot be requested");
-            Assert.AreEqual("Email", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That("Email update cannot be requested", Is.EqualTo(result.Errors[0].ErrorMessage));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Email"));
         }
 
         [Test]
@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(0, result.Errors.Count);
+            Assert.That(result.Errors.Count, Is.EqualTo(0));
         }
 
         [TestCase(null)]
@@ -43,8 +43,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "Email address cannot be blank");
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That("Email address cannot be blank", Is.EqualTo(result.Errors[0].ErrorMessage));
         }
 
         [TestCase("@")]
@@ -60,9 +60,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual(result.Errors[0].ErrorMessage, "Please enter a valid email address");
-            Assert.AreEqual("Email", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That("Please enter a valid email address", Is.EqualTo(result.Errors[0].ErrorMessage));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Email"));
         }
 
         [TestCase("paul@a.com")]
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(0, result.Errors.Count);
+            Assert.That(result.Errors.Count, Is.EqualTo(0));
         }
 
         [TestCase("emailalready@exists.com")]
@@ -88,8 +88,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("This email address is in use on another apprentice record. You need to enter a different email address.", result.Errors[0].ErrorMessage);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("This email address is in use on another apprentice record. You need to enter a different email address."));
         }
 
         [TestCase(null)]
@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(0, result.Errors.Count);
+            Assert.That(result.Errors.Count, Is.EqualTo(0));
             fixture.VerifyCheckForEmailOverlapsIsNotCalled();
         }
     }

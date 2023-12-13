@@ -17,9 +17,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("Invalid training code", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("CourseCode", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Invalid training code"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("CourseCode"));
         }
     }
 }

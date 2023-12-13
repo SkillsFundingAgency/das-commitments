@@ -18,9 +18,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("The start date is not valid", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("StartDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The start date is not valid"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("StartDate"));
         }
 
         [Test]
@@ -34,9 +34,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("The start date must be no later than one year after the end of the current teaching year", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("StartDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The start date must be no later than one year after the end of the current teaching year"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("StartDate"));
         }
 
         [Test]
@@ -52,9 +52,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual($"The earliest start date you can use is {fixture.GetCurrentAcademicYearStartDate().ToGdsFormatShortMonthWithoutDay()}", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("StartDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo($"The earliest start date you can use is {fixture.GetCurrentAcademicYearStartDate().ToGdsFormatShortMonthWithoutDay()}"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("StartDate"));
         }
 
         [Test]
@@ -67,9 +67,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual($"The start date must not be earlier than May 2017", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("StartDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo($"The start date must not be earlier than May 2017"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("StartDate"));
         }
 
         [Test]
@@ -83,9 +83,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual($"This training course is only available to apprentices with a start date after {new DateTime(2020, 7, 1).AddMonths(-1):MM yyyy}", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("StartDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo($"This training course is only available to apprentices with a start date after {new DateTime(2020, 7, 1).AddMonths(-1):MM yyyy}"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("StartDate"));
         }
 
         [Test]
@@ -102,9 +102,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual($"This training course is only available to apprentices with a start date before {new DateTime(2018, 7, 1).AddMonths(1):MM yyyy}", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("StartDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo($"This training course is only available to apprentices with a start date before {new DateTime(2018, 7, 1).AddMonths(1):MM yyyy}"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("StartDate"));
         }
     }
 }

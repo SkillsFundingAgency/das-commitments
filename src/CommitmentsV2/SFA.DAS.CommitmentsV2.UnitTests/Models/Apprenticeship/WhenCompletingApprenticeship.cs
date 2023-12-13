@@ -141,13 +141,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
         public void VerifyPaymentStatusChanged()
         {
-            Assert.AreEqual(PaymentStatus.Completed, _apprenticeship.PaymentStatus);
+            Assert.That(_apprenticeship.PaymentStatus, Is.EqualTo(PaymentStatus.Completed));
         }
 
 
         public void VerifyCompletionDateChanged()
         {
-            Assert.AreEqual(_completionDate, _apprenticeship.CompletionDate);
+            Assert.That(_apprenticeship.CompletionDate, Is.EqualTo(_completionDate));
         }
 
         public void VerifyApprenticeshipCompletedEventIsPublished()

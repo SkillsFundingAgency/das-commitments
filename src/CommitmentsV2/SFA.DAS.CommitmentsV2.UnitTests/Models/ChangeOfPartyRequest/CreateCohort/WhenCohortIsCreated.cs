@@ -316,57 +316,37 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
             public void VerifyProvider()
             {
-                Assert.AreEqual(
-                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
-                                ? ContinuedApprenticeship.Cohort.ProviderId
-                                : Request.ProviderId, 
-                        Result.ProviderId);
+                Assert.That(Result.ProviderId, Is.EqualTo(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? ContinuedApprenticeship.Cohort.ProviderId : Request.ProviderId));
             }
 
             public void VerifyAccountId()
             {
-                Assert.AreEqual(
-                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
-                        ? Request.AccountLegalEntity?.AccountId
-                        : ContinuedApprenticeship.Cohort.EmployerAccountId,
-                    Result.EmployerAccountId);
+                Assert.That(Result.EmployerAccountId, Is.EqualTo(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? Request.AccountLegalEntity?.AccountId : ContinuedApprenticeship.Cohort.EmployerAccountId));
             }
 
             public void VerifyAccountLegalEntityId()
             {
-                Assert.AreEqual(
-                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
-                        ? Request.AccountLegalEntityId.Value
-                        : ContinuedApprenticeship.Cohort.AccountLegalEntityId,
-                    Result.AccountLegalEntityId);
+                Assert.That(Result.AccountLegalEntityId, Is.EqualTo(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? Request.AccountLegalEntityId.Value : ContinuedApprenticeship.Cohort.AccountLegalEntityId));
             }
 
             public void VerifyOriginator()
             {
-                Assert.AreEqual(
-                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
-                        ? Party.Provider
-                        : Party.Employer,
-                    Result.Originator.ToParty());
+                Assert.That(Result.Originator.ToParty(), Is.EqualTo(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? Party.Provider : Party.Employer));
             }
 
             public void VerifyWithOtherParty()
             {
-                Assert.AreEqual(
-                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
-                        ? Party.Employer
-                        : Party.Provider,
-                    Result.WithParty);
+                Assert.That(Result.WithParty, Is.EqualTo(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? Party.Employer : Party.Provider));
             }
 
             public void VerifyProviderOriginatorApproval()
             {
-                Assert.AreEqual(Party.Provider, Result.Approvals);
+                Assert.That(Result.Approvals, Is.EqualTo(Party.Provider));
             }
 
             public void VerifyEmployerOriginatorApproval(bool isEmployerLed)
             {
-                Assert.AreEqual(isEmployerLed ? Party.Employer : Party.None, Result.Approvals);
+                Assert.That(Result.Approvals, Is.EqualTo(isEmployerLed ? Party.Employer : Party.None));
             }
 
             public void VerifyCohortIsNotDraft()
@@ -376,47 +356,47 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
             public void VerifyDraftApprenticeshipDetails()
             {
-                Assert.AreEqual(1, Result.DraftApprenticeships.Count());
+                Assert.That(Result.DraftApprenticeships.Count(), Is.EqualTo(1));
                 var draftApprenticeship = Result.DraftApprenticeships.Single();
-                Assert.AreEqual(ContinuedApprenticeship.FirstName, draftApprenticeship.FirstName);
-                Assert.AreEqual(ContinuedApprenticeship.LastName, draftApprenticeship.LastName);
-                Assert.AreEqual(ContinuedApprenticeship.Email, draftApprenticeship.Email);
-                Assert.AreEqual(ContinuedApprenticeship.DateOfBirth, draftApprenticeship.DateOfBirth);
-                Assert.AreEqual(ContinuedApprenticeship.Uln, draftApprenticeship.Uln);
-                Assert.AreEqual(Request.StartDate, draftApprenticeship.StartDate);
-                Assert.AreEqual(Request.EndDate, draftApprenticeship.EndDate);
-                Assert.AreEqual(ContinuedApprenticeship.DeliveryModel, draftApprenticeship.DeliveryModel);
-                Assert.AreEqual(ContinuedApprenticeship.CourseCode, draftApprenticeship.CourseCode);
-                Assert.AreEqual(ContinuedApprenticeship.CourseName, draftApprenticeship.CourseName);
-                Assert.AreEqual(ContinuedApprenticeship.ProgrammeType, draftApprenticeship.ProgrammeType);
-                Assert.AreEqual(Request.Price, draftApprenticeship.Cost);
-                Assert.AreEqual(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? string.Empty : ContinuedApprenticeship.EmployerRef, draftApprenticeship.EmployerRef);
-                Assert.AreEqual(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider ? string.Empty : ContinuedApprenticeship.ProviderRef, draftApprenticeship.ProviderRef);
-                Assert.AreEqual(ReservationId, draftApprenticeship.ReservationId);
-                Assert.AreEqual(ContinuedApprenticeship.Id, draftApprenticeship.ContinuationOfId);
-                Assert.AreEqual(ContinuedApprenticeship.OriginalStartDate ?? ContinuedApprenticeship.StartDate, draftApprenticeship.OriginalStartDate);
-                Assert.AreEqual(ContinuedApprenticeship.IsOnFlexiPaymentPilot, draftApprenticeship.IsOnFlexiPaymentPilot);
-                Assert.AreEqual(ContinuedApprenticeship.EmployerHasEditedCost, draftApprenticeship.EmployerHasEditedCost);
+                Assert.That(draftApprenticeship.FirstName, Is.EqualTo(ContinuedApprenticeship.FirstName));
+                Assert.That(draftApprenticeship.LastName, Is.EqualTo(ContinuedApprenticeship.LastName));
+                Assert.That(draftApprenticeship.Email, Is.EqualTo(ContinuedApprenticeship.Email));
+                Assert.That(draftApprenticeship.DateOfBirth, Is.EqualTo(ContinuedApprenticeship.DateOfBirth));
+                Assert.That(draftApprenticeship.Uln, Is.EqualTo(ContinuedApprenticeship.Uln));
+                Assert.That(draftApprenticeship.StartDate, Is.EqualTo(Request.StartDate));
+                Assert.That(draftApprenticeship.EndDate, Is.EqualTo(Request.EndDate));
+                Assert.That(draftApprenticeship.DeliveryModel, Is.EqualTo(ContinuedApprenticeship.DeliveryModel));
+                Assert.That(draftApprenticeship.CourseCode, Is.EqualTo(ContinuedApprenticeship.CourseCode));
+                Assert.That(draftApprenticeship.CourseName, Is.EqualTo(ContinuedApprenticeship.CourseName));
+                Assert.That(draftApprenticeship.ProgrammeType, Is.EqualTo(ContinuedApprenticeship.ProgrammeType));
+                Assert.That(draftApprenticeship.Cost, Is.EqualTo(Request.Price));
+                Assert.That(draftApprenticeship.EmployerRef, Is.EqualTo(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? string.Empty : ContinuedApprenticeship.EmployerRef));
+                Assert.That(draftApprenticeship.ProviderRef, Is.EqualTo(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider ? string.Empty : ContinuedApprenticeship.ProviderRef));
+                Assert.That(draftApprenticeship.ReservationId, Is.EqualTo(ReservationId));
+                Assert.That(draftApprenticeship.ContinuationOfId, Is.EqualTo(ContinuedApprenticeship.Id));
+                Assert.That(draftApprenticeship.OriginalStartDate, Is.EqualTo(ContinuedApprenticeship.OriginalStartDate ?? ContinuedApprenticeship.StartDate));
+                Assert.That(draftApprenticeship.IsOnFlexiPaymentPilot, Is.EqualTo(ContinuedApprenticeship.IsOnFlexiPaymentPilot));
+                Assert.That(draftApprenticeship.EmployerHasEditedCost, Is.EqualTo(ContinuedApprenticeship.EmployerHasEditedCost));
             }
 
             public void VerifyDraftApprenticeshipDetailsFlexibleEmployment()
             {
-                Assert.AreEqual(1, Result.DraftApprenticeships.Count());
+                Assert.That(Result.DraftApprenticeships.Count(), Is.EqualTo(1));
                 var draftApprenticeship = Result.DraftApprenticeships.Single();
                 Assert.IsNotNull(draftApprenticeship.FlexibleEmployment);
-                Assert.AreEqual(Request.EmploymentEndDate, draftApprenticeship.FlexibleEmployment.EmploymentEndDate);
-                Assert.AreEqual(Request.EmploymentPrice, draftApprenticeship.FlexibleEmployment.EmploymentPrice);
+                Assert.That(draftApprenticeship.FlexibleEmployment.EmploymentEndDate, Is.EqualTo(Request.EmploymentEndDate));
+                Assert.That(draftApprenticeship.FlexibleEmployment.EmploymentPrice, Is.EqualTo(Request.EmploymentPrice));
             }
 
             public void VerifyApprenticeshipConfirmationDetails()
             {
-                Assert.AreEqual(1, Result.DraftApprenticeships.Count());
+                Assert.That(Result.DraftApprenticeships.Count(), Is.EqualTo(1));
                 var draftApprenticeship = Result.DraftApprenticeships.Single();
                 Assert.IsNotNull(draftApprenticeship.ApprenticeshipConfirmationStatus);
-                Assert.AreEqual(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn, draftApprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn);
-                Assert.AreEqual(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.CommitmentsApprovedOn, draftApprenticeship.ApprenticeshipConfirmationStatus.CommitmentsApprovedOn);
-                Assert.AreEqual(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn, draftApprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn);
-                Assert.AreEqual(ContinuedApprenticeship.EmailAddressConfirmed, draftApprenticeship.EmailAddressConfirmed);
+                Assert.That(draftApprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn, Is.EqualTo(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn));
+                Assert.That(draftApprenticeship.ApprenticeshipConfirmationStatus.CommitmentsApprovedOn, Is.EqualTo(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.CommitmentsApprovedOn));
+                Assert.That(draftApprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn, Is.EqualTo(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn));
+                Assert.That(draftApprenticeship.EmailAddressConfirmed, Is.EqualTo(ContinuedApprenticeship.EmailAddressConfirmed));
             }
 
             public void VerifyTracking()
@@ -443,13 +423,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 }
                 else
                 {
-                    Assert.AreEqual(ContinuedApprenticeship.Cohort.TransferSenderId, Result.TransferSenderId);
+                    Assert.That(Result.TransferSenderId, Is.EqualTo(ContinuedApprenticeship.Cohort.TransferSenderId));
                 }
             }
 
             public void VerifyChangeOfPartyRequestId()
             {
-                Assert.AreEqual(Request.Id, Result.ChangeOfPartyRequestId);
+                Assert.That(Result.ChangeOfPartyRequestId, Is.EqualTo(Request.Id));
             }
 
             public void VerifyAssignedToOtherPartyEventIsEmitted()

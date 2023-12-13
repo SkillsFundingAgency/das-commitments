@@ -50,13 +50,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedCohortId()
         {
             await CheckQueryResponse(response =>
-                Assert.AreEqual(CohortId, response.CohortId, "Did not return expected cohort id"));
+                Assert.That(response.CohortId, Is.EqualTo(CohortId), "Did not return expected cohort id"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedCohortReference()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(Cohort.Reference, response.CohortReference,
+            await CheckQueryResponse(response => Assert.That(response.CohortReference, Is.EqualTo(Cohort.Reference),
                 "Did not return expected cohort reference"));
         }
 
@@ -64,13 +64,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedProviderName()
         {
             await CheckQueryResponse(response =>
-                Assert.AreEqual(Provider.Name, response.ProviderName, "Did not return expected provider name"));
+                Assert.That(response.ProviderName, Is.EqualTo(Provider.Name), "Did not return expected provider name"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLegalEntityName()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(AccountLegalEntity.Name, response.LegalEntityName,
+            await CheckQueryResponse(response => Assert.That(response.LegalEntityName, Is.EqualTo(AccountLegalEntity.Name),
                 "Did not return expected legal entity name"));
         }
 
@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             WithParty = withParty;
             HasTransferSender = true;
             await CheckQueryResponse(response =>
-                Assert.AreEqual(expectedParty, response.WithParty, "Did not return expected Party type"));
+                Assert.That(response.WithParty, Is.EqualTo(expectedParty), "Did not return expected Party type"));
         }
 
         [Test]
@@ -92,64 +92,56 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             WithParty = Party.TransferSender;
             HasTransferSender = false;
             await CheckQueryResponse(response =>
-                Assert.AreEqual(Party.TransferSender, response.WithParty, "Did not return expected Party type"));
+                Assert.That(response.WithParty, Is.EqualTo(Party.TransferSender), "Did not return expected Party type"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLatestMessageCreatedByEmployer()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(LatestMessageCreatedByEmployer,
-                response.LatestMessageCreatedByEmployer, "Did not return expected latest message created by employer"));
+            await CheckQueryResponse(response => Assert.That(response.LatestMessageCreatedByEmployer, Is.EqualTo(LatestMessageCreatedByEmployer), "Did not return expected latest message created by employer"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLatestMessageCreatedByProvider()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(LatestMessageCreatedByProvider,
-                response.LatestMessageCreatedByProvider, "Did not return expected latest message created by provider"));
+            await CheckQueryResponse(response => Assert.That(response.LatestMessageCreatedByProvider, Is.EqualTo(LatestMessageCreatedByProvider), "Did not return expected latest message created by provider"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedAccountLegalEntityPublicHashedId()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(Cohort.AccountLegalEntity.PublicHashedId,
-                response.AccountLegalEntityPublicHashedId,
-                "Did not return expected account legal entity public hashed ID"));
+            await CheckQueryResponse(response => Assert.That(response.AccountLegalEntityPublicHashedId, Is.EqualTo(Cohort.AccountLegalEntity.PublicHashedId), "Did not return expected account legal entity public hashed ID"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedAccountLegalEntityId()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(AccountLegalEntity.Id, response.AccountLegalEntityId,
-                "Did not return expected account legal entity ID"));
+            await CheckQueryResponse(response => Assert.That(response.AccountLegalEntityId, Is.EqualTo(AccountLegalEntity.Id), "Did not return expected account legal entity ID"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLastAction()
         {
             await CheckQueryResponse(response =>
-                Assert.AreEqual(Cohort.LastAction, response.LastAction, "Did not return expected Last Action"));
+                Assert.That(response.LastAction, Is.EqualTo(Cohort.LastAction), "Did not return expected Last Action"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLastUpdatedByEmployerEmail()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(Cohort.LastUpdatedByEmployerEmail,
-                response.LastUpdatedByEmployerEmail, "Did not return expected Last Updated By Employer Email"));
+            await CheckQueryResponse(response => Assert.That(response.LastUpdatedByEmployerEmail, Is.EqualTo(Cohort.LastUpdatedByEmployerEmail), "Did not return expected Last Updated By Employer Email"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedEmployerAccountId()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(Cohort.EmployerAccountId, response.AccountId,
-                "Did not return expected EmployerAccountId"));
+            await CheckQueryResponse(response => Assert.That(response.AccountId, Is.EqualTo(Cohort.EmployerAccountId), "Did not return expected EmployerAccountId"));
         }
 
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLastUpdatedByProviderEmail()
         {
-            await CheckQueryResponse(response => Assert.AreEqual(Cohort.LastUpdatedByProviderEmail,
-                response.LastUpdatedByProviderEmail, "Did not return expected Last Updated By Provider Email"));
+            await CheckQueryResponse(response => Assert.That(response.LastUpdatedByProviderEmail, Is.EqualTo(Cohort.LastUpdatedByProviderEmail), "Did not return expected Last Updated By Provider Email"));
         }
 
         [TestCase(Party.None, false)]
@@ -162,8 +154,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         {
             WithParty = Party.Employer;
             Approvals = approvals;
-            await CheckQueryResponse(response => Assert.AreEqual(expectIsApprovedByEmployer,
-                response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
+            await CheckQueryResponse(response => Assert.That(response.IsApprovedByEmployer, Is.EqualTo(expectIsApprovedByEmployer), "Did not return expected IsApprovedByEmployer"));
         }
 
         private static IEnumerable<TestCaseData> MissingPropertiesTestData
@@ -459,7 +450,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         {
             LevyStatus = levyStatus;
             await CheckQueryResponse(response =>
-                Assert.AreEqual(LevyStatus, response.LevyStatus, "Did not return expected LevyStatus"));
+                Assert.That(response.LevyStatus, Is.EqualTo(LevyStatus), "Did not return expected LevyStatus"));
         }
 
         [TestCase(null)]
@@ -467,7 +458,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public async Task Handle_CohortWithChangeOfParty_ShouldReturnChangeOfPartyRequestId(long? value)
         {
             ChangeOfPartyRequestId = value;
-            await CheckQueryResponse(response => Assert.AreEqual(value, response.ChangeOfPartyRequestId));
+            await CheckQueryResponse(response => Assert.That(response.ChangeOfPartyRequestId, Is.EqualTo(value)));
         }
 
         private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert,

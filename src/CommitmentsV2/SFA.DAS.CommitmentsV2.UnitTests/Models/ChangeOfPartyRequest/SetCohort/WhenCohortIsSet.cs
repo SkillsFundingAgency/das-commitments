@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohort
 
             public void VerifyCohortIdIsUpdated()
             {
-                Assert.AreEqual(_cohort.Id, _changeOfPartyRequest.CohortId);
+                Assert.That(_changeOfPartyRequest.CohortId, Is.EqualTo(_cohort.Id));
             }
 
             public void VerifyTracking()

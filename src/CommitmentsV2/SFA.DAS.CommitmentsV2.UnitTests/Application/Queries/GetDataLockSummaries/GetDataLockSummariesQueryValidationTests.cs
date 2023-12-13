@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
         {
             var validator = new GetDataLockSummariesQueryValidator();
             var validationResults = validator.Validate(new GetDataLockSummariesQuery(apprenticeshipId));
-            Assert.AreEqual(expectedIsValid, validationResults.IsValid);
+            Assert.That(validationResults.IsValid, Is.EqualTo(expectedIsValid));
         }
     }
 }

@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.Documents.SystemFunctions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -174,31 +175,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void AssertTransferRequestWasCorrectlySavedToDatabase()
         {
             var transferRequest = Db.TransferRequests.FirstOrDefault();
-            Assert.IsNotNull(transferRequest.TrainingCourses);
-            Assert.IsTrue(transferRequest.TrainingCourses.IndexOf(FundingCapCourseSummary1.CourseTitle) >= 0);
-            Assert.IsTrue(transferRequest.TrainingCourses.IndexOf(FundingCapCourseSummary2.CourseTitle) >= 0);
-            Assert.AreEqual(FundingCapCourseSummary1.ActualCap + FundingCapCourseSummary2.ActualCap, transferRequest.FundingCap);
-            Assert.AreEqual(FundingCapCourseSummary1.CappedCost + FundingCapCourseSummary2.CappedCost, transferRequest.Cost);
+            Assert.That(transferRequest.TrainingCourses, Is.Not.Null);
+            Assert.That(transferRequest.TrainingCourses.IndexOf(FundingCapCourseSummary1.CourseTitle) >= 0, Is.True);
+            Assert.That(transferRequest.TrainingCourses.IndexOf(FundingCapCourseSummary2.CourseTitle) >= 0, Is.True);
+            Assert.That(transferRequest.FundingCap, Is.EqualTo(FundingCapCourseSummary1.ActualCap + FundingCapCourseSummary2.ActualCap));
+            Assert.That(transferRequest.Cost, Is.EqualTo(FundingCapCourseSummary1.CappedCost + FundingCapCourseSummary2.CappedCost));
         }
 
         public void AssertCohortTransferStatusIsSetToPending()
         {
             var cohort = Db.Cohorts.First();
-            Assert.AreEqual(TransferApprovalStatus.Pending, cohort.TransferApprovalStatus);
+            Assert.That(cohort.TransferApprovalStatus, Is.EqualTo(TransferApprovalStatus.Pending));
         }
 
         public void AssertTransferRequestCreatedEventWasPublished()
         {
             var @event = UnitOfWorkContext.GetEvents().OfType<TransferRequestCreatedEvent>().First();
-            Assert.AreEqual(CohortId, @event.CohortId);
-            Assert.AreEqual(LastApprovedByParty, @event.LastApprovedByParty);
-            Assert.IsNotNull(@event.TransferRequestId);
+            Assert.That(@event.CohortId, Is.EqualTo(CohortId));
+            Assert.That(@event.LastApprovedByParty, Is.EqualTo(LastApprovedByParty));
+            Assert.That(@event.TransferRequestId, Is.Not.Null);
         }
 
         public void AssertTransferRequestAutoApprovalEquals(bool autoApproval)
         {
             var transferRequest = Db.TransferRequests.FirstOrDefault();
-            Assert.AreEqual(autoApproval, transferRequest.AutoApproval);
+            Assert.That(transferRequest.AutoApproval, Is.EqualTo(autoApproval));
         }
 
         public void Dispose()

@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.CohortId, result.CohortId);
+                Assert.That(result.CohortId, Is.EqualTo(source.CohortId));
             });
         }
 
@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.CourseCode, result.CourseCode);
+                Assert.That(result.CourseCode, Is.EqualTo(source.CourseCode));
             });
         }
 
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.Cost, result.Cost);
+                Assert.That(result.Cost, Is.EqualTo(source.Cost));
             });
         }
 
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.FirstName, result.FirstName);
+                Assert.That(result.FirstName, Is.EqualTo(source.FirstName));
             });
         }
 
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.LastName, result.LastName);
+                Assert.That(result.LastName, Is.EqualTo(source.LastName));
             });
         }
 
@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.Email, result.Email);
+                Assert.That(result.Email, Is.EqualTo(source.Email));
             });
         }
 
@@ -93,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.Uln, result.Uln);
+                Assert.That(result.Uln, Is.EqualTo(source.Uln));
             });
         }
 
@@ -103,7 +103,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.StartDate, result.StartDate);
+                Assert.That(result.StartDate, Is.EqualTo(source.StartDate));
             });
         }
 
@@ -113,7 +113,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.EndDate, result.EndDate);
+                Assert.That(result.EndDate, Is.EqualTo(source.EndDate));
             });
         }
 
@@ -123,7 +123,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.DateOfBirth, result.DateOfBirth);
+                Assert.That(result.DateOfBirth, Is.EqualTo(source.DateOfBirth));
             });
         }
 
@@ -133,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.ProviderRef, result.ProviderRef);
+                Assert.That(result.ProviderRef, Is.EqualTo(source.ProviderRef));
             });
         }
 
@@ -143,14 +143,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.BulkUploadDraftApprenticeships.First(y => y.Uln == source.Uln);
-                Assert.AreEqual(source.ReservationId, result.ReservationId);
+                Assert.That(result.ReservationId, Is.EqualTo(source.ReservationId));
             });
         }
 
         [Test]
         public void ProviderIdIsMappedCorrectly()
         {
-            Assert.AreEqual(_result.ProviderId, _source.ProviderId);
+            Assert.That(_source.ProviderId, Is.EqualTo(_result.ProviderId));
         }
 
         [Test]

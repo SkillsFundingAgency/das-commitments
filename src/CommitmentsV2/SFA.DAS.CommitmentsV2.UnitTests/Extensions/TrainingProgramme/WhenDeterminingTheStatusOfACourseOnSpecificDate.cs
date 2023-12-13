@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.TrainingProgramme
             var result = course.GetStatusOn(effectiveDate);
 
             //Assert
-            Assert.AreEqual(expectStatus, result);
+            Assert.That(result, Is.EqualTo(expectStatus));
         }
     }
 }

@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Rejection
 
             public void VerifyStatusIsRejected()
             {
-                Assert.AreEqual(ChangeOfPartyRequestStatus.Rejected, _changeOfPartyRequest.Status);
+                Assert.That(_changeOfPartyRequest.Status, Is.EqualTo(ChangeOfPartyRequestStatus.Rejected));
             }
 
             public void VerifyActionedOn()

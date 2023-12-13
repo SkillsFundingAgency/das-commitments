@@ -46,8 +46,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
             _fixture.SeedData().WithNoMatchingApprenticeship();
             var result = await _fixture.Handle();
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.DataLocksWithCourseMismatch.Count);
-            Assert.AreEqual(0, result.DataLocksWithOnlyPriceMismatch.Count);
+            Assert.That(result.DataLocksWithCourseMismatch.Count, Is.EqualTo(0));
+            Assert.That(result.DataLocksWithOnlyPriceMismatch.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -56,8 +56,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
             await _fixture.SeedData().ExpireTheDataLockRecords();
             var result = await _fixture.Handle();
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.DataLocksWithCourseMismatch.Count);
-            Assert.AreEqual(0, result.DataLocksWithOnlyPriceMismatch.Count);
+            Assert.That(result.DataLocksWithCourseMismatch.Count, Is.EqualTo(0));
+            Assert.That(result.DataLocksWithOnlyPriceMismatch.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -66,8 +66,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
             await _fixture.SeedData().SetEventStatusRemoved();
             var result = await _fixture.Handle();
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.DataLocksWithCourseMismatch.Count);
-            Assert.AreEqual(0, result.DataLocksWithOnlyPriceMismatch.Count);
+            Assert.That(result.DataLocksWithCourseMismatch.Count, Is.EqualTo(0));
+            Assert.That(result.DataLocksWithOnlyPriceMismatch.Count, Is.EqualTo(0));
         }
 
         public class GetDataLockSummariesQueryHandlerTestsFixture : IDisposable
@@ -147,7 +147,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
 
             public void VerifyResultMapping(int resultCount, IReadOnlyCollection<DataLock> resultDataLocks)
             {
-                Assert.AreEqual(resultCount, resultDataLocks.Count);
+                Assert.That(resultDataLocks.Count, Is.EqualTo(resultCount));
 
                 foreach (var result in resultDataLocks)
                 {
@@ -157,19 +157,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
 
             private static void AssertEquality(DataLockStatus source, DataLock result)
             {
-                Assert.AreEqual(source.Id, result.Id);
-                Assert.AreEqual(source.DataLockEventDatetime, result.DataLockEventDatetime);
-                Assert.AreEqual(source.PriceEpisodeIdentifier, result.PriceEpisodeIdentifier);
-                Assert.AreEqual(source.ApprenticeshipId, result.ApprenticeshipId);
-                Assert.AreEqual(source.IlrTrainingCourseCode, result.IlrTrainingCourseCode);
-                Assert.AreEqual(source.IlrActualStartDate, result.IlrActualStartDate);
-                Assert.AreEqual(source.IlrEffectiveFromDate, result.IlrEffectiveFromDate);
-                Assert.AreEqual(source.IlrPriceEffectiveToDate, result.IlrPriceEffectiveToDate);
-                Assert.AreEqual(source.IlrTotalCost, result.IlrTotalCost);
-                Assert.AreEqual(source.ErrorCode, result.ErrorCode);
-                Assert.AreEqual(source.Status, result.DataLockStatus);
-                Assert.AreEqual(source.TriageStatus, result.TriageStatus);
-                Assert.AreEqual(source.IsResolved, result.IsResolved);
+                Assert.That(result.Id, Is.EqualTo(source.Id));
+                Assert.That(result.DataLockEventDatetime, Is.EqualTo(source.DataLockEventDatetime));
+                Assert.That(result.PriceEpisodeIdentifier, Is.EqualTo(source.PriceEpisodeIdentifier));
+                Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
+                Assert.That(result.IlrTrainingCourseCode, Is.EqualTo(source.IlrTrainingCourseCode));
+                Assert.That(result.IlrActualStartDate, Is.EqualTo(source.IlrActualStartDate));
+                Assert.That(result.IlrEffectiveFromDate, Is.EqualTo(source.IlrEffectiveFromDate));
+                Assert.That(result.IlrPriceEffectiveToDate, Is.EqualTo(source.IlrPriceEffectiveToDate));
+                Assert.That(result.IlrTotalCost, Is.EqualTo(source.IlrTotalCost));
+                Assert.That(result.ErrorCode, Is.EqualTo(source.ErrorCode));
+                Assert.That(result.DataLockStatus, Is.EqualTo(source.Status));
+                Assert.That(result.TriageStatus, Is.EqualTo(source.TriageStatus));
+                Assert.That(result.IsResolved, Is.EqualTo(source.IsResolved));
             }
 
             public void Dispose()

@@ -15,9 +15,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("The end date is not valid", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EndDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The end date is not valid"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));
         }
 
         [Test]
@@ -30,9 +30,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("The end date must not be earlier than May 2017", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EndDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The end date must not be earlier than May 2017"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));
         }
 
         [Test]
@@ -45,9 +45,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.NotNull(result.Errors);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("The end date must not be on or before the start date", result.Errors[0].ErrorMessage);
-            Assert.AreEqual("EndDate", result.Errors[0].PropertyName);
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The end date must not be on or before the start date"));
+            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));
         }
     }
 }

@@ -89,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Withdrawal
 
             public void VerifyStatusIsWithdrawn()
             {
-                Assert.AreEqual(ChangeOfPartyRequestStatus.Withdrawn, _changeOfPartyRequest.Status);
+                Assert.That(_changeOfPartyRequest.Status, Is.EqualTo(ChangeOfPartyRequestStatus.Withdrawn));
             }
 
             public void VerifyActionedOn()

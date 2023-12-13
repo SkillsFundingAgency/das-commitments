@@ -825,7 +825,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyCohortIsUnapproved()
             {
-                Assert.AreEqual(Party.None,Cohort.Approvals);
+                Assert.That(Cohort.Approvals, Is.EqualTo(Party.None));
             }
 
             public void VerifyCohortIsApprovedByOtherParty()
@@ -849,7 +849,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyEmployerHasEditedCostFlag(bool? flagValue)
             {
-                Assert.AreEqual(flagValue, Cohort.Apprenticeships.Single().EmployerHasEditedCost);
+                Assert.That(Cohort.Apprenticeships.Single().EmployerHasEditedCost, Is.EqualTo(flagValue));
             }
 
             public void VerifyTrainingPriceAndEPAPriceAreNull()

@@ -63,12 +63,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.DateEmbrace);
 
             var errors = await fixture.Handle();
-            Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
-            Assert.AreEqual(2, errors.BulkUploadValidationErrors[0].Errors.Count);
-            Assert.AreEqual("The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address", errors.BulkUploadValidationErrors[0].Errors[0].ErrorText);
-            Assert.AreEqual("The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address", errors.BulkUploadValidationErrors[0].Errors[1].ErrorText);
-            Assert.AreEqual("EmailAddress", errors.BulkUploadValidationErrors[0].Errors[0].Property);
-            Assert.AreEqual("EmailAddress", errors.BulkUploadValidationErrors[0].Errors[1].Property);
+            Assert.That(errors.BulkUploadValidationErrors.Count, Is.EqualTo(1));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors.Count, Is.EqualTo(2));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].ErrorText, Is.EqualTo("The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address"));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[1].ErrorText, Is.EqualTo("The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address"));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].Property, Is.EqualTo("EmailAddress"));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[1].Property, Is.EqualTo("EmailAddress"));
         }
 
         [Test]
@@ -87,12 +87,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetOverlappingEmail(CommitmentsV2.Domain.Entities.OverlapStatus.DateWithin);
 
             var errors = await fixture.Handle();
-            Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
-            Assert.AreEqual(2, errors.BulkUploadValidationErrors[0].Errors.Count);
-            Assert.AreEqual("The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address", errors.BulkUploadValidationErrors[0].Errors[0].ErrorText);
-            Assert.AreEqual("The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address", errors.BulkUploadValidationErrors[0].Errors[1].ErrorText);
-            Assert.AreEqual("EmailAddress", errors.BulkUploadValidationErrors[0].Errors[0].Property);
-            Assert.AreEqual("EmailAddress", errors.BulkUploadValidationErrors[0].Errors[1].Property);
+            Assert.That(errors.BulkUploadValidationErrors.Count, Is.EqualTo(1));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors.Count, Is.EqualTo(2));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].ErrorText, Is.EqualTo("The <b>start date</b> overlaps with existing training dates for an apprentice with the same email address"));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[1].ErrorText, Is.EqualTo("The <b>end date</b> overlaps with existing training dates for an apprentice with the same email address"));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].Property, Is.EqualTo("EmailAddress"));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors[1].Property, Is.EqualTo("EmailAddress"));
         }
     }
 }

@@ -182,7 +182,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             public void VerifyResultMapping()
             {
-                Assert.AreEqual(_cohort.DraftApprenticeships.Count(), _queryResult.DraftApprenticeships.Count);
+                Assert.That(_queryResult.DraftApprenticeships.Count, Is.EqualTo(_cohort.DraftApprenticeships.Count()));
 
                 foreach (var sourceItem in _cohort.DraftApprenticeships)
                 {
@@ -203,30 +203,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
         private static void AssertEquality(DraftApprenticeship source, DraftApprenticeshipDto result)
         {
-            Assert.AreEqual(source.Id, result.Id);
-            Assert.AreEqual(source.FirstName, result.FirstName);
-            Assert.AreEqual(source.LastName, result.LastName);
-            Assert.AreEqual(source.Email, result.Email);
-            Assert.AreEqual(source.DateOfBirth, result.DateOfBirth);
-            Assert.AreEqual(source.Cost, result.Cost);
-            Assert.AreEqual(source.TrainingPrice, result.TrainingPrice);
-            Assert.AreEqual(source.EndPointAssessmentPrice, result.EndPointAssessmentPrice);
-            Assert.AreEqual(source.StartDate, result.StartDate);
-            Assert.AreEqual(source.ActualStartDate, result.ActualStartDate);
-            Assert.AreEqual(source.EndDate, result.EndDate);
-            Assert.AreEqual(source.Uln, result.Uln);
-            Assert.AreEqual(source.CourseCode, result.CourseCode);
-            Assert.AreEqual(source.CourseName, result.CourseName);
-            Assert.AreEqual(source.OriginalStartDate, result.OriginalStartDate);
-            Assert.AreEqual(source.FlexibleEmployment.EmploymentEndDate, result.EmploymentEndDate);
-            Assert.AreEqual(source.FlexibleEmployment.EmploymentPrice, result.EmploymentPrice);
-            Assert.AreEqual(source.RecognisePriorLearning, result.RecognisePriorLearning);
-            Assert.AreEqual(source.PriorLearning.DurationReducedBy, result.DurationReducedBy);
-            Assert.AreEqual(source.PriorLearning.PriceReducedBy, result.PriceReducedBy);
-            Assert.AreEqual(source.PriorLearning.DurationReducedByHours, result.DurationReducedByHours);
-            Assert.AreEqual(source.IsOnFlexiPaymentPilot, result.IsOnFlexiPaymentPilot);
-            Assert.AreEqual(source.EmployerHasEditedCost, result.EmployerHasEditedCost);
-            Assert.AreEqual(source.EmailAddressConfirmed, result.EmailAddressConfirmed);
+            Assert.That(result.Id, Is.EqualTo(source.Id));
+            Assert.That(result.FirstName, Is.EqualTo(source.FirstName));
+            Assert.That(result.LastName, Is.EqualTo(source.LastName));
+            Assert.That(result.Email, Is.EqualTo(source.Email));
+            Assert.That(result.DateOfBirth, Is.EqualTo(source.DateOfBirth));
+            Assert.That(result.Cost, Is.EqualTo(source.Cost));
+            Assert.That(result.TrainingPrice, Is.EqualTo(source.TrainingPrice));
+            Assert.That(result.EndPointAssessmentPrice, Is.EqualTo(source.EndPointAssessmentPrice));
+            Assert.That(result.StartDate, Is.EqualTo(source.StartDate));
+            Assert.That(result.ActualStartDate, Is.EqualTo(source.ActualStartDate));
+            Assert.That(result.EndDate, Is.EqualTo(source.EndDate));
+            Assert.That(result.Uln, Is.EqualTo(source.Uln));
+            Assert.That(result.CourseCode, Is.EqualTo(source.CourseCode));
+            Assert.That(result.CourseName, Is.EqualTo(source.CourseName));
+            Assert.That(result.OriginalStartDate, Is.EqualTo(source.OriginalStartDate));
+            Assert.That(result.EmploymentEndDate, Is.EqualTo(source.FlexibleEmployment.EmploymentEndDate));
+            Assert.That(result.EmploymentPrice, Is.EqualTo(source.FlexibleEmployment.EmploymentPrice));
+            Assert.That(result.RecognisePriorLearning, Is.EqualTo(source.RecognisePriorLearning));
+            Assert.That(result.DurationReducedBy, Is.EqualTo(source.PriorLearning.DurationReducedBy));
+            Assert.That(result.PriceReducedBy, Is.EqualTo(source.PriorLearning.PriceReducedBy));
+            Assert.That(result.DurationReducedByHours, Is.EqualTo(source.PriorLearning.DurationReducedByHours));
+            Assert.That(result.IsOnFlexiPaymentPilot, Is.EqualTo(source.IsOnFlexiPaymentPilot));
+            Assert.That(result.EmployerHasEditedCost, Is.EqualTo(source.EmployerHasEditedCost));
+            Assert.That(result.EmailAddressConfirmed, Is.EqualTo(source.EmailAddressConfirmed));
         }
     }
 }

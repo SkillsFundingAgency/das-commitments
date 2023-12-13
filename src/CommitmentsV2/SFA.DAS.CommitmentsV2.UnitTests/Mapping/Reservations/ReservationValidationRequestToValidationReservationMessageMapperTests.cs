@@ -26,21 +26,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
         public async Task Map_StartDate_ShouldBeSet()
         {
             var result = await _mapper.Map(_source);
-            Assert.AreEqual(_source.StartDate, result.StartDate);
+            Assert.That(result.StartDate, Is.EqualTo(_source.StartDate));
         }
 
         [Test]
         public async Task Map_CourseCode_ShouldBeSet()
         {
             var result = await _mapper.Map(_source);
-            Assert.AreEqual(_source.CourseCode, result.CourseCode);
+            Assert.That(result.CourseCode, Is.EqualTo(_source.CourseCode));
         }
 
         [Test]
         public async Task Map_ReservationId_ShouldBeSet()
         {
             var result = await _mapper.Map(_source);
-            Assert.AreEqual(_source.ReservationId, result.ReservationId);
+            Assert.That(result.ReservationId, Is.EqualTo(_source.ReservationId));
         }
     }
 }

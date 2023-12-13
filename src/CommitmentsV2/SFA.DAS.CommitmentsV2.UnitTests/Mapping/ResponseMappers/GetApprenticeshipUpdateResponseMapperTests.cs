@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             foreach (var source in _source.ApprenticeshipUpdates)
             {
                 var result = _result.ApprenticeshipUpdates.First(x => x.Id == source.Id);
-                Assert.AreEqual(source.Originator.ToParty(), result.OriginatingParty);
+                Assert.That(result.OriginatingParty, Is.EqualTo(source.Originator.ToParty()));
             }
         }
 
@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
             foreach (var source in _source.ApprenticeshipUpdates)
             {
                 var result = _result.ApprenticeshipUpdates.First(x => x.Id == source.Id);
-                Assert.AreEqual(source.DeliveryModel, result.DeliveryModel);
+                Assert.That(result.DeliveryModel, Is.EqualTo(source.DeliveryModel));
             }
         }
     }

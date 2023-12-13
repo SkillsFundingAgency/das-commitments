@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.AreEqual(expected, actual.ApprenticeshipStatus);
+            Assert.That(actual.ApprenticeshipStatus, Is.EqualTo(expected));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.AreEqual(ApprenticeshipStatus.WaitingToStart, actual.ApprenticeshipStatus);
+            Assert.That(actual.ApprenticeshipStatus, Is.EqualTo(ApprenticeshipStatus.WaitingToStart));
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.AreEqual(apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationStatus, actual.ConfirmationStatus);
+            Assert.That(actual.ConfirmationStatus, Is.EqualTo(apprenticeship.ApprenticeshipConfirmationStatus.ConfirmationStatus));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.AreEqual(ConfirmationStatus.Unconfirmed, actual.ConfirmationStatus);
+            Assert.That(actual.ConfirmationStatus, Is.EqualTo(ConfirmationStatus.Unconfirmed));
         }
 
         [Test]

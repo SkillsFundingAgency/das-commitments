@@ -152,8 +152,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             //Act
             var errors = await _fixture.Handle();
             //Assert
-            Assert.AreEqual(1, errors.BulkUploadValidationErrors.Count);
-            Assert.AreEqual(1, errors.BulkUploadValidationErrors[0].Errors.Count);
+            Assert.That(errors.BulkUploadValidationErrors.Count, Is.EqualTo(1));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors.Count, Is.EqualTo(1));
             _fixture.ValidateError(errors, 1, "CohortRef", $"You cannot add apprentices to {_fixture.CsvRecords[0].CohortRef}, as this cohort contains an overlapping training date. You need to <b>resolve any overlapping training date errors</b> before you can add into this cohort.");
         }
 

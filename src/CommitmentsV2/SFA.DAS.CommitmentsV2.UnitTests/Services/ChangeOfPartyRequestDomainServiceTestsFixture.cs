@@ -209,7 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             Assert.IsNull(Exception);
             Assert.IsNotNull(Result);
-            Assert.AreEqual(ApprenticeshipChangeOfPartyRequestResult, Result);
+            Assert.That(Result, Is.EqualTo(ApprenticeshipChangeOfPartyRequestResult));
         }
 
         public void VerifyResultAddedToDbContext()

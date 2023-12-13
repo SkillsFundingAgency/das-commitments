@@ -117,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyOriginator(Originator expectedOriginator)
         {
-            Assert.AreEqual(expectedOriginator, Cohort.Originator);
+            Assert.That(Cohort.Originator, Is.EqualTo(expectedOriginator));
         }
 
         public void VerifyCohortIsUnapproved()
@@ -154,18 +154,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortBelongsToAccount()
         {
-            Assert.AreEqual(AccountLegalEntity.AccountId, Cohort.EmployerAccountId);
+            Assert.That(Cohort.EmployerAccountId, Is.EqualTo(AccountLegalEntity.AccountId));
         }
 
         public void VerifyCohortBelongsToAccountLegalEntity()
         {
-            Assert.AreEqual(AccountLegalEntity.Id, Cohort.AccountLegalEntityId);
+            Assert.That(Cohort.AccountLegalEntityId, Is.EqualTo(AccountLegalEntity.Id));
         }
 
         public void VerifyCohortHasTransferInformation()
         {
-            Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);
-            Assert.AreEqual(TransferSenderName, Cohort.TransferSender.Name);
+            Assert.That(Cohort.TransferSenderId, Is.EqualTo(TransferSenderId));
+            Assert.That(Cohort.TransferSender.Name, Is.EqualTo(TransferSenderName));
         }
 
         public void VerifyCohortHasNoTransferInformation()
@@ -176,12 +176,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortHasPledgeApplicationId()
         {
-            Assert.AreEqual(PledgeApplicationId, Cohort.PledgeApplicationId);
+            Assert.That(Cohort.PledgeApplicationId, Is.EqualTo(PledgeApplicationId));
         }
 
         public void VerifyCohortBelongsToProvider()
         {
-            Assert.AreEqual(Provider.UkPrn, Cohort.ProviderId);
+            Assert.That(Cohort.ProviderId, Is.EqualTo(Provider.UkPrn));
         }
 
         public void VerifyLastUpdatedFieldsAreSetForParty(Party modifyingParty)
@@ -189,12 +189,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             switch (modifyingParty)
             {
                 case Party.Employer:
-                    Assert.AreEqual(UserInfo.UserDisplayName, Cohort.LastUpdatedByEmployerName);
-                    Assert.AreEqual(UserInfo.UserEmail, Cohort.LastUpdatedByEmployerEmail);
+                    Assert.That(Cohort.LastUpdatedByEmployerName, Is.EqualTo(UserInfo.UserDisplayName));
+                    Assert.That(Cohort.LastUpdatedByEmployerEmail, Is.EqualTo(UserInfo.UserEmail));
                     break;
                 case Party.Provider:
-                    Assert.AreEqual(UserInfo.UserDisplayName, Cohort.LastUpdatedByProviderName);
-                    Assert.AreEqual(UserInfo.UserEmail, Cohort.LastUpdatedByProviderEmail);
+                    Assert.That(Cohort.LastUpdatedByProviderName, Is.EqualTo(UserInfo.UserDisplayName));
+                    Assert.That(Cohort.LastUpdatedByProviderEmail, Is.EqualTo(UserInfo.UserEmail));
                     break;
             }
         }
@@ -213,7 +213,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortIsWithCreator()
         {
-            Assert.AreEqual(CreatingParty.ToEditStatus(), Cohort.EditStatus);
+            Assert.That(Cohort.EditStatus, Is.EqualTo(CreatingParty.ToEditStatus()));
         }
 
         public void VerifyCohortTracking()

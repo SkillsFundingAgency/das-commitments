@@ -232,8 +232,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 Assert.AreEqual(Apprenticeship.Cohort.TransferSenderId, _result.TransferSenderId);
                 Assert.AreEqual(Apprenticeship.IsOnFlexiPaymentPilot, _result.IsOnFlexiPaymentPilot);
                 Assert.AreEqual(Apprenticeship.TrainingTotalHours, _result.TrainingTotalHours);
-                Assert.AreEqual(Apprenticeship.EmployerHasEditedCost, _result.EmployerHasEditedCost);
-                Assert.AreEqual(Apprenticeship.PriorLearning.IsDurationReducedByRpl, _result.ApprenticeshipPriorLearning.IsDurationReducedByRpl);
+                Assert.That(_result.EmployerHasEditedCost, Is.EqualTo(Apprenticeship.EmployerHasEditedCost));
+                Assert.That(_result.ApprenticeshipPriorLearning.IsDurationReducedByRpl, Is.EqualTo(Apprenticeship.PriorLearning.IsDurationReducedByRpl));
             }
 
             public void Dispose()

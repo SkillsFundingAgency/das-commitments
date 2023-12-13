@@ -24,21 +24,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public void ThenTheRequestHasCorrectApprenticeshipId()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.Apprenticeship.Id, _fixture.Result.ApprenticeshipId);
+            Assert.That(_fixture.Result.ApprenticeshipId, Is.EqualTo(_fixture.Apprenticeship.Id));
         }
 
         [Test]
         public void ThenTheRequestHasCorrectType()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.RequestType, _fixture.Result.ChangeOfPartyType);
+            Assert.That(_fixture.Result.ChangeOfPartyType, Is.EqualTo(_fixture.RequestType));
         }
 
         [Test]
         public void ThenTheRequestHasCorrectOriginatingParty()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.OriginatingParty, _fixture.Result.OriginatingParty);
+            Assert.That(_fixture.Result.OriginatingParty, Is.EqualTo(_fixture.OriginatingParty));
         }
 
         [TestCase(Party.Employer)]
@@ -52,13 +52,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
 
             if (originatingParty == Party.Provider)
             {
-                Assert.AreEqual(_fixture.NewPartyId, _fixture.Result.AccountLegalEntityId);
-                Assert.AreEqual(null, _fixture.Result.ProviderId);
+                Assert.That(_fixture.Result.AccountLegalEntityId, Is.EqualTo(_fixture.NewPartyId));
+                Assert.That(_fixture.Result.ProviderId, Is.EqualTo(null));
             }
             else
             {
-                Assert.AreEqual(_fixture.NewPartyId, _fixture.Result.ProviderId);
-                Assert.AreEqual(null, _fixture.Result.AccountLegalEntityId);
+                Assert.That(_fixture.Result.ProviderId, Is.EqualTo(_fixture.NewPartyId));
+                Assert.That(_fixture.Result.AccountLegalEntityId, Is.EqualTo(null));
             }
         }
 
@@ -66,49 +66,49 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         public void ThenTheRequestHasCorrectPrice()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.Price, _fixture.Result.Price);
+            Assert.That(_fixture.Result.Price, Is.EqualTo(_fixture.Price));
         }
 
         [Test]
         public void ThenTheRequestHasCorrectStartDate()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.StartDate, _fixture.Result.StartDate);
+            Assert.That(_fixture.Result.StartDate, Is.EqualTo(_fixture.StartDate));
         }
 
         [Test]
         public void ThenTheRequestHasCorrectEndDate()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.EndDate, _fixture.Result.EndDate);
+            Assert.That(_fixture.Result.EndDate, Is.EqualTo(_fixture.EndDate));
         }
 
         [Test]
         public void ThenTheRequestHasCorrectEmploymentEndDate()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.EmploymentEndDate, _fixture.Result.EmploymentEndDate);
+            Assert.That(_fixture.Result.EmploymentEndDate, Is.EqualTo(_fixture.EmploymentEndDate));
         }
 
         [Test]
         public void ThenTheRequestHasCorrectEmploymentPrice()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.EmploymentPrice, _fixture.Result.EmploymentPrice);
+            Assert.That(_fixture.Result.EmploymentPrice, Is.EqualTo(_fixture.EmploymentPrice));
         }
 
         [Test]
         public void ThenTheRequestStatusIsPending()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(ChangeOfPartyRequestStatus.Pending, _fixture.Result.Status);
+            Assert.That(_fixture.Result.Status, Is.EqualTo(ChangeOfPartyRequestStatus.Pending));
         }
 
         [Test]
         public void ThenTheRequestHasCorrectLastUpdatedOn()
         {
             _fixture.CreateChangeOfPartyRequest();
-            Assert.AreEqual(_fixture.Now, _fixture.Result.LastUpdatedOn);
+            Assert.That(_fixture.Result.LastUpdatedOn, Is.EqualTo(_fixture.Now));
         }
 
         [TestCase(Party.Provider, false)]

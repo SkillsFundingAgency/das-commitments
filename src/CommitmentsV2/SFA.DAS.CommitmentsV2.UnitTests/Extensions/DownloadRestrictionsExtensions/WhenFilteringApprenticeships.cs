@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.DownloadRestrictionsExtensi
             var result = apprenticeships.DownloadsFilter(true);
 
             //Assert
-            Assert.AreEqual(2, result.Count());
+            Assert.That(result.Count(), Is.EqualTo(2));
             Assert.IsTrue(result.All(x => x.FirstName.Equals("Included")));
         }
     }

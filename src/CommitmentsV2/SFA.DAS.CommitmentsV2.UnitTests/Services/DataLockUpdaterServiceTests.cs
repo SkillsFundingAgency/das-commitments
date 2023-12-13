@@ -362,10 +362,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             //Assert
             var apprenticeship = Db.Apprenticeships.First(x => x.Id == objectId);
-            Assert.AreEqual(apprenticeship.PendingUpdateOriginator == null, expectExpiry);
+            Assert.That(expectExpiry, Is.EqualTo(apprenticeship.PendingUpdateOriginator == null));
 
             var apprenticeshipUpdate = Db.ApprenticeshipUpdates.First(x => x.Id == objectId);
-            Assert.AreEqual(apprenticeshipUpdate.Status == ApprenticeshipUpdateStatus.Expired, expectExpiry);
+            Assert.That(expectExpiry, Is.EqualTo(apprenticeshipUpdate.Status == ApprenticeshipUpdateStatus.Expired));
         }
 
         [TestCase(10, DataLockErrorCode.None)]
@@ -525,7 +525,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _dataLockUpdater.RunUpdate();
 
             //Assert
-            Assert.AreEqual(Db.DataLocks.Any(x => x.DataLockEventId == datalockEventId), expectUpdate);
+            Assert.That(Db.DataLocks.Any(x => x.DataLockEventId == datalockEventId), Is.EqualTo(expectUpdate));
 
             SeedDataLocks.Clear();
         }
@@ -675,19 +675,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
               .Where(x => dataLockEventIds.Contains(x.DataLockEventId))
               .ToList();
 
-            Assert.AreEqual(dataLocks.Count, dataLockEventIds.Count);
+            Assert.That(dataLockEventIds.Count, Is.EqualTo(dataLocks.Count));
 
-            Assert.True(dataLocks.All(x => x.IsResolved));
+            Assert.That(dataLocks.All(x => x.IsResolved), Is.True);
         }
 
         private void VerifyDataLockIsNotUpdated(long dataLockEventId, bool expectDataLock)
         {
-            Assert.AreEqual(expectDataLock, Db.DataLocks.Any(x => dataLockEventId == x.DataLockEventId));
+            Assert.That(Db.DataLocks.Any(x => dataLockEventId == x.DataLockEventId), Is.EqualTo(expectDataLock));
         }
 
         private void VerifyJobHistoryCreated()
         {
-            Assert.IsTrue(Db.DataLockUpdaterJobHistory.Any());
+            Assert.That(Db.DataLockUpdaterJobHistory.Any(), Is.True);
         }
     }
 }

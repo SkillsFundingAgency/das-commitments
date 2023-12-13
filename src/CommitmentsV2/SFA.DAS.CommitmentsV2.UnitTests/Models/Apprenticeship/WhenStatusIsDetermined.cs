@@ -93,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
             public void VerifyStatus(ApprenticeshipStatus expectedStatus)
             {
-                Assert.AreEqual(expectedStatus, _apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow));
+                Assert.That(_apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow), Is.EqualTo(expectedStatus));
             }
 
             internal void VerifyAllPaymentStatusAreMappedToApprenticeshipStatus()

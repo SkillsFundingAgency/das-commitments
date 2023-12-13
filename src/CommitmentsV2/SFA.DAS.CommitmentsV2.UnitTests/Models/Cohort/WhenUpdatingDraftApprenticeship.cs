@@ -143,7 +143,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var expectedValue = propertyInfo.GetValue(expected);
             var actualValue = propertyInfo.GetValue(actual);
 
-            Assert.AreEqual(expectedValue, actualValue, $"{name} is not equal");
+            Assert.That(actualValue, Is.EqualTo(expectedValue), $"{name} is not equal");
         }
 
         private string SafeUpdate(string src)

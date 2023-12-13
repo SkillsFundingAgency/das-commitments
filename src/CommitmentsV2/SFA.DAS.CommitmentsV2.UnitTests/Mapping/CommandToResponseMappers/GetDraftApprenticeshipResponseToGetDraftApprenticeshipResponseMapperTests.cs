@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
             };
 
             var to = await mapper.Map(from);
-            Assert.AreEqual(dm, to.DeliveryModel);
+            Assert.That(to.DeliveryModel, Is.EqualTo(dm));
         }
 
         [Test]

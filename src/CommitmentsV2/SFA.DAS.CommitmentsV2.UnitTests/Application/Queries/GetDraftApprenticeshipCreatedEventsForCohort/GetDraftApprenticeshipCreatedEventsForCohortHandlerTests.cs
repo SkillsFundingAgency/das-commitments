@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(result.DraftApprenticeshipCreatedEvents.Count(), 0);
+            Assert.That(0, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.Count()));
         }
 
         [Test]
@@ -50,12 +50,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             var result = await _fixture.GetResult(new GetDraftApprenticeshipCreatedEventsForCohortQuery(ProviderId, CohortId, 1, _loadedOn));
 
             // Assert
-            Assert.AreEqual(result.DraftApprenticeshipCreatedEvents.Count(), _fixture.DraftApprentices.Count);
-            Assert.AreEqual(CohortId, result.DraftApprenticeshipCreatedEvents.First().CohortId);
-            Assert.AreEqual(_fixture.DraftApprentices[0].Id, result.DraftApprenticeshipCreatedEvents.First().DraftApprenticeshipId);
-            Assert.AreEqual(_fixture.DraftApprentices[0].ReservationId, result.DraftApprenticeshipCreatedEvents.First().ReservationId);
-            Assert.AreEqual(_fixture.DraftApprentices[0].Uln, result.DraftApprenticeshipCreatedEvents.First().Uln);
-            Assert.AreEqual(_loadedOn, result.DraftApprenticeshipCreatedEvents.First().CreatedOn);
+            Assert.That(_fixture.DraftApprentices.Count, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.Count()));
+            Assert.That(result.DraftApprenticeshipCreatedEvents.First().CohortId, Is.EqualTo(CohortId));
+            Assert.That(result.DraftApprenticeshipCreatedEvents.First().DraftApprenticeshipId, Is.EqualTo(_fixture.DraftApprentices[0].Id));
+            Assert.That(result.DraftApprenticeshipCreatedEvents.First().ReservationId, Is.EqualTo(_fixture.DraftApprentices[0].ReservationId));
+            Assert.That(result.DraftApprenticeshipCreatedEvents.First().Uln, Is.EqualTo(_fixture.DraftApprentices[0].Uln));
+            Assert.That(result.DraftApprenticeshipCreatedEvents.First().CreatedOn, Is.EqualTo(_loadedOn));
         }
 
         [Test]

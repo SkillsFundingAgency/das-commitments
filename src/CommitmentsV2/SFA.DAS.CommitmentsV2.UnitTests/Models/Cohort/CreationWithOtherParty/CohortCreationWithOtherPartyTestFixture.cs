@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 
         public void VerifyOriginator(Originator expectedOriginator)
         {
-            Assert.AreEqual(expectedOriginator, Cohort.Originator);
+            Assert.That(Cohort.Originator, Is.EqualTo(expectedOriginator));
         }
 
         public void VerifyMessageIsAdded()
@@ -134,12 +134,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 
         public void VerifyCohortIsWithOtherParty()
         {
-            Assert.AreEqual(CreatingParty.GetOtherParty().ToEditStatus(), Cohort.EditStatus);
+            Assert.That(Cohort.EditStatus, Is.EqualTo(CreatingParty.GetOtherParty().ToEditStatus()));
         }
         public void VerifyCohortHasTransferInformation()
         {
-            Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);
-            Assert.AreEqual(TransferSenderName, Cohort.TransferSender.Name);
+            Assert.That(Cohort.TransferSenderId, Is.EqualTo(TransferSenderId));
+            Assert.That(Cohort.TransferSender.Name, Is.EqualTo(TransferSenderName));
         }
 
         public void VerifyCohortHasNoTransferInformation()
