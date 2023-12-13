@@ -31,7 +31,7 @@
 )
 GO
 
--- there are a lot of indexes on similar columns but the order does matter; mostly these indexes have been flagged as Azure recomendations
+-- there are a lot of indexes on similar columns but the order does matter; mostly these indexes have been flagged as Azure recommendations
 CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_CommitmentStatus] ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus]) INCLUDE(
 	[ApprenticeshipEmployerTypeOnApproval], 
 	[CreatedOn], 
@@ -135,4 +135,32 @@ GO
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_TransferSenderId] ON [dbo].[Commitment] ([TransferSenderId]) WHERE [TransferSenderId] IS NOT NULL 
 WITH (ONLINE=ON)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_AccountLegalEntityNotDeletedCommitment] ON [dbo].[Commitment] ([AccountLegalEntityId], [IsDeleted]) INCLUDE (
+    [ApprenticeshipEmployerTypeOnApproval], 
+    [Approvals], 
+    [ChangeOfPartyRequestId], 
+    [CommitmentStatus], 
+    [CreatedOn], 
+    [EditStatus], 
+    [EmployerAccountId], 
+    [EmployerAndProviderApprovedOn], 
+    [IsDraft], 
+    [LastAction], 
+    [LastUpdatedByEmployerEmail], 
+    [LastUpdatedByEmployerName], 
+    [LastUpdatedByProviderEmail], 
+    [LastUpdatedByProviderName], 
+    [LastUpdatedOn], 
+    [Originator], 
+    [PledgeApplicationId], 
+    [ProviderId], 
+    [Reference], 
+    [RowVersion], 
+    [TransferApprovalActionedOn], 
+    [TransferApprovalStatus], 
+    [TransferSenderId], 
+    [WithParty]) 
+    WITH (ONLINE = ON)
 GO

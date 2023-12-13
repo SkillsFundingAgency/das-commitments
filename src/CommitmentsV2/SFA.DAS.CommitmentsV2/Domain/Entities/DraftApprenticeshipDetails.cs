@@ -57,9 +57,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public bool IgnoreStartDateOverlap { get; set; }
         public bool? IsOnFlexiPaymentPilot { get; set; }
         public int? DurationReducedByHours { get; set; }
-        public int? WeightageReducedBy { get; set; }
-        public string QualificationsForRplReduction { get; set; }
-        public string ReasonForRplReduction { get; set; }
         public int? TrainingTotalHours { get; set; }
         public bool? IsDurationReducedByRPL { get; set; }
         public bool? EmployerHasEditedCost { get; set; }

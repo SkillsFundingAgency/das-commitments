@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraf
     {
         public List<BulkUploadAddDraftApprenticeshipRequest> BulkUploadDraftApprenticeships { get; set; }
         public long ProviderId { get; set; }
+        public long? LogId { get; set; }
         public UserInfo UserInfo { get; set; }
     }
 }
