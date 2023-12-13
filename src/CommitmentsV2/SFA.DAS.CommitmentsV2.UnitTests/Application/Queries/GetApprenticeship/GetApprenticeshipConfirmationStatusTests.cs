@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailAddressConfirmedByApprentice, false);
+            Assert.That(false, Is.EqualTo(response.EmailAddressConfirmedByApprentice));
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailAddressConfirmedByApprentice, true);
+            Assert.That(true, Is.EqualTo(response.EmailAddressConfirmedByApprentice));
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailShouldBePresent, true);
+            Assert.That(true, Is.EqualTo(response.EmailShouldBePresent));
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailShouldBePresent, false);
+            Assert.That(false, Is.EqualTo(response.EmailShouldBePresent));
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.EmailShouldBePresent, false);
+            Assert.That(false, Is.EqualTo(response.EmailShouldBePresent));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.ConfirmationStatus, null);
+            Assert.That(response.ConfirmationStatus, Is.EqualTo(null));
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.ConfirmationStatus, ConfirmationStatus.Unconfirmed);
+            Assert.That(ConfirmationStatus.Unconfirmed, Is.EqualTo(response.ConfirmationStatus));
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.ConfirmationStatus, ConfirmationStatus.Confirmed);
+            Assert.That(ConfirmationStatus.Confirmed, Is.EqualTo(response.ConfirmationStatus));
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             var response = await _sut.Handle(_query, new CancellationToken());
 
             //Assert
-            Assert.AreEqual(response.ConfirmationStatus, ConfirmationStatus.Overdue);
+            Assert.That(ConfirmationStatus.Overdue, Is.EqualTo(response.ConfirmationStatus));
         }
 
         private void Setup(string email, DateTime? confirmedOnDate, DateTime? overdueDate, DateTime? newApprovedOnDate = null, long? continuationOfId = null, bool? emailAddressConfirmed = null)

@@ -148,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             var result = await handler.Handle(query, CancellationToken.None);
 
-            Assert.AreEqual(searchResult.PageNumber, result.PageNumber);
+            Assert.That(result.PageNumber, Is.EqualTo(searchResult.PageNumber));
         }
     }
 }

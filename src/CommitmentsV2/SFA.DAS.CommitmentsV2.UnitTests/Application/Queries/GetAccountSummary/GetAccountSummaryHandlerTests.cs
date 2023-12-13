@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
             var response = await fixture.GetResponse();
 
-            Assert.AreEqual(ApprenticeshipEmployerType.NonLevy, response.LevyStatus);
+            Assert.That(response.LevyStatus, Is.EqualTo(ApprenticeshipEmployerType.NonLevy));
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
 
             var response = await fixture.GetResponse();
 
-            Assert.AreEqual(ApprenticeshipEmployerType.Levy, response.LevyStatus);
+            Assert.That(response.LevyStatus, Is.EqualTo(ApprenticeshipEmployerType.Levy));
         }
     }
 

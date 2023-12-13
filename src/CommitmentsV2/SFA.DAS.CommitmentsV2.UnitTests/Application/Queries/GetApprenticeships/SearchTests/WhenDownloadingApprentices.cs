@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(apprenticeships.Count - 1, actual.Apprenticeships.Count());
+            Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
             Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
         }
         [Test, MoqAutoData]
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(apprenticeships.Count - 1, actual.Apprenticeships.Count());
+            Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
             Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
         }
         [Test, MoqAutoData]
@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var actual = await service.Find(searchParameters);
 
             //Assert
-            Assert.AreEqual(apprenticeships.Count - 1, actual.Apprenticeships.Count());
+            Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
             Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
         }
     }

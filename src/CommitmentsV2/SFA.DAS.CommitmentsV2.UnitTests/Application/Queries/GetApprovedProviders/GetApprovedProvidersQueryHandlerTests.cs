@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
                 .AddNotApprovedCohortAndProviderForAccount()
                 .SeedDb().Handle();
 
-            Assert.AreEqual(2, result.ProviderIds.Count());
+            Assert.That(result.ProviderIds.Count(), Is.EqualTo(2));
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
             var result = await _fixture.AddCohortAndProvider_WithTransfserSenderNotApproved()
                 .SeedDb().Handle();
 
-            Assert.AreEqual(0, result.ProviderIds.Count());
+            Assert.That(result.ProviderIds.Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
             var result = await _fixture.AddCohortAndProvider_WithTransferSenderApproved()
                 .SeedDb().Handle();
 
-            Assert.AreEqual(1, result.ProviderIds.Count());
+            Assert.That(result.ProviderIds.Count(), Is.EqualTo(1));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
         {
             var result = await _fixture.AddNotApprovedCohortAndProviderForAccount().SeedDb().Handle();
 
-            Assert.AreEqual(0, result.ProviderIds.Count());
+            Assert.That(result.ProviderIds.Count(), Is.EqualTo(0));
         }
     }
 
