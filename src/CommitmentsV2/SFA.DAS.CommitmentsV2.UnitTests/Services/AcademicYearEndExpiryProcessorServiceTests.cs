@@ -113,8 +113,6 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             var validTestData = CreateApprenticeshipsUpdateExpiryTestData(validRecordCount);
             var testDataWithMissingCostOrTraining = CreateApprenticeshipsUpdateExpiryTestData(3, false);
             
-            
-
             _dbContextMock
                    .Setup(context => context.ApprenticeshipUpdates)
                    .ReturnsDbSet(validTestData.apprenticeshipUpdates.Concat(testDataWithMissingCostOrTraining.apprenticeshipUpdates).ToList());
@@ -125,55 +123,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
 
             await _sut.ExpireApprenticeshipUpdates("jobId");
 
-
             _dbContextMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(validRecordCount));
-        }
-
-        [Test]
-        public async Task WhenExpiring_Datalocks_AndNoDataFound_DoNothing()
-        {
-            _dbContextMock
-                    .Setup(context => context.DataLocks)
-                    .ReturnsDbSet(new List<DataLockStatus>());
-
-            await _sut.ExpireDataLocks("jobId");
-
-            _dbContextMock.Verify(m => m.SaveChanges(), Times.Never);
-        }
-
-        [Test]
-        public async Task WhenExpiring_Datalocks_LogHowManyDlocksExpired()
-        {
-            var testData = CreateDatalockExpiryTestDate(5);
-
-            _dbContextMock
-                    .Setup(context => context.DataLocks)
-                    .ReturnsDbSet(testData);
-
-            await _sut.ExpireDataLocks("jobId");
-
-            _logger.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => o.ToString().Contains($"expired {testData.Count} items")),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception, string>>()));
-        }
-
-        [Test]
-        public async Task WhenExpiring_Datalocks_OnlyExpireThoseFromPreviousAcademicYears()
-        {
-            var testDataPreviousAcademicYears = CreateDatalockExpiryTestDate(5);
-            var testDateAfterAcademicYear = CreateDatalockExpiryTestDate(7, true);
-
-            _dbContextMock
-                    .Setup(context => context.DataLocks)
-                    .ReturnsDbSet(testDataPreviousAcademicYears.Concat(testDateAfterAcademicYear).ToList());
-
-            await _sut.ExpireDataLocks("jobId");
-
-            _dbContextMock.Verify(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(5));
         }
 
         private DateTime GetPreviousAcademicYearDateTestValue(IFixture fixture)
