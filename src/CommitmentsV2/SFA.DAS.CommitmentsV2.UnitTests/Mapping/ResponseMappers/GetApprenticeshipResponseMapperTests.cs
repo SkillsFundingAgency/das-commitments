@@ -98,24 +98,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         }
 
         [Test]
-        public void WeightageReducedByIsMappedCorrectly()
-        {
-            Assert.AreEqual(_source.ApprenticeshipPriorLearning.WeightageReducedBy, _result.WeightageReducedBy);
-        }
-
-        [Test]
-        public void ReasonForRplReductionIsMappedCorrectly()
-        {
-            Assert.AreEqual(_source.ApprenticeshipPriorLearning.ReasonForRplReduction, _result.ReasonForRplReduction);
-        }
-
-        [Test]
-        public void QualificationsForRplReductionIsMappedCorrectly()
-        {
-            Assert.AreEqual(_source.ApprenticeshipPriorLearning.QualificationsForRplReduction, _result.QualificationsForRplReduction);
-        }
-
-        [Test]
         public void StartDateIsMappedCorrectly()
         {
             Assert.AreEqual(_source.ActualStartDate, _result.ActualStartDate);

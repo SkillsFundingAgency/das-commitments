@@ -547,6 +547,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        [Ignore("Until RPL reduction is raised to error level again")]
         public async Task ApproveCohort_WhenRPLIsRequiredAndRPLDataIsPresentButRplReductionIsInError_ShouldFail()
         {
             _fixture.WithCohortMappedToProviderAndAccountLegalEntity(Party.Provider, Party.Provider)
@@ -1065,9 +1066,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DraftApprenticeshipDetails.DurationReducedBy = fixture.Create<int>();
                 DraftApprenticeshipDetails.PriceReducedBy = fixture.Create<int>();
                 DraftApprenticeshipDetails.DurationReducedByHours = fixture.Create<int>();
-                DraftApprenticeshipDetails.WeightageReducedBy = fixture.Create<int>();
-                DraftApprenticeshipDetails.ReasonForRplReduction = fixture.Create<string>();
-                DraftApprenticeshipDetails.QualificationsForRplReduction = fixture.Create<string>();
                 DraftApprenticeshipDetails.RecognisePriorLearning = true;
                 return this;
             }
@@ -1681,9 +1679,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.IsNull(updated.PriorLearning.IsDurationReducedByRpl);
                 Assert.IsNull(updated.PriorLearning.DurationReducedBy);
                 Assert.IsNull(updated.PriorLearning.PriceReducedBy);
-                Assert.IsNull(updated.PriorLearning.WeightageReducedBy);
-                Assert.IsNull(updated.PriorLearning.ReasonForRplReduction);
-                Assert.IsNull(updated.PriorLearning.QualificationsForRplReduction);
             }
 
             public void VerifyPriorLearningIsStillPresent()
@@ -1700,12 +1695,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.AreEqual(PriorLearning.DurationReducedBy, updated.PriorLearning.DurationReducedBy);
                 Assert.IsNotNull(updated.PriorLearning.PriceReducedBy);
                 Assert.AreEqual(PriorLearning.PriceReducedBy, updated.PriorLearning.PriceReducedBy);
-                Assert.IsNotNull(updated.PriorLearning.WeightageReducedBy);
-                Assert.AreEqual(PriorLearning.WeightageReducedBy, updated.PriorLearning.WeightageReducedBy);
-                Assert.IsNotNull(updated.PriorLearning.ReasonForRplReduction);
-                Assert.AreEqual(PriorLearning.ReasonForRplReduction, updated.PriorLearning.ReasonForRplReduction);
-                Assert.IsNotNull(updated.PriorLearning.QualificationsForRplReduction);
-                Assert.AreEqual(PriorLearning.QualificationsForRplReduction, updated.PriorLearning.QualificationsForRplReduction);
             }
 
             public void VerifyPriorLearningIsNotSetToNewRPLValues()
@@ -1716,10 +1705,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                updated.PriorLearning?.DurationReducedByHours != DraftApprenticeshipDetails.DurationReducedByHours &&
                                updated.PriorLearning?.IsDurationReducedByRpl != DraftApprenticeshipDetails.IsDurationReducedByRPL &&
                                updated.PriorLearning?.DurationReducedBy != DraftApprenticeshipDetails.DurationReducedBy &&
-                               updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy &&
-                               updated.PriorLearning?.WeightageReducedBy != DraftApprenticeshipDetails.WeightageReducedBy &&
-                               updated.PriorLearning?.QualificationsForRplReduction != DraftApprenticeshipDetails.QualificationsForRplReduction &&
-                               updated.PriorLearning?.ReasonForRplReduction != DraftApprenticeshipDetails.ReasonForRplReduction);
+                               updated.PriorLearning?.PriceReducedBy != DraftApprenticeshipDetails.PriceReducedBy);
             }
 
             public void VerifyPriorLearningIsSetToNewRPLValues()
@@ -1730,10 +1716,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                                updated.PriorLearning?.DurationReducedByHours == DraftApprenticeshipDetails.DurationReducedByHours &&
                                updated.PriorLearning?.IsDurationReducedByRpl == DraftApprenticeshipDetails.IsDurationReducedByRPL &&
                                updated.PriorLearning?.DurationReducedBy == DraftApprenticeshipDetails.DurationReducedBy &&
-                               updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy &&
-                               updated.PriorLearning?.WeightageReducedBy == DraftApprenticeshipDetails.WeightageReducedBy &&
-                               updated.PriorLearning?.QualificationsForRplReduction == DraftApprenticeshipDetails.QualificationsForRplReduction &&
-                               updated.PriorLearning?.ReasonForRplReduction == DraftApprenticeshipDetails.ReasonForRplReduction);
+                               updated.PriorLearning?.PriceReducedBy == DraftApprenticeshipDetails.PriceReducedBy);
             }
 
             public void VerifyLastUpdatedFieldsAreSet(Party withParty)

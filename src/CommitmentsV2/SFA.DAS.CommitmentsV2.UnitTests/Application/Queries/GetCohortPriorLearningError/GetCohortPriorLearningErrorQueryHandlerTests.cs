@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
         {
             using var fixture = new GetCohortPriorLearningErrorQueryHandlerTestsFixtures()
                 .SetApprentice(ProgrammeType.Standard, "123", DateTime.Today)
-                .SetApprenticeshipPriorLearningData(10, new ApprenticeshipPriorLearning() { DurationReducedBy = 10, DurationReducedByHours = 1, PriceReducedBy = 10, WeightageReducedBy = 10, QualificationsForRplReduction = "quals", ReasonForRplReduction = "reason", IsDurationReducedByRpl = true });
+                .SetApprenticeshipPriorLearningData(10, new ApprenticeshipPriorLearning() { DurationReducedBy = 10, DurationReducedByHours = 1, PriceReducedBy = 10, IsDurationReducedByRpl = true });
 
             var result = await fixture.Handle();
 
@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
             Handler = new GetCohortPriorLearningErrorQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), RplFundingCalculationServiceMock.Object);
 
-            PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9, QualificationsForRplReduction = "qualification", ReasonForRplReduction = "reason", WeightageReducedBy = 9 };
+            PriorLearning = new ApprenticeshipPriorLearning { DurationReducedBy = 10, PriceReducedBy = 999, DurationReducedByHours = 9 };
             FlexibleEmployment = new FlexibleEmployment { EmploymentEndDate = DateTime.Today, EmploymentPrice = 987 };
         }
 

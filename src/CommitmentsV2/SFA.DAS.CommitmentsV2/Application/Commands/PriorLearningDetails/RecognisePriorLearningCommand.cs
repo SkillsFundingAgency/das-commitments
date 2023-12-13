@@ -10,9 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.PriorLearningDetails
         public int? DurationReducedBy { get; set; }
         public int? PriceReducedBy { get; set; }
         public int? DurationReducedByHours { get; set; }
-        public int? WeightageReducedBy { get; set; }
-        public string QualificationsForRplReduction { get; set; }
-        public string ReasonForRplReduction { get; set; }
         public bool Rpl2Mode { get; set; }
         public UserInfo UserInfo { get; set; }
     }

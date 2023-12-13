@@ -196,27 +196,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         }
 
         [Test]
-        public Task Map_WeightageReducedBy_ShouldBeSet()
-        {
-            int? weightageReducedBy = 9;
-            return AssertPropertySet(input => input.WeightageReducedBy, weightageReducedBy);
-        }
-
-        [Test]
-        public Task Map_ReasonForRplReduction_ShouldBeSet()
-        {
-            string reasonForRplReduction = "reason";
-            return AssertPropertySet(input => input.ReasonForRplReduction, reasonForRplReduction);
-        }
-
-        [Test]
-        public Task Map_QualificationsForRplReduction_ShouldBeSet()
-        {
-            string qaualificationsForRplReduction = "qualification";
-            return AssertPropertySet(input => input.QualificationsForRplReduction, qaualificationsForRplReduction);
-        }
-
-        [Test]
         public Task Map_RecognisingPriorLearningStillNeedsToBeConsidered_ShouldBeSet()
         {
             bool rplConsidered = true;

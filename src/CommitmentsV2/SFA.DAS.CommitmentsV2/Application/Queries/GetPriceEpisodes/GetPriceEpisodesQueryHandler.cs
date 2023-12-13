@@ -23,13 +23,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes
             {
                 PriceEpisodes = await _dbContext.Value.PriceHistory
                     .Where(x => x.ApprenticeshipId == request.ApprenticeshipId)
-                    .Select(priceHistory => new GetPriceEpisodesQueryResult.PriceEpisode
+                    .Select(a => new GetPriceEpisodesQueryResult.PriceEpisode
                     {
-                        Id = priceHistory.Id,
-                        ApprenticeshipId = priceHistory.ApprenticeshipId,
-                        FromDate = priceHistory.FromDate,
-                        ToDate = priceHistory.ToDate,
-                        Cost = priceHistory.Cost
+                        Id = a.Id,
+                        ApprenticeshipId = a.ApprenticeshipId,
+                        FromDate = a.FromDate,
+                        ToDate = a.ToDate,
+                        Cost = a.Cost,
+                        TrainingPrice = a.TrainingPrice,
+                        EndPointAssessmentPrice = a.AssessmentPrice
                     }).ToListAsync(cancellationToken)
             };
         }
