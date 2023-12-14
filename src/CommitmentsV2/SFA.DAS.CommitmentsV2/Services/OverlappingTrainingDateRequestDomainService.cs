@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var overlapResult =  await _overlapCheckService.CheckForOverlapsOnStartDate(draftApprenticeship.Uln, new Domain.Entities.DateRange(draftApprenticeship.StartDate.Value, draftApprenticeship.EndDate.Value), draftApprenticeship.Id, cancellationToken);
 
-            if (changeOfEmployerOriginalApprenticeId != null && (!overlapResult.HasOverlappingStartDate || overlapResult.ApprenticeshipId == null))
+            if (changeOfEmployerOriginalApprenticeId == null && (!overlapResult.HasOverlappingStartDate || overlapResult.ApprenticeshipId == null))
             {
                 throw new InvalidOperationException($"Can't create Overlapping Training Date Request. Draft apprenticeship {draftApprenticeship.Id} doesn't have overlap with another apprenticeship.");
             }
