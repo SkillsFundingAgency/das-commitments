@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
                             p.UserInfo == _postRequest.UserInfo &&
                             p.NewEndDate == _postRequest.NewEndDate &&
                             p.DeliveryModel == _postRequest.DeliveryModel &&
-                            p.HasOLTD == _postRequest.HasOLTD
+                            p.HasOverlappingTrainingDates == _postRequest.HasOverlappingTrainingDates
                             ),
                         It.IsAny<CancellationToken>()), Times.Once);
             }

@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             int? employmentPrice,
             DateTime? employmentEndDate,
             DeliveryModel? deliveryModel,
-            bool hasOltd,
+            bool hasOverlappingTrainingDates,
             CancellationToken cancellationToken)
         {
               var party = _authenticationService.GetUserParty();
@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             employmentPrice,
             employmentEndDate,
             deliveryModel,
-            hasOltd,
+            hasOverlappingTrainingDates,
             userInfo,
             _currentDateTime.UtcNow);
 

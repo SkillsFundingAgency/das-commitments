@@ -13,6 +13,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? NewEmploymentEndDate { get; set; }
         public int? NewEmploymentPrice { get; set; }
         public DeliveryModel? DeliveryModel { get; set; }
-        public bool HasOLTD { get; set; } = false;
+        public bool HasOverlappingTrainingDates { get; set; } = false;
     }
 }

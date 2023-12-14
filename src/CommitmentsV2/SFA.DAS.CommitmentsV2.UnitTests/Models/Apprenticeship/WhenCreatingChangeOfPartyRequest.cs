@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         }
 
         [Test]
-        public void ThenHasOLTDCanAllowLiveApprenticeship()
+        public void ThenHasOverlappingTrainingDatesCanAllowLiveApprenticeship()
         {
             _fixture
                 .CreateChangeOfPartyRequest(true);
@@ -138,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 return this;
             }          
 
-            public void CreateChangeOfPartyRequest(bool hasOltd = false)
+            public void CreateChangeOfPartyRequest(bool hasOverlappingTrainingDates = false)
             {
                 try
                 {
@@ -151,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                     };
 
                     Result = Apprenticeship.CreateChangeOfPartyRequest(ChangeOfPartyRequestType.ChangeEmployer, Party.Provider, 1,
-                        1000, StartDate, DateTime.UtcNow, null, null, null, false, new UserInfo(), DateTime.UtcNow);
+                        1000, StartDate, DateTime.UtcNow, null, null, null, hasOverlappingTrainingDates, new UserInfo(), DateTime.UtcNow);
 
                 }
                 catch (Exception e)

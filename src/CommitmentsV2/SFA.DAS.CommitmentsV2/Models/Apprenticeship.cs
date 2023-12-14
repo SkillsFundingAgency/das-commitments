@@ -49,11 +49,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             int? employmentPrice,
             DateTime? employmentEndDate,
             DeliveryModel? deliveryModel,
-            bool hasOltd,
+            bool hasOverlappingTrainingDates,
             UserInfo userInfo,
             DateTime now)
         {
-            if (!hasOltd)
+            if (!hasOverlappingTrainingDates)
             {
                 CheckIsStoppedForChangeOfParty();
             }
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckStartDateForChangeOfParty(startDate, changeOfPartyType, originatingParty);
             CheckNoPendingOrApprovedRequestsForChangeOfParty();
 
-            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, hasOltd, userInfo, now);
+            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, hasOverlappingTrainingDates, userInfo, now);
         }
 
         internal void ResolveTrainingDateRequest(long draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)

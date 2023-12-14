@@ -71,9 +71,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
           [Test]
-        public async Task Handle_WhenHandlingEvent_HasOLTD_CreatesOLTDRecord()
+        public async Task Handle_WhenHandlingEvent_HasOverlappingTrainingDates_CreatesOLTDRecord()
         {
-            _fixture.WithHasOLTD_Set(true);
+            _fixture.WithHasOverlappingTrainingDates_Set(true);
             _fixture.WithCohort_Apprentices_Populated();
             await _fixture.Handle();
             _fixture.VerifyCreateOverlappingTrainingDateRequest();
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenHandlingEvent_Without_HasOLTD_CreatesOLTDRecord_NotCalled()
         {
-            _fixture.WithHasOLTD_Set(false);
+            _fixture.WithHasOverlappingTrainingDates_Set(false);
             await _fixture.Handle();
             _fixture.VerifyCreateOverlappingTrainingDateRequest_NotCalled();
         }
@@ -168,9 +168,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 return this;
             }
 
-            public ChangeOfPartyRequestCreatedEventHandlerTestsFixture WithHasOLTD_Set(bool hasOltd)
+            public ChangeOfPartyRequestCreatedEventHandlerTestsFixture WithHasOverlappingTrainingDates_Set(bool hasOltd)
             {
-                Event.SetValue(x => x.HasOltd, hasOltd);
+                Event.SetValue(x => x.HasOverlappingTrainingDates, hasOltd);
                 return this;
             }
 

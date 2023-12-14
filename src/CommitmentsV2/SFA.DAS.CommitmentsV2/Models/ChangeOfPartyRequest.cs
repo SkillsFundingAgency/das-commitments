@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             int? employmentPrice,
             DateTime? employmentEndDate,
             DeliveryModel? deliveryModel,
-            bool hasOltd,
+            bool hasOverlappingTrainingDates,
             UserInfo userInfo,
             DateTime now)
         {
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
 
-            Publish(() => new ChangeOfPartyRequestCreatedEvent (Id, userInfo, hasOltd));
+            Publish(() => new ChangeOfPartyRequestCreatedEvent (Id, userInfo, hasOverlappingTrainingDates));
         }
 
         private void CheckOriginatingParty(Party originatingParty)
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid? reservationId, UserInfo userInfo, bool hasOLTD)
+        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid? reservationId, UserInfo userInfo, bool hasOverlappingTrainingDates)
         {
             long providerId;
             long accountId;
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new Exception("Invalid ChangeOfPartyType");
             }
 
-            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this, userInfo, hasOLTD);
+            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this, userInfo, hasOverlappingTrainingDates);
         }
 
         public virtual void SetCohort(Cohort cohort, UserInfo userInfo)

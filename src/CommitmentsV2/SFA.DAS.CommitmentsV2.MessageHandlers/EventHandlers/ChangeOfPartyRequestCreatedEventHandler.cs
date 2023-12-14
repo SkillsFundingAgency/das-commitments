@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var reservationId = await GetReservationId(changeOfPartyRequest, apprenticeship);
             
-            var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationId, message.UserInfo, message.HasOltd);
+            var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationId, message.UserInfo, message.HasOverlappingTrainingDates);
             
             _dbContext.Value.Cohorts.Add(cohort);
             await _dbContext.Value.SaveChangesAsync();
@@ -52,9 +52,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
             await _dbContext.Value.SaveChangesAsync();
 
-            if (message.HasOltd)
+            if (message.HasOverlappingTrainingDates)
             {
-                _logger.LogInformation($"ChangeOfPartyRequestCreatedEventHandler {message.ChangeOfPartyRequestId} hasOLTD. Creating new CreateOverlappingTrainingDatesRequest");
+                _logger.LogInformation($"ChangeOfPartyRequestCreatedEventHandler {message.ChangeOfPartyRequestId} HasOverlappingTrainingDates. Creating new CreateOverlappingTrainingDatesRequest");
 
                 await _overlappingTrainingDateRequestDomainService
                 .CreateOverlappingTrainingDateRequest(cohort.Apprenticeships.First().Id, changeOfPartyRequest.OriginatingParty, apprenticeship.Id, message.UserInfo, new CancellationToken());

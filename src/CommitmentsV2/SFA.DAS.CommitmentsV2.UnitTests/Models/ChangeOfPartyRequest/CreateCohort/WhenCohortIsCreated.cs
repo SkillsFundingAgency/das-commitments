@@ -202,7 +202,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             public CommitmentsV2.Models.Cohort Result { get; private set; }
             public Exception Exception { get; private set; }
             public UnitOfWorkContext UnitOfWorkContext { get; private set; }
-            public bool HasOltd { get; private set; } 
+            public bool HasOverlappingTrainingDates { get; private set; } 
 
             public WhenCohortIsCreatedTestFixture()
             {
@@ -210,7 +210,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
                 ReservationId = _autoFixture.Create<Guid>();
                 UserInfo = _autoFixture.Create<UserInfo>();
-                HasOltd = false;
+                HasOverlappingTrainingDates = false;
 
                 var cohort = new CommitmentsV2.Models.Cohort();
                 cohort.SetValue(x => x.ProviderId, _autoFixture.Create<long>());
@@ -308,7 +308,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             {
                 try
                 {
-                    Result = Request.CreateCohort(ContinuedApprenticeship, ReservationId, UserInfo, HasOltd);
+                    Result = Request.CreateCohort(ContinuedApprenticeship, ReservationId, UserInfo, HasOverlappingTrainingDates);
                 }
                 catch (Exception e)
                 {

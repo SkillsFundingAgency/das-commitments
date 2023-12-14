@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 NewEmploymentEndDate = request.NewEmploymentEndDate,
                 NewEmploymentPrice = request.NewEmploymentPrice,
                 DeliveryModel = request.DeliveryModel,
-                HasOLTD = request.HasOLTD
+                HasOverlappingTrainingDates = request.HasOverlappingTrainingDates
             }, cancellationToken);
 
             return Ok();

@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public DateTime? EndDate { get; private set; }
         public DateTime? EmploymentEndDate { get; private set; }
         public DeliveryModel? DeliveryModel { get; private set; }
-        public bool HasOltd { get; set; }
+        public bool HasOverlappingTrainingDates { get; set; }
         public UserInfo UserInfo { get; private set; }
 
         public string Uln { get; set; }
@@ -217,7 +217,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 Result = await _domainService.CreateChangeOfPartyRequest(ApprenticeshipId,
                     ChangeOfPartyRequestType, NewPartyId, Price, StartDate, EndDate, UserInfo,
-                    EmploymentPrice, EmploymentEndDate, DeliveryModel, HasOltd, new CancellationToken());
+                    EmploymentPrice, EmploymentEndDate, DeliveryModel, HasOverlappingTrainingDates, new CancellationToken());
 
                 Db.Object.SaveChanges();
             }
@@ -253,7 +253,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     It.Is<int?>(p => p == EmploymentPrice),
                     It.Is<DateTime?>(e => e == EmploymentEndDate),
                     It.Is<DeliveryModel?>(d => d == DeliveryModel),
-                    It.Is<bool>(u => u == HasOltd),
+                    It.Is<bool>(u => u == HasOverlappingTrainingDates),
                     It.Is<UserInfo>(u => u == UserInfo),
                     It.Is<DateTime>(n => n == Now))
                 , Times.Once);

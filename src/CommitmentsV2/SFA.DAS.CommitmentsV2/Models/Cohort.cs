@@ -133,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeship apprenticeship,
             Guid? reservationId,
             ChangeOfPartyRequest changeOfPartyRequest,
-            UserInfo userInfo, bool hasOLTD)
+            UserInfo userInfo, bool hasOverlappingTrainingDates)
             : this(providerId,
             accountId,
             accountLegalEntityId,
@@ -166,7 +166,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             
             Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, changeOfPartyRequest.OriginatingParty, DateTime.UtcNow, userInfo));
 
-            if (!hasOLTD)
+            if (!hasOverlappingTrainingDates)
             {
                 if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
                 {
