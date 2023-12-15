@@ -26,8 +26,9 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IProviderRelationshipsApiClient _providerRelationshipsApiClient;
         private readonly IOverlapCheckService _overlapCheckService;
 
-        public ChangeOfPartyRequestDomainService(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService,
-            ICurrentDateTime currentDateTime, 
+        public ChangeOfPartyRequestDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
+            IAuthenticationService authenticationService,
+            ICurrentDateTime currentDateTime,
             IProviderRelationshipsApiClient providerRelationshipsApiClient
             , IOverlapCheckService overlapCheckService)
         {
@@ -52,44 +53,47 @@ namespace SFA.DAS.CommitmentsV2.Services
             bool hasOverlappingTrainingDates,
             CancellationToken cancellationToken)
         {
-              var party = _authenticationService.GetUserParty();
+            var party = _authenticationService.GetUserParty();
 
             CheckPartyIsValid(party, changeOfPartyRequestType);
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(apprenticeshipId, cancellationToken);
-            
+
             if (changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeProvider)
             {
-                CheckEmployerHasntSelectedTheirCurrentProvider(apprenticeship.Cohort.ProviderId, newPartyId, apprenticeship.Id);
+                CheckEmployerHasntSelectedTheirCurrentProvider(apprenticeship.Cohort.ProviderId, newPartyId,
+                    apprenticeship.Id);
                 CheckApprenticeIsNotAFlexiJob(apprenticeship.DeliveryModel, apprenticeshipId);
             }
-            
+
             if (party == Party.Provider && changeOfPartyRequestType == ChangeOfPartyRequestType.ChangeEmployer)
             {
                 await CheckProviderHasPermission(apprenticeship.Cohort.ProviderId, newPartyId);
             }
 
             var result = apprenticeship.CreateChangeOfPartyRequest(changeOfPartyRequestType,
-            party,
-            newPartyId,
-            price,
-            startDate,
-            endDate,
-            employmentPrice,
-            employmentEndDate,
-            deliveryModel,
-            hasOverlappingTrainingDates,
-            userInfo,
-            _currentDateTime.UtcNow);
+                party,
+                newPartyId,
+                price,
+                startDate,
+                endDate,
+                employmentPrice,
+                employmentEndDate,
+                deliveryModel,
+                hasOverlappingTrainingDates,
+                userInfo,
+                _currentDateTime.UtcNow);
 
             _dbContext.Value.ChangeOfPartyRequests.Add(result);
 
             return result;
         }
 
-        public async Task ValidateChangeOfEmployerOverlap(string uln, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
-        {            
-            var overlapResult = await _overlapCheckService.CheckForOverlaps(uln, startDate.To(endDate), default, cancellationToken);
+        public async Task ValidateChangeOfEmployerOverlap(string uln, DateTime startDate, DateTime endDate,
+            CancellationToken cancellationToken)
+        {
+            var overlapResult =
+                await _overlapCheckService.CheckForOverlaps(uln, startDate.To(endDate), default, cancellationToken);
 
             if (!overlapResult.HasOverlaps) return;
 
@@ -120,12 +124,14 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (party == Party.Provider && changeOfPartyRequestType != ChangeOfPartyRequestType.ChangeEmployer)
             {
-                throw new DomainException(nameof(party), $"CreateChangeOfPartyRequest is restricted to Providers only - {party} is invalid");
+                throw new DomainException(nameof(party),
+                    $"CreateChangeOfPartyRequest is restricted to Providers only - {party} is invalid");
             }
 
             if (party == Party.Employer && changeOfPartyRequestType != ChangeOfPartyRequestType.ChangeProvider)
             {
-                throw new DomainException(nameof(party), $"CreateChangeOfPartyRequest is restricted to Employers only - {party} is invalid");
+                throw new DomainException(nameof(party),
+                    $"CreateChangeOfPartyRequest is restricted to Employers only - {party} is invalid");
             }
         }
 
@@ -142,15 +148,18 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (permissions.AccountProviderLegalEntities.All(x => x.AccountLegalEntityId != accountLegalEntityId))
             {
-                throw new DomainException(nameof(accountLegalEntityId), $"Provider {providerId} does not have {nameof(Operation.CreateCohort)} permission for AccountLegalEntity {accountLegalEntityId} in order to create a Change of Party request");
+                throw new DomainException(nameof(accountLegalEntityId),
+                    $"Provider {providerId} does not have {nameof(Operation.CreateCohort)} permission for AccountLegalEntity {accountLegalEntityId} in order to create a Change of Party request");
             }
         }
 
-        private void CheckEmployerHasntSelectedTheirCurrentProvider(long currentProviderId, long newProviderId, long apprenticeshipId)
+        private void CheckEmployerHasntSelectedTheirCurrentProvider(long currentProviderId, long newProviderId,
+            long apprenticeshipId)
         {
             if (newProviderId == currentProviderId)
             {
-                throw new DomainException("Ukprn", $"Provider {newProviderId} is already the training provider Apprenticeship {apprenticeshipId}");
+                throw new DomainException("Ukprn",
+                    $"Provider {newProviderId} is already the training provider Apprenticeship {apprenticeshipId}");
             }
         }
 
@@ -158,7 +167,8 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (dm == DeliveryModel.PortableFlexiJob)
             {
-                throw new DomainException("DeliveryModel", $"Apprenticeship {apprenticeshipId} is a Portable Flexi-Job and cannot change training provider");
+                throw new DomainException("DeliveryModel",
+                    $"Apprenticeship {apprenticeshipId} is a Portable Flexi-Job and cannot change training provider");
             }
         }
     }

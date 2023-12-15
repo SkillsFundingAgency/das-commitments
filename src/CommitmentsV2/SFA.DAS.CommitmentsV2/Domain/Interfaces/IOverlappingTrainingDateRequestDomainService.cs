@@ -7,9 +7,9 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {
     public interface IOverlappingTrainingDateRequestDomainService
     {
-        Task<OverlappingTrainingDateRequest> CreateOverlappingTrainingDateRequest(long apprenticeshipId, 
-            Party? originatingParty,
+        Task<OverlappingTrainingDateRequest> CreateOverlappingTrainingDateRequest(long apprenticeshipId,
+            Party originatingParty,
             long? changeOfEmployerOriginalApprenticeId,
-         UserInfo userInfo, CancellationToken cancellationToken);
+            UserInfo userInfo, CancellationToken cancellationToken);
     }
 }
