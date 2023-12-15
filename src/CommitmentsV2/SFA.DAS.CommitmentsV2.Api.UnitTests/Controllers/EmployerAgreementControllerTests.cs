@@ -24,9 +24,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixtures.Sut.IsAgreementSignedForFeature(fixtures.AgreementSignedRequest.AccountLegalEntityId,
                 fixtures.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
 
-            Assert.AreEqual(typeof(OkObjectResult), response.GetType());
+            Assert.That(response.GetType(), Is.EqualTo(typeof(OkObjectResult)));
             var objectResult = (OkObjectResult) response;
-            Assert.AreEqual(200, objectResult.StatusCode);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(200));
         }
 
         [TestCase(true)]
@@ -38,8 +38,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixtures.Sut.IsAgreementSignedForFeature(fixtures.AgreementSignedRequest.AccountLegalEntityId,
                 fixtures.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
 
-            Assert.IsInstanceOf<OkObjectResult>(response);
-            Assert.AreEqual(expected, (bool)((OkObjectResult)response).Value);
+            Assert.That(response, Is.InstanceOf<OkObjectResult>());
+            Assert.That((bool)((OkObjectResult)response).Value, Is.EqualTo(expected));
         }
 
         [Test]
@@ -61,9 +61,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var response = await fixtures.Sut.GetLatestAgreementId(fixtures.AccountLegalEntityId, CancellationToken.None);
 
-            Assert.AreEqual(typeof(OkObjectResult), response.GetType());
+            Assert.That(response.GetType(), Is.EqualTo(typeof(OkObjectResult)));
             var objectResult = (OkObjectResult)response;
-            Assert.AreEqual(200, objectResult.StatusCode);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(200));
         }
 
         [Test]
@@ -73,8 +73,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var response = await fixtures.Sut.GetLatestAgreementId(fixtures.AccountLegalEntityId, CancellationToken.None);
 
-            Assert.IsInstanceOf<OkObjectResult>(response);
-            Assert.AreEqual(fixtures.AgreementId, (long)((OkObjectResult)response).Value);
+            Assert.That(response, Is.InstanceOf<OkObjectResult>());
+            Assert.That((long)((OkObjectResult)response).Value, Is.EqualTo(fixtures.AgreementId));
         }
 
         [Test]

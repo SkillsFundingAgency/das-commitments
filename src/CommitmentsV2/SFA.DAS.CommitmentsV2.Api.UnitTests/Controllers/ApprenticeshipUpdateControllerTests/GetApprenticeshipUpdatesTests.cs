@@ -128,17 +128,17 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
 
             public void VerifyResult()
             {
-                Assert.IsInstanceOf<OkObjectResult>(Result);
+                Assert.That(Result, Is.InstanceOf<OkObjectResult>());
                 var resultObject = (OkObjectResult)Result;
-                Assert.IsInstanceOf<GetApprenticeshipUpdatesResponse>(resultObject.Value);
-                Assert.AreSame(MapperResult, resultObject.Value);
+                Assert.That(resultObject.Value, Is.InstanceOf<GetApprenticeshipUpdatesResponse>());
+                Assert.That(resultObject.Value, Is.SameAs(MapperResult));
             }
 
             public void VerifyNotFoundResult()
             {
                 Assert.IsNotNull(Result);
                 var model = Result.VerifyReturnsModel().WithModel<GetApprenticeshipUpdatesResponse>();
-                Assert.AreEqual(0, model.ApprenticeshipUpdates.Count);
+                Assert.That(model.ApprenticeshipUpdates.Count, Is.EqualTo(0));
             }
         }
     }

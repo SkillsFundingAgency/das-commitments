@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ChangeOfPartyControlle
                 var objectValue = okObject.Value as GetChangeOfProviderChainResponse;
                 Assert.IsNotNull(objectValue);
 
-                Assert.AreEqual(_mapperResult, objectValue);
+                Assert.That(objectValue, Is.EqualTo(_mapperResult));
             }
         }
     }

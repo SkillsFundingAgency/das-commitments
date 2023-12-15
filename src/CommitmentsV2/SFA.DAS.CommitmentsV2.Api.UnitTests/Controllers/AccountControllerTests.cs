@@ -143,41 +143,41 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             public void VerifyResult()
             {
-                Assert.AreEqual(typeof(OkObjectResult), Result.GetType());
+                Assert.That(Result.GetType(), Is.EqualTo(typeof(OkObjectResult)));
                 var objectResult = (OkObjectResult)Result;
-                Assert.AreEqual(200, objectResult.StatusCode);
+                Assert.That(objectResult.StatusCode, Is.EqualTo(200));
 
-                Assert.IsInstanceOf<AccountResponse>(objectResult.Value);
+                Assert.That(objectResult.Value, Is.InstanceOf<AccountResponse>());
 
                 var response = (AccountResponse) objectResult.Value;
 
-                Assert.AreEqual(MediatorQueryResult.AccountId, response.AccountId);
-                Assert.AreEqual(MediatorQueryResult.LevyStatus, response.LevyStatus);
+                Assert.That(response.AccountId, Is.EqualTo(MediatorQueryResult.AccountId));
+                Assert.That(response.LevyStatus, Is.EqualTo(MediatorQueryResult.LevyStatus));
             }
 
             public void VerifyTransferStatusResponse()
             {
-                Assert.AreEqual(typeof(OkObjectResult), Result.GetType());
+                Assert.That(Result.GetType(), Is.EqualTo(typeof(OkObjectResult)));
                 var objectResult = (OkObjectResult)Result;
-                Assert.AreEqual(200, objectResult.StatusCode);
+                Assert.That(objectResult.StatusCode, Is.EqualTo(200));
 
                 var response = (AccountTransferStatusResponse)objectResult.Value;
 
-                Assert.AreEqual(AccountTransferStatusQueryResult.IsTransferSender, response.IsTransferSender);
-                Assert.AreEqual(AccountTransferStatusQueryResult.IsTransferReceiver, response.IsTransferReceiver);
+                Assert.That(response.IsTransferSender, Is.EqualTo(AccountTransferStatusQueryResult.IsTransferSender));
+                Assert.That(response.IsTransferReceiver, Is.EqualTo(AccountTransferStatusQueryResult.IsTransferReceiver));
             }
 
             public void VerifyApprovedProviderResponse()
             {
-                Assert.AreEqual(typeof(OkObjectResult), Result.GetType());
+                Assert.That(Result.GetType(), Is.EqualTo(typeof(OkObjectResult)));
                 var objectResult = (OkObjectResult)Result;
-                Assert.AreEqual(200, objectResult.StatusCode);
+                Assert.That(objectResult.StatusCode, Is.EqualTo(200));
 
-                Assert.IsInstanceOf<GetApprovedProvidersResponse>(objectResult.Value);
+                Assert.That(objectResult.Value, Is.InstanceOf<GetApprovedProvidersResponse>());
 
                 var response = (GetApprovedProvidersResponse)objectResult.Value;
 
-                Assert.AreEqual(3, response.ProviderIds.Length);
+                Assert.That(response.ProviderIds.Length, Is.EqualTo(3));
                 
                 foreach (var qr in ApprovedProviderQueryResult.ProviderIds)
                 {
@@ -187,15 +187,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             public void VerifyGetProviderPaymentsPriorityResponse()
             {
-                Assert.AreEqual(typeof(OkObjectResult), Result.GetType());
+                Assert.That(Result.GetType(), Is.EqualTo(typeof(OkObjectResult)));
                 var objectResult = (OkObjectResult)Result;
-                Assert.AreEqual(200, objectResult.StatusCode);
+                Assert.That(objectResult.StatusCode, Is.EqualTo(200));
 
-                Assert.IsInstanceOf<GetProviderPaymentsPriorityResponse>(objectResult.Value);
+                Assert.That(objectResult.Value, Is.InstanceOf<GetProviderPaymentsPriorityResponse>());
 
                 var response = (GetProviderPaymentsPriorityResponse)objectResult.Value;
 
-                Assert.AreEqual(3, response.ProviderPaymentPriorities.Count);
+                Assert.That(response.ProviderPaymentPriorities.Count, Is.EqualTo(3));
 
                 foreach (var qr in ProviderPaymentsPriorityQueryResult.PriorityItems)
                 {

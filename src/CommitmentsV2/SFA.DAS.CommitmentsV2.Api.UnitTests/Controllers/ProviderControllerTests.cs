@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             Assert.IsNotNull(okObjectResult);
             Assert.IsNotNull(getAllProvidersResponse);
 
-            Assert.AreEqual(_fixture.GetAllProvidersQueryResult.Providers.Count, getAllProvidersResponse.Providers.Count);
+            Assert.That(getAllProvidersResponse.Providers.Count, Is.EqualTo(_fixture.GetAllProvidersQueryResult.Providers.Count));
         }
 
         [Test]
@@ -50,8 +50,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             Assert.NotNull(response);
             Assert.IsNotNull(okObjectResult);
             Assert.IsNotNull(getProviderResponse);
-            Assert.AreEqual(_fixture.GetProviderQueryResult.ProviderId, getProviderResponse.ProviderId);
-            Assert.AreEqual(_fixture.GetProviderQueryResult.Name, getProviderResponse.Name);
+            Assert.That(getProviderResponse.ProviderId, Is.EqualTo(_fixture.GetProviderQueryResult.ProviderId));
+            Assert.That(getProviderResponse.Name, Is.EqualTo(_fixture.GetProviderQueryResult.Name));
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             Assert.IsNotNull(okObjectResult);
             Assert.IsNotNull(getCommitmentAgreementsResponse);
 
-            Assert.AreEqual(_fixture.GetProviderCommitmentAgreementQueryResult.Agreements.Count, getCommitmentAgreementsResponse.ProviderCommitmentAgreement.Count);
+            Assert.That(getCommitmentAgreementsResponse.ProviderCommitmentAgreement.Count, Is.EqualTo(_fixture.GetProviderCommitmentAgreementQueryResult.Agreements.Count));
         }
     }
 

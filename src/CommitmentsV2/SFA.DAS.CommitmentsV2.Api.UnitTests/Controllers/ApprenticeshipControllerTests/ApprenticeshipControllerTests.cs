@@ -337,8 +337,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var response = result.WithModel<Types.Responses.EditApprenticeshipResponse>();
 
             //Assert
-            Assert.AreEqual(true, response.NeedReapproval);
-            Assert.AreEqual(1, response.ApprenticeshipId);
+            Assert.That(response.NeedReapproval, Is.EqualTo(true));
+            Assert.That(response.ApprenticeshipId, Is.EqualTo(1));
         }
 
         [Test, MoqAutoData]

@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public static TExpectedModel WithModel<TExpectedModel>(this ObjectResult result) where TExpectedModel : class
         {
-            Assert.IsInstanceOf<TExpectedModel>(result.Value);
+            Assert.That(result.Value, Is.InstanceOf<TExpectedModel>());
             return result.Value as TExpectedModel;
         }
     }

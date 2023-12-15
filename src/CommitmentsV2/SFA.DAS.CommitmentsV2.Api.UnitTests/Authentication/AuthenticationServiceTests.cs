@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Authentication
             var actualRole = sut.GetUserParty();
 
             // assert
-            Assert.AreEqual(expectedParty, actualRole);
+            Assert.That(actualRole, Is.EqualTo(expectedParty));
         }
 
         [TestCase(Role.Provider, Role.Employer)]
