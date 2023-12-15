@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnValue()
         {
-            await CheckQueryResponse(response => Assert.IsNotNull(response, "Did not return response"));
+            await CheckQueryResponse(response => Assert.That(response, Is.Not.Null, "Did not return response"));
         }
 
         [Test]

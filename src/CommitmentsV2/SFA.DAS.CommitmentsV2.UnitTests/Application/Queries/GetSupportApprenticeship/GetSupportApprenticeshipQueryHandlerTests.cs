@@ -243,7 +243,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
 
             public void VerifyNoResult()
             {
-                Assert.IsNotNull(_queryResult.Apprenticeships);
+                Assert.That(_queryResult.Apprenticeships, Is.Not.Null);
                 Assert.That(_queryResult.Apprenticeships.Count, Is.EqualTo(0));
             }
 

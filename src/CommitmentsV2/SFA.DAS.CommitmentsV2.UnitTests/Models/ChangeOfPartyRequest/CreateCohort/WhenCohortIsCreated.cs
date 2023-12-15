@@ -383,7 +383,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             {
                 Assert.That(Result.DraftApprenticeships.Count(), Is.EqualTo(1));
                 var draftApprenticeship = Result.DraftApprenticeships.Single();
-                Assert.IsNotNull(draftApprenticeship.FlexibleEmployment);
+                Assert.That(draftApprenticeship.FlexibleEmployment, Is.Not.Null);
                 Assert.That(draftApprenticeship.FlexibleEmployment.EmploymentEndDate, Is.EqualTo(Request.EmploymentEndDate));
                 Assert.That(draftApprenticeship.FlexibleEmployment.EmploymentPrice, Is.EqualTo(Request.EmploymentPrice));
             }
@@ -392,7 +392,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             {
                 Assert.That(Result.DraftApprenticeships.Count(), Is.EqualTo(1));
                 var draftApprenticeship = Result.DraftApprenticeships.Single();
-                Assert.IsNotNull(draftApprenticeship.ApprenticeshipConfirmationStatus);
+                Assert.That(draftApprenticeship.ApprenticeshipConfirmationStatus, Is.Not.Null);
                 Assert.That(draftApprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn, Is.EqualTo(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.ApprenticeshipConfirmedOn));
                 Assert.That(draftApprenticeship.ApprenticeshipConfirmationStatus.CommitmentsApprovedOn, Is.EqualTo(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.CommitmentsApprovedOn));
                 Assert.That(draftApprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn, Is.EqualTo(ContinuedApprenticeship.ApprenticeshipConfirmationStatus.ConfirmationOverdueOn));
@@ -401,18 +401,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
             public void VerifyTracking()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                     && @event.EntityType ==
-                                                                                    nameof(Cohort)));
+                                                                                    nameof(Cohort)), Is.Not.Null);
             }
 
             public void VerifyCohortWithChangeOfPartyCreatedEvent()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyCreatedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyCreatedEvent @event
                                                                                     && @event.ChangeOfPartyRequestId == Request.Id
                                                                                     && @event.CohortId == Result.Id
                                                                                     && @event.OriginatingParty == Request.OriginatingParty
-                                                                                    ));
+                                                                                    ), Is.Not.Null);
             }
 
             public void VerifyTransferSender()
@@ -436,16 +436,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             {
                 if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
                 {
-                    Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
+                    Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
                     x is CohortAssignedToEmployerEvent @event
                     && @event.AssignedBy == Party.Provider
-                    && @event.CohortId == Result.Id));
+                    && @event.CohortId == Result.Id), Is.Not.Null);
                 }
                 else
                 {
-                    Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
+                    Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x =>
                         x is CohortAssignedToProviderEvent @event
-                        && @event.CohortId == Result.Id));
+                        && @event.CohortId == Result.Id), Is.Not.Null);
                 }
             }
             public void VerifyDraftApprenticeshipCreatedEventIsPublished()

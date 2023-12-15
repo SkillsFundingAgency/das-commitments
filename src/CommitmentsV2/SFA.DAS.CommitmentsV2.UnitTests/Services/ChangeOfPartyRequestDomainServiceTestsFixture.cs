@@ -208,7 +208,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void VerifyResult()
         {
             Assert.IsNull(Exception);
-            Assert.IsNotNull(Result);
+            Assert.That(Result, Is.Not.Null);
             Assert.That(Result, Is.EqualTo(ApprenticeshipChangeOfPartyRequestResult));
         }
 
@@ -219,7 +219,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
+            Assert.That(Exception, Is.Not.Null);
             Assert.IsInstanceOf<T>(Exception);
         }
     }

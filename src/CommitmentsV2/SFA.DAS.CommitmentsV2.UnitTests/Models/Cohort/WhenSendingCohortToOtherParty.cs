@@ -274,15 +274,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public void VerifyCohortTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType ==
-                                                                                nameof(Cohort)));
+                                                                                nameof(Cohort)), Is.Not.Null);
         }
 
         public void VerifyCohortWithChangeOfPartyRequestEventIsPublished()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyUpdatedEvent @event
-                                                                               && @event.CohortId == Cohort.Id));
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortWithChangeOfPartyUpdatedEvent @event
+                                                                               && @event.CohortId == Cohort.Id), Is.Not.Null);
         }
     }
 }

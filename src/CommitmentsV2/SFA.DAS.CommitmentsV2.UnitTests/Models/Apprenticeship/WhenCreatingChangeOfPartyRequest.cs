@@ -154,12 +154,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
             public void VerifyResult()
             {
                 Assert.IsNull(Exception);
-                Assert.IsNotNull(Result);
+                Assert.That(Result, Is.Not.Null);
             }
 
             public void VerifyException<T>()
             {
-                Assert.IsNotNull(Exception);
+                Assert.That(Exception, Is.Not.Null);
                 Assert.IsInstanceOf<T>(Exception);
             }
         }

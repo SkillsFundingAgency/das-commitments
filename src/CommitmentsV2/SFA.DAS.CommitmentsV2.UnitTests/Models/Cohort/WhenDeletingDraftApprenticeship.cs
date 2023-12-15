@@ -182,7 +182,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             public void VerifyCohortIsDeleted()
             {
                 Assert.That(Cohort.IsDeleted, Is.True);
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortDeletedEvent));
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortDeletedEvent), Is.Not.Null);
             }
 
             public void VerifyCohortIsNotDeleted()

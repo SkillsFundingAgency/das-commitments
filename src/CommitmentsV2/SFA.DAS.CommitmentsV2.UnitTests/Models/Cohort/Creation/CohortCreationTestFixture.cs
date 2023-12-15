@@ -138,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
+            Assert.That(Exception, Is.Not.Null);
             Assert.IsInstanceOf<T>(Exception);
         }
 
@@ -218,16 +218,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                   && @event.EntityType ==
-                                                                  nameof(Cohort)));
+                                                                  nameof(Cohort)), Is.Not.Null);
         }
 
         public void VerifyDraftApprenticeshipTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                   && @event.EntityType ==
-                                                                  nameof(DraftApprenticeship)));
+                                                                  nameof(DraftApprenticeship)), Is.Not.Null);
         }
     }
 }

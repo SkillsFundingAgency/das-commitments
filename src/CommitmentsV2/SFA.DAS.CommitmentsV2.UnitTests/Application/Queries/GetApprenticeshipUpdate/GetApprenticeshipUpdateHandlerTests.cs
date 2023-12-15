@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         {
             _fixture.SeedData().WithNoMatchingApprenticeshipUpdates();
             var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ApprenticeshipUpdates.Count, Is.EqualTo(0));
         }
 
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         {
             _fixture.SeedData().WithNoMatchingApprenticeshipUpdatesForStatus();
             var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ApprenticeshipUpdates.Count, Is.EqualTo(0));
         }
 

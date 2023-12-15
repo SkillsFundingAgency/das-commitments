@@ -469,7 +469,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithChangeOfPartyCohort()
                 .UpdateDraftApprenticeshipCourseCode();
 
-            Assert.IsNotNull(fixture.Exception);
+            Assert.That(fixture.Exception, Is.Not.Null);
         }
 
         private class UpdatingDraftApprenticeshipTestFixture
@@ -835,16 +835,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyDraftApprenticeshipTracking()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                     && @event.EntityType ==
-                                                                                    nameof(DraftApprenticeship)));
+                                                                                    nameof(DraftApprenticeship)), Is.Not.Null);
             }
 
             public void VerifyCohortTracking()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                     && @event.EntityType ==
-                                                                                    nameof(Cohort)));
+                                                                                    nameof(Cohort)), Is.Not.Null);
             }
 
             public void VerifyEmployerHasEditedCostFlag(bool? flagValue)
@@ -860,8 +860,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyTrainingPriceAndEPAPriceAreNotNull()
             {
-                Assert.IsNotNull(Cohort.Apprenticeships.Single().TrainingPrice);
-                Assert.IsNotNull(Cohort.Apprenticeships.Single().EndPointAssessmentPrice);
+                Assert.That(Cohort.Apprenticeships.Single().TrainingPrice, Is.Not.Null);
+                Assert.That(Cohort.Apprenticeships.Single().EndPointAssessmentPrice, Is.Not.Null);
             }
 
             private static DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship)

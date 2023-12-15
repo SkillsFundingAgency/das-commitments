@@ -190,7 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public void VerifyException<T>()
         {
-            Assert.IsNotNull(Exception);
+            Assert.That(Exception, Is.Not.Null);
             Assert.IsInstanceOf<T>(Exception);
         }
 

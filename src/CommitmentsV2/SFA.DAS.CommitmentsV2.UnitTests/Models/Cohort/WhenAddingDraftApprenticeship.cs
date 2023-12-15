@@ -198,16 +198,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyDraftApprenticeshipTracking()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                       && @event.EntityType ==
-                                                                      nameof(DraftApprenticeship)));
+                                                                      nameof(DraftApprenticeship)), Is.Not.Null);
             }
 
             public void VerifyCohortTracking()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                       && @event.EntityType ==
-                                                                      nameof(Cohort)));
+                                                                      nameof(Cohort)), Is.Not.Null);
             }
         }
     }

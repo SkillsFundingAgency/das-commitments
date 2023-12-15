@@ -164,10 +164,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
         public void VerifyApprenticeshipTracking()
         {
-            Assert.IsNotNull(_unitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(_unitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType == nameof(CommitmentsV2.Models.Apprenticeship)
                                                                                 && @event.ProviderId == _apprenticeship.Cohort.ProviderId
-                                                                                && @event.EmployerAccountId == _apprenticeship.Cohort.EmployerAccountId));
+                                                                                && @event.EmployerAccountId == _apprenticeship.Cohort.EmployerAccountId), Is.Not.Null);
         }
     }
 }

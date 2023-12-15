@@ -87,14 +87,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohort
 
             public void VerifyTracking()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                     && @event.EntityType ==
-                                                                                    nameof(ChangeOfPartyRequest)));
+                                                                                    nameof(ChangeOfPartyRequest)), Is.Not.Null);
             }
 
             public void VerifyException()
             {
-                Assert.IsNotNull(_exception);
+                Assert.That(_exception, Is.Not.Null);
             }
 
             public void VerifyNoException()

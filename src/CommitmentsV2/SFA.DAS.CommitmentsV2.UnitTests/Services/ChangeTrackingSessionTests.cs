@@ -185,7 +185,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyUpdateEvent()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Single(x =>
+                Assert.That(UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Single(x =>
                     x.ProviderId == ProviderId &&
                     x.EmployerAccountId == EmployerAccountId &&
                     x.EntityId == TestUpdateTrackableEntity.Id &&
@@ -196,12 +196,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     x.UpdatingParty == Party &&
                     x.UpdatingUserId == UserInfo.UserId &&
                     x.UpdatingUserName == UserInfo.UserDisplayName
-                ));
+                ), Is.Not.Null);
             }
 
             public void VerifyDeleteEvent()
             {
-                Assert.IsNotNull(UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Single(x =>
+                Assert.That(UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Single(x =>
                     x.ProviderId == ProviderId &&
                     x.EmployerAccountId == EmployerAccountId &&
                     x.EntityId == TestDeleteTrackableEntity.Id &&
@@ -212,7 +212,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     x.UpdatingParty == Party &&
                     x.UpdatingUserId == UserInfo.UserId &&
                     x.UpdatingUserName == UserInfo.UserDisplayName
-                ));
+                ), Is.Not.Null);
             }
         }
 

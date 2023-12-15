@@ -208,9 +208,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         internal void VerifyFileUploadLogWasSavedCorrectly()
         {
             var log = DbContext.FileUploadLogs.FirstOrDefault(x => x.Id.Equals(Command.LogId.Value));
-            Assert.IsNotNull(log);
+            Assert.That(log, Is.Not.Null);
             Assert.That(log.ProviderAction, Is.EqualTo(Command.ProviderAction));
-            Assert.IsNotNull(log.CreatedOn);
+            Assert.That(log.CreatedOn, Is.Not.Null);
             Assert.That(log.CohortLogs.Count, Is.EqualTo(DbContext.Cohorts.Count()));
         }
 

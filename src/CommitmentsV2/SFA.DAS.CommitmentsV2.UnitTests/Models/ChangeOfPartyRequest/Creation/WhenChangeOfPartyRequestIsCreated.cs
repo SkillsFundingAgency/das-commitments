@@ -301,7 +301,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
         {
             if (isThrown)
             {
-                Assert.IsNotNull(Exception);
+                Assert.That(Exception, Is.Not.Null);
                 Assert.IsInstanceOf<T>(Exception);
             }
             else
@@ -312,14 +312,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
 
         public void VerifyTracking()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
                                                                                 && @event.EntityType ==
-                                                                                nameof(ChangeOfPartyRequest)));
+                                                                                nameof(ChangeOfPartyRequest)), Is.Not.Null);
         }
 
         public void VerifyEvent()
         {
-            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is ChangeOfPartyRequestCreatedEvent));
+            Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is ChangeOfPartyRequestCreatedEvent), Is.Not.Null);
         }
     }
 }

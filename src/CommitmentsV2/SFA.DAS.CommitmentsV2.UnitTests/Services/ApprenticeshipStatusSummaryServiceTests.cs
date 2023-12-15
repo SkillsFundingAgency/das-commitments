@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var response = await _fixture.GetResponse(222);
 
             //Assert            
-            Assert.IsNotNull(response);
+            Assert.That(response, Is.Not.Null);
             Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityIdentifier, Is.EqualTo(_fixture.LegalEntityIdentifier));
             Assert.That(response.GetApprenticeshipStatusSummaryQueryResult.FirstOrDefault().LegalEntityOrganisationType, Is.EqualTo(_fixture.organisationType));
             if (paymentStatus == PaymentStatus.Active)

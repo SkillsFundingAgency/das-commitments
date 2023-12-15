@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
         {
             _fixture.SeedData().WithNoMatchingApprenticeship();
             var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.DataLocksWithCourseMismatch.Count, Is.EqualTo(0));
             Assert.That(result.DataLocksWithOnlyPriceMismatch.Count, Is.EqualTo(0));
         }
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
         {
             await _fixture.SeedData().ExpireTheDataLockRecords();
             var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.DataLocksWithCourseMismatch.Count, Is.EqualTo(0));
             Assert.That(result.DataLocksWithOnlyPriceMismatch.Count, Is.EqualTo(0));
         }
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLockSummari
         {
             await _fixture.SeedData().SetEventStatusRemoved();
             var result = await _fixture.Handle();
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.DataLocksWithCourseMismatch.Count, Is.EqualTo(0));
             Assert.That(result.DataLocksWithOnlyPriceMismatch.Count, Is.EqualTo(0));
         }
