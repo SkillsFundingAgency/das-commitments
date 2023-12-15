@@ -302,11 +302,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.Creation
             if (isThrown)
             {
                 Assert.That(Exception, Is.Not.Null);
-                Assert.IsInstanceOf<T>(Exception);
+                Assert.That(Exception, Is.InstanceOf<T>());
             }
             else
             {
-                Assert.IsNull(Exception);
+                Assert.That(Exception, Is.Null);
             }
         }
 

@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
             await fixture.Handle();
 
-            Assert.IsFalse(fixture.DbContext.FileUploadLogs.Any()); ;
+            Assert.That(fixture.DbContext.FileUploadLogs.Any(), Is.False); ;
         }
     }
 
@@ -210,7 +210,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var log = DbContext.FileUploadLogs.FirstOrDefault(x => x.Id.Equals(Command.LogId.Value));
             Assert.That(log, Is.Not.Null);
             Assert.That(log.ProviderAction, Is.EqualTo(Command.ProviderAction));
-            Assert.That(log.CreatedOn, Is.Not.Null);
             Assert.That(log.CohortLogs.Count, Is.EqualTo(DbContext.Cohorts.Count()));
         }
 

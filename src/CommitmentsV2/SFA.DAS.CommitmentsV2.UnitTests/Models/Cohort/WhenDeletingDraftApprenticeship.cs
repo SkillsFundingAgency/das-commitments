@@ -164,13 +164,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyTransferRejectionReset()
             {
-                Assert.IsNull(Cohort.TransferApprovalStatus);
+                Assert.That(Cohort.TransferApprovalStatus, Is.Null);
                 Assert.That(Cohort.LastAction, Is.EqualTo(LastAction.AmendAfterRejected));
             }
 
             public void VerifyDeletion()
             {
-                Assert.IsFalse(Cohort.DraftApprenticeships.Contains(DeletionTarget));
+                Assert.That(Cohort.DraftApprenticeships.Contains(DeletionTarget), Is.False);
                 Assert.That(Cohort.DraftApprenticeships.Count(), Is.EqualTo(CohortSize - 1));
             }
 
@@ -187,7 +187,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyCohortIsNotDeleted()
             {
-                Assert.IsFalse(Cohort.IsDeleted);
+                Assert.That(Cohort.IsDeleted, Is.False);
             }
 
             public UserInfo UserInfo { get; }

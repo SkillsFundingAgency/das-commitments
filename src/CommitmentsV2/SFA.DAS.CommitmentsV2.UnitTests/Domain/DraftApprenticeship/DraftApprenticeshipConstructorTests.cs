@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Party.Employer);
             Assert.That(result.Uln, Is.EqualTo(_source.Uln));
-            Assert.IsNull(result.Uln);
+            Assert.That(result.Uln, Is.Null);
         }
 
         [Test]

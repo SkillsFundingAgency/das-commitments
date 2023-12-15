@@ -534,7 +534,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             catch (DomainException ex)
             {
                 Assert.That(expected, Is.False);
-                Assert.Contains(propertyName, ex.DomainErrors.Select(x => x.PropertyName).ToList());
+                Assert.That(ex.DomainErrors.Select(x => x.PropertyName).ToList(), Does.Contain(propertyName));
             }
         }
 

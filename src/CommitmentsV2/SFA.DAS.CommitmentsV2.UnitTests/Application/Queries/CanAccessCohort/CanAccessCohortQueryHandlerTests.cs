@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
 
             var response = await fixtures.Handle();
 
-            Assert.IsFalse(response);
+            Assert.That(response, Is.False);
         }
     }
 

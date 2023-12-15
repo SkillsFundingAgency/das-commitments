@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(641, 0)]
         public void EmailOptionalService_ApprenticeEmailIsOptionalFor_Negative(long employerId, long providerId)
         {
-            Assert.IsFalse(_sut.ApprenticeEmailIsOptionalFor(employerId, providerId));
+            Assert.That(_sut.ApprenticeEmailIsOptionalFor(employerId, providerId), Is.False);
         }
 
         [TestCase(456)]
@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(321)]
         public void EmailOptionalService_ApprenticeEmailIsOptionalForEmployer_Negative(long employerId)
         {
-            Assert.IsFalse(_sut.ApprenticeEmailIsOptionalForEmployer(employerId));
+            Assert.That(_sut.ApprenticeEmailIsOptionalForEmployer(employerId), Is.False);
         }
 
         [TestCase(987)]
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(123)]
         public void EmailOptionalService_ApprenticeEmailIsOptionalForProvider_Negative(long providerId)
         {
-            Assert.IsFalse(_sut.ApprenticeEmailIsOptionalForProvider(providerId));
+            Assert.That(_sut.ApprenticeEmailIsOptionalForProvider(providerId), Is.False);
         }
 
         [TestCase(111, 222)]
@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var res = _sut.ApprenticeEmailIsRequiredFor(employerId, providerId);
 
-            Assert.IsFalse(_sut.ApprenticeEmailIsRequiredFor(employerId, providerId));
+            Assert.That(_sut.ApprenticeEmailIsRequiredFor(employerId, providerId), Is.False);
         }
 
         [TestCase(321)]
@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(123)]        
         public void EmailOptionalService_ApprenticeEmailIsRequiredForEmployer_Negative(long employerId)
         {
-            Assert.False(_sut.ApprenticeEmailIsRequiredForEmployer(employerId));
+            Assert.That(_sut.ApprenticeEmailIsRequiredForEmployer(employerId), Is.False);
         }
 
         [TestCase(123)]
@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase(654)]
         public void EmailOptionalService_ApprenticeEmailIsRequiredForProvider_Negative(long providerId)
         {
-            Assert.IsFalse(_sut.ApprenticeEmailIsRequiredForProvider(providerId));
+            Assert.That(_sut.ApprenticeEmailIsRequiredForProvider(providerId), Is.False);
         }
 
         [TestCase(654, 1234)]
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var config = new EmailOptionalConfiguration { EmailOptionalEmployers = null, EmailOptionalProviders = null };
             var sut = new EmailOptionalService(config);
 
-            Assert.IsFalse(sut.ApprenticeEmailIsOptionalFor(employerId, providerId));
+            Assert.That(sut.ApprenticeEmailIsOptionalFor(employerId, providerId), Is.False);
         }
 
         [TestCase(654)]
@@ -118,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var config = new EmailOptionalConfiguration { EmailOptionalEmployers = null, EmailOptionalProviders = null };
             var sut = new EmailOptionalService(config);
 
-            Assert.IsFalse(sut.ApprenticeEmailIsOptionalForProvider(providerId));
+            Assert.That(sut.ApprenticeEmailIsOptionalForProvider(providerId), Is.False);
         }
 
         [TestCase(1234)]
@@ -127,7 +127,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var config = new EmailOptionalConfiguration { EmailOptionalEmployers = null, EmailOptionalProviders = null };
             var sut = new EmailOptionalService(config);
 
-            Assert.IsFalse(sut.ApprenticeEmailIsOptionalForEmployer(employerId));
+            Assert.That(sut.ApprenticeEmailIsOptionalForEmployer(employerId), Is.False);
         }
     }
 }

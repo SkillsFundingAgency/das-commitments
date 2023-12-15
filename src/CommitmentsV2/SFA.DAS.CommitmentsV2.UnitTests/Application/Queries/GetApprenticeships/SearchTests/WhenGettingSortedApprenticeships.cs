@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             //Assert
             Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
-            Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
+            Assert.That(actual.Apprenticeships.Contains(apprenticeships[1]), Is.False);
         }
 
         [Test, MoqAutoData]
@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             //Assert
             Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
-            Assert.IsFalse(actual.Apprenticeships.Contains(apprenticeships[1]));
+            Assert.That(actual.Apprenticeships.Contains(apprenticeships[1]), Is.False);
         }
 
         [Test, MoqAutoData]

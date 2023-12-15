@@ -496,7 +496,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _dataLockUpdater.RunUpdate();
 
             //Assert
-            Assert.IsFalse(Db.DataLocks.Any(x => x.Id == dataLockEventId2));
+            Assert.That(Db.DataLocks.Any(x => x.Id == dataLockEventId2), Is.False);
         }
 
         [TestCase(10, "TEST-01/05/2017", false)]

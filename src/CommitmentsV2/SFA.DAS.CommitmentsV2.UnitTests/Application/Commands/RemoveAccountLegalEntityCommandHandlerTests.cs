@@ -176,7 +176,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 (DraftApprenticeshipDeletedEvent)UnitOfWorkContext.GetEvents()
                     .Single(x => x is DraftApprenticeshipDeletedEvent);
 
-            Assert.IsNull(deleted, "Draft apprenticeship record not deleted");
+            Assert.That(deleted, Is.Null, "Draft apprenticeship record not deleted");
 
             emittedEvent.DraftApprenticeshipId = DraftApprenticeship.Id;
             emittedEvent.CohortId = Cohort.Id;

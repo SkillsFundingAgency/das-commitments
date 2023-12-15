@@ -113,23 +113,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 
         public void VerifyNoMessageIsAdded()
         {
-            Assert.IsFalse(Cohort.Messages.Any());
+            Assert.That(Cohort.Messages.Any(), Is.False);
         }
 
         public void VerifyException<T>()
         {
             Assert.That(Exception, Is.Not.Null);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void VerifyNoException()
         {
-            Assert.IsNull(Exception);
+            Assert.That(Exception, Is.Null);
         }
 
         public void VerifyCohortIsNotDraft()
         {
-            Assert.IsFalse(Cohort.IsDraft);
+            Assert.That(Cohort.IsDraft, Is.False);
         }
 
         public void VerifyCohortIsWithOtherParty()
@@ -144,8 +144,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 
         public void VerifyCohortHasNoTransferInformation()
         {
-            Assert.IsNull(Cohort.TransferSenderId);
-            Assert.IsNull(Cohort.TransferSender);
+            Assert.That(Cohort.TransferSenderId, Is.Null);
+            Assert.That(Cohort.TransferSender, Is.Null);
         }
 
         public void VerifyCohortTracking()

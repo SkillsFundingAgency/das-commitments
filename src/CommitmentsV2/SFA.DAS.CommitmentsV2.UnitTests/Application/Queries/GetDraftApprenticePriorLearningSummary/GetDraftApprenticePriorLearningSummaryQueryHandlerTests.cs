@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await fixture.Handle();
 
-            Assert.IsNull(result.FundingBandMaximum);
+            Assert.That(result.FundingBandMaximum, Is.Null);
         }
 
         [TestCase(3200, 2000,  false)]
@@ -130,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.That(result.PercentageOfPriorLearning.HasValue, Is.EqualTo(expectedToHaveAValue));
             Assert.That(result.MinimumPercentageReduction.HasValue, Is.EqualTo(expectedToHaveAValue));
             Assert.That(result.MinimumPriceReduction.HasValue, Is.EqualTo(expectedToHaveAValue));
-            Assert.IsFalse(result.RplPriceReductionError);
+            Assert.That(result.RplPriceReductionError, Is.False);
         }
 
         [TestCase(3200, 2000, false)]

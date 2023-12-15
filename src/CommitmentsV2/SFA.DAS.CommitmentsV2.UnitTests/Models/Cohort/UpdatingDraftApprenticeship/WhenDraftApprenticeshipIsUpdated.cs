@@ -427,7 +427,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithChangeOfPartyCohort()
                 .UpdateDraftApprenticeshipFirstName();
 
-            Assert.IsNull(fixture.Exception);
+            Assert.That(fixture.Exception, Is.Null);
         }
 
         [TestCase(Party.Employer)]
@@ -441,7 +441,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithChangeOfPartyCohort()
                 .UpdateDraftApprenticeshipLastName();
 
-            Assert.IsNull(fixture.Exception);
+            Assert.That(fixture.Exception, Is.Null);
         }
 
         [TestCase(Party.Employer)]
@@ -455,7 +455,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithChangeOfPartyCohort()
                 .UpdateDraftApprenticeshipDateOfBirth();
 
-            Assert.IsNull(fixture.Exception);
+            Assert.That(fixture.Exception, Is.Null);
         }
 
         [TestCase(Party.Employer)]
@@ -854,8 +854,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyTrainingPriceAndEPAPriceAreNull()
             {
-                Assert.IsNull(Cohort.Apprenticeships.Single().TrainingPrice);
-                Assert.IsNull(Cohort.Apprenticeships.Single().EndPointAssessmentPrice);
+                Assert.That(Cohort.Apprenticeships.Single().TrainingPrice, Is.Null);
+                Assert.That(Cohort.Apprenticeships.Single().EndPointAssessmentPrice, Is.Null);
             }
 
             public void VerifyTrainingPriceAndEPAPriceAreNotNull()

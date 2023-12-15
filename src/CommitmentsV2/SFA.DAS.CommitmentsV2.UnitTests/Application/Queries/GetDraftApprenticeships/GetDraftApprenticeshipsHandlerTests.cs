@@ -192,7 +192,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             public void VerifyNoResult()
             {
-                Assert.IsNull(_queryResult.DraftApprenticeships);
+                Assert.That(_queryResult.DraftApprenticeships, Is.Null);
             }
 
             public void Dispose()

@@ -53,9 +53,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedBy);
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.PriceReducedBy);
-            Assert.IsNull(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedByHours);
+            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedBy, Is.Null);
+            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.PriceReducedBy, Is.Null);
+            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedByHours, Is.Null);
         }
     }
 
@@ -166,7 +166,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void VerifyException<T>()
         {
             Assert.That(Exception, Is.Not.Null);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void Dispose()

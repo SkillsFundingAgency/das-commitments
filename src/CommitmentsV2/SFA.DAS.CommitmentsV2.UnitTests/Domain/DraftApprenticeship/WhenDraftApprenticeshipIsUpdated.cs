@@ -158,7 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void And_NewStandardOrStandardVersionIsSelected_Then_SelectedOptionIsResetToNull(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).WithNewStandardUId().ApplyUpdate();
-            Assert.IsNull(result.TrainingCourseOption);
+            Assert.That(result.TrainingCourseOption, Is.Null);
         }
 
         [TestCase(Party.Provider)]
@@ -167,8 +167,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         {
             var flexibleEmployment = new Fixture().Create<FlexibleEmployment>();
             var result = _fixture.WithModifyingParty(modifyingParty).WithDeliveryModel(DeliveryModel.Regular, flexibleEmployment).ApplyUpdate(flexibleEmployment);
-            Assert.IsNull(result.FlexibleEmployment.EmploymentEndDate);
-            Assert.IsNull(result.FlexibleEmployment.EmploymentPrice);
+            Assert.That(result.FlexibleEmployment.EmploymentEndDate, Is.Null);
+            Assert.That(result.FlexibleEmployment.EmploymentPrice, Is.Null);
         }
 
         [TestCase(Party.Provider)]

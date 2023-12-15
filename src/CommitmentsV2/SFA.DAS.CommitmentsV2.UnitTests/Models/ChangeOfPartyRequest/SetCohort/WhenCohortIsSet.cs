@@ -99,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.SetCohort
 
             public void VerifyNoException()
             {
-                Assert.IsNull(_exception);
+                Assert.That(_exception, Is.Null);
             }
         }
     }

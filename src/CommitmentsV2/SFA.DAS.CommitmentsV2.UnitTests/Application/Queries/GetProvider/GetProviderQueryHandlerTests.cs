@@ -42,9 +42,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider
         [Test]
         public async Task Handle_WhenProviderDoesNotExist_ThenShouldReturnNull()
         {
-            var result = await _fixture.Handle(); 
-            
-            Assert.IsNull(result);
+            var result = await _fixture.Handle();
+
+            Assert.That(result, Is.Null);
         }
     }
 

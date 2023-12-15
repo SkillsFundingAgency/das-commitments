@@ -188,7 +188,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
             _source.BulkUploadDraftApprenticeships.ForEach(source =>
             {
                 var result = _result.First(y => y.Uln == source.Uln);
-                Assert.IsFalse(result.IsOnFlexiPaymentPilot);
+                Assert.That(result.IsOnFlexiPaymentPilot, Is.False);
             });
         }
     }

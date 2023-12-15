@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortPriorLear
 
             var result = await fixture.Handle();
 
-            Assert.IsInstanceOf<GetCohortPriorLearningErrorQueryResult>(result);
+            Assert.That(result, Is.InstanceOf<GetCohortPriorLearningErrorQueryResult>());
         }
 
     }

@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             var actual = await mapper.Map(apprenticeship);
 
             //Assert
-            Assert.IsNull(actual.ConfirmationStatus);
+            Assert.That(actual.ConfirmationStatus, Is.Null);
         }
 
         private static Apprenticeship CreateApprenticeship()

@@ -351,7 +351,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
             public void VerifyCohortIsNotDraft()
             {
-                Assert.IsFalse(Result.IsDraft);
+                Assert.That(Result.IsDraft, Is.False);
             }
 
             public void VerifyDraftApprenticeshipDetails()
@@ -419,7 +419,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             {
                 if (Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
                 {
-                    Assert.IsNull(Result.TransferSenderId);
+                    Assert.That(Result.TransferSenderId, Is.Null);
                 }
                 else
                 {

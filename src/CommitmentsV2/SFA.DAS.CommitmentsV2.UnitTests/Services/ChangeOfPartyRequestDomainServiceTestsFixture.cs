@@ -207,20 +207,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public void VerifyResult()
         {
-            Assert.IsNull(Exception);
+            Assert.That(Exception, Is.Null);
             Assert.That(Result, Is.Not.Null);
             Assert.That(Result, Is.EqualTo(ApprenticeshipChangeOfPartyRequestResult));
         }
 
         public void VerifyResultAddedToDbContext()
         {
-            Assert.Contains(Result, Db.Object.ChangeOfPartyRequests.ToList());
+            Assert.That(Db.Object.ChangeOfPartyRequests.ToList(), Does.Contain(Result));
         }
 
         public void VerifyException<T>()
         {
             Assert.That(Exception, Is.Not.Null);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
     }
 }

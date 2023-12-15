@@ -191,7 +191,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void VerifyException<T>()
         {
             Assert.That(Exception, Is.Not.Null);
-            Assert.IsInstanceOf<T>(Exception);
+            Assert.That(Exception, Is.InstanceOf<T>());
         }
 
         public void Dispose()

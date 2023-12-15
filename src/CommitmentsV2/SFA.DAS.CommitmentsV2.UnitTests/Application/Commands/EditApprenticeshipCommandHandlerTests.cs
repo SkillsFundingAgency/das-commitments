@@ -526,8 +526,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var apprenticeship = Db.Apprenticeships.Where(x => x.Id == Command.EditApprenticeshipRequest.ApprenticeshipId).First();
             Assert.That(apprenticeship.ApprenticeshipUpdate.Count, Is.EqualTo(1));
-            Assert.IsNull(apprenticeship.ApprenticeshipUpdate.First().EmploymentEndDate);
-            Assert.IsNull(apprenticeship.ApprenticeshipUpdate.First().EmploymentPrice);
+            Assert.That(apprenticeship.ApprenticeshipUpdate.First().EmploymentEndDate, Is.Null);
+            Assert.That(apprenticeship.ApprenticeshipUpdate.First().EmploymentPrice, Is.Null);
         }
 
         internal void VerifyApprenticeshipUpdateCreatedEvent()

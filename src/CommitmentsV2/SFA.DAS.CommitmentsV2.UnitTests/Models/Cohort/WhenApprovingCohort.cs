@@ -652,7 +652,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             }
             else
             {
-                Assert.IsNull(Cohort.EmployerAndProviderApprovedOn);
+                Assert.That(Cohort.EmployerAndProviderApprovedOn, Is.Null);
             }
         }
     }
