@@ -142,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         public class OverlappingTrainingDateRequestNotificationToEmployerTestsFixture : IDisposable
         {
             OverlappingTrainingDateRequestNotificationToEmployerCommandHandler _sut;
-            OverlappingTrainingDateRequestNotificationToEmployerCommand _command;
+            OverlappingTrainingDateRequestNotificationToEmployerCommand _command = null;
             ProviderCommitmentsDbContext Db;
             Mock<ICurrentDateTime> _currentDateTime;
             Mock<IMessageSession> _messageSession;
