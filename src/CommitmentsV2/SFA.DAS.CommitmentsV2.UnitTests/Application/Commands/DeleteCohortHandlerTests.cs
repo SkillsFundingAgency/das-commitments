@@ -234,12 +234,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.That(emittedEvent.ChangeOfPartyRequestId, Is.EqualTo(Cohort.ChangeOfPartyRequestId));
             Assert.That(emittedEvent.RecipientEmailAddress, Is.EqualTo(Cohort.LastUpdatedByEmployerEmail));
             Assert.That(emittedEvent.EmployerName, Is.EqualTo(Cohort.AccountLegalEntity.Name));
-            Assert.That($"Test Test", Is.True, emittedEvent.ApprenticeName);
+            Assert.That(emittedEvent.ApprenticeName, Is.EqualTo($"Test Test"));
         }
 
         public void VerifProviderRejectedChangeOfPartyRequestEventIsNotPublished()
         {
-            Assert.That(UnitOfWorkContext.GetEvents().FirstOrDefault(x => x is ProviderRejectedChangeOfPartyRequestEvent), Is.True);
+            Assert.That(UnitOfWorkContext.GetEvents().FirstOrDefault(x => x is ProviderRejectedChangeOfPartyRequestEvent), Is.Null);
         }
 
         internal void WithChangeOfParty(bool value)

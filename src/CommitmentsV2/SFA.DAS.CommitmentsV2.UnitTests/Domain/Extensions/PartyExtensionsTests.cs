@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         public void TestValidEditStatusMapping(Party party, EditStatus expectedResult)
         {
             var result = party.ToEditStatus();
-            Assert.IsTrue(result == expectedResult);
+            Assert.That(result == expectedResult, Is.True);
         }
 
         [TestCase(Party.TransferSender)]
@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         public void TestValidOriginatorMapping(Party party, Originator expectedResult)
         {
             var result = party.ToOriginator();
-            Assert.IsTrue(result == expectedResult);
+            Assert.That(result == expectedResult, Is.True);
         }
 
         [TestCase(Party.TransferSender)]

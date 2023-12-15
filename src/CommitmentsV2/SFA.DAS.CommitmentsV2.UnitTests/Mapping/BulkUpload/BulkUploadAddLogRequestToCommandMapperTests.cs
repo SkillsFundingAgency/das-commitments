@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             var compare = new CompareLogic();
             var compareResult = compare.Compare(_source.ProviderId, _result.ProviderId);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             var compare = new CompareLogic();
             var compareResult = compare.Compare(_source.RplCount, _result.RplCount);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             var compare = new CompareLogic();
             var compareResult = compare.Compare(_source.RowCount, _result.RowCount);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             var compare = new CompareLogic();
             var compareResult = compare.Compare(_source.FileName, _result.FileName);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         {
             var compare = new CompareLogic();
             var compareResult = compare.Compare(_source.FileContent, _result.FileContent);
-            Assert.IsTrue(compareResult.AreEqual);
+            Assert.That(compareResult.AreEqual, Is.True);
         }
     }
 }

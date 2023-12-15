@@ -830,7 +830,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
 
             public void VerifyCohortIsApprovedByOtherParty()
             {
-                Assert.IsTrue(Cohort.Approvals.HasFlag(ModifyingParty.GetOtherParty()));
+                Assert.That(Cohort.Approvals.HasFlag(ModifyingParty.GetOtherParty()), Is.True);
             }
 
             public void VerifyDraftApprenticeshipTracking()

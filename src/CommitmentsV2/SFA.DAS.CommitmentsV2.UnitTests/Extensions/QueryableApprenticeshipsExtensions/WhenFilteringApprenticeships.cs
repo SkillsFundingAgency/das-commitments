@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(2));
-            Assert.IsTrue(result.All(a => a.Cohort.AccountLegalEntity.Name.Equals(filterValue)));
+            Assert.That(result.All(a => a.Cohort.AccountLegalEntity.Name.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.Cohort.AccountLegalEntity.Name.Equals(filterValue)));
+            Assert.That(result.All(a => a.Cohort.AccountLegalEntity.Name.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(2));
-            Assert.IsTrue(result.All(a => a.Cohort.Provider.Name.Equals(filterValue)));
+            Assert.That(result.All(a => a.Cohort.Provider.Name.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.Cohort.Provider.Name.Equals(filterValue)));
+            Assert.That(result.All(a => a.Cohort.Provider.Name.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(2));
-            Assert.IsTrue(result.All(a => a.CourseName.Equals(filterValue)));
+            Assert.That(result.All(a => a.CourseName.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -209,7 +209,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.CourseName.Equals(filterValue)));
+            Assert.That(result.All(a => a.CourseName.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -242,7 +242,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(2));
-            Assert.IsTrue(result.All(a => a.PaymentStatus.Equals(filterValue)));
+            Assert.That(result.All(a => a.PaymentStatus.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -346,7 +346,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.PaymentStatus.Equals(filterValue)));
+            Assert.That(result.All(a => a.PaymentStatus.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -378,7 +378,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(2));
-            Assert.IsTrue(result.All(a => a.StartDate.Equals(filterValue)));
+            Assert.That(result.All(a => a.StartDate.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -407,7 +407,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.StartDate.Equals(filterValue)));
+            Assert.That(result.All(a => a.StartDate.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -439,7 +439,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(2));
-            Assert.IsTrue(result.All(a => a.EndDate.Equals(filterValue)));
+            Assert.That(result.All(a => a.EndDate.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -468,7 +468,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.EndDate.Equals(filterValue)));
+            Assert.That(result.All(a => a.EndDate.Equals(filterValue)), Is.True);
         }
 
         [Test]
@@ -497,7 +497,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.Cohort.AccountLegalEntityId == filterValue));
+            Assert.That(result.All(a => a.Cohort.AccountLegalEntityId == filterValue), Is.True);
         }
 
         [Test]
@@ -528,7 +528,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.StartDate.Value.Date >= filterValue));
+            Assert.That(result.All(a => a.StartDate.Value.Date >= filterValue), Is.True);
         }
 
         [Test]
@@ -559,7 +559,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.StartDate.Value.Date <= filterValue));
+            Assert.That(result.All(a => a.StartDate.Value.Date <= filterValue), Is.True);
         }
 
         [TestCase(Alerts.IlrDataMismatch, "1", true)]
@@ -581,7 +581,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.Uln.Equals(validApprenticeshipUln)));
+            Assert.That(result.All(a => a.Uln.Equals(validApprenticeshipUln)), Is.True);
         }
 
         [Test]
@@ -820,7 +820,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.QueryableApprenticeshipsExt
 
             //Assert
             Assert.That(result.Count, Is.EqualTo(1));
-            Assert.IsTrue(result.All(a => a.Uln == "2" && a.DataLockStatus.Any(x => !x.IsExpired)));
+            Assert.That(result.All(a => a.Uln == "2" && a.DataLockStatus.Any(x => !x.IsExpired)), Is.True);
         }
 
         private AccountLegalEntity CreateAccountLegalEntity(string name)

@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
         public void TestValidOriginatorMapping(Originator originator, Party expectedResult)
         {
             var result = originator.ToParty();
-            Assert.IsTrue(result == expectedResult);
+            Assert.That(result == expectedResult, Is.True);
         }
 
         [TestCase(Originator.Unknown)]

@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.DownloadRestrictionsExtensi
 
             //Assert
             Assert.That(result.Count(), Is.EqualTo(2));
-            Assert.IsTrue(result.All(x => x.FirstName.Equals("Included")));
+            Assert.That(result.All(x => x.FirstName.Equals("Included")), Is.True);
         }
     }
 }

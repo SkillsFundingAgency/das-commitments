@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                     .Select(p => p.Value);
 
                 var results = await fixture.Handle(expectedOutput.Key);
-                Assert.IsTrue(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.ChangeOfEmployerChain, filteredExpectedOutputs));
+                Assert.That(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.ChangeOfEmployerChain, filteredExpectedOutputs), Is.True);
             }
         }
     }

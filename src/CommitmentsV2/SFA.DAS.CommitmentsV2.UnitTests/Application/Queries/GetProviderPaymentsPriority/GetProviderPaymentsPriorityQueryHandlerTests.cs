@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
             }
 
             var results = await fixture.Handle(accountId);
-            Assert.IsTrue(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.PriorityItems, expectedOutputs));
+            Assert.That(TestHelpers.CompareHelper.AreEqualIgnoringTypes(results.PriorityItems, expectedOutputs), Is.True);
         }
     }
 

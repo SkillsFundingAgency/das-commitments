@@ -122,12 +122,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortIsUnapproved()
         {
-            Assert.IsTrue(Cohort.Approvals == Party.None);
+            Assert.That(Cohort.Approvals == Party.None, Is.True);
         }
 
         public void VerifyCohortContainsDraftApprenticeship()
         {
-            Assert.IsTrue(Cohort.Apprenticeships.Any());
+            Assert.That(Cohort.Apprenticeships.Any(), Is.True);
         }
 
 
@@ -149,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyCohortIsDraft()
         {
-            Assert.IsTrue(Cohort.IsDraft);
+            Assert.That(Cohort.IsDraft, Is.True);
         }
 
         public void VerifyCohortBelongsToAccount()

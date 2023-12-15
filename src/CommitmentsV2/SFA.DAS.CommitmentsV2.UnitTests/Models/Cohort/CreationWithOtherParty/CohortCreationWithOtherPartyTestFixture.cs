@@ -107,8 +107,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
         {
             var createdBy = CreatingParty == Party.Employer ? 0 : 1;
 
-            Assert.IsTrue(Cohort.Messages.Any(x =>
-                x.Text == Message && x.Author == UserInfo.UserDisplayName && x.CreatedBy == createdBy));
+            Assert.That(Cohort.Messages.Any(x =>
+                x.Text == Message && x.Author == UserInfo.UserDisplayName && x.CreatedBy == createdBy), Is.True);
         }
 
         public void VerifyNoMessageIsAdded()

@@ -162,7 +162,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var emittedEvent = (CohortDeletedEvent)UnitOfWorkContext.GetEvents().Single(x => x is CohortDeletedEvent);
 
-            Assert.IsTrue(Cohort.IsDeleted, "Cohort is not marked as deleted");
+            Assert.That(Cohort.IsDeleted, Is.True, "Cohort is not marked as deleted");
             Assert.That(emittedEvent.CohortId, Is.EqualTo(Cohort.Id));
             Assert.That(emittedEvent.AccountId, Is.EqualTo(Cohort.EmployerAccountId));
             Assert.That(emittedEvent.ProviderId, Is.EqualTo(Cohort.ProviderId));

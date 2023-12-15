@@ -156,21 +156,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
         [Test]
         public void UserInfoIsMappedCorrectly()
         {
-            Assert.IsTrue(_source.UserInfo.UserDisplayName == _result.UserInfo.UserDisplayName &&
+            Assert.That(_source.UserInfo.UserDisplayName == _result.UserInfo.UserDisplayName &&
                 _source.UserInfo.UserEmail == _result.UserInfo.UserEmail &&
-                _source.UserInfo.UserId == _result.UserInfo.UserId);
+                _source.UserInfo.UserId == _result.UserInfo.UserId, Is.True);
         }
 
         [Test]
         public void LogIdIsMappedCorrectly()
         {
-            Assert.IsTrue(_source.LogId == _result.LogId);
+            Assert.That(_source.LogId == _result.LogId, Is.True);
         }
 
         [Test]
         public void ProviderActionIsCreatedCorrectly()
         {
-            Assert.IsTrue("SaveAsDraft" == _result.ProviderAction);
+            Assert.That("SaveAsDraft" == _result.ProviderAction, Is.True);
         }
     }
 }

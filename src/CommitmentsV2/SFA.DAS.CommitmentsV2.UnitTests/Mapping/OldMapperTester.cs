@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
             var output = await mapper.Map(input.Object);
 
-            Assert.IsTrue(expectOutput(output));
+            Assert.That(expectOutput(output), Is.True);
         }
 
         protected Task AssertPropertySet<TProp, TValue>(Expression<Func<TFrom, TProp>> property, TValue fromValue)
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                 
             var areTheSameValue = comparer.Equals(fromValue, toValue);
 
-            Assert.IsTrue(areTheSameValue, $"Values not mapped across. Property:{fromProperty.Name} FromValue:{fromValue} ToValue:{toValue}");
+            Assert.That(areTheSameValue, Is.True, $"Values not mapped across. Property:{fromProperty.Name} FromValue:{fromValue} ToValue:{toValue}");
         }
 
         private PropertyInfo GetPropertyInfo<TType,TProp>(Expression<Func<TType, TProp>> property)

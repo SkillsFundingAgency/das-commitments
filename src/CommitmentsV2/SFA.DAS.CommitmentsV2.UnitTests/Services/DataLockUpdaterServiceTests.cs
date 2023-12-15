@@ -258,8 +258,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var apprenticeshipHasNotHadDataLockSuccess = Db.Apprenticeships.FirstOrDefault(x => x.Id == hasNotHadDataLockSuccessApprenticeshipId);
             var apprenticeshipHasHadDataLockSuccess = Db.Apprenticeships.FirstOrDefault(x => x.Id == hasHadDataLockSuccessApprenticeshipId);
 
-            Assert.IsTrue(apprenticeshipHasNotHadDataLockSuccess.HasHadDataLockSuccess);
-            Assert.IsTrue(apprenticeshipHasHadDataLockSuccess.HasHadDataLockSuccess);
+            Assert.That(apprenticeshipHasNotHadDataLockSuccess.HasHadDataLockSuccess, Is.True);
+            Assert.That(apprenticeshipHasHadDataLockSuccess.HasHadDataLockSuccess, Is.True);
         }
 
         [TestCase(200, DataLockErrorCode.None, true)]
@@ -325,7 +325,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _dataLockUpdater.RunUpdate();
 
             //Assert
-            Assert.IsTrue(Db.DataLocks.Any(x => x.DataLockEventId == datalockEventId && x.ErrorCode == expectSavedErrorCode));
+            Assert.That(Db.DataLocks.Any(x => x.DataLockEventId == datalockEventId && x.ErrorCode == expectSavedErrorCode), Is.True);
         }
 
         [TestCase(10, DataLockErrorCode.None, true)]
@@ -411,10 +411,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             //Assert
             var apprenticeship = Db.Apprenticeships.First(x => x.Id == objectId);
-            Assert.IsTrue(apprenticeship.PendingUpdateOriginator == Originator.Unknown);
+            Assert.That(apprenticeship.PendingUpdateOriginator == Originator.Unknown, Is.True);
 
             var apprenticeshipUpdate = Db.ApprenticeshipUpdates.First(x => x.Id == objectId);
-            Assert.IsTrue(apprenticeshipUpdate.Status == ApprenticeshipUpdateStatus.Pending);
+            Assert.That(apprenticeshipUpdate.Status == ApprenticeshipUpdateStatus.Pending, Is.True);
         }
 
         [Test]

@@ -176,12 +176,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyCohortIsUnapprovedByAllParties()
             {
-                Assert.IsTrue(Cohort.Approvals == Party.None);
+                Assert.That(Cohort.Approvals == Party.None, Is.True);
             }
 
             public void VerifyCohortIsDeleted()
             {
-                Assert.IsTrue(Cohort.IsDeleted);
+                Assert.That(Cohort.IsDeleted, Is.True);
                 Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortDeletedEvent));
             }
 

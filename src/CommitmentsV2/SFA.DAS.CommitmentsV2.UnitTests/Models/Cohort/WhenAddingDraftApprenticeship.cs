@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .WithApproval(modifyingParty.GetOtherParty())
                 .AddDraftApprenticeship();
 
-            Assert.IsTrue(_fixture.Cohort.Approvals == Party.None);
+            Assert.That(_fixture.Cohort.Approvals == Party.None, Is.True);
         }
 
         [TestCase(Party.Employer)]

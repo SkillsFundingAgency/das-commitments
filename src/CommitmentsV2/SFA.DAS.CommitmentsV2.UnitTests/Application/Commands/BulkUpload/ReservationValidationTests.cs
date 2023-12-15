@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var errors = await fixture.Handle();
             Assert.That(errors.BulkUploadValidationErrors.Count, Is.EqualTo(1));
             Assert.That(errors.BulkUploadValidationErrors.First().Errors.Count, Is.EqualTo(2));
-            Assert.IsTrue(errors.BulkUploadValidationErrors.All(x => x.RowNumber == 1));
+            Assert.That(errors.BulkUploadValidationErrors.All(x => x.RowNumber == 1), Is.True);
         }
     }
 

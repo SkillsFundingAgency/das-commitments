@@ -152,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyInsertedItemInitialStateIsNull()
             {
                 var trackedItem = ChangeTrackingSession.TrackedItems.Single(x => x.Operation == ChangeTrackingOperation.Insert);
-                Assert.IsTrue(trackedItem.InitialState == null);
+                Assert.That(trackedItem.InitialState == null, Is.True);
             }
 
             public void VerifyUpdateInitialState()
@@ -164,7 +164,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyDeletedInitialState()
             {
                 var trackedItem = ChangeTrackingSession.TrackedItems.Single(x => x.Operation == ChangeTrackingOperation.Delete);
-                Assert.AreSame(TestDeleteInitialState, trackedItem.InitialState);
+                Assert.That(trackedItem.InitialState, Is.SameAs(TestDeleteInitialState));
             }
 
             public void VerifyInsertEvent()
