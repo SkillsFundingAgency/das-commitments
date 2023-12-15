@@ -58,8 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                     o.AddAuthorization();
                     o.Filters.Add<ValidateModelStateFilter>();
                     o.Filters.Add<StopwatchFilter>();
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                });
 
             services
                 .AddFluentValidationAutoValidation()
