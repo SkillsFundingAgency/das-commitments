@@ -345,7 +345,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await _fixture.Handle();
 
-            Assert.That("Unable to approve these changes, as the apprentice has confirmed their email address", Is.EqualTo((_fixture.Exception as DomainException).DomainErrors.First().ErrorMessage));
+            Assert.That((_fixture.Exception as DomainException).DomainErrors.First().ErrorMessage, Is.EqualTo("Unable to approve these changes, as the apprentice has confirmed their email address"));
         }
     }
 

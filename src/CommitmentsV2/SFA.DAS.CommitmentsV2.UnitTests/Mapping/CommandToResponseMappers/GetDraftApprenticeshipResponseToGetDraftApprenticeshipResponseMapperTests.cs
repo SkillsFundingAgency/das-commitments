@@ -198,7 +198,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         [Test]
         public Task Map_RecognisingPriorLearningStillNeedsToBeConsidered_ShouldBeSet()
         {
-            bool rplConsidered = true;
             return AssertPropertySet(input => input.RecognisingPriorLearningStillNeedsToBeConsidered, true);
         }
 		

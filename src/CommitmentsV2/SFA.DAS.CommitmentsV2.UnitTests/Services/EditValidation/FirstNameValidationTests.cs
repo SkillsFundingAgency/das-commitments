@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             if (isValid)
             {
-                Assert.That(0, Is.EqualTo(result.Errors.Count));
+                Assert.That(result.Errors.Count, Is.EqualTo(0));
             }
             else
             {

@@ -15,8 +15,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That("Email update cannot be requested", Is.EqualTo(result.Errors[0].ErrorMessage));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Email update cannot be requested"));
             Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Email"));
         }
 
@@ -43,8 +43,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That("Email address cannot be blank", Is.EqualTo(result.Errors[0].ErrorMessage));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Email address cannot be blank"));
         }
 
         [TestCase("@")]
@@ -60,8 +60,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That("Please enter a valid email address", Is.EqualTo(result.Errors[0].ErrorMessage));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Please enter a valid email address"));
             Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Email"));
         }
 

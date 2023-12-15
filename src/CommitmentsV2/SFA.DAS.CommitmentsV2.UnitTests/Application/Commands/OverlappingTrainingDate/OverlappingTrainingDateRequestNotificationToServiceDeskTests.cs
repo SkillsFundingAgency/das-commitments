@@ -129,7 +129,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
         public class OverlappingTrainingDateRequestNotificationToServiceDeskTestsFixture : IDisposable
         {
             OverlappingTrainingDateRequestNotificationToServiceDeskCommandHandler _sut;
-            OverlappingTrainingDateRequestNotificationToServiceDeskCommand _command;
+            private OverlappingTrainingDateRequestNotificationToServiceDeskCommand _command = null;
             ProviderCommitmentsDbContext Db;
             Mock<ICurrentDateTime> _currentDateTime;
             Mock<IMessageSession> _messageSession;

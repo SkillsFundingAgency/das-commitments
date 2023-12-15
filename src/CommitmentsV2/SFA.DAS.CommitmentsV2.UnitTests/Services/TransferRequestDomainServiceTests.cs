@@ -526,15 +526,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var transferSummary = Db.TransferRequests.Where(x => x.Cohort.EmployerAccountId == 222).First();
             if (transferSummary == null) Assert.Fail("TransferRequest not in database.");
-            Assert.That(1000, Is.EqualTo(transferSummary.Cost));
-            Assert.That(TransferApprovalStatus.Pending, Is.EqualTo(transferSummary.Status));
+            Assert.That(transferSummary.Cost, Is.EqualTo(1000));
+            Assert.That(transferSummary.Status, Is.EqualTo(TransferApprovalStatus.Pending));
             Assert.That(TransferSenderUserInfo.UserDisplayName, Is.EqualTo(transferSummary.TransferApprovalActionedByEmployerName));
             Assert.That(TransferSenderUserInfo.UserEmail, Is.EqualTo(transferSummary.TransferApprovalActionedByEmployerEmail));
         }
 
         public void VerifyTransferRequestApprovalPropertiesAreSet()
         {
-            Assert.That(TransferApprovalStatus.Approved, Is.EqualTo(TransferRequest.Status));
+            Assert.That(TransferRequest.Status, Is.EqualTo(TransferApprovalStatus.Approved));
             Assert.That(Now, Is.EqualTo(TransferRequest.TransferApprovalActionedOn));
             Assert.That(TransferSenderUserInfo.UserDisplayName, Is.EqualTo(TransferRequest.TransferApprovalActionedByEmployerName));
             Assert.That(TransferSenderUserInfo.UserEmail, Is.EqualTo(TransferRequest.TransferApprovalActionedByEmployerEmail));

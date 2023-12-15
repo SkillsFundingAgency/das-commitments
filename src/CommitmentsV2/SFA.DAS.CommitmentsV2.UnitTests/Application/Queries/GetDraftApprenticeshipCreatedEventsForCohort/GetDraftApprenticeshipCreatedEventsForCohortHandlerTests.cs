@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(0, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.Count()));
+            Assert.That(result.DraftApprenticeshipCreatedEvents.Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -52,9 +52,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             // Assert
             Assert.That(_fixture.DraftApprentices.Count, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.Count()));
             Assert.That(result.DraftApprenticeshipCreatedEvents.First().CohortId, Is.EqualTo(CohortId));
-            Assert.That(result.DraftApprenticeshipCreatedEvents.First().DraftApprenticeshipId, Is.EqualTo(_fixture.DraftApprentices[0].Id));
-            Assert.That(result.DraftApprenticeshipCreatedEvents.First().ReservationId, Is.EqualTo(_fixture.DraftApprentices[0].ReservationId));
-            Assert.That(result.DraftApprenticeshipCreatedEvents.First().Uln, Is.EqualTo(_fixture.DraftApprentices[0].Uln));
+            Assert.That(_fixture.DraftApprentices[0].Id, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().DraftApprenticeshipId));
+            Assert.That(_fixture.DraftApprentices[0].ReservationId, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().ReservationId));
+            Assert.That(_fixture.DraftApprentices[0].Uln, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().Uln));
             Assert.That(result.DraftApprenticeshipCreatedEvents.First().CreatedOn, Is.EqualTo(_loadedOn));
         }
 

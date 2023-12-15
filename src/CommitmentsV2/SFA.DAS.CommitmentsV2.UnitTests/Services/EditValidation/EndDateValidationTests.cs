@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
+            Assert.That(result.Errors, Is.Not.Null);
             Assert.That(result.Errors.Count, Is.EqualTo(1));
             Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The end date must not be earlier than May 2017"));
             Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));
@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.NotNull(result.Errors);
+            Assert.That(result.Errors, Is.Not.Null);
             Assert.That(result.Errors.Count, Is.EqualTo(1));
             Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The end date must not be on or before the start date"));
             Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));

@@ -776,7 +776,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
 
             //Assert
             Assert.That(actual.PageNumber, Is.EqualTo(2));
-            Assert.IsNotEmpty(actual.Apprenticeships);
+            Assert.That(actual.Apprenticeships, Is.Not.Empty);
         }
     }
 }

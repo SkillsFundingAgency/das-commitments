@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That("The Date of birth is not valid", Is.EqualTo(result.Errors[0].ErrorMessage));
+            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("The Date of birth is not valid"));
             Assert.That(result.Errors[0].PropertyName, Is.EqualTo("DateOfBirth"));
         }
 

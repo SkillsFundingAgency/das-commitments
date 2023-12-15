@@ -438,7 +438,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public async Task Handle_DeletedCohort_ShouldReturnNull()
         {
             CohortIsDeleted = true;
-            await CheckQueryResponse(Assert.IsNull);
+            await CheckQueryResponse((x) => Assert.That(x, Is.Null));
         }
 
         [TestCase(ApprenticeshipEmployerType.Levy)]

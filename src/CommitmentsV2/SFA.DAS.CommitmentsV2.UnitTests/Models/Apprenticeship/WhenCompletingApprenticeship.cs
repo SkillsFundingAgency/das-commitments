@@ -159,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                     x.CompletionDate == _completionDate &&
                     x.ApprenticeshipId == _apprenticeship.Id);
 
-            Assert.NotNull(apprenticeshipCompletedEvent);
+            Assert.That(apprenticeshipCompletedEvent, Is.Not.Null);
         }
 
         public void VerifyApprenticeshipTracking()

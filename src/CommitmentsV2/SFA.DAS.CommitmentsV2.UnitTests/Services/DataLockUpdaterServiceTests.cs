@@ -28,8 +28,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     {
         private ProviderCommitmentsDbContext Db { get; set; }
         private Mock<IApprovalsOuterApiClient> _outerApiClient;
-        private CommitmentPaymentsWebJobConfiguration _config;
-        private Mock<IFilterOutAcademicYearRollOverDataLocks> _filterOutAcademicYearRollOverDataLocks;
         private Fixture _fixture;
         private DataLockUpdaterService _dataLockUpdater;
         private long _seedDataLockEventId;

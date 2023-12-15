@@ -84,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenEmploymentEndDateIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.NotNull(result.FlexibleEmployment);
+            Assert.That(result.FlexibleEmployment, Is.Not.Null);
             Assert.That(result.FlexibleEmployment.EmploymentEndDate, Is.EqualTo(_fixture.DraftApprenticeshipDetails.EmploymentEndDate));
         }
 
@@ -93,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenEmploymentPriceIsMappedCorrectly(Party modifyingParty)
         {
             var result = _fixture.WithModifyingParty(modifyingParty).ApplyUpdate();
-            Assert.NotNull(result.FlexibleEmployment);
+            Assert.That(result.FlexibleEmployment, Is.Not.Null);
             Assert.That(result.FlexibleEmployment.EmploymentPrice, Is.EqualTo(_fixture.DraftApprenticeshipDetails.EmploymentPrice));
         }
 
