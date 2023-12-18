@@ -202,7 +202,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             public CommitmentsV2.Models.Cohort Result { get; private set; }
             public Exception Exception { get; private set; }
             public UnitOfWorkContext UnitOfWorkContext { get; private set; }
-            public bool HasOverlappingTrainingDates { get; private set; } 
+            public bool HasOverlappingTrainingDates { get; private set; }
 
             public WhenCohortIsCreatedTestFixture()
             {
@@ -287,8 +287,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
             internal void WithApprenticeshipConfirmedStatus()
             {
-                ContinuedApprenticeship.SetValue(x=>x.ApprenticeshipConfirmationStatus, _autoFixture.Build<ApprenticeshipConfirmationStatus>().Without(x=>x.Apprenticeship).Create());
-                ContinuedApprenticeship.SetValue(x=>x.EmailAddressConfirmed, true);
+                ContinuedApprenticeship.SetValue(x => x.ApprenticeshipConfirmationStatus, _autoFixture.Build<ApprenticeshipConfirmationStatus>().Without(x => x.Apprenticeship).Create());
+                ContinuedApprenticeship.SetValue(x => x.EmailAddressConfirmed, true);
             }
 
             public WhenCohortIsCreatedTestFixture WithContinuation()
@@ -321,7 +321,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                 Assert.AreEqual(
                     Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
                                 ? ContinuedApprenticeship.Cohort.ProviderId
-                                : Request.ProviderId, 
+                                : Request.ProviderId,
                         Result.ProviderId);
             }
 

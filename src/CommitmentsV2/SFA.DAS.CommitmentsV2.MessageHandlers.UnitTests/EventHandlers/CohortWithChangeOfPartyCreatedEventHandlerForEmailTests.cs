@@ -193,8 +193,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyEmployerEmailSent(string templateName)
             {
-               var emailToEmployerCommands =  _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToEmployerCommand)
-                      .Select(y => y.Message as SendEmailToEmployerCommand);
+                var emailToEmployerCommands = _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToEmployerCommand)
+                       .Select(y => y.Message as SendEmailToEmployerCommand);
                 var emailToEmployerCommand = emailToEmployerCommands.First();
 
                 Assert.AreEqual(1, _messageHandlerContext.SentMessages.Count());
@@ -257,7 +257,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _event.OriginatingParty = originatingParty;
                 return this;
             }
-         
+
         }
     }
 }

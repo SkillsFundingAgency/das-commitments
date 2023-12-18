@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             _fixture.VerifyNullReservation();
         }
 
-          [Test]
+        [Test]
         public async Task Handle_WhenHandlingEvent_HasOverlappingTrainingDates_CreatesOLTDRecord()
         {
             _fixture.WithHasOverlappingTrainingDates_Set(true);
@@ -131,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     {
                         AccountLegalEntity = new AccountLegalEntity()
                     },
-                    ChangeOfPartyRequests = new List<ChangeOfPartyRequest> {ChangeOfPartyRequest.Object},
+                    ChangeOfPartyRequests = new List<ChangeOfPartyRequest> { ChangeOfPartyRequest.Object },
                     ReservationId = autoFixture.Create<Guid>()
                 };
                 ChangeOfPartyRequest.Setup(x => x.Apprenticeship).Returns(Apprenticeship);
@@ -159,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 CohortReference = autoFixture.Create<string>();
                 EncodingService.Setup(x => x.Encode(Cohort.Id, EncodingType.CohortReference)).Returns(CohortReference);
 
-                Handler = new ChangeOfPartyRequestCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), ReservationsApiClient.Object, Mock.Of<ILogger<ChangeOfPartyRequestCreatedEventHandler>>(), EncodingService.Object , OverlappingTrainingDateRequestDomainService.Object);
+                Handler = new ChangeOfPartyRequestCreatedEventHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), ReservationsApiClient.Object, Mock.Of<ILogger<ChangeOfPartyRequestCreatedEventHandler>>(), EncodingService.Object, OverlappingTrainingDateRequestDomainService.Object);
             }
 
             public ChangeOfPartyRequestCreatedEventHandlerTestsFixture WithNoReservationId()

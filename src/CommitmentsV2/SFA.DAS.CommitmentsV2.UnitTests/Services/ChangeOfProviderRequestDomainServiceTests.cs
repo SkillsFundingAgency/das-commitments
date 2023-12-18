@@ -15,13 +15,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             _fixture = new ChangeOfPartyRequestDomainServiceTestsFixture(Party.Employer, ChangeOfPartyRequestType.ChangeProvider);
         }
-       
+
         [Test]
         public async Task CreateChangeOfPartyRequest_Invokes_Aggregate_State_Change()
         {
             //Act
             await _fixture.CreateChangeOfPartyRequest();
-            
+
             //Assert
             _fixture.VerifyAggregateMethodInvoked();
         }
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             //Act
             await _fixture.CreateChangeOfPartyRequest();
-            
+
             //Assert
             _fixture.VerifyResult();
         }
@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             //Act
             await _fixture.CreateChangeOfPartyRequest();
-            
+
             //Assert
             _fixture.VerifyResultAddedToDbContext();
         }
@@ -50,10 +50,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public async Task CreateChangeOfPartyRequest_Throws_If_Party_Is_Not_Employer()
         {
             _fixture.WithOriginatingParty(Party.Provider);
-            
+
             //Act
             await _fixture.CreateChangeOfPartyRequest();
-            
+
             //Assert
             _fixture.VerifyException<DomainException>();
         }

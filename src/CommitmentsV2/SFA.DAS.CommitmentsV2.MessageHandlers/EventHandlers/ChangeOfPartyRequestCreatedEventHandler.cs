@@ -42,9 +42,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(changeOfPartyRequest.ApprenticeshipId, default);
 
             var reservationId = await GetReservationId(changeOfPartyRequest, apprenticeship);
-            
+
             var cohort = changeOfPartyRequest.CreateCohort(apprenticeship, reservationId, message.UserInfo, message.HasOverlappingTrainingDates);
-            
+
             _dbContext.Value.Cohorts.Add(cohort);
             await _dbContext.Value.SaveChangesAsync();
 

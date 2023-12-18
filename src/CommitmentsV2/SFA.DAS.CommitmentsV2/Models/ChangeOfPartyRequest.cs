@@ -72,11 +72,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             Status = ChangeOfPartyRequestStatus.Pending;
             CreatedOn = now;
             LastUpdatedOn = now;
-            
+
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
 
-            Publish(() => new ChangeOfPartyRequestCreatedEvent (Id, userInfo, hasOverlappingTrainingDates));
+            Publish(() => new ChangeOfPartyRequestCreatedEvent(Id, userInfo, hasOverlappingTrainingDates));
         }
 
         private void CheckOriginatingParty(Party originatingParty)
@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 case Party.Employer:
                     return ChangeOfPartyRequestType.ChangeProvider;
                 default:
-                    throw new ArgumentException($"Invalid ChangeOfParty originator: {originatingParty}",nameof(originatingParty));
+                    throw new ArgumentException($"Invalid ChangeOfParty originator: {originatingParty}", nameof(originatingParty));
             }
         }
 
@@ -159,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual void SetNewApprenticeship(Apprenticeship apprenticeship, UserInfo userInfo, Party modifyingParty)
         {
             CheckNewApprenticeshipIdNotSet(apprenticeship.Id);
-           
+
             StartTrackingSession(UserAction.SetNewApprenticeshipId, modifyingParty, apprenticeship.Cohort.EmployerAccountId, apprenticeship.Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 

@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
         [TestCase("2019-06-01", true, Description = "Before stop")]
         [TestCase("2020-02-29", true, Description = "Day before stop")]
         [TestCase("2020-03-01", false, Description = "Day of stop")]
-        [TestCase("2020-06-01", false, Description = "After stop")]        
+        [TestCase("2020-06-01", false, Description = "After stop")]
         public void ThenStartDateMustBeOnOrAfterStopDate(DateTime? startDate, bool expectThrow)
         {
             _fixture
@@ -136,7 +136,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
                 PreviousChangeOfPartyRequests.Add(request);
 
                 return this;
-            }          
+            }
 
             public void CreateChangeOfPartyRequest(bool hasOverlappingTrainingDates = false)
             {

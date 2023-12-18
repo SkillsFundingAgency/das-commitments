@@ -17,13 +17,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public async Task Handle_WhenHandlingCommand_ThenShouldCallDomainServiceCorrectly()
         {
             var fixture = new CreateChangeOfPartyCommandHandlerTestsFixture();
-            
+
             await fixture.Handle();
 
             fixture.ChangeOfPartyDomainService.Verify(s => s.CreateChangeOfPartyRequest(fixture.Command.ApprenticeshipId,
                 fixture.Command.ChangeOfPartyRequestType, fixture.Command.NewPartyId, fixture.Command.NewPrice,
                 fixture.Command.NewStartDate, fixture.Command.NewEndDate, fixture.Command.UserInfo, fixture.Command.NewEmploymentPrice,
-                fixture.Command.NewEmploymentEndDate,  fixture.Command.DeliveryModel, fixture.Command.HasOverlappingTrainingDates, It.IsAny<CancellationToken>()));
+                fixture.Command.NewEmploymentEndDate, fixture.Command.DeliveryModel, fixture.Command.HasOverlappingTrainingDates, It.IsAny<CancellationToken>()));
         }
     }
 

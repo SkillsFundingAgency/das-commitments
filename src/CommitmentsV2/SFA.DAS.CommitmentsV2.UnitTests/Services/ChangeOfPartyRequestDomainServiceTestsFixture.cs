@@ -109,7 +109,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .EnableSensitiveDataLogging()
-                .Options) { CallBase = true };
+                .Options)
+            { CallBase = true };
 
             ApprenticeshipId = Fixture.Create<long>();
             ApprenticeshipChangeOfPartyRequestResult = Fixture.Create<ChangeOfPartyRequest>();

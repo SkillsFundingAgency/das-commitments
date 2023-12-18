@@ -10,7 +10,6 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -51,7 +50,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _dbContext =
                 new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options)
+                { CallBase = true };
 
             _sut = new OverlappingTrainingDateRequestDomainService(
                 new Lazy<ProviderCommitmentsDbContext>(() => _dbContext.Object), _overlapCheckServiceMock.Object,
