@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var retVal = await _fixture.SetCanAccessCohortToReturnTrue().AuthorizationController.CanAccessCohort(request);
 
             Assert.That(retVal, Is.InstanceOf<OkObjectResult>());
-            Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
+            Assert.That((bool)((OkObjectResult)retVal).Value);
         }
 
         [TestCase(Party.Provider, 124, 1)]
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var retVal = await _fixture.SetCanAccessApprenticeshipToReturnTrue().AuthorizationController.CanAccessApprenticeship(request);
 
             Assert.That(retVal, Is.InstanceOf<OkObjectResult>());
-            Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
+            Assert.That((bool)((OkObjectResult)retVal).Value);
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var result = await sut.Handle(query, new CancellationToken());
 
-            Assert.IsTrue(result);
+            Assert.That(result);
         }
 
         [TestCase(78901, 10)]

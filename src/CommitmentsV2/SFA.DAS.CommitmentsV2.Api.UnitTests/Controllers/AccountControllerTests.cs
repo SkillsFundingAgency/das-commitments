@@ -181,7 +181,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 
                 foreach (var qr in ApprovedProviderQueryResult.ProviderIds)
                 {
-                    Assert.IsTrue(response.ProviderIds.Contains(qr));
+                    Assert.That(response.ProviderIds.Contains(qr));
                 }
             }
 
@@ -199,7 +199,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
                 foreach (var qr in ProviderPaymentsPriorityQueryResult.PriorityItems)
                 {
-                    Assert.IsTrue(response.ProviderPaymentPriorities.All(p => ProviderPaymentsPriorityQueryResult.PriorityItems
+                    Assert.That(response.ProviderPaymentPriorities.All(p => ProviderPaymentsPriorityQueryResult.PriorityItems
                         .Any(a => a.PriorityOrder == p.PriorityOrder && a.ProviderId == p.ProviderId && a.ProviderName == p.ProviderName)));
                 }
             }

@@ -187,7 +187,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var result = await _controller.GetApprenticeships(request) as OkObjectResult;
 
             //Assert
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
             _mapper.Verify(x=>x.Map<GetApprenticeshipsResponse>(It.IsAny<GetApprenticeshipsQueryResult>()), Times.Once);
         }
 
@@ -198,7 +198,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var result = await _controller.GetApprenticeships(new GetApprenticeshipsRequest()) as NotFoundResult;
 
             //Assert
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.Not.Null);
         }
 
 
@@ -311,7 +311,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var notFoundResult = await _controller.ValidateApprenticeshipForEdit(request) as NotFoundResult;
 
             //Assert
-            Assert.IsNotNull(notFoundResult);
+            Assert.That(notFoundResult, Is.Not.Null);
         }
 
         [Test, MoqAutoData]
@@ -347,10 +347,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             _mediator.Setup(p => p.Send(It.IsAny<EditApprenticeshipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => null);
 
             //Act
-           var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult; 
+           var notFoundResult = await _controller.EditApprenticeship(request) as NotFoundResult;
 
             //Assert
-            Assert.IsNotNull(notFoundResult);
+            Assert.That(notFoundResult, Is.Not.Null);
         }
 
         [Test, MoqAutoData]
@@ -374,7 +374,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             var notFoundResult = await _controller.ValidateUlnOverlap(request) as NotFoundResult;
 
             //Assert
-            Assert.IsNotNull(notFoundResult);
+            Assert.That(notFoundResult, Is.Not.Null);
         }
     }
 }

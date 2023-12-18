@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Update();
 
             //Assert
-            Assert.IsTrue(response is OkResult);
+            Assert.That(response is OkResult);
         }
 
         [Test]
@@ -64,9 +64,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Get();
 
             //Assert
-            Assert.IsTrue(response is OkObjectResult, $"Get method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
+            Assert.That(response is OkObjectResult, $"Get method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
             var okObjectResult = (OkObjectResult)response;
-            Assert.IsTrue(okObjectResult.Value is GetDraftApprenticeshipResponse, $"Get method did not return a value of type {nameof(GetDraftApprenticeshipResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
+            Assert.That(okObjectResult.Value is GetDraftApprenticeshipResponse, $"Get method did not return a value of type {nameof(GetDraftApprenticeshipResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Get();
 
             //Assert
-            Assert.IsTrue(response is NotFoundResult, $"Get method did not return a {nameof(NotFoundResult)} - returned a {response.GetType().Name} instead");
+            Assert.That(response is NotFoundResult, $"Get method did not return a {nameof(NotFoundResult)} - returned a {response.GetType().Name} instead");
         }
 
         [Test]
@@ -92,11 +92,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.GetAll();
 
             //Assert
-            Assert.IsNotNull(response);
-            Assert.IsTrue(response is OkObjectResult, $"GetAll method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response is OkObjectResult, $"GetAll method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
             var okObjectResult = (OkObjectResult)response;
-            Assert.IsNotNull(okObjectResult);
-            Assert.IsTrue(okObjectResult.Value is GetDraftApprenticeshipsResponse, $"GetAll method did not return a value of type {nameof(GetDraftApprenticeshipsResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
+            Assert.That(okObjectResult, Is.Not.Null);
+            Assert.That(okObjectResult.Value is GetDraftApprenticeshipsResponse, $"GetAll method did not return a value of type {nameof(GetDraftApprenticeshipsResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Delete();
 
             //Assert
-            Assert.IsTrue(response is OkResult);
+            Assert.That(response is OkResult);
         }
 
         [Test]
@@ -177,11 +177,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.GetApprenticeshipPriorLearningSummary();
 
             //Assert
-            Assert.IsTrue(response is OkObjectResult);
+            Assert.That(response is OkObjectResult);
             var okObjectResult = (OkObjectResult)response;
-            Assert.IsNotNull(okObjectResult);
+            Assert.That(okObjectResult, Is.Not.Null);
             var obj = okObjectResult.Value as GetDraftApprenticeshipPriorLearningSummaryResponse;
-            Assert.IsNotNull(obj);
+            Assert.That(obj, Is.Not.Null);
 
             Assert.That(obj.ApprenticeshipId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId));
             Assert.That(obj.CohortId, Is.EqualTo(DraftApprenticeshipControllerTestsFixture.CohortId));
@@ -205,7 +205,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.GetApprenticeshipPriorLearningSummary();
 
             //Assert
-            Assert.IsTrue(response is NotFoundResult);
+            Assert.That(response is NotFoundResult);
         }
     }
 

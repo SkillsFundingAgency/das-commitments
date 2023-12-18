@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         internal void VerifyResponse(IActionResult result)
         {
             var response = result.VerifyResponseObjectType<OkObjectResult>().WithModel<CreateCohortResponse>();
-            Assert.IsTrue(response.CohortId == Result.Id &&
+            Assert.That(response.CohortId == Result.Id &&
                         response.CohortReference == Result.Reference);
         }
     }

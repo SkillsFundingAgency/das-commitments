@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public static TExpectedResponseType VerifyResponseObjectType<TExpectedResponseType>(this IActionResult result) where TExpectedResponseType : IActionResult
         {
-            Assert.IsTrue(result is TExpectedResponseType, $"Expected response type {typeof(TExpectedResponseType)} but got {result.GetType()}");
+            Assert.That(result is TExpectedResponseType, $"Expected response type {typeof(TExpectedResponseType)} but got {result.GetType()}");
             return (TExpectedResponseType)result;
         }
 

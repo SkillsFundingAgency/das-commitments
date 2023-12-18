@@ -33,9 +33,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var okObjectResult = response as OkObjectResult;
             var getAllProvidersResponse = okObjectResult?.Value as GetAllProvidersResponse;
 
-            Assert.IsNotNull(response);
-            Assert.IsNotNull(okObjectResult);
-            Assert.IsNotNull(getAllProvidersResponse);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(okObjectResult, Is.Not.Null);
+            Assert.That(getAllProvidersResponse, Is.Not.Null);
 
             Assert.That(getAllProvidersResponse.Providers.Count, Is.EqualTo(_fixture.GetAllProvidersQueryResult.Providers.Count));
         }
@@ -47,9 +47,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var okObjectResult = response as OkObjectResult;
             var getProviderResponse = okObjectResult?.Value as GetProviderResponse;
 
-            Assert.NotNull(response);
-            Assert.IsNotNull(okObjectResult);
-            Assert.IsNotNull(getProviderResponse);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(okObjectResult, Is.Not.Null);
+            Assert.That(getProviderResponse, Is.Not.Null);
             Assert.That(getProviderResponse.ProviderId, Is.EqualTo(_fixture.GetProviderQueryResult.ProviderId));
             Assert.That(getProviderResponse.Name, Is.EqualTo(_fixture.GetProviderQueryResult.Name));
         }
@@ -60,8 +60,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await _fixture.GetProvider();
             var notFoundResult = response as NotFoundResult;
 
-            Assert.NotNull(response);
-            Assert.NotNull(notFoundResult);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(notFoundResult, Is.Not.Null);
         }
 
         [Test]
@@ -71,9 +71,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var okObjectResult = response as OkObjectResult;
             var getCommitmentAgreementsResponse = okObjectResult?.Value as GetProviderCommitmentAgreementResponse;
 
-            Assert.IsNotNull(response);
-            Assert.IsNotNull(okObjectResult);
-            Assert.IsNotNull(getCommitmentAgreementsResponse);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(okObjectResult, Is.Not.Null);
+            Assert.That(getCommitmentAgreementsResponse, Is.Not.Null);
 
             Assert.That(getCommitmentAgreementsResponse.ProviderCommitmentAgreement.Count, Is.EqualTo(_fixture.GetProviderCommitmentAgreementQueryResult.Agreements.Count));
         }
