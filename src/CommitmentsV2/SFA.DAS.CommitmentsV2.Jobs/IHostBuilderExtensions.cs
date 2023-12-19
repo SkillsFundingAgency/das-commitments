@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs
         {
             builder.ConfigureWebJobs(b =>
             {
-                b.AddAzureStorageCoreServices().AddTimers( );
+                b.AddTimers( );
             });
 
 #pragma warning disable 618
