@@ -116,6 +116,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.CreateCohort();
             _fixture.VerifyProviderOriginatorApproval();
         }
+        
+        [Test]
+        public void Change_Of_Employer_With_Overlap_Then_Originator_Approval_Is_Not_Given()
+        {
+            _fixture
+                .WithChangeOfPartyType(ChangeOfPartyRequestType.ChangeEmployer)
+                .WithOverlappingTrainingDates();
+            _fixture.CreateCohort();
+            _fixture.VerifyNoApproval();
+        }
+        
+        [Test]
+        public void Change_Of_Employer_With_Overlap_Then_Cohort_Remains_With_Provider()
+        {
+            _fixture
+                .WithChangeOfPartyType(ChangeOfPartyRequestType.ChangeEmployer)
+                .WithOverlappingTrainingDates();
+            _fixture.CreateCohort();
+            _fixture.VerifyWithSameParty();
+        }
 
         [TestCase(false)]
         [TestCase(true)]
@@ -360,6 +380,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                         : Party.Provider,
                     Result.WithParty);
             }
+            
+            public void VerifyWithSameParty()
+            {
+                Assert.AreEqual(
+                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
+                        ? Party.Provider
+                        : Party.Employer,
+                    Result.WithParty);
+            }
 
             public void VerifyProviderOriginatorApproval()
             {
@@ -480,6 +509,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                     e.Uln == draftApprenticeship.Uln &&
                     e.ReservationId == draftApprenticeship.ReservationId &&
                     e.CreatedOn == draftApprenticeship.CreatedOn);
+            }
+
+            public void WithOverlappingTrainingDates()
+            {
+                HasOverlappingTrainingDates = true;
+            }
+
+            public void VerifyNoApproval()
+            {
+                Result.Approvals.Should().Be(Party.None);
             }
         }
     }

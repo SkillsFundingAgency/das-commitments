@@ -243,9 +243,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public Party IsPreApproved()
+        public Party IsPreApproved(bool hasOverlappingTrainingDate = false)
         {
-            if (OriginatingParty == Party.Provider && ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+            if (OriginatingParty == Party.Provider && ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer && !hasOverlappingTrainingDate)
             {
                 return Party.Provider;
             }
