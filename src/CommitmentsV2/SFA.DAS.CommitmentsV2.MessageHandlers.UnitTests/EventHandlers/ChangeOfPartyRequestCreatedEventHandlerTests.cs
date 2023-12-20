@@ -175,12 +175,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyCohortCreated()
             {
-                Assert.Contains(Cohort, Db.Object.Cohorts.ToList());
+                Assert.That(Db.Object.Cohorts.ToList(), Does.Contain(Cohort));
             }
 
             public void VerifyCohortReference()
             {
-                Assert.AreEqual(CohortReference, Cohort.Reference);
+                Assert.That(Cohort.Reference, Is.EqualTo(CohortReference));
             }
         }
     }

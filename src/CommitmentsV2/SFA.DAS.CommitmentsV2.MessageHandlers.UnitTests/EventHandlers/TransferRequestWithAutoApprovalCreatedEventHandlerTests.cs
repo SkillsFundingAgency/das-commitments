@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyTransferRequestStatus(TransferApprovalStatus expectedStatus)
             {
-                Assert.AreEqual(expectedStatus, TransferRequest.Status);
+                Assert.That(TransferRequest.Status, Is.EqualTo(expectedStatus));
             }
 
             public void Dispose()

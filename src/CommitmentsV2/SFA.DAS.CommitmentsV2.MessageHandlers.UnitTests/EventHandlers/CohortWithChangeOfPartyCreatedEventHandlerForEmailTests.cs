@@ -198,13 +198,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                       .Select(y => y.Message as SendEmailToEmployerCommand);
                 var emailToEmployerCommand = emailToEmployerCommands.First();
 
-                Assert.AreEqual(1, _messageHandlerContext.SentMessages.Count());
-                Assert.AreEqual(_cohortSummary.AccountId, emailToEmployerCommand.AccountId);
-                Assert.AreEqual(templateName, emailToEmployerCommand.Template);
-                Assert.AreEqual(3, emailToEmployerCommand.Tokens.Count());
-                Assert.AreEqual(_cohortSummary.ProviderName, emailToEmployerCommand.Tokens["provider_name"]);
-                Assert.AreEqual(_employerEncodedAccountId, emailToEmployerCommand.Tokens["employer_hashed_account"]);
-                Assert.AreEqual(_cohortReference, emailToEmployerCommand.Tokens["cohort_reference"]);
+                Assert.That(_messageHandlerContext.SentMessages.Count(), Is.EqualTo(1));
+                Assert.That(emailToEmployerCommand.AccountId, Is.EqualTo(_cohortSummary.AccountId));
+                Assert.That(emailToEmployerCommand.Template, Is.EqualTo(templateName));
+                Assert.That(emailToEmployerCommand.Tokens.Count(), Is.EqualTo(3));
+                Assert.That(emailToEmployerCommand.Tokens["provider_name"], Is.EqualTo(_cohortSummary.ProviderName));
+                Assert.That(emailToEmployerCommand.Tokens["employer_hashed_account"], Is.EqualTo(_employerEncodedAccountId));
+                Assert.That(emailToEmployerCommand.Tokens["cohort_reference"], Is.EqualTo(_cohortReference));
             }
 
             public void VerifyEmployerEmailNotSent()
@@ -212,7 +212,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 var emailToEmployerCommands = _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToEmployerCommand)
                       .Select(y => y.Message as SendEmailToEmployerCommand);
 
-                Assert.AreEqual(0, emailToEmployerCommands.Count());
+                Assert.That(emailToEmployerCommands.Count(), Is.EqualTo(0));
             }
 
             public void VerifyProviderEmailSentForReview()
@@ -222,12 +222,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 var providerEmail = emailToProviderCommands.First();
 
-                Assert.AreEqual(_expectedTemplate, providerEmail.Template);
-                Assert.AreEqual(_cohortSummary.ProviderName, providerEmail.Tokens["TrainingProviderName"]);
-                Assert.AreEqual(_cohortSummary.LegalEntityName, providerEmail.Tokens["EmployerName"]);
-                Assert.AreEqual(_expectedRequestUrl, providerEmail.Tokens["RequestUrl"]);
-                Assert.AreEqual(_expectedApprenticeName, providerEmail.Tokens["ApprenticeNamePossessive"]);
-                Assert.AreEqual(_expectedSubjectForReview, providerEmail.Tokens["Subject"]);
+                Assert.That(providerEmail.Template, Is.EqualTo(_expectedTemplate));
+                Assert.That(providerEmail.Tokens["TrainingProviderName"], Is.EqualTo(_cohortSummary.ProviderName));
+                Assert.That(providerEmail.Tokens["EmployerName"], Is.EqualTo(_cohortSummary.LegalEntityName));
+                Assert.That(providerEmail.Tokens["RequestUrl"], Is.EqualTo(_expectedRequestUrl));
+                Assert.That(providerEmail.Tokens["ApprenticeNamePossessive"], Is.EqualTo(_expectedApprenticeName));
+                Assert.That(providerEmail.Tokens["Subject"], Is.EqualTo(_expectedSubjectForReview));
             }
 
             public void VerifyProviderEmailSentDetailsRequired()
@@ -237,12 +237,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
                 var providerEmail = emailToProviderCommands.First();
 
-                Assert.AreEqual(_expectedTemplate, providerEmail.Template);
-                Assert.AreEqual(_cohortSummary.ProviderName, providerEmail.Tokens["TrainingProviderName"]);
-                Assert.AreEqual(_cohortSummary.LegalEntityName, providerEmail.Tokens["EmployerName"]);
-                Assert.AreEqual(_expectedRequestUrl, providerEmail.Tokens["RequestUrl"]);
-                Assert.AreEqual(_expectedApprenticeName, providerEmail.Tokens["ApprenticeNamePossessive"]);
-                Assert.AreEqual(_expectedSubjectDetailsRequired, providerEmail.Tokens["Subject"]);
+                Assert.That(providerEmail.Template, Is.EqualTo(_expectedTemplate));
+                Assert.That(providerEmail.Tokens["TrainingProviderName"], Is.EqualTo(_cohortSummary.ProviderName));
+                Assert.That(providerEmail.Tokens["EmployerName"], Is.EqualTo(_cohortSummary.LegalEntityName));
+                Assert.That(providerEmail.Tokens["RequestUrl"], Is.EqualTo(_expectedRequestUrl));
+                Assert.That(providerEmail.Tokens["ApprenticeNamePossessive"], Is.EqualTo(_expectedApprenticeName));
+                Assert.That(providerEmail.Tokens["Subject"], Is.EqualTo(_expectedSubjectDetailsRequired));
             }
 
             public void VerifyProviderEmailNotSent()
@@ -250,7 +250,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 var emailToProviderCommands = _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToProviderCommand)
                       .Select(y => y.Message as SendEmailToProviderCommand);
 
-                Assert.AreEqual(0, emailToProviderCommands.Count());
+                Assert.That(emailToProviderCommands.Count(), Is.EqualTo(0));
             }
 
             internal CohortWithChangeOfPartyCreatedEventHandlerForEmailTestsFixture WithOriginatingParty(Party originatingParty)

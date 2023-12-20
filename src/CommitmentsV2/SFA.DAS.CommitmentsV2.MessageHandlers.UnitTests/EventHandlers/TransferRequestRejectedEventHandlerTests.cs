@@ -84,8 +84,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 .AddTransferRequest(autoApprove);
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixture.Handle());
-            
-            Assert.IsTrue(fixture.Logger.HasErrors);
+
+            Assert.That(fixture.Logger.HasErrors, Is.True);
         }
 
         [TestCase(true)]
@@ -98,8 +98,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 .AddTransferRequest(autoApprove);
             
             Assert.ThrowsAsync<DomainException>(() => fixture.Handle());
-            
-            Assert.IsTrue(fixture.Logger.HasErrors);
+
+            Assert.That(fixture.Logger.HasErrors, Is.True);
         }
     }
 
@@ -182,7 +182,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerifyCohortIsWithEmployer()
         {
-            Assert.AreEqual(Party.Employer, Cohort.WithParty);
+            Assert.That(Cohort.WithParty, Is.EqualTo(Party.Employer));
         }
 
         public void VerifyLegacyEventCohortRejectedByTransferSenderIsPublished()
@@ -200,12 +200,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             var list = UnitOfWorkContext.GetEvents().OfType<EntityStateChangedEvent>().Where(x => x.StateChangeType == UserAction.RejectTransferRequest).ToList();
 
-            Assert.AreEqual(1, list.Count);
+            Assert.That(list.Count, Is.EqualTo(1));
 
-            Assert.AreEqual(UserAction.RejectTransferRequest, list[0].StateChangeType);
-            Assert.AreEqual(Cohort.Id, list[0].EntityId);
-            Assert.AreEqual(TransferRequestRejectedEvent.UserInfo.UserDisplayName, list[0].UpdatingUserName);
-            Assert.AreEqual(Party.TransferSender, list[0].UpdatingParty);
+            Assert.That(list[0].StateChangeType, Is.EqualTo(UserAction.RejectTransferRequest));
+            Assert.That(list[0].EntityId, Is.EqualTo(Cohort.Id));
+            Assert.That(list[0].UpdatingUserName, Is.EqualTo(TransferRequestRejectedEvent.UserInfo.UserDisplayName));
+            Assert.That(list[0].UpdatingParty, Is.EqualTo(Party.TransferSender));
         }
 
         public void VerifyMessageNotRelayed()

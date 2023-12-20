@@ -206,12 +206,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             public void VerifyHasError()
             {
-                Assert.IsTrue(Logger.HasErrors);
+                Assert.That(Logger.HasErrors, Is.True);
             }
 
             public void VerifyHasWarning()
             {
-                Assert.IsTrue(Logger.HasWarnings);
+                Assert.That(Logger.HasWarnings, Is.True);
             }
         }
     }
