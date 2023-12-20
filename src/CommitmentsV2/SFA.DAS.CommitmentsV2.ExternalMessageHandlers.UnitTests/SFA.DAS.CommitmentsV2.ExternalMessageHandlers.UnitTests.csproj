@@ -2,22 +2,21 @@
 
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.18.0" />
-    <PackageReference Include="AutoFixture.NUnit3" Version="4.18.0" />
-    <PackageReference Include="CompareNETObjects" Version="4.79.0" />
-    <PackageReference Include="FluentAssertions" Version="6.11.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.21" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
-    <PackageReference Include="Moq" Version="4.18.4" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
+    <PackageReference Include="AutoFixture.NUnit3" Version="4.18.1" />
+    <PackageReference Include="CompareNETObjects" Version="4.83.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.32" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="NServiceBus.Testing" Version="7.0.0" />
-    <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
+    <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.10" />
     <PackageReference Include="SFA.DAS.Payments.ProviderPayments.Messages" Version="0.0.69" />
     <PackageReference Include="SFA.DAS.Testing" Version="3.0.169" />
   </ItemGroup>

@@ -3,7 +3,6 @@
     <OutputType>Exe</OutputType>
     <LangVersion>latest</LangVersion>
     <TargetFramework>net6.0</TargetFramework>
-    <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <IsWebJobProject>true</IsWebJobProject>
     <WebJobName>Commitmentsv2-ExternalHandlers</WebJobName>
     <WebJobType>Continuous</WebJobType>
@@ -19,6 +18,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Microsoft.ApplicationInsights.NLogTarget" Version="2.22.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
@@ -41,9 +41,10 @@
     <PackageReference Include="SFA.DAS.PAS.Account.Api.ClientV2" Version="17267.0.559" />
     <PackageReference Include="StructureMap" Version="4.7.1" />
     <PackageReference Include="StructureMap.Microsoft.DependencyInjection" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.19" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.39" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="5.2.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Messages\SFA.DAS.CommitmentsV2.Messages.csproj" />
