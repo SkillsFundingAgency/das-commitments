@@ -3,7 +3,6 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <TargetFramework>net6.0</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

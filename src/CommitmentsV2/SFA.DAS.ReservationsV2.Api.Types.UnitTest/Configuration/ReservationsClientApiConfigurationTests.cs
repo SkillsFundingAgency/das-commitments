@@ -14,7 +14,7 @@ namespace SFA.DAS.Reservations.Api.Types.UnitTests.Configuration
         {
             var config = CreateConfiguration(true);
 
-            Assert.AreEqual(ReservationsClientApiConfiguration.StubBase, config.EffectiveApiBaseUrl);
+            Assert.That(config.EffectiveApiBaseUrl, Is.EqualTo(ReservationsClientApiConfiguration.StubBase));
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace SFA.DAS.Reservations.Api.Types.UnitTests.Configuration
         {
             var config = CreateConfiguration(false);
 
-            Assert.AreEqual(NonStubBase, config.EffectiveApiBaseUrl);
+            Assert.That(config.EffectiveApiBaseUrl, Is.EqualTo(NonStubBase));
         }
 
         private ReservationsClientApiConfiguration CreateConfiguration(bool useStub)
