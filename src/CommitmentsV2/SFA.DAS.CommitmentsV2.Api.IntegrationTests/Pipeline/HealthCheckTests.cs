@@ -30,10 +30,17 @@ namespace SFA.DAS.CommitmentsV2.Api.IntegrationTests.Pipeline
         {
             Factory = new CustomWebApplicationFactory<Startup>();
             
+            //Client = Factory.CreateClient(new WebApplicationFactoryClientOptions
+            //{
+            //    AllowAutoRedirect = false
+            //});
+
             Client = Factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 AllowAutoRedirect = false
             });
+
+
         }
     }
 }
