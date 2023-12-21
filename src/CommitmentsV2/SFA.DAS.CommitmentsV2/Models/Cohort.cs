@@ -148,7 +148,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Approvals = changeOfPartyRequest.IsPreApproved(hasOverlappingTrainingDates);
 
             WithParty = hasOverlappingTrainingDates ? Party.Provider : changeOfPartyRequest.OriginatingParty.GetOtherParty();
-            IsDraft = false;
+            IsDraft = hasOverlappingTrainingDates;
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
             {
