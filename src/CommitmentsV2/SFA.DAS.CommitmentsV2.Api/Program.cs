@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using NLog.Web;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
-using StructureMap.AspNetCore;
 using System;
+using Microsoft.Extensions.Hosting;
+using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.Api
 {
@@ -15,15 +15,20 @@ namespace SFA.DAS.CommitmentsV2.Api
             var logger = NLogBuilder.ConfigureNLog(environment == "Development" ? "nlog.Development.config" : "nlog.config").GetCurrentClassLogger();
             logger.Info("Starting up host");
 
-            CreateWebHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        private static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                //.UseNServiceBusContainer()
                 .ConfigureDasAppConfiguration()
                 .UseNLog()
                 .UseStructureMap()
-                .UseStartup<Startup>()
-        ;
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
     }
+        
+    
 }
