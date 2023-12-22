@@ -65,6 +65,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.StopApprenticeship
                 var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(request.ApprenticeshipId, cancellationToken);
 
                 apprenticeship.StopApprenticeship(request.StopDate, request.AccountId, request.MadeRedundant, request.UserInfo, _currentDate, party);
+                _dbContext.Value.SaveChanges();
+
                 _logger.LogInformation($"Stopped apprenticeship. Apprenticeship-Id:{request.ApprenticeshipId}");
 
                 await _resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, null, Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped);
