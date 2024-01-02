@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             Assert.That(actual, Is.AssignableFrom(typeof(MemoryStream)));
             var actualByteArray = actual.ToArray();
             var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
-            var commentLine = fileString.Split(Environment.NewLine)[0];
+            var commentLine = fileString.Split("\r\n")[0];
 
             Assert.That(commentLine, Is.EqualTo("#Data only includes apprentices with an apprenticeship end date within the last 12 months"));
         }
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             Assert.That(actual, Is.AssignableFrom(typeof(MemoryStream)));
             var actualByteArray = actual.ToArray();
             var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
-            var headerLine = fileString.Split(Environment.NewLine)[1];
+            var headerLine = fileString.Split("\r\n")[1];
 
             Assert.That(headerLine.Contains(nameof(SomethingToCsv.Id)));
             Assert.That(!headerLine.Contains(nameof(SomethingToCsv.InternalStuff)));
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services.CreateCsvServiceTests
             Assert.That(actual, Is.AssignableFrom(typeof(MemoryStream)));
             var actualByteArray = actual.ToArray();
             var fileString = System.Text.Encoding.Default.GetString(actualByteArray);
-            var lines = fileString.Split(Environment.NewLine);
+            var lines = fileString.Split("\r\n");
             Assert.That(lines.Length, Is.EqualTo(listToWriteToCsv.Count + 3));
             Assert.That(lines[2].Split(',')[1], Is.EqualTo(listToWriteToCsv[0].Description));
         }
