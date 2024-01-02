@@ -54,9 +54,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (!hasOverlappingTrainingDates)
             {
                 CheckIsStoppedForChangeOfParty();
+                CheckStartDateForChangeOfParty(startDate, changeOfPartyType, originatingParty);
             }
 
-            CheckStartDateForChangeOfParty(startDate, changeOfPartyType, originatingParty);
             CheckNoPendingOrApprovedRequestsForChangeOfParty();
 
             return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, hasOverlappingTrainingDates, userInfo, now);
