@@ -8,26 +8,33 @@ namespace SFA.DAS.CommitmentsV2.Shared.Extensions
 {
     public static class HtmlHelperExtensions
     {
+        public static HtmlString AddClassIfPropertyInError<TModel, TProperty>(
+            this IHtmlHelper<TModel> htmlHelper,
+            Expression<Func<TModel, TProperty>> expression,
+            string errorClass)
+        {
+            string GetFieldName()
+            {
+                var expressionProvider = htmlHelper.ViewContext.HttpContext.RequestServices
+                    .GetService(typeof(ModelExpressionProvider)) as ModelExpressionProvider;
 
-        // TODO Need to see how to implement this if it's still being used
-        //public static HtmlString AddClassIfPropertyInError<TModel, TProperty>(
-        //    this IHtmlHelper<TModel> htmlHelper,
-        //    Expression<Func<TModel, TProperty>> expression,
-        //    string errorClass)
-        //{
-        //    var expressionProvider = htmlHelper.ViewContext.HttpContext.RequestServices
-        //        .GetService(typeof(ModelExpressionProvider)) as ModelExpressionProvider;
+                if (expressionProvider?.CreateModelExpression(htmlHelper.ViewContext.ViewBag, expression) is ModelExpression modelExpression)
+                {
+                    return modelExpression.Name;
+                }
 
-        //    var expressionText = expressionProvider?.GetExpressionText(expression);
-        //    var fullHtmlFieldName = htmlHelper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionText);
-        //    var state = htmlHelper.ViewData.ModelState[fullHtmlFieldName];
+                return null;
+            }
+            var expressionText = GetFieldName();
+            var fullHtmlFieldName = htmlHelper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionText);
+            var state = htmlHelper.ViewData.ModelState[fullHtmlFieldName];
 
-        //    if (state?.Errors == null || state.Errors.Count == 0)
-        //    {
-        //        return HtmlString.Empty;
-        //    }
+            if (state?.Errors == null || state.Errors.Count == 0)
+            {
+                return HtmlString.Empty;
+            }
 
-        //    return new HtmlString(errorClass);
-        //}
+            return new HtmlString(errorClass);
+        }
     }
 }
