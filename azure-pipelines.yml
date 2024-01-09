@@ -41,127 +41,127 @@ resources:
     source: das-employer-config
     branch: master
 
-stages:
-- stage: Build
-  jobs:
-  - template: pipeline-templates/job/code-build.yml
-    parameters:
-      BuildConfiguration: $(BuildConfiguration)
-      SolutionBaseName: $(SolutionBaseName)
-  - template: azure-pipelines-templates/build/job/dacpac-template.yml@das-platform-building-blocks
-    parameters:
-      SolutionBaseName: $(SolutionBaseName).dacpac
-      SqlProjectPath: src/$(SolutionBaseName).Database/$(SolutionBaseName).Database.sqlproj
+# stages:
+# - stage: Build
+#   jobs:
+#   - template: pipeline-templates/job/code-build.yml
+#     parameters:
+#       BuildConfiguration: $(BuildConfiguration)
+#       SolutionBaseName: $(SolutionBaseName)
+#   - template: azure-pipelines-templates/build/job/dacpac-template.yml@das-platform-building-blocks
+#     parameters:
+#       SolutionBaseName: $(SolutionBaseName).dacpac
+#       SqlProjectPath: src/$(SolutionBaseName).Database/$(SolutionBaseName).Database.sqlproj
 
-- stage: Deploy_AT
-  dependsOn: Build
-  displayName: Deploy to AT
-  condition: and(succeeded(), eq(variables.Deploy, 'true'))
-  variables:
-  - group: DevTest Management Resources
-  - group: AT DevTest Shared Resources
-  - group: AT das-commitments
-  jobs:
-  - template: pipeline-templates/job/deploy.yml
-    parameters:
-      Environment: AT
-      SolutionBaseName: $(SolutionBaseName)
-      ServiceConnection: SFA-DAS-DevTest-ARM
-      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
-      AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+# - stage: Deploy_AT
+#   dependsOn: Build
+#   displayName: Deploy to AT
+#   condition: and(succeeded(), eq(variables.Deploy, 'true'))
+#   variables:
+#   - group: DevTest Management Resources
+#   - group: AT DevTest Shared Resources
+#   - group: AT das-commitments
+#   jobs:
+#   - template: pipeline-templates/job/deploy.yml
+#     parameters:
+#       Environment: AT
+#       SolutionBaseName: $(SolutionBaseName)
+#       ServiceConnection: SFA-DAS-DevTest-ARM
+#       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
 
-- stage: Deploy_TEST
-  dependsOn: Build
-  displayName: Deploy to TEST
-  variables:
-  - group: DevTest Management Resources
-  - group: TEST DevTest Shared Resources
-  - group: TEST das-commitments
-  jobs:
-  - template: pipeline-templates/job/deploy.yml
-    parameters:
-      Environment: TEST
-      SolutionBaseName: $(SolutionBaseName)
-      ServiceConnection: SFA-DAS-DevTest-ARM
-      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
-      AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+# - stage: Deploy_TEST
+#   dependsOn: Build
+#   displayName: Deploy to TEST
+#   variables:
+#   - group: DevTest Management Resources
+#   - group: TEST DevTest Shared Resources
+#   - group: TEST das-commitments
+#   jobs:
+#   - template: pipeline-templates/job/deploy.yml
+#     parameters:
+#       Environment: TEST
+#       SolutionBaseName: $(SolutionBaseName)
+#       ServiceConnection: SFA-DAS-DevTest-ARM
+#       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
 
-- stage: Deploy_TEST2
-  dependsOn: Build
-  displayName: Deploy to TEST2
-  variables:
-  - group: DevTest Management Resources
-  - group: TEST2 DevTest Shared Resources
-  - group: TEST das-commitments
-  jobs:
-  - template: pipeline-templates/job/deploy.yml
-    parameters:
-      Environment: TEST2
-      SolutionBaseName: $(SolutionBaseName)
-      ServiceConnection: SFA-DAS-DevTest-ARM
-      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
-      AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+# - stage: Deploy_TEST2
+#   dependsOn: Build
+#   displayName: Deploy to TEST2
+#   variables:
+#   - group: DevTest Management Resources
+#   - group: TEST2 DevTest Shared Resources
+#   - group: TEST das-commitments
+#   jobs:
+#   - template: pipeline-templates/job/deploy.yml
+#     parameters:
+#       Environment: TEST2
+#       SolutionBaseName: $(SolutionBaseName)
+#       ServiceConnection: SFA-DAS-DevTest-ARM
+#       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
 
-- stage: Deploy_PP
-  dependsOn: Build
-  displayName: Deploy to PP
-  variables:
-  - group: PreProd Management Resources
-  - group: PreProd Shared Resources
-  - group: TEST das-commitments
-  jobs:
-  - template: pipeline-templates/job/deploy.yml
-    parameters:
-      Environment: PP
-      SolutionBaseName: $(SolutionBaseName)
-      ServiceConnection: SFA-DIG-PreProd-ARM
-      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
-      AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+# - stage: Deploy_PP
+#   dependsOn: Build
+#   displayName: Deploy to PP
+#   variables:
+#   - group: PreProd Management Resources
+#   - group: PreProd Shared Resources
+#   - group: TEST das-commitments
+#   jobs:
+#   - template: pipeline-templates/job/deploy.yml
+#     parameters:
+#       Environment: PP
+#       SolutionBaseName: $(SolutionBaseName)
+#       ServiceConnection: SFA-DIG-PreProd-ARM
+#       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
 
-- stage: Deploy_PROD
-  dependsOn: Build
-  displayName: Deploy to PROD
-  variables:
-  - group: PROD Management Resources
-  - group: PROD Shared Resources
-  - group: TEST das-commitments
-  jobs:
-  - template: pipeline-templates/job/deploy.yml
-    parameters:
-      Environment: PROD
-      SolutionBaseName: $(SolutionBaseName)
-      ServiceConnection: SFA-DIG-Prod-ARM
-      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
-      AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+# - stage: Deploy_PROD
+#   dependsOn: Build
+#   displayName: Deploy to PROD
+#   variables:
+#   - group: PROD Management Resources
+#   - group: PROD Shared Resources
+#   - group: TEST das-commitments
+#   jobs:
+#   - template: pipeline-templates/job/deploy.yml
+#     parameters:
+#       Environment: PROD
+#       SolutionBaseName: $(SolutionBaseName)
+#       ServiceConnection: SFA-DIG-Prod-ARM
+#       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
 
-- stage: Deploy_MO
-  dependsOn: Build
-  displayName: Deploy to MO
-  variables:
-  - group: MO Management Resources
-  - group: MO Shared Resources
-  - group: TEST das-commitments
-  jobs:
-  - template: pipeline-templates/job/deploy.yml
-    parameters:
-      Environment: MO
-      SolutionBaseName: $(SolutionBaseName)
-      ServiceConnection: SFA-ASM-ModelOffice-ARM
-      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
-      AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+# - stage: Deploy_MO
+#   dependsOn: Build
+#   displayName: Deploy to MO
+#   variables:
+#   - group: MO Management Resources
+#   - group: MO Shared Resources
+#   - group: TEST das-commitments
+#   jobs:
+#   - template: pipeline-templates/job/deploy.yml
+#     parameters:
+#       Environment: MO
+#       SolutionBaseName: $(SolutionBaseName)
+#       ServiceConnection: SFA-ASM-ModelOffice-ARM
+#       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
 
-- stage: Deploy_DEMO
-  dependsOn: Build
-  displayName: Deploy to DEMO
-  variables:
-  - group: DevTest Management Resources
-  - group: DEMO DevTest Shared Resources
-  - group: TEST das-commitments
-  jobs:
-  - template: pipeline-templates/job/deploy.yml
-    parameters:
-      Environment: DEMO
-      SolutionBaseName: $(SolutionBaseName)
-      ServiceConnection: SFA-DAS-DevTest-ARM
-      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
-      AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+# - stage: Deploy_DEMO
+#   dependsOn: Build
+#   displayName: Deploy to DEMO
+#   variables:
+#   - group: DevTest Management Resources
+#   - group: DEMO DevTest Shared Resources
+#   - group: TEST das-commitments
+#   jobs:
+#   - template: pipeline-templates/job/deploy.yml
+#     parameters:
+#       Environment: DEMO
+#       SolutionBaseName: $(SolutionBaseName)
+#       ServiceConnection: SFA-DAS-DevTest-ARM
+#       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
