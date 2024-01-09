@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NServiceBus.Testing;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -95,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             private const string _expectedTemplate = "ProviderApprenticeshipChangeOfProviderRequested";
             private readonly string _cohortReference;
             private readonly string _employerEncodedAccountId;
-            private Fixture _autoFixture;
+            private readonly Fixture _autoFixture;
             public UnitOfWorkContext UnitOfWorkContext { get; set; }
             private static CommitmentsV2Configuration commitmentsV2Configuration;
 
@@ -142,6 +140,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     null,
                     null,
                     null,
+                    false,
                     _autoFixture.Create<UserInfo>(),
                     DateTime.Now);
                 _apprenticeship.Cohort.ChangeOfPartyRequestId = _changeOfPartyRequest.Id;
@@ -194,8 +193,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             public void VerifyEmployerEmailSent(string templateName)
             {
-               var emailToEmployerCommands =  _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToEmployerCommand)
-                      .Select(y => y.Message as SendEmailToEmployerCommand);
+                var emailToEmployerCommands = _messageHandlerContext.SentMessages.Where(x => x.Message is SendEmailToEmployerCommand)
+                       .Select(y => y.Message as SendEmailToEmployerCommand);
                 var emailToEmployerCommand = emailToEmployerCommands.First();
 
                 Assert.AreEqual(1, _messageHandlerContext.SentMessages.Count());
@@ -258,7 +257,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 _event.OriginatingParty = originatingParty;
                 return this;
             }
-         
+
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Domain;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
@@ -49,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             int? employmentPrice,
             DateTime? employmentEndDate,
             DeliveryModel? deliveryModel,
+            bool hasOverlappingTrainingDates,
             UserInfo userInfo,
             DateTime now)
         {
@@ -72,11 +72,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             Status = ChangeOfPartyRequestStatus.Pending;
             CreatedOn = now;
             LastUpdatedOn = now;
-            
+
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.CompleteTrackingSession();
 
-            Publish(() => new ChangeOfPartyRequestCreatedEvent (Id, userInfo));
+            Publish(() => new ChangeOfPartyRequestCreatedEvent(Id, userInfo, hasOverlappingTrainingDates));
         }
 
         private void CheckOriginatingParty(Party originatingParty)
@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 case Party.Employer:
                     return ChangeOfPartyRequestType.ChangeProvider;
                 default:
-                    throw new ArgumentException($"Invalid ChangeOfParty originator: {originatingParty}",nameof(originatingParty));
+                    throw new ArgumentException($"Invalid ChangeOfParty originator: {originatingParty}", nameof(originatingParty));
             }
         }
 
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid? reservationId, UserInfo userInfo)
+        public virtual Cohort CreateCohort(Apprenticeship apprenticeship, Guid? reservationId, UserInfo userInfo, bool hasOverlappingTrainingDates)
         {
             long providerId;
             long accountId;
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new Exception("Invalid ChangeOfPartyType");
             }
 
-            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this, userInfo);
+            return new Cohort(providerId, accountId, accountLegalEntityId, apprenticeship, reservationId, this, userInfo, hasOverlappingTrainingDates);
         }
 
         public virtual void SetCohort(Cohort cohort, UserInfo userInfo)
@@ -159,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual void SetNewApprenticeship(Apprenticeship apprenticeship, UserInfo userInfo, Party modifyingParty)
         {
             CheckNewApprenticeshipIdNotSet(apprenticeship.Id);
-           
+
             StartTrackingSession(UserAction.SetNewApprenticeshipId, modifyingParty, apprenticeship.Cohort.EmployerAccountId, apprenticeship.Cohort.ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
 
@@ -243,9 +243,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public Party IsPreApproved()
+        public Party IsPreApproved(bool hasOverlappingTrainingDate = false)
         {
-            if (OriginatingParty == Party.Provider && ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+            if (OriginatingParty == Party.Provider && ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer && !hasOverlappingTrainingDate)
             {
                 return Party.Provider;
             }
