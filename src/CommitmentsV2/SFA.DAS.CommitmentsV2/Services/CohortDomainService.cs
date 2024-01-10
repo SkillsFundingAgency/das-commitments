@@ -281,7 +281,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (cohort.IsLinkedToChangeOfPartyRequest)
             {
-                await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails);
+                await ValidateStartDateForContinuation(cohort, draftApprenticeshipDetails, cancellationToken);
             }
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cohortId, cancellationToken);
@@ -424,8 +424,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             return provider;
         }
 
-        private async Task ValidateStartDateForContinuation(Cohort cohort, DraftApprenticeshipDetails draftApprenticeshipDetails)
-        {
+        private async Task ValidateStartDateForContinuation(Cohort cohort, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
+        {         
             if (!draftApprenticeshipDetails.StartDate.HasValue) return;
 
             var existingDraftApprenticeship = cohort.GetDraftApprenticeship(draftApprenticeshipDetails.Id);
@@ -435,6 +435,12 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new InvalidOperationException(
                     $"Cohort {cohort.Id} is linked to Change Of Party Request {cohort.ChangeOfPartyRequestId} but DraftApprenticeship {existingDraftApprenticeship.Id} is not a Continuation");
             }
+
+            var overlappingTrainingDateRequest = await _dbContext.Value.OverlappingTrainingDateRequests
+            .Where(x => x.DraftApprenticeshipId == draftApprenticeshipDetails.Id)
+            .ToListAsync(cancellationToken);
+
+            if (overlappingTrainingDateRequest != null) return;
 
             var previousApprenticeship = await
                 _dbContext.Value.GetApprenticeshipAggregate(existingDraftApprenticeship.ContinuationOfId.Value, default);
