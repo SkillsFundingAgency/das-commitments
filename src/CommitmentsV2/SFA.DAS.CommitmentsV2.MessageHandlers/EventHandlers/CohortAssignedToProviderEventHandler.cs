@@ -31,7 +31,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             {
                 _logger.LogInformation($"Received {nameof(CohortAssignedToProviderEvent)} for cohort {message?.CohortId}");
                 var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
-                
+
+                if (cohortSummary == null)
+                {
+                    _logger.LogError($"CohortSummary is null for cohortId {message?.CohortId}");
+                    return;
+                }
                 if (cohortSummary.ChangeOfPartyRequestId.HasValue) return;
                
                 var emailRequest = BuildEmailRequest(cohortSummary);
