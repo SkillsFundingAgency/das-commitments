@@ -54,7 +54,7 @@ jobs:
           parameters:
             EnvironmentName: $(EnvironmentName)
             ServiceConnection: ${{ parameters.ServiceConnection }}
-            SourcePath: $(Pipeline.Workspace)/das-employer-config/Configuration/das-commitments
+            SourcePath: $(Pipeline.Workspace)/das-employer-config/Configuration/das-employer-accounts
             StorageAccountName: $(ConfigurationStorageAccountName)
             StorageAccountResourceGroup: $(SharedEnvResourceGroup)
             TargetFileName: '*.schema.json'
@@ -86,7 +86,7 @@ jobs:
             ServerName: $(SharedSQLServerFQDN)
             SqlUsername: $(SharedSQLServerUsername)
             SqlPassword: $(SharedSQLServerPassword)
-            DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.Commitments.Database/bin/Output/SFA.DAS.Commitments.Database.dacpac
+            DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.EmployerAccounts.Database/bin/Output/SFA.DAS.EmployerAccounts.Database.dacpac
             DatabaseName: $(DatabaseName)
             OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
             Environment: ${{ parameters.Environment }}
