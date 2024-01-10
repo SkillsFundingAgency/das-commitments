@@ -440,7 +440,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             .Where(x => x.DraftApprenticeshipId == draftApprenticeshipDetails.Id)
             .ToListAsync(cancellationToken);
 
-            if (overlappingTrainingDateRequest != null) return;
+            if (overlappingTrainingDateRequest.Count > 0) return;
 
             var previousApprenticeship = await
                 _dbContext.Value.GetApprenticeshipAggregate(existingDraftApprenticeship.ContinuationOfId.Value, default);
