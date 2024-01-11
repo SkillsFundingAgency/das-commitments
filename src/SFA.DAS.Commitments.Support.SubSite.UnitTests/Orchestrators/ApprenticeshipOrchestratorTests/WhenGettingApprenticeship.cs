@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -306,19 +307,19 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
 
         private static List<SupportApprenticeshipDetails> GetApprenticeships()
         {
-            return
-            [
-                new()
+            return new List<SupportApprenticeshipDetails>
+            {
+                new SupportApprenticeshipDetails
                 {
                     FirstName = "Testoo1",
                     StartDate = new DateTime(2020, 1, 1)
                 }
-            ];
+            };
         }
 
         private static IReadOnlyCollection<GetPriceEpisodesQueryResult.PriceEpisode> GetPriceEpisodes()
         {
-            return new[]
+            return new Collection<GetPriceEpisodesQueryResult.PriceEpisode>
             {
                 new GetPriceEpisodesQueryResult.PriceEpisode
                 {
