@@ -28,11 +28,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
         private readonly ICommitmentMapper _commitmentMapper;
 
         public ApprenticeshipsOrchestrator(ILogger<ApprenticeshipsOrchestrator> logger,
-                                            IMediator mediator,
-                                            IApprenticeshipMapper apprenticeshipMapper,
-                                            IValidator<ApprenticeshipSearchQuery> searchValidator,
-                                            IEncodingService encodingService,
-                                            ICommitmentMapper commitmentMapper)
+            IMediator mediator,
+            IApprenticeshipMapper apprenticeshipMapper,
+            IValidator<ApprenticeshipSearchQuery> searchValidator,
+            IEncodingService encodingService,
+            ICommitmentMapper commitmentMapper)
         {
             _logger = logger;
             _mediator = mediator;
@@ -70,15 +70,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
             result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships.First());
 
-            var overlappingTrainingDateRequest = (await _mediator.Send(new GetOverlappingTrainingDateRequestQuery(apprenticeshipId), CancellationToken.None))?.OverlappingTrainingDateRequests?.
-                Where(x => x.Status == CommitmentsV2.Types.OverlappingTrainingDateRequestStatus.Pending)?.FirstOrDefault();
+            var overlappingTrainingDateRequest = (await _mediator.Send(new GetOverlappingTrainingDateRequestQuery(apprenticeshipId), CancellationToken.None))?.OverlappingTrainingDateRequests?.Where(x => x.Status == CommitmentsV2.Types.OverlappingTrainingDateRequestStatus.Pending)?.FirstOrDefault();
             result.OverlappingTrainingDateRequest = _apprenticeshipMapper.MapToOverlappingTrainingDateRequest(overlappingTrainingDateRequest);
 
-            if (result.ApprenticeshipUpdates?.Cost != null)
-            {
-                var priceEpisodes = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
-                result.TrainingCost = priceEpisodes.PriceEpisodes.GetPrice();
-            }
+            var priceEpisodes = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
+            result.TrainingCost = priceEpisodes.PriceEpisodes.GetPrice();
 
             return result;
         }
