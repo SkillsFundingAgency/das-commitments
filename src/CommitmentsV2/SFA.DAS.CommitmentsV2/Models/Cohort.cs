@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
-using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
-using SFA.DAS.CommitmentsV2.Services;
-using SFA.DAS.EmailValidationService;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -137,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeship apprenticeship,
             Guid? reservationId,
             ChangeOfPartyRequest changeOfPartyRequest,
-            UserInfo userInfo)
+            UserInfo userInfo, bool hasOverlappingTrainingDates)
             : this(providerId,
             accountId,
             accountLegalEntityId,
@@ -149,13 +145,13 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             ChangeOfPartyRequestId = changeOfPartyRequest.Id;
 
-            Approvals = changeOfPartyRequest.IsPreApproved();
+            Approvals = changeOfPartyRequest.IsPreApproved(hasOverlappingTrainingDates);
 
-            WithParty = changeOfPartyRequest.OriginatingParty.GetOtherParty();
-            IsDraft = false;
+            WithParty = hasOverlappingTrainingDates ? Party.Provider : changeOfPartyRequest.OriginatingParty.GetOtherParty();
+            IsDraft = hasOverlappingTrainingDates;
 
             if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeProvider)
-            {                  
+            {
                 TransferSenderId = apprenticeship.Cohort.TransferSenderId;
                 PledgeApplicationId = apprenticeship.Cohort.PledgeApplicationId;
             }
@@ -167,20 +163,23 @@ namespace SFA.DAS.CommitmentsV2.Models
             EditStatus = WithParty.ToEditStatus();
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
-            
+
             Publish(() => new CohortWithChangeOfPartyCreatedEvent(Id, changeOfPartyRequest.Id, changeOfPartyRequest.OriginatingParty, DateTime.UtcNow, userInfo));
 
-            if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+            if (!hasOverlappingTrainingDates)
             {
-                Publish(() => new CohortAssignedToEmployerEvent(Id, DateTime.UtcNow, Party.Provider));
+                if (changeOfPartyRequest.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer)
+                {
+                    Publish(() => new CohortAssignedToEmployerEvent(Id, DateTime.UtcNow, Party.Provider));
+                }
+                else
+                {
+                    Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
+                }
             }
-            else
-            {
-                Publish(() => new CohortAssignedToProviderEvent(Id, DateTime.UtcNow));
-            }
-            
+
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
-            
+
             StartTrackingSession(UserAction.CreateCohortWithChangeOfParty, changeOfPartyRequest.OriginatingParty, accountId, providerId, userInfo);
             ChangeTrackingSession.TrackInsert(this);
             ChangeTrackingSession.TrackInsert(draftApprenticeship);
@@ -264,7 +263,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             StartTrackingSession(UserAction.ApproveCohort, modifyingParty, EmployerAccountId, ProviderId, userInfo);
             ChangeTrackingSession.TrackUpdate(this);
-            
+
             switch (modifyingParty)
             {
                 case Party.Employer:
@@ -278,7 +277,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                         WithParty = GetWithParty(otherParty, isApprovedByOtherParty);
                         if (isApprovedByOtherParty) EmployerAndProviderApprovedOn = DateTime.UtcNow;
                         LastAction = LastAction.Approve;
-                        CommitmentStatus = CommitmentStatus.Active; 
+                        CommitmentStatus = CommitmentStatus.Active;
                         TransferApprovalStatus = GetTransferApprovalStatus(isApprovedByOtherParty);
                         Approvals |= modifyingParty;
                         AddMessage(message, modifyingParty, userInfo);
@@ -382,7 +381,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 default:
                     throw new ArgumentOutOfRangeException(nameof(EditStatus));
             }
-            
+
             if (Approvals.HasFlag(Party.Provider))
             {
                 Publish(() => new ApprovedCohortReturnedToProviderEvent(Id, now));
@@ -451,7 +450,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-		public void Delete(Party modifyingParty, UserInfo userInfo)
+        public void Delete(Party modifyingParty, UserInfo userInfo)
         {
             CheckIsWithParty(modifyingParty);
 
@@ -487,11 +486,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 MarkAsDeletedAndEmitCohortDeletedEvent(modifyingParty, userInfo);
             }
-            
+
             ChangeTrackingSession.CompleteTrackingSession();
         }
-		
-		private void RemoveDraftApprenticeship(DraftApprenticeship draftApprenticeship)
+
+        private void RemoveDraftApprenticeship(DraftApprenticeship draftApprenticeship)
         {
             ChangeTrackingSession.TrackDelete(draftApprenticeship);
             LastUpdatedOn = DateTime.UtcNow;
@@ -505,8 +504,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 DeletedOn = DateTime.UtcNow
             });
         }
-		
-		private void MarkAsDeletedAndEmitCohortDeletedEvent(Party deletedBy, UserInfo userInfo)
+
+        private void MarkAsDeletedAndEmitCohortDeletedEvent(Party deletedBy, UserInfo userInfo)
         {
             var approvalStatusPriorToDeletion = Approvals;
             IsDeleted = true;
@@ -545,7 +544,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void CheckThereIsNoPendingTransferRequest()
         {
-            if (TransferRequests.Any(x =>x.Status == (byte) Types.TransferApprovalStatus.Pending))
+            if (TransferRequests.Any(x => x.Status == (byte)Types.TransferApprovalStatus.Pending))
             {
                 throw new DomainException(nameof(TransferRequests), $"Cohort already has a pending transfer request");
             }

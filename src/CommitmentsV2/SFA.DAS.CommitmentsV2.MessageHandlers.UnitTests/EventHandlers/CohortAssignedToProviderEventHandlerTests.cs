@@ -50,7 +50,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var fixture = new CohortAssignedToProviderEventHandlerTestsFixture().SetupChangeOfProviderCohort();
             await fixture.Handle();
 
-            fixture.VerifyProviderAssignedEmailIsNotSentIfItIsAChangeOfProviderRequest();
+            fixture.VerifyProviderAssignedEmailIsNotSent();
+        }
+
+        [Test]
+        public void Handle_WhenCohortSummaryIsNull_ThenShould_NotSendEmail()
+        {
+            var fixture = new CohortAssignedToProviderEventHandlerTestsFixture().SetupNonTransferCohort();
+            fixture.Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((GetCohortSummaryQueryResult)null);
+
+            Assert.DoesNotThrowAsync(fixture.Handle);
+
+            fixture.VerifyProviderAssignedEmailIsNotSent();
         }
     }
 
@@ -126,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     p.Tokens["type"] == actionType), default));
         }
 
-        public void VerifyProviderAssignedEmailIsNotSentIfItIsAChangeOfProviderRequest()
+        public void VerifyProviderAssignedEmailIsNotSent()
         {
             PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(It.IsAny<long>(),  It.IsAny<ProviderEmailRequest>(), 
                 It.IsAny<CancellationToken>()), Times.Never);

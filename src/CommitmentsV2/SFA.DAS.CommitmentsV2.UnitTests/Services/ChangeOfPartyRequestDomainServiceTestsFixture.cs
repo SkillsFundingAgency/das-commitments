@@ -9,6 +9,8 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
@@ -27,6 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public Mock<ProviderCommitmentsDbContext> Db { get; private set; }
         public Exception Exception { get; private set; }
         public Mock<IAuthenticationService> AuthenticationService { get; }
+        public Mock<IOverlapCheckService> OverlapCheckService { get; set; }
         public Mock<ICurrentDateTime> CurrentDateTime { get; }
         public DateTime Now { get; }
         public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; }
@@ -43,12 +46,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public DateTime? EndDate { get; private set; }
         public DateTime? EmploymentEndDate { get; private set; }
         public DeliveryModel? DeliveryModel { get; private set; }
+        public bool HasOverlappingTrainingDates { get; set; }
         public UserInfo UserInfo { get; private set; }
+
+        public string Uln { get; set; }
+        public OverlapCheckResult OverlapCheckResult;
 
         public ChangeOfPartyRequest ApprenticeshipChangeOfPartyRequestResult { get; private set; }
         public ChangeOfPartyRequest Result { get; private set; }
 
-        public ChangeOfPartyRequestDomainServiceTestsFixture(Party party, ChangeOfPartyRequestType changeOfPartyRequestType)
+        public ChangeOfPartyRequestDomainServiceTestsFixture(Party party,
+            ChangeOfPartyRequestType changeOfPartyRequestType)
         {
             Now = DateTime.UtcNow;
             var uow = new UnitOfWorkContext();
@@ -65,17 +73,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     AccountProviderLegalEntities = new List<AccountProviderLegalEntityDto>
                     {
-                            new AccountProviderLegalEntityDto {AccountLegalEntityId = NewPartyId}
+                        new AccountProviderLegalEntityDto { AccountLegalEntityId = NewPartyId }
                     }
                 });
 
             AuthenticationService = new Mock<IAuthenticationService>();
             AuthenticationService.Setup(x => x.GetUserParty()).Returns(OriginatingParty);
 
+            OverlapCheckService = new Mock<IOverlapCheckService>();
+
+
             SetupTestData();
 
             OriginatingParty = party;
-            ChangeOfPartyRequestType = changeOfPartyRequestType;            
+            ChangeOfPartyRequestType = changeOfPartyRequestType;
             NewPartyId = Fixture.Create<long>();
             Price = Fixture.Create<int?>();
             EmploymentPrice = Fixture.Create<int?>();
@@ -89,7 +100,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 new Lazy<ProviderCommitmentsDbContext>(() => Db.Object),
                 AuthenticationService.Object,
                 CurrentDateTime.Object,
-                ProviderRelationshipsApiClient.Object);
+                ProviderRelationshipsApiClient.Object,
+                OverlapCheckService.Object);
         }
 
         private void SetupTestData()
@@ -97,7 +109,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .EnableSensitiveDataLogging()
-                .Options) {CallBase = true};
+                .Options)
+            { CallBase = true };
 
             ApprenticeshipId = Fixture.Create<long>();
             ApprenticeshipChangeOfPartyRequestResult = Fixture.Create<ChangeOfPartyRequest>();
@@ -114,7 +127,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Apprenticeship.Setup(x => x.DeliveryModel).Returns(Types.DeliveryModel.Regular);
             Apprenticeship.Setup(x => x.CreateChangeOfPartyRequest(It.IsAny<ChangeOfPartyRequestType>(),
                     It.IsAny<Party>(), It.IsAny<long>(), It.IsAny<int?>(), It.IsAny<DateTime?>(),
-                    It.IsAny<DateTime?>(), It.IsAny<int?>(), It.IsAny<DateTime?>(), It.IsAny<DeliveryModel?>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
+                    It.IsAny<DateTime?>(), It.IsAny<int?>(), It.IsAny<DateTime?>(), It.IsAny<DeliveryModel?>(),
+                    It.IsAny<bool>(), It.IsAny<UserInfo>(), It.IsAny<DateTime>()))
                 .Returns(ApprenticeshipChangeOfPartyRequestResult);
 
             Db
@@ -132,7 +146,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return this;
         }
 
-        public ChangeOfPartyRequestDomainServiceTestsFixture WithChangeOfPartyRequestType(ChangeOfPartyRequestType requestType)
+        public ChangeOfPartyRequestDomainServiceTestsFixture WithChangeOfPartyRequestType(
+            ChangeOfPartyRequestType requestType)
         {
             ChangeOfPartyRequestType = requestType;
             return this;
@@ -168,6 +183,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return this;
         }
 
+        public ChangeOfPartyRequestDomainServiceTestsFixture WithOverlapCheckResult(bool hasOverlappingStartDate,
+            bool hasOverlappingEndDate)
+        {
+            OverlapCheckResult = new OverlapCheckResult(hasOverlappingStartDate, hasOverlappingEndDate);
+
+            OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(),
+                    It.IsAny<SFA.DAS.CommitmentsV2.Domain.Entities.DateRange>(),
+                    It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(OverlapCheckResult);
+
+            return this;
+        }
 
         public async Task CreateChangeOfPartyRequest()
         {
@@ -177,9 +204,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 Result = await _domainService.CreateChangeOfPartyRequest(ApprenticeshipId,
                     ChangeOfPartyRequestType, NewPartyId, Price, StartDate, EndDate, UserInfo,
-                    EmploymentPrice, EmploymentEndDate, DeliveryModel, new CancellationToken());
+                    EmploymentPrice, EmploymentEndDate, DeliveryModel, HasOverlappingTrainingDates,
+                    new CancellationToken());
 
                 Db.Object.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Exception = ex;
+            }
+        }
+
+        public async Task ValidateChangeOfEmployerOverlap()
+        {
+            try
+            {
+                await _domainService.ValidateChangeOfEmployerOverlap(Uln,
+                    StartDate.Value, EndDate.Value, new CancellationToken());
             }
             catch (Exception ex)
             {
@@ -190,18 +231,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void VerifyAggregateMethodInvoked()
         {
             Apprenticeship.Verify(x =>
-                x.CreateChangeOfPartyRequest(
-                    It.Is<ChangeOfPartyRequestType>(t => t == ChangeOfPartyRequestType),
-                    It.Is<Party>(p => p == OriginatingParty),
-                    It.Is<long>(id => id == NewPartyId),
-                    It.Is<int?>(p => p == Price),
-                    It.Is<DateTime?>(s => s == StartDate),
-                    It.Is<DateTime?>(e => e == EndDate),
-                    It.Is<int?>(p => p == EmploymentPrice),
-                    It.Is<DateTime?>(e => e == EmploymentEndDate),
-                    It.Is<DeliveryModel?>(d => d == DeliveryModel),
-                    It.Is<UserInfo>(u => u == UserInfo),
-                    It.Is<DateTime>(n => n == Now))
+                    x.CreateChangeOfPartyRequest(
+                        It.Is<ChangeOfPartyRequestType>(t => t == ChangeOfPartyRequestType),
+                        It.Is<Party>(p => p == OriginatingParty),
+                        It.Is<long>(id => id == NewPartyId),
+                        It.Is<int?>(p => p == Price),
+                        It.Is<DateTime?>(s => s == StartDate),
+                        It.Is<DateTime?>(e => e == EndDate),
+                        It.Is<int?>(p => p == EmploymentPrice),
+                        It.Is<DateTime?>(e => e == EmploymentEndDate),
+                        It.Is<DeliveryModel?>(d => d == DeliveryModel),
+                        It.Is<bool>(u => u == HasOverlappingTrainingDates),
+                        It.Is<UserInfo>(u => u == UserInfo),
+                        It.Is<DateTime>(n => n == Now))
                 , Times.Once);
         }
 
@@ -221,6 +263,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             Assert.IsNotNull(Exception);
             Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void VerifyNotException<T>()
+        {
+            Assert.IsNull(Exception);
         }
     }
 }
