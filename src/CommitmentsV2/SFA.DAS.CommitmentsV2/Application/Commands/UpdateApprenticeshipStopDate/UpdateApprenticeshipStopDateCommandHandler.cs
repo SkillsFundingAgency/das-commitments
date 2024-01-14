@@ -70,6 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDat
             ValidateEndDateOverlap(command, apprenticeship, cancellationToken);
 
             apprenticeship.ApprenticeshipStopDate(command, _currentDate, party);
+            _dbContext.Value.SaveChanges();
 
             _logger.LogInformation($"Update apprenticeship stop date. Apprenticeship-Id:{command.ApprenticeshipId}");
 
