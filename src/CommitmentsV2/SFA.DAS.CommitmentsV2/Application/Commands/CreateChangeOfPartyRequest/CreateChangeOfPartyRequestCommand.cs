@@ -16,5 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateChangeOfPartyRequest
         public int? NewEmploymentPrice { get; set; }
         public DateTime? NewEmploymentEndDate { get; set; }
         public DeliveryModel? DeliveryModel { get; set; }
+        public bool HasOverlappingTrainingDates { get; set; }
     }
 }
