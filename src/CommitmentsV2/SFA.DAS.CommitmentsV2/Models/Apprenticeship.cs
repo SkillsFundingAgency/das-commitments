@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
-using System.Linq;
-using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateApprenticeshipStopDate;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -46,14 +46,19 @@ namespace SFA.DAS.CommitmentsV2.Models
             int? employmentPrice,
             DateTime? employmentEndDate,
             DeliveryModel? deliveryModel,
+            bool hasOverlappingTrainingDates,
             UserInfo userInfo,
             DateTime now)
         {
-            CheckIsStoppedForChangeOfParty();
-            CheckStartDateForChangeOfParty(startDate, changeOfPartyType, originatingParty);
+            if (!hasOverlappingTrainingDates)
+            {
+                CheckIsStoppedForChangeOfParty();
+                CheckStartDateForChangeOfParty(startDate, changeOfPartyType, originatingParty);
+            }
+
             CheckNoPendingOrApprovedRequestsForChangeOfParty();
 
-            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, userInfo, now);
+            return new ChangeOfPartyRequest(this, changeOfPartyType, originatingParty, newPartyId, price, startDate, endDate, employmentPrice, employmentEndDate, deliveryModel, hasOverlappingTrainingDates, userInfo, now);
         }
 
         internal void ResolveTrainingDateRequest(long draftApprenticeshipId, OverlappingTrainingDateRequestResolutionType resolutionType)

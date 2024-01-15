@@ -8,11 +8,11 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammes;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllTrainingProgrammeStandards;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetNewerTrainingProgrammeVersions;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersions;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -24,12 +24,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         private readonly IMediator _mediator;
         private readonly ILogger<TrainingProgrammeController> _logger;
 
-        public TrainingProgrammeController (IMediator mediator, ILogger<TrainingProgrammeController> logger)
+        public TrainingProgrammeController(IMediator mediator, ILogger<TrainingProgrammeController> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
-        
+
         [HttpGet]
         [Route("all")]
         public async Task<IActionResult> GetAll()
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return BadRequest();
             }
         }
-        
+
         [HttpGet]
         [Route("standards")]
         public async Task<IActionResult> GetAllStandards()
@@ -70,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<IActionResult>  GetTrainingProgramme(string id)
+        public async Task<IActionResult> GetTrainingProgramme(string id)
         {
             try
             {
@@ -78,12 +78,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 {
                     Id = id
                 });
-                
+
                 if (result.TrainingProgramme == null)
                 {
                     return NotFound();
                 }
-                
+
                 return Ok(new GetTrainingProgrammeResponse
                 {
                     TrainingProgramme = result.TrainingProgramme
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     return NotFound();
                 }
 
-                return Ok(new GetTrainingProgrammeResponse 
+                return Ok(new GetTrainingProgrammeResponse
                 {
                     TrainingProgramme = result.TrainingProgramme
                 });
@@ -159,8 +159,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     return NotFound();
                 }
 
-                return Ok(new GetTrainingProgrammeVersionsResponse 
-                { 
+                return Ok(new GetTrainingProgrammeVersionsResponse
+                {
                     TrainingProgrammeVersions = result.TrainingProgrammes
                 });
             }

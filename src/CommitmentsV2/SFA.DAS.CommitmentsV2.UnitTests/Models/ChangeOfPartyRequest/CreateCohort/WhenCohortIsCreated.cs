@@ -116,6 +116,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             _fixture.CreateCohort();
             _fixture.VerifyProviderOriginatorApproval();
         }
+        
+        [Test]
+        public void Change_Of_Employer_With_Overlap_Then_Originator_Approval_Is_Not_Given()
+        {
+            _fixture
+                .WithChangeOfPartyType(ChangeOfPartyRequestType.ChangeEmployer)
+                .WithOverlappingTrainingDates();
+            _fixture.CreateCohort();
+            _fixture.VerifyNoApproval();
+        }
+        
+        [Test]
+        public void Change_Of_Employer_With_Overlap_Then_Cohort_Remains_With_Provider()
+        {
+            _fixture
+                .WithChangeOfPartyType(ChangeOfPartyRequestType.ChangeEmployer)
+                .WithOverlappingTrainingDates();
+            _fixture.CreateCohort();
+            _fixture.VerifyWithSameParty();
+        }
 
         [TestCase(false)]
         [TestCase(true)]
@@ -202,6 +222,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             public CommitmentsV2.Models.Cohort Result { get; private set; }
             public Exception Exception { get; private set; }
             public UnitOfWorkContext UnitOfWorkContext { get; private set; }
+            public bool HasOverlappingTrainingDates { get; private set; }
 
             public WhenCohortIsCreatedTestFixture()
             {
@@ -209,6 +230,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
                 ReservationId = _autoFixture.Create<Guid>();
                 UserInfo = _autoFixture.Create<UserInfo>();
+                HasOverlappingTrainingDates = false;
 
                 var cohort = new CommitmentsV2.Models.Cohort();
                 cohort.SetValue(x => x.ProviderId, _autoFixture.Create<long>());
@@ -285,8 +307,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
 
             internal void WithApprenticeshipConfirmedStatus()
             {
-                ContinuedApprenticeship.SetValue(x=>x.ApprenticeshipConfirmationStatus, _autoFixture.Build<ApprenticeshipConfirmationStatus>().Without(x=>x.Apprenticeship).Create());
-                ContinuedApprenticeship.SetValue(x=>x.EmailAddressConfirmed, true);
+                ContinuedApprenticeship.SetValue(x => x.ApprenticeshipConfirmationStatus, _autoFixture.Build<ApprenticeshipConfirmationStatus>().Without(x => x.Apprenticeship).Create());
+                ContinuedApprenticeship.SetValue(x => x.EmailAddressConfirmed, true);
             }
 
             public WhenCohortIsCreatedTestFixture WithContinuation()
@@ -306,7 +328,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             {
                 try
                 {
-                    Result = Request.CreateCohort(ContinuedApprenticeship, ReservationId, UserInfo);
+                    Result = Request.CreateCohort(ContinuedApprenticeship, ReservationId, UserInfo, HasOverlappingTrainingDates);
                 }
                 catch (Exception e)
                 {
@@ -337,6 +359,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             public void VerifyWithOtherParty()
             {
                 Assert.That(Result.WithParty, Is.EqualTo(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer ? Party.Employer : Party.Provider));
+            }
+            
+            public void VerifyWithSameParty()
+            {
+                Assert.AreEqual(
+                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
+                        ? Party.Provider
+                        : Party.Employer,
+                    Result.WithParty);
             }
 
             public void VerifyProviderOriginatorApproval()
@@ -458,6 +489,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
                     e.Uln == draftApprenticeship.Uln &&
                     e.ReservationId == draftApprenticeship.ReservationId &&
                     e.CreatedOn == draftApprenticeship.CreatedOn);
+            }
+
+            public void WithOverlappingTrainingDates()
+            {
+                HasOverlappingTrainingDates = true;
+            }
+
+            public void VerifyNoApproval()
+            {
+                Result.Approvals.Should().Be(Party.None);
             }
         }
     }

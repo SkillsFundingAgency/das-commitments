@@ -18,6 +18,9 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
             int? employmentPrice,
             DateTime? employmentEndDate,
             DeliveryModel? deliveryModel,
+            bool hasOverlappingTrainingDates,
             CancellationToken cancellationToken);
+
+        Task ValidateChangeOfEmployerOverlap(string uln, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
     }
 }
