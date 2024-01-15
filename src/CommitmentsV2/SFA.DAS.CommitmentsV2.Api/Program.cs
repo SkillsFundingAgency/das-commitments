@@ -4,6 +4,7 @@ using SFA.DAS.CommitmentsV2.Api.Extensions;
 using System;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.CommitmentsV2.Startup;
+using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 
 namespace SFA.DAS.CommitmentsV2.Api
 {
@@ -20,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api
 
         private static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                //.UseNServiceBusContainer()
+                .UseNServiceBusContainer()
                 .ConfigureDasAppConfiguration()
                 .UseNLog()
                 .UseStructureMap()
