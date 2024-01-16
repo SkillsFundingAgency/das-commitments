@@ -28,12 +28,12 @@ resources:
   - repository: das-platform-building-blocks
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/tags/2.1.4
+    ref: refs/tags/2.1.9
     endpoint: SkillsFundingAgency
   - repository: das-platform-automation
     type: github
     name: SkillsFundingAgency/das-platform-automation
-    ref: refs/tags/5.1.5
+    ref: refs/tags/5.1.6
     endpoint: SkillsFundingAgency
   pipelines:
   - pipeline: das-employer-config
@@ -50,7 +50,7 @@ resources:
        SolutionBaseName: $(SolutionBaseName)
    - template: azure-pipelines-templates/build/job/dacpac-template.yml@das-platform-building-blocks
      parameters:
-       SolutionBaseName: $(SolutionBaseName).dacpac
+       SolutionBaseName: $(SolutionBaseName)
        SqlProjectPath: src/$(SolutionBaseName).Database/$(SolutionBaseName).Database.sqlproj
 
 # - stage: Deploy_AT
