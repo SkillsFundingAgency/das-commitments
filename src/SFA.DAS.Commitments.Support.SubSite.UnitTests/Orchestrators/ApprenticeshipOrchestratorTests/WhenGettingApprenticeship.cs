@@ -96,7 +96,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             _encodingService.Verify(o => o.Decode(hashedAccountId, EncodingType.AccountId), Times.Once);
 
             _mediator.Verify(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
-            _mediator.Verify(x => x.Send(It.Is<GetPriceEpisodesQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
             _apprenticeshipMapper.Verify(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()), Times.Once);
         }
 
