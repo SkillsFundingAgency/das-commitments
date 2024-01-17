@@ -57,6 +57,85 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
         }
 
         [Test]
+        public async Task GivenNoPriceUpdatesTotalCostIsUnchanged()
+        {
+            // Arrange
+            const string hashedApprenticeshipId = "ABC001";
+            const string hashedAccountId = "ACCOUNT001";
+            const decimal totalCost = 999;
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+                {
+                    Apprenticeships = GetApprenticeships()
+                }).Verifiable();
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetPriceEpisodesQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetPriceEpisodesQueryResult()).Verifiable();
+
+            _apprenticeshipMapper
+                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
+                .Returns(new ApprenticeshipViewModel
+                {
+                    TrainingCost = totalCost
+                })
+                .Verifiable();
+
+            // Act
+            var result= await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+
+            // Assert
+            result.TrainingCost = totalCost;
+        }
+        
+        [Test]
+        public async Task GivenPriceUpdatesTotalCostIsUpdated()
+        {
+            // Arrange
+            const string hashedApprenticeshipId = "ABC001";
+            const string hashedAccountId = "ACCOUNT001";
+            const decimal totalCost = 999;
+            const decimal priceChangeCost = 2234;
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
+                {
+                    Apprenticeships = GetApprenticeships()
+                }).Verifiable();
+
+            _mediator.Setup(x => x.Send(It.IsAny<GetPriceEpisodesQuery>(), CancellationToken.None))
+                .ReturnsAsync(new GetPriceEpisodesQueryResult
+                {
+                    PriceEpisodes = new Collection<GetPriceEpisodesQueryResult.PriceEpisode>
+                    {
+                        new GetPriceEpisodesQueryResult.PriceEpisode
+                        {
+                            ApprenticeshipId = 1,
+                            Cost = priceChangeCost,
+                            FromDate = DateTime.Today.AddDays(-10),
+                            ToDate = DateTime.Today.AddDays(10),
+                            TrainingPrice = 100,
+                            Id = 11,
+                        }
+                    }
+                }).Verifiable();
+
+            _apprenticeshipMapper
+                .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
+                .Returns(new ApprenticeshipViewModel
+                {
+                    TrainingCost = totalCost
+                })
+                .Verifiable();
+
+            // Act
+            var result= await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+
+            // Assert
+            result.TrainingCost = priceChangeCost;
+        }
+
+        [Test]
         public async Task GivenValidApprenticeshipIdShouldCallRequiredServices()
         {
             // Arrange
@@ -70,10 +149,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 }).Verifiable();
 
             _mediator.Setup(x => x.Send(It.IsAny<GetPriceEpisodesQuery>(), CancellationToken.None))
-                .ReturnsAsync(new GetPriceEpisodesQueryResult
-                {
-                    PriceEpisodes = GetPriceEpisodes()
-                }).Verifiable();
+                .ReturnsAsync(new GetPriceEpisodesQueryResult()).Verifiable();
 
             _apprenticeshipMapper
                 .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
@@ -96,6 +172,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             _encodingService.Verify(o => o.Decode(hashedAccountId, EncodingType.AccountId), Times.Once);
 
             _mediator.Verify(x => x.Send(It.Is<GetSupportApprenticeshipQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
+            _mediator.Verify(x => x.Send(It.Is<GetPriceEpisodesQuery>(o => o.ApprenticeshipId == 100), CancellationToken.None), Times.Once);
             _apprenticeshipMapper.Verify(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()), Times.Once);
         }
 
@@ -113,10 +190,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 }).Verifiable();
 
             _mediator.Setup(x => x.Send(It.IsAny<GetPriceEpisodesQuery>(), CancellationToken.None))
-                .ReturnsAsync(new GetPriceEpisodesQueryResult
-                {
-                    PriceEpisodes = GetPriceEpisodes()
-                }).Verifiable();
+                .ReturnsAsync(new GetPriceEpisodesQueryResult()).Verifiable();
 
             _apprenticeshipMapper
                 .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
@@ -316,14 +390,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             };
         }
 
-        private static IReadOnlyCollection<GetPriceEpisodesQueryResult.PriceEpisode> GetPriceEpisodes()
+        private static IReadOnlyCollection<GetPriceEpisodesQueryResult.PriceEpisode> GetPriceEpisodes(decimal updatedCost = 100)
         {
             return new Collection<GetPriceEpisodesQueryResult.PriceEpisode>
             {
                 new GetPriceEpisodesQueryResult.PriceEpisode
                 {
                     ApprenticeshipId = 1,
-                    Cost = 100,
+                    Cost = updatedCost,
                     FromDate = DateTime.Today.AddDays(-10),
                     ToDate = DateTime.Today.AddDays(10),
                     TrainingPrice = 100,

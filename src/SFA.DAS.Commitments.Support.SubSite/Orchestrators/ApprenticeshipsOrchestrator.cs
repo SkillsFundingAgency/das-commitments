@@ -72,13 +72,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             var overlappingTrainingDateRequest = (await _mediator.Send(new GetOverlappingTrainingDateRequestQuery(apprenticeshipId), CancellationToken.None))?.OverlappingTrainingDateRequests?.Where(x => x.Status == CommitmentsV2.Types.OverlappingTrainingDateRequestStatus.Pending)?.FirstOrDefault();
             result.OverlappingTrainingDateRequest = _apprenticeshipMapper.MapToOverlappingTrainingDateRequest(overlappingTrainingDateRequest);
-
-            if (result.ApprenticeshipUpdates?.Cost != null)
+            
+            var priceEpisodesResult = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
+            if (priceEpisodesResult.PriceEpisodes != null && priceEpisodesResult.PriceEpisodes.Any())
             {
-                var priceEpisodesResult = await _mediator.Send(new GetPriceEpisodesQuery(apprenticeshipId));
-                result.TrainingCost = priceEpisodesResult.PriceEpisodes.GetPrice();
+                result.TrainingCost = priceEpisodesResult.PriceEpisodes.GetPrice();    
             }
-
+            
             return result;
         }
 
