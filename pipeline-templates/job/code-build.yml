@@ -32,7 +32,7 @@ jobs:
       inputs:
         command: publish
         publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-        projects: src/${{ parameters.SolutionBaseName }}.Api/${{ parameters.SolutionBaseName }}.Api.csproj
+        projects: src/${{ parameters.SolutionBaseName }}V2.Api/${{ parameters.SolutionBaseName }}V2.Api.csproj
         arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
         modifyOutputPath: true
         zipAfterPublish: true
@@ -42,7 +42,7 @@ jobs:
       inputs:
         command: publish
         publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-        projects: src/${{ parameters.SolutionBaseName }}.Host/${{ parameters.SolutionBaseName }}.Host.csproj
+        projects: src/${{ parameters.SolutionBaseName }}V2.Host/${{ parameters.SolutionBaseName }}V2.Host.csproj
         arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
         modifyOutputPath: true
         zipAfterPublish: true
