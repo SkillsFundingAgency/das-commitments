@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             var result= await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
             // Assert
-            result.TrainingCost = totalCost;
+            result.TrainingCost.Should().Be(totalCost);
         }
         
         [Test]
@@ -126,7 +126,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             var result= await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
             // Assert
-            result.TrainingCost = priceChangeCost;
+            result.TrainingCost.Should().Be(priceChangeCost);
         }
 
         [Test]
