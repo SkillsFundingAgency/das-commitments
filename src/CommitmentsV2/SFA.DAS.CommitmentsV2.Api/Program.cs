@@ -3,7 +3,6 @@ using NLog.Web;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
 using System;
 using Microsoft.Extensions.Hosting;
-using SFA.DAS.CommitmentsV2.Startup;
 using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 
 namespace SFA.DAS.CommitmentsV2.Api
@@ -24,7 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseNServiceBusContainer()
                 .ConfigureDasAppConfiguration()
                 .UseNLog()
-                .UseStructureMap()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

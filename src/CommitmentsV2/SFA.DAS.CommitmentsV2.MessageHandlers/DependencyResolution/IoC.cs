@@ -18,15 +18,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<ConfigurationRegistry>();
-            registry.IncludeRegistry<CurrentDateTimeRegistry>();
+            // Not sure how this is being used
+            //registry.IncludeRegistry<CurrentDateTimeRegistry>();
+            
+            // Difficult
             registry.IncludeRegistry<DataRegistry>();
+
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
             registry.IncludeRegistry(new PasAccountApiClientRegistry(context => GetPasConfiguration(context.GetInstance<IConfiguration>())));
             registry.IncludeRegistry<EncodingRegistry>();
             registry.IncludeRegistry<DiffServiceRegistry>();
-            registry.IncludeRegistry<EmployerAccountsRegistry>();
+            //registry.IncludeRegistry<EmployerAccountsRegistry>();
             registry.IncludeRegistry<ReservationsApiClientRegistry>();
             registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();

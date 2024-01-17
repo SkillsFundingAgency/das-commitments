@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<DataRegistry>();
             registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
-            registry.IncludeRegistry<EmployerAccountsRegistry>();
+            //registry.IncludeRegistry<EmployerAccountsRegistry>();
             registry.IncludeRegistry<FeaturesAuthorizationRegistry>();
             registry.IncludeRegistry<EncodingRegistry>();
             registry.IncludeRegistry<MappingRegistry>();

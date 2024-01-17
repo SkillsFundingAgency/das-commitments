@@ -5,23 +5,23 @@ using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection
 {
-    public class CommitmentsSharedRegistry : Registry
-    {
-        public CommitmentsSharedRegistry()
-        {
-            Scan(
-                scan =>
-                {
-                    scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith("SFA.DAS.Commitments.Shared"));
-                    scan.RegisterConcreteTypesAgainstTheFirstInterface();
-                });
+    //public class CommitmentsSharedRegistry : Registry
+    //{
+    //    public CommitmentsSharedRegistry()
+    //    {
+    //        Scan(
+    //            scan =>
+    //            {
+    //                scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith("SFA.DAS.Commitments.Shared"));
+    //                scan.RegisterConcreteTypesAgainstTheFirstInterface();
+    //            });
 
 
-            For<ICurrentDateTime>().Use<CurrentDateTime>().Singleton();
-            For<ICreateCsvService>().Use<CreateCsvService>().Singleton();
+    //        For<ICurrentDateTime>().Use<CurrentDateTime>().Singleton();
+    //        For<ICreateCsvService>().Use<CreateCsvService>().Singleton();
 
-            IncludeRegistry<CommitmentsApiClientRegistry>();
-            IncludeRegistry<EncodingRegistry>();
-        }
-    }
+    //        //IncludeRegistry<CommitmentsApiClientRegistry>();
+    //        IncludeRegistry<EncodingRegistry>();
+    //    }
+    //}
 }
