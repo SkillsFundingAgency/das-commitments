@@ -75,10 +75,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
 
             _apprenticeshipMapper
                 .Setup(o => o.MapToApprenticeshipViewModel(It.IsAny<GetSupportApprenticeshipQueryResult>(), It.IsAny<GetChangeOfProviderChainQueryResult>()))
-                .Returns(new ApprenticeshipViewModel
-                {
-                    TrainingCost = totalCost
-                })
+                .Returns(new ApprenticeshipViewModel { TrainingCost = totalCost })
                 .Verifiable();
 
             // Act
@@ -98,10 +95,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             const decimal priceChangeCost = 2234;
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
-                .ReturnsAsync(new GetSupportApprenticeshipQueryResult
-                {
-                    Apprenticeships = GetApprenticeships()
-                }).Verifiable();
+                .ReturnsAsync(new GetSupportApprenticeshipQueryResult { Apprenticeships = GetApprenticeships() }).Verifiable();
 
             _mediator.Setup(x => x.Send(It.IsAny<GetPriceEpisodesQuery>(), CancellationToken.None))
                 .ReturnsAsync(new GetPriceEpisodesQueryResult
@@ -210,7 +204,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 .Returns(100);
 
             // Act
-            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+            await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
             _apprenticeshipMapper.Verify(o => o.MapToUpdateApprenticeshipViewModel(It.IsAny<GetApprenticeshipUpdateQueryResult>(), It.IsAny<SupportApprenticeshipDetails>()), Times.Once);
         }
@@ -386,22 +380,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 {
                     FirstName = "Testoo1",
                     StartDate = new DateTime(2020, 1, 1)
-                }
-            };
-        }
-
-        private static IReadOnlyCollection<GetPriceEpisodesQueryResult.PriceEpisode> GetPriceEpisodes(decimal updatedCost = 100)
-        {
-            return new Collection<GetPriceEpisodesQueryResult.PriceEpisode>
-            {
-                new GetPriceEpisodesQueryResult.PriceEpisode
-                {
-                    ApprenticeshipId = 1,
-                    Cost = updatedCost,
-                    FromDate = DateTime.Today.AddDays(-10),
-                    ToDate = DateTime.Today.AddDays(10),
-                    TrainingPrice = 100,
-                    Id = 11,
                 }
             };
         }
