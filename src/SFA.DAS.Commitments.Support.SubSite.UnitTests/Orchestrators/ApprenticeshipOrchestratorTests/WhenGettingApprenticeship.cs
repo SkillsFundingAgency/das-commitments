@@ -79,12 +79,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 .Verifiable();
 
             // Act
-            var result= await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
             // Assert
             result.TrainingCost.Should().Be(totalCost);
         }
-        
+
         [Test]
         public async Task GivenPriceUpdatesTotalCostIsUpdated()
         {
@@ -123,7 +123,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
                 .Verifiable();
 
             // Act
-            var result= await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+            var result = await _sut.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
 
             // Assert
             result.TrainingCost.Should().Be(priceChangeCost);
