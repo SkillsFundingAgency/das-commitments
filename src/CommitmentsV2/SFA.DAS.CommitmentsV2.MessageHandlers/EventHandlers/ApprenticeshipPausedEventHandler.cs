@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
             
-            _logger.LogInformation("Apprenticeship.PauseDate: {PauseDate}.", !apprenticeship.PauseDate.HasValue ? "NULL" : apprenticeship.PauseDate.Value);
+            _logger.LogInformation("Apprenticeship.PauseDate: {PauseDate}.", !apprenticeship.PauseDate.HasValue ? "NULL" : apprenticeship.PauseDate.Value.ToString());
 
             var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
 
