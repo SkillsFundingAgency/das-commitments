@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             // Arrange
             const string hashedApprenticeshipId = "ABC001";
             const string hashedAccountId = "ACCOUNT001";
-            const decimal totalCost = 999;
+            const decimal totalCost = 324;
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
                 .ReturnsAsync(new GetSupportApprenticeshipQueryResult
@@ -91,7 +91,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             // Arrange
             const string hashedApprenticeshipId = "ABC001";
             const string hashedAccountId = "ACCOUNT001";
-            const decimal totalCost = 999;
+            const decimal totalCost = 622;
             const decimal priceChangeCost = 2234;
 
             _mediator.Setup(x => x.Send(It.IsAny<GetSupportApprenticeshipQuery>(), CancellationToken.None))
