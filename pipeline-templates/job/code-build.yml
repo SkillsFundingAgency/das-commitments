@@ -22,7 +22,7 @@ jobs:
       inputs:
         command: publish
         publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
-        projects: src/${{ parameters.SolutionBaseName }}.Web/${{ parameters.SolutionBaseName }}.Web.csproj
+        projects: src/${{ parameters.SolutionBaseName }}.Support.SubSite/${{ parameters.SolutionBaseName }}.Support.SubSite.csproj
         arguments: -o $(build.artifactstagingdirectory)/publish -c ${{ parameters.BuildConfiguration }} --no-build
         modifyOutputPath: true
         zipAfterPublish: true
