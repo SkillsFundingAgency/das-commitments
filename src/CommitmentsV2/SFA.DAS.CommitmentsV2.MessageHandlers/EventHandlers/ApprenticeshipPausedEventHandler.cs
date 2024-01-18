@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         private SendEmailToProviderCommand BuildEmailToProviderCommand(Apprenticeship apprenticeship)
         {
-            var sendEmailToProviderCommand = new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId,
+            return new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId,
                 EmailTemplateName,
                 new Dictionary<string, string>
                 {
@@ -53,8 +53,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                     { "DATE", apprenticeship.PauseDate?.ToString("dd/MM/yyyy") },
                     { "URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}" }
                 });
-
-            return sendEmailToProviderCommand;
         }
     }
 }
