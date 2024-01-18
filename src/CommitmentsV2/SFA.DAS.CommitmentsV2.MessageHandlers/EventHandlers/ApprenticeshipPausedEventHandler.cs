@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -7,9 +10,6 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -21,7 +21,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         private readonly IEncodingService _encodingService;
         private readonly CommitmentsV2Configuration _commitmentsV2Configuration;
 
-        public ApprenticeshipPausedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApprenticeshipPausedEventHandler> logger, 
+        private const string EmailTemplateName = "ProviderApprenticeshipPauseNotification";
+
+        public ApprenticeshipPausedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApprenticeshipPausedEventHandler> logger,
             IEncodingService encodingService, CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _dbContext = dbContext;
@@ -35,11 +37,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _logger.LogInformation("Received {HandlerName} for apprentice {ApprenticeshipId}", nameof(ApprenticeshipPausedEventHandler), message?.ApprenticeshipId);
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-            
+
             _logger.LogInformation("Apprenticeship.PauseDate: {PauseDate}.", !apprenticeship.PauseDate.HasValue ? "NULL" : apprenticeship.PauseDate.Value.ToString());
 
             var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
-            
+
             _logger.LogInformation("EmailToProviderCommand: {Command}.", JsonSerializer.Serialize(emailToProviderCommand));
 
             await context.Send(emailToProviderCommand, new SendOptions());
@@ -48,14 +50,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         private SendEmailToProviderCommand BuildEmailToProviderCommand(Apprenticeship apprenticeship)
         {
             var sendEmailToProviderCommand = new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId,
-                "ProviderApprenticeshipPauseNotification",
-                      new Dictionary<string, string>
-                      {
-                                  {"EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name},
-                                  {"APPRENTICE", $"{apprenticeship.FirstName} {apprenticeship.LastName}"},
-                                  {"DATE", apprenticeship.PauseDate?.ToString("dd/MM/yyyy")},
-                                  {"URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}"}
-                      });
+                EmailTemplateName,
+                new Dictionary<string, string>
+                {
+                    { "EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name },
+                    { "APPRENTICE", $"{apprenticeship.FirstName} {apprenticeship.LastName}" },
+                    { "DATE", apprenticeship.PauseDate?.ToString("dd/MM/yyyy") },
+                    { "URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}" }
+                });
 
             return sendEmailToProviderCommand;
         }
