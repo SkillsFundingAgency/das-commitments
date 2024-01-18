@@ -10,6 +10,7 @@ using SFA.DAS.Encoding;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -38,6 +39,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _logger.LogInformation("Apprenticeship.PauseDate: {PauseDate}.", !apprenticeship.PauseDate.HasValue ? "NULL" : apprenticeship.PauseDate.Value.ToString());
 
             var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
+            
+            _logger.LogInformation("EmailToProviderCommand: {Command}.", JsonSerializer.Serialize(emailToProviderCommand));
 
             await context.Send(emailToProviderCommand, new SendOptions());
         }
