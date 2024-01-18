@@ -33,33 +33,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public async Task WhenHandlingApprenticeshipPauseEvent_ThenEncodingServiceIsCalled()
         {
             await _fixture.Handle();
-            
+
             _fixture.MockEncodingService.Verify(x => x.Encode(_fixture.Event.ApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
         }
 
         [Test]
-        public async Task WhenHandlingApprenticeshipPauseEvent_And_PaymentStatus_IsPaused_ThenSendEmailToProviderIsCalled()
-        {
-            await _fixture.Handle();
-
-            _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
-                    c.Template == "ProviderApprenticeshipPauseNotification" &&
-                    c.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
-                    c.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
-                    c.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
-                    c.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
-                    )
-                  , It.IsAny<SendOptions>()), Times.Once);
-        }
-        
-        [Test]
         [TestCase(PaymentStatus.Active)]
         [TestCase(PaymentStatus.Completed)]
         [TestCase(PaymentStatus.Withdrawn)]
-        public async Task WhenHandlingApprenticeshipPauseEvent_And_PaymentStatus_Is_Not_Paused_ThenSendEmailToProviderIsNotCalled(PaymentStatus status)
+        [TestCase(PaymentStatus.Paused)]
+        public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsCalled_OnlyWhen_PaymentStatus_Is_Paused(PaymentStatus status)
         {
             _fixture.SetPaymentStatus(status);
-            
+
             await _fixture.Handle();
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
@@ -68,8 +54,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                     c.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
                     c.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
                     c.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
-                )
-                , It.IsAny<SendOptions>()), Times.Never);
+                ), It.IsAny<SendOptions>()), 
+                status == PaymentStatus.Paused ? Times.Once : Times.Never);
         }
     }
 
@@ -101,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             _apprenticeship = new Apprenticeship();
             _apprenticeship.SetValue(x => x.Id, Event.ApprenticeshipId);
-            
+
             _apprenticeship.SetValue(x => x.FirstName, FirstName);
             _apprenticeship.SetValue(x => x.LastName, LastName);
             _apprenticeship.SetValue(x => x.PauseDate, PausedDate);
@@ -110,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 AccountLegalEntity = accountLegalEntity,
                 ProviderId = 1
             });
-            
+
             _apprenticeship.PaymentStatus = PaymentStatus.Paused;
 
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
@@ -130,7 +116,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public void SetPaymentStatus(PaymentStatus status) => _apprenticeship.PaymentStatus = status;
 
         public void Dispose() => _db?.Dispose();
-        
+
         public override Task Handle() => Handler.Handle(Event, MessageHandlerContext.Object);
     }
 }
