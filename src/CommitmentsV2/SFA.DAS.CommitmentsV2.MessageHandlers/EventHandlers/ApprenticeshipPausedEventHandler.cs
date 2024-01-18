@@ -10,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -38,11 +37,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-            _logger.LogInformation("Apprenticeship.PauseDate: {PauseDate}.", !apprenticeship.PauseDate.HasValue ? "NULL" : apprenticeship.PauseDate.Value.ToString());
-
             var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
-
-            _logger.LogInformation("EmailToProviderCommand: {Command}.", JsonSerializer.Serialize(emailToProviderCommand));
 
             await context.Send(emailToProviderCommand, new SendOptions());
         }
