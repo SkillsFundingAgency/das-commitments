@@ -26,10 +26,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         private ApprenticeshipPausedEventHandlerTestsFixture _fixture;
 
         [SetUp]
-        public void Arrange()
-        {
-            _fixture = new ApprenticeshipPausedEventHandlerTestsFixture();
-        }
+        public void Arrange() => _fixture = new ApprenticeshipPausedEventHandlerTestsFixture();
 
         [TearDown]
         public void TearDown() => _fixture.Dispose();
@@ -37,17 +34,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task WhenHandlingApprenticeshipPauseEvent_ThenEncodingServiceIsCalled()
         {
-            _fixture.SetApprenticeshipStatus(PaymentStatus.Paused);
-            
             await _fixture.Handle();
+            
             _fixture.MockEncodingService.Verify(x => x.Encode(_fixture.Event.ApprenticeshipId, EncodingType.ApprenticeshipId), Times.Once);
         }
 
         [Test]
         public async Task WhenHandlingApprenticeshipPauseEvent_And_PaymentStatus_IsPaused_ThenSendEmailToProviderIsCalled()
         {
-            _fixture.SetApprenticeshipStatus(PaymentStatus.Paused);
-            
             await _fixture.Handle();
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
@@ -66,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [TestCase(PaymentStatus.Withdrawn)]
         public async Task WhenHandlingApprenticeshipPauseEvent_And_PaymentStatus_Is_Not_Paused_ThenSendEmailToProviderIsNotCalled(PaymentStatus status)
         {
-            _fixture.SetApprenticeshipStatus(status);
+            _fixture.SetPaymentStatus(status);
             
             await _fixture.Handle();
 
@@ -83,10 +77,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
     public class ApprenticeshipPausedEventHandlerTestsFixture : EventHandlerTestsFixture<ApprenticeshipPausedEvent, ApprenticeshipPausedEventHandler>
     {
-        public Mock<ILogger<ApprenticeshipPausedEventHandler>> Logger { get; set; }
-        public Mock<IEncodingService> MockEncodingService { get; set; }
-
-        public ApprenticeshipPausedEvent Event { get; set; }
+        public Mock<ILogger<ApprenticeshipPausedEventHandler>> Logger { get; }
+        public Mock<IEncodingService> MockEncodingService { get; }
+        public ApprenticeshipPausedEvent Event { get; }
 
         private readonly Apprenticeship _apprenticeship;
         private readonly ProviderCommitmentsDbContext _db;
@@ -97,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public const string HashedApprenticeshipId = "ABC";
         public const string ProviderCommitmentsBaseUrl = "https://approvals/";
 
-        public ApprenticeshipPausedEventHandlerTestsFixture() : base((m) => null)
+        public ApprenticeshipPausedEventHandlerTestsFixture() : base(m => null)
         {
             Logger = new Mock<ILogger<ApprenticeshipPausedEventHandler>>();
             PausedDate = DateTime.UtcNow;
@@ -110,7 +103,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             _apprenticeship = new Apprenticeship();
             _apprenticeship.SetValue(x => x.Id, Event.ApprenticeshipId);
-
+            
             _apprenticeship.SetValue(x => x.FirstName, FirstName);
             _apprenticeship.SetValue(x => x.LastName, LastName);
             _apprenticeship.SetValue(x => x.PauseDate, PausedDate);
@@ -119,6 +112,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 AccountLegalEntity = accountLegalEntity,
                 ProviderId = 1
             });
+            
+            _apprenticeship.PaymentStatus = PaymentStatus.Paused;
 
             _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -134,16 +129,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 new CommitmentsV2Configuration { ProviderCommitmentsBaseUrl = ProviderCommitmentsBaseUrl });
         }
 
-        public void SetApprenticeshipStatus(PaymentStatus status)
-        {
-            _apprenticeship.PaymentStatus = status;
-        }
+        public void SetPaymentStatus(PaymentStatus status) => _apprenticeship.PaymentStatus = status;
 
         public void Dispose() => _db?.Dispose();
         
-        public override Task Handle()
-        {
-            return Handler.Handle(Event, MessageHandlerContext.Object);
-        }
+        public override Task Handle() => Handler.Handle(Event, MessageHandlerContext.Object);
     }
 }
