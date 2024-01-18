@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
@@ -36,6 +37,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _logger.LogInformation("Received {HandlerName} for apprentice {ApprenticeshipId}", nameof(ApprenticeshipPausedEventHandler), message?.ApprenticeshipId);
 
             var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
+
+            if (apprenticeship.PaymentStatus != PaymentStatus.Paused)
+            {
+                _logger.LogWarning("Apprenticeship '{ApprenticeshipId}' has a PaymentStatus of '{Status}' which is not Paused. Exiting.", apprenticeship.Id, apprenticeship.PaymentStatus.ToString());
+                return;
+            }
 
             var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship);
 
