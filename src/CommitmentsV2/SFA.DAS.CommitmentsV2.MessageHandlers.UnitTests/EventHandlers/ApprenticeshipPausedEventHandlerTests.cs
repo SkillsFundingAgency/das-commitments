@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
@@ -38,10 +40,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
 
         [Test]
-        [TestCase(PaymentStatus.Active)]
-        [TestCase(PaymentStatus.Completed)]
-        [TestCase(PaymentStatus.Withdrawn)]
-        [TestCase(PaymentStatus.Paused)]
+        [TestCaseSource(nameof(GetAllPaymentStatus))]
         public async Task WhenHandlingApprenticeshipPauseEvent_ThenSendEmailToProviderIsCalled_OnlyWhen_PaymentStatus_Is_Paused(PaymentStatus status)
         {
             _fixture.SetPaymentStatus(status);
@@ -57,6 +56,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 ), It.IsAny<SendOptions>()), 
                 status == PaymentStatus.Paused ? Times.Once : Times.Never);
         }
+
+        private static List<PaymentStatus> GetAllPaymentStatus() => Enum.GetValues(typeof(PaymentStatus)).Cast<PaymentStatus>().ToList();
     }
 
     public class ApprenticeshipPausedEventHandlerTestsFixture : EventHandlerTestsFixture<ApprenticeshipPausedEvent, ApprenticeshipPausedEventHandler>
