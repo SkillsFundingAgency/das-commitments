@@ -47,14 +47,26 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
             await _fixture.Handle();
 
-            _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
-                    c.Template == ApprenticeshipPausedEventHandler.EmailTemplateName &&
-                    c.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
-                    c.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
-                    c.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
-                    c.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
-                ), It.IsAny<SendOptions>()), 
-                status == PaymentStatus.Paused ? Times.Once : Times.Never);
+            if (status == PaymentStatus.Paused)
+            {
+                _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>
+                    command.Template == ApprenticeshipPausedEventHandler.EmailTemplateName &&
+                    command.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
+                    command.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
+                    command.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
+                    command.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
+                ), It.IsAny<SendOptions>()), Times.Once);        
+            }
+            else
+            {
+                _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(command =>
+                    command.Template == ApprenticeshipPausedEventHandler.EmailTemplateName &&
+                    command.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
+                    command.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
+                    command.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
+                    command.Tokens["URL"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.ProviderCommitmentsBaseUrl}/1/apprentices/{ApprenticeshipPausedEventHandlerTestsFixture.HashedApprenticeshipId}"
+                ), It.IsAny<SendOptions>()), Times.Never);
+            }
         }
 
         private static List<PaymentStatus> GetAllPaymentStatus() => Enum.GetValues(typeof(PaymentStatus)).Cast<PaymentStatus>().ToList();
