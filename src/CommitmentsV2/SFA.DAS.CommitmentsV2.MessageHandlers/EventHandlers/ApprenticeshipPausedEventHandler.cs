@@ -40,7 +40,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             if (apprenticeship.PaymentStatus != PaymentStatus.Paused)
             {
-                _logger.LogWarning("Apprenticeship '{ApprenticeshipId}' has a PaymentStatus of '{Status}' which is not Paused. Exiting.", apprenticeship.Id, apprenticeship.PaymentStatus.ToString());
+                _logger.LogWarning("Apprenticeship '{ApprenticeshipId}' has a PaymentStatus of '{Status}' which is not Paused. Exiting.", 
+                    apprenticeship.Id, 
+                    apprenticeship.PaymentStatus.ToString());
+                
                 return;
             }
 
