@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             await _fixture.Handle();
 
             _fixture.MessageHandlerContext.Verify(m => m.Send(It.Is<SendEmailToProviderCommand>(c =>
-                    c.Template == "ProviderApprenticeshipPauseNotification" &&
+                    c.Template == ApprenticeshipPausedEventHandler.EmailTemplateName &&
                     c.Tokens["EMPLOYER"] == ApprenticeshipPausedEventHandlerTestsFixture.EmployerName &&
                     c.Tokens["APPRENTICE"] == $"{ApprenticeshipPausedEventHandlerTestsFixture.FirstName} {ApprenticeshipPausedEventHandlerTestsFixture.LastName}" &&
                     c.Tokens["DATE"] == _fixture.PausedDate.ToString("dd/MM/yyyy") &&
