@@ -22,11 +22,26 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetEmployerCohortsReadyForAp
         {
             var db = _db.Value;
 
-            var result = await db.Cohorts
-          .Where(c => c.EmployerAccountId == request.EmployerAccountId &&
-                       !c.IsDeleted &&
-                       (c.Approvals == Party.Provider && c.WithParty == Party.Employer ||
-                        c.Approvals == Party.None && c.WithParty == Party.Employer && c.IsDraft && c.Originator == Party.Employer.ToOriginator()))
+            var cohorts = db.Cohorts
+            .Where(c => c.EmployerAccountId == request.EmployerAccountId
+            && !c.IsDeleted
+            && ((c.Approvals == Party.Provider && c.WithParty == Party.Employer) ||
+                (c.Approvals == Party.None
+                && c.WithParty == Party.Employer
+                && c.IsDraft
+                && c.Originator == Party.Employer.ToOriginator()))
+                && c.Apprenticeships.Any(a =>
+                    a.FirstName != null
+                    && a.LastName != null
+                    && a.Email != null
+                    && a.DateOfBirth != null
+                    && a.CourseCode != null
+                    && a.StartDate != null
+                    && a.EndDate != null
+                    && a.Cost != null))
+            .AsQueryable();
+
+            var result = await cohorts
               .Select(c => new GetEmployerCohortsReadyForApprovalQueryResult
               {
                   CohortId = c.Id,
