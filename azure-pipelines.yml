@@ -53,3 +53,18 @@ stages:
     parameters:
       SolutionBaseName: $(SolutionBaseName)
       SqlProjectPath: src/$(SolutionBaseName).Database/$(SolutionBaseName).Database.sqlproj
+
+- stage: Deploy_TEST
+  dependsOn: Build
+  displayName: Deploy to TEST
+  variables:
+  - group: DevTest Management Resources
+  - group: TEST DevTest Shared Resources
+  - group: TEST das-commitments
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      Environment: TEST
+      SolutionBaseName: $(SolutionBaseName)
+      ServiceConnection: SFA-DAS-DevTest-ARM
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
