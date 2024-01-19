@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.OpenApi.Models;
+using SFA.DAS.Authorization.Features.DependencyResolution.Microsoft;
 using SFA.DAS.Authorization.Mvc.Extensions;
+using SFA.DAS.Authorization.ProviderPermissions.DependencyResolution.Microsoft;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
@@ -22,9 +25,16 @@ using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
 using SFA.DAS.CommitmentsV2.Api.NServiceBus;
 using SFA.DAS.CommitmentsV2.Caching;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Infrastructure;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Validators;
+using SFA.DAS.Encoding;
 using SFA.DAS.Telemetry.Startup;
+using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.Mvc.Extensions;
+using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api
@@ -84,9 +94,33 @@ namespace SFA.DAS.CommitmentsV2.Api
             services.AddApiClients(_configuration);
             services.AddApplicationInsightsTelemetry();
             services.AddTelemetryUriRedaction("firstName,lastName,dateOfBirth,email");
+
+            services.AddAcademicYearDateProviderServices();
+            services.AddApprovalsOuterApiServiceServices();
+            DAS.Authorization.DependencyResolution.Microsoft.ServiceCollectionExtensions.AddAuthorization(services);
+
+            services.AddApprenticeshipSearchServices();
+            services.AddDomainServices();
+            //services
+            //    .AddUnitOfWork()
+            //    .AddEntityFramework(employerAccountsConfiguration)
+            //    .AddEntityFrameworkUnitOfWork<EmployerAccountsDbContext>();
+            services.AddFeaturesAuthorization();
+            services.AddSingleton<IEncodingService, EncodingService>();
+
+            services.AddMediatR(typeof(ValidationBehavior<,>).Assembly);
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddReservationsApiClient();
+            services.AddTransient<IStateService,StateService>();
+            services.AddTransient<ICacheStorageService, CacheStorageService>();
+
+            services.AddDefaultServices(_configuration);
+            services.AddNServiceBusClientUnitOfWork();
+            services.AddProviderPermissionsAuthorization();
         }
 
         public void ConfigureContainer(Registry registry)
+
         {
             IoC.Initialize(registry);
         }
