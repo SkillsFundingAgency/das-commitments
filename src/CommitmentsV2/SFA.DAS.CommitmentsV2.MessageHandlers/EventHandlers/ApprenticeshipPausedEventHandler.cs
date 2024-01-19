@@ -23,8 +23,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public const string EmailTemplateName = "ProviderApprenticeshipPauseNotification";
 
-        public ApprenticeshipPausedEventHandler(Lazy<ProviderCommitmentsDbContext> dbContext, ILogger<ApprenticeshipPausedEventHandler> logger,
-            IEncodingService encodingService, CommitmentsV2Configuration commitmentsV2Configuration)
+        public ApprenticeshipPausedEventHandler(
+            Lazy<ProviderCommitmentsDbContext> dbContext,
+            ILogger<ApprenticeshipPausedEventHandler> logger,
+            IEncodingService encodingService,
+            CommitmentsV2Configuration commitmentsV2Configuration)
         {
             _dbContext = dbContext;
             _logger = logger;
