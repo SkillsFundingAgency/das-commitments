@@ -40,10 +40,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             if (apprenticeship.PaymentStatus != PaymentStatus.Paused)
             {
-                _logger.LogWarning("Apprenticeship '{ApprenticeshipId}' has a PaymentStatus of '{Status}' which is not Paused. Exiting.", 
-                    apprenticeship.Id, 
+                _logger.LogWarning("Apprenticeship '{ApprenticeshipId}' has a PaymentStatus of '{Status}' which is not Paused. Exiting.",
+                    apprenticeship.Id,
                     apprenticeship.PaymentStatus.ToString());
-                
+
                 return;
             }
 
@@ -54,14 +54,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         private SendEmailToProviderCommand BuildEmailToProviderCommand(Apprenticeship apprenticeship)
         {
-            return new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId,
-                EmailTemplateName,
+            var providerCommitmentsBaseUrl = _commitmentsV2Configuration.ProviderCommitmentsBaseUrl.EndsWith("/")
+                ? _commitmentsV2Configuration.ProviderCommitmentsBaseUrl
+                : $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/";
+
+            return new SendEmailToProviderCommand(apprenticeship.Cohort.ProviderId, EmailTemplateName,
                 new Dictionary<string, string>
                 {
                     { "EMPLOYER", apprenticeship.Cohort.AccountLegalEntity.Name },
                     { "APPRENTICE", $"{apprenticeship.FirstName} {apprenticeship.LastName}" },
                     { "DATE", apprenticeship.PauseDate?.ToString("dd/MM/yyyy") },
-                    { "URL", $"{_commitmentsV2Configuration.ProviderCommitmentsBaseUrl}/{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}" }
+                    { "URL", $"{providerCommitmentsBaseUrl}{apprenticeship.Cohort.ProviderId}/apprentices/{_encodingService.Encode(apprenticeship.Id, EncodingType.ApprenticeshipId)}" }
                 });
         }
     }
