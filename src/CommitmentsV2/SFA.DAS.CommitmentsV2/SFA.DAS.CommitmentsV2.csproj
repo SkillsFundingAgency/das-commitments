@@ -6,15 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.10.4" />
     <PackageReference Include="FluentValidation" Version="11.8.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="MediatR" Version="12.2.0">
+    <PackageReference Include="MediatR" Version="12.1.1">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.32" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.26" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.26" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.1.32" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0">
       <TreatAsUsed>true</TreatAsUsed>
@@ -39,6 +40,8 @@
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.20" />
     <PackageReference Include="SFA.DAS.UnitOfWork" Version="9.0.28" />
     <PackageReference Include="SFA.DAS.PAS.Account.Api.ClientV2" Version="17267.0.559" />
+    <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.28" />
+    <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
     <PackageReference Include="StructureMap" Version="4.7.1">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>

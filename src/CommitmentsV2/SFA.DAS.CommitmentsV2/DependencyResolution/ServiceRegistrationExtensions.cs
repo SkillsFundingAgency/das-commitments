@@ -1,9 +1,5 @@
-﻿using System;
-using System.Net.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Configuration;
+﻿using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.CommitmentsV2.Api.Client;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
@@ -13,12 +9,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Services.Shared;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Shared.ModelBinding;
-using SFA.DAS.CommitmentsV2.Shared.Services;
-using SFA.DAS.EAS.Account.Api.Client;
-using SFA.DAS.Encoding;
-using SFA.DAS.ProviderRelationships.Api.Client;
-using SFA.DAS.ProviderRelationships.Api.Client.Http;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces.AddEpaToApprenticeship;
 using SFA.DAS.Authorization.Features.Models;
@@ -29,7 +19,6 @@ using System.Linq;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
-using Microsoft.AspNetCore.Http;
 using SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers;
 using SFA.DAS.CommitmentsV2.Mapping.Reservations;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
@@ -37,20 +26,21 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
 using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Authentication;
-using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.Reservations.Api.Types;
-using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships.EditValidation;
 using SFA.DAS.ReservationsV2.Api.Client;
-using SFA.DAS.CommitmentsV2.LinkGeneration;
-//using Microsoft.AspNetCore.Authentication;
+using System;
+using SFA.DAS.CommitmentsV2.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.Shared.Services;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution;
 
 public static class ServiceRegistrationExtensions
 {
-
     public static IServiceCollection AddAcademicYearDateProviderServices(this IServiceCollection services)
     {
         services.AddSingleton<IAcademicYearDateProvider, AcademicYearDateProvider>();
@@ -73,8 +63,6 @@ public static class ServiceRegistrationExtensions
         return services;
     }
 
-
-
     public static IServiceCollection AddApprenticeshipSearchServices(this IServiceCollection services)
     {
         services.AddTransient<IApprenticeshipSearch, ApprenticeshipSearch>();
@@ -85,8 +73,34 @@ public static class ServiceRegistrationExtensions
         return services;
     }
 
+    public static IServiceCollection AddDatabaseRegistration(this IServiceCollection services)
+    {
+        services.AddDbContext<ProviderCommitmentsDbContext>((sp, options) =>
+        {
+            var dbConnection = DatabaseExtensions.GetSqlConnection(sp.GetService<CommitmentsV2Configuration>().DatabaseConnectionString);
+            options.UseSqlServer(dbConnection);
+        });
 
+        services.AddScoped(provider => new Lazy<ProviderCommitmentsDbContext>(provider.GetService<ProviderCommitmentsDbContext>()));
+        services.AddScoped<IProviderCommitmentsDbContext>(c => c.GetService<ProviderCommitmentsDbContext>());
 
+        return services;
+    }
+
+    public static IServiceCollection AddCurrentDateTimeService(this IServiceCollection services, IConfiguration config)
+    {
+        var commitmentsConfiguration = config.Get<CommitmentsV2Configuration>();
+        if (DateTime.TryParse(commitmentsConfiguration.CurrentDateTime, out var overrideValue))
+        {
+            services.AddTransient<ICurrentDateTime>(s => new CurrentDateTime(overrideValue));
+        }
+        else
+        {
+            services.AddTransient<ICurrentDateTime, CurrentDateTime>();
+        }
+
+        return services;
+    }
 
     public static IServiceCollection AddDomainServices(this IServiceCollection services)
     {
@@ -101,6 +115,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IEmailOverlapService, EmailOverlapService>();
         services.AddTransient<IRplFundingCalculationService, RplFundingCalculationService>();
         services.AddTransient<IUlnValidator, UlnValidator>();
+        services.AddTransient<IOverlapCheckService, OverlapCheckService>();
         services.AddTransient<IEditApprenticeshipValidationService, EditApprenticeshipValidationService>();
         services.AddTransient<IEmailOptionalService, EmailOptionalService>();
         services.AddTransient<IEmployerAlertSummaryEmailService, EmployerAlertSummaryEmailService>();
@@ -113,10 +128,10 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IFilterOutAcademicYearRollOverDataLocks, FilterOutAcademicYearRollOverDataLocks>();
         services.AddTransient<Learners.Validators.IUlnValidator, Learners.Validators.UlnValidator>();
         services.AddTransient<IFeatureTogglesService<FeatureToggle>, FeatureTogglesService<FeaturesConfiguration, FeatureToggle>>();
+        services.AddTransient<ITrainingProgrammeLookup, TrainingProgrammeLookup>();
 
         return services;
     }
-
 
     public static IServiceCollection AddMappingServices(this IServiceCollection services)
     {
@@ -133,10 +148,8 @@ public static class ServiceRegistrationExtensions
 
         services.AddMappers();
 
-
         return services;
     }
-
 
     private static IServiceCollection AddMappers(this IServiceCollection services)
     {
@@ -156,10 +169,4 @@ public static class ServiceRegistrationExtensions
 
         return services;
     }
-
-
-
-
-
-
 }

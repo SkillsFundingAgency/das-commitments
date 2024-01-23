@@ -21,24 +21,23 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             //registry.IncludeRegistry<ApprovalsOuterApiServiceRegistry>();
             //registry.IncludeRegistry<AuthorizationRegistry>();
             //registry.IncludeRegistry<ApprenticeshipSearchRegistry>();
-            registry.IncludeRegistry<ConfigurationRegistry>();
-            registry.IncludeRegistry<CurrentDateTimeRegistry>();
-            registry.IncludeRegistry<DataRegistry>();
+            //registry.IncludeRegistry<ConfigurationRegistry>();
+            //registry.IncludeRegistry<CurrentDateTimeRegistry>();
+            //registry.IncludeRegistry<DataRegistry>();
             //registry.IncludeRegistry<DomainServiceRegistry>();
-            registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
+            //registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             //registry.IncludeRegistry<EmployerAccountsRegistry>();
             //registry.IncludeRegistry<FeaturesAuthorizationRegistry>();
             //registry.IncludeRegistry<EncodingRegistry>();
             //registry.IncludeRegistry<MappingRegistry>();
             //registry.IncludeRegistry<MediatorRegistry>();
-            registry.IncludeRegistry<NServiceBusClientUnitOfWorkRegistry>();
-            registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
+            //registry.IncludeRegistry<NServiceBusClientUnitOfWorkRegistry>();
+            //registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
             //registry.IncludeRegistry<ReservationsApiClientRegistry>();
             //registry.IncludeRegistry<StateServiceRegistry>();
-            // but come concerns on how real class is wired up
             //registry.IncludeRegistry<DefaultRegistry>();
             //registry.IncludeRegistry<CachingRegistry>();
-            registry.IncludeRegistry<ProviderPermissionsAuthorizationRegistry>();
+            //registry.IncludeRegistry<ProviderPermissionsAuthorizationRegistry>();
         }
     }
 }

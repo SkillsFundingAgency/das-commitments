@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using NServiceBus.Settings;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
@@ -82,4 +83,6 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
             return services;
         }
     }
+
+
 }

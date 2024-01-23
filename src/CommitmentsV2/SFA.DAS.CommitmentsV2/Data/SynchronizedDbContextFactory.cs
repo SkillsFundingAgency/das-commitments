@@ -1,14 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Persistence;
-using SFA.DAS.NServiceBus.SqlServer;
 using SFA.DAS.NServiceBus.SqlServer.Data;
-using SFA.DAS.UnitOfWork;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Data
 {
+    // TODO Remove this it should no longer be used
     public class SynchronizedDbContextFactory : IDbContextFactory
     {
         private readonly IUnitOfWorkContext _unitOfWorkContext;
