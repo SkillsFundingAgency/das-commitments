@@ -30,10 +30,5 @@ namespace SFA.DAS.CommitmentsV2.Startup
 
             return hostBuilder.UseEnvironment(mappedEnvironmentName);
         }
-
-        public static IHostBuilder UseStructureMap(this IHostBuilder builder)
-        {
-            return builder.UseServiceProviderFactory(new StructureMapServiceProviderFactory(null));
-        }
     }
 }
