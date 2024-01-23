@@ -47,7 +47,7 @@ jobs:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             ApimResourceGroup: $(SharedApimResourceGroup)
             ApimName: $(SharedApimName)
-            SubscriptionId: $(UiAppServiceName)
+            SubscriptionId: $(WorkerV2AppServiceName)
             PipelineVariableName: EmployerAccountsApimSubscriptionKey
             IsMultiRepoCheckout: true
         - template: azure-pipelines-templates/deploy/step/generate-config.yml@das-platform-building-blocks
@@ -77,7 +77,7 @@ jobs:
         - template: azure-pipelines-templates/deploy/step/app-role-assignments.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.AppRoleAssignmentsServiceConnection }}
-            ResourceName: $(UiAppServiceName)
+            ResourceName: $(WorkerV2AppServiceName)
             Tenant: $(Tenant)
             IsMultiRepoCheckout: true
         - template: azure-pipelines-templates/deploy/step/sql-dacpac-deploy.yml@das-platform-building-blocks
@@ -93,7 +93,7 @@ jobs:
         - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
-            AppServiceName: $(UiAppServiceName)
+            AppServiceName: $(WorkerV2AppServiceName)
             DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.Web.zip
         - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
           parameters:
