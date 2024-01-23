@@ -94,7 +94,8 @@
       "defaultValue": "S0"
     },
     "databaseTier": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "Standard"
     },
     "logAnalyticsSubscriptionId": {
       "type": "string",
