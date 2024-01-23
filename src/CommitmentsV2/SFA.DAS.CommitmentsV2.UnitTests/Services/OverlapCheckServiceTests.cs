@@ -290,7 +290,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     It.IsAny<CancellationToken>())).ReturnsAsync(new List<OverlappingEmail>());
 
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                               .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                               .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                 .Options);
 
                 _email = "any@email.com";

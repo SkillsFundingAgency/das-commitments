@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllProviders
 
         public GetAllProvidersHandlerTestsFixture()
         {
-            _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
 
             _handler = new GetAllProvidersQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _dbContext));
         }

@@ -140,7 +140,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             {
               
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                          .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                          .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                           .EnableSensitiveDataLogging()
                           .Options);
 

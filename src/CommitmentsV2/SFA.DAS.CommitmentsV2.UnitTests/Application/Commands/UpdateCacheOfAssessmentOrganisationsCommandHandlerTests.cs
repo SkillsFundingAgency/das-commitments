@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 _command = new UpdateCacheOfAssessmentOrganisationsCommand();
 
                 _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
                 _sut = new UpdateCacheOfAssessmentOrganisationsCommandHandler(_approvalOuterApi.Object, new Lazy<ProviderCommitmentsDbContext>(() => _db), Mock.Of<ILogger<UpdateCacheOfAssessmentOrganisationsCommandHandler>>());

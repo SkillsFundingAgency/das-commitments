@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
 
                 _query = new GetSupportApprenticeshipQuery { CohortId = _cohortId };
 
-                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
                 var lazyDb = new Lazy<ProviderCommitmentsDbContext>(() => _db);
 
                 _mapper = new Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>>();

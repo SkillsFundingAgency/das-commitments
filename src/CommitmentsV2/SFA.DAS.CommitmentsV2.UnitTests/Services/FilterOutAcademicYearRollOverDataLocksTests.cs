@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             SeedApprenticeshipUpdates = new List<ApprenticeshipUpdate>();
             DataLockRecordss = new List<DataLockStatus>();
 
-            _dbContextMock = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options)
+            _dbContextMock = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options)
             {
                 CallBase = true
             };

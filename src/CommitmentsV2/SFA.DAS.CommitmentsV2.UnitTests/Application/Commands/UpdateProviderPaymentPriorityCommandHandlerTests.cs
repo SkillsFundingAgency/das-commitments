@@ -352,7 +352,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public UpdateProviderPaymentPriorityCommandHandlerTestsFixture()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             
             Logger = new Mock<ILogger<UpdateProviderPaymentsPriorityCommandHandler>>();
 

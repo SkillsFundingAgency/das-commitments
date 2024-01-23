@@ -138,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(databaseName: "SFA.DAS.Commitments.Database")
+                .UseInMemoryDatabase(databaseName: "SFA.DAS.Commitments.Database", b => b.EnableNullChecks(false))
                 .UseLoggerFactory(MyLoggerFactory)
                 .Options;
 

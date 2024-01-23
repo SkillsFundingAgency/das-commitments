@@ -107,7 +107,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         private void SetupTestData()
         {
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .EnableSensitiveDataLogging()
                 .Options)
             { CallBase = true };

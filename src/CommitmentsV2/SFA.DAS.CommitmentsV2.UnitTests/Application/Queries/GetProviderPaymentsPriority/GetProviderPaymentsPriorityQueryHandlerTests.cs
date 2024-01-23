@@ -267,7 +267,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
 
         public GetProviderPaymentsPriorityQueryHandlerTestFixtures()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Logger = new Mock<ILogger<GetProviderPaymentsPriorityQueryHandler>>();
             Handler = new GetProviderPaymentsPriorityQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger.Object);

@@ -42,11 +42,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             _fixture = new Fixture();
             _apprenticeshipId = 10082;
             _dbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                        .UseInMemoryDatabase(databaseGuid)
+                                        .UseInMemoryDatabase(databaseGuid, b => b.EnableNullChecks(false))
                                         .Options);           
 
             _confirmationDbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                            .UseInMemoryDatabase(databaseGuid)
+                            .UseInMemoryDatabase(databaseGuid, b => b.EnableNullChecks(false))
                             .Options);
 
             _unitOfWorkContext = new UnitOfWorkContext();

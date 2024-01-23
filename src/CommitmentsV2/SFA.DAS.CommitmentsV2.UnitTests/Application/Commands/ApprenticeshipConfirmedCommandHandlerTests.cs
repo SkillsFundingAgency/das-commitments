@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Without(x => x.ApprenticeshipConfirmedOn).Create();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                 .Options);
 
             Handler = new ApprenticeshipConfirmedCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
