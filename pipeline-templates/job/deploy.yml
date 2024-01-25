@@ -61,6 +61,7 @@ jobs:
             TableName: Configuration
             ConfigurationSecrets:
               CompaniesHouseKey: $(CompaniesHouseKey)
+              NotificationsClientToken: $(NotificationsClientToken)
               DefaultSessionRedisConnectionString: $(DefaultSessionRedisConnectionString)
               EASMessageServiceBusString: $(EASMessageServiceBusString)
               EmployerAccountsApimSubscriptionKey: $(EmployerAccountsApimSubscriptionKey)
