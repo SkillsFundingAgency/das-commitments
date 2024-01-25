@@ -7,7 +7,6 @@ using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
 using SFA.DAS.CommitmentsV2.Startup;
-using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers
 {
@@ -23,12 +22,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                     .ConfigureDasAppConfiguration(args)
                     .UseConsoleLifetime()
                     .ConfigureLogging(b => b.AddNLog())
-                    .UseStructureMap()
                     .ConfigureServices((c, s) => s
                         .AddDasDistributedMemoryCache(c.Configuration, c.HostingEnvironment.IsDevelopment())
                         .AddMemoryCache()
                         .AddNServiceBus())
-                    .ConfigureContainer<Registry>(IoC.Initialize);
+                    .ConfigureMessageHandlerServices();
 
                 using (var host = hostBuilder.Build())
                 {

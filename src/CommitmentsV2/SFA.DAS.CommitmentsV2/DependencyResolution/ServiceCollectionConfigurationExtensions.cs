@@ -8,7 +8,7 @@ using SFA.DAS.PAS.Account.Api.ClientV2.Configuration;
 using SFA.DAS.ProviderRelationships.Api.Client.Configuration;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 
-namespace SFA.DAS.CommitmentsV2.Api.Extensions;
+namespace SFA.DAS.CommitmentsV2.DependencyResolution;
 
 public static class ServiceCollectionConfigurationExtensions
 {
