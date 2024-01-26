@@ -22,10 +22,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                     .ConfigureDasAppConfiguration(args)
                     .UseConsoleLifetime()
                     .ConfigureLogging(b => b.AddNLog())
-                    .ConfigureServices((c, s) => s
-                        .AddDasDistributedMemoryCache(c.Configuration, c.HostingEnvironment.IsDevelopment())
-                        .AddMemoryCache()
-                        .AddNServiceBus())
                     .ConfigureMessageHandlerServices();
 
                 using (var host = hostBuilder.Build())

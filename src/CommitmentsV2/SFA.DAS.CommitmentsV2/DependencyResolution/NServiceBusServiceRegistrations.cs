@@ -35,15 +35,13 @@ public static class NServiceBusServiceRegistrations
             throw new Exception("DatabaseConnectionString");
         }
 
-        var allowOutboxCleanup = true;
-
         var endpointConfiguration = new EndpointConfiguration(endPointName)
             .UseErrorQueue($"{endPointName}-errors")
             .UseInstallers()
             .UseMessageConventions()
             .UseServicesBuilder(services)
             .UseNewtonsoftJsonSerializer()
-            .UseOutbox(allowOutboxCleanup)
+            .UseOutbox(true)
             .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(databaseConnectionString))
             .ConfigureServiceBusTransport(() => commitmentsConfiguration.NServiceBusConfiguration.ServiceBusConnectionString, isDevOrLocal)
             .UseUnitOfWork();

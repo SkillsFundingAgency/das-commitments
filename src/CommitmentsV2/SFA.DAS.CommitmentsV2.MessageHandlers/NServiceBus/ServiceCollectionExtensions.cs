@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
+using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.Configuration.NLog;
 using SFA.DAS.NServiceBus.Hosting;
@@ -36,8 +38,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                         .UseNewtonsoftJsonSerializer()
                         .UseOutbox()
                         .UseNLogFactory()
-                        .UseUnitOfWork();
-                        //.UseServicesBuilder(new UpdateableServiceProvider(services));
+                        .UseUnitOfWork()
+                        .UseServicesBuilder(new UpdateableServiceProvider(services));
 
                     if (isDevelopment)
                     {

@@ -1,24 +1,72 @@
-﻿using MediatR;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Authorization.Features.DependencyResolution.Microsoft;
 using SFA.DAS.CommitmentsV2.Application.Commands.AcceptApprenticeshipUpdates;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
+using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
+using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Startup;
+using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
+
+
+public class StubMediator : IMediator
+{
+    public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = new CancellationToken())
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Task Send<TRequest>(TRequest request, CancellationToken cancellationToken = new CancellationToken()) where TRequest : IRequest
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Task<object> Send(object request, CancellationToken cancellationToken = new CancellationToken())
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> request,
+        CancellationToken cancellationToken = new CancellationToken())
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public IAsyncEnumerable<object> CreateStream(object request, CancellationToken cancellationToken = new CancellationToken())
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Task Publish(object notification, CancellationToken cancellationToken = new CancellationToken())
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = new CancellationToken()) where TNotification : INotification
+    {
+        throw new System.NotImplementedException();
+    }
+}
+
 
 public static class ServiceRegistrationExtensions
 {
@@ -37,14 +85,10 @@ public static class ServiceRegistrationExtensions
                 .AddEntityFrameworkUnitOfWork<ProviderCommitmentsDbContext>();
 
             services.AddDatabaseRegistration();
-            //services.AddTransient<IMediator, Mediator>();
-            //services.AddMediatR(serviceConfiguration => serviceConfiguration.RegisterServicesFromAssemblies(
-            //    typeof(ApprenticeshipResendInvitationCommandHandler).Assembly,
-            //    typeof(AcceptApprenticeshipUpdatesCommand).Assembly)
-            //);
-            //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            //services.
+            services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(AddHistoryCommand).Assembly));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddNServiceBusClientUnitOfWork();
+            services.AddDomainServices();
 
             services.AddEmployerAccountServices(context.Configuration);
             services.AddFeaturesAuthorization();
@@ -53,8 +97,9 @@ public static class ServiceRegistrationExtensions
 
             services.AddTransient<IDiffService, DiffService>();
             services.AddEmployerAccountServices(context.Configuration);
-            services.AddReservationsApiClient();
-            services.AddDomainServices();
+            //services.AddReservationsApiClient();
+            //services.AddDomainServices();
+
             services.AddApprovalsOuterApiServiceServices();
 
             // todo wireup IPasAccountApiClient via outerAPI
@@ -62,6 +107,9 @@ public static class ServiceRegistrationExtensions
 
             services.AddDefaultMessageHandlerServices();
 
+            services.AddDasDistributedMemoryCache(context.Configuration, context.HostingEnvironment.IsDevelopment())
+                .AddMemoryCache()
+                .AddNServiceBus();
         });
 
         return hostBuilder;

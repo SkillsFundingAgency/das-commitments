@@ -6,7 +6,7 @@ using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Data
 {
-    // TODO Remove this it should no longer be used
+    // TODO Feels like this should no longer be needed
     public class SynchronizedDbContextFactory : IDbContextFactory
     {
         private readonly IUnitOfWorkContext _unitOfWorkContext;
