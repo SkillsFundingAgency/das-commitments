@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
-using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
 using SFA.DAS.CommitmentsV2.Startup;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers

@@ -29,6 +29,7 @@ public static class ServiceCollectionConfigurationExtensions
         services.AddConfigurationFor<ReservationsClientApiConfiguration>(configuration, CommitmentsConfigurationKeys.ReservationsClientApiConfiguration);
         services.AddConfigurationFor<RplSettingsConfiguration>(configuration, CommitmentsConfigurationKeys.RplSettingsConfiguration);
         services.AddConfigurationFor<ProviderUrlConfiguration>(configuration, CommitmentsConfigurationKeys.ProviderUrlConfiguration);
+        services.AddConfigurationFor<CommitmentPaymentsWebJobConfiguration>(configuration, CommitmentsConfigurationKeys.CommitmentPaymentsWebJobConfiguration);
 
         return services;
     }
@@ -42,4 +43,3 @@ public static class ServiceCollectionConfigurationExtensions
         return section.Get<T>();
     }
 }
-
