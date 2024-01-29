@@ -1,17 +1,18 @@
-﻿using MediatR;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Linq;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingApprenticeChanges;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -92,6 +93,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             if (result == null) { return NotFound(); }
 
             var response = await _modelMapper.Map<GetApprenticeshipStatusSummaryResponse>(result);
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("pending-apprentice-changes")]
+        public async Task<IActionResult> GetPendingApprenticeChanges(long accountId)
+        {
+            var query = new GetPendingApprenticeChangesQuery(accountId);
+            var result = await _mediator.Send(query);
+
+            if (result == null) { return NotFound(); }
+
+            var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
             return Ok(response);
         }
 
