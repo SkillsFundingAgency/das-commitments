@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountTransferStatus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipStatusSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetEmployerCohortsReadyForApproval;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetPendingApprenticeChanges;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
@@ -96,6 +97,18 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(response);
         }
 
+        [HttpGet]
+        [Route("pending-apprentice-changes")]
+        public async Task<IActionResult> GetPendingApprenticeChanges(long accountId)
+        {
+            var query = new GetPendingApprenticeChangesQuery(accountId);
+            var result = await _mediator.Send(query);
+
+            if (result == null) { return NotFound(); }
+
+            var response = await _modelMapper.Map<GetApprenticeshipUpdatesResponse>(result);
+            return Ok(response);
+        }
 
         [HttpGet]
         [Route("ready-for-approval")]
