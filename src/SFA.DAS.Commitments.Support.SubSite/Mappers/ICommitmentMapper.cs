@@ -1,12 +1,6 @@
 ﻿using SFA.DAS.Commitments.Support.SubSite.Models;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {

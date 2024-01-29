@@ -47,7 +47,7 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddEmployerAccountServices(this IServiceCollection services, IConfiguration config)
     {
         // TODO Not sure why the sub is a singleton and the real client is transient, but it was like that in StructureMap
-        if (config["UseStubAccountApiClient"].Equals("TRUE", StringComparison.InvariantCultureIgnoreCase))
+        if (config["UseStubAccountApiClient"] != null && config["UseStubAccountApiClient"].Equals("TRUE", StringComparison.InvariantCultureIgnoreCase))
         {
             services.AddSingleton<IAccountApiClient, StubAccountApiClient>();
         }

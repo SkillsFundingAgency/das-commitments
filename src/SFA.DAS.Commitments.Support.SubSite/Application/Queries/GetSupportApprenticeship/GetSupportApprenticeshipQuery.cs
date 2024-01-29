@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship
+namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship
 {
     public class GetSupportApprenticeshipQuery : IRequest<GetSupportApprenticeshipQueryResult>
     {

@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
+namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary
 {
     public class GetSupportCohortSummaryHandler : IRequestHandler<GetSupportCohortSummaryQuery, GetSupportCohortSummaryQueryResult>
     {
@@ -73,18 +73,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
             return response;
         }
 
-        private static bool CalculateIsCompleteForProvider(Models.Cohort c, bool apprenticeEmailIsRequired)
+        private static bool CalculateIsCompleteForProvider(CommitmentsV2.Models.Cohort c, bool apprenticeEmailIsRequired)
         {
             return CalculateIsCompleteForEmployer(c, apprenticeEmailIsRequired)
                    && !c.Apprenticeships.Any(a => a.Uln == null)
                    && !c.Apprenticeships.Any(a => a.RecognisingPriorLearningStillNeedsToBeConsidered);
         }
 
-        private static bool CalculateIsCompleteForEmployer(Models.Cohort c, bool apprenticeEmailIsRequired)
+        private static bool CalculateIsCompleteForEmployer(CommitmentsV2.Models.Cohort c, bool apprenticeEmailIsRequired)
         {
             return c.Apprenticeships.Any() && !c.Apprenticeships.Any(HasMissingData);
 
-            bool HasMissingData(Models.ApprenticeshipBase a)
+            bool HasMissingData(CommitmentsV2.Models.ApprenticeshipBase a)
             {
                 if (a.FirstName == null
                     || a.LastName == null

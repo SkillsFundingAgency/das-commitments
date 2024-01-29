@@ -6,14 +6,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
 using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using System.Threading;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators

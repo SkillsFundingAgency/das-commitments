@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships
+namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary
 {
     public class GetCohortApprenticeshipsQueryResultValidator : AbstractValidator<GetSupportCohortSummaryQuery>
     {

@@ -22,7 +22,6 @@ namespace SFA.DAS.Commitments.Support.SubSite
             Host.CreateDefaultBuilder(args)
                 .ConfigureDasAppConfiguration()
                 .UseNLog()
-                .UseStructureMap()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

@@ -12,8 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortApprenticeships;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -22,7 +21,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using Message = SFA.DAS.CommitmentsV2.Models.Message;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSummary
+namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Application.Queries.GetSupportCohortSummary
 {
     [TestFixture]
     public class GetSupportCohortSummaryHandlerTests
@@ -231,7 +230,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportCohortSu
                 .Build<DraftApprenticeshipDetails>()
                 .With(x => x.Email, email)
                 .With(x => x.StartDate, new DateTime(2022, 08, 01))
-                .With(x=>x.RecognisePriorLearning, false)
+                .With(x => x.RecognisePriorLearning, false)
                 .Create();
 
             await CheckQueryResponse(response =>

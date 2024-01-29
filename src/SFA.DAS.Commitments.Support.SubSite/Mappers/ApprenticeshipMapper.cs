@@ -1,19 +1,15 @@
-﻿using MediatR;
-using SFA.DAS.Commitments.Support.SubSite.Extensions;
+﻿using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Support.SubSite.Models;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfProviderChain;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.GetApprenticeshipsQueryResult;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetOverlappingTrainingDateRequest;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Mappers

@@ -20,12 +20,6 @@
     <PackageReference Include="SFA.DAS.Authorization.Mvc" Version="6.0.59">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="StructureMap" Version="4.7.1">
-      <TreatAsUsed>true</TreatAsUsed>
-    </PackageReference>
-    <PackageReference Include="StructureMap.AspNetCore" Version="2.0.0">
-      <TreatAsUsed>true</TreatAsUsed>
-    </PackageReference>
     <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>

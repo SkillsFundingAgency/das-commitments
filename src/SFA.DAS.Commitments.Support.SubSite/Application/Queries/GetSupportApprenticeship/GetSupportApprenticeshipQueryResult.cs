@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship
+namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship
 {
     public class GetSupportApprenticeshipQueryResult
     {

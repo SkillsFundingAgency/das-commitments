@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.CommitmentsV2.Types.Dtos;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenticeship
+namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Application.Queries.GetSupportApprenticeship
 {
     [TestFixture]
     public class GetSupportApprenticeshipQueryHandlerTests
@@ -25,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
         {
             _fixture = new GetSupportApprenticeshipQueryHandlerTestsFixture();
         }
-        
+
         [TearDown]
         public void TearDown()
         {
@@ -72,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
 
             public long ApprenticeshipId1 { get; private set; }
             public Apprenticeship Apprenticeship1 { get; private set; }
-            public string ApprenticeshipUln1 { get;  set; }
+            public string ApprenticeshipUln1 { get; set; }
 
             public long ApprenticeshipId2 { get; private set; }
             public Apprenticeship Apprenticeship2 { get; private set; }
@@ -95,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
             public GetSupportApprenticeshipQueryHandlerTestsFixture()
             {
 
-                _autoFixture = new Fixture().Customize(new IgnoreVirtualMembersCustomisation());
+                _autoFixture = new Fixture();
                 _cohortId = _autoFixture.Create<long>();
 
                 _query = new GetSupportApprenticeshipQuery { CohortId = _cohortId };
@@ -104,7 +102,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                 var lazyDb = new Lazy<ProviderCommitmentsDbContext>(() => _db);
 
                 _mapper = new Mock<IMapper<Apprenticeship, SupportApprenticeshipDetails>>();
-
 
                 SeedData();
                 _queryHandler = new GetSupportApprenticeshipQueryHandler(lazyDb, _mapper.Object);
@@ -247,9 +244,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetSupportApprenti
                 Assert.That(_queryResult.Apprenticeships.Count, Is.EqualTo(0));
             }
 
-            private Apprenticeship CreateApprenticeship(string uln ,long apprenticeshipId, Cohort cohort, Apprenticeship nextApprenticeship)
+            private Apprenticeship CreateApprenticeship(string uln, long apprenticeshipId, Cohort cohort, Apprenticeship nextApprenticeship)
             {
-               var  apprenticeship = new Apprenticeship
+                var apprenticeship = new Apprenticeship
                 {
                     Id = apprenticeshipId,
                     CommitmentId = cohort.Id,
