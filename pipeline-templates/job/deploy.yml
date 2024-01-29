@@ -71,7 +71,7 @@ jobs:
               IdentityClientSecret: $(IdentityClientSecret)
               HmrcClientSecret: $(HmrcClientSecret)
               NotificationsToken: $(NotificationsToken)
-              NServiceBusConfiguration:License: $(NServiceBusLicense)
+              NServiceBusLicense: $(NServiceBusLicense)
               PublicAllowedAccountLegalEntityHashstringSalt: $(PublicAllowedAccountLegalEntityHashstringSalt)
               PublicHashstring: $(PublicHashstring)
               ReadStoreAuthKey: $(ReadStoreAuthKey)
