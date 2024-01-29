@@ -48,7 +48,7 @@ jobs:
             ApimResourceGroup: $(SharedApimResourceGroup)
             ApimName: $(SharedApimName)
             SubscriptionId: $(WorkerV2AppServiceName)
-            PipelineVariableName: EmployerAccountsApimSubscriptionKey
+            PipelineVariableName: ApprovalsApimSubscriptionKey
             IsMultiRepoCheckout: true
         - template: azure-pipelines-templates/deploy/step/generate-config.yml@das-platform-building-blocks
           parameters:
@@ -64,7 +64,7 @@ jobs:
               NotificationsClientToken: $(NotificationsClientToken)
               DefaultSessionRedisConnectionString: $(DefaultSessionRedisConnectionString)
               EASMessageServiceBusString: $(EASMessageServiceBusString)
-              EmployerAccountsApimSubscriptionKey: $(EmployerAccountsApimSubscriptionKey)
+              ApprovalsApimSubscriptionKey: $(ApprovalsApimSubscriptionKey)
               EmployerSharedServiceBusString: $(EmployerSharedServiceBusString)
               EventsApiToken: $(EventsApiToken)
               Hashstring: $(Hashstring)
