@@ -1,32 +1,71 @@
+parameters:
+- name: OverrideBlockOnPossibleDataLoss
+  displayName: Add /p:BlockOnPossibleDataLoss=false argument to DACPAC deployment
+  type: boolean
+  default: false
+
 trigger:
   batch: true
   branches:
     include:
-      - "master"
+      - "main"
 
 variables:
-  - group: 'Prod Management Resources'
-  - name: buildConfiguration
-    value: 'release'
-  - name: buildPlatform
-    value: 'any cpu'
-  - name: DACPACSolutionBaseName
-    value: SFA.DAS.Commitments.Database
+- name: SolutionBaseName
+  value: SFA.DAS.Commitments
+- name: BuildConfiguration
+  value: release
+- name: BuildPlatform
+  value: any cpu
+- group: RELEASE Management Resources
+- group: RELEASE das-commitments
+- name: Deploy
+  value: $[or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.Reason'], 'PullRequest'))]
+
 
 resources:
   repositories:
+  - repository: self
   - repository: das-platform-building-blocks
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/tags/2.1.2
+    ref: refs/tags/2.1.4
     endpoint: SkillsFundingAgency
+  - repository: das-platform-automation
+    type: github
+    name: SkillsFundingAgency/das-platform-automation
+    ref: refs/tags/5.1.5
+    endpoint: SkillsFundingAgency
+  pipelines:
+  - pipeline: das-employer-config
+    project: Digital Apprenticeship Service
+    source: das-employer-config
+    branch: master
 
 stages:
-- stage: build
-  displayName: Build Commitments 
+- stage: Build
   jobs:
   - template: pipeline-templates/job/code-build.yml
+    parameters:
+      SolutionBaseName: $(SolutionBaseName)
+      BuildConfiguration: $(BuildConfiguration)
   - template: azure-pipelines-templates/build/job/dacpac-template.yml@das-platform-building-blocks
     parameters:
-      SolutionBaseName: $(DACPACSolutionBaseName)
-      SqlProjectPath: src/$(DACPACSolutionBaseName)/$(DACPACSolutionBaseName).sqlproj
+      SolutionBaseName: $(SolutionBaseName)
+      SqlProjectPath: src/$(SolutionBaseName).Database/$(SolutionBaseName).Database.sqlproj
+
+- stage: Deploy_TEST
+  dependsOn: Build
+  displayName: Deploy to TEST
+  variables:
+  - group: DevTest Management Resources
+  - group: TEST DevTest Shared Resources
+  - group: TEST das-commitments
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      Environment: TEST
+      SolutionBaseName: $(SolutionBaseName)
+      ServiceConnection: SFA-DAS-DevTest-ARM
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+      AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS

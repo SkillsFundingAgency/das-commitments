@@ -1,0 +1,110 @@
+parameters:
+  ServiceConnection:
+  SolutionBaseName:
+  Environment:
+  OverrideBlockOnPossibleDataLoss:
+  AppRoleAssignmentsServiceConnection:
+
+jobs:
+- deployment: DeployWebApp
+  pool:
+    name: DAS - Continuous Deployment Agents
+  environment: ${{ parameters.Environment }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - template: azure-pipelines-templates/deploy/step/wait-azure-devops-deployment.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            EnvironmentId: $(Environment.Id)
+            PipelineName: $(Build.DefinitionName)
+            RunId: $(Build.BuildId)
+        - template: azure-pipelines-templates/deploy/step/set-backendaccessrestrictions-variable.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            SharedEnvResourceGroup: $(SharedEnvResourceGroup)
+            SharedEnvVirtualNetworkName : $(SharedEnvVirtualNetworkName)
+            BackEndAccessRestrictionsExcludedSubnets: $(BackEndAccessRestrictionsExcludedSubnets)
+            ResourceEnvironmentName: $(ResourceEnvironmentName)
+            UnrestrictedEnvironments: $(UnrestrictedEnvironments)
+            UptimeMonitoringAccessRestrictions: $(UptimeMonitoringAccessRestrictions)
+        - template: azure-pipelines-templates/deploy/step/arm-deploy.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            SubscriptionId: $(SubscriptionId)
+            Location: $(ResourceGroupLocation)
+            Environment: ${{ parameters.Environment }}
+            TemplatePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/azure/template.json
+            ParametersPath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/azure/template.parameters.json
+            IsMultiRepoCheckout: true
+            TemplateSecrets:
+              LoggingRedisConnectionString: $(LoggingRedisConnectionString)
+              ConfigurationStorageConnectionString: $(ConfigurationStorageConnectionString)
+              SharedStorageAccountConnectionString: $(SharedStorageAccountConnectionString)
+        - template: azure-pipelines-templates/deploy/step/get-apim-subscription-key.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            ApimResourceGroup: $(SharedApimResourceGroup)
+            ApimName: $(SharedApimName)
+            SubscriptionId: $(WorkerV2AppServiceName)
+            PipelineVariableName: ApprovalsApimSubscriptionKey
+            IsMultiRepoCheckout: true
+        - template: azure-pipelines-templates/deploy/step/generate-config.yml@das-platform-building-blocks
+          parameters:
+            EnvironmentName: $(EnvironmentName)
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            SourcePath: $(Pipeline.Workspace)/das-employer-config/Configuration/das-commitments
+            StorageAccountName: $(ConfigurationStorageAccountName)
+            StorageAccountResourceGroup: $(SharedEnvResourceGroup)
+            TargetFileName: '*.schema.json'
+            TableName: Configuration
+            ConfigurationSecrets:
+              CompaniesHouseKey: $(CompaniesHouseKey)
+              NotificationsClientToken: $(NotificationsClientToken)
+              DefaultSessionRedisConnectionString: $(DefaultSessionRedisConnectionString)
+              EASMessageServiceBusString: $(EASMessageServiceBusString)
+              ApprovalsApimSubscriptionKey: $(ApprovalsApimSubscriptionKey)
+              EmployerSharedServiceBusString: $(EmployerSharedServiceBusString)
+              EventsApiToken: $(EventsApiToken)
+              Hashstring: $(Hashstring)
+              IdentityClientSecret: $(IdentityClientSecret)
+              HmrcClientSecret: $(HmrcClientSecret)
+              NotificationsToken: $(NotificationsToken)
+              NServiceBusLicense: $(NServiceBusLicense)
+              NServiceBusConfiguration:License: $(NServiceBusLicense)
+              PublicAllowedAccountLegalEntityHashstringSalt: $(PublicAllowedAccountLegalEntityHashstringSalt)
+              PublicHashstring: $(PublicHashstring)
+              ReadStoreAuthKey: $(ReadStoreAuthKey)
+        - template: azure-pipelines-templates/deploy/step/app-role-assignments.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.AppRoleAssignmentsServiceConnection }}
+            ResourceName: $(WorkerV2AppServiceName)
+            Tenant: $(Tenant)
+            IsMultiRepoCheckout: true
+        - template: azure-pipelines-templates/deploy/step/sql-dacpac-deploy.yml@das-platform-building-blocks
+          parameters:
+            AzureSubscription: ${{ parameters.ServiceConnection }}
+            ServerName: $(SharedSQLServerFQDN)
+            SqlUsername: $(SharedSQLServerUsername)
+            SqlPassword: $(SharedSQLServerPassword)
+            DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.Commitments.Database/bin/Output/SFA.DAS.Commitments.Database.dacpac
+            DatabaseName: $(DatabaseName)
+            OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
+            Environment: ${{ parameters.Environment }}
+        - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            AppServiceName: $(WorkerV2AppServiceName)
+            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.Web.zip
+        - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            AppServiceName: $(ApiAppServiceName)
+            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.Api.zip
+        - template: azure-pipelines-templates/deploy/step/webjob-deploy.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.ServiceConnection }}
+            AppServiceName: $(WorkerAppServiceName)
+            DeploymentPackagePath: $(Pipeline.Workspace)/${{ parameters.SolutionBaseName }}/${{ parameters.SolutionBaseName }}.Host.zip
+            DeploymentType: zipDeploy
