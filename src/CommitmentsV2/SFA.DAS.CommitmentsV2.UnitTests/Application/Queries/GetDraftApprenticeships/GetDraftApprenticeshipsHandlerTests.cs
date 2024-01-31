@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         [Test]
         public async Task Handle_WhenCohortExists_ThenShouldReturnResult()
         {
-            _fixture.SeedDataWithRpl2Data();
+            _fixture.SeedDataWithRpl2DraftData();
             await _fixture.Handle();
             _fixture.VerifyResultMapping();
         }
@@ -127,11 +127,47 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 for (var i = 0; i < 10; i++)
                 {
                     var apprenticeship = _autoFixture
-                        .Build<DraftApprenticeship>()
+                        .Build<Apprenticeship>()
                         .With(x => x.Id, _autoFixture.Create<long>)
                         .With(x => x.CommitmentId, _cohortId)
                         .With(a=>a.TrainingTotalHours, 2000)
                         .With(a=>a.PriorLearning, new ApprenticeshipPriorLearning
+                        {
+                            DurationReducedByHours = 1000,
+                            IsDurationReducedByRpl = true,
+                            DurationReducedBy = 10,
+                            PriceReducedBy = 240
+                        })
+                        .Create();
+
+                    _cohort.Apprenticeships.Add(apprenticeship);
+                }
+
+                _db.Cohorts.Add(_cohort);
+                _db.SaveChanges();
+            }
+
+            public void SeedDataWithRpl2DraftData()
+            {
+                _cohort = new Cohort
+                {
+                    CommitmentStatus = CommitmentStatus.New,
+                    EditStatus = EditStatus.EmployerOnly,
+                    LastAction = LastAction.None,
+                    Originator = Originator.Unknown,
+                    Id = _cohortId,
+                    Reference = string.Empty
+                };
+
+                for (var i = 0; i < 10; i++)
+                {
+                    var apprenticeship = _autoFixture
+                        .Build<DraftApprenticeship>()
+                        .With(x => x.Id, _autoFixture.Create<long>)
+                        .With(x => x.CommitmentId, _cohortId)
+                        .With(x=>x.IsApproved, false)
+                        .With(a => a.TrainingTotalHours, 2000)
+                        .With(a => a.PriorLearning, new ApprenticeshipPriorLearning
                         {
                             DurationReducedByHours = 1000,
                             IsDurationReducedByRpl = true,
@@ -162,7 +198,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 for (var i = 0; i < 10; i++)
                 {
                     var apprenticeship = _autoFixture
-                        .Build<DraftApprenticeship>()
+                        .Build<Apprenticeship>()
                         .With(x => x.Id, _autoFixture.Create<long>)
                         .With(x => x.CommitmentId, _cohortId)
                         .With(a => a.PriorLearning, new ApprenticeshipPriorLearning
