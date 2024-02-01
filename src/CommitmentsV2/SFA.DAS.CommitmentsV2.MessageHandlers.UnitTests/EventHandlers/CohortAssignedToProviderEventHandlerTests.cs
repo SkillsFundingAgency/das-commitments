@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
@@ -68,17 +70,17 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
     public class CohortAssignedToProviderEventHandlerTestsFixture : EventHandlerTestsFixture<CohortAssignedToProviderEvent, CohortAssignedToProviderEventHandler>
     {
-        public Mock<IPasAccountApiClient> PasAccountApiClient { get; }
+        public Mock<IApprovalsOuterApiClient> ApprovalsOuterApiClient { get; }
         public Mock<ILogger<CohortAssignedToProviderEventHandler>> Logger { get; }
 
         public GetCohortSummaryQueryResult GetCohortSummaryQueryResult { get; private set; }
 
         public CohortAssignedToProviderEventHandlerTestsFixture() : base((m) => null)
         {
-            PasAccountApiClient = new Mock<IPasAccountApiClient>();
+            ApprovalsOuterApiClient = new Mock<IApprovalsOuterApiClient>();
             Logger = new Mock<ILogger<CohortAssignedToProviderEventHandler>>();
 
-            Handler = new CohortAssignedToProviderEventHandler(Mediator.Object, PasAccountApiClient.Object, Logger.Object);
+            Handler = new CohortAssignedToProviderEventHandler(Mediator.Object, ApprovalsOuterApiClient.Object, Logger.Object);
         }
 
         public CohortAssignedToProviderEventHandlerTestsFixture SetupNonTransferCohort()
@@ -117,31 +119,32 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             var actionType = lastAction == LastAction.Approve ? "approval" : "review";
 
-            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(GetCohortSummaryQueryResult.ProviderId.Value,
-                It.Is<ProviderEmailRequest>(p =>
-                    p.TemplateId == "ProviderCommitmentNotification" && 
-                    p.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
-                    p.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
-                    p.Tokens["type"] == actionType), default));
+            ApprovalsOuterApiClient.Verify(x => x.PostWithResponseCode<ProviderEmailRequest, object>(It.Is<PostProviderEmailRequest>(p =>
+                    p.Data.TemplateId == "ProviderCommitmentNotification" &&
+                    p.Data.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
+                    p.Data.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
+                    p.Data.Tokens["type"] == actionType
+                ), false));
         }
 
         public void VerfiyProviderTransferEmailRequestIsCreatedAndSentCorrectly(LastAction lastAction)
         {
             var actionType = lastAction == LastAction.Approve ? "approval" : "review";
 
-            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(GetCohortSummaryQueryResult.ProviderId.Value,
-                It.Is<ProviderEmailRequest>(p =>
-                    p.TemplateId == "ProviderTransferCommitmentNotification" &&
-                    p.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
-                    p.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
-                    p.Tokens["employer_name"] == GetCohortSummaryQueryResult.LegalEntityName &&
-                    p.Tokens["type"] == actionType), default));
+            ApprovalsOuterApiClient.Verify(x => x.PostWithResponseCode<ProviderEmailRequest, object>(
+                It.Is<PostProviderEmailRequest>(p =>
+                    p.Data.TemplateId == "ProviderTransferCommitmentNotification" &&
+                    p.Data.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
+                    p.Data.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
+                    p.Data.Tokens["employer_name"] == GetCohortSummaryQueryResult.LegalEntityName &&
+                    p.Data.Tokens["type"] == actionType
+                ), false));
         }
 
         public void VerifyProviderAssignedEmailIsNotSent()
         {
-            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(It.IsAny<long>(),  It.IsAny<ProviderEmailRequest>(), 
-                It.IsAny<CancellationToken>()), Times.Never);
+            ApprovalsOuterApiClient.Verify(x => x.PostWithResponseCode<ProviderEmailRequest, object>(It.IsAny<IPostApiRequest<ProviderEmailRequest>>(), false),
+                Times.Never);
         }
     }
 }

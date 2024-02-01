@@ -1,4 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
+﻿using SFA.DAS.CommitmentsV2.Infrastructure;
+using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
@@ -7,5 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     {
         Task<TResponse> Get<TResponse>(IGetApiRequest request);
         Task<TResponse> GetWithRetry<TResponse>(IGetApiRequest request);
+        Task<ApiResponse<TResponse>> PostWithResponseCode<TData, TResponse>(IPostApiRequest<TData> request, bool includeResponse = true) where TData : class, new();
     }
 }
