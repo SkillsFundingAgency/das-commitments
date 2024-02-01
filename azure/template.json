@@ -134,6 +134,7 @@
         "supportResourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-s', parameters('serviceName')))]",
         "workerStorageAccountName": "[toLower(concat('das', parameters('resourceEnvironmentName'), parameters('serviceName'), 'wkrstr'))]",
         "apiV2AppServiceName": "[concat(variables('resourceNamePrefix'), 'api-as')]",
+        "apiAppServiceName": "[concat(variables('resourceNamePrefix'), 'api-as')]",
         "supportAppServiceName": "[concat(variables('supportResourceNamePrefix'), '-as')]",
         "workerV2AppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
