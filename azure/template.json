@@ -760,6 +760,10 @@
             "type": "string",
             "value": "[variables('apiV2AppServiceName')]"
         },
+        "ApiAppServiceName": {
+            "type": "string",
+            "value": "[variables('apiAppServiceName')]"
+        },
         "WorkerV2AppServiceName": {
             "type": "string",
             "value": "[variables('workerV2AppServiceName')]"
