@@ -10,8 +10,6 @@ using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.PAS.Account.Api.ClientV2;
-using SFA.DAS.PAS.Account.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {

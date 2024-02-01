@@ -10,8 +10,6 @@ using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.Notifications.Messages.Commands;
-using SFA.DAS.PAS.Account.Api.ClientV2;
-using SFA.DAS.PAS.Account.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 {

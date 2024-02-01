@@ -9,7 +9,6 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.PAS.Account.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -95,5 +94,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _providerId -= providerId;
             Data = request;
         }
+    }
+
+    public class ProviderEmailRequest
+    {
+        public string TemplateId { get; set; }
+
+        public Dictionary<string, string> Tokens { get; set; }
+
+        public List<string> ExplicitEmailAddresses { get; set; }
     }
 }

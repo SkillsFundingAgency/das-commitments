@@ -39,7 +39,6 @@
     </PackageReference>
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.20" />
     <PackageReference Include="SFA.DAS.UnitOfWork" Version="9.0.28" />
-    <PackageReference Include="SFA.DAS.PAS.Account.Api.ClientV2" Version="17267.0.559" />
     <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.28" />
     <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />

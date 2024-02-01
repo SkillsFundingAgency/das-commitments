@@ -4,7 +4,6 @@ using SFA.DAS.Authorization.Features.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
-using SFA.DAS.PAS.Account.Api.ClientV2.Configuration;
 using SFA.DAS.ProviderRelationships.Api.Client.Configuration;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 
@@ -25,7 +24,7 @@ public static class ServiceCollectionConfigurationExtensions
         services.AddConfigurationFor<EmailOptionalConfiguration>(configuration, CommitmentsConfigurationKeys.EmailOptionalConfiguration);
         services.AddConfigurationFor<LevyTransferMatchingApiConfiguration>(configuration, CommitmentsConfigurationKeys.LevyTransferMatchingApiConfiguration);
         services.AddConfigurationFor<FeaturesConfiguration>(configuration, CommitmentsConfigurationKeys.Features);
-        services.AddConfigurationFor<PasAccountApiConfiguration>(configuration, CommitmentsConfigurationKeys.ProviderAccountApiConfiguration);
+        //services.AddConfigurationFor<PasAccountApiConfiguration>(configuration, CommitmentsConfigurationKeys.ProviderAccountApiConfiguration);
         services.AddConfigurationFor<ReservationsClientApiConfiguration>(configuration, CommitmentsConfigurationKeys.ReservationsClientApiConfiguration);
         services.AddConfigurationFor<RplSettingsConfiguration>(configuration, CommitmentsConfigurationKeys.RplSettingsConfiguration);
         services.AddConfigurationFor<ProviderUrlConfiguration>(configuration, CommitmentsConfigurationKeys.ProviderUrlConfiguration);
