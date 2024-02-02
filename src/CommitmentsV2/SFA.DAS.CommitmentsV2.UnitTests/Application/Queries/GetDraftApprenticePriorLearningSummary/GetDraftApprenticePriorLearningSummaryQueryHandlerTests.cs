@@ -173,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
         public GetDraftApprenticePriorLearningSummaryQueryHandlerTestsFixtures()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
 
             Handler = new GetDraftApprenticeshipPriorLearningSummaryQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), new RplFundingCalculationService());

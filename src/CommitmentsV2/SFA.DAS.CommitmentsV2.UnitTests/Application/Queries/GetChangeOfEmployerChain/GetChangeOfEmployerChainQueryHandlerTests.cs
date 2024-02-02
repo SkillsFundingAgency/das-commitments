@@ -241,7 +241,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
         
         public GetChangeOfEmployerQueryHandlerTestFixtures()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Handler = new GetChangeOfEmployerChainQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db));
         }
@@ -298,6 +298,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmploye
                         null,
                         input.EmploymentEndDate,
                         null,
+                        false,
                         new UserInfo(),
                         input.CreatedOn
                     );

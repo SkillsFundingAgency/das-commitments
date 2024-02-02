@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             {
                 var autoFixture = new Fixture();
 
-                _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+                _dbContext = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(),b => b.EnableNullChecks(false)).Options) { CallBase = true };
                 _logger = new FakeLogger<ProviderApproveCohortCommandHandler>();
                 _emailService = new Mock<IEmailOptionalService>();
 

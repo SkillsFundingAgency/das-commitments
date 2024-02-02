@@ -11,6 +11,7 @@ using StructureMap;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Support.SubSite.Caching;
 using FluentValidation.AspNetCore;
@@ -19,6 +20,28 @@ using SFA.DAS.Commitments.Support.SubSite.Validation;
 using SFA.DAS.Commitments.Support.SubSite.Configuration;
 using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using SFA.DAS.Authorization.DependencyResolution.Microsoft;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Startup;
+using SFA.DAS.UnitOfWork.DependencyResolution.Microsoft;
+using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
+using MediatR;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
+using SFA.DAS.Commitments.Support.SubSite.Mappers;
+using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
+using FluentValidation;
+using SFA.DAS.Commitments.Support.SubSite.Models;
+using SFA.DAS.Encoding;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Infrastructure;
+using SFA.DAS.CommitmentsV2.Services;
+using System.Configuration;
+using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
+using SFA.DAS.ProviderRelationships.Api.Client.DependencyResolution.Microsoft;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
+using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 
 namespace SFA.DAS.Commitments.Support.SubSite
 {
@@ -51,11 +74,15 @@ namespace SFA.DAS.Commitments.Support.SubSite
             services.AddMemoryCache();
             services.AddHealthChecks();
             services.AddApplicationInsightsTelemetry();
-        }
 
-        public void ConfigureContainer(Registry registry)
-        {
-            IoC.Initialize(registry);
+            DAS.Authorization.DependencyResolution.Microsoft.ServiceCollectionExtensions.AddAuthorization(services);
+            services.AddSupportConfigurationSections(Configuration);
+            services.AddDatabaseRegistration();
+
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(GetSupportApprenticeshipQuery).GetTypeInfo().Assembly));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            services.AddSupportSiteDefaultServices(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

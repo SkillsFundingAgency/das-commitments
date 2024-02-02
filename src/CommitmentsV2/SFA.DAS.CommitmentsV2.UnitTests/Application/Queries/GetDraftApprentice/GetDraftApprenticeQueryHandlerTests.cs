@@ -118,7 +118,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             AuthenticationServiceMock = new Mock<IAuthenticationService>();
             FeatureToggleServiceMock = new Mock<IFeatureTogglesService<FeatureToggle>>();
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Handler = new GetDraftApprenticeshipQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), 
                 AuthenticationServiceMock.Object);

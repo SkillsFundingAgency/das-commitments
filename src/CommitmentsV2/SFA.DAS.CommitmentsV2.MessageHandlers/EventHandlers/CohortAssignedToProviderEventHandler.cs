@@ -5,23 +5,23 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.PAS.Account.Api.ClientV2;
-using SFA.DAS.PAS.Account.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
     public class CohortAssignedToProviderEventHandler : IHandleMessages<CohortAssignedToProviderEvent>
     {
         private readonly IMediator _mediator;
-        private readonly IPasAccountApiClient _pasAccountApiClient;
+        private readonly IApprovalsOuterApiClient _outerApiClient;
         private readonly ILogger<CohortAssignedToProviderEventHandler> _logger;
 
-        public CohortAssignedToProviderEventHandler(IMediator mediator, IPasAccountApiClient pasAccountApiClient, ILogger<CohortAssignedToProviderEventHandler> logger)
+        public CohortAssignedToProviderEventHandler(IMediator mediator, IApprovalsOuterApiClient outerApiClient, ILogger<CohortAssignedToProviderEventHandler> logger)
         {
             _mediator = mediator;
-            _pasAccountApiClient = pasAccountApiClient;
+            _outerApiClient = outerApiClient;
             _logger = logger;
         }
 
@@ -31,17 +31,27 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             {
                 _logger.LogInformation($"Received {nameof(CohortAssignedToProviderEvent)} for cohort {message?.CohortId}");
                 var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
-                
+
+                if (cohortSummary == null)
+                {
+                    _logger.LogError($"CohortSummary is null for cohortId {message?.CohortId}");
+                    return;
+                }
                 if (cohortSummary.ChangeOfPartyRequestId.HasValue) return;
                
                 var emailRequest = BuildEmailRequest(cohortSummary);
-                await _pasAccountApiClient.SendEmailToAllProviderRecipients(cohortSummary.ProviderId.Value, emailRequest).ConfigureAwait(false);
+                await SendEmailToAllProviderRecipients(cohortSummary.ProviderId.Value, emailRequest);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, $"Send message to provider for cohort {message?.CohortId} failed");
                 throw;
             }
+        }
+
+        private Task SendEmailToAllProviderRecipients(long providerId, ProviderEmailRequest request)
+        {
+            return _outerApiClient.PostWithResponseCode<ProviderEmailRequest, object>(new PostProviderEmailRequest(providerId, request), false);
         }
 
         private ProviderEmailRequest BuildEmailRequest(GetCohortSummaryQueryResult cohortSummary)
@@ -70,5 +80,28 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             return request;
         }
+    }
+
+    public class PostProviderEmailRequest : IPostApiRequest<ProviderEmailRequest>
+    {
+        public string PostUrl => $"/providers/{_providerId}/emails";
+        public ProviderEmailRequest Data { get; set; }
+
+        private long _providerId;
+
+        public PostProviderEmailRequest(long providerId, ProviderEmailRequest request)
+        {
+            _providerId -= providerId;
+            Data = request;
+        }
+    }
+
+    public class ProviderEmailRequest
+    {
+        public string TemplateId { get; set; }
+
+        public Dictionary<string, string> Tokens { get; set; }
+
+        public List<string> ExplicitEmailAddresses { get; set; }
     }
 }

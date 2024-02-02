@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
             Cohorts = new List<Cohort>();
             Provider = new List<Provider>();
             Query = new GetApprovedProvidersQuery(AccountId);
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Handler = new GetApprovedProvidersQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
         }
 

@@ -86,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
             _accountId = _autoFixture.Create<long>();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Handler = new CanAccessApprenticeshipQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db));
         }

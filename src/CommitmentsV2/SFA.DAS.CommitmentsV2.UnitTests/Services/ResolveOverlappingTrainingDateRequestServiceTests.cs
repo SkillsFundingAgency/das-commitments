@@ -235,7 +235,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _overlapCheckService.Setup(x => x.CheckForOverlapsOnStartDate(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, It.IsAny<CancellationToken>())).ReturnsAsync(() => _overlapCheckResultOnStartDate);
 
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                           .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                           .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                             .Options);
 
                 SeedData();

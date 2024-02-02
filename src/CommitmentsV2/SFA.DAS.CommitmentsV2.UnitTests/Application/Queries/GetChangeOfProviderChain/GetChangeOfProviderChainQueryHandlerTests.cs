@@ -1,3 +1,9 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -6,12 +12,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProviderChain
 {
@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
         public async Task Handle_WhenRequested_ThenItShouldReturnTheChangeOfProviderChain(Dictionary<long, long[]> expectedOutputMap, CreateChangeOfProviderChainDataCases.Input[] inputs, Dictionary<long, CreateChangeOfProviderChainDataCases.ExpectedOutput> expectedOutputs)
         {
             var fixture = new GetChangeOfProviderQueryHandlerTestFixtures();
-            foreach(var input in inputs)
+            foreach (var input in inputs)
             {
                 fixture.SetupCohort(input);
             }
@@ -214,10 +214,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
     {
         public ProviderCommitmentsDbContext Db { get; set; }
         public GetChangeOfProviderChainQueryHandler Handler { get; set; }
-        
+
         public GetChangeOfProviderQueryHandlerTestFixtures()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Handler = new GetChangeOfProviderChainQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db));
         }
@@ -257,7 +257,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                 CreatedOn = input.CreatedOn,
                 ContinuationOfId = input.ContinuationOfId
             };
-                
+
             Db.Apprenticeships.Add(apprenticeship);
             Db.SaveChanges();
 
@@ -274,6 +274,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfProvide
                         null,
                         null,
                         null,
+                        false,
                         new UserInfo(),
                         input.CreatedOn
                     );

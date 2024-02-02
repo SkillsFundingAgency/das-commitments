@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccoun
         public GetAllCohortAccountIdsQueryHandlerTestFixtures()
         {
             AuthenticationServiceMock = new Mock<IAuthenticationService>();
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
             Handler = new GetAllCohortAccountIdsQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db), Mock.Of<ILogger<GetAllCohortAccountIdsQueryHandler>>());
         }

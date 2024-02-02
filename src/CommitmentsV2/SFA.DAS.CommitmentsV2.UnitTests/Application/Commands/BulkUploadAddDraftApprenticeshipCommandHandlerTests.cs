@@ -120,7 +120,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             ModelMapper = new Mock<IModelMapper>();
             Command = AutoFixture.Build<BulkUploadAddDraftApprenticeshipsCommand>().Without(x=>x.LogId).Create();
             DbContext = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                  .Options);
 
             EncodingService = new Mock<IEncodingService>();

@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             return RunWithConnection(connection =>
             {
                 var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                     .Options;
 
                 using var dbContext = new ProviderCommitmentsDbContext(options);

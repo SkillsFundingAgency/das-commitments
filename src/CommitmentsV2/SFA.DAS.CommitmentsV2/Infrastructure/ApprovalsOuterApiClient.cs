@@ -30,7 +30,6 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
 
         public async Task<TResponse> Get<TResponse>(IGetApiRequest request) 
         {
-
             _logger.LogInformation("Calling Outer API base {0}, url {1}", _config.BaseUrl, request.GetUrl);
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, request.GetUrl);
@@ -63,6 +62,40 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
             return await _asyncRetryPolicy.ExecuteAsync(async() => await Get<TResponse>(request));
         }
 
+        public async Task<ApiResponse<TResponse>> PostWithResponseCode<TData, TResponse>(IPostApiRequest<TData> request, bool includeResponse = true) where TData : class, new() 
+        {
+            _logger.LogInformation("Posting to Outer API base {0}, url {1}", _config.BaseUrl, request.PostUrl);
+
+            var stringContent = request.Data != null ? new StringContent(JsonConvert.SerializeObject(request.Data), System.Text.Encoding.UTF8, "application/json") : null;
+
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, request.PostUrl);
+            requestMessage.Content = stringContent;
+
+            AddHeaders(requestMessage);
+
+            var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+
+            var errorContent = "";
+            var responseBody = (TResponse)default;
+
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("URL {0} return error status {1}", request.PostUrl, response.StatusCode);
+                errorContent = json;
+            }
+            else if (includeResponse)
+            {
+                _logger.LogInformation("URL {0} returned a response", request.PostUrl);
+                responseBody = JsonConvert.DeserializeObject<TResponse>(json);
+            }
+
+            var postWithResponseCode = new ApiResponse<TResponse>(responseBody, response.StatusCode, errorContent);
+
+            return postWithResponseCode;
+        }
+
         private void AddHeaders(HttpRequestMessage httpRequestMessage)
         {
             httpRequestMessage.Headers.Add("Ocp-Apim-Subscription-Key", _config.Key);
@@ -79,4 +112,26 @@ namespace SFA.DAS.CommitmentsV2.Infrastructure
                 .WaitAndRetryAsync(maxRetryAttempts, i => pauseBetweenFailures);
         }
     }
+
+    public interface IPostApiRequest<TData>
+    {
+        [JsonIgnore]
+        string PostUrl { get; }
+        TData Data { get; set; }
+    }
+
+    public class ApiResponse<TResponse>
+    {
+        public TResponse Body { get; }
+        public HttpStatusCode StatusCode { get; }
+        public string ErrorContent { get; }
+
+        public ApiResponse(TResponse body, HttpStatusCode statusCode, string errorContent)
+        {
+            Body = body;
+            StatusCode = statusCode;
+            ErrorContent = errorContent;
+        }
+    }
+
 }

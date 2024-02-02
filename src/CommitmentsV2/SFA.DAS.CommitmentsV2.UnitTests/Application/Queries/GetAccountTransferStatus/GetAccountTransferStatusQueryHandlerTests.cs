@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountTransfer
             {
                 AuthenticationServiceMock = new Mock<IAuthenticationService>();
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
                 Handler = new GetAccountTransferStatusQueryHandler(
                     new Lazy<ProviderCommitmentsDbContext>(() => Db));
 

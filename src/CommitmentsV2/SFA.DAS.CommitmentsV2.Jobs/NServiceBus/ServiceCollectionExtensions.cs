@@ -1,17 +1,16 @@
-﻿using System.Data.Common;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
+using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.Configuration.NLog;
-using SFA.DAS.NServiceBus.Configuration.StructureMap;
 using SFA.DAS.NServiceBus.Hosting;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
-using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.NServiceBus
 {
@@ -24,22 +23,21 @@ namespace SFA.DAS.CommitmentsV2.Jobs.NServiceBus
             return services
                 .AddSingleton(p =>
                 {
-                    var container = p.GetService<IContainer>();
                     var hostingEnvironment = p.GetService<IHostEnvironment>();
-                    var configuration = p.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
+                    var configuration = p.GetService<CommitmentsV2Configuration>();
                     var isDevelopment = hostingEnvironment.IsDevelopment();
 
                     var endpointConfiguration = new EndpointConfiguration(EndpointName)
+                        .UseLicense(configuration.NServiceBusConfiguration.NServiceBusLicense)
                         .UseErrorQueue($"{EndpointName}-errors")
                         .UseInstallers()
-                        .UseLicense(configuration.NServiceBusLicense)
                         .UseMessageConventions()
                         .UseNewtonsoftJsonSerializer()
                         .UseNLogFactory()
                         .UseOutbox(true)
-                        .UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
+                        .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
                         .UseSendOnly()
-                        .UseStructureMapBuilder(container);
+                        .UseServicesBuilder(new UpdateableServiceProvider(services));
 
                     if (isDevelopment)
                     {
@@ -47,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.NServiceBus
                     }
                     else
                     {
-                        endpointConfiguration.UseAzureServiceBusTransport(configuration.SharedServiceBusEndpointUrl, s => s.AddRouting());
+                        endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl, s => s.AddRouting());
                     }
                     
                     var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();

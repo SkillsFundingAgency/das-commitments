@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AutoFixture = new Fixture();
             AccountId = 1;
             Command = new UpdateLevyStatusToLevyCommand { AccountId = AccountId };
-            Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+            Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
             Handler = new UpdateLevyStatusToLevyCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), Mock.Of<ILogger<UpdateLevyStatusToLevyCommandHandler>>());
 
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());

@@ -376,7 +376,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Party = Party.Employer;
             UnitOfWorkContext = new UnitOfWorkContext();
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                                 .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                                                  .Options);
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());

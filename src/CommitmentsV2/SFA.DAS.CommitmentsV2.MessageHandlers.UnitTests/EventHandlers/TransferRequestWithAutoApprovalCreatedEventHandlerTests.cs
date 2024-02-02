@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 Fixture = new Fixture();
                 UnitOfWorkContext = new UnitOfWorkContext();
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
                     .Options);
 
                 PledgeApplicationId = Fixture.Create<int>();

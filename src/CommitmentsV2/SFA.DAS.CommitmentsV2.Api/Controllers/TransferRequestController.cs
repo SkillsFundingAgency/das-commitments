@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -6,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.UpdateTransferApprovalForSender
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequest;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTransferRequestsSummary;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -67,18 +68,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{accountId}/transfers", Name = "GetTransferRequests")]        
-        public async Task<IActionResult> GetTransferRequests(long accountId)
+        [Route("{accountId}/transfers", Name = "GetTransferRequests")]
+        public async Task<IActionResult> GetTransferRequests(long accountId, [FromQuery] TransferType? originator = null)
         {
-
-            var result = await _mediator.Send(new GetTransferRequestsSummaryQuery(accountId));
+            var result = await _mediator.Send(new GetTransferRequestsSummaryQuery(accountId, originator));
             if (result == null)
             {
                 return NotFound();
             }
 
             var response = await _modelMapper.Map<GetTransferRequestSummaryResponse>(result);
-            
+
             return Ok(response);
         }
     }

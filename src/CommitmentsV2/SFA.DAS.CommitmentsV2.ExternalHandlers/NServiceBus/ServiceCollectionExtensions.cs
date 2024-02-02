@@ -1,21 +1,19 @@
-﻿using System.Data.Common;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
+using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.Configuration.NLog;
-using SFA.DAS.NServiceBus.Configuration.StructureMap;
 using SFA.DAS.NServiceBus.Hosting;
 using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using SFA.DAS.Payments.ProviderPayments.Messages;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
-using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.ExternalHandlers.NServiceBus
 {
@@ -28,24 +26,21 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.NServiceBus
             return services
                 .AddSingleton(p =>
                 {
-                    var container = p.GetService<IContainer>();
-#pragma warning disable CS0618 // Type or member is obsolete
-                    var hostingEnvironment = p.GetService<Microsoft.Extensions.Hosting.IHostingEnvironment>();
-#pragma warning restore CS0618 // Type or member is obsolete
-                    var configuration = p.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
+                    var hostingEnvironment = p.GetService<IHostEnvironment>();
+                    var configuration = p.GetService<CommitmentsV2Configuration>();
                     var isDevelopment = hostingEnvironment.IsDevelopment();
 
                     var endpointConfiguration = new EndpointConfiguration(EndpointName)
+                        .UseLicense(configuration.NServiceBusConfiguration.NServiceBusLicense)
                         .UseErrorQueue($"{EndpointName}-errors")
                         .UseInstallers()
-                        .UseLicense(configuration.NServiceBusLicense)
                         .UseMessageConventions()
                         .UseNewtonsoftJsonSerializer()
                         .UseNLogFactory()
                         .UseOutbox()
-                        .UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
-                        .UseStructureMapBuilder(container)
-                        .UseUnitOfWork();
+                        .UseSqlServerPersistence(() => DatabaseExtensions.GetSqlConnection(configuration.DatabaseConnectionString))
+                        .UseUnitOfWork()
+                        .UseServicesBuilder(new UpdateableServiceProvider(services));
 
                     endpointConfiguration.Conventions().DefiningEventsAs(t =>
                         t == typeof(RecordedAct1CompletionPayment) ||
@@ -58,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.ExternalHandlers.NServiceBus
                     }
                     else
                     {
-                        endpointConfiguration.UseAzureServiceBusTransport(configuration.SharedServiceBusEndpointUrl,s => s.AddRouting());
+                        endpointConfiguration.UseAzureServiceBusTransport(configuration.NServiceBusConfiguration.SharedServiceBusEndpointUrl,s => s.AddRouting());
                     }
                     
                     var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();

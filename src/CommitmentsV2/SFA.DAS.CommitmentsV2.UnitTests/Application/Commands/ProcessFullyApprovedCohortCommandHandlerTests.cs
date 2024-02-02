@@ -111,7 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Command = AutoFixture.Create<ProcessFullyApprovedCohortCommand>();
             Command.SetValue(x => x.ChangeOfPartyRequestId, default(long?));
             AccountApiClient = new Mock<IAccountApiClient>();
-            Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+            Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
             EventPublisher = new Mock<IEventPublisher>();
             Apprenticeships = new List<Apprenticeship>();
             Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());

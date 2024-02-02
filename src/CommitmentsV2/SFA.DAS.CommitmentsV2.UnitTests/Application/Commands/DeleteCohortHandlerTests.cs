@@ -131,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Command = new DeleteCohortCommand { CohortId = CohortId, UserInfo = UserInfo} ;
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
 
             Sut = new DeleteCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger.Object, AuthenticationService.Object);
             UnitOfWorkContext = new UnitOfWorkContext();

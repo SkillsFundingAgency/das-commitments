@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .With(x => x.ProviderId, LogEntry.ProviderId).Create();
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
 
             Sut = new FileUploadLogUpdateWithErrorContentCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), Logger.Object);
         }

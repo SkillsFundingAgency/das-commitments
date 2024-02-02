@@ -197,7 +197,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
                 .With(x => x.ConfirmationOverdueOn, overdueDate)
                 .Create();
 
-            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options;
+            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options;
             var _db = new ProviderCommitmentsDbContext(options);
 
             _db.Apprenticeships.Add(appr);

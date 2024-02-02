@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
                 _apprenticeshipId = _autoFixture.Create<long>();
                 _request = new GetOverlappingTrainingDateRequestQuery(_apprenticeshipId);
 
-                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
                 SeedData();
                 _handler = new GetOverlappingTrainingDateRequestQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
             }

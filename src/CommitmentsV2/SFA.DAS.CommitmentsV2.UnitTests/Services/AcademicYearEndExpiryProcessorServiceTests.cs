@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         public void Arrange()
         {
             // ARRANGE
-            _dbContextMock = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+            _dbContextMock = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
             _logger = new Mock<ILogger<AcademicYearEndExpiryProcessorService>>();
             
             _currentDateTime = new Mock<ICurrentDateTime>();
