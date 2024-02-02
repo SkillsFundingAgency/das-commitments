@@ -27,8 +27,6 @@ public static class ConfigurationExtensions
                 options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
                 options.EnvironmentName = configuration["EnvironmentName"];
                 options.PreFixConfigurationKeys = false;
-                // TODO Review this not sure how this is used
-                //options.ConfigurationKeysRawJsonResult = new[] { ConfigurationKeys.EncodingConfig };
             }
         );
 

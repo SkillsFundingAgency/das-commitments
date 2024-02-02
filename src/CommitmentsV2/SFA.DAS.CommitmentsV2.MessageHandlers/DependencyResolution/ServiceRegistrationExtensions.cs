@@ -42,22 +42,13 @@ public static class ServiceRegistrationExtensions
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddNServiceBusClientUnitOfWork();
             services.AddDomainServices();
-
             services.AddEmployerAccountServices(context.Configuration);
             services.AddFeaturesAuthorization();
             services.AddSingleton<IEncodingService, EncodingService>();
             services.AddCurrentDateTimeService(context.Configuration);
-
             services.AddTransient<IDiffService, DiffService>();
             services.AddEmployerAccountServices(context.Configuration);
-            //services.AddReservationsApiClient();
-            //services.AddDomainServices();
-
             services.AddApprovalsOuterApiServiceServices();
-
-            // todo wireup IPasAccountApiClient via outerAPI
-            //services.AddTransient<IPasAccountApiClient, ...);
-
             services.AddDefaultMessageHandlerServices();
 
             services.AddDasDistributedMemoryCache(context.Configuration, context.HostingEnvironment.IsDevelopment())

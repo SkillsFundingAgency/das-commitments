@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
-using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Startup
 {
@@ -30,9 +29,5 @@ namespace SFA.DAS.CommitmentsV2.Startup
 
             return hostBuilder.UseEnvironment(mappedEnvironmentName);
         }
-
-
-
-
     }
 }

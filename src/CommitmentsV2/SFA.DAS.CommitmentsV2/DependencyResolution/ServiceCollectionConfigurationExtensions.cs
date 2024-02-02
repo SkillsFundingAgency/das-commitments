@@ -24,7 +24,6 @@ public static class ServiceCollectionConfigurationExtensions
         services.AddConfigurationFor<EmailOptionalConfiguration>(configuration, CommitmentsConfigurationKeys.EmailOptionalConfiguration);
         services.AddConfigurationFor<LevyTransferMatchingApiConfiguration>(configuration, CommitmentsConfigurationKeys.LevyTransferMatchingApiConfiguration);
         services.AddConfigurationFor<FeaturesConfiguration>(configuration, CommitmentsConfigurationKeys.Features);
-        //services.AddConfigurationFor<PasAccountApiConfiguration>(configuration, CommitmentsConfigurationKeys.ProviderAccountApiConfiguration);
         services.AddConfigurationFor<ReservationsClientApiConfiguration>(configuration, CommitmentsConfigurationKeys.ReservationsClientApiConfiguration);
         services.AddConfigurationFor<RplSettingsConfiguration>(configuration, CommitmentsConfigurationKeys.RplSettingsConfiguration);
         services.AddConfigurationFor<ProviderUrlConfiguration>(configuration, CommitmentsConfigurationKeys.ProviderUrlConfiguration);
