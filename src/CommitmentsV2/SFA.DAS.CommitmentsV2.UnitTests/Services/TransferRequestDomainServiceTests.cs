@@ -1,7 +1,11 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -16,11 +20,6 @@ using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -86,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             // Assert
             _fixture
                 .VerifyTransferRequestApprovedEventIsNotPublished();
-            
+
             _fixture
                 .VerifyHasWarning($"Transfer Request {_fixture.TransferRequest.Id} has already been approved");
         }
@@ -172,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             // Act
             await _fixture.RejectTransferRequest();
-            
+
             // Assert
             _fixture.VerifyHasWarning($"Transfer Request {_fixture.TransferRequest.Id} has already been rejected");
         }
@@ -228,7 +227,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 _fixture
                     .WithTransferRequest(input.TransferRequestInput.AccountLegalEntityId, input.TransferRequestInput.LegalEntityId,
                     input.TransferRequestInput.LegalEntityName, input.TransferRequestInput.AccountId, input.TransferRequestInput.CohortId,
-                    input.TransferRequestInput.CohortReference, input.TransferRequestInput.TransferSenderId, input.TransferRequestInput.TransferRequestId, 
+                    input.TransferRequestInput.CohortReference, input.TransferRequestInput.TransferSenderId, input.TransferRequestInput.TransferRequestId,
                     input.TransferRequestInput.Status, input.TransferRequestInput.AutoApproval);
             }
 
@@ -246,7 +245,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.WithTransferRequestSummary();
 
             // Act
-            await _fixture.GetTransferRequestSummary();
+            await _fixture.GetTransferRequestSummary(null);
+
+            // Assert
+            _fixture.VerifyTransferRequestSummary();
+        }
+
+        [Test]
+        public async Task GetTransferRequestSummaryAsSender()
+        {
+            // Arrange
+            _fixture.WithTransferRequestSummary();
+
+            // Act
+            await _fixture.GetTransferRequestSummary(TransferType.AsSender);
 
             // Assert
             _fixture.VerifyTransferRequestSummary();
@@ -264,27 +276,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new Input
                         {
-                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 1, LegalEntityId = "LE1", LegalEntityName = "NAME1", AccountId = 1001, 
+                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 1, LegalEntityId = "LE1", LegalEntityName = "NAME1", AccountId = 1001,
                                 CohortId = 1,  CohortReference = "REF1", TransferSenderId = 11, TransferRequestId = 1, Status = TransferApprovalStatus.Approved, AutoApproval = false }
                         },
                         new Input
                         {
-                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 2, LegalEntityId = "LE2", LegalEntityName = "NAME2", AccountId = 1002, 
+                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 2, LegalEntityId = "LE2", LegalEntityName = "NAME2", AccountId = 1002,
                                 CohortId = 2,  CohortReference = "REF2", TransferSenderId = 22, TransferRequestId = 2, Status = TransferApprovalStatus.Approved, AutoApproval = true }
                         },
                         new Input
                         {
-                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 3, LegalEntityId = "LE3", LegalEntityName = "NAME3", AccountId = 1003, 
+                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 3, LegalEntityId = "LE3", LegalEntityName = "NAME3", AccountId = 1003,
                                 CohortId = 3,  CohortReference = "REF3", TransferSenderId = 33, TransferRequestId = 3, Status = TransferApprovalStatus.Rejected, AutoApproval = false }
                         },
                         new Input
                         {
-                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 4, LegalEntityId = "LE4", LegalEntityName = "NAME4", AccountId = 1004, 
+                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 4, LegalEntityId = "LE4", LegalEntityName = "NAME4", AccountId = 1004,
                                 CohortId = 4,  CohortReference = "REF4", TransferSenderId = 44, TransferRequestId = 4, Status = TransferApprovalStatus.Rejected, AutoApproval = true }
                         },
                         new Input
                         {
-                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 5, LegalEntityId = "LE5", LegalEntityName = "NAME5", AccountId = 1005, 
+                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 5, LegalEntityId = "LE5", LegalEntityName = "NAME5", AccountId = 1005,
                                 CohortId = 5,  CohortReference = "REF5", TransferSenderId = 55, TransferRequestId = 5, Status = TransferApprovalStatus.Pending, AutoApproval = true }
                         }
                     },
@@ -301,22 +313,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                    {
                         new Input
                         {
-                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 1, LegalEntityId = "LE1", LegalEntityName = "NAME1", AccountId = 1001, 
+                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 1, LegalEntityId = "LE1", LegalEntityName = "NAME1", AccountId = 1001,
                                 CohortId = 1, CohortReference = "REF1", TransferSenderId = 11, TransferRequestId = 1, Status = TransferApprovalStatus.Approved, AutoApproval = false }
                         },
                         new Input
                         {
-                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 2, LegalEntityId = "LE2", LegalEntityName = "NAME2", AccountId = 1002, 
+                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 2, LegalEntityId = "LE2", LegalEntityName = "NAME2", AccountId = 1002,
                                 CohortId = 2, CohortReference = "REF2", TransferSenderId = 22, TransferRequestId = 2, Status = TransferApprovalStatus.Rejected, AutoApproval = false }
                         },
                         new Input
                         {
-                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 3, LegalEntityId = "LE3", LegalEntityName = "NAME3", AccountId = 1003, 
+                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 3, LegalEntityId = "LE3", LegalEntityName = "NAME3", AccountId = 1003,
                                 CohortId = 3, CohortReference = "REF3", TransferSenderId = 33, TransferRequestId = 3, Status = TransferApprovalStatus.Pending, AutoApproval = false }
                         },
                         new Input
                         {
-                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 4, LegalEntityId = "LE4", LegalEntityName = "NAME4", AccountId = 1004, 
+                            TransferRequestInput =  new TransferRequestInput { AccountLegalEntityId = 4, LegalEntityId = "LE4", LegalEntityName = "NAME4", AccountId = 1004,
                                 CohortId = 4, CohortReference = "REF4", TransferSenderId = 44, TransferRequestId = 4, Status = TransferApprovalStatus.Pending, AutoApproval = false }
                         }
                     },
@@ -324,7 +336,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     {
                         new EmployerTransferRequestPendingNotification
                         {
-                            TransferRequestId = 3, ReceivingEmployerAccountId = 1003, ReceivingLegalEntityName = "NAME3", CohortReference = "REF3", SendingEmployerAccountId = 33, 
+                            TransferRequestId = 3, ReceivingEmployerAccountId = 1003, ReceivingLegalEntityName = "NAME3", CohortReference = "REF3", SendingEmployerAccountId = 33,
                             CommitmentId = 3, Status = TransferApprovalStatus.Pending
                         },
                         new EmployerTransferRequestPendingNotification
@@ -402,7 +414,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 null,
                 null,
                 Party.Employer,
-                "",                
+                "",
                 new UserInfo())
             { EmployerAccountId = 100, TransferSenderId = 99 };
 
@@ -413,7 +425,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Cohort.TransferSenderId = 10900;
             Cohort.AccountLegalEntity = accountLegalEntity;
             Cohort.EmployerAccountId = 222;
-            
+
             TransferSenderUserInfo = Fixture.Create<UserInfo>();
             TransferRequest = new TransferRequest
             { Status = TransferApprovalStatus.Pending, Cost = 1000, Cohort = Cohort };
@@ -428,7 +440,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return this;
         }
 
-        public TransferRequestDomainServiceTestsFixture WithTransferRequest(long accountLegalEntityId, string legalEntityId, string legalEntityName, long accountId, 
+        public TransferRequestDomainServiceTestsFixture WithTransferRequest(long accountLegalEntityId, string legalEntityId, string legalEntityName, long accountId,
             long cohortId, string cohortReference, long transferSenderId, long transferRequestId, TransferApprovalStatus transferApprovalStatus, bool autoApproval)
         {
             var accountLegalEntity =
@@ -468,7 +480,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             TransferRequest.CreatedOn = DateTime.UtcNow;
             TransferRequest.TransferApprovalActionedOn = DateTime.UtcNow;
             TransferRequest.TransferApprovalActionedByEmployerName = TransferSenderUserInfo.UserDisplayName;
-            TransferRequest.TransferApprovalActionedByEmployerEmail = TransferSenderUserInfo.UserEmail;             
+            TransferRequest.TransferApprovalActionedByEmployerEmail = TransferSenderUserInfo.UserEmail;
             Db.TransferRequests.Add(TransferRequest);
             Db.SaveChanges();
 
@@ -485,9 +497,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             return Sut.ApproveTransferRequest(transferRequestId, TransferSenderUserInfo, Now, default);
         }
 
-        public Task GetTransferRequestSummary()
+        public Task GetTransferRequestSummary(TransferType? originator)
         {
-            return Sut.GetTransferRequestSummary(222, default);
+            return Sut.GetTransferRequestSummary(222, originator, default);
         }
 
         public Task<List<EmployerTransferRequestPendingNotification>> GetEmployerTransferRequestPendingNotifications()
@@ -617,7 +629,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.AreEqual(TransferSenderUserInfo.UserId, list[0].UpdatingUserId);
             Assert.AreEqual(TransferSenderUserInfo.UserDisplayName, list[0].UpdatingUserName);
             Assert.AreEqual(Party.TransferSender, list[0].UpdatingParty);
-        }        
+        }
 
         public void TearDown()
         {
