@@ -128,9 +128,9 @@ public class Startup
         services.AddTransient<ICacheStorageService, CacheStorageService>();
 
         services.AddMappingServices();
-        //services.AddDefaultServices(_configuration);
-        //services.AddNServiceBusClientUnitOfWork();
-        //services.AddProviderPermissionsAuthorization();
+        services.AddDefaultServices(_configuration);
+        services.AddNServiceBusClientUnitOfWork();
+        services.AddProviderPermissionsAuthorization();
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)

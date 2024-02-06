@@ -22,7 +22,7 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IModelMapper, ModelMapper>();
         services.AddSingleton<ILinkGenerator, LinkGenerator>();
 
-        if (config["UseStubProviderRelationships"].Equals("TRUE", StringComparison.InvariantCultureIgnoreCase))
+        if (config["UseStubProviderRelationships"] != null && config["UseStubProviderRelationships"].Equals("TRUE", StringComparison.InvariantCultureIgnoreCase))
         {
             services.AddTransient<IProviderRelationshipsApiClient, StubProviderRelationshipsApiClient>();
             services.AddTransient<IProviderRelationshipsApiClientFactory, StubProviderRelationshipsApiClientFactory>();
