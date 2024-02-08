@@ -34,5 +34,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public bool? IsOnFlexiPaymentPilot { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string ApprenticeshipHashedId { get; set; }
     }
 }
