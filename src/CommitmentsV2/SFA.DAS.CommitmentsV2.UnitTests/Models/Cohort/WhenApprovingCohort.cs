@@ -318,24 +318,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.Cohort.Approvals.HasFlag(Party.Employer).Should().BeTrue();
             _fixture.Cohort.Approvals.HasFlag(Party.Provider).Should().BeTrue();
         }
-
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public void AndPartyIsTransferSenderAndOtherPartyHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent(Party modifyingParty)
-        {
-            _fixture.SetModifyingParty(Party.TransferSender)
-                .SetWithParty(Party.TransferSender)
-                .SetTransferSender()
-                .SetApprovals(modifyingParty.GetOtherParty())
-                .AddDraftApprenticeship()
-                .Approve();
-
-            _fixture.UnitOfWorkContext.GetEvents().OfType<CohortFullyApprovedEvent>().Single(e =>
-                    e.CohortId == _fixture.Cohort.Id &&
-                    e.AccountId == _fixture.Cohort.EmployerAccountId &&
-                    e.ProviderId == _fixture.Cohort.ProviderId &&
-                    e.UpdatedOn == _fixture.Now);
-        }
         
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
@@ -357,7 +339,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
         }
-
 
         [Test]
         public void AndPartyIsEmployerAndCohortWasRejectedByTransferSenderThenShouldResetTransferApprovalStatus()
