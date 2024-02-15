@@ -407,7 +407,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public void VerifyAccount(long accountId, List<CustomProviderPaymentPriority> customProviderPaymentPriorities)
         {
-            TestHelpers.CompareHelper.AreEqualIgnoringTypes(Db.Accounts.FirstOrDefault(p => p.Id == accountId)?.CustomProviderPaymentPriorities,
+            TestHelpers.CompareHelper.AreEqualIgnoringTypes(Db.Accounts.Include(account => account.CustomProviderPaymentPriorities).FirstOrDefault(p => p.Id == accountId)?.CustomProviderPaymentPriorities,
                 customProviderPaymentPriorities).Should().BeTrue();
         }
 
@@ -418,12 +418,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 var entityStateChangedEvents = UnitOfWorkContext
                     .GetEvents()
                     .OfType<EntityStateChangedEvent>()
-                    .Where(p =>
-                        p.EmployerAccountId == updatedItem.EmployerAccountId &&
-                        p.ProviderId == updatedItem.ProviderId &&
-                        p.InitialState == updatedItem.InitialState &&
-                        p.UpdatedState == updatedItem.UpdatedState)
-                    .Count()
+                    .Count(p => p.EmployerAccountId == updatedItem.EmployerAccountId &&
+                                p.ProviderId == updatedItem.ProviderId &&
+                                p.InitialState == updatedItem.InitialState &&
+                                p.UpdatedState == updatedItem.UpdatedState)
                     .Should()
                     .Be(1);
             }
