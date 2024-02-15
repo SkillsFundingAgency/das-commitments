@@ -21,7 +21,7 @@
     <PackageReference Include="System.Drawing.Common" Version="8.0.0">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3">
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.3.1">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
   </ItemGroup>
