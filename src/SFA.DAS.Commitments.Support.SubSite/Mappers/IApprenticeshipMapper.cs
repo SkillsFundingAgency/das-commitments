@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
     {
         ApprenticeshipViewModel MapToApprenticeshipViewModel(GetSupportApprenticeshipQueryResult response, GetChangeOfProviderChainQueryResult providerChainQueryResult);
 
-        ApprenticeshipUpdateViewModel MapToUpdateApprenticeshipViewModel(GetApprenticeshipUpdateQueryResult updateApprenticeship, SupportApprenticeshipDetails originalApprenticeship);
+        ApprenticeshipUpdateViewModel MapToUpdateApprenticeshipViewModel(GetApprenticeshipUpdateQueryResult apprenticeships, SupportApprenticeshipDetails originalApprenticeship);
 
         UlnSummaryViewModel MapToUlnResultView(GetSupportApprenticeshipQueryResult response);
 

@@ -6,8 +6,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary
@@ -16,12 +14,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCoho
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
         private readonly IEmailOptionalService _emailService;
-        private readonly IMapper<Apprenticeship, SupportApprenticeshipDetails> _mapper;
-
-        public GetSupportCohortSummaryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IMapper<Apprenticeship, SupportApprenticeshipDetails> mapper, IEmailOptionalService emailService)
+        public GetSupportCohortSummaryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IEmailOptionalService emailService)
         {
             _db = dbContext;
-            _mapper = mapper;
             _emailService = emailService;
         }
 
