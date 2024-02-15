@@ -138,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
             {
                 Assert.That(Result, Is.Not.Null);
                 var model = Result.VerifyReturnsModel().WithModel<GetApprenticeshipUpdatesResponse>();
-                Assert.That(model.ApprenticeshipUpdates.Count, Is.EqualTo(0));
+                Assert.That(model.ApprenticeshipUpdates, Is.Empty);
             }
         }
     }

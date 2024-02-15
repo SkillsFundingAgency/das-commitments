@@ -34,8 +34,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
         {
             var healthCheckResult = await _fixture.SetPingFailure().CheckHealthAsync();
 
-            Assert.That(healthCheckResult.Status, Is.EqualTo(HealthStatus.Degraded));
-            Assert.That(healthCheckResult.Description, Is.EqualTo(_fixture.Exception.Message));
+            Assert.Multiple(() =>
+            {
+                Assert.That(healthCheckResult.Status, Is.EqualTo(HealthStatus.Degraded));
+                Assert.That(healthCheckResult.Description, Is.EqualTo(_fixture.Exception.Message));
+            });
         }
 
         private class ReservationsApiHealthCheckTestsFixture

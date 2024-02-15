@@ -16,7 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 
 public static class ServiceRegistrationExtensions
 {
-
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
         services.AddTransient<IAcademicYearDateProvider, AcademicYearDateProvider>();
@@ -37,7 +36,7 @@ public static class ServiceRegistrationExtensions
         return services;
     }
 
-    public static IServiceCollection AddEncodingServices(this IServiceCollection services)
+    private static IServiceCollection AddEncodingServices(this IServiceCollection services)
     {
         services.AddSingleton<IEncodingService, EncodingService>();
 

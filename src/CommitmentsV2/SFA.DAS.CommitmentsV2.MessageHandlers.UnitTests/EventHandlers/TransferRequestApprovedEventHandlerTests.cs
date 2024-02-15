@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
     public class TransferRequestApprovedEventHandlerTestsFixture
     {
-        private Fixture _fixture;
+        private readonly Fixture _fixture;
         public FakeLogger<TransferRequestApprovedEvent> Logger { get; set; }
         public Mock<ILegacyTopicMessagePublisher> LegacyTopicMessagePublisher { get; set; }
         public UserInfo TransferSenderUserInfo { get; set; }
@@ -151,8 +151,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerifyCohortApprovalPropertiesAreSet()
         {
-            Assert.That(TransferApprovalStatus.Approved, Is.EqualTo(Cohort.TransferApprovalStatus));
-            Assert.That(TransferRequestApprovedEvent.ApprovedOn, Is.EqualTo(Cohort.TransferApprovalActionedOn));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Cohort.TransferApprovalStatus, Is.EqualTo(TransferApprovalStatus.Approved));
+                Assert.That(TransferRequestApprovedEvent.ApprovedOn, Is.EqualTo(Cohort.TransferApprovalActionedOn));
+            });
         }
 
         public void VerifyLegacyEventCohortApprovedByTransferSenderIsPublished()

@@ -52,11 +52,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 .VerifyReturnsModel()
                 .WithModel<AccountLegalEntityResponse>();
 
-            Assert.That(model.AccountId, Is.EqualTo(1));
-            Assert.That(model.MaLegalEntityId, Is.EqualTo(234));
-            Assert.That(model.AccountName, Is.EqualTo("AccountName"));
-            Assert.That(model.LegalEntityName, Is.EqualTo("ABC"));
-            Assert.That(model.LevyStatus, Is.EqualTo(ApprenticeshipEmployerType.Levy));
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.AccountId, Is.EqualTo(1));
+                Assert.That(model.MaLegalEntityId, Is.EqualTo(234));
+                Assert.That(model.AccountName, Is.EqualTo("AccountName"));
+                Assert.That(model.LegalEntityName, Is.EqualTo("ABC"));
+                Assert.That(model.LevyStatus, Is.EqualTo(ApprenticeshipEmployerType.Levy));
+            });
         }
 
         [Test]

@@ -363,11 +363,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.CreateCoho
             
             public void VerifyWithSameParty()
             {
-                Assert.AreEqual(
-                    Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
+                Assert.That(
+                    Result.WithParty, Is.EqualTo(Request.ChangeOfPartyType == ChangeOfPartyRequestType.ChangeEmployer
                         ? Party.Provider
-                        : Party.Employer,
-                    Result.WithParty);
+                        : Party.Employer));
             }
 
             public void VerifyProviderOriginatorApproval()

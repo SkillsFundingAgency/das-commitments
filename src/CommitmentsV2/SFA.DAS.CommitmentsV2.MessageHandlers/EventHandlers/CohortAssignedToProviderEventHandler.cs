@@ -54,11 +54,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             return _outerApiClient.PostWithResponseCode<ProviderEmailRequest, object>(new PostProviderEmailRequest(providerId, request), false);
         }
 
-        private ProviderEmailRequest BuildEmailRequest(GetCohortSummaryQueryResult cohortSummary)
+        private static ProviderEmailRequest BuildEmailRequest(GetCohortSummaryQueryResult cohortSummary)
         {
-            var request = new ProviderEmailRequest();
-            request.ExplicitEmailAddresses = new List<string>();
-            request.Tokens = new Dictionary<string, string>();
+            var request = new ProviderEmailRequest
+            {
+                ExplicitEmailAddresses = [],
+                Tokens = new Dictionary<string, string>()
+            };
 
             if (!string.IsNullOrWhiteSpace(cohortSummary.LastUpdatedByProviderEmail))
             {
@@ -87,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         public string PostUrl => $"/providers/{_providerId}/emails";
         public ProviderEmailRequest Data { get; set; }
 
-        private long _providerId;
+        private readonly long _providerId;
 
         public PostProviderEmailRequest(long providerId, ProviderEmailRequest request)
         {

@@ -49,8 +49,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var retVal = await _fixture.SetCanAccessCohortToReturnTrue().AuthorizationController.CanAccessCohort(request);
 
-            Assert.That(retVal, Is.InstanceOf<OkObjectResult>());
-            Assert.That((bool)((OkObjectResult)retVal).Value);
+            Assert.Multiple(() =>
+            {
+                Assert.That(retVal, Is.InstanceOf<OkObjectResult>());
+                Assert.That((bool)((OkObjectResult)retVal).Value);
+            });
         }
 
         [TestCase(Party.Provider, 124, 1)]
@@ -75,14 +78,17 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var retVal = await _fixture.SetCanAccessApprenticeshipToReturnTrue().AuthorizationController.CanAccessApprenticeship(request);
 
-            Assert.That(retVal, Is.InstanceOf<OkObjectResult>());
-            Assert.That((bool)((OkObjectResult)retVal).Value);
+            Assert.Multiple(() =>
+            {
+                Assert.That(retVal, Is.InstanceOf<OkObjectResult>());
+                Assert.That((bool)((OkObjectResult)retVal).Value);
+            });
         }
 
         [Test]
         public async Task AuthorizationController_ApprenticeEmailRequired_ShouldSendCorrectQuery()
         {
-            var providerId = 123456;
+            const int providerId = 123456;
 
             await _fixture.AuthorizationController.OptionalEmail(0, providerId);
 
@@ -127,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             var result = await sut.Handle(query, new CancellationToken());
 
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
     }
 
