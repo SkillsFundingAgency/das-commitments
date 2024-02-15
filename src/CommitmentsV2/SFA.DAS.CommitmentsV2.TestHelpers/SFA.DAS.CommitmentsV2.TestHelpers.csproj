@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="4.79.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.26" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.27" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" NoWarn="NU1903" />
   </ItemGroup>
