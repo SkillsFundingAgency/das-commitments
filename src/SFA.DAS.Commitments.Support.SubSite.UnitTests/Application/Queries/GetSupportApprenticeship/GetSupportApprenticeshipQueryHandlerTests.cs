@@ -292,6 +292,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Application.Queries.GetS
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
 

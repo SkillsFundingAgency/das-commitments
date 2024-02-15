@@ -441,6 +441,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

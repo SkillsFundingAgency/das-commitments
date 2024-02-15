@@ -115,6 +115,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPendingOverlapR
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

@@ -239,6 +239,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeship
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

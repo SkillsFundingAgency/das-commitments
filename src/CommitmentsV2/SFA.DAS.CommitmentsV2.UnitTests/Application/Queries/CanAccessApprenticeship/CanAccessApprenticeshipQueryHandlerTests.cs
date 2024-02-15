@@ -169,6 +169,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessApprentic
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

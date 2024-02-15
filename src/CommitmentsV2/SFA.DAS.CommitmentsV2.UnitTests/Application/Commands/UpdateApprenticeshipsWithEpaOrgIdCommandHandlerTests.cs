@@ -110,6 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

@@ -177,6 +177,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

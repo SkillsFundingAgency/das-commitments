@@ -82,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

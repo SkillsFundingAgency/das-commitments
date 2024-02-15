@@ -298,6 +298,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTraini
             public void Dispose()
             {
                 Db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

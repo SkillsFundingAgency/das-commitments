@@ -623,6 +623,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         internal BulkUploadValidateCommandHandlerTestsFixture SetRplDataExtended(bool extended)

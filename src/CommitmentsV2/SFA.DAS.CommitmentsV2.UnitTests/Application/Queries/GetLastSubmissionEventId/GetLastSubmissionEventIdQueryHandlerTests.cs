@@ -60,6 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetLastSubmissionE
             public void Dispose()
             {
                 _db?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

@@ -349,6 +349,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPayment
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

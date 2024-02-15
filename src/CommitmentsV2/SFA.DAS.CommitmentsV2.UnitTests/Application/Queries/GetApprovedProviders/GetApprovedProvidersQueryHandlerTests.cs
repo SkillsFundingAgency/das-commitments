@@ -182,6 +182,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
         public void Dispose()
         {
             Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }
