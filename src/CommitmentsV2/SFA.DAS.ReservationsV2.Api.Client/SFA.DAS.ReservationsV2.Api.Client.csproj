@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>

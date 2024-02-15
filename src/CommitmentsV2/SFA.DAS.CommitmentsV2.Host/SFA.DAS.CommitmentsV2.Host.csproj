@@ -16,6 +16,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebJobs.Publish" Version="17.1.361" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
