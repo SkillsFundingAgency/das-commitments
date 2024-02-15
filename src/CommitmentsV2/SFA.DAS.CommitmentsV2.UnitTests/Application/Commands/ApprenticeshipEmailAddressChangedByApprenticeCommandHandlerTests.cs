@@ -1,3 +1,7 @@
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using MediatR;
@@ -15,11 +19,6 @@ using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -50,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
-            apprenticeship.ShouldNotBeNull();
+            apprenticeship.Should().NotBeNull();
             apprenticeship.Email.Should().Be(_fixture.CurrentEmailAddress);
         }
 
@@ -63,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
-            apprenticeship.ShouldNotBeNull();
+            apprenticeship.Should().NotBeNull();
             apprenticeship.Email.Should().Be(_fixture.CurrentEmailAddress);
         }
 
@@ -76,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var apprenticeship = _fixture.GetApprenticeship(command.ApprenticeshipId);
 
-            apprenticeship.ShouldNotBeNull();
+            apprenticeship.Should().NotBeNull();
             apprenticeship.EmailAddressConfirmed.Should().BeTrue();
             apprenticeship.Email.Should().Be(_fixture.NewEmailAddress);
         }
@@ -97,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 var errors = e.DomainErrors.ToList();
                 errors.Count.Should().Be(1);
                 errors[0].PropertyName.Should().Be("Email");
-                errors[0].ErrorMessage.ShouldStartWith("Email Address cannot be updated for");
+                errors[0].ErrorMessage.Should().StartWith("Email Address cannot be updated for");
             }
         }
     }

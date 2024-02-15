@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
@@ -10,7 +11,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprenticeships
 {
@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             _fixture.SeedDataWithRpl2Data();
             var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x=>x.RecognisingPriorLearningStillNeedsToBeConsidered).ShouldBeTrue();
+            result.DraftApprenticeships.Any(x=>x.RecognisingPriorLearningStillNeedsToBeConsidered).Should().BeTrue();
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             _fixture.SeedDataWithRpl2Data();
             var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).ShouldBeFalse();
+            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).Should().BeFalse();
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             _fixture.SeedDataWithRpl1Data();
             var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningStillNeedsToBeConsidered).ShouldBeFalse();
+            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningStillNeedsToBeConsidered).Should().BeFalse();
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             _fixture.SeedDataWithRpl1Data();
             var result = await _fixture.Handle();
-            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).ShouldBeTrue();
+            result.DraftApprenticeships.Any(x => x.RecognisingPriorLearningExtendedStillNeedsToBeConsidered).Should().BeTrue();
         }
 
         [Test]

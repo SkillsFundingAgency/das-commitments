@@ -6,13 +6,11 @@ using AutoFixture;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -42,10 +40,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var status = _fixture.GetApprenticeshipConfirmationStatus(command.ApprenticeshipId);
 
-            status.ShouldNotBeNull();
+            status.Should().NotBeNull();
             status.CommitmentsApprovedOn.Should().Be(command.CommitmentsApprovedOn);
             status.ApprenticeshipConfirmedOn.Should().Be(command.ConfirmedOn);
-            status.ConfirmationOverdueOn.ShouldBeNull();
+            status.ConfirmationOverdueOn.Should().BeNull();
             status.ConfirmationStatus.Should().Be(ConfirmationStatus.Confirmed);
         }
 
@@ -63,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var status = _fixture.GetApprenticeshipConfirmationStatus(command.ApprenticeshipId);
 
-            status.ShouldNotBeNull();
+            status.Should().NotBeNull();
             status.CommitmentsApprovedOn.Should().Be(command.CommitmentsApprovedOn);
             status.ApprenticeshipConfirmedOn.Should().Be(command.ConfirmedOn);
             status.ConfirmationOverdueOn.Should().Be(_fixture.ConfirmationStatusUnconfirmed.ConfirmationOverdueOn);
@@ -84,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var status = _fixture.GetApprenticeshipConfirmationStatus(command.ApprenticeshipId);
 
-            status.ShouldNotBeNull();
+            status.Should().NotBeNull();
             status.CommitmentsApprovedOn.Should().Be(_fixture.ConfirmationStatusConfirmed.CommitmentsApprovedOn);
             status.ApprenticeshipConfirmedOn.Should().Be(_fixture.ConfirmationStatusConfirmed.ApprenticeshipConfirmedOn);
             status.ConfirmationOverdueOn.Should().Be(_fixture.ConfirmationStatusConfirmed.ConfirmationOverdueOn);

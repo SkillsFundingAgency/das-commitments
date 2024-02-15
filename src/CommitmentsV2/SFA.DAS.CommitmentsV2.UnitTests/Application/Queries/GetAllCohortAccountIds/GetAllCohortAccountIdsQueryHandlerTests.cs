@@ -15,7 +15,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccountIds
 {
@@ -31,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccoun
 
             var result = await fixture.Handle();
 
-            result.ShouldNotBeNull();
+            result.Should().NotBeNull();
             result.AccountIds.Count().Should().Be(2);
             result.AccountIds[0].Should().Be(1);
             result.AccountIds[1].Should().Be(2);

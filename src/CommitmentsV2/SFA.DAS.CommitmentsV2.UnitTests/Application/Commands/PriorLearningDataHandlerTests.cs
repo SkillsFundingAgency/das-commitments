@@ -18,7 +18,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -34,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixture = new PriorLearningDataHandlerTestsFixture();
             await fixture.Handle();
 
-            fixture.Exception.ShouldNotBeNull();
+            fixture.Exception.Should().NotBeNull();
         }
 
         [TestCase(277, "Total off-the-job training time for this apprenticeship standard must be 278 hours or more")]
@@ -287,7 +286,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void VerifyRplDataMatchesCommand()
         {
             var first = Db.DraftApprenticeships.First();
-            first.PriorLearning.ShouldNotBeNull();
+            first.PriorLearning.Should().NotBeNull();
 
             first.TrainingTotalHours.Should().Be(Command.TrainingTotalHours);
 
