@@ -98,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRe
 
             public void VerifyResultMapping()
             {
-                Assert.That(_result.ChangeOfPartyRequests, Has.Count.EqualTo(_changeOfPartyRequests.Count()));
+                Assert.That(_result.ChangeOfPartyRequests, Has.Count.EqualTo(_changeOfPartyRequests.Count));
 
                 foreach (var sourceItem in _changeOfPartyRequests)
                 {

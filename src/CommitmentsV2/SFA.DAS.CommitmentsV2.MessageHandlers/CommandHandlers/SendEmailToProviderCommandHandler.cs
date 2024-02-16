@@ -37,7 +37,7 @@ public class SendEmailToProviderCommandHandler : IHandleMessages<SendEmailToProv
             }
 
             var explicitEmailAddresses = string.IsNullOrWhiteSpace(message.EmailAddress)
-                ? new List<string>()
+                ? []
                 : new List<string> { message.EmailAddress };
 
             List<string> recipients;
@@ -52,13 +52,13 @@ public class SendEmailToProviderCommandHandler : IHandleMessages<SendEmailToProv
             {
                 recipients = providerUsersResponse.Users.Any(u => !u.IsSuperUser) ?
                     providerUsersResponse.Users.Where(x => !x.IsSuperUser).Select(x => x.EmailAddress).ToList():
-                    providerUsersResponse?.Users.Select(x => x.EmailAddress).ToList();
+                    providerUsersResponse.Users.Select(x => x.EmailAddress).ToList();
             }
 
             var optedOutList = providerUsersResponse.Users.Where(x => !x.ReceiveNotifications).Select(x => x.EmailAddress).ToList();
 
-            var finalRecipients = recipients.Where(x =>
-                    !optedOutList.Any(y => x.Equals(y, StringComparison.CurrentCultureIgnoreCase)))
+            var finalRecipients = recipients
+                .Where(x => !optedOutList.Exists(y => x.Equals(y, StringComparison.CurrentCultureIgnoreCase)))
                 .ToList();
 
             if (finalRecipients.Any())

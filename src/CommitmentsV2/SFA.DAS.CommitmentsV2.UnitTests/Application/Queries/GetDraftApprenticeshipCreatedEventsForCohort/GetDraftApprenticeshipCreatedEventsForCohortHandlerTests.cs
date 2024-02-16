@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DraftApprenticeshipCreatedEvents.Count(), Is.EqualTo(0));
+            Assert.That(result.DraftApprenticeshipCreatedEvents.Length, Is.EqualTo(0));
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             Assert.Multiple(() =>
             {
                 // Assert
-                Assert.That(_fixture.DraftApprentices, Has.Count.EqualTo(result.DraftApprenticeshipCreatedEvents.Count()));
+                Assert.That(_fixture.DraftApprentices, Has.Count.EqualTo(result.DraftApprenticeshipCreatedEvents.Length));
                 Assert.That(result.DraftApprenticeshipCreatedEvents.First().CohortId, Is.EqualTo(CohortId));
             });
             Assert.That(_fixture.DraftApprentices[0].Id, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().DraftApprenticeshipId));

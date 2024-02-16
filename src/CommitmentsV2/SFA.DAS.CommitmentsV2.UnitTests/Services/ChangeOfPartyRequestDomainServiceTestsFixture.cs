@@ -270,7 +270,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public void VerifyNotException<T>()
         {
-            Assert.IsNull(Exception);
+            Assert.That(Exception, Is.Null);
         }
     }
 }

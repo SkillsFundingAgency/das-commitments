@@ -152,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyInsertedItemInitialStateIsNull()
             {
                 var trackedItem = ChangeTrackingSession.TrackedItems.Single(x => x.Operation == ChangeTrackingOperation.Insert);
-                Assert.That(trackedItem.InitialState == null, Is.True);
+                Assert.That(trackedItem.InitialState, Is.EqualTo(null));
             }
 
             public void VerifyUpdateInitialState()

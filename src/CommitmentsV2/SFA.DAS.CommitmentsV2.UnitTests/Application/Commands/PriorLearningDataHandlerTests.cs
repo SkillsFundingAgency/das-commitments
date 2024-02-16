@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.PropertyName == "trainingTotalHours" &&
                 e.ErrorMessage == error).Should().Be(true);
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.PropertyName == "DurationReducedByHours" &&
                 e.ErrorMessage == error).Should().Be(true);
@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.PropertyName == "DurationReducedByHours" &&
                 e.ErrorMessage == error).Should().Be(true);
@@ -104,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e => 
             e.PropertyName == "durationReducedBy" && 
             e.ErrorMessage == error).Should().Be(true);
@@ -121,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.PropertyName == "isDurationReducedByRpl" &&
                 e.ErrorMessage == error).Should().Be(true);
@@ -139,7 +139,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var exception = fixture.Exception as DomainException;
             var domainErrors = exception.DomainErrors.ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e => 
             e.PropertyName == "priceReduced" && 
             e.ErrorMessage == error).Should().Be(true);

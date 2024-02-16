@@ -6,24 +6,24 @@ using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
+
+public class GetApprenticeshipQueryHandler: IRequestHandler<GetApprenticeshipQuery, GetApprenticeshipQueryResult>
 {
-    public class GetApprenticeshipQueryHandler: IRequestHandler<GetApprenticeshipQuery, GetApprenticeshipQueryResult>
+    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+
+    public GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        _dbContext = dbContext;
+    }
 
-        public GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
-        public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
-        {
-            var result = await _dbContext.Value
-                .Apprenticeships
-                .Include(x => x.FlexibleEmployment)
-                .Include(x => x.PriorLearning)
-                .GetById(request.ApprenticeshipId, apprenticeship =>
+    public async Task<GetApprenticeshipQueryResult> Handle(GetApprenticeshipQuery request, CancellationToken cancellationToken)
+    {
+        var result = await _dbContext.Value
+            .Apprenticeships
+            .Include(x => x.FlexibleEmployment)
+            .Include(x => x.PriorLearning)
+            .GetById(request.ApprenticeshipId, apprenticeship =>
                     new GetApprenticeshipQueryResult
                     {
                         Id = apprenticeship.Id,
@@ -81,9 +81,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
                         TrainingTotalHours = apprenticeship.TrainingTotalHours,
                         EmployerHasEditedCost = apprenticeship.EmployerHasEditedCost
                     },
-                    cancellationToken);
+                cancellationToken);
 
-            return result;
-        }
+        return result;
     }
 }

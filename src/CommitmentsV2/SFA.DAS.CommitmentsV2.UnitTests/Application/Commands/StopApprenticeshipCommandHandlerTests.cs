@@ -408,7 +408,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return apprenticeship;
         }
 
-        private ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
+        private static ICollection<DataLockStatus> SetupDataLocks(long apprenticeshipId)
         {
             var activeDataLock4 = new DataLockStatus
             {

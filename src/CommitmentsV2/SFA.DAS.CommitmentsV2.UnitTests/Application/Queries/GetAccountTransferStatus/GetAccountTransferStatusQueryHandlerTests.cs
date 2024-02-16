@@ -13,233 +13,231 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountTransferStatus
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountTransferStatus;
+
+[TestFixture]
+public class GetAccountTransferStatusQueryHandlerTests
 {
-    [TestFixture]
-    public class GetAccountTransferStatusQueryHandlerTests
+    private GetAccountTransferStatusQueryHandlerTestsFixture _fixture;
+
+    [SetUp]
+    public void Setup()
     {
-        private GetAccountTransferStatusQueryHandlerTestsFixture _fixture;
+        _fixture = new GetAccountTransferStatusQueryHandlerTestsFixture();
+    }
 
-        [SetUp]
-        public void Setup()
+    [TearDown]
+    public void TearDown()
+    {
+        _fixture?.Dispose();
+    }
+
+    [Test]
+    public async Task When_Getting_Transfer_Status_Then_IsSender_Is_True_When_Employer_Is_Transfer_Sender()
+    {
+        _fixture.WithEmployerAsTransferSender();
+        await _fixture.Handle();
+        _fixture.VerifyIsTransferSender(true);
+    }
+
+    [Test]
+    public async Task When_Getting_Transfer_Status_Then_IsSender_Is_False_When_Employer_Is_Not_Transfer_Sender()
+    {
+        _fixture.WithNoActiveApprenticeshipsForEmployer();
+        await _fixture.Handle();
+        _fixture.VerifyIsTransferSender(false);
+    }
+
+    [Test]
+    public async Task When_Getting_Transfer_Status_Then_IsReceiver_Is_True_When_Employer_Is_Transfer_Receiver()
+    {
+        _fixture.WithEmployerAsTransferReceiver();
+        await _fixture.Handle();
+        _fixture.VerifyIsTransferReceiver(true);
+    }
+
+    [Test]
+    public async Task When_Getting_Transfer_Status_Then_IsReceiver_Is_False_When_Employer_Is_Not_Transfer_Receiver()
+    {
+        _fixture.WithNoActiveApprenticeshipsForEmployer();
+        await _fixture.Handle();
+        _fixture.VerifyIsTransferReceiver(false);
+    }
+
+
+    public class GetAccountTransferStatusQueryHandlerTestsFixture : IDisposable
+    {
+        public ProviderCommitmentsDbContext Db { get; set; }
+        public Mock<IAuthenticationService> AuthenticationServiceMock { get; set; }
+        public GetAccountTransferStatusQueryHandler Handler { get; set; }
+        private readonly Fixture _autoFixture = new Fixture();
+
+        public GetAccountTransferStatusQuery Query { get; set; }
+        private GetAccountTransferStatusQueryResult Result { get; set; }
+
+        public Provider Provider { get; set; }
+        public Account Account { get; set; }
+        public AccountLegalEntity AccountLegalEntity { get; set; }
+
+        public GetAccountTransferStatusQueryHandlerTestsFixture()
         {
-            _fixture = new GetAccountTransferStatusQueryHandlerTestsFixture();
+            AuthenticationServiceMock = new Mock<IAuthenticationService>();
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
+            Handler = new GetAccountTransferStatusQueryHandler(
+                new Lazy<ProviderCommitmentsDbContext>(() => Db));
+
+            Query = _autoFixture.Create<GetAccountTransferStatusQuery>();
+
+            Provider = new Provider
+            {
+                UkPrn = _autoFixture.Create<long>(),
+                Name = _autoFixture.Create<string>()
+            };
+
+            Account = new Account(0, "", "", "", DateTime.UtcNow);
+
+            AccountLegalEntity = new AccountLegalEntity(Account,
+                1,
+                0,
+                "",
+                publicHashedId: _autoFixture.Create<string>(),
+                _autoFixture.Create<string>(),
+                OrganisationType.PublicBodies,
+                "",
+                DateTime.UtcNow);
         }
-        
-        [TearDown]
-        public void TearDown()
+
+        public async Task Handle()
         {
-            _fixture?.Dispose();
+            Result = await Handler.Handle(Query, CancellationToken.None);
         }
 
-        [Test]
-        public async Task When_Getting_Transfer_Status_Then_IsSender_Is_True_When_Employer_Is_Transfer_Sender()
+        public void VerifyIsTransferSender(bool isSender)
         {
-            _fixture.WithEmployerAsTransferSender();
-            await _fixture.Handle();
-            _fixture.VerifyIsTransferSender(true);
+            Assert.That(Result.IsTransferSender, Is.EqualTo(isSender));
         }
 
-        [Test]
-        public async Task When_Getting_Transfer_Status_Then_IsSender_Is_False_When_Employer_Is_Not_Transfer_Sender()
+        public void VerifyIsTransferReceiver(bool isReceiver)
         {
-            _fixture.WithNoActiveApprenticeshipsForEmployer();
-            await _fixture.Handle();
-            _fixture.VerifyIsTransferSender(false);
+            Assert.That(Result.IsTransferReceiver, Is.EqualTo(isReceiver));
         }
 
-        [Test]
-        public async Task When_Getting_Transfer_Status_Then_IsReceiver_Is_True_When_Employer_Is_Transfer_Receiver()
+        public GetAccountTransferStatusQueryHandlerTestsFixture WithNoActiveApprenticeshipsForEmployer()
         {
-            _fixture.WithEmployerAsTransferReceiver();
-            await _fixture.Handle();
-            _fixture.VerifyIsTransferReceiver(true);
+            // This line is required.
+            // ReSharper disable once ObjectCreationAsStatement
+            new UnitOfWorkContext();
+
+            var apprenticeships = new List<Apprenticeship>();
+
+            var cohort = new Cohort
+            {
+                Id = _autoFixture.Create<long>(),
+                AccountLegalEntity = AccountLegalEntity,
+                EmployerAccountId = Query.AccountId,
+                ProviderId = Provider.UkPrn,
+                Provider = Provider,
+                ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy,
+                TransferSenderId = Query.AccountId
+            };
+
+            apprenticeships.Add(new Apprenticeship
+            {
+                Id = _autoFixture.Create<int>(),
+                CommitmentId = cohort.Id,
+                Cohort = cohort,
+                PaymentStatus = PaymentStatus.Withdrawn
+            });
+
+            apprenticeships.Add(new Apprenticeship
+            {
+                Id = _autoFixture.Create<int>(),
+                CommitmentId = cohort.Id,
+                Cohort = cohort,
+                PaymentStatus = PaymentStatus.Completed
+            });
+
+            Db.Apprenticeships.AddRange(apprenticeships);
+            Db.SaveChanges();
+
+            return this;
         }
 
-        [Test]
-        public async Task When_Getting_Transfer_Status_Then_IsReceiver_Is_False_When_Employer_Is_Not_Transfer_Receiver()
+        public GetAccountTransferStatusQueryHandlerTestsFixture WithEmployerAsTransferSender()
         {
-            _fixture.WithNoActiveApprenticeshipsForEmployer();
-            await _fixture.Handle();
-            _fixture.VerifyIsTransferReceiver(false);
+            // This line is required.
+            // ReSharper disable once ObjectCreationAsStatement
+            new UnitOfWorkContext();
+
+            var apprenticeships = new List<Apprenticeship>();
+
+            var cohort = new Cohort
+            {
+                Id = _autoFixture.Create<long>(),
+                AccountLegalEntity = AccountLegalEntity,
+                EmployerAccountId = _autoFixture.Create<long>(),
+                ProviderId = Provider.UkPrn,
+                Provider = Provider,
+                ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy,
+                TransferSenderId = Query.AccountId
+            };
+
+            var apprenticeship = new Apprenticeship
+            {
+                Id = _autoFixture.Create<int>(),
+                CommitmentId = cohort.Id,
+                Cohort = cohort,
+                PaymentStatus = PaymentStatus.Active
+            };
+
+            apprenticeships.Add(apprenticeship);
+
+            Db.Apprenticeships.AddRange(apprenticeships);
+            Db.SaveChanges();
+
+            return this;
         }
 
-
-        public class GetAccountTransferStatusQueryHandlerTestsFixture : IDisposable
+        public GetAccountTransferStatusQueryHandlerTestsFixture WithEmployerAsTransferReceiver()
         {
-            public ProviderCommitmentsDbContext Db { get; set; }
-            public Mock<IAuthenticationService> AuthenticationServiceMock { get; set; }
-            public GetAccountTransferStatusQueryHandler Handler { get; set; }
-            private readonly Fixture _autoFixture = new Fixture();
+            // This line is required.
+            // ReSharper disable once ObjectCreationAsStatement
+            new UnitOfWorkContext();
 
-            public GetAccountTransferStatusQuery Query { get; set; }
-            private GetAccountTransferStatusQueryResult Result { get; set; }
+            var apprenticeships = new List<Apprenticeship>();
 
-            public Provider Provider { get; set; }
-            public Account Account { get; set; }
-            public AccountLegalEntity AccountLegalEntity { get; set; }
-
-            public GetAccountTransferStatusQueryHandlerTestsFixture()
+            var cohort = new Cohort
             {
-                AuthenticationServiceMock = new Mock<IAuthenticationService>();
-                Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options);
-                Handler = new GetAccountTransferStatusQueryHandler(
-                    new Lazy<ProviderCommitmentsDbContext>(() => Db));
+                Id = _autoFixture.Create<long>(),
+                AccountLegalEntity = AccountLegalEntity,
+                EmployerAccountId = Query.AccountId,
+                ProviderId = Provider.UkPrn,
+                Provider = Provider,
+                ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy,
+                TransferSenderId = _autoFixture.Create<long>()
+            };
 
-                Query = _autoFixture.Create<GetAccountTransferStatusQuery>();
-
-                Provider = new Provider
-                {
-                    UkPrn = _autoFixture.Create<long>(),
-                    Name = _autoFixture.Create<string>()
-                };
-
-                Account = new Account(0, "", "", "", DateTime.UtcNow);
-
-                AccountLegalEntity = new AccountLegalEntity(Account,
-                    1,
-                    0,
-                    "",
-                    publicHashedId: _autoFixture.Create<string>(),
-                    _autoFixture.Create<string>(),
-                    OrganisationType.PublicBodies,
-                    "",
-                    DateTime.UtcNow);
-
-            }
-
-            public async Task Handle()
+            var apprenticeship = new Apprenticeship
             {
-                Result = await Handler.Handle(Query, CancellationToken.None);
-            }
+                Id = _autoFixture.Create<int>(),
+                CommitmentId = cohort.Id,
+                Cohort = cohort,
+                PaymentStatus = PaymentStatus.Active
+            };
 
-            public void VerifyIsTransferSender(bool isSender)
-            {
-                Assert.That(Result.IsTransferSender, Is.EqualTo(isSender));
-            }
+            apprenticeships.Add(apprenticeship);
 
-            public void VerifyIsTransferReceiver(bool isReceiver)
-            {
-                Assert.That(Result.IsTransferReceiver, Is.EqualTo(isReceiver));
-            }
+            Db.Apprenticeships.AddRange(apprenticeships);
+            Db.SaveChanges();
 
-            public GetAccountTransferStatusQueryHandlerTestsFixture WithNoActiveApprenticeshipsForEmployer()
-            {
-                // This line is required.
-                // ReSharper disable once ObjectCreationAsStatement
-                new UnitOfWorkContext();
+            return this;
+        }
 
-                var apprenticeships = new List<Apprenticeship>();
-
-                var cohort = new Cohort
-                {
-                    Id = _autoFixture.Create<long>(),
-                    AccountLegalEntity = AccountLegalEntity,
-                    EmployerAccountId = Query.AccountId,
-                    ProviderId = Provider.UkPrn,
-                    Provider = Provider,
-                    ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy,
-                    TransferSenderId = Query.AccountId
-                };
-
-                apprenticeships.Add(new Apprenticeship
-                {
-                    Id = _autoFixture.Create<int>(),
-                    CommitmentId = cohort.Id,
-                    Cohort = cohort,
-                    PaymentStatus = PaymentStatus.Withdrawn
-                });
-
-                apprenticeships.Add(new Apprenticeship
-                {
-                    Id = _autoFixture.Create<int>(),
-                    CommitmentId = cohort.Id,
-                    Cohort = cohort,
-                    PaymentStatus = PaymentStatus.Completed
-                });
-
-                Db.Apprenticeships.AddRange(apprenticeships);
-                Db.SaveChanges();
-
-                return this;
-            }
-
-            public GetAccountTransferStatusQueryHandlerTestsFixture WithEmployerAsTransferSender()
-            {
-                // This line is required.
-                // ReSharper disable once ObjectCreationAsStatement
-                new UnitOfWorkContext();
-
-                var apprenticeships = new List<Apprenticeship>();
-
-                var cohort = new Cohort
-                {
-                    Id = _autoFixture.Create<long>(),
-                    AccountLegalEntity = AccountLegalEntity,
-                    EmployerAccountId = _autoFixture.Create<long>(),
-                    ProviderId = Provider.UkPrn,
-                    Provider = Provider,
-                    ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy,
-                    TransferSenderId = Query.AccountId
-                };
-
-                var apprenticeship = new Apprenticeship
-                {
-                    Id = _autoFixture.Create<int>(),
-                    CommitmentId = cohort.Id,
-                    Cohort = cohort,
-                    PaymentStatus = PaymentStatus.Active
-                };
-
-                apprenticeships.Add(apprenticeship);
-
-                Db.Apprenticeships.AddRange(apprenticeships);
-                Db.SaveChanges();
-
-                return this;
-            }
-
-            public GetAccountTransferStatusQueryHandlerTestsFixture WithEmployerAsTransferReceiver()
-            {
-                // This line is required.
-                // ReSharper disable once ObjectCreationAsStatement
-                new UnitOfWorkContext();
-
-                var apprenticeships = new List<Apprenticeship>();
-
-                var cohort = new Cohort
-                {
-                    Id = _autoFixture.Create<long>(),
-                    AccountLegalEntity = AccountLegalEntity,
-                    EmployerAccountId = Query.AccountId,
-                    ProviderId = Provider.UkPrn,
-                    Provider = Provider,
-                    ApprenticeshipEmployerTypeOnApproval = ApprenticeshipEmployerType.Levy,
-                    TransferSenderId = _autoFixture.Create<long>()
-                };
-
-                var apprenticeship = new Apprenticeship
-                {
-                    Id = _autoFixture.Create<int>(),
-                    CommitmentId = cohort.Id,
-                    Cohort = cohort,
-                    PaymentStatus = PaymentStatus.Active
-                };
-
-                apprenticeships.Add(apprenticeship);
-
-                Db.Apprenticeships.AddRange(apprenticeships);
-                Db.SaveChanges();
-
-                return this;
-            }
-
-            public void Dispose()
-            {
-                Db?.Dispose();
-                GC.SuppressFinalize(this);
-            }
+        public void Dispose()
+        {
+            Db?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

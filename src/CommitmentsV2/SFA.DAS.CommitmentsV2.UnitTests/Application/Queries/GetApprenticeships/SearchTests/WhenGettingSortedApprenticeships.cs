@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             {
                 //Assert
                 Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
-                Assert.That(actual.Apprenticeships.Contains(apprenticeships[1]), Is.False);
+                Assert.That(actual.Apprenticeships, Does.Not.Contain(apprenticeships[1]));
             });
         }
 
@@ -88,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             {
                 //Assert
                 Assert.That(actual.Apprenticeships.Count(), Is.EqualTo(apprenticeships.Count - 1));
-                Assert.That(actual.Apprenticeships.Contains(apprenticeships[1]), Is.False);
+                Assert.That(actual.Apprenticeships, Does.Not.Contain(apprenticeships[1]));
             });
         }
 

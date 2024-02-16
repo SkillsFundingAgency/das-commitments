@@ -164,13 +164,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
         [Test]
         public void LogIdIsMappedCorrectly()
         {
-            Assert.That(_source.LogId == _result.LogId, Is.True);
+            Assert.That(_source.LogId, Is.EqualTo(_result.LogId));
         }
 
         [Test]
         public void ProviderActionIsCreatedCorrectly()
         {
-            Assert.That("SaveAsDraft" == _result.ProviderAction, Is.True);
+            Assert.That("SaveAsDraft", Is.EqualTo(_result.ProviderAction));
         }
     }
 }

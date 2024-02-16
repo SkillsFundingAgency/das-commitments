@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllCohortAccoun
             var result = await fixture.Handle();
 
             result.Should().NotBeNull();
-            result.AccountIds.Count().Should().Be(2);
+            result.AccountIds.Count.Should().Be(2);
             result.AccountIds[0].Should().Be(1);
             result.AccountIds[1].Should().Be(2);
         }

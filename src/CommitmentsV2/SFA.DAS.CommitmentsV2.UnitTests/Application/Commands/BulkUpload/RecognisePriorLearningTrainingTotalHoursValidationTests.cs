@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             var errors = await fixture.Handle();
             var domainErrors = errors.BulkUploadValidationErrors.SelectMany(x => x.Errors).ToList();
 
-            domainErrors.Count().Should().BeGreaterThan(0);
+            domainErrors.Count.Should().BeGreaterThan(0);
             domainErrors.Any(e =>
                 e.Property == "TrainingTotalHours" &&
                 e.ErrorText == error).Should().Be(true);

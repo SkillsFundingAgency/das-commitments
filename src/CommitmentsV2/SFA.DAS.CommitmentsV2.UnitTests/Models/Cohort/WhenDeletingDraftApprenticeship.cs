@@ -175,14 +175,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             {
                 Assert.Multiple(() =>
                 {
-                    Assert.That(Cohort.DraftApprenticeships.Contains(DeletionTarget), Is.False);
+                    Assert.That(Cohort.DraftApprenticeships, Does.Not.Contain(DeletionTarget));
                     Assert.That(Cohort.DraftApprenticeships.Count(), Is.EqualTo(CohortSize - 1));
                 });
             }
 
             public void VerifyCohortIsUnapprovedByAllParties()
             {
-                Assert.That(Cohort.Approvals == Party.None, Is.True);
+                Assert.That(Cohort.Approvals, Is.EqualTo(Party.None));
             }
 
             public void VerifyCohortIsDeleted()

@@ -469,11 +469,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             }
         }
 
-        DateTime? TryParseNullableDateTime(string date)
+        private static DateTime? TryParseNullableDateTime(string date)
         {
             return DateTime.TryParse(date, out var parsed)
                 ? parsed
-                : (DateTime?)null;
+                : null;
         }
     }
 

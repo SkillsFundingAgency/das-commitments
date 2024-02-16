@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
                     if (cohortSummary == null)
                     {
-                        _logger.LogError($"CohortSummary is null for cohortId {message?.CohortId}");
+                        _logger.LogError($"CohortSummary is null for cohortId {message.CohortId}");
                         return;
                     }
                     if (cohortSummary.ChangeOfPartyRequestId.HasValue) return;
