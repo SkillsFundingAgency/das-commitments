@@ -27,7 +27,7 @@ public class ApprenticeshipMapper : IApprenticeshipMapper
     {
         return new UlnSummaryViewModel
         {
-            Uln = response.Apprenticeships.First().Uln,
+            Uln = response.Apprenticeships[0].Uln,
             ApprenticeshipsCount = response.Apprenticeships.Count,
             SearchResults = response.Apprenticeships.Select(MapToApprenticeshipSearchItemViewModel).OrderBy(a => a.ApprenticeName).ToList()
         };
@@ -35,7 +35,7 @@ public class ApprenticeshipMapper : IApprenticeshipMapper
 
     public ApprenticeshipViewModel MapToApprenticeshipViewModel(GetSupportApprenticeshipQueryResult response, GetChangeOfProviderChainQueryResult providerChainQueryResult)
     {
-        var apprenticeship = response.Apprenticeships.First();
+        var apprenticeship = response.Apprenticeships[0];
 
         var (paymentStatusText, paymentStatusTagColour) = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate);
 
@@ -143,7 +143,7 @@ public class ApprenticeshipMapper : IApprenticeshipMapper
             throw new MultipleUpdatesFoundException();
         }
 
-        var update = apprenticeships.ApprenticeshipUpdates.First();
+        var update = apprenticeships.ApprenticeshipUpdates.ToList()[0];
 
         var result = new ApprenticeshipUpdateViewModel
         {
