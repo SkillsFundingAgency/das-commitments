@@ -87,7 +87,7 @@ public class OldMapperTester<TFrom, TTo>
         return memberExpression.Member as PropertyInfo;
     }
 
-    private (PropertyInfo fromProperty, PropertyInfo toProperty) GetSameProperties<TProp, TValue>(Expression<Func<TFrom, TProp>> property, TValue fromValue)
+    private static (PropertyInfo fromProperty, PropertyInfo toProperty) GetSameProperties<TProp, TValue>(Expression<Func<TFrom, TProp>> property, TValue fromValue)
     {
         var fromProperty = GetPropertyInfo(property);
 
@@ -103,7 +103,7 @@ public class OldMapperTester<TFrom, TTo>
         return (fromProperty, toProperty);
     }
 
-    private (PropertyInfo fromProperty, PropertyInfo toProperty) GetDifferentProperties<TProp, TValue>(
+    private static (PropertyInfo fromProperty, PropertyInfo toProperty) GetDifferentProperties<TProp, TValue>(
         Expression<Func<TFrom, TProp>> from,
         Expression<Func<TTo, TProp>> to,
         TValue fromValue)

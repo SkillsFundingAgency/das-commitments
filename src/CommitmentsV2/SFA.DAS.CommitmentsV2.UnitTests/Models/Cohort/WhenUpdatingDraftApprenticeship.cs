@@ -22,18 +22,18 @@ public class WhenUpdatingDraftApprenticeship
 
         // arrange
         var originalDraft = fixtures.Create();
-        var modifiedDraft = fixtures.UpdatePropertiesWithNewValues(originalDraft);
-        var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
+        var modifiedDraft = CohortTestFixtures.UpdatePropertiesWithNewValues(originalDraft);
+        var modifiedDraftDetails = CohortTestFixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
 
-        var c = new CommitmentsV2.Models.Cohort {WithParty = Party.Provider, ProviderId = 1};
-        c.Apprenticeships.Add(originalDraft);
+        var cohort = new CommitmentsV2.Models.Cohort {WithParty = Party.Provider, ProviderId = 1};
+        cohort.Apprenticeships.Add(originalDraft);
 
         // Act
-        c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo);
+        cohort.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo);
 
         // Assert
-        var savedDraft = c.DraftApprenticeships.Single(a => a.Id == modifiedDraft.Id);
-        fixtures.AssertSameProperties(modifiedDraft, savedDraft);
+        var savedDraft = cohort.DraftApprenticeships.Single(a => a.Id == modifiedDraft.Id);
+        CohortTestFixtures.AssertSameProperties(modifiedDraft, savedDraft);
     }
 
     [Test]
@@ -43,15 +43,15 @@ public class WhenUpdatingDraftApprenticeship
 
         // arrange
         var originalDraft = fixtures.Create();
-        var modifiedDraft = fixtures.UpdatePropertiesWithNewValues(originalDraft);
-        var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
+        var modifiedDraft = CohortTestFixtures.UpdatePropertiesWithNewValues(originalDraft);
+        var modifiedDraftDetails = CohortTestFixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
         modifiedDraftDetails.StartDate = modifiedDraftDetails.EndDate.Value.AddMonths(1);
 
-        var c = new CommitmentsV2.Models.Cohort {WithParty = Party.Provider, ProviderId = 1};
-        c.Apprenticeships.Add(originalDraft);
+        var cohort = new CommitmentsV2.Models.Cohort {WithParty = Party.Provider, ProviderId = 1};
+        cohort.Apprenticeships.Add(originalDraft);
 
         // Act
-        Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo));
+        Assert.Throws<DomainException>(() => cohort.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo));
     }
 }
 
@@ -83,7 +83,7 @@ internal class CohortTestFixtures
         }, Party.Provider);
     }
 
-    public DraftApprenticeship UpdatePropertiesWithNewValues(DraftApprenticeship draftApprenticeship)
+    public static DraftApprenticeship UpdatePropertiesWithNewValues(DraftApprenticeship draftApprenticeship)
     {
         return new DraftApprenticeship(new DraftApprenticeshipDetails
         {
@@ -98,7 +98,7 @@ internal class CohortTestFixtures
         }, Party.Provider);
     }
 
-    public DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship, Party modificationParty)
+    public static DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship, Party modificationParty)
     {
         return new DraftApprenticeshipDetails
         {
@@ -119,7 +119,7 @@ internal class CohortTestFixtures
         };
     }
 
-    public void AssertSameProperties(DraftApprenticeship expected, DraftApprenticeship actual)
+    public static void AssertSameProperties(DraftApprenticeship expected, DraftApprenticeship actual)
     {
         AssertSameProperty(expected, actual, da => da.StartDate);
         AssertSameProperty(expected, actual, da => da.DateOfBirth);
@@ -136,7 +136,7 @@ internal class CohortTestFixtures
     private static void AssertSameProperty<P>(DraftApprenticeship expected, DraftApprenticeship actual, Expression<Func<DraftApprenticeship, P>> action)
     {
         var expression = (MemberExpression) action.Body;
-        string name = expression.Member.Name;
+        var name = expression.Member.Name;
 
         var propertyInfo = expression.Member as PropertyInfo;
 

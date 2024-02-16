@@ -11,9 +11,6 @@
         public static string Features => $"{CommitmentsV2}:Features";
         public static string RedisConnectionString => $"{CommitmentsV2}:RedisConnectionString";
         public static string EncodingConfiguration => "SFA.DAS.Encoding";
-        
-        // TODO Remove
-        //public static string PasAccountApiClient => PAS.Account.Api.ClientV2.Configuration.ConfigurationKeys.PasAccountApiClient;
         public static string ApprovalsOuterApiConfiguration => $"{CommitmentsV2}:ApprovalsOuterApiConfiguration";
         public static string EmailOptionalConfiguration => $"{CommitmentsV2}:EmailOptionalConfiguration";
         public static string LevyTransferMatchingApiConfiguration => $"{CommitmentsV2}:LevyTransferMatchingInnerApiConfiguration";

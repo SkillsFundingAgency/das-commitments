@@ -30,6 +30,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.ReservationsV2.Api.Client;
 using System;
+using System.Globalization;
 using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -58,7 +59,7 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddReservationsApiClient(this IServiceCollection services)
     {
         services.AddTransient<IReservationsApiClientFactory, ReservationsApiClientFactory>();
-        services.AddSingleton(s=> (s.GetRequiredService<IReservationsApiClientFactory>()).CreateClient());
+        services.AddSingleton(s=> s.GetRequiredService<IReservationsApiClientFactory>().CreateClient());
 
         return services;
     }

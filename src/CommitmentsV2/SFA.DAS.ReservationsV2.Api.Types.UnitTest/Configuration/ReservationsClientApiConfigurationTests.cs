@@ -1,37 +1,36 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 
-namespace SFA.DAS.Reservations.Api.Types.UnitTests.Configuration
+namespace SFA.DAS.ReservationsV2.Api.Types.UnitTests.Configuration;
+
+[TestFixture]
+[Parallelizable(ParallelScope.All)]
+public class ReservationsClientApiConfigurationTests
 {
-    [TestFixture]
-    [Parallelizable(ParallelScope.All)]
-    public class ReservationsClientApiConfigurationTests
+    private const string NonStubBase = "https://somehost.gov.uk";
+
+    [Test]
+    public void EffectiveApiBaseUrl_UseStub_ShouldBeSetToStub()
     {
-        private const string NonStubBase = "https://somehost.gov.uk";
+        var config = CreateConfiguration(true);
 
-        [Test]
-        public void EffectiveApiBaseUrl_UseStub_ShouldBeSetToStub()
+        Assert.That(config.EffectiveApiBaseUrl, Is.EqualTo(ReservationsClientApiConfiguration.StubBase));
+    }
+
+    [Test]
+    public void EffectiveApiBaseUrl_DoNotUseStub_ShouldBeSetToConfiguredApi()
+    {
+        var config = CreateConfiguration(false);
+
+        Assert.That(config.EffectiveApiBaseUrl, Is.EqualTo(NonStubBase));
+    }
+
+    private static ReservationsClientApiConfiguration CreateConfiguration(bool useStub)
+    {
+        return new ReservationsClientApiConfiguration
         {
-            var config = CreateConfiguration(true);
-
-            Assert.That(config.EffectiveApiBaseUrl, Is.EqualTo(ReservationsClientApiConfiguration.StubBase));
-        }
-
-        [Test]
-        public void EffectiveApiBaseUrl_DoNotUseStub_ShouldBeSetToConfigurtedApi()
-        {
-            var config = CreateConfiguration(false);
-
-            Assert.That(config.EffectiveApiBaseUrl, Is.EqualTo(NonStubBase));
-        }
-
-        private ReservationsClientApiConfiguration CreateConfiguration(bool useStub)
-        {
-            return new ReservationsClientApiConfiguration
-            {
-                UseStub = useStub,
-                ApiBaseUrl = NonStubBase
-            };
-        }
+            UseStub = useStub,
+            ApiBaseUrl = NonStubBase
+        };
     }
 }

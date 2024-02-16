@@ -25,11 +25,11 @@ public class DeleteDraftApprenticeshipHandler : IRequestHandler<DeleteDraftAppre
         {
             await _cohortDomainService.DeleteDraftApprenticeship(command.CohortId, command.ApprenticeshipId, command.UserInfo, cancellationToken);
 
-            _logger.LogInformation($"Deleted apprenticeShip. Apprenticeship-Id:{command.ApprenticeshipId} Cohort-Id:{command.CohortId}");
+            _logger.LogInformation("Deleted apprenticeShip. Apprenticeship-Id:{ApprenticeshipId} Cohort-Id:{CohortId}", command.ApprenticeshipId, command.CohortId);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            _logger.LogError(e, "Error Deleting Apprenticeship");
+            _logger.LogError(exception, "Error Deleting Apprenticeship");
             throw;
         }
     }

@@ -59,16 +59,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             };
         }
 
-        private AgreementStatus DetermineAgreementStatus(List<SupportApprenticeshipDetails> apprenticeships)
+        private static AgreementStatus DetermineAgreementStatus(IEnumerable<SupportApprenticeshipDetails> apprenticeships)
         {
             var first = apprenticeships?.FirstOrDefault();
 
-            if (first == null)
-            {
-                return AgreementStatus.NotAgreed;
-            }
-
-            return first.AgreementStatus;
+            return first?.AgreementStatus ?? AgreementStatus.NotAgreed;
         }
     }
 }

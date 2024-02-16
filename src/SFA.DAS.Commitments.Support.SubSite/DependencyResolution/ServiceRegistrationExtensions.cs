@@ -20,8 +20,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution;
 
 public static class ServiceRegistrationExtensions 
 {
-    private const string AzureResource = "https://database.windows.net/";
-
     public static IServiceCollection AddSupportSiteDefaultServices(this IServiceCollection services, IConfiguration config)
     {
         services.AddTransient<IApprenticeshipMapper, ApprenticeshipMapper>();
@@ -35,7 +33,6 @@ public static class ServiceRegistrationExtensions
         services.AddTransient<IEncodingService, EncodingService>();
         services.AddTransient<IEmailOptionalService, EmailOptionalService>();
         services.AddTransient<Learners.Validators.IUlnValidator, Learners.Validators.UlnValidator>();
-
 
         services.AddTransient<IMapper<Apprenticeship, SupportApprenticeshipDetails>,
                 ApprenticeshipToSupportApprenticeshipDetailsMapperMapper>();

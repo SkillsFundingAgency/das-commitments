@@ -375,7 +375,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Verify(x => x.Resolve(It.IsAny<long?>(), It.IsAny<long?>(), Types.OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped), Times.Once);
         }
 
-        private bool VerifyTokens(Dictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
+        private static bool VerifyTokens(IDictionary<string, string> actualTokens, Dictionary<string, string> expectedTokens)
         {
             actualTokens.Should().BeEquivalentTo(expectedTokens);
             return true;

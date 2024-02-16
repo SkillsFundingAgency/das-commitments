@@ -138,9 +138,9 @@ public class ApprenticeshipMapper : IApprenticeshipMapper
             return null;
         }
 
-        if (apprenticeships?.ApprenticeshipUpdates?.Count > 1)
+        if (apprenticeships.ApprenticeshipUpdates?.Count > 1)
         {
-            throw new Exception("Multiple updates found");
+            throw new MultipleUpdatesFoundException();
         }
 
         var update = apprenticeships.ApprenticeshipUpdates.First();
@@ -203,4 +203,9 @@ public class ApprenticeshipMapper : IApprenticeshipMapper
 
         return null;
     }
+}
+
+public class MultipleUpdatesFoundException : Exception
+{
+    public MultipleUpdatesFoundException(): base("Multiple updates found") { }
 }
