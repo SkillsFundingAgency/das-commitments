@@ -19,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.NServiceBus.Services;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 
@@ -86,35 +87,57 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             .SetApprovedApprenticeshipAsContinuation()
             .Handle();
 
-        fixture.Apprenticeships.ForEach(
-            a => fixture.EventPublisher.Verify(
-                p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                    e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
-                Times.Once));
-    }
-}
-
-public class ProcessFullyApprovedCohortCommandFixture
-{
-    public IFixture AutoFixture { get; set; }
-    public ProcessFullyApprovedCohortCommand Command { get; set; }
-    public Mock<IAccountApiClient> AccountApiClient { get; set; }
-    public Mock<ProviderCommitmentsDbContext> Db { get; set; }
-    public Mock<IEventPublisher> EventPublisher { get; set; }
-    public List<Apprenticeship> Apprenticeships { get; set; }
-    public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
-    public long PreviousApprenticeshipId { get; set; }
+            fixture.Apprenticeships.ForEach(
+                a => fixture.EventPublisher.Verify(
+                    p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
+                        e => e.ContinuationOfId == fixture.PreviousApprenticeshipId)),
+                    Times.Once));
+        }
         
-    public ProcessFullyApprovedCohortCommandFixture()
+        [Test]
+        public void Handle_WhenHandlingCommandForFlexiPaymentScenario_ThenShouldPublishPriceBreakdown()
+        {
+            var fixture = new ProcessFullyApprovedCohortCommandFixture();
+            fixture.SetApprenticeshipEmployerType(ApprenticeshipEmployerType.Levy)
+                .SetApprovedApprenticeships(false)
+                .Handle();
+            
+            fixture.Apprenticeships.ForEach(
+                a => fixture.EventPublisher.Verify(
+                    p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
+                        e => fixture.IsValidCostBreakdown(a, e))),
+                    Times.Once));
+        }
+    }
+
+    public class ProcessFullyApprovedCohortCommandFixture
     {
-        AutoFixture = new Fixture();
-        Command = AutoFixture.Create<ProcessFullyApprovedCohortCommand>();
-        Command.SetValue(x => x.ChangeOfPartyRequestId, default(long?));
-        AccountApiClient = new Mock<IAccountApiClient>();
-        Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false)).Options) { CallBase = true };
-        EventPublisher = new Mock<IEventPublisher>();
-        Apprenticeships = new List<Apprenticeship>();
-        Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
+        public IFixture AutoFixture { get; set; }
+        public ProcessFullyApprovedCohortCommand Command { get; set; }
+        public Mock<IAccountApiClient> AccountApiClient { get; set; }
+        public Mock<ProviderCommitmentsDbContext> Db { get; set; }
+        public Mock<IEventPublisher> EventPublisher { get; set; }
+        public Mock<IEncodingService> EncodingService { get; set; }
+        public List<Apprenticeship> Apprenticeships { get; set; }
+        public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
+        public long PreviousApprenticeshipId { get; set; }
+        public string ExpectedApprenticeshipHashedId { get; set; }
+        
+
+
+        public ProcessFullyApprovedCohortCommandFixture()
+        {
+            AutoFixture = new Fixture();
+            EncodingService = new Mock<IEncodingService>();
+            ExpectedApprenticeshipHashedId = AutoFixture.Create<string>();
+            EncodingService.Setup(x => x.Encode(It.IsAny<long>(), It.IsAny<EncodingType>())).Returns(ExpectedApprenticeshipHashedId);
+            Command = AutoFixture.Create<ProcessFullyApprovedCohortCommand>();
+            Command.SetValue(x => x.ChangeOfPartyRequestId, default(long?));
+            AccountApiClient = new Mock<IAccountApiClient>();
+            Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
+            EventPublisher = new Mock<IEventPublisher>();
+            Apprenticeships = new List<Apprenticeship>();
+            Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object, EncodingService.Object, Mock.Of<ILogger<ProcessFullyApprovedCohortCommandHandler>>());
             
         AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
         Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<object[]>())).Returns(Task.CompletedTask);
@@ -268,6 +291,12 @@ public class ProcessFullyApprovedCohortCommandFixture
         }
             
         return isValid;
+    }
+
+    public bool IsValidCostBreakdown(Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+    {
+        var priceEpisode = apprenticeshipCreatedEvent.PriceEpisodes.First();
+        return priceEpisode.TrainingPrice == apprenticeship.TrainingPrice && priceEpisode.EndPointAssessmentPrice == apprenticeship.EndPointAssessmentPrice;
     }
 
     public bool IsValidChangeOfPartyEvent(Apprenticeship apprenticeship, ApprenticeshipWithChangeOfPartyCreatedEvent changeOfPartyCreatedEvent)
