@@ -42,11 +42,22 @@ public class GetSupportCohortSummaryHandler : IRequestHandler<GetSupportCohortSu
             LegalEntityName = cohort.AccountLegalEntity.Name,
             ProviderName = cohort.Provider.Name,
             TransferSenderId = cohort.TransferSenderId,
-            TransferSenderName = cohort?.TransferSender?.Name,
+            TransferSenderName = cohort.TransferSender?.Name,
             PledgeApplicationId = cohort.PledgeApplicationId,
             WithParty = cohort.WithParty,
-            LatestMessageCreatedByEmployer = cohort.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefault(),
-            LatestMessageCreatedByProvider = cohort.Messages.OrderByDescending(m => m.CreatedDateTime).Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefault(),
+            
+            LatestMessageCreatedByEmployer = cohort.Messages
+                .Where(m => m.CreatedBy == 0)
+                .OrderByDescending(m => m.CreatedDateTime)
+                .Select(m => m.Text)
+                .FirstOrDefault(),
+            
+            LatestMessageCreatedByProvider = cohort.Messages
+                .Where(m => m.CreatedBy == 1)
+                .OrderByDescending(m => m.CreatedDateTime)
+                .Select(m => m.Text)
+                .FirstOrDefault(),
+            
             ProviderId = cohort.ProviderId,
             LastAction = cohort.LastAction,
             LastUpdatedByEmployerEmail = cohort.LastUpdatedByEmployerEmail,

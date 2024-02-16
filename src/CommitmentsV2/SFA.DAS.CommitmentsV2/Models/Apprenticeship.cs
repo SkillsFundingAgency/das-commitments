@@ -226,12 +226,10 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     public void ReplacePriceHistory(Party party, List<PriceHistory> currentPriceHistory, List<PriceHistory> updatedPriceHistory, UserInfo userInfo)
     {
         StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
-        foreach (var priceHistory in currentPriceHistory)
+        
+        foreach (var priceHistory in currentPriceHistory.Where(priceHistory => updatedPriceHistory.All(x => x.Cost != priceHistory.Cost)))
         {
-            if (updatedPriceHistory.All(x => x.Cost != priceHistory.Cost))
-            {
-                ChangeTrackingSession.TrackDelete(priceHistory);
-            }
+            ChangeTrackingSession.TrackDelete(priceHistory);
         }
 
         ChangeTrackingSession.CompleteTrackingSession();
@@ -239,7 +237,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
         StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
         foreach (var priceHistory in updatedPriceHistory)
         {
-            var changedPriceHistory = currentPriceHistory.FirstOrDefault(x => x.Cost == priceHistory.Cost && x.FromDate == priceHistory.FromDate);
+            var changedPriceHistory = currentPriceHistory.Find(x => x.Cost == priceHistory.Cost && x.FromDate == priceHistory.FromDate);
 
             if (changedPriceHistory != null)
             {

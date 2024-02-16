@@ -32,7 +32,7 @@ public static class NServiceBusServiceRegistrations
 
         if (string.IsNullOrEmpty(databaseConnectionString))
         {
-            throw new Exception("DatabaseConnectionString");
+            throw new ApplicationException("DatabaseConnectionString");
         }
 
         var endpointConfiguration = new EndpointConfiguration(endPointName)

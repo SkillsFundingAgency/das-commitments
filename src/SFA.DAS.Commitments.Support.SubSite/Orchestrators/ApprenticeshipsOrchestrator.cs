@@ -68,10 +68,11 @@ public class ApprenticeshipsOrchestrator : IApprenticeshipsOrchestrator
         var apprenticeshipProviders = await _mediator.Send(new GetChangeOfProviderChainQuery(apprenticeshipId), CancellationToken.None);
 
         var result = _apprenticeshipMapper.MapToApprenticeshipViewModel(response, apprenticeshipProviders);
-        result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships.First());
+        result.ApprenticeshipUpdates = _apprenticeshipMapper.MapToUpdateApprenticeshipViewModel(apprenticeshipUpdate, response.Apprenticeships[0]);
 
-        var overlappingTrainingDateRequest = (await _mediator.Send(new GetOverlappingTrainingDateRequestQuery(apprenticeshipId), CancellationToken.None))?.OverlappingTrainingDateRequests?.
-            Where(x => x.Status == OverlappingTrainingDateRequestStatus.Pending).FirstOrDefault();
+        var overlappingTrainingDateRequestQueryResult = await _mediator.Send(new GetOverlappingTrainingDateRequestQuery(apprenticeshipId), CancellationToken.None);
+        var overlappingTrainingDateRequest = overlappingTrainingDateRequestQueryResult?.OverlappingTrainingDateRequests?.
+            FirstOrDefault(x => x.Status == OverlappingTrainingDateRequestStatus.Pending);
         
         result.OverlappingTrainingDateRequest = _apprenticeshipMapper.MapToOverlappingTrainingDateRequest(overlappingTrainingDateRequest);
 

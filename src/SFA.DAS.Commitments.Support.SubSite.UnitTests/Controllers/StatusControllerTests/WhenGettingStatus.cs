@@ -5,24 +5,23 @@ using SFA.DAS.Commitments.Support.SubSite.GlobalConstants;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using System.Collections.Generic;
 
-namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.StatusControllerTests
+namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.StatusControllerTests;
+
+[TestFixture]
+public class WhenGettingStatus
 {
-    [TestFixture]
-    public class WhenGettingStatus
+    [Test]
+    public void ShouldReturnStatusModel()
     {
-        [Test]
-        public void ShouldReturnStatusModel()
-        {
-            var sut = new StatusController();
-            var viewResult = sut.Get();
+        var sut = new StatusController();
+        var viewResult = sut.Get();
 
-            Assert.That(viewResult.GetType(), Is.EqualTo(typeof(OkObjectResult)));
-            var objectResult = (OkObjectResult)viewResult;
-            Assert.That(objectResult.StatusCode, Is.EqualTo(200));
+        Assert.That(viewResult.GetType(), Is.EqualTo(typeof(OkObjectResult)));
+        var objectResult = (OkObjectResult)viewResult;
+        Assert.That(objectResult.StatusCode, Is.EqualTo(200));
 
-            var result = objectResult.Value as ServiceStatusViewModel;
-            Assert.IsNotNull(result);
-            Assert.That(result.ServiceName, Is.EqualTo(ApplicationConstants.ServiceName));
-        }
+        var result = objectResult.Value as ServiceStatusViewModel;
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.ServiceName, Is.EqualTo(ApplicationConstants.ServiceName));
     }
 }
