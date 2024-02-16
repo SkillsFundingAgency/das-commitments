@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             _fixture.SeedData().WithNoMatchingApprenticeship();
             var result = await _fixture.Handle();
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DataLocks.Count, Is.EqualTo(0));
+            Assert.That(result.DataLocks, Is.Empty);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             await _fixture.SeedData().ExpireTheDataLockRecords();
             var result = await _fixture.Handle();
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DataLocks.Count, Is.EqualTo(0));
+            Assert.That(result.DataLocks, Is.Empty);
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
             await _fixture.SeedData().SetEventStatusRemoved();
             var result = await _fixture.Handle();
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DataLocks.Count, Is.EqualTo(0));
+            Assert.That(result.DataLocks, Is.Empty);
         }
 
         public class GetDataLocksQueryHandlerTestsFixture : IDisposable
@@ -149,7 +149,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
 
             public void VerifyResultMapping(int resultCount)
             {
-                Assert.That(_result.DataLocks.Count, Is.EqualTo(resultCount));
+                Assert.That(_result.DataLocks, Has.Count.EqualTo(resultCount));
 
                 foreach (var result in _result.DataLocks)
                 {
@@ -159,19 +159,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
 
             private static void AssertEquality(DataLockStatus source, DataLock result)
             {
-                Assert.That(result.Id, Is.EqualTo(source.Id));
-                Assert.That(result.DataLockEventDatetime, Is.EqualTo(source.DataLockEventDatetime));
-                Assert.That(result.PriceEpisodeIdentifier, Is.EqualTo(source.PriceEpisodeIdentifier));
-                Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
-                Assert.That(result.IlrTrainingCourseCode, Is.EqualTo(source.IlrTrainingCourseCode));
-                Assert.That(result.IlrActualStartDate, Is.EqualTo(source.IlrActualStartDate));
-                Assert.That(result.IlrEffectiveFromDate, Is.EqualTo(source.IlrEffectiveFromDate));
-                Assert.That(result.IlrPriceEffectiveToDate, Is.EqualTo(source.IlrPriceEffectiveToDate));
-                Assert.That(result.IlrTotalCost, Is.EqualTo(source.IlrTotalCost));
-                Assert.That(result.ErrorCode, Is.EqualTo(source.ErrorCode));
-                Assert.That(result.DataLockStatus, Is.EqualTo(source.Status));
-                Assert.That(result.TriageStatus, Is.EqualTo(source.TriageStatus));
-                Assert.That(result.IsResolved, Is.EqualTo(source.IsResolved));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result.Id, Is.EqualTo(source.Id));
+                    Assert.That(result.DataLockEventDatetime, Is.EqualTo(source.DataLockEventDatetime));
+                    Assert.That(result.PriceEpisodeIdentifier, Is.EqualTo(source.PriceEpisodeIdentifier));
+                    Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
+                    Assert.That(result.IlrTrainingCourseCode, Is.EqualTo(source.IlrTrainingCourseCode));
+                    Assert.That(result.IlrActualStartDate, Is.EqualTo(source.IlrActualStartDate));
+                    Assert.That(result.IlrEffectiveFromDate, Is.EqualTo(source.IlrEffectiveFromDate));
+                    Assert.That(result.IlrPriceEffectiveToDate, Is.EqualTo(source.IlrPriceEffectiveToDate));
+                    Assert.That(result.IlrTotalCost, Is.EqualTo(source.IlrTotalCost));
+                    Assert.That(result.ErrorCode, Is.EqualTo(source.ErrorCode));
+                    Assert.That(result.DataLockStatus, Is.EqualTo(source.Status));
+                    Assert.That(result.TriageStatus, Is.EqualTo(source.TriageStatus));
+                    Assert.That(result.IsResolved, Is.EqualTo(source.IsResolved));
+                });
             }
 
             public void Dispose()

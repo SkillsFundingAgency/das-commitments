@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetRplDataExtended(true);
-            fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 100, priceReducedBy: 10, trainingTotalHours: trainingTotalHours, trainingHoursReduction: 10, isDurationReducedByRPL: true);
+            fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 100, priceReducedBy: 10, trainingTotalHours: trainingTotalHours, trainingHoursReduction: 10, isDurationReducedByRpl: true);
 
             var errors = await fixture.Handle();
             var domainErrors = errors.BulkUploadValidationErrors.SelectMany(x => x.Errors).ToList();

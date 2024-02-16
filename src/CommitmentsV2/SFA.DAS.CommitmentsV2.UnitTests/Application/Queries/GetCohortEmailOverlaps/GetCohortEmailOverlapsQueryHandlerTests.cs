@@ -22,11 +22,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortEmailOver
             var fixtures = new GetCohortEmailOverlapsQueryHandlerTestFixtures();
             var result = await fixtures.GetResult(new GetCohortEmailOverlapsQuery(123));
 
-            Assert.That(result.Overlaps.Count, Is.EqualTo(fixtures.OverlapResults.Count));
-            Assert.That(result.Overlaps[0].Id, Is.EqualTo(fixtures.OverlapResults[0].RowId));
-            Assert.That(result.Overlaps[0].ErrorMessage, Is.EqualTo(fixtures.OverlapResults[0].BuildErrorMessage()));
-            Assert.That(result.Overlaps[1].Id, Is.EqualTo(fixtures.OverlapResults[1].RowId));
-            Assert.That(result.Overlaps[1].ErrorMessage, Is.EqualTo(fixtures.OverlapResults[1].BuildErrorMessage()));
+            Assert.That(result.Overlaps, Has.Count.EqualTo(fixtures.OverlapResults.Count));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Overlaps[0].Id, Is.EqualTo(fixtures.OverlapResults[0].RowId));
+                Assert.That(result.Overlaps[0].ErrorMessage, Is.EqualTo(fixtures.OverlapResults[0].BuildErrorMessage()));
+                Assert.That(result.Overlaps[1].Id, Is.EqualTo(fixtures.OverlapResults[1].RowId));
+                Assert.That(result.Overlaps[1].ErrorMessage, Is.EqualTo(fixtures.OverlapResults[1].BuildErrorMessage()));
+            });
         }
     }
 

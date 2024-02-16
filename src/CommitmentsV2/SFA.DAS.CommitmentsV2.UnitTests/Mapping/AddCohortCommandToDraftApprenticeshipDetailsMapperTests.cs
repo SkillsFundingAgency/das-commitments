@@ -27,24 +27,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.Map();
 
-            Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
-            Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
-            Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
-            Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
-            Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
-            Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
-            Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
-            Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
-            Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
-            Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
-            Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
-            Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(fixture.TrainingProgrammeStandard));
-            Assert.That(draftApprenticeshipDetails.StandardUId, Is.EqualTo(fixture.TrainingProgrammeStandard.StandardUId));
-            Assert.That(draftApprenticeshipDetails.TrainingCourseVersion, Is.EqualTo(fixture.TrainingProgrammeStandard.Version));
-            Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
-            Assert.That(draftApprenticeshipDetails.EmploymentPrice, Is.EqualTo(fixture.Command.EmploymentPrice));
-            Assert.That(draftApprenticeshipDetails.EmploymentEndDate, Is.EqualTo(fixture.Command.EmploymentEndDate));
-            Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
+            Assert.Multiple(() =>
+            {
+                Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
+                Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
+                Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
+                Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
+                Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
+                Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
+                Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
+                Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
+                Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
+                Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
+                Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
+                Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(fixture.TrainingProgrammeStandard));
+                Assert.That(draftApprenticeshipDetails.StandardUId, Is.EqualTo(fixture.TrainingProgrammeStandard.StandardUId));
+                Assert.That(draftApprenticeshipDetails.TrainingCourseVersion, Is.EqualTo(fixture.TrainingProgrammeStandard.Version));
+                Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
+                Assert.That(draftApprenticeshipDetails.EmploymentPrice, Is.EqualTo(fixture.Command.EmploymentPrice));
+                Assert.That(draftApprenticeshipDetails.EmploymentEndDate, Is.EqualTo(fixture.Command.EmploymentEndDate));
+                Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
+            });
         }
 
         [Test]
@@ -62,23 +65,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.MapWithFramework();
 
-            Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
-            Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
-            Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
-            Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
-            Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
-            Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
-            Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
-            Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
-            Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
-            Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
-            Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
-            Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(fixture.TrainingProgrammeFramework));
+            Assert.Multiple(() =>
+            {
+                Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
+                Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
+                Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
+                Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
+                Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
+                Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
+                Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
+                Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
+                Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
+                Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
+                Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
+                Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(fixture.TrainingProgrammeFramework));
+            });
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();
-            Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
-            Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
+            Assert.Multiple(() =>
+            {
+                Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
+                Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
+            });
         }
 
         [Test]
@@ -87,19 +96,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.MapNoCourse();
 
-            Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
-            Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
-            Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
-            Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
-            Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
-            Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
-            Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
-            Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
-            Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
-            Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
-            Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
-            Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(null));
-            Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
+            Assert.Multiple(() =>
+            {
+                Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
+                Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
+                Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
+                Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
+                Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
+                Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
+                Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
+                Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
+                Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
+                Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
+                Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
+                Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(null));
+                Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
+            });
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             Assert.That(draftApprenticeshipDetails.IsOnFlexiPaymentPilot, Is.EqualTo(fixture.Command.IsOnFlexiPaymentPilot));
@@ -111,19 +123,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.MapNoStartDate();
 
-            Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
-            Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
-            Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
-            Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
-            Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
-            Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
-            Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
-            Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
-            Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
-            Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
-            Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
-            Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(fixture.TrainingProgrammeStandard));
-            Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
+            Assert.Multiple(() =>
+            {
+                Assert.That(draftApprenticeshipDetails.FirstName, Is.EqualTo(fixture.Command.FirstName));
+                Assert.That(draftApprenticeshipDetails.LastName, Is.EqualTo(fixture.Command.LastName));
+                Assert.That(draftApprenticeshipDetails.Email, Is.EqualTo(fixture.Command.Email));
+                Assert.That(draftApprenticeshipDetails.Uln, Is.EqualTo(fixture.Command.Uln));
+                Assert.That(draftApprenticeshipDetails.Cost, Is.EqualTo(fixture.Command.Cost));
+                Assert.That(draftApprenticeshipDetails.TrainingPrice, Is.EqualTo(fixture.Command.TrainingPrice));
+                Assert.That(draftApprenticeshipDetails.EndPointAssessmentPrice, Is.EqualTo(fixture.Command.EndPointAssessmentPrice));
+                Assert.That(draftApprenticeshipDetails.StartDate, Is.EqualTo(fixture.Command.StartDate));
+                Assert.That(draftApprenticeshipDetails.EndDate, Is.EqualTo(fixture.Command.EndDate));
+                Assert.That(draftApprenticeshipDetails.DateOfBirth, Is.EqualTo(fixture.Command.DateOfBirth));
+                Assert.That(draftApprenticeshipDetails.Reference, Is.EqualTo(fixture.Command.OriginatorReference));
+                Assert.That(draftApprenticeshipDetails.TrainingProgramme, Is.EqualTo(fixture.TrainingProgrammeStandard));
+                Assert.That(draftApprenticeshipDetails.DeliveryModel, Is.EqualTo(fixture.Command.DeliveryModel));
+            });
             draftApprenticeshipDetails.StandardUId.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersion.Should().BeNullOrEmpty();
             draftApprenticeshipDetails.TrainingCourseVersionConfirmed.Should().BeFalse();

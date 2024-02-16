@@ -27,12 +27,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture();
             fixture.AddSecondDraftApprenticeshipWithOverlap();
             await fixture.ResolveApprenticeshipByStoppingApprenticeship();
-           
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
 
-            Assert.That(fixture.OverlappingTrainingDateRequest2.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped));
-            Assert.That(fixture.OverlappingTrainingDateRequest2.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+                Assert.That(fixture.OverlappingTrainingDateRequest2.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped));
+                Assert.That(fixture.OverlappingTrainingDateRequest2.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            });
         }
 
         [Test]
@@ -42,11 +44,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             fixture.AddSecondDraftApprenticeshipWithOverlap();
             await fixture.ResolveApprenticeshipByUpdatingStopDate();
 
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.StopDateUpdate));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.StopDateUpdate));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
 
-            Assert.That(fixture.OverlappingTrainingDateRequest2.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.StopDateUpdate));
-            Assert.That(fixture.OverlappingTrainingDateRequest2.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+                Assert.That(fixture.OverlappingTrainingDateRequest2.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.StopDateUpdate));
+                Assert.That(fixture.OverlappingTrainingDateRequest2.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            });
         }
 
         [Test]
@@ -54,8 +59,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture();
             await fixture.ResolveApprenticeshipByStoppingApprenticeship();
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopped));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            });
         }
 
         [Test]
@@ -97,8 +105,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture();
             await fixture.ResolveApprenticeshipByUpdatingStopDate();
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.StopDateUpdate));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.StopDateUpdate));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            });
         }
 
         [Test]
@@ -122,8 +133,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture();
             await fixture.ResolveApprenticeshipByApprenticeshipUpdate();
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipUpdate));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipUpdate));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            });
         }
 
         [TestCase("2020-12-01", "2022-12-01", "")]
@@ -152,8 +166,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = await new ResolveOverlappingTrainingDateRequestServiceTestsFixture().UpdateDraftApprenticeship(startDate, endDate, uln);
             await fixture.ResolveApprenticeshipByDraftApprenticeshipUpdate();
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            });
         }
 
         [Test]
@@ -161,8 +178,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = await new ResolveOverlappingTrainingDateRequestServiceTestsFixture().UpdateDraftApprenticeship("2020-12-01", "2022-12-01", "YYYY");
             await fixture.ResolveApprenticeshipByDraftApprenticeshipUpdate();
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipUpdated));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            });
         }
 
         [Test]
@@ -178,8 +198,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture();
             await fixture.ResolveApprenticeshipByDraftApprenticeshipDelete();
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipDeleted));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.DraftApprenticeshipDeleted));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Resolved));
+            });
         }
 
         [Test]
@@ -187,8 +210,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture().SetupOverlapCheckService(true, 1);
             await fixture.ResolveApprenticeshipByApprentieshipIsStillActive();
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipIsStillActive));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Rejected));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipIsStillActive));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Rejected));
+            });
         }
 
         [Test]
@@ -198,8 +224,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .SetupOverlapCheckService(true, 1);
 
             await fixture.ResolveApprenticeshipByApprenticeshipStopDateIsCorrect();
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopDateIsCorrect));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Rejected));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipStopDateIsCorrect));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Rejected));
+            });
         }
 
         [Test]
@@ -207,8 +236,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var fixture = new ResolveOverlappingTrainingDateRequestServiceTestsFixture().SetupOverlapCheckService(true, 1);
             await fixture.ResolveApprenticeshipByApprenticeshipEndDateIsCorrect();
-            Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateIsCorrect));
-            Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Rejected));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.OverlappingTrainingDateRequest.ResolutionType, Is.EqualTo(OverlappingTrainingDateRequestResolutionType.ApprenticeshipEndDateIsCorrect));
+                Assert.That(fixture.OverlappingTrainingDateRequest.Status, Is.EqualTo(OverlappingTrainingDateRequestStatus.Rejected));
+            });
         }
 
         private class ResolveOverlappingTrainingDateRequestServiceTestsFixture

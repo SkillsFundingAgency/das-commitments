@@ -34,10 +34,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
 
             // Assert
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.AccountId, Is.EqualTo(accountId));
-            Assert.That(response.MaLegalEntityId, Is.EqualTo(maLegalEntityId));
-            Assert.That(response.AccountName, Is.EqualTo("Account123"));
-            Assert.That(response.LevyStatus, Is.EqualTo(levyStatus));
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.AccountId, Is.EqualTo(accountId));
+                Assert.That(response.MaLegalEntityId, Is.EqualTo(maLegalEntityId));
+                Assert.That(response.AccountName, Is.EqualTo("Account123"));
+                Assert.That(response.LevyStatus, Is.EqualTo(levyStatus));
+            });
         }
     }
 

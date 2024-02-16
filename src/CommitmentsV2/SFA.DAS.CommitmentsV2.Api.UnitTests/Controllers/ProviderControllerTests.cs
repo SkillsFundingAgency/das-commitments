@@ -38,7 +38,7 @@ public class ProviderControllerTests
             Assert.That(response, Is.Not.Null);
             Assert.That(okObjectResult, Is.Not.Null);
             Assert.That(getAllProvidersResponse, Is.Not.Null);
-            Assert.That(getAllProvidersResponse.Providers.Count, Is.EqualTo(_fixture.GetAllProvidersQueryResult.Providers.Count));
+            Assert.That(getAllProvidersResponse.Providers, Has.Count.EqualTo(_fixture.GetAllProvidersQueryResult.Providers.Count));
         });
     }
 

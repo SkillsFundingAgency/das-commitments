@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("false");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
 
             var errors = await fixture.Handle();
             fixture.ValidateError(errors, 1, "IsDurationReducedByRPL", "True or false should not be selected for <b>duration reduced</b> when recognise prior learning is false.");
@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("261");
 
             var errors = await fixture.Handle();
@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("0");
 
             var errors = await fixture.Handle();
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("-10");
 
             var errors = await fixture.Handle();
@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("1000");
 
             var errors = await fixture.Handle();
@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("268 289");
 
             var errors = await fixture.Handle();
@@ -81,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("567SGHAJ");
 
             var errors = await fixture.Handle();
@@ -93,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("#123");
 
             var errors = await fixture.Handle();
@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("false");
+            fixture.SetIsDurationReducedByRpl("false");
             fixture.SetDurationReducedBy("123");
 
             var errors = await fixture.Handle();
@@ -117,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
         {
             var fixture = new BulkUploadValidateCommandHandlerTestsFixture(true);
             fixture.SetRecognisePriorLearning("true");
-            fixture.SetIsDurationReducedByRPL("true");
+            fixture.SetIsDurationReducedByRpl("true");
             fixture.SetDurationReducedBy("123");
 
             var errors = await fixture.Handle();

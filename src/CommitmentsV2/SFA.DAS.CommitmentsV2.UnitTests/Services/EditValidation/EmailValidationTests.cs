@@ -16,8 +16,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.That(result.Errors, Has.Count.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Email update cannot be requested"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Email"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Email update cannot be requested"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Email"));
+            });
         }
 
         [Test]
@@ -29,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(0));
+            Assert.That(result.Errors, Is.Empty);
         }
 
         [TestCase(null)]
@@ -61,8 +64,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await fixture.Validate(request);
 
             Assert.That(result.Errors, Has.Count.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Please enter a valid email address"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Email"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("Please enter a valid email address"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("Email"));
+            });
         }
 
         [TestCase("paul@a.com")]
@@ -76,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(0));
+            Assert.That(result.Errors, Is.Empty);
         }
 
         [TestCase("emailalready@exists.com")]
@@ -88,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
             Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("This email address is in use on another apprentice record. You need to enter a different email address."));
         }
 
@@ -100,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(0));
+            Assert.That(result.Errors, Is.Empty);
             fixture.VerifyCheckForEmailOverlapsIsNotCalled();
         }
     }

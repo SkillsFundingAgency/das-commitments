@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetRplDataExtended(true);
             fixture.SetPriorLearningRaw(recognisePriorLearning: true, durationReducedByAsString: "100", 
                 priceReducedByAsString: priceReducedBy, trainingTotalHoursAsString: "230",
-                trainingHoursReductionAsString: "10", isDurationReducedByRPLAsString: "true");
+                trainingHoursReductionAsString: "10", isDurationReducedByRplAsString: "true");
 
             var errors = await fixture.Handle();
             var domainErrors = errors.BulkUploadValidationErrors.SelectMany(x => x.Errors).ToList();
@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetRplDataExtended(true);
             fixture.SetPriorLearningRaw(recognisePriorLearning: true, durationReducedByAsString: "100",
                 priceReducedByAsString: priceReducedBy, trainingTotalHoursAsString: "230",
-                trainingHoursReductionAsString: "10", isDurationReducedByRPLAsString: "true");
+                trainingHoursReductionAsString: "10", isDurationReducedByRplAsString: "true");
 
             var errors = await fixture.Handle();
             var domainErrors = errors.BulkUploadValidationErrors.SelectMany(x => x.Errors).ToList();
@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetRplDataExtended(true);
             fixture.SetPriorLearningRaw(recognisePriorLearning: false, durationReducedByAsString: "100",
                 priceReducedByAsString: priceReducedBy, trainingTotalHoursAsString: "230",
-                trainingHoursReductionAsString: "10", isDurationReducedByRPLAsString: "true");
+                trainingHoursReductionAsString: "10", isDurationReducedByRplAsString: "true");
 
             var errors = await fixture.Handle();
             var domainErrors = errors.BulkUploadValidationErrors.SelectMany(x => x.Errors).ToList();

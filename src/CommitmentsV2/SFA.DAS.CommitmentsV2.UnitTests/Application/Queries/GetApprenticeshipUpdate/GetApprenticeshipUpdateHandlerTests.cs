@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             _fixture.SeedData().WithNoMatchingApprenticeshipUpdates();
             var result = await _fixture.Handle();
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.ApprenticeshipUpdates.Count, Is.EqualTo(0));
+            Assert.That(result.ApprenticeshipUpdates, Is.Empty);
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
             _fixture.SeedData().WithNoMatchingApprenticeshipUpdatesForStatus();
             var result = await _fixture.Handle();
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.ApprenticeshipUpdates.Count, Is.EqualTo(0));
+            Assert.That(result.ApprenticeshipUpdates, Is.Empty);
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
             public void VerifyResultMapping(int resultCount)
             {
-                Assert.That(_result.ApprenticeshipUpdates.Count, Is.EqualTo(resultCount));
+                Assert.That(_result.ApprenticeshipUpdates, Has.Count.EqualTo(resultCount));
 
                 foreach (var result in _result.ApprenticeshipUpdates)
                 {
@@ -167,25 +167,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
 
         private static void AssertEquality(ApprenticeshipUpdate source, GetApprenticeshipUpdateQueryResult.ApprenticeshipUpdate result)
         {
-            Assert.That(result.Id, Is.EqualTo(source.Id));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Id, Is.EqualTo(source.Id));
 
-            Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
-            Assert.That(result.Originator, Is.EqualTo(source.Originator));
-            Assert.That(result.FirstName, Is.EqualTo(source.FirstName));
-            Assert.That(result.LastName, Is.EqualTo(source.LastName));
-            Assert.That(result.DeliveryModel, Is.EqualTo(source.DeliveryModel));
-            Assert.That(result.EmploymentEndDate, Is.EqualTo(source.EmploymentEndDate));
-            Assert.That(result.EmploymentPrice, Is.EqualTo(source.EmploymentPrice));
-            Assert.That(result.TrainingType, Is.EqualTo(source.TrainingType));
-            Assert.That(result.TrainingCode, Is.EqualTo(source.TrainingCode));
-            Assert.That(result.TrainingName, Is.EqualTo(source.TrainingName));
-            Assert.That(result.TrainingCourseVersion, Is.EqualTo(source.TrainingCourseVersion));
-            Assert.That(result.TrainingCourseOption, Is.EqualTo(source.TrainingCourseOption));
-            Assert.That(result.Cost, Is.EqualTo(source.Cost));
-            Assert.That(result.StartDate, Is.EqualTo(source.StartDate));
-            Assert.That(result.EndDate, Is.EqualTo(source.EndDate));
-            Assert.That(result.DateOfBirth, Is.EqualTo(source.DateOfBirth));
-            Assert.That(result.Email, Is.EqualTo(source.Email));
+                Assert.That(result.ApprenticeshipId, Is.EqualTo(source.ApprenticeshipId));
+                Assert.That(result.Originator, Is.EqualTo(source.Originator));
+                Assert.That(result.FirstName, Is.EqualTo(source.FirstName));
+                Assert.That(result.LastName, Is.EqualTo(source.LastName));
+                Assert.That(result.DeliveryModel, Is.EqualTo(source.DeliveryModel));
+                Assert.That(result.EmploymentEndDate, Is.EqualTo(source.EmploymentEndDate));
+                Assert.That(result.EmploymentPrice, Is.EqualTo(source.EmploymentPrice));
+                Assert.That(result.TrainingType, Is.EqualTo(source.TrainingType));
+                Assert.That(result.TrainingCode, Is.EqualTo(source.TrainingCode));
+                Assert.That(result.TrainingName, Is.EqualTo(source.TrainingName));
+                Assert.That(result.TrainingCourseVersion, Is.EqualTo(source.TrainingCourseVersion));
+                Assert.That(result.TrainingCourseOption, Is.EqualTo(source.TrainingCourseOption));
+                Assert.That(result.Cost, Is.EqualTo(source.Cost));
+                Assert.That(result.StartDate, Is.EqualTo(source.StartDate));
+                Assert.That(result.EndDate, Is.EqualTo(source.EndDate));
+                Assert.That(result.DateOfBirth, Is.EqualTo(source.DateOfBirth));
+                Assert.That(result.Email, Is.EqualTo(source.Email));
+            });
         }
     }
 

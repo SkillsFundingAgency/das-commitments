@@ -23,8 +23,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             
             var result = await fixture.Handle();
 
-            Assert.That(result.HasOverlappingEndDate, Is.EqualTo(expectedResult));
-            Assert.That(result.HasOverlappingStartDate, Is.EqualTo(expectedResult));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.HasOverlappingEndDate, Is.EqualTo(expectedResult));
+                Assert.That(result.HasOverlappingStartDate, Is.EqualTo(expectedResult));
+            });
         }
     }
 

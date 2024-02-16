@@ -53,10 +53,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
             var badRequestObjectResult = _fixture.ActionExecutingContext.Result as BadRequestObjectResult;
             var errorResponse = badRequestObjectResult?.Value as ErrorResponse;
 
-            Assert.That(_fixture.ActionExecutingContext.Result, Is.Not.Null);
-            Assert.That(badRequestObjectResult, Is.Not.Null);
-            Assert.That(badRequestObjectResult.StatusCode, Is.EqualTo((int)HttpStatusCode.BadRequest));
-            Assert.That(errorResponse, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_fixture.ActionExecutingContext.Result, Is.Not.Null);
+                Assert.That(badRequestObjectResult, Is.Not.Null);
+            });
+            Assert.Multiple(() =>
+            {
+                Assert.That(badRequestObjectResult.StatusCode, Is.EqualTo((int)HttpStatusCode.BadRequest));
+                Assert.That(errorResponse, Is.Not.Null);
+            });
             Assert.That(errorResponse.Errors.Exists(e => e.Field == "Foo" && e.Message == "Bar"));
         }
     }

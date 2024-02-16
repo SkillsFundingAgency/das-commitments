@@ -200,10 +200,10 @@ public class CohortWithChangeOfPartyCreatedEventHandlerForEmailTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(_messageHandlerContext.SentMessages.Length, Is.EqualTo(1));
+                Assert.That(_messageHandlerContext.SentMessages, Has.Length.EqualTo(1));
                 Assert.That(emailToEmployerCommand.AccountId, Is.EqualTo(_cohortSummary.AccountId));
                 Assert.That(emailToEmployerCommand.Template, Is.EqualTo(templateName));
-                Assert.That(emailToEmployerCommand.Tokens.Count, Is.EqualTo(3));
+                Assert.That(emailToEmployerCommand.Tokens, Has.Count.EqualTo(3));
                 Assert.That(emailToEmployerCommand.Tokens["provider_name"], Is.EqualTo(_cohortSummary.ProviderName));
                 Assert.That(emailToEmployerCommand.Tokens["employer_hashed_account"], Is.EqualTo(_employerEncodedAccountId));
                 Assert.That(emailToEmployerCommand.Tokens["cohort_reference"], Is.EqualTo(_cohortReference));

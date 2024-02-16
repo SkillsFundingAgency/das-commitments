@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoFixture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +19,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Azure.Documents.SystemFunctions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -168,18 +167,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public async Task Handle()
         {
-            var cmd = new AddTransferRequestCommand { CohortId = this.CohortId, LastApprovedByParty = LastApprovedByParty};
+            var cmd = new AddTransferRequestCommand { CohortId = CohortId, LastApprovedByParty = LastApprovedByParty};
             await Handler.Handle(cmd, CancellationToken);
         }
 
         public void AssertTransferRequestWasCorrectlySavedToDatabase()
         {
             var transferRequest = Db.TransferRequests.FirstOrDefault();
-            Assert.That(transferRequest.TrainingCourses, Is.Not.Null);
-            Assert.That(transferRequest.TrainingCourses.IndexOf(FundingCapCourseSummary1.CourseTitle) >= 0, Is.True);
-            Assert.That(transferRequest.TrainingCourses.IndexOf(FundingCapCourseSummary2.CourseTitle) >= 0, Is.True);
-            Assert.That(transferRequest.FundingCap, Is.EqualTo(FundingCapCourseSummary1.ActualCap + FundingCapCourseSummary2.ActualCap));
-            Assert.That(transferRequest.Cost, Is.EqualTo(FundingCapCourseSummary1.CappedCost + FundingCapCourseSummary2.CappedCost));
+            Assert.Multiple(() =>
+            {
+                Assert.That(transferRequest.TrainingCourses, Is.Not.Null);
+                Assert.That(transferRequest.TrainingCourses.Contains(FundingCapCourseSummary1.CourseTitle, StringComparison.Ordinal), Is.True);
+                Assert.That(transferRequest.TrainingCourses.Contains(FundingCapCourseSummary2.CourseTitle, StringComparison.Ordinal), Is.True);
+                Assert.That(transferRequest.FundingCap, Is.EqualTo(FundingCapCourseSummary1.ActualCap + FundingCapCourseSummary2.ActualCap));
+                Assert.That(transferRequest.Cost, Is.EqualTo(FundingCapCourseSummary1.CappedCost + FundingCapCourseSummary2.CappedCost));
+            });
         }
 
         public void AssertCohortTransferStatusIsSetToPending()
@@ -191,8 +193,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public void AssertTransferRequestCreatedEventWasPublished()
         {
             var @event = UnitOfWorkContext.GetEvents().OfType<TransferRequestCreatedEvent>().First();
-            Assert.That(@event.CohortId, Is.EqualTo(CohortId));
-            Assert.That(@event.LastApprovedByParty, Is.EqualTo(LastApprovedByParty));
+            Assert.Multiple(() =>
+            {
+                Assert.That(@event.CohortId, Is.EqualTo(CohortId));
+                Assert.That(@event.LastApprovedByParty, Is.EqualTo(LastApprovedByParty));
+            });
         }
 
         public void AssertTransferRequestAutoApprovalEquals(bool autoApproval)

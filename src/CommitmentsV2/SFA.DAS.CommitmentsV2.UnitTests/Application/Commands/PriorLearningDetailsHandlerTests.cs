@@ -29,8 +29,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             using var fixture = new PriorLearningDetailsHandlerTestsFixture();
             await fixture.Handle();
 
-            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy, Is.EqualTo(fixture.Command.DurationReducedBy));
-            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.PriceReducedBy, Is.EqualTo(fixture.Command.PriceReducedBy));
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.DurationReducedBy, Is.EqualTo(fixture.Command.DurationReducedBy));
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning.PriceReducedBy, Is.EqualTo(fixture.Command.PriceReducedBy));
+            });
         }
 
         [Test]

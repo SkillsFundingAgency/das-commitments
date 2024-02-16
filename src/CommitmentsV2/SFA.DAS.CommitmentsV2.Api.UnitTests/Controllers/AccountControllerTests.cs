@@ -184,7 +184,7 @@ public class AccountControllerTests
 
                 var response = (GetApprovedProvidersResponse)objectResult.Value;
 
-                Assert.That(response.ProviderIds.Length, Is.EqualTo(3));
+                Assert.That(response.ProviderIds, Has.Length.EqualTo(3));
 
                 foreach (var qr in ApprovedProviderQueryResult.ProviderIds)
                 {
@@ -205,7 +205,7 @@ public class AccountControllerTests
 
                 var response = (GetProviderPaymentsPriorityResponse)objectResult.Value;
 
-                Assert.That(response.ProviderPaymentPriorities.Count, Is.EqualTo(3));
+                Assert.That(response.ProviderPaymentPriorities, Has.Count.EqualTo(3));
 
                 foreach (var qr in ProviderPaymentsPriorityQueryResult.PriorityItems)
                 {

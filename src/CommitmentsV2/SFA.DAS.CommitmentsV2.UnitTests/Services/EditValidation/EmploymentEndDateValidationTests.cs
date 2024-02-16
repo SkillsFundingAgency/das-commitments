@@ -17,9 +17,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("You must add the employment end date"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentEndDate"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("You must add the employment end date"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentEndDate"));
+            });
         }
 
         [Test]
@@ -34,9 +37,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("This date must not be later than the projected apprenticeship training end date"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentEndDate"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("This date must not be later than the projected apprenticeship training end date"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentEndDate"));
+            });
         }
 
         [Test]
@@ -51,9 +57,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("This date must be at least 3 months later than the planned apprenticeship training start date"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentEndDate"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("This date must be at least 3 months later than the planned apprenticeship training start date"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentEndDate"));
+            });
         }
 
         [Test]
@@ -67,9 +76,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 
             var result = await fixture.Validate(request);
 
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("You must add the employment end date"));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentEndDate"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo("You must add the employment end date"));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EmploymentEndDate"));
+            });
         }
     }
 }

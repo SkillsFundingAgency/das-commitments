@@ -211,9 +211,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public void Assert_CorrectEndDateWasUsed(UlnUtilisation[] result, string expectedUln, DateTime expectedEndDate)
         {
-            Assert.That(result.Length, Is.EqualTo(1));
-            Assert.That(result.First().Uln, Is.EqualTo(expectedUln));
-            Assert.That(result.First().DateRange.To, Is.EqualTo(expectedEndDate));
+            Assert.That(result, Has.Length.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.First().Uln, Is.EqualTo(expectedUln));
+                Assert.That(result.First().DateRange.To, Is.EqualTo(expectedEndDate));
+            });
         }
     }
 }

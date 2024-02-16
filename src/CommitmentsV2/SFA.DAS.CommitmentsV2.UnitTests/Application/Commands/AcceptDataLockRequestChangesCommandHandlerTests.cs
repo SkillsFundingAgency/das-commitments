@@ -675,7 +675,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public static readonly string TrainingCourseName200 = "200 Test Name";
         public static readonly ProgrammeType ProgrammeType200 = ProgrammeType.Standard;
 
-        public static DateTime ProxyCurrentDateTime = new DateTime(2020, 1, 1);
+        public static DateTime ProxyCurrentDateTime { get; } = new (2020, 1, 1);
 
         public Fixture AutoFixture { get; set; }
 

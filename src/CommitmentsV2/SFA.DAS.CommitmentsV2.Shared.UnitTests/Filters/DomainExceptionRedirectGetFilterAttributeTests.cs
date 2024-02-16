@@ -37,7 +37,7 @@ public class DomainExceptionRedirectGetFilterAttributeTests
         var fixture = new DomainExceptionRedirectGetFilterAttributeTestsFixture();
         fixture.WithDomainException();
         fixture.OnException();
-        Assert.That(fixture.QueryString.Count, Is.EqualTo(fixture.RouteData.Values.Count));
+        Assert.That(fixture.QueryString, Has.Count.EqualTo(fixture.RouteData.Values.Count));
     }
 
     [Test]

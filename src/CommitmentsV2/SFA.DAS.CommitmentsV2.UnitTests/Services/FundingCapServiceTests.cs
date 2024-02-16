@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var result = await _fixture.SetApprenticesList().CallFundingCapCourseSummary();
 
-            Assert.That(result.Count, Is.EqualTo(2));
+            Assert.That(result, Has.Count.EqualTo(2));
         }
 
         [Test]
@@ -137,23 +137,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void AssertApprenticeshipCountsAreCorrect(FundingCapCourseSummary[] result)
             {
-                Assert.That(result[0].CourseTitle, Is.EqualTo("C1Name"));
-                Assert.That(result[0].ApprenticeshipCount, Is.EqualTo(2));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result[0].CourseTitle, Is.EqualTo("C1Name"));
+                    Assert.That(result[0].ApprenticeshipCount, Is.EqualTo(2));
 
-                Assert.That(result[1].CourseTitle, Is.EqualTo("C2Name"));
-                Assert.That(result[1].ApprenticeshipCount, Is.EqualTo(3));
+                    Assert.That(result[1].CourseTitle, Is.EqualTo("C2Name"));
+                    Assert.That(result[1].ApprenticeshipCount, Is.EqualTo(3));
+                });
             }
 
             public void AssertCourseCapsAreCorrect(FundingCapCourseSummary[] result)
             {
-                Assert.That(result[0].ActualCap, Is.EqualTo(2200),  "Incorrect ActualCap for C1");
-                Assert.That( result[1].ActualCap, Is.EqualTo(3200), "Incorrect ActualCap for C2");
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result[0].ActualCap, Is.EqualTo(2200), "Incorrect ActualCap for C1");
+                    Assert.That(result[1].ActualCap, Is.EqualTo(3200), "Incorrect ActualCap for C2");
+                });
             }
 
             public void AssertCourseCostsExcludeTheExcessAmountsWhereCostExceedsCap(FundingCapCourseSummary[] result)
             {
-                Assert.That(result[0].CappedCost, Is.EqualTo(2000), "Incorrect CappedCost for C1");
-                Assert.That(result[1].CappedCost, Is.EqualTo(3200), "Incorrect CappedCost for C2");
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result[0].CappedCost, Is.EqualTo(2000), "Incorrect CappedCost for C1");
+                    Assert.That(result[1].CappedCost, Is.EqualTo(3200), "Incorrect CappedCost for C2");
+                });
             }
         }
     }

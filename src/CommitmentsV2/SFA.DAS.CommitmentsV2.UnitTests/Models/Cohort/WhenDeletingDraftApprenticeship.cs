@@ -164,14 +164,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyTransferRejectionReset()
             {
-                Assert.That(Cohort.TransferApprovalStatus, Is.Null);
-                Assert.That(Cohort.LastAction, Is.EqualTo(LastAction.AmendAfterRejected));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Cohort.TransferApprovalStatus, Is.Null);
+                    Assert.That(Cohort.LastAction, Is.EqualTo(LastAction.AmendAfterRejected));
+                });
             }
 
             public void VerifyDeletion()
             {
-                Assert.That(Cohort.DraftApprenticeships.Contains(DeletionTarget), Is.False);
-                Assert.That(Cohort.DraftApprenticeships.Count(), Is.EqualTo(CohortSize - 1));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Cohort.DraftApprenticeships.Contains(DeletionTarget), Is.False);
+                    Assert.That(Cohort.DraftApprenticeships.Count(), Is.EqualTo(CohortSize - 1));
+                });
             }
 
             public void VerifyCohortIsUnapprovedByAllParties()
@@ -181,8 +187,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void VerifyCohortIsDeleted()
             {
-                Assert.That(Cohort.IsDeleted, Is.True);
-                Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortDeletedEvent), Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Cohort.IsDeleted, Is.True);
+                    Assert.That(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortDeletedEvent), Is.Not.Null);
+                });
             }
 
             public void VerifyCohortIsNotDeleted()

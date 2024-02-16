@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
         {
             var result = await _mapper.Map(_source);
 
-            Assert.That(result.ValidationErrors.Length, Is.EqualTo(_source.ValidationErrors.Length));
+            Assert.That(result.ValidationErrors, Has.Length.EqualTo(_source.ValidationErrors.Length));
             foreach (var error in result.ValidationErrors)
             {
                 Assert.That(result.ValidationErrors.Any(x =>

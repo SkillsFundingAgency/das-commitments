@@ -256,8 +256,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var apprenticeshipHasNotHadDataLockSuccess = Db.Apprenticeships.FirstOrDefault(x => x.Id == hasNotHadDataLockSuccessApprenticeshipId);
             var apprenticeshipHasHadDataLockSuccess = Db.Apprenticeships.FirstOrDefault(x => x.Id == hasHadDataLockSuccessApprenticeshipId);
 
-            Assert.That(apprenticeshipHasNotHadDataLockSuccess.HasHadDataLockSuccess, Is.True);
-            Assert.That(apprenticeshipHasHadDataLockSuccess.HasHadDataLockSuccess, Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(apprenticeshipHasNotHadDataLockSuccess.HasHadDataLockSuccess, Is.True);
+                Assert.That(apprenticeshipHasHadDataLockSuccess.HasHadDataLockSuccess, Is.True);
+            });
         }
 
         [TestCase(200, DataLockErrorCode.None, true)]
@@ -674,9 +677,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
               .Where(x => dataLockEventIds.Contains(x.DataLockEventId))
               .ToList();
 
-            Assert.That(dataLockEventIds.Count, Is.EqualTo(dataLocks.Count));
+            Assert.Multiple(() =>
+            {
+                Assert.That(dataLockEventIds, Has.Count.EqualTo(dataLocks.Count));
 
-            Assert.That(dataLocks.All(x => x.IsResolved), Is.True);
+                Assert.That(dataLocks.All(x => x.IsResolved), Is.True);
+            });
         }
 
         private void VerifyDataLockIsNotUpdated(long dataLockEventId, bool expectDataLock)

@@ -162,8 +162,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship
 
             public void VerifyResult()
             {
-                Assert.That(Exception, Is.Null);
-                Assert.That(Result, Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Exception, Is.Null);
+                    Assert.That(Result, Is.Not.Null);
+                });
             }
 
             public void VerifyException<T>()

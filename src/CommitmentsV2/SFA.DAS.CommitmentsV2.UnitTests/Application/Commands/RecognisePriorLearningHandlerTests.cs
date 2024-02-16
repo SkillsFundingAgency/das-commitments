@@ -53,9 +53,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             await fixture.Handle();
 
-            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedBy, Is.Null);
-            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.PriceReducedBy, Is.Null);
-            Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedByHours, Is.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedBy, Is.Null);
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.PriceReducedBy, Is.Null);
+                Assert.That(fixture.DraftApprenticeshipFromDb.PriorLearning?.DurationReducedByHours, Is.Null);
+            });
         }
     }
 

@@ -107,8 +107,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .WithDateRange(startDate, endDate)
                 .CheckForOverlaps();
 
-            Assert.That(result.HasOverlappingStartDate, Is.True);
-            Assert.That(result.HasOverlappingEndDate, Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.HasOverlappingStartDate, Is.True);
+                Assert.That(result.HasOverlappingEndDate, Is.True);
+            });
         }
 
         [Test]
@@ -118,8 +121,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .WithDateRange(new DateTime(2018, 03, 15), new DateTime(2018, 07, 15))
                 .CheckForOverlaps();
 
-            Assert.That(result.HasOverlappingStartDate, Is.True);
-            Assert.That(result.HasOverlappingEndDate, Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.HasOverlappingStartDate, Is.True);
+                Assert.That(result.HasOverlappingEndDate, Is.True);
+            });
         }
 
         [Test]
@@ -157,8 +163,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var result = await _fixture.WithApprovedApprenticeOverlappingEmail().CheckForEmailOverlaps();
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.FoundOnFullyApprovedApprenticeship, Is.True);
-            Assert.That(result.OverlapStatus, Is.EqualTo(OverlapStatus.OverlappingEndDate));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.FoundOnFullyApprovedApprenticeship, Is.True);
+                Assert.That(result.OverlapStatus, Is.EqualTo(OverlapStatus.OverlappingEndDate));
+            });
         }
 
         [Test]
@@ -167,8 +176,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var result = await _fixture.WithUnapprovedApprenticeOverlappingEmail().CheckForEmailOverlaps();
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.FoundOnFullyApprovedApprenticeship, Is.False);
-            Assert.That(result.OverlapStatus, Is.EqualTo(OverlapStatus.DateEmbrace));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.FoundOnFullyApprovedApprenticeship, Is.False);
+                Assert.That(result.OverlapStatus, Is.EqualTo(OverlapStatus.DateEmbrace));
+            });
         }
 
         [Test]
@@ -183,7 +195,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var result = await _fixture.WithCohort().CheckForEmailOverlapsInCohort();
 
-            Assert.That(result.Count, Is.EqualTo(0));
+            Assert.That(result, Is.Empty);
             _fixture.VerifyEmailOverlapServiceIsCalledCorrectlyForCohortCheck();
         }
 
@@ -202,10 +214,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             var result = await _fixture.WithCohort().WithApprovedApprenticeOverlappingEmailForCohort(list).CheckForEmailOverlapsInCohort();
 
-            Assert.That(result.Count, Is.EqualTo(1));
-            Assert.That(result[0].RowId, Is.EqualTo(1));
-            Assert.That(result[0].OverlapStatus, Is.EqualTo(OverlapStatus.OverlappingEndDate));
-            Assert.That(result[0].FoundOnFullyApprovedApprenticeship, Is.True);
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result[0].RowId, Is.EqualTo(1));
+                Assert.That(result[0].OverlapStatus, Is.EqualTo(OverlapStatus.OverlappingEndDate));
+                Assert.That(result[0].FoundOnFullyApprovedApprenticeship, Is.True);
+            });
         }
 
         [Test]
@@ -229,10 +244,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             var result = await _fixture.WithCohort().WithApprovedApprenticeOverlappingEmailForCohort(list).CheckForEmailOverlapsInCohort();
 
-            Assert.That(result.Count, Is.EqualTo(1));
-            Assert.That(result[0].RowId, Is.EqualTo(1));
-            Assert.That(result[0].OverlapStatus, Is.EqualTo(OverlapStatus.OverlappingEndDate));
-            Assert.That(result[0].FoundOnFullyApprovedApprenticeship, Is.True);
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result[0].RowId, Is.EqualTo(1));
+                Assert.That(result[0].OverlapStatus, Is.EqualTo(OverlapStatus.OverlappingEndDate));
+                Assert.That(result[0].FoundOnFullyApprovedApprenticeship, Is.True);
+            });
         }
 
         [Test]
@@ -256,13 +274,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             var result = await _fixture.WithCohort().WithApprovedApprenticeOverlappingEmailForCohort(list).CheckForEmailOverlapsInCohort();
 
-            Assert.That(result.Count, Is.EqualTo(2));
-            Assert.That(result[0].RowId, Is.EqualTo(1));
-            Assert.That(result[0].OverlapStatus, Is.EqualTo(OverlapStatus.OverlappingEndDate));
-            Assert.That(result[0].FoundOnFullyApprovedApprenticeship, Is.True);
-            Assert.That(result[1].RowId, Is.EqualTo(2));
-            Assert.That(result[1].OverlapStatus, Is.EqualTo(OverlapStatus.DateEmbrace));
-            Assert.That(result[1].FoundOnFullyApprovedApprenticeship, Is.False);
+            Assert.That(result, Has.Count.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result[0].RowId, Is.EqualTo(1));
+                Assert.That(result[0].OverlapStatus, Is.EqualTo(OverlapStatus.OverlappingEndDate));
+                Assert.That(result[0].FoundOnFullyApprovedApprenticeship, Is.True);
+                Assert.That(result[1].RowId, Is.EqualTo(2));
+                Assert.That(result[1].OverlapStatus, Is.EqualTo(OverlapStatus.DateEmbrace));
+                Assert.That(result[1].FoundOnFullyApprovedApprenticeship, Is.False);
+            });
         }
 
         private class OverlapCheckServiceTestFixture

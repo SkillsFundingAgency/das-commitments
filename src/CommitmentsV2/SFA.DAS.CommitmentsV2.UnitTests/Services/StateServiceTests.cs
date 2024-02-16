@@ -19,16 +19,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public void PublicInstancePropertiesAreCaptured()
         {
             var result = _fixture.GetState();
-            Assert.That(result.ContainsKey(nameof(GetStateTestClass.TestPublicProperty)), Is.True);
-            Assert.That(result[nameof(GetStateTestClass.TestPublicProperty)], Is.EqualTo(_fixture.TestObject.TestPublicProperty));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.ContainsKey(nameof(GetStateTestClass.TestPublicProperty)), Is.True);
+                Assert.That(result[nameof(GetStateTestClass.TestPublicProperty)], Is.EqualTo(_fixture.TestObject.TestPublicProperty));
+            });
         }
 
         [Test]
         public void PrivateInstancePropertiesAreCaptured()
         {
             var result = _fixture.GetState();
-            Assert.That(result.ContainsKey("TestPrivateProperty"), Is.True);
-            Assert.That(result["TestPrivateProperty"], Is.EqualTo(_fixture.PrivatePropertyValue));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.ContainsKey("TestPrivateProperty"), Is.True);
+                Assert.That(result["TestPrivateProperty"], Is.EqualTo(_fixture.PrivatePropertyValue));
+            });
         }
 
         [Test]

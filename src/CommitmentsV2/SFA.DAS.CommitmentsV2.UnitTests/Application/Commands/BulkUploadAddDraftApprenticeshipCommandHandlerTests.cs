@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         }
 
         [Test]
-        public async Task VeriyfResponse()
+        public async Task VerifyResponse()
         {
             var fixture = new BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture();
             var bulkUploadResponse = await fixture
@@ -141,21 +141,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithData(long cohortId, string cohortRef,string accountName = "Test Employer", string legalEntityId = "XEGFX", string legalEntityName = "Legal Entity Name")
         {
-            var Account = new Account()
+            var account = new Account()
              .Set(x => x.Id, ++IdGenerator)
              .Set(x => x.Name, accountName );
 
-            var AccountLegalEntity = new AccountLegalEntity()
+            var accountLegalEntity = new AccountLegalEntity()
             .Set(x => x.LegalEntityId, legalEntityId)
             .Set(x => x.Name, legalEntityName)
             .Set(x => x.Id, ++IdGenerator)
-            .Set(x => x.Account, Account);
+            .Set(x => x.Account, account);
 
             var cohort = new Cohort()
               .Set(c => c.Id, cohortId)
               .Set(c => c.Reference, cohortRef)
               .Set(c => c.ProviderId, 333)
-              .Set(c => c.AccountLegalEntity, AccountLegalEntity);
+              .Set(c => c.AccountLegalEntity, accountLegalEntity);
 
             DbContext.Apprenticeships.Add(GenerateApprenticeshipDetails(cohort));
             DbContext.Apprenticeships.Add(GenerateApprenticeshipDetails(cohort));
@@ -165,9 +165,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithLogId(long n)
+        internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithLogId(long value)
         {
-            Command.LogId = n;
+            Command.LogId = value;
             return this;
         }
 
@@ -179,7 +179,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         private Apprenticeship GenerateApprenticeshipDetails(Cohort cohort)
         {
-            var ApprenticeshipDetails1 = AutoFixture.Build<Apprenticeship>()
+            var apprenticeshipDetails1 = AutoFixture.Build<Apprenticeship>()
            .With(s => s.Cohort, cohort)
            .With(s => s.EndDate, DateTime.UtcNow)
            .With(s => s.StartDate, DateTime.UtcNow.AddDays(-10))
@@ -192,7 +192,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
            .Without(s => s.EmailAddressConfirmed)
            .Without(s => s.ApprenticeshipConfirmationStatus)
            .Create();
-            return ApprenticeshipDetails1;
+            return apprenticeshipDetails1;
         }
 
         public Task<GetBulkUploadAddDraftApprenticeshipsResponse> Handle()
@@ -209,8 +209,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var log = DbContext.FileUploadLogs.FirstOrDefault(x => x.Id.Equals(Command.LogId.Value));
             Assert.That(log, Is.Not.Null);
-            Assert.That(log.ProviderAction, Is.EqualTo(Command.ProviderAction));
-            Assert.That(log.CohortLogs.Count, Is.EqualTo(DbContext.Cohorts.Count()));
+            Assert.Multiple(() =>
+            {
+                Assert.That(log.ProviderAction, Is.EqualTo(Command.ProviderAction));
+                Assert.That(log.CohortLogs, Has.Count.EqualTo(DbContext.Cohorts.Count()));
+            });
         }
 
         internal void VerifyDraftApprenticeshipsAreAdded()
@@ -231,24 +234,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         internal void VerifyResponse(GetBulkUploadAddDraftApprenticeshipsResponse bulkUploadResponse)
         {
             var firstCohort = bulkUploadResponse.BulkUploadAddDraftApprenticeshipsResponse.First();
-            Assert.That(firstCohort.CohortReference, Is.EqualTo("PPPP"));
-            Assert.That(firstCohort.EmployerName, Is.EqualTo("Existing legal entity"));
-            Assert.That(firstCohort.NumberOfApprenticeships, Is.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(firstCohort.CohortReference, Is.EqualTo("PPPP"));
+                Assert.That(firstCohort.EmployerName, Is.EqualTo("Existing legal entity"));
+                Assert.That(firstCohort.NumberOfApprenticeships, Is.EqualTo(2));
+            });
 
             var secondCohort = bulkUploadResponse.BulkUploadAddDraftApprenticeshipsResponse.Last();
-            Assert.That(secondCohort.CohortReference, Is.EqualTo("COHORTREF"));
-            Assert.That(secondCohort.EmployerName, Is.EqualTo("New Cohort legal entity"));
-            Assert.That(secondCohort.NumberOfApprenticeships, Is.EqualTo(2));
+            Assert.Multiple(() =>
+            {
+                Assert.That(secondCohort.CohortReference, Is.EqualTo("COHORTREF"));
+                Assert.That(secondCohort.EmployerName, Is.EqualTo("New Cohort legal entity"));
+                Assert.That(secondCohort.NumberOfApprenticeships, Is.EqualTo(2));
+            });
         }
 
         internal BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture WithValidationErrors()
         {
             MediatorService.Setup(x => x.Send(It.IsAny<BulkUploadValidateCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => new BulkUploadValidateApiResponse
             {
-                BulkUploadValidationErrors = new List<BulkUploadValidationError>()
-                {
-                    new BulkUploadValidationError(1, "PPPP", "12343343", "aappp aabbb", new List<Error>{ new Error("uln", "this is error")})
-                }
+                BulkUploadValidationErrors =
+                [
+                    new BulkUploadValidationError(1, "PPPP", "12343343", "aappp aabbb",
+                        new List<Error> { new Error("uln", "this is error") })
+                ]
             });
             return this;
         }

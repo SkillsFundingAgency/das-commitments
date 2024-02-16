@@ -33,9 +33,9 @@ public class ApprenticeshipMapper : IApprenticeshipMapper
         };
     }
 
-    public ApprenticeshipViewModel MapToApprenticeshipViewModel(GetSupportApprenticeshipQueryResult apprenticeships, GetChangeOfProviderChainQueryResult providerChainQueryResult)
+    public ApprenticeshipViewModel MapToApprenticeshipViewModel(GetSupportApprenticeshipQueryResult response, GetChangeOfProviderChainQueryResult providerChainQueryResult)
     {
-        var apprenticeship = apprenticeships.Apprenticeships.First();
+        var apprenticeship = response.Apprenticeships.First();
 
         var (paymentStatusText, paymentStatusTagColour) = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate);
 

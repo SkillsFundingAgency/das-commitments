@@ -35,8 +35,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider
             var result = await _fixture.SetProvider().Handle();
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.ProviderId, Is.EqualTo(_fixture.Provider.UkPrn));
-            Assert.That(result.Name, Is.EqualTo(_fixture.Provider.Name));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.ProviderId, Is.EqualTo(_fixture.Provider.UkPrn));
+                Assert.That(result.Name, Is.EqualTo(_fixture.Provider.Name));
+            });
         }
 
         [Test]

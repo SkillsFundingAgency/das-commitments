@@ -516,7 +516,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Employer).ApproveCohort();
 
-            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(1));
+            Assert.That(_fixture.DomainErrors, Has.Count.EqualTo(1));
             Assert.That(_fixture.DomainErrors[0].ErrorMessage, Is.EqualTo("Cannot approve this cohort because one or more emails are failing the overlap check"));
         }
 
@@ -529,7 +529,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(1));
+            Assert.That(_fixture.DomainErrors, Has.Count.EqualTo(1));
             Assert.That(_fixture.DomainErrors[0].ErrorMessage, Is.EqualTo("Cohort must be complete for Provider"));
         }
 
@@ -543,7 +543,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(0));
+            Assert.That(_fixture.DomainErrors, Is.Empty);
         }
 
         [Test]
@@ -558,7 +558,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(1));
+            Assert.That(_fixture.DomainErrors, Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -571,7 +571,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(0));
+            Assert.That(_fixture.DomainErrors, Is.Empty);
         }
 
         [Test]
@@ -584,7 +584,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(0));
+            Assert.That(_fixture.DomainErrors, Is.Empty);
         }
 
         [Test]
@@ -597,7 +597,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             await _fixture.WithParty(Party.Provider).ApproveCohort();
 
-            Assert.That(_fixture.DomainErrors.Count, Is.EqualTo(0));
+            Assert.That(_fixture.DomainErrors, Is.Empty);
         }
 
         [Test]
@@ -1664,17 +1664,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x=>x.Id == DraftApprenticeshipId);
 
-                Assert.That(updated, Is.Not.Null, "No draft apprenticeship record found");
-                Assert.That(DraftApprenticeshipDetails.FirstName, Is.EqualTo(updated.FirstName));
-                Assert.That(DraftApprenticeshipDetails.LastName, Is.EqualTo(updated.LastName));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(updated, Is.Not.Null, "No draft apprenticeship record found");
+                    Assert.That(DraftApprenticeshipDetails.FirstName, Is.EqualTo(updated.FirstName));
+                    Assert.That(DraftApprenticeshipDetails.LastName, Is.EqualTo(updated.LastName));
+                });
             }
 
             public void VerifyPriorLearningIsNull()
             {
                 var updated = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
 
-                Assert.That(updated.PriorLearning, Is.Not.Null, "No prior learning found");
-                Assert.That(updated.TrainingTotalHours, Is.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(updated.PriorLearning, Is.Not.Null, "No prior learning found");
+                    Assert.That(updated.TrainingTotalHours, Is.Null);
+                });
                 Assert.That(updated.PriorLearning.DurationReducedByHours, Is.Null);
                 Assert.That(updated.PriorLearning.IsDurationReducedByRpl, Is.Null);
                 Assert.That(updated.PriorLearning.DurationReducedBy, Is.Null);
@@ -1688,12 +1694,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Assert.That(updated.PriorLearning, Is.Not.Null, "No prior learning found");
 
                 Assert.That(updated.PriorLearning.DurationReducedByHours, Is.Not.Null);
-                Assert.That(updated.PriorLearning.DurationReducedByHours, Is.EqualTo(PriorLearning.DurationReducedByHours));
-                Assert.That(updated.PriorLearning.IsDurationReducedByRpl, Is.Not.Null);
-                Assert.That(updated.PriorLearning.IsDurationReducedByRpl, Is.EqualTo(PriorLearning.IsDurationReducedByRpl));
-                Assert.That(updated.PriorLearning.DurationReducedBy, Is.Not.Null);
-                Assert.That(updated.PriorLearning.DurationReducedBy, Is.EqualTo(PriorLearning.DurationReducedBy));
-                Assert.That(updated.PriorLearning.PriceReducedBy, Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(updated.PriorLearning.DurationReducedByHours, Is.EqualTo(PriorLearning.DurationReducedByHours));
+                    Assert.That(updated.PriorLearning.IsDurationReducedByRpl, Is.Not.Null);
+                });
+                Assert.Multiple(() =>
+                {
+                    Assert.That(updated.PriorLearning.IsDurationReducedByRpl, Is.EqualTo(PriorLearning.IsDurationReducedByRpl));
+                    Assert.That(updated.PriorLearning.DurationReducedBy, Is.Not.Null);
+                });
+                Assert.Multiple(() =>
+                {
+                    Assert.That(updated.PriorLearning.DurationReducedBy, Is.EqualTo(PriorLearning.DurationReducedBy));
+                    Assert.That(updated.PriorLearning.PriceReducedBy, Is.Not.Null);
+                });
                 Assert.That(updated.PriorLearning.PriceReducedBy, Is.EqualTo(PriorLearning.PriceReducedBy));
             }
 
@@ -1739,10 +1754,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyLastUpdatedFieldsAreNotSet()
             {
-                Assert.That(Cohort.LastUpdatedByEmployerName, Is.Null);
-                Assert.That(Cohort.LastUpdatedByEmployerEmail, Is.Null);
-                Assert.That(Cohort.LastUpdatedByProviderName, Is.Null);
-                Assert.That(Cohort.LastUpdatedByProviderEmail, Is.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(Cohort.LastUpdatedByEmployerName, Is.Null);
+                    Assert.That(Cohort.LastUpdatedByEmployerEmail, Is.Null);
+                    Assert.That(Cohort.LastUpdatedByProviderName, Is.Null);
+                    Assert.That(Cohort.LastUpdatedByProviderEmail, Is.Null);
+                });
             }
             public void VerifyStartDateException(bool passes)
             {
@@ -1848,8 +1866,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyNoUlnOverlaps()
             {
-                Assert.That(DomainErrors.Any(x => x.PropertyName == "StartDate"), Is.False);
-                Assert.That(DomainErrors.Any(x => x.PropertyName == "EndDate"), Is.False);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(DomainErrors.Any(x => x.PropertyName == "StartDate"), Is.False);
+                    Assert.That(DomainErrors.Any(x => x.PropertyName == "EndDate"), Is.False);
+                });
             }
 
             public void VerifyException<T>()

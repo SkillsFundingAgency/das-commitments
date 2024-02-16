@@ -101,14 +101,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetOverlappingTrai
 
         private static void AssertEquality(OverlappingTrainingDateRequest source, GetOverlappingTrainingDateRequestQueryResult result)
         {
-            Assert.That(result.OverlappingTrainingDateRequests.Count, Is.EqualTo(1));
+            Assert.That(result.OverlappingTrainingDateRequests, Has.Count.EqualTo(1));
 
-            Assert.That(result.OverlappingTrainingDateRequests.First().Id, Is.EqualTo(source.Id));
-            Assert.That(result.OverlappingTrainingDateRequests.First().DraftApprenticeshipId, Is.EqualTo(source.DraftApprenticeshipId));
-            Assert.That(result.OverlappingTrainingDateRequests.First().PreviousApprenticeshipId, Is.EqualTo(source.PreviousApprenticeshipId));
-            Assert.That(result.OverlappingTrainingDateRequests.First().Status, Is.EqualTo(source.Status));
-            Assert.That(result.OverlappingTrainingDateRequests.First().ResolutionType, Is.EqualTo(source.ResolutionType));
-            Assert.That(result.OverlappingTrainingDateRequests.First().ActionedOn, Is.EqualTo(source.ActionedOn));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.OverlappingTrainingDateRequests.First().Id, Is.EqualTo(source.Id));
+                Assert.That(result.OverlappingTrainingDateRequests.First().DraftApprenticeshipId, Is.EqualTo(source.DraftApprenticeshipId));
+                Assert.That(result.OverlappingTrainingDateRequests.First().PreviousApprenticeshipId, Is.EqualTo(source.PreviousApprenticeshipId));
+                Assert.That(result.OverlappingTrainingDateRequests.First().Status, Is.EqualTo(source.Status));
+                Assert.That(result.OverlappingTrainingDateRequests.First().ResolutionType, Is.EqualTo(source.ResolutionType));
+                Assert.That(result.OverlappingTrainingDateRequests.First().ActionedOn, Is.EqualTo(source.ActionedOn));
+            });
         }
     }
 }

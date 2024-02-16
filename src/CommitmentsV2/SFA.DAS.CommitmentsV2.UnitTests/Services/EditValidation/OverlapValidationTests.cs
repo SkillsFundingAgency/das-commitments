@@ -19,9 +19,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await SetupAuthenticationContext(party, fixture, true, false);
 
             Assert.That(result.Errors, Is.Not.Null);
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo(errorText));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("StartDate"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo(errorText));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("StartDate"));
+            });
         }
 
     
@@ -34,9 +37,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await SetupAuthenticationContext(party, fixture, false, true);
 
             Assert.That(result.Errors, Is.Not.Null);
-            Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo(errorText));
-            Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));
+            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Errors[0].ErrorMessage, Is.EqualTo(errorText));
+                Assert.That(result.Errors[0].PropertyName, Is.EqualTo("EndDate"));
+            });
         }
 
 
@@ -48,14 +54,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
             var result = await SetupAuthenticationContext(party, fixture, true, true);
 
             Assert.That(result.Errors, Is.Not.Null);
-            Assert.That(result.Errors.Count, Is.EqualTo(2));
+            Assert.That(result.Errors, Has.Count.EqualTo(2));
             var endDateError = result.Errors.First(x => x.PropertyName == "EndDate");
-            Assert.That(endDateError.ErrorMessage, Is.EqualTo(errorText));
-            Assert.That(endDateError.PropertyName, Is.EqualTo("EndDate"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(endDateError.ErrorMessage, Is.EqualTo(errorText));
+                Assert.That(endDateError.PropertyName, Is.EqualTo("EndDate"));
+            });
 
             var startDateError = result.Errors.First(x => x.PropertyName == "StartDate");
-            Assert.That(startDateError.ErrorMessage, Is.EqualTo(errorText));
-            Assert.That(startDateError.PropertyName, Is.EqualTo("StartDate"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(startDateError.ErrorMessage, Is.EqualTo(errorText));
+                Assert.That(startDateError.PropertyName, Is.EqualTo("StartDate"));
+            });
         }
 
         private static async Task<EditApprenticeshipValidationResult>

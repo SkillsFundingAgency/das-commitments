@@ -34,8 +34,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             foreach (var item in _fixture.InitialItem)
             {
                 var resultItem = _fixture.Result.Single(x => x.PropertyName == item.Key);
-                Assert.That(resultItem.InitialValue, Is.EqualTo(item.Value));
-                Assert.That(resultItem.UpdatedValue, Is.EqualTo(_fixture.UpdatedItem[item.Key]));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(resultItem.InitialValue, Is.EqualTo(item.Value));
+                    Assert.That(resultItem.UpdatedValue, Is.EqualTo(_fixture.UpdatedItem[item.Key]));
+                });
             }
         }
 
@@ -44,12 +47,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             _fixture.WithNullInitialItem().WithRandomUpdatedItem().GenerateDiff();
 
-            Assert.That(_fixture.Result.Count, Is.EqualTo(_fixture.UpdatedItem.Count));
+            Assert.That(_fixture.Result, Has.Count.EqualTo(_fixture.UpdatedItem.Count));
             foreach (var item in _fixture.UpdatedItem)
             {
                 var resultItem = _fixture.Result.Single(x => x.PropertyName == item.Key);
-                Assert.That(resultItem.InitialValue, Is.Null);
-                Assert.That(resultItem.UpdatedValue, Is.EqualTo(item.Value));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(resultItem.InitialValue, Is.Null);
+                    Assert.That(resultItem.UpdatedValue, Is.EqualTo(item.Value));
+                });
             }
         }
 
@@ -58,12 +64,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             _fixture.WithInitialItemsWithNullValues().WithDifferentUpdatedValues().GenerateDiff();
 
-            Assert.That(_fixture.Result.Count, Is.EqualTo(_fixture.UpdatedItem.Count));
+            Assert.That(_fixture.Result, Has.Count.EqualTo(_fixture.UpdatedItem.Count));
             foreach (var item in _fixture.UpdatedItem)
             {
                 var resultItem = _fixture.Result.Single(x => x.PropertyName == item.Key);
-                Assert.That(resultItem.InitialValue, Is.Null);
-                Assert.That(resultItem.UpdatedValue, Is.EqualTo(item.Value));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(resultItem.InitialValue, Is.Null);
+                    Assert.That(resultItem.UpdatedValue, Is.EqualTo(item.Value));
+                });
             }
         }
 
@@ -72,12 +81,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             _fixture.WithRandomInitialItem().WithNullUpdatedItem().GenerateDiff();
 
-            Assert.That(_fixture.Result.Count, Is.EqualTo(_fixture.InitialItem.Count));
+            Assert.That(_fixture.Result, Has.Count.EqualTo(_fixture.InitialItem.Count));
             foreach (var item in _fixture.InitialItem)
             {
                 var resultItem = _fixture.Result.Single(x => x.PropertyName == item.Key);
-                Assert.That(resultItem.UpdatedValue, Is.Null);
-                Assert.That(resultItem.InitialValue, Is.EqualTo(item.Value));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(resultItem.UpdatedValue, Is.Null);
+                    Assert.That(resultItem.InitialValue, Is.EqualTo(item.Value));
+                });
             }
         }
 

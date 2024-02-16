@@ -538,18 +538,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var transferSummary = Db.TransferRequests.Where(x => x.Cohort.EmployerAccountId == 222).First();
             if (transferSummary == null) Assert.Fail("TransferRequest not in database.");
-            Assert.That(transferSummary.Cost, Is.EqualTo(1000));
-            Assert.That(transferSummary.Status, Is.EqualTo(TransferApprovalStatus.Pending));
-            Assert.That(TransferSenderUserInfo.UserDisplayName, Is.EqualTo(transferSummary.TransferApprovalActionedByEmployerName));
-            Assert.That(TransferSenderUserInfo.UserEmail, Is.EqualTo(transferSummary.TransferApprovalActionedByEmployerEmail));
+            Assert.Multiple(() =>
+            {
+                Assert.That(transferSummary.Cost, Is.EqualTo(1000));
+                Assert.That(transferSummary.Status, Is.EqualTo(TransferApprovalStatus.Pending));
+                Assert.That(TransferSenderUserInfo.UserDisplayName, Is.EqualTo(transferSummary.TransferApprovalActionedByEmployerName));
+                Assert.That(TransferSenderUserInfo.UserEmail, Is.EqualTo(transferSummary.TransferApprovalActionedByEmployerEmail));
+            });
         }
 
         public void VerifyTransferRequestApprovalPropertiesAreSet()
         {
-            Assert.That(TransferRequest.Status, Is.EqualTo(TransferApprovalStatus.Approved));
-            Assert.That(Now, Is.EqualTo(TransferRequest.TransferApprovalActionedOn));
-            Assert.That(TransferSenderUserInfo.UserDisplayName, Is.EqualTo(TransferRequest.TransferApprovalActionedByEmployerName));
-            Assert.That(TransferSenderUserInfo.UserEmail, Is.EqualTo(TransferRequest.TransferApprovalActionedByEmployerEmail));
+            Assert.Multiple(() =>
+            {
+                Assert.That(TransferRequest.Status, Is.EqualTo(TransferApprovalStatus.Approved));
+                Assert.That(Now, Is.EqualTo(TransferRequest.TransferApprovalActionedOn));
+                Assert.That(TransferSenderUserInfo.UserDisplayName, Is.EqualTo(TransferRequest.TransferApprovalActionedByEmployerName));
+                Assert.That(TransferSenderUserInfo.UserEmail, Is.EqualTo(TransferRequest.TransferApprovalActionedByEmployerEmail));
+            });
         }
 
         public void VerifyHasError(string expectedMessage)
@@ -571,18 +577,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var list = UnitOfWorkContext.GetEvents().OfType<TransferRequestApprovedEvent>().ToList();
 
-            Assert.That(list.Count, Is.EqualTo(1));
-            Assert.That(list[0].CohortId, Is.EqualTo(Cohort.Id));
-            Assert.That(list[0].TransferRequestId, Is.EqualTo(TransferRequest.Id));
-            Assert.That(list[0].UserInfo, Is.EqualTo(TransferSenderUserInfo));
-            Assert.That(list[0].ApprovedOn, Is.EqualTo(Now));
+            Assert.That(list, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(list[0].CohortId, Is.EqualTo(Cohort.Id));
+                Assert.That(list[0].TransferRequestId, Is.EqualTo(TransferRequest.Id));
+                Assert.That(list[0].UserInfo, Is.EqualTo(TransferSenderUserInfo));
+                Assert.That(list[0].ApprovedOn, Is.EqualTo(Now));
+            });
         }
 
         public void VerifyTransferRequestApprovedEventIsNotPublished()
         {
             var list = UnitOfWorkContext.GetEvents().OfType<TransferRequestApprovedEvent>().ToList();
 
-            Assert.That(list.Count, Is.EqualTo(0));
+            Assert.That(list, Is.Empty);
         }
 
         public Task RejectTransferRequest(long transferRequestId = 0)
@@ -608,11 +617,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var list = UnitOfWorkContext.GetEvents().OfType<TransferRequestRejectedEvent>().ToList();
 
-            Assert.That(list.Count, Is.EqualTo(1));
-            Assert.That(list[0].CohortId, Is.EqualTo(Cohort.Id));
-            Assert.That(list[0].TransferRequestId, Is.EqualTo(TransferRequest.Id));
-            Assert.That(list[0].UserInfo, Is.EqualTo(TransferSenderUserInfo));
-            Assert.That(list[0].RejectedOn, Is.EqualTo(Now));
+            Assert.That(list, Has.Count.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(list[0].CohortId, Is.EqualTo(Cohort.Id));
+                Assert.That(list[0].TransferRequestId, Is.EqualTo(TransferRequest.Id));
+                Assert.That(list[0].UserInfo, Is.EqualTo(TransferSenderUserInfo));
+                Assert.That(list[0].RejectedOn, Is.EqualTo(Now));
+            });
         }
 
         public void VerifyEntityIsBeingTracked(UserAction userAction)
@@ -622,13 +634,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .OfType<EntityStateChangedEvent>()
                 .Where(x => x.StateChangeType == userAction).ToList();
 
-            Assert.That(list.Count, Is.EqualTo(1));
+            Assert.That(list, Has.Count.EqualTo(1));
 
-            Assert.That(list[0].StateChangeType, Is.EqualTo(userAction));
-            Assert.That(list[0].EntityId, Is.EqualTo(TransferRequest.Id));
-            Assert.That(list[0].UpdatingUserId, Is.EqualTo(TransferSenderUserInfo.UserId));
-            Assert.That(list[0].UpdatingUserName, Is.EqualTo(TransferSenderUserInfo.UserDisplayName));
-            Assert.That(list[0].UpdatingParty, Is.EqualTo(Party.TransferSender));
+            Assert.Multiple(() =>
+            {
+                Assert.That(list[0].StateChangeType, Is.EqualTo(userAction));
+                Assert.That(list[0].EntityId, Is.EqualTo(TransferRequest.Id));
+                Assert.That(list[0].UpdatingUserId, Is.EqualTo(TransferSenderUserInfo.UserId));
+                Assert.That(list[0].UpdatingUserName, Is.EqualTo(TransferSenderUserInfo.UserDisplayName));
+                Assert.That(list[0].UpdatingParty, Is.EqualTo(Party.TransferSender));
+            });
         }        
 
         public void TearDown()

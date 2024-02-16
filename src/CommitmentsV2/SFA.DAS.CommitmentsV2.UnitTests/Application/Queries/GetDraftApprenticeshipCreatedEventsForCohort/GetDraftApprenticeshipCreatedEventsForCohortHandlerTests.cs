@@ -49,9 +49,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var result = await _fixture.GetResult(new GetDraftApprenticeshipCreatedEventsForCohortQuery(ProviderId, CohortId, 1, _loadedOn));
 
-            // Assert
-            Assert.That(_fixture.DraftApprentices.Count, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.Count()));
-            Assert.That(result.DraftApprenticeshipCreatedEvents.First().CohortId, Is.EqualTo(CohortId));
+            Assert.Multiple(() =>
+            {
+                // Assert
+                Assert.That(_fixture.DraftApprentices, Has.Count.EqualTo(result.DraftApprenticeshipCreatedEvents.Count()));
+                Assert.That(result.DraftApprenticeshipCreatedEvents.First().CohortId, Is.EqualTo(CohortId));
+            });
             Assert.That(_fixture.DraftApprentices[0].Id, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().DraftApprenticeshipId));
             Assert.That(_fixture.DraftApprentices[0].ReservationId, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().ReservationId));
             Assert.That(_fixture.DraftApprentices[0].Uln, Is.EqualTo(result.DraftApprenticeshipCreatedEvents.First().Uln));
