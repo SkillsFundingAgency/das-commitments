@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;

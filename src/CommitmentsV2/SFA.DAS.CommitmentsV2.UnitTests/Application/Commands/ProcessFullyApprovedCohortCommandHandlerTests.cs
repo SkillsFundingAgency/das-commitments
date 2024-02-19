@@ -105,7 +105,7 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
             fixture.Apprenticeships.ForEach(
                 a => fixture.EventPublisher.Verify(
                     p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
-                        e => fixture.IsValidCostBreakdown(a, e))),
+                        e => ProcessFullyApprovedCohortCommandFixture.IsValidCostBreakdown(a, e))),
                     Times.Once));
         }
     }
@@ -293,7 +293,7 @@ public class ProcessFullyApprovedCohortCommandHandlerTests
         return isValid;
     }
 
-    public bool IsValidCostBreakdown(Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+    public static bool IsValidCostBreakdown(Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
     {
         var priceEpisode = apprenticeshipCreatedEvent.PriceEpisodes.First();
         return priceEpisode.TrainingPrice == apprenticeship.TrainingPrice && priceEpisode.EndPointAssessmentPrice == apprenticeship.EndPointAssessmentPrice;

@@ -2,7 +2,6 @@ using AutoFixture;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;

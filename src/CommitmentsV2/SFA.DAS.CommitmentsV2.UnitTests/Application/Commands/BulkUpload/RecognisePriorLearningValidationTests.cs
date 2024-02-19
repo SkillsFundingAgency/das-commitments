@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             var errors = await fixture.Handle();
 
-            fixture.ValidateError(errors, "RecognisePriorLearning", "<b>RPL data</b> should not be entered when the start date is before 1 August 2022.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "RecognisePriorLearning", "<b>RPL data</b> should not be entered when the start date is before 1 August 2022.");
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 
             var errors = await fixture.Handle();
 
-            fixture.ValidateError(errors, "RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised.");
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.CsvRecords[0].RecognisePriorLearningAsString = "XXX";
 
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, "RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, "RecognisePriorLearning", "Enter whether <b>prior learning</b> is recognised as 'true' or 'false'.");
         }
 
         [TestCase("TRUE")]
@@ -77,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.CsvRecords[0].RecognisePriorLearningAsString = flag;
 
             var errors = await fixture.Handle();
-            fixture.ValidateNoErrorsFound(errors);
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateNoErrorsFound(errors);
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: null, priceReducedBy: 101);
 
             var errors = await fixture.Handle();
-            fixture.ValidateNoErrorsFound(errors);
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateNoErrorsFound(errors);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             fixture.SetPriorLearning(recognisePriorLearning: true, durationReducedBy: 100, priceReducedBy: null);
 
             var errors = await fixture.Handle();
-            fixture.ValidateNoErrorsFound(errors);
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateNoErrorsFound(errors);
         }
     }
 }

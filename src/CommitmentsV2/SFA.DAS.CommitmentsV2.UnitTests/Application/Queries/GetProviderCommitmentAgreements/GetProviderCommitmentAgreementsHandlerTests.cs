@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreements;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;

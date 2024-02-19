@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.SQLite;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 using SFA.DAS.CommitmentsV2.Data;

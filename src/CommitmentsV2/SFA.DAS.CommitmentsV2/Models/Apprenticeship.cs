@@ -227,7 +227,7 @@ public class Apprenticeship : ApprenticeshipBase, ITrackableEntity
     {
         StartTrackingSession(UserAction.TriageDataLocks, party, Cohort.EmployerAccountId, Cohort.ProviderId, userInfo, Id);
         
-        foreach (var priceHistory in currentPriceHistory.Where(priceHistory => updatedPriceHistory.All(x => x.Cost != priceHistory.Cost)))
+        foreach (var priceHistory in currentPriceHistory.Where(priceHistory => updatedPriceHistory.TrueForAll(x => x.Cost != priceHistory.Cost)))
         {
             ChangeTrackingSession.TrackDelete(priceHistory);
         }

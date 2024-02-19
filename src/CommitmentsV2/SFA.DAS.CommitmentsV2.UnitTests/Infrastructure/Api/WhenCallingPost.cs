@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Infrastructure;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;

@@ -3,8 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using FluentValidation;
-using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortEmailOverlaps;

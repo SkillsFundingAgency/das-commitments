@@ -8,7 +8,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Services;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services

@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using AutoFixture.Kernel;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLockSummaries;

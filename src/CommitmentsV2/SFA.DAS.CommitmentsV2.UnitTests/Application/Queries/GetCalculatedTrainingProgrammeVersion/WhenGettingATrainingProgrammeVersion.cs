@@ -3,7 +3,6 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCalculatedTrainingProgrammeVersion;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.Testing.AutoFixture;

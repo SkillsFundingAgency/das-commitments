@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
             using var fixture = new BulkUploadValidateCommandHandlerTestsFixture();
             fixture.SetProviderRef("012345678901234567890");
             var errors = await fixture.Handle();
-            fixture.ValidateError(errors, 1, "ProviderRef", "The <b>Provider Ref</b> must not be longer than 20 characters");
+            BulkUploadValidateCommandHandlerTestsFixture.ValidateError(errors, 1, "ProviderRef", "The <b>Provider Ref</b> must not be longer than 20 characters");
         }
     }
 }

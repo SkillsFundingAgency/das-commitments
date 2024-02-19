@@ -9,7 +9,6 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship

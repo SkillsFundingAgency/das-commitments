@@ -1,12 +1,10 @@
-﻿using AutoFixture;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllProviders;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 

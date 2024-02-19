@@ -1,5 +1,4 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;

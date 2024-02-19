@@ -1,10 +1,6 @@
 ﻿using AutoFixture.Kernel;
-using MediatR;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
 using System;
-using System.Linq;
-using System.Reflection;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests
 {

@@ -7,7 +7,6 @@ using AutoFixture.Kernel;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using PaymentStatus = SFA.DAS.CommitmentsV2.Types.PaymentStatus;

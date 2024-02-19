@@ -21,7 +21,7 @@ public class WhenUpdatingDraftApprenticeship
         var fixtures = new CohortTestFixtures();
 
         // arrange
-        var originalDraft = fixtures.Create();
+        var originalDraft = CohortTestFixtures.Create();
         var modifiedDraft = CohortTestFixtures.UpdatePropertiesWithNewValues(originalDraft);
         var modifiedDraftDetails = CohortTestFixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
 
@@ -42,7 +42,7 @@ public class WhenUpdatingDraftApprenticeship
         var fixtures = new CohortTestFixtures();
 
         // arrange
-        var originalDraft = fixtures.Create();
+        var originalDraft = CohortTestFixtures.Create();
         var modifiedDraft = CohortTestFixtures.UpdatePropertiesWithNewValues(originalDraft);
         var modifiedDraftDetails = CohortTestFixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
         modifiedDraftDetails.StartDate = modifiedDraftDetails.EndDate.Value.AddMonths(1);
@@ -68,7 +68,7 @@ internal class CohortTestFixtures
 
     public UserInfo UserInfo { get;  }
 
-    public DraftApprenticeship Create()
+    public static DraftApprenticeship Create()
     {
         return new DraftApprenticeship(new DraftApprenticeshipDetails
         {

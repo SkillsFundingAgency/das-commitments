@@ -33,7 +33,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     public IRequestHandler<BulkUploadValidateCommand, BulkUploadValidateApiResponse> Handler { get; set; }
     public Mock<IOverlapCheckService> OverlapCheckService { get; set; }
     public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; set; }
-    public Mock<IEmployerAgreementService> EmployerAgreementService { get; set; }        
+    public Mock<IEmployerAgreementService> EmployerAgreementService { get; set; }
     public List<BulkUploadAddDraftApprenticeshipRequest> CsvRecords { get; set; }
     public BulkUploadValidateCommand Command { get; set; }
     public Mock<IProviderRelationshipsApiClient> ProviderRelationshipsApiClient { get; set; }
@@ -51,7 +51,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         MockLinkGenerator = new Mock<ILinkGenerator>();
         CsvRecords = new List<BulkUploadAddDraftApprenticeshipRequest>();
         PopulateCsvRecord();
-        Command = new BulkUploadValidateCommand()
+        Command = new BulkUploadValidateCommand
         {
             CsvRecords = CsvRecords,
             ProviderId = ProviderId,
@@ -65,8 +65,8 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
 
         OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, CancellationToken.None))
             .ReturnsAsync(() => OverlapCheckResult);
-            
-        var listUlnOverlap = new List<OverlapCheckResult>()
+
+        var listUlnOverlap = new List<OverlapCheckResult>
         {
             new(false, false)
         };
@@ -77,7 +77,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<string>(), It.IsAny<CommitmentsV2.Domain.Entities.DateRange>(), null, null, CancellationToken.None))
             .ReturnsAsync(() => EmailOverlapCheckResult);
 
-        var listEmailOverlap = new List<EmailOverlapCheckResult>()
+        var listEmailOverlap = new List<EmailOverlapCheckResult>
         {
             new(1, OverlapStatus.None, true)
         };
@@ -88,23 +88,23 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(DateTime.Parse(CsvRecords[0].StartDateAsString));
 
         EmployerAgreementService = new Mock<IEmployerAgreementService>();
-        EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(() => IsAgreementSigned);            
+        EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(() => IsAgreementSigned);
 
         Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
             .Options);
-        SetupDbData();            
+        SetupDbData();
 
         ProviderRelationshipsApiClient = new Mock<IProviderRelationshipsApiClient>();
         ProviderRelationshipsApiClient.Setup(x => x.HasPermission(It.IsAny<HasPermissionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => true);
-        RplSettingsConfig = new RplSettingsConfiguration{ MinimumPriceReduction = 100, MaximumTrainingTimeReduction = 999 };
+        RplSettingsConfig = new RplSettingsConfiguration { MinimumPriceReduction = 100, MaximumTrainingTimeReduction = 999 };
 
         Handler = new BulkUploadValidateCommandHandler(Mock.Of<ILogger<BulkUploadValidateCommandHandler>>()
             , new Lazy<ProviderCommitmentsDbContext>(() => Db)
             , OverlapCheckService.Object
             , AcademicYearDateProvider.Object
             , ProviderRelationshipsApiClient.Object
-            , EmployerAgreementService.Object 
+            , EmployerAgreementService.Object
             , RplSettingsConfig
             , MockLinkGenerator.Object
         );
@@ -120,7 +120,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         var ale = new AccountLegalEntity()
             .Set(al => al.PublicHashedId, "XEGE5X")
             .Set(al => al.Account, account);
-            
+
         Cohort = new Cohort()
             .Set(c => c.Id, 111)
             .Set(c => c.EmployerAccountId, 222)
@@ -148,10 +148,10 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             .Set(d => d.CourseName, "coursename");
         Cohort.Apprenticeships.Add(draftApprenticeship);
 
-        Db.Cohorts.Add(Cohort);            
-        Db.Standards.Add(standard);            
+        Db.Cohorts.Add(Cohort);
+        Db.Standards.Add(standard);
         Db.SaveChanges();
-    }        
+    }
 
     internal async Task<Standard> GetStandard()
     {
@@ -198,7 +198,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             ProviderRef = "ZB88",
             Email = "abc34628125987@abc2.com"
         });
-    }        
+    }
 
     internal void SetUpDuplicateEmail()
     {
@@ -253,7 +253,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
             CourseName = "coursename"
         });
     }
-        
+
     internal void SetUpDuplicateEmailWithinTheSameCohort()
     {
         CsvRecords.Add(new BulkUploadAddDraftApprenticeshipRequest
@@ -293,18 +293,18 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         return Handler.Handle(Command, CancellationToken.None);
     }
 
-    public void ValidateError(BulkUploadValidateApiResponse errors, int numberOfErrors, string property, string errorText)
+    public static void ValidateError(BulkUploadValidateApiResponse errors, int numberOfErrors, string property, string errorText)
     {
-        Assert.That(errors.BulkUploadValidationErrors, Has.Count.EqualTo(numberOfErrors));
-        Assert.That(errors.BulkUploadValidationErrors[0].Errors, Has.Count.EqualTo(numberOfErrors));
         Assert.Multiple(() =>
         {
+            Assert.That(errors.BulkUploadValidationErrors, Has.Count.EqualTo(numberOfErrors));
+            Assert.That(errors.BulkUploadValidationErrors[0].Errors, Has.Count.EqualTo(numberOfErrors));
             Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].ErrorText, Is.EqualTo(errorText));
             Assert.That(errors.BulkUploadValidationErrors[0].Errors[0].Property, Is.EqualTo(property));
         });
     }
 
-    public void ValidateError(BulkUploadValidateApiResponse errors, string property, string errorText)
+    public static void ValidateError(BulkUploadValidateApiResponse errors, string property, string errorText)
     {
         errors.Should().NotBeNull();
         errors.BulkUploadValidationErrors.Should().NotBeEmpty();
@@ -315,7 +315,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         });
     }
 
-    public void ValidateNoErrorsFound(BulkUploadValidateApiResponse errors)
+    public static void ValidateNoErrorsFound(BulkUploadValidateApiResponse errors)
     {
         Assert.That(errors.BulkUploadValidationErrors, Is.Empty);
     }
@@ -402,7 +402,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
 
     internal BulkUploadValidateCommandHandlerTestsFixture SetMainProvider(bool isMainProvider)
     {
-        Command.ProviderStandardResults.IsMainProvider= isMainProvider;
+        Command.ProviderStandardResults.IsMainProvider = isMainProvider;
         return this;
     }
 
@@ -468,26 +468,22 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
 
     internal void SetUpOverlappingUlnWithinTheSameCohort(bool startDate, bool endDate)
     {
-            
-        var listUlnOverlap = new List<OverlapCheckResult>()
+        var listUlnOverlap = new List<OverlapCheckResult>
         {
             new(startDate, endDate)
         };
         OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => listUlnOverlap);
-
     }
 
     internal void SetOverlappingEmailWithinTheSameCohort(OverlapStatus status)
     {
-
-        var listEmailOverlap = new List<EmailOverlapCheckResult>()
+        var listEmailOverlap = new List<EmailOverlapCheckResult>
         {
             new(1, status, true)
         };
         OverlapCheckService.Setup(x => x.CheckForEmailOverlaps(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(listEmailOverlap);
-
     }
 
     internal BulkUploadValidateCommandHandlerTestsFixture SetRecognisePriorLearning(string recognisePriorLearning)
@@ -530,7 +526,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         CsvRecords[0].IsDurationReducedByRPLAsString = isDurationReducedByRpl.ToString();
     }
 
-    internal void SetPriorLearningRaw(bool? recognisePriorLearning, string durationReducedByAsString = null, string priceReducedByAsString = null, string trainingTotalHoursAsString = null, 
+    internal void SetPriorLearningRaw(bool? recognisePriorLearning, string durationReducedByAsString = null, string priceReducedByAsString = null, string trainingTotalHoursAsString = null,
         string trainingHoursReductionAsString = null, string isDurationReducedByRplAsString = null)
     {
         CsvRecords[0].RecognisePriorLearningAsString = recognisePriorLearning?.ToString();
@@ -542,7 +538,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
     }
 
     internal void SetUpIncompleteRecord()
-    {           
+    {
         DraftApprenticeship = new DraftApprenticeship
         {
             Id = 100,
@@ -590,9 +586,9 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         Db.SaveChanges();
 
         var fixture = new Fixture();
-        var cohort =  Db.Cohorts.FirstOrDefaultAsync().Result;
+        var cohort = Db.Cohorts.FirstOrDefaultAsync().Result;
         var apprenticeship = new Apprenticeship();
-        
+
         apprenticeship.Set(x => x.FirstName, "FirstName");
         apprenticeship.Set(x => x.LastName, "LastName");
         apprenticeship.Set(x => x.Email, "abc@hotmail.com");
@@ -615,7 +611,7 @@ public class BulkUploadValidateCommandHandlerTestsFixture : IDisposable
         cohort.ChangeOfPartyRequestId = request.Id;
         Db.SaveChanges();
         return this;
-    }        
+    }
 
     internal BulkUploadValidateCommandHandlerTestsFixture SetEpaOrgId(string epaOrgId)
     {

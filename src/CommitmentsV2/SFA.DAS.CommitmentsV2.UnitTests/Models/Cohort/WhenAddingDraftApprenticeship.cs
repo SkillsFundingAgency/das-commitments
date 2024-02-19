@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
-using MoreLinq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;

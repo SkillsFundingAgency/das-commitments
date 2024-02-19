@@ -1,4 +1,3 @@
-using AutoFixture.NUnit3;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;

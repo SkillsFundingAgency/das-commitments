@@ -11,7 +11,6 @@ using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;

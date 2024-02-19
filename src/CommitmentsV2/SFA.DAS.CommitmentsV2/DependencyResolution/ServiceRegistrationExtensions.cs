@@ -155,10 +155,10 @@ public static class ServiceRegistrationExtensions
     private static IServiceCollection AddMappers(this IServiceCollection services)
     {
         var mappingAssembly = typeof(ReservationValidationRequestToValidationReservationMessageMapper).Assembly;
-
+        
         var mappingTypes = mappingAssembly
             .GetTypes()
-            .Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMapper<,>)));
+            .Where(type => type.GetInterfaces().ToList().Exists(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMapper<,>)));
 
         foreach (var mapperType in mappingTypes)
         {

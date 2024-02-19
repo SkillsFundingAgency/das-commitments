@@ -11,7 +11,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRequests
 {

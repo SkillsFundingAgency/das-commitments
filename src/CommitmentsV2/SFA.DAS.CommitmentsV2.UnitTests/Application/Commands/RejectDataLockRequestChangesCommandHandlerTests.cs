@@ -1,26 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ResolveDataLocks;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands;
 
@@ -49,11 +46,11 @@ public class RejectDataLockRequestChangesCommandHandlerTests
     {
         // Arrange
         _fixture.SeedData()
-            .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, true, Status.Fail, DataLockErrorCode.Dlock03)
-            .WithDataLock(TestsFixture.ApprenticeshipId, 50, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime.AddMonths(1), 2000, false, TriageStatus.Change, EventStatus.New, false, Status.Pass, DataLockErrorCode.Dlock07);
+            .WithDataLock(_fixture.ApprenticeshipId + 1, 10, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId + 2, 20, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
+            .WithDataLock(_fixture.ApprenticeshipId + 3, 30, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId, 40, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, true, Status.Fail, DataLockErrorCode.Dlock03)
+            .WithDataLock(_fixture.ApprenticeshipId, 50, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime.AddMonths(1), 2000, false, TriageStatus.Change, EventStatus.New, false, Status.Pass, DataLockErrorCode.Dlock07);
 
         // Act
         await _fixture.Handle();
@@ -68,9 +65,9 @@ public class RejectDataLockRequestChangesCommandHandlerTests
     {
         // Arrange
         _fixture.SeedData()
-            .WithDataLock(TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, true, Status.Fail, DataLockErrorCode.Dlock03)
-            .WithDataLock(TestsFixture.ApprenticeshipId, 50, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime.AddMonths(1), 2000, false, TriageStatus.Change, EventStatus.New, false, Status.Pass, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId, 60, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime.AddMonths(2), 3000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock03);
+            .WithDataLock(_fixture.ApprenticeshipId, 40, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, true, Status.Fail, DataLockErrorCode.Dlock03)
+            .WithDataLock(_fixture.ApprenticeshipId, 50, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime.AddMonths(1), 2000, false, TriageStatus.Change, EventStatus.New, false, Status.Pass, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId, 60, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime.AddMonths(2), 3000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock03);
 
         // Act
         await _fixture.Handle();
@@ -85,12 +82,10 @@ public class RejectDataLockRequestChangesCommandHandlerTests
         // Arrange
         _fixture.SeedData()
             .WithHasHadDataLockSuccess(true)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(
-                TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, 
-                TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03);
+            .WithDataLock(_fixture.ApprenticeshipId + 1, 10, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId + 2, 20, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
+            .WithDataLock(_fixture.ApprenticeshipId + 3, 30, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId, 40, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03);
 
         // Act
         await _fixture.Handle();
@@ -105,12 +100,10 @@ public class RejectDataLockRequestChangesCommandHandlerTests
         // Arrange
         _fixture.SeedData()
             .WithHasHadDataLockSuccess(true)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(
-                TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false,
-                TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
+            .WithDataLock(_fixture.ApprenticeshipId + 1, 10, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId + 2, 20, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
+            .WithDataLock(_fixture.ApprenticeshipId + 3, 30, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, true, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId, 40, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
 
         // Act
         await _fixture.Handle();
@@ -125,11 +118,10 @@ public class RejectDataLockRequestChangesCommandHandlerTests
         // Arrange
         _fixture.SeedData()
             .WithHasHadDataLockSuccess(true)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(
-                TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false,
+            .WithDataLock(_fixture.ApprenticeshipId + 1, 10, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId + 2, 20, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
+            .WithDataLock(_fixture.ApprenticeshipId + 3, 30, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId, 40, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime, 1000, false,
                 TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03);
 
         // Act
@@ -145,10 +137,10 @@ public class RejectDataLockRequestChangesCommandHandlerTests
         // Arrange
         _fixture.SeedData()
             .WithHasHadDataLockSuccess(false)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
+            .WithDataLock(_fixture.ApprenticeshipId + 1, 10, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId + 2, 20, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
+            .WithDataLock(_fixture.ApprenticeshipId + 3, 30, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId, 40, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
 
         // Act
         await _fixture.Handle();
@@ -163,10 +155,10 @@ public class RejectDataLockRequestChangesCommandHandlerTests
         // Arrange
         _fixture.SeedData()
             .WithHasHadDataLockSuccess(false)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 1, 10, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 2, 20, TestsFixture.TrainingCourseCode200, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
-            .WithDataLock(TestsFixture.ApprenticeshipId + 3, 30, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
-            .WithDataLock(TestsFixture.ApprenticeshipId, 40, TestsFixture.TrainingCourseCode100, TestsFixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
+            .WithDataLock(_fixture.ApprenticeshipId + 1, 10, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Unknown, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId + 2, 20, _fixture.TrainingCourseCode200, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock03)
+            .WithDataLock(_fixture.ApprenticeshipId + 3, 30, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Unknown, DataLockErrorCode.Dlock07)
+            .WithDataLock(_fixture.ApprenticeshipId, 40, _fixture.TrainingCourseCode100, _fixture.ProxyCurrentDateTime, 1000, false, TriageStatus.Change, EventStatus.New, false, Status.Fail, DataLockErrorCode.Dlock07);
 
         // Act
         await _fixture.Handle();
@@ -178,18 +170,17 @@ public class RejectDataLockRequestChangesCommandHandlerTests
 
 public class RejectDataLockRequestChangesCommandHandlerTestsFixture : IDisposable
 {
-    public static readonly long ApprenticeshipId = 12;
-    public static readonly string TrainingCourseCode100 = "100";
-    public static readonly string TrainingCourseCode200 = "200";
-    public static DateTime ProxyCurrentDateTime = new(2020, 1, 1);
+    public readonly long ApprenticeshipId = 12;
+    public readonly string TrainingCourseCode100 = "100";
+    public readonly string TrainingCourseCode200 = "200";
+    public readonly DateTime ProxyCurrentDateTime = new(2020, 1, 1);
 
     private const string TrainingCourseName100 = "100 Test Name";
     private readonly Fixture _autoFixture;
     private readonly RejectDataLocksRequestChangesCommand _command;
     private readonly ProviderCommitmentsDbContext _db;
     private readonly IRequestHandler<RejectDataLocksRequestChangesCommand> _handler;
-
-    private UnitOfWorkContext UnitOfWorkContext { get; set; }
+    private readonly UnitOfWorkContext _unitOfWorkContext;
 
     public RejectDataLockRequestChangesCommandHandlerTestsFixture()
     {
@@ -197,7 +188,7 @@ public class RejectDataLockRequestChangesCommandHandlerTestsFixture : IDisposabl
         _autoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
         _autoFixture.Customizations.Add(new ModelSpecimenBuilder());
 
-        UnitOfWorkContext = new UnitOfWorkContext();
+        _unitOfWorkContext = new UnitOfWorkContext();
 
         _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString(), b => b.EnableNullChecks(false))
@@ -252,7 +243,7 @@ public class RejectDataLockRequestChangesCommandHandlerTestsFixture : IDisposabl
 
         _db.PriceHistory.AddRange(priceHistoryDetails);
 
-        var apprenticeshipDetails = _autoFixture.Build<CommitmentsV2.Models.Apprenticeship>()
+        var apprenticeshipDetails = _autoFixture.Build<Apprenticeship>()
             .With(s => s.Id, ApprenticeshipId)
             .With(s => s.CourseCode, TrainingCourseCode100)
             .With(s => s.CourseName, TrainingCourseName100)
@@ -324,7 +315,7 @@ public class RejectDataLockRequestChangesCommandHandlerTestsFixture : IDisposabl
     public void VerifyEntityStateChangedEventPublished(Func<Times> times)
     {
         times().Deconstruct(out int expectedFrom, out int expectedTo);
-        UnitOfWorkContext
+        _unitOfWorkContext
             .GetEvents()
             .OfType<EntityStateChangedEvent>()
             .Count()
@@ -335,7 +326,7 @@ public class RejectDataLockRequestChangesCommandHandlerTestsFixture : IDisposabl
     public void VerifyEntityStateChangedEventPublished(UserAction userAction, Func<Times> times)
     {
         times().Deconstruct(out var expectedFrom, out _);
-        UnitOfWorkContext
+        _unitOfWorkContext
             .GetEvents()
             .OfType<EntityStateChangedEvent>()
             .Count(p => p.StateChangeType == userAction)

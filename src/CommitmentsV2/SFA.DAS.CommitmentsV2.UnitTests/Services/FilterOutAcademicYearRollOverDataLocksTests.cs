@@ -10,8 +10,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using AutoFixture;
 using SFA.DAS.CommitmentsV2.Types;
-using System.Linq;
-using SFA.DAS.Testing.Builders;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
 using System.Threading;
 

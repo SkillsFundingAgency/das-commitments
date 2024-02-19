@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;

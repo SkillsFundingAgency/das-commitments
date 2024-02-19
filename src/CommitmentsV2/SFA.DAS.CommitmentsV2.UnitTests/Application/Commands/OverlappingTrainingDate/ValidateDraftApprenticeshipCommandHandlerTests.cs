@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ValidateDraftApprenticeshipDetails;
