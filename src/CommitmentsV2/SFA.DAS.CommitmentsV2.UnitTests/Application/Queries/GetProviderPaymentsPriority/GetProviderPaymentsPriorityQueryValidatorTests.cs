@@ -1,5 +1,4 @@
 using FluentValidation.TestHelper;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderPaymentsPriority

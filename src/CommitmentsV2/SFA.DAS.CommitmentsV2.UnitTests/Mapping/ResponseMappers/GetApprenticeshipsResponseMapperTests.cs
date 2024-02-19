@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using FluentAssertions;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;
 using SFA.DAS.Testing.AutoFixture;
 

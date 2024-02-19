@@ -1,8 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services.EditValidation
 {
     public class EmailValidationTests
     {

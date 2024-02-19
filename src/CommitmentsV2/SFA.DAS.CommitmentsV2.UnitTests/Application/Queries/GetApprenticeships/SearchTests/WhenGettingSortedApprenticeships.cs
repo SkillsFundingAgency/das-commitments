@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture.NUnit3;
-using Moq;
-using NUnit.Framework;
+﻿using AutoFixture.NUnit3;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships.Search.Services.Parameters;
 using SFA.DAS.CommitmentsV2.Data;

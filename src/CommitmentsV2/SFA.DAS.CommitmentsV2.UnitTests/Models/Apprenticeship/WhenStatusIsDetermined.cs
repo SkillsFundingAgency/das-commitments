@@ -1,6 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Types;
+﻿using SFA.DAS.CommitmentsV2.Types;
 using PaymentStatus = SFA.DAS.CommitmentsV2.Types.PaymentStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Apprenticeship

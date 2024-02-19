@@ -1,19 +1,11 @@
-﻿using System;
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using NServiceBus;
+﻿using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Commands.OverlappingTrainingDateRequestNotificationToServiceDesk;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.Testing.Builders;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System.Threading;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Configuration;
-using System.Linq;
 using SFA.DAS.Notifications.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.OverlappingTrainingDate

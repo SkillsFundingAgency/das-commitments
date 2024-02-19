@@ -1,12 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetAllProviders;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetAllProviders;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAllProviders
 {

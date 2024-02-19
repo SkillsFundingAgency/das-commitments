@@ -1,8 +1,5 @@
-﻿using NUnit.Framework;
-using System;
-using SFA.DAS.CommitmentsV2.TestHelpers;
+﻿using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.UnitOfWork.Context;
-using AutoFixture;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.ChangeOfPartyRequest.UpdateChangeOfPartyRequest

@@ -1,17 +1,10 @@
-﻿using AutoFixture;
-using AutoFixture.Kernel;
-using Moq;
-using NUnit.Framework;
+﻿using AutoFixture.Kernel;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping.BulkUpload;
 using SFA.DAS.CommitmentsV2.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload
 {

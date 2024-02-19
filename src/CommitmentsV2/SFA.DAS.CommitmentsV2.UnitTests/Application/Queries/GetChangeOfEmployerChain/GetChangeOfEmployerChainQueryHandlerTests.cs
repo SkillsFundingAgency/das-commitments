@@ -1,17 +1,9 @@
-using AutoFixture;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfEmployerChain;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfEmployerChain
 {

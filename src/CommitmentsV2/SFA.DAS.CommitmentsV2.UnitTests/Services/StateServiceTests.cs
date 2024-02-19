@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using AutoFixture;
-using NUnit.Framework;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
     [TestFixture]
     public class StateServiceTests

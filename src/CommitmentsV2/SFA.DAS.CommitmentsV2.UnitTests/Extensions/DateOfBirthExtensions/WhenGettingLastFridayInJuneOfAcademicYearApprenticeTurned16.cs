@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Extensions;
-using System;
+﻿using SFA.DAS.CommitmentsV2.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Extensions.DateOfBirthExtensions
 {

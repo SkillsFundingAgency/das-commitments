@@ -1,12 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipConfirmed;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;

@@ -1,5 +1,4 @@
 ﻿using FluentValidation.Results;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetChangeOfPartyRequests;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetChangeOfPartyRequests

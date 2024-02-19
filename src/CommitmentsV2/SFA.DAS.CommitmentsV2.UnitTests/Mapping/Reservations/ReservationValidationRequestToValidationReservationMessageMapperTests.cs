@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
+﻿using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Mapping.Reservations;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations

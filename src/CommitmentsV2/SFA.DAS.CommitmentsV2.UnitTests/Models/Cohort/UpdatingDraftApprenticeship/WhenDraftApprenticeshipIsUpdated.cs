@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using MoreLinq;
-using NUnit.Framework;
+﻿using MoreLinq;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;

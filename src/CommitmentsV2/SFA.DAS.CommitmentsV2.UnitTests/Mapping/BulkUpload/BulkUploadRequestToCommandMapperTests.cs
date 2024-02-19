@@ -1,11 +1,7 @@
-﻿using AutoFixture;
-using MoreLinq;
-using NUnit.Framework;
+﻿using MoreLinq;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping.BulkUpload;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.BulkUpload;
 

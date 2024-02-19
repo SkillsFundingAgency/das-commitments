@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using AutoFixture;
-using KellermanSoftware.CompareNetObjects;
-using NUnit.Framework;
+﻿using KellermanSoftware.CompareNetObjects;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping.ResponseMappers;

@@ -1,8 +1,6 @@
 ﻿using FluentValidation.TestHelper;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Validators;
-using System;
 using System.Linq.Expressions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validators

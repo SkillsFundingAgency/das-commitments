@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDataLocks
 {

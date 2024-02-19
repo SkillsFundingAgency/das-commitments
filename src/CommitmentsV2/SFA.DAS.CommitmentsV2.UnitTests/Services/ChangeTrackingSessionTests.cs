@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutoFixture;
-using Moq;
-using Newtonsoft.Json;
-using NUnit.Framework;
+﻿using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;

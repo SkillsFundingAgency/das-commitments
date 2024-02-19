@@ -1,17 +1,11 @@
 using AutoFixture.NUnit3;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Infrastructure;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Infrastructure.Api
 {

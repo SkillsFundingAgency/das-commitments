@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
 {

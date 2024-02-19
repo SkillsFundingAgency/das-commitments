@@ -1,21 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using Moq;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Collections;
 using Microsoft.Extensions.Logging;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateProviderPaymentsPriority;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using System.Collections.Generic;
-using System.Linq;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using Newtonsoft.Json;
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+﻿using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;

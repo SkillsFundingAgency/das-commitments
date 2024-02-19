@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreements;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetProviderCommitmentAgreements;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProviderCommitmentAgreements
 {

@@ -1,17 +1,9 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using SFA.DAS.CommitmentsV2.Models;
-using System.Threading.Tasks;
+﻿using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
-using Moq;
 using SFA.DAS.CommitmentsV2.Data;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using AutoFixture;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.TestHelpers.DatabaseMock;
-using System.Threading;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {

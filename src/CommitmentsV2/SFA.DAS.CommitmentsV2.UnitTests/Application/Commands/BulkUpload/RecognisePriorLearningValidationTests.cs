@@ -1,8 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using System.Threading.Tasks;
-
-namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
+﻿namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands.BulkUpload
 {
     public class RecognisePriorLearningValidationTests
     {

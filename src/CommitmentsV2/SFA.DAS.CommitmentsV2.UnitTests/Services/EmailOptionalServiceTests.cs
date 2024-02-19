@@ -1,6 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Services;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
