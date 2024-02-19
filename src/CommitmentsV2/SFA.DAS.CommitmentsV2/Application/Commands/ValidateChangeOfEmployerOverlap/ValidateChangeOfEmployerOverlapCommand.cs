@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateChangeOfEmployerOverlap
+﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.ValidateChangeOfEmployerOverlap
 {
     public class ValidateChangeOfEmployerOverlapCommand : IRequest
     {

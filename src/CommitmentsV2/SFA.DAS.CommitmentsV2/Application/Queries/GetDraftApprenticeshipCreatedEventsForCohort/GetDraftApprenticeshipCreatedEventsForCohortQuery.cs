@@ -1,6 +1,3 @@
-using System;
-using MediatR;
-
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort
 {
     public class GetDraftApprenticeshipCreatedEventsForCohortQuery : IRequest<GetDraftApprenticeshipCreatedEventsForCohortQueryResult>

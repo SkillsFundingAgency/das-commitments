@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Data;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using NServiceBus.Persistence;
 using SFA.DAS.CommitmentsV2.Configuration;

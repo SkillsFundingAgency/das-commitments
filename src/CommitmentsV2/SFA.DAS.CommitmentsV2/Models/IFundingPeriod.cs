@@ -1,5 +1,3 @@
-using System;
-
 namespace SFA.DAS.CommitmentsV2.Models
 {
     public interface IFundingPeriod

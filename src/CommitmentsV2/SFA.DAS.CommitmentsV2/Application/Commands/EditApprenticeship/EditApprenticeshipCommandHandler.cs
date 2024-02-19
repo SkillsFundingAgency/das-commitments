@@ -1,19 +1,14 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgramme;
-using System.Linq;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetTrainingProgrammeVersion;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.EditApprenticeship

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.CommitmentsV2.Exceptions;
+﻿namespace SFA.DAS.CommitmentsV2.Exceptions;
 
 public class NullConnectionStringException(string message) : Exception(message)
 {

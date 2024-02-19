@@ -1,10 +1,6 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using SFA.DAS.EmailValidationService;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest

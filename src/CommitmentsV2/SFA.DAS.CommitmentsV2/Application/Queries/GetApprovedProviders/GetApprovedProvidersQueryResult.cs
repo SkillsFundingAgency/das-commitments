@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders
 {
     public class GetApprovedProvidersQueryResult
     {

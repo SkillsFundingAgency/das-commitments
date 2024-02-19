@@ -3,9 +3,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeshi
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.BulkUpload
 {

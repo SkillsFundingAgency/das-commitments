@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SFA.DAS.CommitmentsV2.Configuration
+﻿namespace SFA.DAS.CommitmentsV2.Configuration
 {
     public static class DasEnvironmentName
     {

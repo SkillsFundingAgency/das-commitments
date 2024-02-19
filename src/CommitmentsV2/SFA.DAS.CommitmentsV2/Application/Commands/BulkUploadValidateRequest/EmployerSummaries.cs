@@ -1,9 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
+﻿namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest
 {
     public partial class BulkUploadValidateCommandHandler
     {

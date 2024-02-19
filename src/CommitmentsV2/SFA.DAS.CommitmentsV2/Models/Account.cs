@@ -1,9 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {

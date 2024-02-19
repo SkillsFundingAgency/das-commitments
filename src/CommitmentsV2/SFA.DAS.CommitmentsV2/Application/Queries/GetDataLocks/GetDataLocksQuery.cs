@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks
+﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDataLocks
 {
     public class GetDataLocksQuery : IRequest<GetDataLocksQueryResult>
     {
