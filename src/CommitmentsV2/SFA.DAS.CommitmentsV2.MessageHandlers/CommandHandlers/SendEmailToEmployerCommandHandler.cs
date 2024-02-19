@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Notifications.Messages.Commands;

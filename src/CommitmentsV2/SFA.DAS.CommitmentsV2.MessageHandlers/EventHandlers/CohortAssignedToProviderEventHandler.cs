@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+﻿using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Infrastructure;
 using SFA.DAS.CommitmentsV2.Messages.Events;

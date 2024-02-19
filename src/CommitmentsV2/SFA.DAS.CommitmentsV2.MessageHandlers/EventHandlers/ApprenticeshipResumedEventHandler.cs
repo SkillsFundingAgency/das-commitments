@@ -1,10 +1,5 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Messages.Commands;
+﻿using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using SFA.DAS.Encoding;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;

@@ -1,10 +1,6 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAllLearners;
-using System;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {

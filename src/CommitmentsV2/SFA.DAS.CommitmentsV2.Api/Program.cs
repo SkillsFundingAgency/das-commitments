@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using NLog.Web;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
-using System;
-using Microsoft.Extensions.Hosting;
 using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 
 namespace SFA.DAS.CommitmentsV2.Api;

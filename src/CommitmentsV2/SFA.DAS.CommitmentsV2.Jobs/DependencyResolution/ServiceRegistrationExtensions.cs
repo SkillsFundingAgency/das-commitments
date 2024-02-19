@@ -1,6 +1,4 @@
-﻿using MediatR;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddHistory;
 using SFA.DAS.CommitmentsV2.Caching;
@@ -59,7 +57,7 @@ public static class ServiceRegistrationExtensions
         return hostBuilder;
     }
 
-    public static IServiceCollection AddDefaultJobsServices(this IServiceCollection services)
+    private static IServiceCollection AddDefaultJobsServices(this IServiceCollection services)
     {
         services.AddTransient<IAcademicYearEndExpiryProcessorService, AcademicYearEndExpiryProcessorService>();
         services.AddTransient<IAcademicYearDateProvider, AcademicYearDateProvider>();

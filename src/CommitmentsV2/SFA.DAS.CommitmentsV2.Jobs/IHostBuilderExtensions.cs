@@ -1,5 +1,4 @@
 ﻿using Microsoft.Azure.WebJobs.Host.Config;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace SFA.DAS.CommitmentsV2.Jobs

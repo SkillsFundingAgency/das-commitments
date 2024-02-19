@@ -1,15 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Configuration;
+﻿using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Encoding;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {

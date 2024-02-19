@@ -1,7 +1,4 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddFileUploadLog;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddAndApproveDraftApprenticeships;
@@ -9,9 +6,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeshi
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Commands.FileUploadLogUpdateWithErrorContent;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
