@@ -1,6 +1,3 @@
-using System;
-using Newtonsoft.Json;
-
 namespace SFA.DAS.CommitmentsV2.Shared.Models
 {
     public class MonthYearModel : DateModel

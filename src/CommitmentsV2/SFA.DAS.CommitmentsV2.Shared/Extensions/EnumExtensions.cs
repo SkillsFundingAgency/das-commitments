@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace SFA.DAS.CommitmentsV2.Shared.Extensions
+﻿namespace SFA.DAS.CommitmentsV2.Shared.Extensions
 {
     public static class EnumExtensionMethods
     {

@@ -10,7 +10,6 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
 using SFA.DAS.ProviderRelationships.Api.Client;
 using SFA.DAS.ProviderRelationships.Api.Client.Http;
-using System;
 
 namespace SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 
