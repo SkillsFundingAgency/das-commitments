@@ -1,14 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Linq;
 using Microsoft.Extensions.Logging;
-using Moq;
 using NServiceBus.Testing;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
