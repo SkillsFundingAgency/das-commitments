@@ -28,11 +28,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             _logger.LogInformation($"Received {nameof(ApprenticeshipResumedEventHandler)} for apprentice {message?.ApprenticeshipId}");
 
-            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
+            if (message != null)
+            {
+                var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-            var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship, message.ResumedOn);
+                var emailToProviderCommand = BuildEmailToProviderCommand(apprenticeship, message.ResumedOn);
 
-            await context.Send(emailToProviderCommand, new SendOptions());
+                await context.Send(emailToProviderCommand, new SendOptions());
+            }
         }
 
         private SendEmailToProviderCommand BuildEmailToProviderCommand(Apprenticeship apprenticeship, DateTime resumeDate)

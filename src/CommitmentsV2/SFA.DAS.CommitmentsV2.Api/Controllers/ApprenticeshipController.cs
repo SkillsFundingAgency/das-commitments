@@ -19,253 +19,252 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using EditApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.EditApprenticeshipResponse;
 using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetApprenticeshipsResponse;
 
-namespace SFA.DAS.CommitmentsV2.Api.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/apprenticeships")]
+public class ApprenticeshipController : ControllerBase
 {
-    [ApiController]
-    [Authorize]
-    [Route("api/apprenticeships")]
-    public class ApprenticeshipController : ControllerBase
+    private readonly IMediator _mediator;
+    private readonly IModelMapper _modelMapper;
+    private readonly ILogger<ApprenticeshipController> _logger;
+
+    public ApprenticeshipController(IMediator mediator, IModelMapper modelMapper, ILogger<ApprenticeshipController> logger)
     {
-        private readonly IMediator _mediator;
-        private readonly IModelMapper _modelMapper;
-        private readonly ILogger<ApprenticeshipController> _logger;
+        _mediator = mediator;
+        _modelMapper = modelMapper;
+        _logger = logger;
+    }
 
-        public ApprenticeshipController(IMediator mediator, IModelMapper modelMapper, ILogger<ApprenticeshipController> logger)
+    [HttpGet]
+    [Route("{apprenticeshipId}")]
+    public async Task<IActionResult> Get(long apprenticeshipId)
+    {
+        var query = new GetApprenticeshipQuery(apprenticeshipId);
+        var result = await _mediator.Send(query);
+
+        if (result == null) { return NotFound(); }
+
+        var response = await _modelMapper.Map<GetApprenticeshipResponse>(result);
+        return Ok(response);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetApprenticeships([FromQuery] GetApprenticeshipsRequest request)
+    {
+        var logText = request.AccountId != null ? "Employer account Id :" + (request.AccountId ?? 0) : ", Provider Id :" + (request.ProviderId ?? 0);
+        _logger.LogInformation("Get apprenticeships for : {Text}.", logText);
+        try
         {
-            _mediator = mediator;
-            _modelMapper = modelMapper;
-            _logger = logger;
-        }
-
-        [HttpGet]
-        [Route("{apprenticeshipId}")]
-        public async Task<IActionResult> Get(long apprenticeshipId)
-        {
-            var query = new GetApprenticeshipQuery(apprenticeshipId);
-            var result = await _mediator.Send(query);
-
-            if (result == null) { return NotFound(); }
-
-            var response = await _modelMapper.Map<GetApprenticeshipResponse>(result);
-            return Ok(response);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetApprenticeships([FromQuery] GetApprenticeshipsRequest request)
-        {
-            var logText = request.AccountId != null ? "Employer account Id :" + (request.AccountId ?? 0) : ", Provider Id :" + (request.ProviderId ?? 0);
-            _logger.LogInformation("Get apprenticeships for : " + logText);
-            try
+            var filterValues = new ApprenticeshipSearchFilters
             {
-                var filterValues = new ApprenticeshipSearchFilters
-                {
-                    SearchTerm = request.SearchTerm,
-                    EmployerName = request.EmployerName,
-                    CourseName = request.CourseName,
-                    Status = request.Status,
-                    StartDate = request.StartDate,
-                    EndDate = request.EndDate,
-                    ProviderName = request.ProviderName,
-                    AccountLegalEntityId = request.AccountLegalEntityId,
-                    StartDateRange = new DateRange { From = request.StartDateRangeFrom, To = request.StartDateRangeTo },
-                    Alert = request.Alert,
-                    ApprenticeConfirmationStatus = request.ApprenticeConfirmationStatus,
-                    DeliveryModel = request.DeliveryModel,
-                    IsOnFlexiPaymentPilot = request.IsOnFlexiPaymentPilot
-                };
-
-                var queryResult = await _mediator.Send(new GetApprenticeshipsQuery
-                {
-                    EmployerAccountId = request.AccountId,
-                    ProviderId = request.ProviderId,
-                    PageNumber = request.PageNumber,
-                    PageItemCount = request.PageItemCount,
-                    SortField = request.SortField,
-                    ReverseSort = request.ReverseSort,
-                    SearchFilters = filterValues
-                });
-
-                if (queryResult == null)
-                {
-                    return NotFound();
-                }
-
-                var response = await _modelMapper.Map<GetApprenticeshipsResponse>(queryResult);
-
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                throw;
-            }
-        }
-
-        [HttpGet]
-        [Route("filters")]
-        public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery] GetApprenticeshipFiltersRequest request)
-        {
-            var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = request.ProviderId, EmployerAccountId = request.EmployerAccountId });
-
-            if (response == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(response);
-        }
-
-        [HttpPost]
-        [Route("details/editenddate")]
-        public async Task<IActionResult> EditEndDate([FromBody] EditEndDateRequest request)
-        {
-            _logger.LogInformation("Edit end date apprenticeship api endpoint called for : " + request.ApprenticeshipId);
-
-            await _mediator.Send(new EditEndDateRequestCommand
-            {
-                ApprenticeshipId = request.ApprenticeshipId,
-                EndDate = request.EndDate,
-                UserInfo = request.UserInfo
-            });
-
-            return Ok();
-        }
-
-        [HttpPost]
-        [Route("{apprenticeshipId}/stop")]
-        public async Task<IActionResult> StopApprenticeship(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
-        {
-            _logger.LogInformation("Stop apprenticeship api endpoint called for : " + apprenticeshipId);
-
-            await _mediator.Send(new StopApprenticeshipCommand(
-                request.AccountId,
-                apprenticeshipId,
-                request.StopDate,
-                request.MadeRedundant,
-                request.UserInfo));
-
-            return Ok();
-
-        }
-
-        [HttpPost]
-        [Route("details/pause")]
-        public async Task<IActionResult> Pause([FromBody] PauseApprenticeshipRequest request)
-        {
-            _logger.LogInformation("Pause apprenticeship api endpoint called for : " + request.ApprenticeshipId);
-
-            await _mediator.Send(new PauseApprenticeshipCommand
-            {
-                ApprenticeshipId = request.ApprenticeshipId,
-                UserInfo = request.UserInfo
-            });
-
-            return Ok();
-        }
-
-        [HttpPost]
-        [Route("details/resume")]
-        public async Task<IActionResult> Resume([FromBody] ResumeApprenticeshipRequest request)
-        {
-            _logger.LogInformation("Resume apprenticeship api endpoint called for : " + request.ApprenticeshipId);
-
-            await _mediator.Send(new ResumeApprenticeshipCommand
-            {
-                ApprenticeshipId = request.ApprenticeshipId,
-                UserInfo = request.UserInfo
-            });
-
-            return Ok();
-        }
-
-        [HttpPut]
-        [Route("{apprenticeshipId}/stopdate")]
-        public async Task<IActionResult> UpdateApprenticeshipStopDate(long apprenticeshipId, [FromBody] ApprenticeshipStopDateRequest request)
-        {
-            _logger.LogInformation("Update apprenticeship stop date api endpoint called for : " + apprenticeshipId);
-
-            await _mediator.Send(new UpdateApprenticeshipStopDateCommand(
-                request.AccountId,
-                apprenticeshipId,
-                request.NewStopDate,
-                request.UserInfo
-            ));
-
-            return Ok();
-        }
-
-        [HttpPost]
-        [Route("{apprenticeshipId}/resendinvitation")]
-        public async Task<IActionResult> ResendInvitation(long apprenticeshipId, [FromBody] SaveDataRequest request)
-        {
-            _logger.LogInformation("Resend invitation email for : " + apprenticeshipId);
-            await _mediator.Send(new ResendInvitationCommand(apprenticeshipId, request.UserInfo));
-            return Accepted();
-        }
-
-        [HttpPost]
-        [Route("edit/validate")]
-        public async Task<IActionResult> ValidateApprenticeshipForEdit([FromBody] ValidateApprenticeshipForEditRequest request)
-        {
-            var command = await _modelMapper.Map<ValidateApprenticeshipForEditCommand>(request);
-            var response = await _mediator.Send(command);
-
-            if (response == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(response);
-        }
-
-        [HttpPost]
-        [Route("edit")]
-        public async Task<IActionResult> EditApprenticeship([FromBody] EditApprenticeshipApiRequest request)
-        {
-            _logger.LogInformation("Edit apprenticeship api endpoint called for  : " + request.ApprenticeshipId);
-
-            var command = new EditApprenticeshipCommand { EditApprenticeshipRequest = request };
-            var response = await _mediator.Send(command);
-
-            if (response == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new EditApprenticeshipResponse { ApprenticeshipId = response.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
-        }
-
-        [HttpPost]
-        [Route("uln/validate")]
-        public async Task<IActionResult> ValidateUlnOverlap([FromBody] ValidateUlnOverlapRequest request)
-        {
-            var command = new ValidateUlnOverlapCommand
-            {
-                ULN = request.ULN,
+                SearchTerm = request.SearchTerm,
+                EmployerName = request.EmployerName,
+                CourseName = request.CourseName,
+                Status = request.Status,
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
-                ApprenticeshipId = request.ApprenticeshipId
+                ProviderName = request.ProviderName,
+                AccountLegalEntityId = request.AccountLegalEntityId,
+                StartDateRange = new DateRange { From = request.StartDateRangeFrom, To = request.StartDateRangeTo },
+                Alert = request.Alert,
+                ApprenticeConfirmationStatus = request.ApprenticeConfirmationStatus,
+                DeliveryModel = request.DeliveryModel,
+                IsOnFlexiPaymentPilot = request.IsOnFlexiPaymentPilot
             };
 
-            var response = await _mediator.Send(command);
+            var queryResult = await _mediator.Send(new GetApprenticeshipsQuery
+            {
+                EmployerAccountId = request.AccountId,
+                ProviderId = request.ProviderId,
+                PageNumber = request.PageNumber,
+                PageItemCount = request.PageItemCount,
+                SortField = request.SortField,
+                ReverseSort = request.ReverseSort,
+                SearchFilters = filterValues
+            });
 
-            if (response == null)
+            if (queryResult == null)
             {
                 return NotFound();
             }
 
+            var response = await _modelMapper.Map<GetApprenticeshipsResponse>(queryResult);
+
             return Ok(response);
         }
-
-        [HttpGet]
-        [Route("validate")]
-        public async Task<IActionResult> ValidateApprenticeship([FromQuery] string firstName, [FromQuery] string lastName, [FromQuery] DateTime dateOfBirth)
+        catch (Exception e)
         {
-            var query = new GetApprenticeshipsValidateQuery(firstName, lastName, dateOfBirth);
-
-            var result = await _mediator.Send(query);
-
-            return Ok(result);
+            _logger.LogError(e, e.Message);
+            throw;
         }
+    }
+
+    [HttpGet]
+    [Route("filters")]
+    public async Task<IActionResult> GetApprenticeshipsFilterValues([FromQuery] GetApprenticeshipFiltersRequest request)
+    {
+        var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = request.ProviderId, EmployerAccountId = request.EmployerAccountId });
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost]
+    [Route("details/editenddate")]
+    public async Task<IActionResult> EditEndDate([FromBody] EditEndDateRequest request)
+    {
+        _logger.LogInformation("Edit end date apprenticeship api endpoint called for : {Id}.", request.ApprenticeshipId);
+
+        await _mediator.Send(new EditEndDateRequestCommand
+        {
+            ApprenticeshipId = request.ApprenticeshipId,
+            EndDate = request.EndDate,
+            UserInfo = request.UserInfo
+        });
+
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("{apprenticeshipId}/stop")]
+    public async Task<IActionResult> StopApprenticeship(long apprenticeshipId, [FromBody] StopApprenticeshipRequest request)
+    {
+        _logger.LogInformation("Stop apprenticeship api endpoint called for : {Id}.", apprenticeshipId);
+
+        await _mediator.Send(new StopApprenticeshipCommand(
+            request.AccountId,
+            apprenticeshipId,
+            request.StopDate,
+            request.MadeRedundant,
+            request.UserInfo));
+
+        return Ok();
+
+    }
+
+    [HttpPost]
+    [Route("details/pause")]
+    public async Task<IActionResult> Pause([FromBody] PauseApprenticeshipRequest request)
+    {
+        _logger.LogInformation("Pause apprenticeship api endpoint called for : {Id}.", request.ApprenticeshipId);
+
+        await _mediator.Send(new PauseApprenticeshipCommand
+        {
+            ApprenticeshipId = request.ApprenticeshipId,
+            UserInfo = request.UserInfo
+        });
+
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("details/resume")]
+    public async Task<IActionResult> Resume([FromBody] ResumeApprenticeshipRequest request)
+    {
+        _logger.LogInformation("Resume apprenticeship api endpoint called for : {Id}.", request.ApprenticeshipId);
+
+        await _mediator.Send(new ResumeApprenticeshipCommand
+        {
+            ApprenticeshipId = request.ApprenticeshipId,
+            UserInfo = request.UserInfo
+        });
+
+        return Ok();
+    }
+
+    [HttpPut]
+    [Route("{apprenticeshipId}/stopdate")]
+    public async Task<IActionResult> UpdateApprenticeshipStopDate(long apprenticeshipId, [FromBody] ApprenticeshipStopDateRequest request)
+    {
+        _logger.LogInformation("Update apprenticeship stop date api endpoint called for : {Id}.", apprenticeshipId);
+
+        await _mediator.Send(new UpdateApprenticeshipStopDateCommand(
+            request.AccountId,
+            apprenticeshipId,
+            request.NewStopDate,
+            request.UserInfo
+        ));
+
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("{apprenticeshipId}/resendinvitation")]
+    public async Task<IActionResult> ResendInvitation(long apprenticeshipId, [FromBody] SaveDataRequest request)
+    {
+        _logger.LogInformation("Resend invitation email for : " + apprenticeshipId);
+        await _mediator.Send(new ResendInvitationCommand(apprenticeshipId, request.UserInfo));
+        return Accepted();
+    }
+
+    [HttpPost]
+    [Route("edit/validate")]
+    public async Task<IActionResult> ValidateApprenticeshipForEdit([FromBody] ValidateApprenticeshipForEditRequest request)
+    {
+        var command = await _modelMapper.Map<ValidateApprenticeshipForEditCommand>(request);
+        var response = await _mediator.Send(command);
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost]
+    [Route("edit")]
+    public async Task<IActionResult> EditApprenticeship([FromBody] EditApprenticeshipApiRequest request)
+    {
+        _logger.LogInformation("Edit apprenticeship api endpoint called for : {Id}.", request.ApprenticeshipId);
+
+        var command = new EditApprenticeshipCommand { EditApprenticeshipRequest = request };
+        var response = await _mediator.Send(command);
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new EditApprenticeshipResponse { ApprenticeshipId = response.ApprenticeshipId, NeedReapproval = response.NeedReapproval });
+    }
+
+    [HttpPost]
+    [Route("uln/validate")]
+    public async Task<IActionResult> ValidateUlnOverlap([FromBody] ValidateUlnOverlapRequest request)
+    {
+        var command = new ValidateUlnOverlapCommand
+        {
+            ULN = request.ULN,
+            StartDate = request.StartDate,
+            EndDate = request.EndDate,
+            ApprenticeshipId = request.ApprenticeshipId
+        };
+
+        var response = await _mediator.Send(command);
+
+        if (response == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("validate")]
+    public async Task<IActionResult> ValidateApprenticeship([FromQuery] string firstName, [FromQuery] string lastName, [FromQuery] DateTime dateOfBirth)
+    {
+        var query = new GetApprenticeshipsValidateQuery(firstName, lastName, dateOfBirth);
+
+        var result = await _mediator.Send(query);
+
+        return Ok(result);
     }
 }

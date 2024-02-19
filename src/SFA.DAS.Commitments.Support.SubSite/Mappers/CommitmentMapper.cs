@@ -1,11 +1,11 @@
-﻿using SFA.DAS.Commitments.Support.SubSite.Extentions;
-using SFA.DAS.Commitments.Support.SubSite.Models;
+﻿using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Services;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary;
+using SFA.DAS.Commitments.Support.SubSite.Extensions;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {

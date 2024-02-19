@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public async Task<IActionResult> CallControllerMethod(long accountLegalEntityId)
         {
-            var controller = new AccountLegalEntityController(Logger, Mediator);
+            var controller = new AccountLegalEntityController(Mediator);
 
             var response = await controller.GetAccountLegalEntity(accountLegalEntityId);
 

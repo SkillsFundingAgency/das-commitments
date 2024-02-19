@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerifyDraftApprenticeshipCreatedEventsArePublished()
         {
-            var numberOfEvents = GetDraftApprenticeshipCreatedEventsForCohortQueryResult.DraftApprenticeshipCreatedEvents.Count();
+            var numberOfEvents = GetDraftApprenticeshipCreatedEventsForCohortQueryResult.DraftApprenticeshipCreatedEvents.Length;
             var mockPipelineContext = MockMessageHandlerContext.As<IPipelineContext>();
             mockPipelineContext.Verify(x =>x.Publish(It.IsAny<DraftApprenticeshipCreatedEvent>(), It.IsAny<PublishOptions>()), Times.Exactly(numberOfEvents));
         }

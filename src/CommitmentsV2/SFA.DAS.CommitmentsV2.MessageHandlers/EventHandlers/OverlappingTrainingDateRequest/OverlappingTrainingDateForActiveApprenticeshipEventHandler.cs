@@ -33,17 +33,20 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers.OverlappingTrainin
             {
                 _logger.LogInformation($"Received {nameof(OverlappingTrainingDateCreatedEvent)} for Uln {message?.Uln}");
 
-                var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
-
-                var currentApprenticeshipStatus = apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow);
-
-                if (currentApprenticeshipStatus == ApprenticeshipStatus.Live
-                    || currentApprenticeshipStatus == ApprenticeshipStatus.WaitingToStart
-                    || currentApprenticeshipStatus == ApprenticeshipStatus.Paused)
+                if (message != null)
                 {
-                    var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
+                    var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(message.ApprenticeshipId, default);
 
-                    await context.Send(sendEmailToEmployerCommand, new SendOptions());
+                    var currentApprenticeshipStatus = apprenticeship.GetApprenticeshipStatus(DateTime.UtcNow);
+
+                    if (currentApprenticeshipStatus == ApprenticeshipStatus.Live
+                        || currentApprenticeshipStatus == ApprenticeshipStatus.WaitingToStart
+                        || currentApprenticeshipStatus == ApprenticeshipStatus.Paused)
+                    {
+                        var sendEmailToEmployerCommand = BuildEmailToEmployerCommand(apprenticeship, message);
+
+                        await context.Send(sendEmailToEmployerCommand, new SendOptions());
+                    }
                 }
             }
             catch (Exception e)

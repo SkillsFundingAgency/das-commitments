@@ -70,8 +70,8 @@ public class Startup
             .AddMvc(o =>
             {
                 o.AddAuthorization();
-                o.Filters.Add<ValidateModelStateFilter>();
-                o.Filters.Add<StopwatchFilter>();
+                o.Filters.Add<ValidateModelStateFilterAttribute>();
+                o.Filters.Add<StopwatchFilterAttribute>();
             });
 
         services

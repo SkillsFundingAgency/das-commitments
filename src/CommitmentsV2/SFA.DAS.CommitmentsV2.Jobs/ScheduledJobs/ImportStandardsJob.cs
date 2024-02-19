@@ -111,7 +111,7 @@ public class ImportStandardsJob
             await ImportStandards(_providerContext, batch);
         }
     }
-    private IEnumerable<StandardSummary> FilterResponse(StandardResponse response)
+    private static IEnumerable<StandardSummary> FilterResponse(StandardResponse response)
     {
         var statusList = new string[] { "Approved for delivery", "Retired" };
         var filteredStandards = response.Standards.Where(s => statusList.Contains(s.Status));

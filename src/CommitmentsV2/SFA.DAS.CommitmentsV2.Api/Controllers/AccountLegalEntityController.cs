@@ -5,52 +5,47 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Api.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class AccountLegalEntityController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class AccountLegalEntityController : ControllerBase
+    private readonly IMediator _mediator;
+
+    public AccountLegalEntityController(IMediator mediator)
     {
-        private readonly ILogger<AccountLegalEntityController> _logger;
-        private readonly IMediator _mediator;
+        _mediator = mediator;
+    }
 
-        public AccountLegalEntityController(
-            ILogger<AccountLegalEntityController> logger, 
-            IMediator mediator)
+    [Authorize]
+    [HttpGet]
+    [Route("{AccountLegalEntityId}")]
+    public async Task<IActionResult> GetAccountLegalEntity(long accountLegalEntityId)
+    {
+        if (!ModelState.IsValid)
         {
-            _logger = logger;
-            _mediator = mediator;
+            return BadRequest(ModelState.CreateErrorResponse());
         }
 
-        [Authorize]
-        [HttpGet]
-        [Route("{AccountLegalEntityId}")]
-        public async Task<IActionResult> GetAccountLegalEntity(long accountLegalEntityId)
+        var employer = await _mediator.Send(new GetAccountLegalEntityQuery
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.CreateErrorResponse());
-            }
+            AccountLegalEntityId = accountLegalEntityId
+        });
 
-            var employer = await _mediator.Send(new GetAccountLegalEntityQuery
-            {
-                AccountLegalEntityId = accountLegalEntityId
-            });
-
-            if (employer == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new AccountLegalEntityResponse
-            {
-                AccountId = employer.AccountId,
-                MaLegalEntityId = employer.MaLegalEntityId,
-                AccountName = employer.AccountName,
-                LegalEntityName = employer.LegalEntityName,
-                LevyStatus = employer.LevyStatus
-            });
+        if (employer == null)
+        {
+            return NotFound();
         }
+
+        return Ok(new AccountLegalEntityResponse
+        {
+            AccountId = employer.AccountId,
+            MaLegalEntityId = employer.MaLegalEntityId,
+            AccountName = employer.AccountName,
+            LegalEntityName = employer.LegalEntityName,
+            LevyStatus = employer.LevyStatus
+        });
     }
 }
