@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using CsvHelper;
-using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.Testing.AutoFixture;
 

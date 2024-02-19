@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Shared.Extensions;
+﻿using SFA.DAS.CommitmentsV2.Shared.Extensions;
 
 
 namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Extensions

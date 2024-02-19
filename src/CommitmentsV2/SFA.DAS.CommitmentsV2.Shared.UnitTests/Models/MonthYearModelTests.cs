@@ -1,6 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Shared.Models;
+﻿using SFA.DAS.CommitmentsV2.Shared.Models;
 
 namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Models
 {
