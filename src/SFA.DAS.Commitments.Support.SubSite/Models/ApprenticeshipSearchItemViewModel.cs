@@ -1,6 +1,4 @@
 ﻿
-using System;
-
 namespace SFA.DAS.Commitments.Support.SubSite.Models
 {
     public class ApprenticeshipSearchItemViewModel

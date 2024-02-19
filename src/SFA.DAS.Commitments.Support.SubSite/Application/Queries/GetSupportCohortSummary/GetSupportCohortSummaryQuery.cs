@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary
+﻿namespace SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary
 {
     public class GetSupportCohortSummaryQuery : IRequest<GetSupportCohortSummaryQueryResult>
     {

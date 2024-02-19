@@ -4,8 +4,6 @@ using SFA.DAS.Commitments.Support.SubSite.Services;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using System.Collections.Generic;
-using System.Linq;
 using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
 using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportCohortSummary;
 

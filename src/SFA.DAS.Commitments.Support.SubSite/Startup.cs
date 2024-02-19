@@ -9,7 +9,6 @@ using SFA.DAS.Commitments.Support.SubSite.Caching;
 using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
-using MediatR;
 using SFA.DAS.Commitments.Support.SubSite.Application.Queries.GetSupportApprenticeship;
 
 namespace SFA.DAS.Commitments.Support.SubSite
