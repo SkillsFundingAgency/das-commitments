@@ -7,7 +7,7 @@ public partial class BulkUploadValidateCommandHandler
 {
     private static IEnumerable<Error> ValidateTrainingHoursReduction(BulkUploadAddDraftApprenticeshipRequest csvRecord, int maxTrainingHoursReduction)
     {
-        if (!string.IsNullOrWhiteSpace(csvRecord.TrainingHoursReductionAsString) && csvRecord.RecognisePriorLearning.GetValueOrDefault() == false)
+        if (!string.IsNullOrWhiteSpace(csvRecord.TrainingHoursReductionAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
             yield return new Error("TrainingTotalHours", "Total <b>reduction in off-the-job training time</b> due to RPL must be a number between 1 and 999");
             yield break;

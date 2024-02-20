@@ -29,6 +29,6 @@ public partial class BulkUploadValidateCommandHandler
         else if (csvRecord.PriceReducedBy < minPriceReduction)
         {
             yield return new Error("PriceReducedBy", $"Total <b>price reduction</b> due to RPL must be {minPriceReduction.ToString("N0")} pounds or more");
-        };
+        }
     }
 }

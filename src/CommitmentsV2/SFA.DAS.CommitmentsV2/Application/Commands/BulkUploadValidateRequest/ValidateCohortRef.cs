@@ -61,25 +61,25 @@ public partial class BulkUploadValidateCommandHandler
             domainErrors.Add(new Error("CohortRef", $"The <b>email address</b> has already been used for an apprentice in this cohort."));
         }
         if (cohort.DraftApprenticeships.Any() &&
-            cohort.DraftApprenticeships.Any(a =>
-                a.FirstName == null || a.LastName == null || a.DateOfBirth == null ||
-                a.StartDate == null || a.EndDate == null ||
-                a.CourseName == null ||
-                a.Cost == null ||
-                a.Uln == null ||
-                a.Email == null))                                            
+            cohort.DraftApprenticeships.Any(draftApprenticeship =>
+                draftApprenticeship.FirstName == null || draftApprenticeship.LastName == null || draftApprenticeship.DateOfBirth == null ||
+                draftApprenticeship.StartDate == null || draftApprenticeship.EndDate == null ||
+                draftApprenticeship.CourseName == null ||
+                draftApprenticeship.Cost == null ||
+                draftApprenticeship.Uln == null ||
+                draftApprenticeship.Email == null))                                            
         {
             domainErrors.Add(new Error("CohortRef", $"You cannot add apprentices to {csvRecord.CohortRef}, as this cohort contains incomplete records. You need to <b>complete all details</b> before you can add into this cohort."));
         }
 
         var overlapUlnResult = OverlapUlnCheckForCohort(cohort);
-        if (overlapUlnResult.Result != null && overlapUlnResult.Result.Any(x => x.HasOverlaps))
+        if (overlapUlnResult.Result != null && overlapUlnResult.Result.Exists(x => x.HasOverlaps))
         {
             domainErrors.Add(new Error("CohortRef", $"You cannot add apprentices to {csvRecord.CohortRef}, as this cohort contains an overlapping training date. You need to <b>resolve any overlapping training date errors</b> before you can add into this cohort."));
         }
 
         var overlapEmailResult = OverlapEmailCheckForCohort(cohort);
-        if (overlapEmailResult.Result != null && overlapEmailResult.Result.Any(x => x.OverlapStatus != OverlapStatus.None))
+        if (overlapEmailResult.Result != null && overlapEmailResult.Result.Exists(x => x.OverlapStatus != OverlapStatus.None))
         {
             domainErrors.Add(new Error("CohortRef", $"You cannot add apprentices to {csvRecord.CohortRef} as it contains an overlapping email address. You need to <b>enter a unique email address</b> before you can add into this cohort."));                          
         }

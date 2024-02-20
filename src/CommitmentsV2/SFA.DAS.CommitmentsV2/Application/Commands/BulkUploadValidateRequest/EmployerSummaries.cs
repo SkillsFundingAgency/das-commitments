@@ -2,7 +2,7 @@
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private class EmployerSummaries : List<EmployerSummary>
+    private sealed class EmployerSummaries : List<EmployerSummary>
     {
         internal bool ContainsKey(string agreementId)
         {

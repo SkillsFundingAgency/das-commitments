@@ -47,7 +47,7 @@ public partial class BulkUploadValidateCommandHandler
                 }
             }
 
-            if (_csvRecords.Any(x => x.Email == csvRecord.Email && csvRecord.RowNumber > x.RowNumber))
+            if (_csvRecords.Exists(x => x.Email == csvRecord.Email && csvRecord.RowNumber > x.RowNumber))
             {
                 domainErrors.Add(new Error("EmailAddress", $"The <b>email address</b> has already been used for an apprentice in this file"));
             }

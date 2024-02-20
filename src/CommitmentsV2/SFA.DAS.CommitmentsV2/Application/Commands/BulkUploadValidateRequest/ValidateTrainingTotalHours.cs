@@ -7,7 +7,7 @@ public partial class BulkUploadValidateCommandHandler
 {
     private static IEnumerable<Error> ValidateTrainingTotalHours(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
-        if (!string.IsNullOrWhiteSpace(csvRecord.TrainingTotalHoursAsString) && csvRecord.RecognisePriorLearning.GetValueOrDefault() == false)
+        if (!string.IsNullOrWhiteSpace(csvRecord.TrainingTotalHoursAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
             yield return new Error("TrainingTotalHours", "Total <b>off-the-job training time</b> cannot be set when there is no prior learning");
             yield break;
