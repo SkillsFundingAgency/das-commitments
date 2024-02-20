@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private List<Error> ValidateEPAOrgId(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private static IEnumerable<Error> ValidateEPAOrgId(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
         if (!string.IsNullOrWhiteSpace(csvRecord.EPAOrgId) && csvRecord.EPAOrgId.Length > 7)

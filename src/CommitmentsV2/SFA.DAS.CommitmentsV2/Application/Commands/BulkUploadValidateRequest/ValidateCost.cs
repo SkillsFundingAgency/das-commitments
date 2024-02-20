@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private List<Error> ValidateCost(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private static IEnumerable<Error> ValidateCost(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(csvRecord.CostAsString))

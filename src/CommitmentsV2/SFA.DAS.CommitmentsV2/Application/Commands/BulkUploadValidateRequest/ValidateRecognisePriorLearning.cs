@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private IEnumerable<Error> ValidateRecognisePriorLearning(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private static IEnumerable<Error> ValidateRecognisePriorLearning(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         if (csvRecord.StartDate < Constants.RecognisePriorLearningBecomesRequiredOn)
         {

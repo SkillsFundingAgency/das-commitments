@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private List<Error> ValidateProviderRef(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private static IEnumerable<Error> ValidateProviderRef(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
         if (!string.IsNullOrEmpty(csvRecord.ProviderRef) && csvRecord.ProviderRef.Length > 20)

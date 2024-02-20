@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private IEnumerable<Error> ValidateReservation(BulkUploadAddDraftApprenticeshipRequest csvRecord, BulkReservationValidationResults reservationValidationResults)
+    private static IEnumerable<Error> ValidateReservation(BulkUploadAddDraftApprenticeshipRequest csvRecord, BulkReservationValidationResults reservationValidationResults)
     {
         var domainErrors = new List<Error>();
         var reservationValidationError = reservationValidationResults?.ValidationErrors?.Where(x => x.RowNumber == csvRecord.RowNumber);

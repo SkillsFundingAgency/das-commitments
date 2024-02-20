@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.LinkGeneration;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.ProviderRelationships.Api.Client;
 
@@ -21,11 +22,11 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     private readonly IEmployerAgreementService _employerAgreementService;
     private readonly RplSettingsConfiguration _rplConfig;
     private List<BulkUploadAddDraftApprenticeshipRequest> _csvRecords;
-    private Dictionary<string, Models.Cohort> _cachedCohortDetails;
+    private readonly Dictionary<string, Cohort> _cachedCohortDetails;
     private readonly ILinkGenerator _urlHelper;
 
     public long ProviderId { get; set; }
-    public bool RplDataExtended { get; set; }
+    private bool RplDataExtended { get; set; }
 
     public BulkUploadValidateCommandHandler(
         ILogger<BulkUploadValidateCommandHandler> logger,
@@ -45,7 +46,7 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         _providerRelationshipsApiClient = providerRelationshipsApiClient;
         _employerAgreementService = employerAgreementService;
         _rplConfig = rplConfig;
-        _cachedCohortDetails = new Dictionary<string, Models.Cohort>();
+        _cachedCohortDetails = new Dictionary<string, Cohort>();
         _urlHelper = urlHelper;
     }
 
@@ -55,7 +56,6 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         RplDataExtended = command.RplDataExtended;
         var bulkUploadValidationErrors = new List<BulkUploadValidationError>();
         _csvRecords = command.CsvRecords.ToList();
-
 
         var standardsError = ValidateHasDeclaredStandards(command.ProviderStandardResults, bulkUploadValidationErrors);
 
@@ -72,11 +72,13 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
             var criticalDomainError = await ValidateCriticalErrors(csvRecord, command.ProviderId);
             await AddError(bulkUploadValidationErrors, csvRecord, criticalDomainError);
 
-            if (!criticalDomainError.Any())
+            if (criticalDomainError.Any())
             {
-                var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults);
-                await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
+                continue;
             }
+            
+            var domainErrors = await Validate(csvRecord, command.ProviderId, command.ReservationValidationResults, command.ProviderStandardResults);
+            await AddError(bulkUploadValidationErrors, csvRecord, domainErrors);
         }
 
         return new BulkUploadValidateApiResponse
@@ -85,10 +87,9 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         };
     }
 
-    private async Task AddError(List<BulkUploadValidationError> bulkUploadValidationErrors, BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
+    private async Task AddError(ICollection<BulkUploadValidationError> bulkUploadValidationErrors, BulkUploadAddDraftApprenticeshipRequest csvRecord, List<Error> domainErrors)
     {
         if (domainErrors.Any())
-
         {
             bulkUploadValidationErrors.Add(new BulkUploadValidationError(
                 csvRecord.RowNumber,
@@ -125,12 +126,11 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
         return domainErrors;
     }
 
-    private List<BulkUploadValidationError> ValidateHasDeclaredStandards(ProviderStandardResults providerStandardResults, List<BulkUploadValidationError> bulkUploadValidationErrors)
+    private static List<BulkUploadValidationError> ValidateHasDeclaredStandards(ProviderStandardResults providerStandardResults, List<BulkUploadValidationError> bulkUploadValidationErrors)
     {
         var domainErrors = ValidateDeclaredStandards(providerStandardResults);
 
         if (domainErrors.Any())
-
         {
             bulkUploadValidationErrors.Add(new BulkUploadValidationError(
                 0,
@@ -151,17 +151,14 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
     /// <returns></returns>
     private bool IsFundedByTransfer(string cohortRef)
     {
-        if (!string.IsNullOrWhiteSpace(cohortRef))
+        if (string.IsNullOrWhiteSpace(cohortRef))
         {
-            var cohortDetails = GetCohortDetails(cohortRef);
-
-            if (cohortDetails.TransferSenderId.HasValue)
-            {
-                return true;
-            }
+            return false;
         }
+        
+        var cohortDetails = GetCohortDetails(cohortRef);
 
-        return false;
+        return cohortDetails.TransferSenderId.HasValue;
     }
 
     private async Task<List<Error>> Validate(BulkUploadAddDraftApprenticeshipRequest csvRecord, long providerId, BulkReservationValidationResults reservationValidationResults, ProviderStandardResults providerStandardResults)
@@ -214,33 +211,36 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
 
     private async Task<EmployerSummary> GetEmployerDetails(string agreementId)
     {
-        if (!string.IsNullOrEmpty(agreementId))
+        if (string.IsNullOrEmpty(agreementId))
         {
-            if (_employerSummaries.ContainsKey(agreementId))
-            {
-                var result = _employerSummaries.GetValueOrDefault(agreementId);
-                return result;
-            }
-
-            var accountLegalEntity = _dbContext.Value.AccountLegalEntities
-                .Include(x => x.Account)
-                .Where(x => x.PublicHashedId == agreementId).FirstOrDefault();
-
-            if (accountLegalEntity != null)
-            {
-                var employerName = accountLegalEntity.Account.Name;
-                var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
-                var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
-                var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
-                _employerSummaries.Add(employerSummary);
-                return employerSummary;
-            }
+            return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
+        }
+        
+        if (_employerSummaries.ContainsKey(agreementId))
+        {
+            var result = _employerSummaries.GetValueOrDefault(agreementId);
+            return result;
         }
 
-        return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
+        var accountLegalEntity = _dbContext.Value.AccountLegalEntities
+            .Include(x => x.Account).FirstOrDefault(x => x.PublicHashedId == agreementId);
+
+        if (accountLegalEntity == null)
+        {
+            return new EmployerSummary(agreementId, null, null, string.Empty, null, string.Empty);
+        }
+            
+        var employerName = accountLegalEntity.Account.Name;
+        var isLevy = accountLegalEntity.Account.LevyStatus == Types.ApprenticeshipEmployerType.Levy;
+        var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
+        var employerSummary = new EmployerSummary(agreementId, accountLegalEntity.Id, isLevy, employerName, isSigned, accountLegalEntity.LegalEntityId);
+        
+        _employerSummaries.Add(employerSummary);
+        
+        return employerSummary;
     }
 
-    private Models.Cohort GetCohortDetails(string cohortRef)
+    private Cohort GetCohortDetails(string cohortRef)
     {
         if (_cachedCohortDetails.ContainsKey(cohortRef))
         {
@@ -249,25 +249,21 @@ public partial class BulkUploadValidateCommandHandler : IRequestHandler<BulkUplo
 
         var cohort = _dbContext.Value.Cohorts
             .Include(x => x.AccountLegalEntity)
-            .Include(x => x.Apprenticeships)
-            .Where(x => x.Reference == cohortRef).FirstOrDefault();
+            .Include(x => x.Apprenticeships).FirstOrDefault(x => x.Reference == cohortRef);
         _cachedCohortDetails.Add(cohortRef, cohort);
 
         return cohort;
     }
 
-    private Models.Standard GetStandardDetails(string stdCode)
+    private Standard GetStandardDetails(string stdCode)
     {
-        if (!string.IsNullOrWhiteSpace(stdCode))
+        if (string.IsNullOrWhiteSpace(stdCode))
         {
-            int.TryParse(stdCode, out int result);
-
-            var standard = _dbContext.Value.Standards
-                .Where(x => x.LarsCode == result).FirstOrDefault();
-
-            return standard;
+            return null;
         }
+        
+        int.TryParse(stdCode, out var result);
 
-        return null;
-    }
+        return _dbContext.Value.Standards.FirstOrDefault(x => x.LarsCode == result);
+   }
 }

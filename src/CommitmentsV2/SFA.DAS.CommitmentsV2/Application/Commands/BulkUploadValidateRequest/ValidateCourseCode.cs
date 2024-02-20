@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private List<Error> ValidateCourseCode(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults)
+    private IEnumerable<Error> ValidateCourseCode(BulkUploadAddDraftApprenticeshipRequest csvRecord, ProviderStandardResults providerStandardResults)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(csvRecord.CourseCode))
@@ -48,7 +48,7 @@ public partial class BulkUploadValidateCommandHandler
         if (string.IsNullOrWhiteSpace(stdCode)) return false;
         if (providerStandardResults.Standards == null) return false;
 
-        int.TryParse(stdCode, out var result);
+        var result = int.Parse(stdCode);
 
         var standard = providerStandardResults.Standards.FirstOrDefault(x => int.Parse(x.CourseCode) == result);
 

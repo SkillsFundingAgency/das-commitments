@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private IEnumerable<Error> ValidateTrainingHoursReduction(BulkUploadAddDraftApprenticeshipRequest csvRecord, int maxTrainingHoursReduction)
+    private static IEnumerable<Error> ValidateTrainingHoursReduction(BulkUploadAddDraftApprenticeshipRequest csvRecord, int maxTrainingHoursReduction)
     {
         if (!string.IsNullOrWhiteSpace(csvRecord.TrainingHoursReductionAsString) && csvRecord.RecognisePriorLearning.GetValueOrDefault() == false)
         {

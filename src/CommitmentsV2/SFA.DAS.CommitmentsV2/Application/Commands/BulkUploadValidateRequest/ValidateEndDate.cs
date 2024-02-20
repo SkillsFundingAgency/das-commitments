@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private List<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private static IEnumerable<Error> ValidateEndDate(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
         if (string.IsNullOrEmpty(csvRecord.EndDateAsString))

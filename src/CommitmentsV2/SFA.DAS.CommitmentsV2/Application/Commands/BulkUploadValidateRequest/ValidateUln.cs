@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private List<Error> ValidateUln(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private IEnumerable<Error> ValidateUln(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
            
@@ -42,11 +42,12 @@ public partial class BulkUploadValidateCommandHandler
                 }
             }
 
-            if (_csvRecords.Any(x => x.Uln == csvRecord.Uln && csvRecord.RowNumber > x.RowNumber))
+            if (_csvRecords.Exists(x => x.Uln == csvRecord.Uln && csvRecord.RowNumber > x.RowNumber))
             {
                 domainErrors.Add(new Error("Uln", $"The <b>unique learner number</b> has already been used for an apprentice in this file"));
             }
         }
+        
         return domainErrors;
     }
 
@@ -54,6 +55,7 @@ public partial class BulkUploadValidateCommandHandler
     {
         var learnerStartDate = csvRecord.StartDate;
         var learnerEndDate = csvRecord.EndDate;
+        
         if (learnerStartDate.HasValue && learnerEndDate.HasValue)
         {
             return _overlapService.CheckForOverlaps(csvRecord.Uln, new DateRange(learnerStartDate.Value, learnerEndDate.Value), null, CancellationToken.None).Result;

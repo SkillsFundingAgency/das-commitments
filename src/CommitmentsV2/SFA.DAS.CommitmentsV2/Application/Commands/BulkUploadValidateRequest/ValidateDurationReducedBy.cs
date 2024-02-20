@@ -5,9 +5,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private IEnumerable<Error> ValidateDurationReducedBy(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private static IEnumerable<Error> ValidateDurationReducedBy(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
-        if (!string.IsNullOrEmpty(csvRecord.IsDurationReducedByRPLAsString) && csvRecord.RecognisePriorLearning.GetValueOrDefault() == false)
+        if (!string.IsNullOrEmpty(csvRecord.IsDurationReducedByRPLAsString) && !csvRecord.RecognisePriorLearning.GetValueOrDefault())
         {
             yield return new Error("IsDurationReducedByRPL", "True or false should not be selected for <b>duration reduced</b> when recognise prior learning is false.");
             yield break;

@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
 
 public partial class BulkUploadValidateCommandHandler
 {
-    private List<Error> ValidateEmailAddress(BulkUploadAddDraftApprenticeshipRequest csvRecord)
+    private IEnumerable<Error> ValidateEmailAddress(BulkUploadAddDraftApprenticeshipRequest csvRecord)
     {
         var domainErrors = new List<Error>();
 
@@ -56,7 +56,7 @@ public partial class BulkUploadValidateCommandHandler
         return domainErrors;
     }
 
-    private bool IsAValidEmailAddress(string emailAsString)
+    private static bool IsAValidEmailAddress(string emailAsString)
     {
         try
         {
