@@ -60,8 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             CohortDomainService.Setup(x => x.ApproveCohort(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<Party>(), It.IsAny<CancellationToken>()));                
 
-            Handler = new BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler(Mock.Of<ILogger<BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler>>(),
-                ModelMapper.Object, CohortDomainService.Object, Mediator.Object, DbContext.Object);
+            Handler = new BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler(Mock.Of<ILogger<BulkUploadAddAndApproveDraftApprenticeshipsCommandHandler>>(), CohortDomainService.Object, Mediator.Object, DbContext.Object);
         }
 
         public Task Handle()

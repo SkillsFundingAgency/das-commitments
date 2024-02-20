@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             TrainingProgramme trainingProgramme = null;
 
-            if (standardVersions.Count() == 0)
+            if (standardVersions.Count == 0)
             {
                 return trainingProgramme;
             }

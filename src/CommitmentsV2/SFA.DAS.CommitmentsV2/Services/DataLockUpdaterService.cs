@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return;
             }
 
-            _logger.LogInformation($"{page.Count()} records returned in page");
+            _logger.LogInformation($"{page.Count} records returned in page");
 
             foreach (var dataLockStatus in page)
             {

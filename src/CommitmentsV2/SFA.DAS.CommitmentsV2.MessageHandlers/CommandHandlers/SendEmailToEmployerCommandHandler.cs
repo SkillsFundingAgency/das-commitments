@@ -75,13 +75,11 @@ public class SendEmailToEmployerCommandHandler : IHandleMessages<SendEmailToEmpl
             _logger.LogError(e, "Error processing {CommandName)}", nameof(SendEmailToEmployerCommand));
             throw;
         }
-
-        return;
-
-        bool IsOwnerOrTransactor(string role)
-        {
-            return role.Equals(Owner, StringComparison.InvariantCultureIgnoreCase) ||
-                   role.Equals(Transactor, StringComparison.InvariantCultureIgnoreCase);
-        }
+    }
+    
+    private static bool IsOwnerOrTransactor(string role)
+    {
+        return role.Equals(Owner, StringComparison.InvariantCultureIgnoreCase) ||
+               role.Equals(Transactor, StringComparison.InvariantCultureIgnoreCase);
     }
 }

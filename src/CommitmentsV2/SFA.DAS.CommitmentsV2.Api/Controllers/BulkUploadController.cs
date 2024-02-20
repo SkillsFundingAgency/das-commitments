@@ -58,7 +58,6 @@ public class BulkUploadController : ControllerBase
     [Route("validate")]
     public async Task<IActionResult> Validate(BulkUploadValidateApiRequest request, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation($"Received Bulk upload request for Provider : {request.ProviderId} with number of apprentices : {request.CsvRecords?.Count() ?? 0}");
         _logger.LogInformation("Received Bulk upload request for Provider : {ProviderId} with number of apprentices : {CsvRecords}", request.ProviderId, request.CsvRecords?.Count() ?? 0);
         var command = await _modelMapper.Map<BulkUploadValidateCommand>(request);
         var result = await _mediator.Send(command, cancellationToken);

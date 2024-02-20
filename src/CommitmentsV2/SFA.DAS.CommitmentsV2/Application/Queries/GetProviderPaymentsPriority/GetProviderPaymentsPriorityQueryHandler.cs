@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProviderPaymentsPriority
                 .ToList()
             };
 
-            _logger.LogInformation($"Retrieved {response.PriorityItems.Count()} Provider Payment Priorities for employer account {message.EmployerAccountId}");
+            _logger.LogInformation($"Retrieved {response.PriorityItems.Count} Provider Payment Priorities for employer account {message.EmployerAccountId}");
             
             return response;
         }

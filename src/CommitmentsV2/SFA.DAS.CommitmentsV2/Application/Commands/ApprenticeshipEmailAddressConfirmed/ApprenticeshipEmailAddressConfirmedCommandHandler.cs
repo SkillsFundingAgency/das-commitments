@@ -4,46 +4,45 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi;
 using SFA.DAS.CommitmentsV2.Models.ApprovalsOuterApi.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressConfirmed
+namespace SFA.DAS.CommitmentsV2.Application.Commands.ApprenticeshipEmailAddressConfirmed;
+
+public class ApprenticeshipEmailAddressConfirmedCommandHandler : IRequestHandler<ApprenticeshipEmailAddressConfirmedCommand>
 {
-    public class ApprenticeshipEmailAddressConfirmedCommandHandler : IRequestHandler<ApprenticeshipEmailAddressConfirmedCommand>
+    private readonly Lazy<ProviderCommitmentsDbContext> _db;
+    private readonly IApprovalsOuterApiClient _apimClient;
+    private readonly ILogger<ApprenticeshipEmailAddressConfirmedCommandHandler> _logger;
+
+    public ApprenticeshipEmailAddressConfirmedCommandHandler(Lazy<ProviderCommitmentsDbContext> db, IApprovalsOuterApiClient apimClient, ILogger<ApprenticeshipEmailAddressConfirmedCommandHandler> logger)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _db;
-        private readonly IApprovalsOuterApiClient _apimClient;
-        private readonly ILogger<ApprenticeshipEmailAddressConfirmedCommandHandler> _logger;
+        _db = db;
+        _apimClient = apimClient;
+        _logger = logger;
+    }
 
-        public ApprenticeshipEmailAddressConfirmedCommandHandler(Lazy<ProviderCommitmentsDbContext> db, IApprovalsOuterApiClient apimClient, ILogger<ApprenticeshipEmailAddressConfirmedCommandHandler> logger)
+    public async Task Handle(ApprenticeshipEmailAddressConfirmedCommand request, CancellationToken cancellationToken)
+    {
+        try
         {
-            _db = db;
-            _apimClient = apimClient;
-            _logger = logger;
+            var apprenticeshipTask = _db.Value.Apprenticeships.SingleAsync(a => a.Id == request.ApprenticeshipId, cancellationToken);
+
+            var apprenticeTask = _apimClient.Get<ApprenticeResponse>(new GetApprenticeRequest(request.ApprenticeId));
+
+            _logger.LogInformation("Getting Apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
+            
+            var apprenticeship = await apprenticeshipTask;
+            
+            _logger.LogInformation("Getting Apprentice details for apprentice {ApprenticeshipId}", request.ApprenticeId);
+            
+            var apprentice = await apprenticeTask;
+            
+            _logger.LogInformation("Setting Email Address for apprenticeship {ApprenticeshipId}", request.ApprenticeshipId);
+            
+            apprenticeship.ConfirmEmailAddress(apprentice.Email);
         }
-
-        public async Task Handle(ApprenticeshipEmailAddressConfirmedCommand request, CancellationToken cancellationToken)
+        catch (Exception e)
         {
-            try
-            {
-                var apprenticeshipTask = _db.Value.Apprenticeships.SingleAsync(a => a.Id == request.ApprenticeshipId, cancellationToken);
-
-                var apprenticeTask = _apimClient.Get<ApprenticeResponse>(new GetApprenticeRequest(request.ApprenticeId));
-
-                //await Task.WhenAll(apprenticeTask, apprenticeshipTask);
-
-                _logger.LogInformation("Getting Apprenticeship {0}", request.ApprenticeshipId);
-                var apprenticeship = await apprenticeshipTask;
-                _logger.LogInformation("Getting Apprentice details for apprentice {0}", request.ApprenticeId);
-                var apprentice = await apprenticeTask;
-
-                var status = apprenticeship.GetApprenticeshipStatus(DateTime.Now);
-
-                _logger.LogInformation("Setting Email Address for apprenticeship {0}", request.ApprenticeshipId);
-                apprenticeship.ConfirmEmailAddress(apprentice.Email);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Error recording ApprenticeshipEmailAddressConfirmed for apprenticeshipId {request.ApprenticeshipId}", e);
-                throw;
-            }
+            _logger.LogError(e, "Error recording ApprenticeshipEmailAddressConfirmed for apprenticeshipId {ApprenticeshipId}", request.ApprenticeshipId);
+            throw;
         }
     }
 }

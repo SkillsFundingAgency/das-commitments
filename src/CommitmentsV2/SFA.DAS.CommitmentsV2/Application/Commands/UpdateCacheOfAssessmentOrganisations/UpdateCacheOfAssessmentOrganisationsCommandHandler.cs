@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateCacheOfAssessmentOrga
 
             var allOrganisationSummaries = epaoResponse.Epaos.ToList();
 
-            _logger.LogInformation($"Fetched {allOrganisationSummaries.Count()} OrganisationSummaries");
+            _logger.LogInformation($"Fetched {allOrganisationSummaries.Count} OrganisationSummaries");
 
             var latestCachedEPAOrgId = _providerDbContext.Value.AssessmentOrganisations.Select(x => x.EpaOrgId)
                 .OrderByDescending(x => x).FirstOrDefault();

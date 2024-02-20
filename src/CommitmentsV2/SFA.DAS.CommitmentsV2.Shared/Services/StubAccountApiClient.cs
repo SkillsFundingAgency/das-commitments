@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services;
 /// Commitments stub of EAS Account Api Client
 /// https://github.com/SkillsFundingAgency/das-employerapprenticeshipsservice/blob/f506d4e401109312d4d787da8a9b004060326912/src/SFA.DAS.Account.Api.Client/AccountApiClient.cs
 /// </summary>
-public class StubAccountApiClient : IAccountApiClient
+public sealed class StubAccountApiClient : IAccountApiClient
 {
     private readonly HttpClient _httpClient;
     private const string BaseUri = "http://localhost:3999/accounts-api/api/";

@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Shared.Services;
 
-public class CreateCsvService : ICreateCsvService, IDisposable
+public sealed class CreateCsvService : ICreateCsvService, IDisposable
 {
     private MemoryStream _memoryStream;
     private StreamWriter _streamWriter;

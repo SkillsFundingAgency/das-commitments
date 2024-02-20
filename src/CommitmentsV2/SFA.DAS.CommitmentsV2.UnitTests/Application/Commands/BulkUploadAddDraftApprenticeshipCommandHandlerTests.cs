@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadAddDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Application.Commands.BulkUploadValidateRequest;
@@ -130,7 +129,7 @@ public class BulkUploadAddDraftApprenticeshipCommandHandlerTestsFixture
 
         MediatorService = new Mock<IMediator>();
         MediatorService.Setup(x => x.Send(It.IsAny<BulkUploadValidateCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => new BulkUploadValidateApiResponse { BulkUploadValidationErrors = new List<BulkUploadValidationError>() });
-        Handler = new BulkUploadAddDraftApprenticeshipCommandHandler(Mock.Of<ILogger<BulkUploadAddDraftApprenticeshipCommandHandler>>(), ModelMapper.Object, CohortDomainService.Object, DbContext, EncodingService.Object, MediatorService.Object);
+        Handler = new BulkUploadAddDraftApprenticeshipCommandHandler(ModelMapper.Object, CohortDomainService.Object, DbContext, EncodingService.Object);
         CancellationToken = new CancellationToken();
     }
 

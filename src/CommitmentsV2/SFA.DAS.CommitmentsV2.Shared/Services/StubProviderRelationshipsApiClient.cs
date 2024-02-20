@@ -6,7 +6,7 @@ using SFA.DAS.ProviderRelationships.Types.Models;
 
 namespace SFA.DAS.CommitmentsV2.Shared.Services;
 
-public class StubProviderRelationshipsApiClient : IProviderRelationshipsApiClient
+public sealed class StubProviderRelationshipsApiClient : IProviderRelationshipsApiClient
 {
     private readonly HttpClient _httpClient;
     private const string BaseUri = "http://localhost:3999/provider-relationships/api/";
@@ -63,8 +63,8 @@ public class StubProviderRelationshipsApiClient : IProviderRelationshipsApiClien
         throw new NotImplementedException();
     }
 
-    private class AccountProviderLegalEntityDtoWrapper : AccountProviderLegalEntityDto
+    private sealed class AccountProviderLegalEntityDtoWrapper : AccountProviderLegalEntityDto
     {
-        public List<Operation> Permissions { get; set; }
+        public List<Operation> Permissions { get; }
     }
 }

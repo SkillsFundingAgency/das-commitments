@@ -96,7 +96,7 @@ public class ApprenticeshipController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, e.Message);
+            _logger.LogError(e, "Exception thrown in {MethodName}.", nameof(GetApprenticeships));
             throw;
         }
     }
@@ -198,7 +198,7 @@ public class ApprenticeshipController : ControllerBase
     [Route("{apprenticeshipId}/resendinvitation")]
     public async Task<IActionResult> ResendInvitation(long apprenticeshipId, [FromBody] SaveDataRequest request)
     {
-        _logger.LogInformation("Resend invitation email for : " + apprenticeshipId);
+        _logger.LogInformation("Resend invitation email for : {Id}.", apprenticeshipId);
         await _mediator.Send(new ResendInvitationCommand(apprenticeshipId, request.UserInfo));
         return Accepted();
     }
