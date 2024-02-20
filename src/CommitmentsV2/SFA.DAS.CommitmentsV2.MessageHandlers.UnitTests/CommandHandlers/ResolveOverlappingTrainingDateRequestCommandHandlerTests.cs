@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         {
             var fixture = new ResolveOverlappingTrainingDateRequestCommandHandlerTestsFixture();
             fixture.WithNullRequestResolutionType();
-            Assert.ThrowsAsync<ArgumentNullException>(() => fixture.Handle());
+            Assert.ThrowsAsync<NullReferenceException>(() => fixture.Handle());
         }
 
         private class ResolveOverlappingTrainingDateRequestCommandHandlerTestsFixture

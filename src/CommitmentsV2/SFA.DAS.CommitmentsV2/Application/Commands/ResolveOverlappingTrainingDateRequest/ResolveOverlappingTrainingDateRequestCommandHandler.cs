@@ -1,22 +1,23 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest
+namespace SFA.DAS.CommitmentsV2.Application.Commands.ResolveOverlappingTrainingDateRequest;
+
+public class ResolveOverlappingTrainingDateRequestCommandHandler : IRequestHandler<ResolveOverlappingTrainingDateRequestCommand>
 {
-    public class ResolveOverlappingTrainingDateRequestCommandHandler : IRequestHandler<ResolveOverlappingTrainingDateRequestCommand>
+    private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
+
+    public ResolveOverlappingTrainingDateRequestCommandHandler(IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
     {
-        private readonly IResolveOverlappingTrainingDateRequestService _resolveOverlappingTrainingDateRequestService;
+        _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
+    }
 
-        public ResolveOverlappingTrainingDateRequestCommandHandler(IResolveOverlappingTrainingDateRequestService resolveOverlappingTrainingDateRequestService)
+    public async Task Handle(ResolveOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
+    {
+        if (request?.ResolutionType == null)
         {
-            _resolveOverlappingTrainingDateRequestService = resolveOverlappingTrainingDateRequestService;
+            throw new NullReferenceException(nameof(ResolveOverlappingTrainingDateRequestCommand.ResolutionType));
         }
 
-        public async Task Handle(ResolveOverlappingTrainingDateRequestCommand request, CancellationToken cancellationToken)
-        {
-            if (request?.ResolutionType == null)
-                throw new ArgumentNullException(nameof(ResolveOverlappingTrainingDateRequestCommand.ResolutionType));
-
-            await _resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, null, request.ResolutionType.Value);
-        }
+        await _resolveOverlappingTrainingDateRequestService.Resolve(request.ApprenticeshipId, null, request.ResolutionType.Value);
     }
 }

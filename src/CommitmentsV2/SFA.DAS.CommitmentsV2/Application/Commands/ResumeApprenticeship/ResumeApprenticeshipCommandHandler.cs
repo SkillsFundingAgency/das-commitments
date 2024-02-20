@@ -6,49 +6,48 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship
+namespace SFA.DAS.CommitmentsV2.Application.Commands.ResumeApprenticeship;
+
+public class ResumeApprenticeshipCommandHandler : IRequestHandler<ResumeApprenticeshipCommand>
 {
-    public class ResumeApprenticeshipCommandHandler : IRequestHandler<ResumeApprenticeshipCommand>
+    private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+    private readonly ICurrentDateTime _currentDate;
+    private readonly IAuthenticationService _authenticationService;
+    private readonly ILogger<ResumeApprenticeshipCommandHandler> _logger;
+
+    public ResumeApprenticeshipCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
+        ICurrentDateTime currentDate,
+        IAuthenticationService authenticationService,
+        ILogger<ResumeApprenticeshipCommandHandler> logger)
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ICurrentDateTime _currentDate;
-        private readonly IAuthenticationService _authenticationService;
-        private readonly ILogger<ResumeApprenticeshipCommandHandler> _logger;
+        _dbContext = dbContext;
+        _currentDate = currentDate;
+        _authenticationService = authenticationService;
+        _logger = logger;
+    }
 
-        public ResumeApprenticeshipCommandHandler(Lazy<ProviderCommitmentsDbContext> dbContext,
-            ICurrentDateTime currentDate,
-            IAuthenticationService authenticationService,
-            ILogger<ResumeApprenticeshipCommandHandler> logger)
+    public async Task Handle(ResumeApprenticeshipCommand command, CancellationToken cancellationToken)
+    {
+        try
         {
-            _dbContext = dbContext;
-            _currentDate = currentDate;
-            _authenticationService = authenticationService;
-            _logger = logger;
+            var party = _authenticationService.GetUserParty();
+            CheckPartyIsValid(party);
+
+            var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
+            apprenticeship.ResumeApprenticeship(_currentDate, party, command.UserInfo);
         }
-
-        public async Task Handle(ResumeApprenticeshipCommand command, CancellationToken cancellationToken)
+        catch (Exception e)
         {
-            try
-            {
-                var party = _authenticationService.GetUserParty();
-                CheckPartyIsValid(party);
-
-                var apprenticeship = await _dbContext.Value.GetApprenticeshipAggregate(command.ApprenticeshipId, cancellationToken);
-                apprenticeship.ResumeApprenticeship(_currentDate, party, command.UserInfo);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Error Resuming Apprenticeship with id {command.ApprenticeshipId}", e);
-                throw;
-            }
+            _logger.LogError(e, "Error Resuming Apprenticeship with id {ApprenticeshipId}", command.ApprenticeshipId);
+            throw;
         }
+    }
 
-        private static void CheckPartyIsValid(Party party)
+    private static void CheckPartyIsValid(Party party)
+    {
+        if (party != Party.Employer)
         {
-            if (party != Party.Employer)
-            {
-                throw new DomainException(nameof(party), $"Only employers are allowed to edit the end of completed records - {party} is invalid");
-            }
+            throw new DomainException(nameof(party), $"Only employers are allowed to edit the end of completed records - {party} is invalid");
         }
     }
 }
