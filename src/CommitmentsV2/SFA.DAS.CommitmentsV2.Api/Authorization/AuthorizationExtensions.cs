@@ -4,6 +4,19 @@ using Microsoft.Extensions.Hosting;
 
 namespace SFA.DAS.CommitmentsV2.Api.Authorization;
 
+public static class PolicyNames
+{
+    public const string Default = "default";
+    public const string Employer = nameof(Employer);
+    public const string Provider = nameof(Provider);
+}
+
+public static class RoleNames
+{
+    public const string Employer = nameof(Employer);
+    public const string Provider = nameof(Provider);
+}
+
 public static class AuthorizationExtensions
 {
     public static IServiceCollection AddApiAuthorization(this IServiceCollection services, IWebHostEnvironment environment)
@@ -18,7 +31,7 @@ public static class AuthorizationExtensions
 
             AddEmployerPolicies(options, isDevelopment);
 
-            options.DefaultPolicy = options.GetPolicy("default");
+            options.DefaultPolicy = options.GetPolicy(PolicyNames.Default);
         });
             
         if (isDevelopment)
@@ -31,35 +44,35 @@ public static class AuthorizationExtensions
 
     private static void AddEmployerPolicies(AuthorizationOptions options, bool isDevelopment)
     {
-        options.AddPolicy("Employer", policy =>
+        options.AddPolicy(PolicyNames.Employer, policy =>
         {
             if (isDevelopment)
                 policy.AllowAnonymousUser();
             else
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireRole("Employer");
+                policy.RequireRole(RoleNames.Employer);
             }
         });
     }
 
     private static void AddProviderPolicies(AuthorizationOptions options, bool isDevelopment)
     {
-        options.AddPolicy("Provider", policy =>
+        options.AddPolicy(PolicyNames.Provider, policy =>
         {
             if (isDevelopment)
                 policy.AllowAnonymousUser();
             else
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireRole("Provider");
+                policy.RequireRole(RoleNames.Provider);
             }
         });
     }
 
     private static void AddDefaultPolicy(AuthorizationOptions options, bool isDevelopment)
     {
-        options.AddPolicy("default", policy =>
+        options.AddPolicy(PolicyNames.Default, policy =>
         {
             if (isDevelopment)
                 policy.AllowAnonymousUser();

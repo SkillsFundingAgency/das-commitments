@@ -98,7 +98,7 @@ public class AddCohortCommandHandlerTestFixture : IDisposable
 
     public TestLogger Logger { get; }
     public UserInfo UserInfo { get; }
-    public static Party RequestingParty = Party.Provider;
+    public const Party RequestingParty = Party.Provider;
 
     public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
     {
